@@ -1,0 +1,33 @@
+{
+  "name": "alef",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hebrew Reading Game for First Graders",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@types/howler": "^2.2.12",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "framer-motion": "^12.23.26",
+    "howler": "^2.2.4",
+    "js-yaml": "^4.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.10.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.7",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@modyfi/vite-plugin-yaml": "^1.1.1",
+    "@rollup/plugin-yaml": "^4.1.2"
+  }
+}

@@ -1,0 +1,132 @@
+# Hebrew Sentences for First Graders
+# Simple 3-5 word sentences using learned vocabulary
+
+sentences:
+  # Level 1: Very simple 2-3 word sentences
+  - id: ima-holehet
+    sentence: אִמָּא הוֹלֶכֶת
+    words: ["אִמָּא", "הוֹלֶכֶת"]
+    translation: Mom is walking
+    difficulty: 1
+    audioSentence: sentences/ima-holehet.mp3
+
+  - id: aba-ochel
+    sentence: אַבָּא אוֹכֵל
+    words: ["אַבָּא", "אוֹכֵל"]
+    translation: Dad is eating
+    difficulty: 1
+    audioSentence: sentences/aba-ochel.mp3
+
+  - id: kelev-ratz
+    sentence: הַכֶּלֶב רָץ
+    words: ["הַכֶּלֶב", "רָץ"]
+    translation: The dog runs
+    difficulty: 1
+    audioSentence: sentences/kelev-ratz.mp3
+
+  - id: chatul-yoshev
+    sentence: הֶחָתוּל יוֹשֵׁב
+    words: ["הֶחָתוּל", "יוֹשֵׁב"]
+    translation: The cat sits
+    difficulty: 1
+    audioSentence: sentences/chatul-yoshev.mp3
+
+  # Level 2: 3-4 word sentences
+  - id: yeled-ochel-tapuach
+    sentence: הַיֶּלֶד אוֹכֵל תַּפּוּחַ
+    words: ["הַיֶּלֶד", "אוֹכֵל", "תַּפּוּחַ"]
+    translation: The boy eats an apple
+    difficulty: 2
+    audioSentence: sentences/yeled-ochel-tapuach.mp3
+
+  - id: yalda-shotha-mayim
+    sentence: הַיַּלְדָּה שׁוֹתָה מַיִם
+    words: ["הַיַּלְדָּה", "שׁוֹתָה", "מַיִם"]
+    translation: The girl drinks water
+    difficulty: 2
+    audioSentence: sentences/yalda-shotha-mayim.mp3
+
+  - id: kelev-babayit
+    sentence: הַכֶּלֶב בַּבַּיִת
+    words: ["הַכֶּלֶב", "בַּבַּיִת"]
+    translation: The dog is in the house
+    difficulty: 2
+    audioSentence: sentences/kelev-babayit.mp3
+
+  - id: sefer-al-hashulchan
+    sentence: הַסֵּפֶר עַל הַשֻּׁלְחָן
+    words: ["הַסֵּפֶר", "עַל", "הַשֻּׁלְחָן"]
+    translation: The book is on the table
+    difficulty: 2
+    audioSentence: sentences/sefer-al-hashulchan.mp3
+
+  # Level 3: 4-5 word sentences
+  - id: ima-ochelet-lechem
+    sentence: אִמָּא אוֹכֶלֶת לֶחֶם טָעִים
+    words: ["אִמָּא", "אוֹכֶלֶת", "לֶחֶם", "טָעִים"]
+    translation: Mom eats tasty bread
+    difficulty: 3
+    audioSentence: sentences/ima-ochelet-lechem.mp3
+
+  - id: hashemesh-zochahat
+    sentence: הַשֶּׁמֶשׁ זוֹרַחַת בַּשָּׁמַיִם
+    words: ["הַשֶּׁמֶשׁ", "זוֹרַחַת", "בַּשָּׁמַיִם"]
+    translation: The sun shines in the sky
+    difficulty: 3
+    audioSentence: sentences/hashemesh-zochahat.mp3
+
+  - id: yeled-vekelev
+    sentence: הַיֶּלֶד וְהַכֶּלֶב רָצִים
+    words: ["הַיֶּלֶד", "וְהַכֶּלֶב", "רָצִים"]
+    translation: The boy and the dog run
+    difficulty: 3
+    audioSentence: sentences/yeled-vekelev.mp3
+
+  - id: tapuach-adom
+    sentence: הַתַּפּוּחַ הָאָדֹם טָעִים
+    words: ["הַתַּפּוּחַ", "הָאָדֹם", "טָעִים"]
+    translation: The red apple is tasty
+    difficulty: 3
+    audioSentence: sentences/tapuach-adom.mp3
+
+# Comprehension questions for sentences
+comprehension:
+  - sentenceId: kelev-ratz
+    question: מָה עוֹשֶׂה הַכֶּלֶב?
+    options:
+      - text: רָץ
+        isCorrect: true
+      - text: יוֹשֵׁב
+        isCorrect: false
+      - text: אוֹכֵל
+        isCorrect: false
+
+  - sentenceId: yeled-ochel-tapuach
+    question: מָה הַיֶּלֶד אוֹכֵל?
+    options:
+      - text: תַּפּוּחַ
+        isCorrect: true
+      - text: לֶחֶם
+        isCorrect: false
+      - text: מַיִם
+        isCorrect: false
+
+  - sentenceId: yalda-shotha-mayim
+    question: מָה הַיַּלְדָּה שׁוֹתָה?
+    options:
+      - text: מַיִם
+        isCorrect: true
+      - text: חָלָב
+        isCorrect: false
+      - text: תַּפּוּחַ
+        isCorrect: false
+
+  - sentenceId: tapuach-adom
+    question: מָה הַצֶּבַע שֶׁל הַתַּפּוּחַ?
+    options:
+      - text: אָדֹם
+        isCorrect: true
+      - text: יָרֹק
+        isCorrect: false
+      - text: כָּחֹל
+        isCorrect: false

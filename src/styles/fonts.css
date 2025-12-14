@@ -1,0 +1,21 @@
+/* Hebrew Fonts for Alef Reading Game */
+
+/* Hillel CLM - Print/Block letter font */
+@font-face {
+  font-family: 'Hillel CLM';
+  src: url('/fonts/hillel/hillelclm-medium-webfont.woff') format('woff'),
+       url('/fonts/hillel/hillelclm-medium-webfont.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Dana Yad - Cursive/Handwritten font */
+@font-face {
+  font-family: 'Dana Yad';
+  src: url('/fonts/danayad/DanaYadAlefAlefAlef-Normal.woff') format('woff'),
+       url('/fonts/danayad/DanaYadAlefAlefAlef-Normal.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

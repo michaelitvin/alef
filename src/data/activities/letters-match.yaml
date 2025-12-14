@@ -1,0 +1,201 @@
+# Letters Match Activity
+# Match letters to their names/sounds
+
+id: letters-match
+name: התאם אות לשם
+description: התאם כל אות לשם שלה
+type: match
+level: letters
+successThreshold: 0.8  # 80% correct matches
+minItems: 4  # Minimum pairs to show
+
+# Groups of letters for matching exercises
+# Each group has 4-6 letters that the child will match
+matchGroups:
+  # Group 1: First letters
+  - id: match-group-1
+    name: אותיות א-ה
+    letters: [alef, bet, gimel, dalet, he]
+
+  # Group 2: Vav through Yod
+  - id: match-group-2
+    name: אותיות ו-י
+    letters: [vav, zayin, chet, tet, yod]
+
+  # Group 3: Kaf through Nun
+  - id: match-group-3
+    name: אותיות כ-נ
+    letters: [kaf, lamed, mem, nun]
+
+  # Group 4: Samech through Tsadi
+  - id: match-group-4
+    name: אותיות ס-צ
+    letters: [samech, ayin, pe, tsadi]
+
+  # Group 5: Qof through Tav
+  - id: match-group-5
+    name: אותיות ק-ת
+    letters: [qof, resh, shin, tav]
+
+  # Group 6: Sofiyot
+  - id: match-group-6
+    name: אותיות סופיות
+    letters: [kaf-sofit, mem-sofit, nun-sofit, pe-sofit, tsadi-sofit]
+
+  # Group 7: Similar looking letters
+  - id: match-group-7
+    name: אותיות דומות
+    letters: [bet, kaf, pe, nun]
+
+  # Group 8: Round letters
+  - id: match-group-8
+    name: אותיות עגולות
+    letters: [samech, mem, tet, ayin]
+
+  # Group 9: Tall letters
+  - id: match-group-9
+    name: אותיות גבוהות
+    letters: [lamed, kaf, nun, vav]
+
+  # Group 10: Mixed review
+  - id: match-group-10
+    name: סקירה מעורבת
+    letters: [alef, shin, mem, tav, he, bet]
+
+# Individual match items for specific letter pairs
+items:
+  - id: match-alef
+    type: letter-match
+    targetId: alef
+    prompt: התאם את האות א לשם שלה
+
+  - id: match-bet
+    type: letter-match
+    targetId: bet
+    prompt: התאם את האות ב לשם שלה
+
+  - id: match-gimel
+    type: letter-match
+    targetId: gimel
+    prompt: התאם את האות ג לשם שלה
+
+  - id: match-dalet
+    type: letter-match
+    targetId: dalet
+    prompt: התאם את האות ד לשם שלה
+
+  - id: match-he
+    type: letter-match
+    targetId: he
+    prompt: התאם את האות ה לשם שלה
+
+  - id: match-vav
+    type: letter-match
+    targetId: vav
+    prompt: התאם את האות ו לשם שלה
+
+  - id: match-zayin
+    type: letter-match
+    targetId: zayin
+    prompt: התאם את האות ז לשם שלה
+
+  - id: match-chet
+    type: letter-match
+    targetId: chet
+    prompt: התאם את האות ח לשם שלה
+
+  - id: match-tet
+    type: letter-match
+    targetId: tet
+    prompt: התאם את האות ט לשם שלה
+
+  - id: match-yod
+    type: letter-match
+    targetId: yod
+    prompt: התאם את האות י לשם שלה
+
+  - id: match-kaf
+    type: letter-match
+    targetId: kaf
+    prompt: התאם את האות כ לשם שלה
+
+  - id: match-lamed
+    type: letter-match
+    targetId: lamed
+    prompt: התאם את האות ל לשם שלה
+
+  - id: match-mem
+    type: letter-match
+    targetId: mem
+    prompt: התאם את האות מ לשם שלה
+
+  - id: match-nun
+    type: letter-match
+    targetId: nun
+    prompt: התאם את האות נ לשם שלה
+
+  - id: match-samech
+    type: letter-match
+    targetId: samech
+    prompt: התאם את האות ס לשם שלה
+
+  - id: match-ayin
+    type: letter-match
+    targetId: ayin
+    prompt: התאם את האות ע לשם שלה
+
+  - id: match-pe
+    type: letter-match
+    targetId: pe
+    prompt: התאם את האות פ לשם שלה
+
+  - id: match-tsadi
+    type: letter-match
+    targetId: tsadi
+    prompt: התאם את האות צ לשם שלה
+
+  - id: match-qof
+    type: letter-match
+    targetId: qof
+    prompt: התאם את האות ק לשם שלה
+
+  - id: match-resh
+    type: letter-match
+    targetId: resh
+    prompt: התאם את האות ר לשם שלה
+
+  - id: match-shin
+    type: letter-match
+    targetId: shin
+    prompt: התאם את האות ש לשם שלה
+
+  - id: match-tav
+    type: letter-match
+    targetId: tav
+    prompt: התאם את האות ת לשם שלה
+
+  # Sofiyot matches
+  - id: match-kaf-sofit
+    type: letter-match
+    targetId: kaf-sofit
+    prompt: התאם את הכָּף הסוֹפִית לשם שלה
+
+  - id: match-mem-sofit
+    type: letter-match
+    targetId: mem-sofit
+    prompt: התאם את המֵם הסוֹפִית לשם שלה
+
+  - id: match-nun-sofit
+    type: letter-match
+    targetId: nun-sofit
+    prompt: התאם את הנוּן הסוֹפִית לשם שלה
+
+  - id: match-pe-sofit
+    type: letter-match
+    targetId: pe-sofit
+    prompt: התאם את הפֵּא הסוֹפִית לשם שלה
+
+  - id: match-tsadi-sofit
+    type: letter-match
+    targetId: tsadi-sofit
+    prompt: התאם את הצָדִי הסוֹפִית לשם שלה

@@ -1,0 +1,175 @@
+# Letters Introduction Activity
+# Introduces each Hebrew letter with visual, name audio, and sound audio
+
+id: letters-intro
+name: הכרת האותיות
+description: למד להכיר את האותיות העבריות
+type: intro
+level: letters
+successThreshold: 1.0  # Just viewing counts as success
+minItems: 1
+
+# Each letter gets its own intro - items reference letter IDs from letters.yaml
+items:
+  - id: intro-alef
+    type: letter-identify
+    targetId: alef
+    prompt: זוהי האות אָלֶף
+    promptAudio: letters/alef-name.mp3
+
+  - id: intro-bet
+    type: letter-identify
+    targetId: bet
+    prompt: זוהי האות בֵּית
+    promptAudio: letters/bet-name.mp3
+
+  - id: intro-gimel
+    type: letter-identify
+    targetId: gimel
+    prompt: זוהי האות גִּימֶל
+    promptAudio: letters/gimel-name.mp3
+
+  - id: intro-dalet
+    type: letter-identify
+    targetId: dalet
+    prompt: זוהי האות דָּלֶת
+    promptAudio: letters/dalet-name.mp3
+
+  - id: intro-he
+    type: letter-identify
+    targetId: he
+    prompt: זוהי האות הֵא
+    promptAudio: letters/he-name.mp3
+
+  - id: intro-vav
+    type: letter-identify
+    targetId: vav
+    prompt: זוהי האות וָו
+    promptAudio: letters/vav-name.mp3
+
+  - id: intro-zayin
+    type: letter-identify
+    targetId: zayin
+    prompt: זוהי האות זַיִן
+    promptAudio: letters/zayin-name.mp3
+
+  - id: intro-chet
+    type: letter-identify
+    targetId: chet
+    prompt: זוהי האות חֵית
+    promptAudio: letters/chet-name.mp3
+
+  - id: intro-tet
+    type: letter-identify
+    targetId: tet
+    prompt: זוהי האות טֵית
+    promptAudio: letters/tet-name.mp3
+
+  - id: intro-yod
+    type: letter-identify
+    targetId: yod
+    prompt: זוהי האות יוֹד
+    promptAudio: letters/yod-name.mp3
+
+  - id: intro-kaf
+    type: letter-identify
+    targetId: kaf
+    prompt: זוהי האות כָּף
+    promptAudio: letters/kaf-name.mp3
+
+  - id: intro-lamed
+    type: letter-identify
+    targetId: lamed
+    prompt: זוהי האות לָמֶד
+    promptAudio: letters/lamed-name.mp3
+
+  - id: intro-mem
+    type: letter-identify
+    targetId: mem
+    prompt: זוהי האות מֵם
+    promptAudio: letters/mem-name.mp3
+
+  - id: intro-nun
+    type: letter-identify
+    targetId: nun
+    prompt: זוהי האות נוּן
+    promptAudio: letters/nun-name.mp3
+
+  - id: intro-samech
+    type: letter-identify
+    targetId: samech
+    prompt: זוהי האות סָמֶך
+    promptAudio: letters/samech-name.mp3
+
+  - id: intro-ayin
+    type: letter-identify
+    targetId: ayin
+    prompt: זוהי האות עַיִן
+    promptAudio: letters/ayin-name.mp3
+
+  - id: intro-pe
+    type: letter-identify
+    targetId: pe
+    prompt: זוהי האות פֵּא
+    promptAudio: letters/pe-name.mp3
+
+  - id: intro-tsadi
+    type: letter-identify
+    targetId: tsadi
+    prompt: זוהי האות צָדִי
+    promptAudio: letters/tsadi-name.mp3
+
+  - id: intro-qof
+    type: letter-identify
+    targetId: qof
+    prompt: זוהי האות קוֹף
+    promptAudio: letters/qof-name.mp3
+
+  - id: intro-resh
+    type: letter-identify
+    targetId: resh
+    prompt: זוהי האות רֵישׁ
+    promptAudio: letters/resh-name.mp3
+
+  - id: intro-shin
+    type: letter-identify
+    targetId: shin
+    prompt: זוהי האות שִׁין
+    promptAudio: letters/shin-name.mp3
+
+  - id: intro-tav
+    type: letter-identify
+    targetId: tav
+    prompt: זוהי האות תָּו
+    promptAudio: letters/tav-name.mp3
+
+  # Sofiyot (final letters)
+  - id: intro-kaf-sofit
+    type: letter-identify
+    targetId: kaf-sofit
+    prompt: זוהי האות כָּף סוֹפִית
+    promptAudio: letters/kaf-sofit-name.mp3
+
+  - id: intro-mem-sofit
+    type: letter-identify
+    targetId: mem-sofit
+    prompt: זוהי האות מֵם סוֹפִית
+    promptAudio: letters/mem-sofit-name.mp3
+
+  - id: intro-nun-sofit
+    type: letter-identify
+    targetId: nun-sofit
+    prompt: זוהי האות נוּן סוֹפִית
+    promptAudio: letters/nun-sofit-name.mp3
+
+  - id: intro-pe-sofit
+    type: letter-identify
+    targetId: pe-sofit
+    prompt: זוהי האות פֵּא סוֹפִית
+    promptAudio: letters/pe-sofit-name.mp3
+
+  - id: intro-tsadi-sofit
+    type: letter-identify
+    targetId: tsadi-sofit
+    prompt: זוהי האות צָדִי סוֹפִית
+    promptAudio: letters/tsadi-sofit-name.mp3

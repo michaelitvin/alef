@@ -1,0 +1,372 @@
+{
+  "version": 1,
+  "lastUpdated": "2025-12-13T23:14:41.915Z",
+  "generated": {
+    "letter-alef-name": {
+      "id": "letter-alef-name",
+      "type": "letter",
+      "text": "אָלֶף",
+      "filepath": "/letters/alef-name.mp3",
+      "generatedAt": "2025-12-13T23:13:25.490Z"
+    },
+    "letter-bet-name": {
+      "id": "letter-bet-name",
+      "type": "letter",
+      "text": "בֵּית",
+      "filepath": "/letters/bet-name.mp3",
+      "generatedAt": "2025-12-13T23:13:26.724Z"
+    },
+    "letter-bet-sound": {
+      "id": "letter-bet-sound",
+      "type": "letter",
+      "text": "b",
+      "filepath": "/letters/bet-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:28.634Z"
+    },
+    "letter-gimel-name": {
+      "id": "letter-gimel-name",
+      "type": "letter",
+      "text": "גִּימֶל",
+      "filepath": "/letters/gimel-name.mp3",
+      "generatedAt": "2025-12-13T23:13:30.159Z"
+    },
+    "letter-gimel-sound": {
+      "id": "letter-gimel-sound",
+      "type": "letter",
+      "text": "g",
+      "filepath": "/letters/gimel-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:31.873Z"
+    },
+    "letter-dalet-name": {
+      "id": "letter-dalet-name",
+      "type": "letter",
+      "text": "דָּלֶת",
+      "filepath": "/letters/dalet-name.mp3",
+      "generatedAt": "2025-12-13T23:13:33.806Z"
+    },
+    "letter-dalet-sound": {
+      "id": "letter-dalet-sound",
+      "type": "letter",
+      "text": "d",
+      "filepath": "/letters/dalet-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:34.975Z"
+    },
+    "letter-he-name": {
+      "id": "letter-he-name",
+      "type": "letter",
+      "text": "הֵא",
+      "filepath": "/letters/he-name.mp3",
+      "generatedAt": "2025-12-13T23:13:36.867Z"
+    },
+    "letter-he-sound": {
+      "id": "letter-he-sound",
+      "type": "letter",
+      "text": "h",
+      "filepath": "/letters/he-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:38.357Z"
+    },
+    "letter-vav-name": {
+      "id": "letter-vav-name",
+      "type": "letter",
+      "text": "וָו",
+      "filepath": "/letters/vav-name.mp3",
+      "generatedAt": "2025-12-13T23:13:39.568Z"
+    },
+    "letter-vav-sound": {
+      "id": "letter-vav-sound",
+      "type": "letter",
+      "text": "v",
+      "filepath": "/letters/vav-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:41.173Z"
+    },
+    "letter-zayin-name": {
+      "id": "letter-zayin-name",
+      "type": "letter",
+      "text": "זַיִן",
+      "filepath": "/letters/zayin-name.mp3",
+      "generatedAt": "2025-12-13T23:13:42.606Z"
+    },
+    "letter-zayin-sound": {
+      "id": "letter-zayin-sound",
+      "type": "letter",
+      "text": "z",
+      "filepath": "/letters/zayin-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:43.866Z"
+    },
+    "letter-chet-name": {
+      "id": "letter-chet-name",
+      "type": "letter",
+      "text": "חֵית",
+      "filepath": "/letters/chet-name.mp3",
+      "generatedAt": "2025-12-13T23:13:45.190Z"
+    },
+    "letter-chet-sound": {
+      "id": "letter-chet-sound",
+      "type": "letter",
+      "text": "ch",
+      "filepath": "/letters/chet-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:46.443Z"
+    },
+    "letter-tet-name": {
+      "id": "letter-tet-name",
+      "type": "letter",
+      "text": "טֵית",
+      "filepath": "/letters/tet-name.mp3",
+      "generatedAt": "2025-12-13T23:13:47.794Z"
+    },
+    "letter-tet-sound": {
+      "id": "letter-tet-sound",
+      "type": "letter",
+      "text": "t",
+      "filepath": "/letters/tet-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:48.921Z"
+    },
+    "letter-yod-name": {
+      "id": "letter-yod-name",
+      "type": "letter",
+      "text": "יוֹד",
+      "filepath": "/letters/yod-name.mp3",
+      "generatedAt": "2025-12-13T23:13:50.469Z"
+    },
+    "letter-yod-sound": {
+      "id": "letter-yod-sound",
+      "type": "letter",
+      "text": "y",
+      "filepath": "/letters/yod-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:51.684Z"
+    },
+    "letter-kaf-name": {
+      "id": "letter-kaf-name",
+      "type": "letter",
+      "text": "כָּף",
+      "filepath": "/letters/kaf-name.mp3",
+      "generatedAt": "2025-12-13T23:13:53.148Z"
+    },
+    "letter-kaf-sound": {
+      "id": "letter-kaf-sound",
+      "type": "letter",
+      "text": "k",
+      "filepath": "/letters/kaf-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:54.330Z"
+    },
+    "letter-lamed-name": {
+      "id": "letter-lamed-name",
+      "type": "letter",
+      "text": "לָמֶד",
+      "filepath": "/letters/lamed-name.mp3",
+      "generatedAt": "2025-12-13T23:13:55.576Z"
+    },
+    "letter-lamed-sound": {
+      "id": "letter-lamed-sound",
+      "type": "letter",
+      "text": "l",
+      "filepath": "/letters/lamed-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:56.992Z"
+    },
+    "letter-mem-name": {
+      "id": "letter-mem-name",
+      "type": "letter",
+      "text": "מֵם",
+      "filepath": "/letters/mem-name.mp3",
+      "generatedAt": "2025-12-13T23:13:58.372Z"
+    },
+    "letter-mem-sound": {
+      "id": "letter-mem-sound",
+      "type": "letter",
+      "text": "m",
+      "filepath": "/letters/mem-sound.mp3",
+      "generatedAt": "2025-12-13T23:13:59.752Z"
+    },
+    "letter-nun-name": {
+      "id": "letter-nun-name",
+      "type": "letter",
+      "text": "נוּן",
+      "filepath": "/letters/nun-name.mp3",
+      "generatedAt": "2025-12-13T23:14:01.488Z"
+    },
+    "letter-nun-sound": {
+      "id": "letter-nun-sound",
+      "type": "letter",
+      "text": "n",
+      "filepath": "/letters/nun-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:02.579Z"
+    },
+    "letter-samech-name": {
+      "id": "letter-samech-name",
+      "type": "letter",
+      "text": "סָמֶך",
+      "filepath": "/letters/samech-name.mp3",
+      "generatedAt": "2025-12-13T23:14:03.973Z"
+    },
+    "letter-samech-sound": {
+      "id": "letter-samech-sound",
+      "type": "letter",
+      "text": "s",
+      "filepath": "/letters/samech-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:05.542Z"
+    },
+    "letter-ayin-name": {
+      "id": "letter-ayin-name",
+      "type": "letter",
+      "text": "עַיִן",
+      "filepath": "/letters/ayin-name.mp3",
+      "generatedAt": "2025-12-13T23:14:06.891Z"
+    },
+    "letter-pe-name": {
+      "id": "letter-pe-name",
+      "type": "letter",
+      "text": "פֵּא",
+      "filepath": "/letters/pe-name.mp3",
+      "generatedAt": "2025-12-13T23:14:08.581Z"
+    },
+    "letter-pe-sound": {
+      "id": "letter-pe-sound",
+      "type": "letter",
+      "text": "p",
+      "filepath": "/letters/pe-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:09.993Z"
+    },
+    "letter-tsadi-name": {
+      "id": "letter-tsadi-name",
+      "type": "letter",
+      "text": "צָדִי",
+      "filepath": "/letters/tsadi-name.mp3",
+      "generatedAt": "2025-12-13T23:14:11.315Z"
+    },
+    "letter-tsadi-sound": {
+      "id": "letter-tsadi-sound",
+      "type": "letter",
+      "text": "ts",
+      "filepath": "/letters/tsadi-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:12.565Z"
+    },
+    "letter-qof-name": {
+      "id": "letter-qof-name",
+      "type": "letter",
+      "text": "קוֹף",
+      "filepath": "/letters/qof-name.mp3",
+      "generatedAt": "2025-12-13T23:14:14.043Z"
+    },
+    "letter-qof-sound": {
+      "id": "letter-qof-sound",
+      "type": "letter",
+      "text": "k",
+      "filepath": "/letters/qof-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:15.888Z"
+    },
+    "letter-resh-name": {
+      "id": "letter-resh-name",
+      "type": "letter",
+      "text": "רֵישׁ",
+      "filepath": "/letters/resh-name.mp3",
+      "generatedAt": "2025-12-13T23:14:17.789Z"
+    },
+    "letter-resh-sound": {
+      "id": "letter-resh-sound",
+      "type": "letter",
+      "text": "r",
+      "filepath": "/letters/resh-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:18.968Z"
+    },
+    "letter-shin-name": {
+      "id": "letter-shin-name",
+      "type": "letter",
+      "text": "שִׁין",
+      "filepath": "/letters/shin-name.mp3",
+      "generatedAt": "2025-12-13T23:14:20.486Z"
+    },
+    "letter-shin-sound": {
+      "id": "letter-shin-sound",
+      "type": "letter",
+      "text": "sh",
+      "filepath": "/letters/shin-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:22.557Z"
+    },
+    "letter-tav-name": {
+      "id": "letter-tav-name",
+      "type": "letter",
+      "text": "תָּו",
+      "filepath": "/letters/tav-name.mp3",
+      "generatedAt": "2025-12-13T23:14:23.963Z"
+    },
+    "letter-tav-sound": {
+      "id": "letter-tav-sound",
+      "type": "letter",
+      "text": "t",
+      "filepath": "/letters/tav-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:25.039Z"
+    },
+    "letter-kaf-sofit-name": {
+      "id": "letter-kaf-sofit-name",
+      "type": "letter",
+      "text": "כָּף סוֹפִית",
+      "filepath": "/letters/kaf-sofit-name.mp3",
+      "generatedAt": "2025-12-13T23:14:26.668Z"
+    },
+    "letter-kaf-sofit-sound": {
+      "id": "letter-kaf-sofit-sound",
+      "type": "letter",
+      "text": "ch",
+      "filepath": "/letters/kaf-sofit-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:28.255Z"
+    },
+    "letter-mem-sofit-name": {
+      "id": "letter-mem-sofit-name",
+      "type": "letter",
+      "text": "מֵם סוֹפִית",
+      "filepath": "/letters/mem-sofit-name.mp3",
+      "generatedAt": "2025-12-13T23:14:30.682Z"
+    },
+    "letter-mem-sofit-sound": {
+      "id": "letter-mem-sofit-sound",
+      "type": "letter",
+      "text": "m",
+      "filepath": "/letters/mem-sofit-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:31.934Z"
+    },
+    "letter-nun-sofit-name": {
+      "id": "letter-nun-sofit-name",
+      "type": "letter",
+      "text": "נוּן סוֹפִית",
+      "filepath": "/letters/nun-sofit-name.mp3",
+      "generatedAt": "2025-12-13T23:14:33.476Z"
+    },
+    "letter-nun-sofit-sound": {
+      "id": "letter-nun-sofit-sound",
+      "type": "letter",
+      "text": "n",
+      "filepath": "/letters/nun-sofit-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:34.965Z"
+    },
+    "letter-pe-sofit-name": {
+      "id": "letter-pe-sofit-name",
+      "type": "letter",
+      "text": "פֵּא סוֹפִית",
+      "filepath": "/letters/pe-sofit-name.mp3",
+      "generatedAt": "2025-12-13T23:14:36.993Z"
+    },
+    "letter-pe-sofit-sound": {
+      "id": "letter-pe-sofit-sound",
+      "type": "letter",
+      "text": "f",
+      "filepath": "/letters/pe-sofit-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:38.434Z"
+    },
+    "letter-tsadi-sofit-name": {
+      "id": "letter-tsadi-sofit-name",
+      "type": "letter",
+      "text": "צָדִי סוֹפִית",
+      "filepath": "/letters/tsadi-sofit-name.mp3",
+      "generatedAt": "2025-12-13T23:14:39.925Z"
+    },
+    "letter-tsadi-sofit-sound": {
+      "id": "letter-tsadi-sofit-sound",
+      "type": "letter",
+      "text": "ts",
+      "filepath": "/letters/tsadi-sofit-sound.mp3",
+      "generatedAt": "2025-12-13T23:14:41.415Z"
+    }
+  },
+  "failed": {},
+  "pending": []
+}

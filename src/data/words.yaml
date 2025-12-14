@@ -1,0 +1,214 @@
+# Hebrew Words for First Graders
+# Simple CVC/CVCV words with syllable breakdowns
+
+words:
+  # Group 1: Simple 2-syllable words (easiest)
+  - id: ima
+    word: אִמָּא
+    syllables: ["אִ", "מָּא"]
+    translation: Mom
+    category: family
+    difficulty: 1
+    audioWord: words/ima.mp3
+
+  - id: aba
+    word: אַבָּא
+    syllables: ["אַ", "בָּא"]
+    translation: Dad
+    category: family
+    difficulty: 1
+    audioWord: words/aba.mp3
+
+  - id: bait
+    word: בַּיִת
+    syllables: ["בַּ", "יִת"]
+    translation: House
+    category: home
+    difficulty: 1
+    audioWord: words/bait.mp3
+
+  - id: yeled
+    word: יֶלֶד
+    syllables: ["יֶ", "לֶד"]
+    translation: Boy
+    category: people
+    difficulty: 1
+    audioWord: words/yeled.mp3
+
+  - id: yalda
+    word: יַלְדָּה
+    syllables: ["יַל", "דָּה"]
+    translation: Girl
+    category: people
+    difficulty: 1
+    audioWord: words/yalda.mp3
+
+  # Group 2: Simple object words
+  - id: kelev
+    word: כֶּלֶב
+    syllables: ["כֶּ", "לֶב"]
+    translation: Dog
+    category: animals
+    difficulty: 1
+    audioWord: words/kelev.mp3
+
+  - id: chatul
+    word: חָתוּל
+    syllables: ["חָ", "תוּל"]
+    translation: Cat
+    category: animals
+    difficulty: 1
+    audioWord: words/chatul.mp3
+
+  - id: sefer
+    word: סֵפֶר
+    syllables: ["סֵ", "פֶר"]
+    translation: Book
+    category: objects
+    difficulty: 1
+    audioWord: words/sefer.mp3
+
+  - id: shemesh
+    word: שֶׁמֶשׁ
+    syllables: ["שֶׁ", "מֶשׁ"]
+    translation: Sun
+    category: nature
+    difficulty: 1
+    audioWord: words/shemesh.mp3
+
+  - id: mayim
+    word: מַיִם
+    syllables: ["מַ", "יִם"]
+    translation: Water
+    category: nature
+    difficulty: 1
+    audioWord: words/mayim.mp3
+
+  # Group 3: Action words (verbs)
+  - id: holeech
+    word: הוֹלֵךְ
+    syllables: ["הוֹ", "לֵךְ"]
+    translation: Walking
+    category: actions
+    difficulty: 2
+    audioWord: words/holeech.mp3
+
+  - id: ratz
+    word: רָץ
+    syllables: ["רָץ"]
+    translation: Running
+    category: actions
+    difficulty: 1
+    audioWord: words/ratz.mp3
+
+  - id: yosehv
+    word: יוֹשֵׁב
+    syllables: ["יוֹ", "שֵׁב"]
+    translation: Sitting
+    category: actions
+    difficulty: 2
+    audioWord: words/yoshev.mp3
+
+  - id: ochel
+    word: אוֹכֵל
+    syllables: ["אוֹ", "כֵל"]
+    translation: Eating
+    category: actions
+    difficulty: 2
+    audioWord: words/ochel.mp3
+
+  - id: shothe
+    word: שׁוֹתֶה
+    syllables: ["שׁוֹ", "תֶה"]
+    translation: Drinking
+    category: actions
+    difficulty: 2
+    audioWord: words/shothe.mp3
+
+  # Group 4: Food words
+  - id: lechem
+    word: לֶחֶם
+    syllables: ["לֶ", "חֶם"]
+    translation: Bread
+    category: food
+    difficulty: 1
+    audioWord: words/lechem.mp3
+
+  - id: tapuach
+    word: תַּפּוּחַ
+    syllables: ["תַּ", "פּוּ", "חַ"]
+    translation: Apple
+    category: food
+    difficulty: 2
+    audioWord: words/tapuach.mp3
+
+  - id: chalav
+    word: חָלָב
+    syllables: ["חָ", "לָב"]
+    translation: Milk
+    category: food
+    difficulty: 1
+    audioWord: words/chalav.mp3
+
+  # Group 5: Color words
+  - id: adom
+    word: אָדֹם
+    syllables: ["אָ", "דֹם"]
+    translation: Red
+    category: colors
+    difficulty: 2
+    audioWord: words/adom.mp3
+
+  - id: yarok
+    word: יָרֹק
+    syllables: ["יָ", "רֹק"]
+    translation: Green
+    category: colors
+    difficulty: 2
+    audioWord: words/yarok.mp3
+
+  - id: kachol
+    word: כָּחֹל
+    syllables: ["כָּ", "חֹל"]
+    translation: Blue
+    category: colors
+    difficulty: 2
+    audioWord: words/kachol.mp3
+
+# Categories for organizing words
+categories:
+  - id: family
+    name: מִשְׁפָּחָה
+    icon: 👨‍👩‍👧‍👦
+
+  - id: home
+    name: בַּיִת
+    icon: 🏠
+
+  - id: people
+    name: אֲנָשִׁים
+    icon: 👦
+
+  - id: animals
+    name: חַיּוֹת
+    icon: 🐾
+
+  - id: objects
+    name: חֲפָצִים
+    icon: 📚
+
+  - id: nature
+    name: טֶבַע
+    icon: 🌳
+
+  - id: actions
+    name: פְּעֻלּוֹת
+    icon: 🏃
+
+  - id: food
+    name: אֹכֶל
+    icon: 🍎
+
+  - id: colors
+    name: צְבָעִים
+    icon: 🎨

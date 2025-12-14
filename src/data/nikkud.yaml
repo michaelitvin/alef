@@ -1,0 +1,202 @@
+# Hebrew Vowel Marks (ניקוד)
+# The 8 main vowel marks taught to first graders
+
+nikkud:
+  - id: kamatz
+    mark: ָ
+    name: קָמָץ
+    nameTranslit: Kamatz
+    sound: a # As in "father"
+    order: 1
+    position: below
+    exampleCombo: בָּ
+    audioName: nikkud/kamatz-name.mp3
+    audioSound: nikkud/kamatz-sound.mp3
+    description: פה פתוח גדול - אָ
+
+  - id: patach
+    mark: ַ
+    name: פַּתָח
+    nameTranslit: Patach
+    sound: a # Short 'a' as in "cat"
+    order: 2
+    position: below
+    exampleCombo: בַּ
+    audioName: nikkud/patach-name.mp3
+    audioSound: nikkud/patach-sound.mp3
+    description: פה פתוח קצר - אַ
+
+  - id: tzeire
+    mark: ֵ
+    name: צֵירֵי
+    nameTranslit: Tzeire
+    sound: e # As in "they"
+    order: 3
+    position: below
+    exampleCombo: בֵּ
+    audioName: nikkud/tzeire-name.mp3
+    audioSound: nikkud/tzeire-sound.mp3
+    description: שתי נקודות - אֵ
+
+  - id: segol
+    mark: ֶ
+    name: סֶגּוֹל
+    nameTranslit: Segol
+    sound: e # Short 'e' as in "bed"
+    order: 4
+    position: below
+    exampleCombo: בֶּ
+    audioName: nikkud/segol-name.mp3
+    audioSound: nikkud/segol-sound.mp3
+    description: שלוש נקודות - אֶ
+
+  - id: chirik
+    mark: ִ
+    name: חִירִיק
+    nameTranslit: Chirik
+    sound: i # As in "see"
+    order: 5
+    position: below
+    exampleCombo: בִּ
+    audioName: nikkud/chirik-name.mp3
+    audioSound: nikkud/chirik-sound.mp3
+    description: נקודה אחת למטה - אִ
+
+  - id: cholam
+    mark: ֹ
+    name: חוֹלָם
+    nameTranslit: Cholam
+    sound: o # As in "go"
+    order: 6
+    position: above
+    exampleCombo: בֹּ
+    audioName: nikkud/cholam-name.mp3
+    audioSound: nikkud/cholam-sound.mp3
+    description: נקודה למעלה - אֹ
+
+  - id: kubutz
+    mark: ֻ
+    name: קֻבּוּץ
+    nameTranslit: Kubutz
+    sound: u # As in "blue"
+    order: 7
+    position: below
+    exampleCombo: בֻּ
+    audioName: nikkud/kubutz-name.mp3
+    audioSound: nikkud/kubutz-sound.mp3
+    description: שלוש נקודות באלכסון - אֻ
+
+  - id: shva
+    mark: ְ
+    name: שְׁוָא
+    nameTranslit: Shva
+    sound: "" # Silent or very short 'e'
+    order: 8
+    position: below
+    exampleCombo: בְּ
+    audioName: nikkud/shva-name.mp3
+    audioSound: nikkud/shva-sound.mp3
+    description: שתי נקודות אנכיות - אְ
+
+# Common letter+nikkud combinations for practice
+combinations:
+  # Bet with all nikkud
+  - letterId: bet
+    nikkudId: kamatz
+    display: בָּ
+    sound: ba
+    audio: combinations/bet-kamatz.mp3
+
+  - letterId: bet
+    nikkudId: patach
+    display: בַּ
+    sound: ba
+    audio: combinations/bet-patach.mp3
+
+  - letterId: bet
+    nikkudId: tzeire
+    display: בֵּ
+    sound: be
+    audio: combinations/bet-tzeire.mp3
+
+  - letterId: bet
+    nikkudId: segol
+    display: בֶּ
+    sound: be
+    audio: combinations/bet-segol.mp3
+
+  - letterId: bet
+    nikkudId: chirik
+    display: בִּ
+    sound: bi
+    audio: combinations/bet-chirik.mp3
+
+  - letterId: bet
+    nikkudId: cholam
+    display: בֹּ
+    sound: bo
+    audio: combinations/bet-cholam.mp3
+
+  - letterId: bet
+    nikkudId: kubutz
+    display: בֻּ
+    sound: bu
+    audio: combinations/bet-kubutz.mp3
+
+  - letterId: bet
+    nikkudId: shva
+    display: בְּ
+    sound: b
+    audio: combinations/bet-shva.mp3
+
+  # Mem with common nikkud
+  - letterId: mem
+    nikkudId: kamatz
+    display: מָ
+    sound: ma
+    audio: combinations/mem-kamatz.mp3
+
+  - letterId: mem
+    nikkudId: chirik
+    display: מִ
+    sound: mi
+    audio: combinations/mem-chirik.mp3
+
+  # Lamed with common nikkud
+  - letterId: lamed
+    nikkudId: kamatz
+    display: לָ
+    sound: la
+    audio: combinations/lamed-kamatz.mp3
+
+  - letterId: lamed
+    nikkudId: tzeire
+    display: לֵ
+    sound: le
+    audio: combinations/lamed-tzeire.mp3
+
+  # Shin with common nikkud
+  - letterId: shin
+    nikkudId: kamatz
+    display: שָׁ
+    sound: sha
+    audio: combinations/shin-kamatz.mp3
+
+  - letterId: shin
+    nikkudId: cholam
+    display: שֹׁ
+    sound: sho
+    audio: combinations/shin-cholam.mp3
+
+  # Tav with common nikkud
+  - letterId: tav
+    nikkudId: kamatz
+    display: תָּ
+    sound: ta
+    audio: combinations/tav-kamatz.mp3
+
+  - letterId: tav
+    nikkudId: chirik
+    display: תִּ
+    sound: ti
+    audio: combinations/tav-chirik.mp3

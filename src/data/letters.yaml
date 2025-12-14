@@ -1,0 +1,312 @@
+# Hebrew Letters (אותיות)
+# All 22 letters + 5 final forms (sofiyot)
+
+letters:
+  # Regular letters (22)
+  - id: alef
+    character: א
+    name: אָלֶף
+    nameTranslit: Alef
+    sound: "" # Silent letter
+    order: 1
+    isSofit: false
+    audioName: letters/alef-name.mp3
+    audioSound: letters/alef-sound.mp3
+    funFact: אות ראשונה בא"ב!
+
+  - id: bet
+    character: ב
+    name: בֵּית
+    nameTranslit: Bet
+    sound: b
+    alternateSounds: [v] # Without dagesh
+    order: 2
+    isSofit: false
+    audioName: letters/bet-name.mp3
+    audioSound: letters/bet-sound.mp3
+    funFact: בֵּית זה גם בַּיִת!
+
+  - id: gimel
+    character: ג
+    name: גִּימֶל
+    nameTranslit: Gimel
+    sound: g
+    order: 3
+    isSofit: false
+    audioName: letters/gimel-name.mp3
+    audioSound: letters/gimel-sound.mp3
+    funFact: גָּמָל מתחיל בגימל!
+
+  - id: dalet
+    character: ד
+    name: דָּלֶת
+    nameTranslit: Dalet
+    sound: d
+    order: 4
+    isSofit: false
+    audioName: letters/dalet-name.mp3
+    audioSound: letters/dalet-sound.mp3
+    funFact: דֶּלֶת פותחת!
+
+  - id: he
+    character: ה
+    name: הֵא
+    nameTranslit: He
+    sound: h
+    order: 5
+    isSofit: false
+    audioName: letters/he-name.mp3
+    audioSound: letters/he-sound.mp3
+    funFact: ה זה רק נשיפה!
+
+  - id: vav
+    character: ו
+    name: וָו
+    nameTranslit: Vav
+    sound: v
+    alternateSounds: [o, u] # As vowel
+    order: 6
+    isSofit: false
+    audioName: letters/vav-name.mp3
+    audioSound: letters/vav-sound.mp3
+    funFact: וָו מחברת מילים!
+
+  - id: zayin
+    character: ז
+    name: זַיִן
+    nameTranslit: Zayin
+    sound: z
+    order: 7
+    isSofit: false
+    audioName: letters/zayin-name.mp3
+    audioSound: letters/zayin-sound.mp3
+    funFact: זברה מתחילה בזין!
+
+  - id: chet
+    character: ח
+    name: חֵית
+    nameTranslit: Chet
+    sound: ch
+    order: 8
+    isSofit: false
+    audioName: letters/chet-name.mp3
+    audioSound: letters/chet-sound.mp3
+    funFact: חֲתוּל מתחיל בחית!
+
+  - id: tet
+    character: ט
+    name: טֵית
+    nameTranslit: Tet
+    sound: t
+    order: 9
+    isSofit: false
+    audioName: letters/tet-name.mp3
+    audioSound: letters/tet-sound.mp3
+    funFact: טוֹב מתחיל בטית!
+
+  - id: yod
+    character: י
+    name: יוֹד
+    nameTranslit: Yod
+    sound: y
+    order: 10
+    isSofit: false
+    audioName: letters/yod-name.mp3
+    audioSound: letters/yod-sound.mp3
+    funFact: יוֹד הכי קטנה!
+
+  - id: kaf
+    character: כ
+    name: כָּף
+    nameTranslit: Kaf
+    sound: k
+    alternateSounds: [ch] # Without dagesh
+    order: 11
+    isSofit: false
+    audioName: letters/kaf-name.mp3
+    audioSound: letters/kaf-sound.mp3
+    funFact: כַּף יָד!
+
+  - id: lamed
+    character: ל
+    name: לָמֶד
+    nameTranslit: Lamed
+    sound: l
+    order: 12
+    isSofit: false
+    audioName: letters/lamed-name.mp3
+    audioSound: letters/lamed-sound.mp3
+    funFact: למד הכי גבוהה!
+
+  - id: mem
+    character: מ
+    name: מֵם
+    nameTranslit: Mem
+    sound: m
+    order: 13
+    isSofit: false
+    audioName: letters/mem-name.mp3
+    audioSound: letters/mem-sound.mp3
+    funFact: מַיִם מתחיל במם!
+
+  - id: nun
+    character: נ
+    name: נוּן
+    nameTranslit: Nun
+    sound: n
+    order: 14
+    isSofit: false
+    audioName: letters/nun-name.mp3
+    audioSound: letters/nun-sound.mp3
+    funFact: נָחָש מתחיל בנון!
+
+  - id: samech
+    character: ס
+    name: סָמֶך
+    nameTranslit: Samech
+    sound: s
+    order: 15
+    isSofit: false
+    audioName: letters/samech-name.mp3
+    audioSound: letters/samech-sound.mp3
+    funFact: סמך עגולה!
+
+  - id: ayin
+    character: ע
+    name: עַיִן
+    nameTranslit: Ayin
+    sound: "" # Guttural stop
+    order: 16
+    isSofit: false
+    audioName: letters/ayin-name.mp3
+    audioSound: letters/ayin-sound.mp3
+    funFact: עַיִן רואה!
+
+  - id: pe
+    character: פ
+    name: פֵּא
+    nameTranslit: Pe
+    sound: p
+    alternateSounds: [f] # Without dagesh
+    order: 17
+    isSofit: false
+    audioName: letters/pe-name.mp3
+    audioSound: letters/pe-sound.mp3
+    funFact: פֶּה מדבר!
+
+  - id: tsadi
+    character: צ
+    name: צָדִי
+    nameTranslit: Tsadi
+    sound: ts
+    order: 18
+    isSofit: false
+    audioName: letters/tsadi-name.mp3
+    audioSound: letters/tsadi-sound.mp3
+    funFact: צִפּוֹר מתחילה בצדי!
+
+  - id: qof
+    character: ק
+    name: קוֹף
+    nameTranslit: Qof
+    sound: k
+    order: 19
+    isSofit: false
+    audioName: letters/qof-name.mp3
+    audioSound: letters/qof-sound.mp3
+    funFact: קוֹף קופץ!
+
+  - id: resh
+    character: ר
+    name: רֵישׁ
+    nameTranslit: Resh
+    sound: r
+    order: 20
+    isSofit: false
+    audioName: letters/resh-name.mp3
+    audioSound: letters/resh-sound.mp3
+    funFact: רַכֶּבֶת רצה!
+
+  - id: shin
+    character: ש
+    name: שִׁין
+    nameTranslit: Shin
+    sound: sh
+    alternateSounds: [s] # With left dot (sin)
+    order: 21
+    isSofit: false
+    audioName: letters/shin-name.mp3
+    audioSound: letters/shin-sound.mp3
+    funFact: שֶׁמֶשׁ זורחת!
+
+  - id: tav
+    character: ת
+    name: תָּו
+    nameTranslit: Tav
+    sound: t
+    order: 22
+    isSofit: false
+    audioName: letters/tav-name.mp3
+    audioSound: letters/tav-sound.mp3
+    funFact: תוֹף מתופף!
+
+  # Final letters (sofiyot) - 5
+  - id: kaf-sofit
+    character: ך
+    name: כָּף סוֹפִית
+    nameTranslit: Kaf Sofit
+    sound: ch
+    order: 23
+    isSofit: true
+    regularForm: kaf
+    audioName: letters/kaf-sofit-name.mp3
+    audioSound: letters/kaf-sofit-sound.mp3
+    funFact: כף בסוף מילה!
+
+  - id: mem-sofit
+    character: ם
+    name: מֵם סוֹפִית
+    nameTranslit: Mem Sofit
+    sound: m
+    order: 24
+    isSofit: true
+    regularForm: mem
+    audioName: letters/mem-sofit-name.mp3
+    audioSound: letters/mem-sofit-sound.mp3
+    funFact: מם סגורה בסוף!
+
+  - id: nun-sofit
+    character: ן
+    name: נוּן סוֹפִית
+    nameTranslit: Nun Sofit
+    sound: n
+    order: 25
+    isSofit: true
+    regularForm: nun
+    audioName: letters/nun-sofit-name.mp3
+    audioSound: letters/nun-sofit-sound.mp3
+    funFact: נון ארוכה בסוף!
+
+  - id: pe-sofit
+    character: ף
+    name: פֵּא סוֹפִית
+    nameTranslit: Pe Sofit
+    sound: f
+    order: 26
+    isSofit: true
+    regularForm: pe
+    audioName: letters/pe-sofit-name.mp3
+    audioSound: letters/pe-sofit-sound.mp3
+    funFact: פא מתקפלת בסוף!
+
+  - id: tsadi-sofit
+    character: ץ
+    name: צָדִי סוֹפִית
+    nameTranslit: Tsadi Sofit
+    sound: ts
+    order: 27
+    isSofit: true
+    regularForm: tsadi
+    audioName: letters/tsadi-sofit-name.mp3
+    audioSound: letters/tsadi-sofit-sound.mp3
+    funFact: צדי יורדת בסוף!

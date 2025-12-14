@@ -1,0 +1,173 @@
+# Audio Manifest
+# Tracks which audio files have been generated
+# Status: 'recorded' = file exists, 'pending' = not yet generated
+
+letters:
+  alef:
+    name: { file: "alef-name.mp3", status: "pending" }
+    sound: { file: "alef-sound.mp3", status: "pending" }
+  bet:
+    name: { file: "bet-name.mp3", status: "pending" }
+    sound: { file: "bet-sound.mp3", status: "pending" }
+  gimel:
+    name: { file: "gimel-name.mp3", status: "pending" }
+    sound: { file: "gimel-sound.mp3", status: "pending" }
+  dalet:
+    name: { file: "dalet-name.mp3", status: "pending" }
+    sound: { file: "dalet-sound.mp3", status: "pending" }
+  he:
+    name: { file: "he-name.mp3", status: "pending" }
+    sound: { file: "he-sound.mp3", status: "pending" }
+  vav:
+    name: { file: "vav-name.mp3", status: "pending" }
+    sound: { file: "vav-sound.mp3", status: "pending" }
+  zayin:
+    name: { file: "zayin-name.mp3", status: "pending" }
+    sound: { file: "zayin-sound.mp3", status: "pending" }
+  chet:
+    name: { file: "chet-name.mp3", status: "pending" }
+    sound: { file: "chet-sound.mp3", status: "pending" }
+  tet:
+    name: { file: "tet-name.mp3", status: "pending" }
+    sound: { file: "tet-sound.mp3", status: "pending" }
+  yod:
+    name: { file: "yod-name.mp3", status: "pending" }
+    sound: { file: "yod-sound.mp3", status: "pending" }
+  kaf:
+    name: { file: "kaf-name.mp3", status: "pending" }
+    sound: { file: "kaf-sound.mp3", status: "pending" }
+  lamed:
+    name: { file: "lamed-name.mp3", status: "pending" }
+    sound: { file: "lamed-sound.mp3", status: "pending" }
+  mem:
+    name: { file: "mem-name.mp3", status: "pending" }
+    sound: { file: "mem-sound.mp3", status: "pending" }
+  nun:
+    name: { file: "nun-name.mp3", status: "pending" }
+    sound: { file: "nun-sound.mp3", status: "pending" }
+  samech:
+    name: { file: "samech-name.mp3", status: "pending" }
+    sound: { file: "samech-sound.mp3", status: "pending" }
+  ayin:
+    name: { file: "ayin-name.mp3", status: "pending" }
+    sound: { file: "ayin-sound.mp3", status: "pending" }
+  pe:
+    name: { file: "pe-name.mp3", status: "pending" }
+    sound: { file: "pe-sound.mp3", status: "pending" }
+  tsadi:
+    name: { file: "tsadi-name.mp3", status: "pending" }
+    sound: { file: "tsadi-sound.mp3", status: "pending" }
+  qof:
+    name: { file: "qof-name.mp3", status: "pending" }
+    sound: { file: "qof-sound.mp3", status: "pending" }
+  resh:
+    name: { file: "resh-name.mp3", status: "pending" }
+    sound: { file: "resh-sound.mp3", status: "pending" }
+  shin:
+    name: { file: "shin-name.mp3", status: "pending" }
+    sound: { file: "shin-sound.mp3", status: "pending" }
+  tav:
+    name: { file: "tav-name.mp3", status: "pending" }
+    sound: { file: "tav-sound.mp3", status: "pending" }
+  # Sofiyot (final letters)
+  kaf-sofit:
+    name: { file: "kaf-sofit-name.mp3", status: "pending" }
+    sound: { file: "kaf-sofit-sound.mp3", status: "pending" }
+  mem-sofit:
+    name: { file: "mem-sofit-name.mp3", status: "pending" }
+    sound: { file: "mem-sofit-sound.mp3", status: "pending" }
+  nun-sofit:
+    name: { file: "nun-sofit-name.mp3", status: "pending" }
+    sound: { file: "nun-sofit-sound.mp3", status: "pending" }
+  pe-sofit:
+    name: { file: "pe-sofit-name.mp3", status: "pending" }
+    sound: { file: "pe-sofit-sound.mp3", status: "pending" }
+  tsadi-sofit:
+    name: { file: "tsadi-sofit-name.mp3", status: "pending" }
+    sound: { file: "tsadi-sofit-sound.mp3", status: "pending" }
+
+nikkud:
+  kamatz:
+    name: { file: "kamatz-name.mp3", status: "pending" }
+    sound: { file: "kamatz-sound.mp3", status: "pending" }
+  patach:
+    name: { file: "patach-name.mp3", status: "pending" }
+    sound: { file: "patach-sound.mp3", status: "pending" }
+  tzeire:
+    name: { file: "tzeire-name.mp3", status: "pending" }
+    sound: { file: "tzeire-sound.mp3", status: "pending" }
+  segol:
+    name: { file: "segol-name.mp3", status: "pending" }
+    sound: { file: "segol-sound.mp3", status: "pending" }
+  chirik:
+    name: { file: "chirik-name.mp3", status: "pending" }
+    sound: { file: "chirik-sound.mp3", status: "pending" }
+  cholam:
+    name: { file: "cholam-name.mp3", status: "pending" }
+    sound: { file: "cholam-sound.mp3", status: "pending" }
+  kubutz:
+    name: { file: "kubutz-name.mp3", status: "pending" }
+    sound: { file: "kubutz-sound.mp3", status: "pending" }
+  shva:
+    name: { file: "shva-name.mp3", status: "pending" }
+    sound: { file: "shva-sound.mp3", status: "pending" }
+
+# MVP combinations (bet with all nikkud + 4 other common letters)
+combinations:
+  bet-kamatz: { file: "bet-kamatz.mp3", status: "pending" }
+  bet-patach: { file: "bet-patach.mp3", status: "pending" }
+  bet-tzeire: { file: "bet-tzeire.mp3", status: "pending" }
+  bet-segol: { file: "bet-segol.mp3", status: "pending" }
+  bet-chirik: { file: "bet-chirik.mp3", status: "pending" }
+  bet-cholam: { file: "bet-cholam.mp3", status: "pending" }
+  bet-kubutz: { file: "bet-kubutz.mp3", status: "pending" }
+  bet-shva: { file: "bet-shva.mp3", status: "pending" }
+  # Additional common letters
+  mem-kamatz: { file: "mem-kamatz.mp3", status: "pending" }
+  lamed-kamatz: { file: "lamed-kamatz.mp3", status: "pending" }
+  shin-kamatz: { file: "shin-kamatz.mp3", status: "pending" }
+  tav-kamatz: { file: "tav-kamatz.mp3", status: "pending" }
+
+# MVP words (first 20 words)
+words:
+  ima: { file: "ima.mp3", status: "pending" }
+  aba: { file: "aba.mp3", status: "pending" }
+  kelev: { file: "kelev.mp3", status: "pending" }
+  chatul: { file: "chatul.mp3", status: "pending" }
+  bayit: { file: "bayit.mp3", status: "pending" }
+  sefer: { file: "sefer.mp3", status: "pending" }
+  shemesh: { file: "shemesh.mp3", status: "pending" }
+  mayim: { file: "mayim.mp3", status: "pending" }
+  lechem: { file: "lechem.mp3", status: "pending" }
+  tapuach: { file: "tapuach.mp3", status: "pending" }
+  yeled: { file: "yeled.mp3", status: "pending" }
+  yalda: { file: "yalda.mp3", status: "pending" }
+  gan: { file: "gan.mp3", status: "pending" }
+  etz: { file: "etz.mp3", status: "pending" }
+  perach: { file: "perach.mp3", status: "pending" }
+  kadur: { file: "kadur.mp3", status: "pending" }
+  sus: { file: "sus.mp3", status: "pending" }
+  para: { file: "para.mp3", status: "pending" }
+  dag: { file: "dag.mp3", status: "pending" }
+  tsipor: { file: "tsipor.mp3", status: "pending" }
+
+# MVP sentences (first 10)
+sentences:
+  sentence-1: { file: "sentence-1.mp3", status: "pending" }
+  sentence-2: { file: "sentence-2.mp3", status: "pending" }
+  sentence-3: { file: "sentence-3.mp3", status: "pending" }
+  sentence-4: { file: "sentence-4.mp3", status: "pending" }
+  sentence-5: { file: "sentence-5.mp3", status: "pending" }
+  sentence-6: { file: "sentence-6.mp3", status: "pending" }
+  sentence-7: { file: "sentence-7.mp3", status: "pending" }
+  sentence-8: { file: "sentence-8.mp3", status: "pending" }
+  sentence-9: { file: "sentence-9.mp3", status: "pending" }
+  sentence-10: { file: "sentence-10.mp3", status: "pending" }
+
+# UI sound effects
+effects:
+  success: { file: "success.mp3", status: "pending" }
+  error: { file: "error.mp3", status: "pending" }
+  tap: { file: "tap.mp3", status: "pending" }
+  unlock: { file: "unlock.mp3", status: "pending" }
+  celebrate: { file: "celebrate.mp3", status: "pending" }

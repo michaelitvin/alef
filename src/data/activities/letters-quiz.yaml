@@ -1,0 +1,330 @@
+# Letters Quiz Activity
+# Find the correct letter from multiple options
+
+id: letters-quiz
+name: מצא את האות
+description: בחר את האות הנכונה מבין האפשרויות
+type: quiz
+level: letters
+successThreshold: 0.8  # 80% correct to pass
+minItems: 5
+
+# Each item has a target letter and distractor options
+# Distractors are similar-looking letters to make it challenging but fair
+items:
+  # Alef - distractors with similar shapes
+  - id: quiz-alef-1
+    type: letter-identify
+    targetId: alef
+    prompt: מצא את האות אָלֶף
+    distractors: [ayin, he, mem]
+
+  - id: quiz-alef-2
+    type: letter-identify
+    targetId: alef
+    prompt: היכן האות א?
+    distractors: [shin, resh, pe]
+
+  # Bet - distractors with similar shapes
+  - id: quiz-bet-1
+    type: letter-identify
+    targetId: bet
+    prompt: מצא את האות בֵּית
+    distractors: [kaf, pe, nun]
+
+  - id: quiz-bet-2
+    type: letter-identify
+    targetId: bet
+    prompt: היכן האות ב?
+    distractors: [mem, samech, dalet]
+
+  # Gimel
+  - id: quiz-gimel-1
+    type: letter-identify
+    targetId: gimel
+    prompt: מצא את האות גִּימֶל
+    distractors: [nun, zayin, vav]
+
+  - id: quiz-gimel-2
+    type: letter-identify
+    targetId: gimel
+    prompt: היכן האות ג?
+    distractors: [pe, resh, yod]
+
+  # Dalet
+  - id: quiz-dalet-1
+    type: letter-identify
+    targetId: dalet
+    prompt: מצא את האות דָּלֶת
+    distractors: [resh, he, kaf]
+
+  - id: quiz-dalet-2
+    type: letter-identify
+    targetId: dalet
+    prompt: היכן האות ד?
+    distractors: [bet, nun, zayin]
+
+  # He
+  - id: quiz-he-1
+    type: letter-identify
+    targetId: he
+    prompt: מצא את האות הֵא
+    distractors: [chet, tav, dalet]
+
+  - id: quiz-he-2
+    type: letter-identify
+    targetId: he
+    prompt: היכן האות ה?
+    distractors: [mem, alef, qof]
+
+  # Vav
+  - id: quiz-vav-1
+    type: letter-identify
+    targetId: vav
+    prompt: מצא את האות וָו
+    distractors: [zayin, nun, yod]
+
+  - id: quiz-vav-2
+    type: letter-identify
+    targetId: vav
+    prompt: היכן האות ו?
+    distractors: [gimel, resh, lamed]
+
+  # Zayin
+  - id: quiz-zayin-1
+    type: letter-identify
+    targetId: zayin
+    prompt: מצא את האות זַיִן
+    distractors: [vav, nun, gimel]
+
+  - id: quiz-zayin-2
+    type: letter-identify
+    targetId: zayin
+    prompt: היכן האות ז?
+    distractors: [yod, resh, tav]
+
+  # Chet
+  - id: quiz-chet-1
+    type: letter-identify
+    targetId: chet
+    prompt: מצא את האות חֵית
+    distractors: [he, tav, mem]
+
+  - id: quiz-chet-2
+    type: letter-identify
+    targetId: chet
+    prompt: היכן האות ח?
+    distractors: [nun, bet, samech]
+
+  # Tet
+  - id: quiz-tet-1
+    type: letter-identify
+    targetId: tet
+    prompt: מצא את האות טֵית
+    distractors: [samech, mem, ayin]
+
+  - id: quiz-tet-2
+    type: letter-identify
+    targetId: tet
+    prompt: היכן האות ט?
+    distractors: [qof, pe, shin]
+
+  # Yod
+  - id: quiz-yod-1
+    type: letter-identify
+    targetId: yod
+    prompt: מצא את האות יוֹד
+    distractors: [vav, zayin, nun]
+
+  - id: quiz-yod-2
+    type: letter-identify
+    targetId: yod
+    prompt: היכן האות י?
+    distractors: [gimel, resh, alef]
+
+  # Kaf
+  - id: quiz-kaf-1
+    type: letter-identify
+    targetId: kaf
+    prompt: מצא את האות כָּף
+    distractors: [bet, pe, dalet]
+
+  - id: quiz-kaf-2
+    type: letter-identify
+    targetId: kaf
+    prompt: היכן האות כ?
+    distractors: [nun, mem, he]
+
+  # Lamed
+  - id: quiz-lamed-1
+    type: letter-identify
+    targetId: lamed
+    prompt: מצא את האות לָמֶד
+    distractors: [kaf, nun, vav]
+
+  - id: quiz-lamed-2
+    type: letter-identify
+    targetId: lamed
+    prompt: היכן האות ל?
+    distractors: [alef, gimel, shin]
+
+  # Mem
+  - id: quiz-mem-1
+    type: letter-identify
+    targetId: mem
+    prompt: מצא את האות מֵם
+    distractors: [samech, tet, chet]
+
+  - id: quiz-mem-2
+    type: letter-identify
+    targetId: mem
+    prompt: היכן האות מ?
+    distractors: [bet, nun, pe]
+
+  # Nun
+  - id: quiz-nun-1
+    type: letter-identify
+    targetId: nun
+    prompt: מצא את האות נוּן
+    distractors: [gimel, vav, zayin]
+
+  - id: quiz-nun-2
+    type: letter-identify
+    targetId: nun
+    prompt: היכן האות נ?
+    distractors: [kaf, bet, pe]
+
+  # Samech
+  - id: quiz-samech-1
+    type: letter-identify
+    targetId: samech
+    prompt: מצא את האות סָמֶך
+    distractors: [mem, tet, ayin]
+
+  - id: quiz-samech-2
+    type: letter-identify
+    targetId: samech
+    prompt: היכן האות ס?
+    distractors: [qof, pe, shin]
+
+  # Ayin
+  - id: quiz-ayin-1
+    type: letter-identify
+    targetId: ayin
+    prompt: מצא את האות עַיִן
+    distractors: [alef, tsadi, tet]
+
+  - id: quiz-ayin-2
+    type: letter-identify
+    targetId: ayin
+    prompt: היכן האות ע?
+    distractors: [samech, mem, he]
+
+  # Pe
+  - id: quiz-pe-1
+    type: letter-identify
+    targetId: pe
+    prompt: מצא את האות פֵּא
+    distractors: [bet, kaf, nun]
+
+  - id: quiz-pe-2
+    type: letter-identify
+    targetId: pe
+    prompt: היכן האות פ?
+    distractors: [mem, dalet, gimel]
+
+  # Tsadi
+  - id: quiz-tsadi-1
+    type: letter-identify
+    targetId: tsadi
+    prompt: מצא את האות צָדִי
+    distractors: [ayin, shin, qof]
+
+  - id: quiz-tsadi-2
+    type: letter-identify
+    targetId: tsadi
+    prompt: היכן האות צ?
+    distractors: [mem, pe, tav]
+
+  # Qof
+  - id: quiz-qof-1
+    type: letter-identify
+    targetId: qof
+    prompt: מצא את האות קוֹף
+    distractors: [pe, samech, mem]
+
+  - id: quiz-qof-2
+    type: letter-identify
+    targetId: qof
+    prompt: היכן האות ק?
+    distractors: [tet, shin, lamed]
+
+  # Resh
+  - id: quiz-resh-1
+    type: letter-identify
+    targetId: resh
+    prompt: מצא את האות רֵישׁ
+    distractors: [dalet, he, kaf]
+
+  - id: quiz-resh-2
+    type: letter-identify
+    targetId: resh
+    prompt: היכן האות ר?
+    distractors: [bet, vav, gimel]
+
+  # Shin
+  - id: quiz-shin-1
+    type: letter-identify
+    targetId: shin
+    prompt: מצא את האות שִׁין
+    distractors: [ayin, tsadi, mem]
+
+  - id: quiz-shin-2
+    type: letter-identify
+    targetId: shin
+    prompt: היכן האות ש?
+    distractors: [samech, qof, pe]
+
+  # Tav
+  - id: quiz-tav-1
+    type: letter-identify
+    targetId: tav
+    prompt: מצא את האות תָּו
+    distractors: [he, chet, mem]
+
+  - id: quiz-tav-2
+    type: letter-identify
+    targetId: tav
+    prompt: היכן האות ת?
+    distractors: [nun, dalet, resh]
+
+  # Sofiyot quiz items
+  - id: quiz-kaf-sofit-1
+    type: letter-identify
+    targetId: kaf-sofit
+    prompt: מצא את הכָּף הסוֹפִית
+    distractors: [nun-sofit, pe-sofit, mem-sofit]
+
+  - id: quiz-mem-sofit-1
+    type: letter-identify
+    targetId: mem-sofit
+    prompt: מצא את המֵם הסוֹפִית
+    distractors: [samech, tet, mem]
+
+  - id: quiz-nun-sofit-1
+    type: letter-identify
+    targetId: nun-sofit
+    prompt: מצא את הנוּן הסוֹפִית
+    distractors: [vav, zayin, kaf-sofit]
+
+  - id: quiz-pe-sofit-1
+    type: letter-identify
+    targetId: pe-sofit
+    prompt: מצא את הפֵּא הסוֹפִית
+    distractors: [kaf-sofit, tsadi-sofit, pe]
+
+  - id: quiz-tsadi-sofit-1
+    type: letter-identify
+    targetId: tsadi-sofit
+    prompt: מצא את הצָדִי הסוֹפִית
+    distractors: [ayin, tsadi, pe-sofit]

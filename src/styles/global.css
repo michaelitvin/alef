@@ -1,0 +1,227 @@
+/* Global styles for Hebrew Reading Game */
+@import './fonts.css';
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* RTL-first layout */
+html {
+  direction: rtl;
+  text-align: right;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #2D3436;
+  background-color: #FFF9F0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent text selection on game elements */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior-y: contain;
+}
+
+/* Root app container */
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hebrew text rendering optimization */
+.hebrew-text {
+  font-family: 'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif;
+  /* Better nikkud visibility */
+  letter-spacing: 0.05em;
+  /* Prevent nikkud from getting cut off */
+  line-height: 1.75;
+}
+
+/* Large Hebrew letters for display */
+.hebrew-letter {
+  font-family: 'Hillel CLM', 'David CLM', sans-serif;
+  font-size: 6rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  /* Ensure nikkud renders correctly */
+  font-feature-settings: 'ccmp' 1;
+}
+
+/* Hebrew letter with nikkud - extra spacing */
+.hebrew-letter-nikkud {
+  letter-spacing: 0.15em;
+  line-height: 2;
+}
+
+/* Touch-friendly interactive elements */
+button,
+[role="button"],
+.interactive {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Minimum touch target size */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 3px solid #4A90D9;
+  outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Safe area handling for notched devices */
+.safe-area-padding {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animation classes */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* Responsive font sizes */
+@media (max-width: 767px) {
+  .hebrew-letter {
+    font-size: 4rem;
+  }
+
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hebrew-letter {
+    font-size: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hebrew-letter {
+    font-size: 6rem;
+  }
+}
