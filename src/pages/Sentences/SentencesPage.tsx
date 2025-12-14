@@ -25,6 +25,7 @@ export function SentencesPage() {
   const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
+  const devMode = useProgressStore((state) => state.settings.devMode)
 
   // Check if sentences level is unlocked
   const levelUnlocked = isLevelUnlocked('sentences')
@@ -37,7 +38,10 @@ export function SentencesPage() {
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
 
-    if (!levelUnlocked) {
+    // Dev mode: all nodes available
+    if (devMode) {
+      state = progress?.state || 'available'
+    } else if (!levelUnlocked) {
       // Level not unlocked, all nodes are locked
       state = 'locked'
     } else if (index === 0) {
@@ -77,7 +81,7 @@ export function SentencesPage() {
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
-    if (node && node.state !== 'locked') {
+    if (node && (devMode || node.state !== 'locked')) {
       navigate(`/sentences/${nodeId.replace('sentences-', '')}`)
     }
   }

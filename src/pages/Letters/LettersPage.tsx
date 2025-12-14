@@ -46,6 +46,7 @@ export function LettersPage() {
   const { isMobile } = useResponsive()
   const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
   const initializeNode = useProgressStore((state) => state.initializeNode)
+  const devMode = useProgressStore((state) => state.settings.devMode)
 
   // Convert letters to journey nodes with progress state
   const journeyNodes: JourneyNode[] = LETTERS.map((letter, index) => {
@@ -55,7 +56,10 @@ export function LettersPage() {
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
 
-    if (index === 0) {
+    // Dev mode: all nodes available
+    if (devMode) {
+      state = progress?.state || 'available'
+    } else if (index === 0) {
       // First letter is always available
       state = progress?.state || 'available'
       if (!progress) {
@@ -92,7 +96,7 @@ export function LettersPage() {
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
-    if (node && node.state !== 'locked') {
+    if (node && (devMode || node.state !== 'locked')) {
       navigate(`/letters/${nodeId.replace('letters-', '')}`)
     }
   }

@@ -75,8 +75,38 @@ export function HomePage() {
         flexDirection: 'column',
         alignItems: 'center',
         paddingBottom: isMobile ? '100px' : spacing[8],
+        position: 'relative',
       }}
     >
+      {/* Settings Button */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={() => navigate('/settings')}
+        style={{
+          position: 'absolute',
+          top: spacing[4],
+          left: spacing[4],
+          width: '44px',
+          height: '44px',
+          borderRadius: borderRadius.full,
+          border: 'none',
+          backgroundColor: colors.neutral[100],
+          color: colors.text.secondary,
+          fontSize: '1.25rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10,
+        }}
+        whileHover={{ scale: 1.1, backgroundColor: colors.neutral[200] }}
+        whileTap={{ scale: 0.95 }}
+      >
+        ⚙️
+      </motion.button>
+
       {/* Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}

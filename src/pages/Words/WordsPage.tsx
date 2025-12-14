@@ -27,6 +27,7 @@ export function WordsPage() {
   const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
+  const devMode = useProgressStore((state) => state.settings.devMode)
 
   // Check if words level is unlocked
   const levelUnlocked = isLevelUnlocked('words')
@@ -39,7 +40,10 @@ export function WordsPage() {
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
 
-    if (!levelUnlocked) {
+    // Dev mode: all nodes available
+    if (devMode) {
+      state = progress?.state || 'available'
+    } else if (!levelUnlocked) {
       // Level not unlocked, all nodes are locked
       state = 'locked'
     } else if (index === 0) {
@@ -79,7 +83,7 @@ export function WordsPage() {
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
-    if (node && node.state !== 'locked') {
+    if (node && (devMode || node.state !== 'locked')) {
       navigate(`/words/${nodeId.replace('words-', '')}`)
     }
   }

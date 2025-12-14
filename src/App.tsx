@@ -10,6 +10,7 @@ import WordGroupView from './pages/Words/WordGroupView'
 import SentencesPage from './pages/Sentences/SentencesPage'
 import SentenceGroupView from './pages/Sentences/SentenceGroupView'
 import ProgressPage from './pages/Progress/ProgressPage'
+import SettingsPage from './pages/Settings/SettingsPage'
 import { useProgressStore } from './stores/progressStore'
 
 function App() {
@@ -60,6 +61,7 @@ function App() {
         <Route path="/sentences" element={<SentencesPage />} />
         <Route path="/sentences/:groupId" element={<SentenceGroupView />} />
         <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </HashRouter>
   )
