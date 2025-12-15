@@ -5,7 +5,7 @@ import { LetterCard } from './LetterCard'
 import { Button } from '../common/Button'
 import { FeedbackOverlay } from '../common/FeedbackOverlay'
 import { useAudio, useSoundEffects } from '../../hooks/useAudio'
-import { getLetterNameAudio } from '../../utils/audio'
+import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
 export interface LetterMatchProps {
@@ -78,6 +78,12 @@ export function LetterMatch({
   const { play } = useAudio()
   const { playSuccess, playError } = useSoundEffects()
 
+  // Preload audio for all letters on mount
+  useEffect(() => {
+    const letterIds = selectedLetters.map(l => l.id)
+    preloadLetterNamesByIds(letterIds)
+  }, [selectedLetters])
+
   // Check for match when both items are selected
   useEffect(() => {
     if (selectedLetter && selectedSound && state === 'selecting') {
@@ -132,14 +138,11 @@ export function LetterMatch({
 
   const handleLetterClick = useCallback(
     (item: MatchItem) => {
-      if (state !== 'selecting' || item.matched) return
-
-      // Play the letter name audio
-      play(getLetterNameAudio(item.letterId)).catch(console.error)
+      if (state !== 'selecting' || item.matched || !selectedSound) return
 
       setSelectedLetter(item)
     },
-    [state, play]
+    [state, selectedSound]
   )
 
   const handleSoundClick = useCallback(
@@ -216,23 +219,59 @@ export function LetterMatch({
           textAlign: 'center',
         }}
       >
-        התאם כל אות לשם שלה
+        {selectedSound ? 'עכשיו בחר את האות' : 'לחץ על צליל לשמוע'}
       </p>
 
-      {/* Matching area */}
+      {/* Matching area - stacked rows */}
       <div
         style={{
           display: 'flex',
-          gap: spacing[8],
-          alignItems: 'flex-start',
+          flexDirection: 'column',
+          gap: spacing[6],
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '400px',
         }}
       >
-        {/* Letters column */}
+        {/* Sound buttons row (step 1) */}
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexWrap: 'wrap',
             gap: spacing[3],
+            justifyContent: 'center',
+          }}
+        >
+          {soundItems.map((item, index) => (
+            <motion.div
+              key={item.id}
+              animate={
+                item.matched
+                  ? { opacity: 0.3, scale: 0.9 }
+                  : selectedSound?.id === item.id
+                  ? { scale: 1.05 }
+                  : {}
+              }
+            >
+              <SoundButton
+                colorIndex={index}
+                onClick={() => handleSoundClick(item)}
+                selected={selectedSound?.id === item.id}
+                disabled={item.matched || state !== 'selecting'}
+                isCorrect={state === 'correct' && selectedSound?.id === item.id}
+                isIncorrect={state === 'incorrect' && selectedSound?.id === item.id}
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Letters row (step 2) */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: spacing[3],
+            justifyContent: 'center',
           }}
         >
           {letterItems.map((item) => (
@@ -251,40 +290,9 @@ export function LetterMatch({
                 size="sm"
                 onClick={() => handleLetterClick(item)}
                 selected={selectedLetter?.id === item.id}
-                disabled={item.matched || state !== 'selecting'}
+                disabled={item.matched || state !== 'selecting' || !selectedSound}
                 isCorrect={state === 'correct' && selectedLetter?.id === item.id}
                 isIncorrect={state === 'incorrect' && selectedLetter?.id === item.id}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Sound names column */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: spacing[3],
-          }}
-        >
-          {soundItems.map((item) => (
-            <motion.div
-              key={item.id}
-              animate={
-                item.matched
-                  ? { opacity: 0.3, scale: 0.9 }
-                  : selectedSound?.id === item.id
-                  ? { scale: 1.05 }
-                  : {}
-              }
-            >
-              <SoundButton
-                name={item.display}
-                onClick={() => handleSoundClick(item)}
-                selected={selectedSound?.id === item.id}
-                disabled={item.matched || state !== 'selecting'}
-                isCorrect={state === 'correct' && selectedSound?.id === item.id}
-                isIncorrect={state === 'incorrect' && selectedSound?.id === item.id}
               />
             </motion.div>
           ))}
@@ -320,9 +328,19 @@ export function LetterMatch({
   )
 }
 
+// Color palette for sound buttons - soft, kid-friendly colors
+const SOUND_BUTTON_COLORS = [
+  { bg: '#FFE5E5', border: '#FFB3B3' }, // soft red
+  { bg: '#E5F0FF', border: '#99C2FF' }, // soft blue
+  { bg: '#E5FFE5', border: '#99FF99' }, // soft green
+  { bg: '#FFF5E5', border: '#FFD699' }, // soft orange
+  { bg: '#F5E5FF', border: '#D699FF' }, // soft purple
+  { bg: '#FFFFE5', border: '#FFFF99' }, // soft yellow
+]
+
 // Sound button component
 interface SoundButtonProps {
-  name: string
+  colorIndex: number
   onClick: () => void
   selected: boolean
   disabled: boolean
@@ -331,19 +349,19 @@ interface SoundButtonProps {
 }
 
 function SoundButton({
-  name,
+  colorIndex,
   onClick,
   selected,
   disabled,
   isCorrect,
   isIncorrect,
 }: SoundButtonProps) {
-  let borderColor = colors.neutral[200]
-  let bgColor = colors.surface
+  const colorScheme = SOUND_BUTTON_COLORS[colorIndex % SOUND_BUTTON_COLORS.length]
+  let borderColor = colorScheme.border
+  let bgColor = colorScheme.bg
 
   if (selected) {
     borderColor = colors.primary[500]
-    bgColor = colors.primary[50]
   }
   if (isCorrect) {
     borderColor = colors.success[500]
@@ -357,28 +375,23 @@ function SoundButton({
     <motion.button
       onClick={disabled ? undefined : onClick}
       style={{
-        padding: `${spacing[3]} ${spacing[4]}`,
-        borderRadius: borderRadius.xl,
-        border: `2px solid ${borderColor}`,
+        width: '64px',
+        height: '64px',
+        borderRadius: borderRadius.full,
+        border: `3px solid ${borderColor}`,
         backgroundColor: bgColor,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled && !isCorrect ? 0.5 : 1,
-        minWidth: '100px',
+        opacity: disabled && !isCorrect ? 0.3 : 1,
         boxShadow: shadows.sm,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.5rem',
       }}
-      whileHover={disabled ? undefined : { scale: 1.05 }}
+      whileHover={disabled ? undefined : { scale: 1.1 }}
       whileTap={disabled ? undefined : { scale: 0.95 }}
     >
-      <span
-        style={{
-          fontFamily: typography.fontFamily.hebrew,
-          fontSize: typography.fontSize.lg,
-          color: colors.text.primary,
-        }}
-      >
-        {name}
-      </span>
-      <span style={{ marginRight: spacing[2] }}>🔊</span>
+      🔊
     </motion.button>
   )
 }

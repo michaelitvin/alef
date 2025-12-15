@@ -8,6 +8,7 @@ import type {
   RewardType,
   ActivityAttempt,
   CurrentSession,
+  FontType,
 } from '../types/progress'
 import {
   INITIAL_PROGRESS_STATE,
@@ -47,6 +48,7 @@ interface ProgressActions {
   setBackgroundMusic: (enabled: boolean) => void
   setVolume: (volume: number) => void
   setDevMode: (enabled: boolean) => void
+  setFont: (font: FontType) => void
 
   // Utility
   resetProgress: () => void
@@ -433,6 +435,12 @@ export const useProgressStore = create<ProgressStore>()(
       setDevMode: (enabled) => {
         set((state) => ({
           settings: { ...state.settings, devMode: enabled },
+        }))
+      },
+
+      setFont: (font) => {
+        set((state) => ({
+          settings: { ...state.settings, font },
         }))
       },
 

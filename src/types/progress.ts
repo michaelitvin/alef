@@ -127,6 +127,11 @@ export interface Stats {
 }
 
 /**
+ * Font type options for Hebrew text
+ */
+export type FontType = 'default' | 'cursive' | 'modern' | 'rounded'
+
+/**
  * Settings
  * User preferences
  */
@@ -143,6 +148,8 @@ export interface Settings {
   showHints: boolean
   /** Dev mode - unlocks all levels */
   devMode: boolean
+  /** Selected font for Hebrew text */
+  font: FontType
 }
 
 /**
@@ -203,6 +210,7 @@ export const DEFAULT_SETTINGS: Settings = {
   animationSpeed: 'normal',
   showHints: true,
   devMode: false,
+  font: 'default',
 }
 
 export const DEFAULT_STATS: Stats = {

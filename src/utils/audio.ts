@@ -178,12 +178,35 @@ export async function preloadLetterNamesTTS(): Promise<void> {
 }
 
 /**
+ * Preload TTS for specific letter IDs
+ */
+export async function preloadLetterNamesByIds(letterIds: string[]): Promise<void> {
+  if (!isTTSEnabled()) return
+  const texts = letterIds
+    .map(id => LETTER_NAMES_HEBREW[id])
+    .filter((name): name is string => !!name)
+  if (texts.length > 0) {
+    await preloadTTS(texts)
+  }
+}
+
+/**
  * Preload TTS for nikkud names (when TTS is enabled)
  */
 export async function preloadNikkudNamesTTS(): Promise<void> {
   if (!isTTSEnabled()) return
   const texts = Object.values(NIKKUD_NAMES_HEBREW)
   await preloadTTS(texts)
+}
+
+/**
+ * Preload TTS for specific text strings (sounds, words, sentences)
+ */
+export async function preloadSounds(sounds: string[]): Promise<void> {
+  if (!isTTSEnabled()) return
+  if (sounds.length > 0) {
+    await preloadTTS(sounds)
+  }
 }
 
 /**

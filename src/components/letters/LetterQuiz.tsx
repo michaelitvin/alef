@@ -6,7 +6,7 @@ import { Button } from '../common/Button'
 import { FeedbackOverlay } from '../common/FeedbackOverlay'
 import { useAudio } from '../../hooks/useAudio'
 import { useSoundEffects } from '../../hooks/useAudio'
-import { getLetterNameAudio } from '../../utils/audio'
+import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
 export interface LetterQuizProps {
@@ -44,17 +44,21 @@ export function LetterQuiz({
   const { play } = useAudio()
   const { playSuccess, playError } = useSoundEffects()
 
-  // Play audio prompt on mount
+  // Preload audio for target and all options on mount
+  useEffect(() => {
+    const letterIds = [targetLetter.id, ...options.map(o => o.id)]
+    preloadLetterNamesByIds(letterIds)
+  }, [targetLetter.id, options])
+
+  // Play audio prompt on mount (immediately)
   useEffect(() => {
     if (state !== 'prompt') return
 
     if (playAudio) {
-      const timer = setTimeout(() => {
-        play(getLetterNameAudio(targetLetter.id))
-          .then(() => setState('answering'))
-          .catch(() => setState('answering'))
-      }, 500)
-      return () => clearTimeout(timer)
+      // Play immediately - no delay
+      play(getLetterNameAudio(targetLetter.id))
+        .then(() => setState('answering'))
+        .catch(() => setState('answering'))
     } else {
       setState('answering')
     }
@@ -171,6 +175,10 @@ export function LetterQuiz({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.1 }}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+              }}
             >
               <LetterCard
                 letter={letter.character}

@@ -30,8 +30,6 @@ export interface NikkudQuizProps {
  * Shows multiple letter+nikkud combinations, user selects the one that makes the target sound
  */
 export function NikkudQuiz({
-  targetSound,
-  nikkudName,
   options,
   onAnswer,
   onComplete,
@@ -42,13 +40,10 @@ export function NikkudQuiz({
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
 
-  // Auto-play sound on mount
+  // Auto-play sound on mount (immediately)
   useEffect(() => {
-    if (onPlaySound) {
-      const timer = setTimeout(onPlaySound, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [onPlaySound])
+    onPlaySound?.()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOptionClick = useCallback(
     (index: number) => {
@@ -109,20 +104,9 @@ export function NikkudQuiz({
             fontFamily: typography.fontFamily.hebrew,
             fontSize: typography.fontSize.xl,
             color: colors.secondary[700],
-            marginBottom: spacing[2],
           }}
         >
-          איזה צליל עושה ה{nikkudName}?
-        </p>
-        <p
-          style={{
-            fontFamily: typography.fontFamily.hebrew,
-            fontSize: typography.fontSize['2xl'],
-            fontWeight: typography.fontWeight.bold,
-            color: colors.secondary[600],
-          }}
-        >
-          {targetSound}
+          שמע ומצא את הצליל הנכון
         </p>
       </motion.div>
 

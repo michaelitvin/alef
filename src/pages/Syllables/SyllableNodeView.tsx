@@ -17,7 +17,7 @@ import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
 import { useProgressStore } from '../../stores/progressStore'
 import { Header } from '../../components/navigation/Navigation'
 import { useAudio } from '../../hooks/useAudio'
-import { getTTS, isTTSEnabled } from '../../services/tts'
+import { getTTS, isTTSEnabled, preloadTTS } from '../../services/tts'
 import type { CVSyllable } from '../../types/entities'
 
 // Syllable data
@@ -189,6 +189,39 @@ export function SyllableNodeView() {
       }
     }
   }, [drillId, initializeNode, setNodeState, urlStep, setSearchParams])
+
+  // Preload audio for current activity items only
+  useEffect(() => {
+    if (!isTTSEnabled() || shuffledItems.length === 0) return
+
+    const sounds: string[] = []
+    switch (activityType) {
+      case 'drill':
+        // Only preload the shuffled items we'll actually use
+        (shuffledItems as CVSyllable[]).forEach(s => sounds.push(s.sound))
+        break
+      case 'blend':
+        (shuffledItems as BlendWord[]).forEach(w => {
+          w.syllables.forEach(s => sounds.push(s.sound))
+          sounds.push(w.wordSound)
+        })
+        break
+      case 'segment':
+        (shuffledItems as SegmentWord[]).forEach(w => {
+          sounds.push(w.wordSound)
+          w.syllables.forEach(s => sounds.push(s.sound))
+        })
+        break
+      case 'pairs':
+        (shuffledItems as MinimalPairData[]).forEach(p => {
+          sounds.push(p.syllable1.sound, p.syllable2.sound)
+        })
+        break
+    }
+    if (sounds.length > 0) {
+      preloadTTS([...new Set(sounds)])
+    }
+  }, [shuffledItems, activityType])
 
   // Handle unknown activity
   if (!activityConfig || !drillId) {

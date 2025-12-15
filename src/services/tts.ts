@@ -25,8 +25,6 @@ export function isTTSEnabled(): boolean {
  * Caches responses in browser Cache API for instant replay
  */
 export async function getTTS(text: string): Promise<string> {
-  console.log('[TTS] getTTS called for:', text)
-
   if (!TTS_ENDPOINT) {
     console.error('[TTS] Endpoint not configured!')
     throw new Error('TTS endpoint not configured')
@@ -43,6 +41,8 @@ export async function getTTS(text: string): Promise<string> {
     const blob = await cached.blob()
     return URL.createObjectURL(blob)
   }
+
+  console.log('[TTS] Cache MISS:', text)
 
   // 2. Fetch from TTS proxy
   const response = await fetch(TTS_ENDPOINT, {

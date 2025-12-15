@@ -1,6 +1,16 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { NikkudCard } from './NikkudCard'
+
+export interface ExampleLetter {
+  /** The letter character */
+  letter: string
+  /** The combined letter+nikkud display */
+  display: string
+  /** The sound/syllable to play */
+  sound: string
+}
 
 export interface NikkudIntroProps {
   /** The nikkud mark to introduce */
@@ -9,14 +19,18 @@ export interface NikkudIntroProps {
   nikkudName: string
   /** Description of how to pronounce */
   description: string
-  /** The letter used in the example */
-  exampleLetter: string
+  /** Example letters with their sounds (for regular nikkud) */
+  exampleLetters?: ExampleLetter[]
+  /** Example word (for full vowels like holam male, shuruk) */
+  exampleWord?: string
   /** Whether this is a full vowel (holam male or shuruk) */
   isFullVowel?: boolean
   /** Called when user wants to hear the nikkud name */
   onPlayName?: () => void
-  /** Called when user wants to hear the sound */
+  /** Called when user wants to hear the main nikkud sound */
   onPlaySound?: () => void
+  /** Called when user wants to hear a specific example */
+  onPlayExample?: (sound: string) => void
   /** Called when user is ready to continue */
   onContinue?: () => void
 }
@@ -29,12 +43,26 @@ export function NikkudIntro({
   nikkud,
   nikkudName,
   description,
-  exampleLetter,
+  exampleLetters = [],
+  exampleWord,
   isFullVowel = false,
   onPlayName,
   onPlaySound,
+  onPlayExample,
   onContinue,
 }: NikkudIntroProps) {
+  // Auto-play sound on mount with a small delay for animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onPlaySound?.()
+    }, 600)
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleExampleClick = (example: ExampleLetter) => {
+    onPlayExample?.(example.sound)
+  }
+
   return (
     <div
       style={{
@@ -127,7 +155,7 @@ export function NikkudIntro({
         </p>
       </motion.div>
 
-      {/* Example - for regular nikkud show with letter, for full vowels show word example */}
+      {/* Example - for regular nikkud show with letters, for full vowels show word example */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -175,7 +203,7 @@ export function NikkudIntro({
                   color: colors.text.primary,
                 }}
               >
-                {exampleLetter}
+                {exampleWord}
               </span>
             </motion.div>
           </>
@@ -189,14 +217,32 @@ export function NikkudIntro({
                 marginBottom: spacing[3],
               }}
             >
-              דוגמה עם האות {exampleLetter}:
+              דוגמאות עם אותיות:
             </p>
-            <NikkudCard
-              letter={exampleLetter}
-              nikkud={nikkud}
-              size="lg"
-              onClick={onPlaySound}
-            />
+            <div
+              style={{
+                display: 'flex',
+                gap: spacing[3],
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              {exampleLetters.map((example, index) => (
+                <motion.div
+                  key={example.letter}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                >
+                  <NikkudCard
+                    letter={example.letter}
+                    nikkud={nikkud}
+                    size="md"
+                    onClick={() => handleExampleClick(example)}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </>
         )}
       </motion.div>

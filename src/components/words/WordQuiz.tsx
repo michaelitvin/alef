@@ -42,11 +42,10 @@ export function WordQuiz({
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
 
-  // Auto-play sound on mount if available
+  // Auto-play sound on mount (immediately)
   useEffect(() => {
     if (onPlaySound) {
-      const timer = setTimeout(onPlaySound, 500)
-      return () => clearTimeout(timer)
+      onPlaySound()
     }
   }, [onPlaySound])
 

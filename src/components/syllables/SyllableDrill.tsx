@@ -44,11 +44,10 @@ export function SyllableDrill({
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
 
-  // Auto-play sound on mount and when target changes
+  // Auto-play sound on mount (immediately)
   useEffect(() => {
     if (onPlaySound) {
-      const timer = setTimeout(onPlaySound, 500)
-      return () => clearTimeout(timer)
+      onPlaySound()
     }
   }, [onPlaySound, targetSyllable.id])
 

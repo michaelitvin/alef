@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
+import { colors, typography, spacing, borderRadius, shadows, fonts } from '../../styles/theme'
+import type { FontType } from '../../types/progress'
 import { Header } from '../../components/navigation/Navigation'
 import { AgeGate, isSettingsVerified } from '../../components/settings/AgeGate'
 import { useProgressStore } from '../../stores/progressStore'
@@ -15,7 +16,17 @@ export function SettingsPage() {
 
   const devMode = useProgressStore((state) => state.settings.devMode)
   const setDevMode = useProgressStore((state) => state.setDevMode)
+  const font = useProgressStore((state) => state.settings.font)
+  const setFont = useProgressStore((state) => state.setFont)
   const resetProgress = useProgressStore((state) => state.resetProgress)
+
+  // Font options with display names
+  const fontOptions: { id: FontType; name: string; preview: string }[] = [
+    { id: 'default', name: 'קלאסי', preview: 'אָלֶף' },
+    { id: 'cursive', name: 'כתב יד', preview: 'אָלֶף' },
+    { id: 'modern', name: 'מודרני', preview: 'אָלֶף' },
+    { id: 'rounded', name: 'מעוגל', preview: 'אָלֶף' },
+  ]
 
   const handleBack = () => {
     navigate('/')
@@ -149,6 +160,94 @@ export function SettingsPage() {
                 }}
               />
             </motion.button>
+          </div>
+        </motion.section>
+
+        {/* Font Selection */}
+        <motion.section
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          style={{
+            backgroundColor: colors.surface,
+            borderRadius: borderRadius['2xl'],
+            padding: spacing[6],
+            marginBottom: spacing[4],
+            boxShadow: shadows.md,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3], marginBottom: spacing[4] }}>
+            <span style={{ fontSize: '1.5rem' }}>א</span>
+            <div>
+              <h3
+                style={{
+                  fontFamily: typography.fontFamily.hebrew,
+                  fontSize: typography.fontSize.xl,
+                  fontWeight: typography.fontWeight.semibold,
+                  color: colors.text.primary,
+                  margin: 0,
+                }}
+              >
+                גופן
+              </h3>
+              <p
+                style={{
+                  fontFamily: typography.fontFamily.hebrew,
+                  fontSize: typography.fontSize.sm,
+                  color: colors.text.secondary,
+                  margin: 0,
+                }}
+              >
+                בחר את סגנון הכתב
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: spacing[3],
+            }}
+          >
+            {fontOptions.map((option) => (
+              <motion.button
+                key={option.id}
+                onClick={() => setFont(option.id)}
+                style={{
+                  padding: spacing[4],
+                  backgroundColor: font === option.id ? colors.primary[50] : colors.neutral[50],
+                  border: `2px solid ${font === option.id ? colors.primary[500] : colors.neutral[200]}`,
+                  borderRadius: borderRadius.xl,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span
+                  style={{
+                    fontFamily: fonts[option.id],
+                    fontSize: typography.fontSize['3xl'],
+                    display: 'block',
+                    marginBottom: spacing[2],
+                    color: colors.text.primary,
+                  }}
+                >
+                  {option.preview}
+                </span>
+                <span
+                  style={{
+                    fontFamily: typography.fontFamily.hebrew,
+                    fontSize: typography.fontSize.sm,
+                    color: font === option.id ? colors.primary[600] : colors.text.secondary,
+                    fontWeight: font === option.id ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                  }}
+                >
+                  {option.name}
+                </span>
+              </motion.button>
+            ))}
           </div>
         </motion.section>
 

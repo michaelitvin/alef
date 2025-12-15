@@ -4,7 +4,7 @@ import { colors, typography, spacing, borderRadius, shadows } from '../../styles
 import { LetterCard } from './LetterCard'
 import { Button } from '../common/Button'
 import { useAudio } from '../../hooks/useAudio'
-import { getLetterNameAudio } from '../../utils/audio'
+import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter, LetterVariant } from '../../types/entities'
 
 export interface LetterIntroProps {
@@ -28,6 +28,11 @@ type IntroPhase = 'letter' | 'name' | 'complete'
 export function LetterIntro({ letter, variants, onComplete }: LetterIntroProps) {
   const [phase, setPhase] = useState<IntroPhase>('letter')
   const { play, isPlaying } = useAudio()
+
+  // Preload audio on mount
+  useEffect(() => {
+    preloadLetterNamesByIds([letter.id])
+  }, [letter.id])
 
   // Auto-advance through phases
   useEffect(() => {

@@ -81,11 +81,21 @@ export const colors = {
   star: '#FFC107',
 }
 
+// Font options for Hebrew text
+export const fonts = {
+  default: "'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif",
+  cursive: "'Dana Yad', 'Guttman Yad-Brush', 'Hillel CLM', sans-serif",
+  modern: "'Noto Sans Hebrew', 'Arial Hebrew', 'Heebo', sans-serif",
+  rounded: "'Varela Round', 'Rubik', 'Noto Sans Hebrew', sans-serif",
+} as const
+
+export type FontKey = keyof typeof fonts
+
 // Typography
 export const typography = {
   fontFamily: {
-    hebrew: "'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif",
-    hebrewCursive: "'Dana Yad', 'Hillel CLM', sans-serif",
+    hebrew: fonts.default,
+    hebrewCursive: fonts.cursive,
   },
   fontSize: {
     xs: '0.75rem',    // 12px
@@ -190,6 +200,7 @@ export const touchTargets = {
 // Complete theme object
 export const theme = {
   colors,
+  fonts,
   typography,
   spacing,
   borderRadius,

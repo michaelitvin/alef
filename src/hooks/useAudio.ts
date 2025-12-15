@@ -8,6 +8,55 @@ import { useProgressStore } from '../stores/progressStore'
 export type AudioStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
 
 /**
+ * Track if audio has been unlocked by user gesture
+ */
+let audioUnlocked = false
+let pendingPlays: (() => void)[] = []
+
+/**
+ * Unlock audio context on first user interaction
+ * This is required by browsers' autoplay policy
+ */
+export function unlockAudio(): void {
+  if (audioUnlocked) return
+
+  const unlock = () => {
+    // Resume the AudioContext if it exists and is suspended
+    const ctx = Howler.ctx
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        audioUnlocked = true
+        // Play any pending audio
+        pendingPlays.forEach(fn => fn())
+        pendingPlays = []
+      })
+    } else {
+      audioUnlocked = true
+      // Play any pending audio
+      pendingPlays.forEach(fn => fn())
+      pendingPlays = []
+    }
+
+    // Remove listeners after first interaction
+    document.removeEventListener('click', unlock, true)
+    document.removeEventListener('touchstart', unlock, true)
+    document.removeEventListener('keydown', unlock, true)
+  }
+
+  // Listen for user interaction
+  document.addEventListener('click', unlock, true)
+  document.addEventListener('touchstart', unlock, true)
+  document.addEventListener('keydown', unlock, true)
+}
+
+/**
+ * Check if audio is unlocked
+ */
+export function isAudioUnlocked(): boolean {
+  return audioUnlocked
+}
+
+/**
  * Audio cache to prevent re-loading the same files
  */
 const audioCache = new Map<string, Howl>()
@@ -92,6 +141,20 @@ export function useAudio() {
         return
       }
 
+      // Check if AudioContext is suspended (browser autoplay policy)
+      // If suspended and not unlocked yet, skip playing silently
+      // User can tap the speaker button to play manually
+      const ctx = Howler.ctx
+      if (ctx && ctx.state === 'suspended') {
+        try {
+          await ctx.resume()
+        } catch {
+          // Can't resume without user gesture - skip silently
+          console.debug('AudioContext suspended - skipping autoplay')
+          return
+        }
+      }
+
       // Resolve the source if it's a promise (e.g., from TTS)
       let src: string
       try {
@@ -132,7 +195,7 @@ export function useAudio() {
         const timeout = setTimeout(() => {
           console.warn(`Audio load timeout: ${src}`)
           safeResolve() // Resolve anyway to not block UI
-        }, 3000)
+        }, 1500)
 
         const howl = getHowl(src, volume)
         currentHowlRef.current = howl

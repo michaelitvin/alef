@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
-import { NikkudIntro } from '../../components/nikkud/NikkudIntro'
+import { NikkudIntro, type ExampleLetter } from '../../components/nikkud/NikkudIntro'
 import { NikkudQuiz, type NikkudQuizOption } from '../../components/nikkud/NikkudQuiz'
 import { CombinationBuilder } from '../../components/nikkud/CombinationBuilder'
 import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
 import { useProgressStore } from '../../stores/progressStore'
 import { Header } from '../../components/navigation/Navigation'
 import { useAudio } from '../../hooks/useAudio'
-import { getTTS, isTTSEnabled } from '../../services/tts'
+import { getTTS, isTTSEnabled, preloadTTS } from '../../services/tts'
 
 // Nikkud data structure with soundGroup for quiz logic
 const NIKKUD = [
@@ -26,8 +26,28 @@ const NIKKUD = [
   { id: 'shuruk', mark: 'וּ', name: 'שׁוּרוּק', sound: 'וּ', description: 'וָו עם נקודה באמצע - וּ', soundGroup: 'u', isFullVowel: true },
 ]
 
-// Sample letters for building combinations
-const PRACTICE_LETTERS = ['ב', 'מ', 'ל', 'ש']
+// Fisher-Yates shuffle for proper randomization
+function shuffle<T>(array: T[]): T[] {
+  const result = [...array]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+// Example letters config - letter with dagesh info
+const EXAMPLE_LETTERS_CONFIG = [
+  { letter: 'ב', hasDagesh: true },
+  { letter: 'מ', hasDagesh: false },
+  { letter: 'ל', hasDagesh: false },
+  { letter: 'ש', hasDagesh: false },
+]
+
+// Practice letters for builder (with dagesh where needed)
+const PRACTICE_LETTERS = EXAMPLE_LETTERS_CONFIG.map(({ letter, hasDagesh }) =>
+  letter + (hasDagesh ? 'ּ' : '')
+)
 
 type LearningStep = 'intro' | 'quiz' | 'builder' | 'complete'
 
@@ -92,6 +112,37 @@ export function NikkudNodeView() {
     }
   }, [nikkudId, initializeNode, setNodeState, urlStep, setSearchParams])
 
+  // Generate example letters with their sounds for the current nikkud
+  const generateExampleLetters = useCallback((): ExampleLetter[] => {
+    if (!nikkudData || nikkudData.isFullVowel) return []
+
+    return EXAMPLE_LETTERS_CONFIG.map(({ letter, hasDagesh }) => {
+      // Build the letter with dagesh if needed (dagesh comes before nikkud)
+      const dagesh = hasDagesh ? 'ּ' : ''
+      const letterWithDagesh = letter + dagesh
+      // Build the combined display: letter + dagesh + nikkud
+      const display = letterWithDagesh + nikkudData.mark
+      // The sound is the combined syllable
+      const sound = display
+      // Return letter with dagesh so NikkudCard renders correctly
+      return { letter: letterWithDagesh, display, sound }
+    })
+  }, [nikkudData])
+
+  const exampleLetters = generateExampleLetters()
+
+  // Preload all sounds (main nikkud + example letters)
+  useEffect(() => {
+    if (nikkudData && isTTSEnabled()) {
+      const sounds = [nikkudData.sound]
+      // Add example letter sounds for non-full vowels
+      if (!nikkudData.isFullVowel) {
+        exampleLetters.forEach(ex => sounds.push(ex.sound))
+      }
+      preloadTTS(sounds)
+    }
+  }, [nikkudData, exampleLetters])
+
   // Handle unknown nikkud
   if (!nikkudData) {
     return (
@@ -104,25 +155,20 @@ export function NikkudNodeView() {
 
   const nodeId = `nikkud-${nikkudId}`
 
-  // Generate quiz options for the current nikkud
-  // Uses different letters for each option to prevent visual nikkud matching
-  // Avoids similar-sounding distractors (patach/kamatz, tsere/segol)
-  const generateQuizOptions = (): NikkudQuizOption[] => {
-    // Get the sound group of the target nikkud
+  // Generate quiz options - stable across re-renders for same nikkud
+  const quizOptions = useMemo((): NikkudQuizOption[] => {
     const targetSoundGroup = nikkudData.soundGroup
 
     // Filter out nikkud with the same sound group (to avoid confusing similar sounds)
-    // Also exclude the target nikkud itself
     const eligibleDistractors = NIKKUD.filter(
       (n) => n.id !== nikkudId && n.soundGroup !== targetSoundGroup
     )
 
     // Shuffle and pick 3 distractors
-    const shuffledDistractors = [...eligibleDistractors].sort(() => Math.random() - 0.5)
-    const selectedDistractors = shuffledDistractors.slice(0, 3)
+    const selectedDistractors = shuffle(eligibleDistractors).slice(0, 3)
 
     // Shuffle the practice letters to get different letters for each option
-    const shuffledLetters = [...PRACTICE_LETTERS].sort(() => Math.random() - 0.5)
+    const shuffledLetters = shuffle(PRACTICE_LETTERS)
 
     // Create options with different letters for each
     const options: NikkudQuizOption[] = [
@@ -132,27 +178,36 @@ export function NikkudNodeView() {
         isCorrect: true,
       },
       ...selectedDistractors.map((n, index) => ({
-        letter: shuffledLetters[index + 1] || shuffledLetters[0], // Fallback if not enough letters
+        letter: shuffledLetters[index + 1] || shuffledLetters[0],
         nikkud: n.mark,
         isCorrect: false,
       })),
     ]
 
-    // Shuffle options
-    return options.sort(() => Math.random() - 0.5)
-  }
+    // Shuffle final options so correct answer is in random position
+    return shuffle(options)
+  }, [nikkudId, nikkudData.soundGroup, nikkudData.mark])
 
   // Generate nikkud options for combination builder
-  const generateNikkudOptions = () => {
-    // Include current nikkud and 2-3 others
-    const otherNikkud = NIKKUD.filter((n) => n.id !== nikkudId).slice(0, 3)
-    const allOptions = [nikkudData, ...otherNikkud]
+  const nikkudOptions = useMemo(() => {
+    // Include current nikkud and 2-3 others (shuffled)
+    const otherNikkud = shuffle(NIKKUD.filter((n) => n.id !== nikkudId)).slice(0, 3)
+    const allOptions = shuffle([nikkudData, ...otherNikkud])
 
     return allOptions.map((n) => ({
       mark: n.mark,
       name: n.name,
     }))
-  }
+  }, [nikkudId, nikkudData])
+
+  // Generate random target letter for combination builder (stable per nikkud)
+  const builderTarget = useMemo(() => {
+    const letterConfig = EXAMPLE_LETTERS_CONFIG[Math.floor(Math.random() * EXAMPLE_LETTERS_CONFIG.length)]
+    const dagesh = letterConfig.hasDagesh ? 'ּ' : ''
+    const letter = letterConfig.letter + dagesh
+    const sound = letter + nikkudData.mark
+    return { letter, sound }
+  }, [nikkudData.mark])
 
   // Step handlers
   const handleIntroContinue = () => {
@@ -205,6 +260,29 @@ export function NikkudNodeView() {
   const handlePlaySound = () => {
     if (nikkudData && isTTSEnabled()) {
       play(getTTS(nikkudData.sound)).catch(console.error)
+    }
+  }
+
+  // Play the correct quiz option's sound (letter + nikkud)
+  const handlePlayQuizSound = useCallback(() => {
+    if (isTTSEnabled()) {
+      const correctOption = quizOptions.find(opt => opt.isCorrect)
+      if (correctOption) {
+        const sound = correctOption.letter + correctOption.nikkud
+        play(getTTS(sound)).catch(console.error)
+      }
+    }
+  }, [quizOptions, play])
+
+  const handlePlayBuilderSound = () => {
+    if (isTTSEnabled()) {
+      play(getTTS(builderTarget.sound)).catch(console.error)
+    }
+  }
+
+  const handlePlayExample = (sound: string) => {
+    if (isTTSEnabled()) {
+      play(getTTS(sound)).catch(console.error)
     }
   }
 
@@ -283,9 +361,11 @@ export function NikkudNodeView() {
                 nikkud={nikkudData.mark}
                 nikkudName={nikkudData.name}
                 description={nikkudData.description}
-                exampleLetter={nikkudData.isFullVowel ? (nikkudData.id === 'holam-male' ? 'טוֹב' : 'שׁוּק') : 'ב'}
+                exampleLetters={exampleLetters}
+                exampleWord={nikkudData.isFullVowel ? (nikkudData.id === 'holam-male' ? 'טוֹב' : 'שׁוּק') : undefined}
                 isFullVowel={nikkudData.isFullVowel}
                 onPlaySound={handlePlaySound}
+                onPlayExample={handlePlayExample}
                 onContinue={handleIntroContinue}
               />
             </motion.div>
@@ -302,10 +382,10 @@ export function NikkudNodeView() {
               <NikkudQuiz
                 targetSound={nikkudData.sound}
                 nikkudName={nikkudData.name}
-                options={generateQuizOptions()}
+                options={quizOptions}
                 onAnswer={handleQuizAnswer}
                 onComplete={handleQuizComplete}
-                onPlaySound={handlePlaySound}
+                onPlaySound={handlePlayQuizSound}
               />
             </motion.div>
           )}
@@ -320,13 +400,13 @@ export function NikkudNodeView() {
             >
               <CombinationBuilder
                 letters={PRACTICE_LETTERS}
-                nikkudOptions={generateNikkudOptions()}
-                targetLetter="ב"
+                nikkudOptions={nikkudOptions}
+                targetLetter={builderTarget.letter}
                 targetNikkud={nikkudData.mark}
-                targetSound={nikkudData.sound}
+                targetSound={builderTarget.sound}
                 onCorrect={handleBuilderCorrect}
                 onIncorrect={handleBuilderIncorrect}
-                onPlaySound={handlePlaySound}
+                onPlaySound={handlePlayBuilderSound}
               />
             </motion.div>
           )}

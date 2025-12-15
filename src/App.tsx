@@ -13,10 +13,15 @@ import SentencesPage from './pages/Sentences/SentencesPage'
 import SentenceGroupView from './pages/Sentences/SentenceGroupView'
 import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
+import RoutesPage from './pages/Debug/RoutesPage'
 import { useProgressStore } from './stores/progressStore'
+import { useFontEffect } from './hooks/useFont'
 
 function App() {
   const { settings, setDevMode } = useProgressStore()
+
+  // Apply font setting to document root
+  useFontEffect()
 
   // Check URL param for dev mode on mount
   // With HashRouter, params can be in hash (e.g., /#/?devMode=true) or before hash (?devMode=true#/)
@@ -66,6 +71,7 @@ function App() {
         <Route path="/sentences/:groupId" element={<SentenceGroupView />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/debug/routes" element={<RoutesPage />} />
       </Routes>
     </HashRouter>
   )

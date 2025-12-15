@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { LetterCard } from '../letters/LetterCard'
@@ -30,7 +30,6 @@ export function CombinationBuilder({
   nikkudOptions,
   targetLetter,
   targetNikkud,
-  targetSound,
   onCorrect,
   onIncorrect,
   onPlaySound,
@@ -40,6 +39,14 @@ export function CombinationBuilder({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [checking, setChecking] = useState(false)
+
+  // Auto-play sound on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onPlaySound?.()
+    }, 400)
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheck = useCallback(() => {
     if (!selectedLetter || !selectedNikkud || checking) return
@@ -119,21 +126,29 @@ export function CombinationBuilder({
             marginBottom: spacing[2],
           }}
         >
-          בנה את הצליל:
+          שמע ובנה את הצליל
         </p>
-        <motion.p
+        <motion.button
           style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            borderRadius: borderRadius.full,
+            border: `2px solid ${colors.primary[300]}`,
+            backgroundColor: colors.surface,
             fontFamily: typography.fontFamily.hebrew,
-            fontSize: typography.fontSize['3xl'],
-            fontWeight: typography.fontWeight.bold,
+            fontSize: typography.fontSize.xl,
             color: colors.primary[600],
             cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            margin: '0 auto',
           }}
           onClick={onPlaySound}
           whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          {targetSound} 🔊
-        </motion.p>
+          🔊 שמע
+        </motion.button>
       </motion.div>
 
       {/* Current combination preview */}
@@ -261,11 +276,12 @@ export function CombinationBuilder({
               <span
                 style={{
                   fontFamily: typography.fontFamily.hebrew,
-                  fontSize: '2rem',
+                  fontSize: '2.5rem',
                   color: colors.text.primary,
+                  lineHeight: 1,
                 }}
               >
-                א{mark}
+                {mark}
               </span>
             </motion.button>
           ))}
