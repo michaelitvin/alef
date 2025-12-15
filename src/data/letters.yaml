@@ -25,6 +25,7 @@ letters:
     audioName: letters/bet-name.mp3
     audioSound: letters/bet-sound.mp3
     funFact: בֵּית זה גם בַּיִת!
+    variantIds: [bet-dagesh, bet-no-dagesh]
 
   - id: gimel
     character: ג
@@ -126,6 +127,7 @@ letters:
     audioName: letters/kaf-name.mp3
     audioSound: letters/kaf-sound.mp3
     funFact: כַּף יָד!
+    variantIds: [kaf-dagesh, kaf-no-dagesh]
 
   - id: lamed
     character: ל
@@ -193,6 +195,7 @@ letters:
     audioName: letters/pe-name.mp3
     audioSound: letters/pe-sound.mp3
     funFact: פֶּה מדבר!
+    variantIds: [pe-dagesh, pe-no-dagesh]
 
   - id: tsadi
     character: צ
@@ -238,6 +241,8 @@ letters:
     audioName: letters/shin-name.mp3
     audioSound: letters/shin-sound.mp3
     funFact: שֶׁמֶשׁ זורחת!
+    hasSinVariant: true
+    variantIds: [shin-dot, sin-dot]
 
   - id: tav
     character: ת
@@ -310,3 +315,75 @@ letters:
     audioName: letters/tsadi-sofit-name.mp3
     audioSound: letters/tsadi-sofit-sound.mp3
     funFact: צדי יורדת בסוף!
+
+# Letter variants (dagesh forms and shin/sin)
+variants:
+  # Bet variants
+  - id: bet-dagesh
+    baseId: bet
+    character: בּ
+    sound: b
+    hasDagesh: true
+    audioSound: letters/bet-b-sound.mp3
+    description: בּ עם דגש - צליל ב'
+
+  - id: bet-no-dagesh
+    baseId: bet
+    character: ב
+    sound: v
+    hasDagesh: false
+    audioSound: letters/bet-v-sound.mp3
+    description: ב בלי דגש - צליל ו'
+
+  # Kaf variants
+  - id: kaf-dagesh
+    baseId: kaf
+    character: כּ
+    sound: k
+    hasDagesh: true
+    audioSound: letters/kaf-k-sound.mp3
+    description: כּ עם דגש - צליל כ'
+
+  - id: kaf-no-dagesh
+    baseId: kaf
+    character: כ
+    sound: ch
+    hasDagesh: false
+    audioSound: letters/kaf-ch-sound.mp3
+    description: כ בלי דגש - צליל ח'
+
+  # Pe variants
+  - id: pe-dagesh
+    baseId: pe
+    character: פּ
+    sound: p
+    hasDagesh: true
+    audioSound: letters/pe-p-sound.mp3
+    description: פּ עם דגש - צליל פ'
+
+  - id: pe-no-dagesh
+    baseId: pe
+    character: פ
+    sound: f
+    hasDagesh: false
+    audioSound: letters/pe-f-sound.mp3
+    description: פ בלי דגש - צליל פ' רכה
+
+  # Shin/Sin variants
+  - id: shin-dot
+    baseId: shin
+    character: שׁ
+    sound: sh
+    hasDagesh: false
+    dotPosition: right
+    audioSound: letters/shin-sound.mp3
+    description: שׁ עם נקודה ימנית - צליל ש'
+
+  - id: sin-dot
+    baseId: shin
+    character: שׂ
+    sound: s
+    hasDagesh: false
+    dotPosition: left
+    audioSound: letters/sin-sound.mp3
+    description: שׂ עם נקודה שמאלית - צליל ס'

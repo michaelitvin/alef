@@ -29,6 +29,10 @@ export interface Letter {
   audioSound: string
   /** Optional fun fact or mnemonic for children */
   funFact?: string
+  /** IDs of variant forms (e.g., bet has bet-dagesh, bet-no-dagesh) */
+  variantIds?: string[]
+  /** For shin: has sin variant */
+  hasSinVariant?: boolean
 }
 
 /**
@@ -56,6 +60,121 @@ export interface Nikkud {
   audioSound: string
   /** Position relative to letter: below, above, or inline */
   position: 'below' | 'above' | 'inline'
+  /** True for holam male and shuruk (vav-based vowels) */
+  isFullVowel?: boolean
+  /** Sound group for quiz logic ('a', 'e', 'i', 'o', 'u', 'silent') */
+  soundGroup?: 'a' | 'e' | 'i' | 'o' | 'u' | 'silent'
+}
+
+/**
+ * CV Syllable (צֵרוּף)
+ * A consonant-vowel combination unit - the fundamental reading unit in Hebrew
+ */
+export interface CVSyllable {
+  /** Unique identifier (e.g., 'bet-kamatz') */
+  id: string
+  /** Reference to letter */
+  letterId: string
+  /** Reference to nikkud */
+  nikkudId: string
+  /** Display string with combined character (e.g., 'בָּ') */
+  display: string
+  /** Pronunciation (e.g., 'ba') */
+  sound: string
+  /** Audio file path */
+  audio: string
+  /** Whether letter has dagesh in this combination */
+  hasDagesh?: boolean
+  /** Frequency in first-grade vocabulary (1-5, 5=most common) */
+  frequency: number
+  /** Order for introduction in curriculum */
+  order: number
+}
+
+/**
+ * Syllable Drill
+ * A structured practice session for CV syllable recognition
+ */
+export interface SyllableDrill {
+  /** Unique identifier */
+  id: string
+  /** Display name in Hebrew */
+  name: string
+  /** CV syllables included in this drill */
+  syllableIds: string[]
+  /** Minimum number to complete */
+  minItems: number
+  /** Success threshold (0-1) */
+  successThreshold: number
+  /** Difficulty level (1-5) */
+  difficulty: number
+  /** Prerequisite drills */
+  prerequisiteIds?: string[]
+}
+
+/**
+ * Syllable Pair
+ * Two similar CV syllables for minimal pair discrimination practice
+ */
+export interface SyllablePair {
+  /** Unique identifier */
+  id: string
+  /** First syllable ID */
+  syllable1Id: string
+  /** Second syllable ID */
+  syllable2Id: string
+  /** What distinguishes them */
+  contrastType: 'consonant' | 'vowel' | 'dagesh' | 'shin-sin'
+  /** Description of the contrast for teaching */
+  contrastDescription: string
+  /** Difficulty (1-5) */
+  difficulty: number
+}
+
+/**
+ * Full Vowel
+ * A vowel represented by vav with a diacritic (holam male or shuruk)
+ */
+export interface FullVowel {
+  /** Unique identifier */
+  id: 'holam-male' | 'shuruk'
+  /** Display character (וֹ or וּ) */
+  mark: string
+  /** Hebrew name */
+  name: string
+  /** Transliteration */
+  nameTranslit: string
+  /** Sound it produces */
+  sound: 'o' | 'u'
+  /** Related simple nikkud (cholam or kubutz) */
+  relatedNikkudId: string
+  /** Audio for name */
+  audioName: string
+  /** Audio for sound */
+  audioSound: string
+  /** Teaching order */
+  order: number
+}
+
+/**
+ * Letter Variant
+ * A letter with alternate sound based on dagesh or shin/sin dot
+ */
+export interface LetterVariant {
+  /** Unique identifier (e.g., 'bet-dagesh', 'bet-no-dagesh') */
+  id: string
+  /** Base letter ID */
+  baseId: string
+  /** Display character */
+  character: string
+  /** Sound for this variant */
+  sound: string
+  /** Whether this variant has dagesh */
+  hasDagesh: boolean
+  /** For shin/sin: position of dot */
+  dotPosition?: 'right' | 'left'
+  /** Audio for this variant sound */
+  audioSound: string
 }
 
 /**
@@ -165,6 +284,7 @@ export interface ActivityItem {
   /** Type of item */
   type: 'letter-identify' | 'letter-sound' | 'letter-match' |
         'nikkud-identify' | 'nikkud-sound' | 'combination-build' |
+        'syllable-drill' | 'syllable-blend' | 'syllable-segment' | 'minimal-pair' |
         'word-syllable' | 'word-picture' | 'word-sound' |
         'sentence-read' | 'sentence-picture' | 'sentence-comprehension'
   /** The target content (letter ID, word ID, etc.) */
@@ -189,9 +309,10 @@ export interface Activity {
   /** Description of the activity */
   description: string
   /** Type of activity */
-  type: 'intro' | 'match' | 'quiz' | 'combine' | 'syllable' | 'picture' | 'comprehension'
+  type: 'intro' | 'match' | 'quiz' | 'combine' | 'syllable' | 'picture' | 'comprehension' |
+        'syllable-drill' | 'syllable-blend' | 'syllable-segment' | 'minimal-pair'
   /** Which level this belongs to */
-  level: 'letters' | 'nikkud' | 'words' | 'sentences'
+  level: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   /** Items in this activity */
   items: ActivityItem[]
   /** Success threshold (0-1) to consider activity complete */
@@ -210,7 +331,7 @@ export interface Node {
   /** Display label (e.g., 'א', 'קָמָץ') */
   label: string
   /** Which level this node belongs to */
-  level: 'letters' | 'nikkud' | 'words' | 'sentences'
+  level: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   /** Order within the level */
   order: number
   /** The content ID (letter ID, nikkud ID, or custom for words/sentences) */
@@ -225,7 +346,7 @@ export interface Node {
  */
 export interface Level {
   /** Unique identifier */
-  id: 'letters' | 'nikkud' | 'words' | 'sentences'
+  id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   /** Display name in Hebrew */
   name: string
   /** Description */

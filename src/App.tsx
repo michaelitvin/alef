@@ -5,6 +5,8 @@ import LettersPage from './pages/Letters/LettersPage'
 import LetterNodeView from './pages/Letters/LetterNodeView'
 import NikkudPage from './pages/Nikkud/NikkudPage'
 import NikkudNodeView from './pages/Nikkud/NikkudNodeView'
+import SyllablesPage from './pages/Syllables/SyllablesPage'
+import SyllableNodeView from './pages/Syllables/SyllableNodeView'
 import WordsPage from './pages/Words/WordsPage'
 import WordGroupView from './pages/Words/WordGroupView'
 import SentencesPage from './pages/Sentences/SentencesPage'
@@ -56,6 +58,8 @@ function App() {
         <Route path="/letters/:letterId" element={<LetterNodeView />} />
         <Route path="/nikkud" element={<NikkudPage />} />
         <Route path="/nikkud/:nikkudId" element={<NikkudNodeView />} />
+        <Route path="/syllables" element={<SyllablesPage />} />
+        <Route path="/syllables/:drillId" element={<SyllableNodeView />} />
         <Route path="/words" element={<WordsPage />} />
         <Route path="/words/:groupId" element={<WordGroupView />} />
         <Route path="/sentences" element={<SentencesPage />} />

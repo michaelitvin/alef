@@ -116,7 +116,7 @@ export function AgeGate({ onVerified }: AgeGateProps) {
           type="number"
           inputMode="numeric"
           pattern="[0-9]*"
-          placeholder="לדוגמה: 1985"
+          placeholder=""
           value={year}
           onChange={(e) => {
             setYear(e.target.value.slice(0, 4))

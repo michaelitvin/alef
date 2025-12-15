@@ -12,6 +12,22 @@ import type { Letter } from '../../types/entities'
 
 type LearningStep = 'loading' | 'intro' | 'quiz' | 'match' | 'complete'
 
+const STEP_NAMES: Record<LearningStep, string> = {
+  loading: 'טוען',
+  intro: 'היכרות',
+  quiz: 'חידון',
+  match: 'התאמה',
+  complete: 'סיום'
+}
+
+const STEP_COMPONENTS: Record<LearningStep, string> = {
+  loading: 'Loading',
+  intro: 'LetterIntro',
+  quiz: 'LetterQuiz',
+  match: 'LetterMatch',
+  complete: 'Celebration'
+}
+
 /**
  * LetterNodeView - Learning experience for a single letter
  * Multi-step flow: Intro -> Quiz -> Match -> Completion
@@ -24,6 +40,11 @@ export function LetterNodeView() {
   // Get step from URL, default to 'loading'
   const urlStep = searchParams.get('step') as LearningStep | null
   const step: LearningStep = urlStep || 'loading'
+
+  // Log activity type on load
+  useEffect(() => {
+    console.log(`[Activity] Level: letters | Node: ${letterId} | Step: ${step} | Activity: ${STEP_NAMES[step]} | Component: ${STEP_COMPONENTS[step]}`)
+  }, [letterId, step])
 
   // Helper to change step via URL (enables browser back button)
   const setStep = useCallback((newStep: LearningStep) => {

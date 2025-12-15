@@ -19,7 +19,7 @@ import {
  */
 interface ProgressActions {
   // Node progress
-  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'words' | 'sentences') => void
+  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences') => void
   recordAttempt: (nodeId: string, attempt: ActivityAttempt) => void
   setNodeState: (nodeId: string, state: NodeProgress['state']) => void
 
@@ -200,9 +200,26 @@ export const useProgressStore = create<ProgressStore>()(
             }
           }
 
+          // Check syllables unlock
+          if (!newLevels.syllables.unlocked) {
+            if (newLevels.nikkud.successRate >= LEVEL_UNLOCK_THRESHOLDS.syllables) {
+              newLevels.syllables = {
+                ...newLevels.syllables,
+                unlocked: true,
+                unlockedAt: Date.now(),
+              }
+              newRewards.push({
+                type: 'level_unlocked',
+                earnedAt: Date.now(),
+                contentId: 'syllables',
+                seen: false,
+              })
+            }
+          }
+
           // Check words unlock
           if (!newLevels.words.unlocked) {
-            if (newLevels.nikkud.successRate >= LEVEL_UNLOCK_THRESHOLDS.words) {
+            if (newLevels.syllables.successRate >= LEVEL_UNLOCK_THRESHOLDS.words) {
               newLevels.words = {
                 ...newLevels.words,
                 unlocked: true,

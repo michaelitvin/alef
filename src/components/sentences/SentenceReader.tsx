@@ -7,8 +7,6 @@ export interface SentenceReaderProps {
   sentence: string
   /** Individual words in the sentence */
   words: string[]
-  /** English translation */
-  translation: string
   /** Called when user clicks a word to hear it */
   onPlayWord?: (index: number) => void
   /** Called when user clicks to hear full sentence */
@@ -24,7 +22,6 @@ export interface SentenceReaderProps {
 export function SentenceReader({
   sentence,
   words,
-  translation,
   onPlayWord,
   onPlaySentence,
   onContinue,
@@ -78,16 +75,6 @@ export function SentenceReader({
         >
           {sentence}
         </motion.p>
-        <p
-          style={{
-            fontFamily: typography.fontFamily.hebrew,
-            fontSize: typography.fontSize.base,
-            color: colors.text.secondary,
-            marginTop: spacing[2],
-          }}
-        >
-          ({translation})
-        </p>
       </motion.div>
 
       {/* Word-by-word breakdown */}

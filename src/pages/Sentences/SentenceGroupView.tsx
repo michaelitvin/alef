@@ -44,6 +44,16 @@ const SENTENCE_GROUPS = [
 
 type LearningPhase = 'reading' | 'quiz'
 
+const PHASE_NAMES: Record<LearningPhase, string> = {
+  reading: 'קריאה',
+  quiz: 'חידון'
+}
+
+const PHASE_COMPONENTS: Record<LearningPhase, string> = {
+  reading: 'SentenceReader',
+  quiz: 'ComprehensionQuiz'
+}
+
 /**
  * SentenceGroupView - Learning experience for a sentence group
  * Cycles through sentences: SentenceReader → ComprehensionQuiz
@@ -59,15 +69,14 @@ export function SentenceGroupView() {
   const phase: LearningPhase = urlPhase || 'reading'
   const currentSentenceIndex = urlSentenceIndex ? parseInt(urlSentenceIndex, 10) : 0
 
+  // Log activity type on load
+  useEffect(() => {
+    console.log(`[Activity] Level: sentences | Node: ${groupId} | Step: ${phase} | Activity: ${PHASE_NAMES[phase]} | Component: ${PHASE_COMPONENTS[phase]} | Item: ${currentSentenceIndex}`)
+  }, [groupId, phase, currentSentenceIndex])
+
   // Helper to change phase via URL
   const setPhase = useCallback((newPhase: LearningPhase) => {
     setSearchParams({ phase: newPhase, sentence: String(currentSentenceIndex) }, { replace: false })
-  }, [setSearchParams, currentSentenceIndex])
-
-  // Helper to change sentence index via URL
-  const setCurrentSentenceIndex = useCallback((newIndex: number | ((prev: number) => number)) => {
-    const resolvedIndex = typeof newIndex === 'function' ? newIndex(currentSentenceIndex) : newIndex
-    setSearchParams({ phase: 'reading', sentence: String(resolvedIndex) }, { replace: false })
   }, [setSearchParams, currentSentenceIndex])
 
   // State
@@ -144,9 +153,19 @@ export function SentenceGroupView() {
       setPhase('quiz')
     } else {
       // No quiz, move to next sentence
-      moveToNextSentence()
+      if (currentSentenceIndex < sentences.length - 1) {
+        const nextIndex = currentSentenceIndex + 1
+        setSearchParams({ phase: 'reading', sentence: String(nextIndex) }, { replace: false })
+      } else {
+        // All sentences completed
+        setNodeState(nodeId, 'mastered')
+        setShowCelebration(true)
+        setTimeout(() => {
+          navigate('/sentences')
+        }, 3000)
+      }
     }
-  }, [currentComprehension])
+  }, [currentComprehension, currentSentenceIndex, sentences.length, setPhase, setSearchParams, setNodeState, nodeId, navigate])
 
   // Handle quiz answer
   const handleQuizAnswer = useCallback(
@@ -164,34 +183,19 @@ export function SentenceGroupView() {
 
   // Handle quiz completion
   const handleQuizComplete = useCallback(() => {
-    moveToNextSentence()
-  }, [])
-
-  // Move to next sentence
-  const moveToNextSentence = useCallback(() => {
     if (currentSentenceIndex < sentences.length - 1) {
-      // More sentences to go
-      setCurrentSentenceIndex((prev) => prev + 1)
-      setPhase('reading')
+      // More sentences to go - use URL directly to avoid stale closure
+      const nextIndex = currentSentenceIndex + 1
+      setSearchParams({ phase: 'reading', sentence: String(nextIndex) }, { replace: false })
     } else {
       // All sentences completed
-      completeGroup()
+      setNodeState(nodeId, 'mastered')
+      setShowCelebration(true)
+      setTimeout(() => {
+        navigate('/sentences')
+      }, 3000)
     }
-  }, [currentSentenceIndex, sentences.length])
-
-  // Complete the group
-  const completeGroup = useCallback(() => {
-    // Mark node as mastered
-    setNodeState(nodeId, 'mastered')
-
-    // Show celebration
-    setShowCelebration(true)
-
-    // Navigate back after celebration
-    setTimeout(() => {
-      navigate('/sentences')
-    }, 3000)
-  }, [nodeId, setNodeState, navigate])
+  }, [currentSentenceIndex, sentences.length, setSearchParams, setNodeState, nodeId, navigate])
 
   // Handle back button
   const handleBack = () => {
@@ -369,7 +373,6 @@ export function SentenceGroupView() {
           <SentenceReader
             sentence={currentSentence.sentence}
             words={currentSentence.words}
-            translation={currentSentence.translation}
             onPlayWord={handlePlayWord}
             onPlaySentence={handlePlaySentence}
             onContinue={handleReaderContinue}

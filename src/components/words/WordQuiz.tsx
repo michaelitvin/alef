@@ -23,8 +23,6 @@ export interface WordQuizProps {
   onPlaySound?: () => void
   /** Optional image URL for picture matching */
   imageUrl?: string
-  /** Optional translation hint */
-  translationHint?: string
 }
 
 /**
@@ -38,7 +36,6 @@ export function WordQuiz({
   onComplete,
   onPlaySound,
   imageUrl,
-  translationHint,
 }: WordQuizProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
@@ -114,17 +111,6 @@ export function WordQuiz({
         >
           {prompt}
         </p>
-        {translationHint && (
-          <p
-            style={{
-              fontFamily: typography.fontFamily.hebrew,
-              fontSize: typography.fontSize.lg,
-              color: colors.text.secondary,
-            }}
-          >
-            ({translationHint})
-          </p>
-        )}
       </motion.div>
 
       {/* Image if provided */}

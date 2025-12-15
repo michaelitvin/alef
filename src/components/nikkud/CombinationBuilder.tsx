@@ -233,7 +233,7 @@ export function CombinationBuilder({
             flexWrap: 'wrap',
           }}
         >
-          {nikkudOptions.map(({ mark, name }) => (
+          {nikkudOptions.map(({ mark }) => (
             <motion.button
               key={mark}
               onClick={() => setSelectedNikkud(mark)}
@@ -242,7 +242,6 @@ export function CombinationBuilder({
                 width: '70px',
                 height: '70px',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor:
@@ -262,20 +261,11 @@ export function CombinationBuilder({
               <span
                 style={{
                   fontFamily: typography.fontFamily.hebrew,
-                  fontSize: '1.5rem',
+                  fontSize: '2rem',
                   color: colors.text.primary,
                 }}
               >
                 א{mark}
-              </span>
-              <span
-                style={{
-                  fontFamily: typography.fontFamily.hebrew,
-                  fontSize: typography.fontSize.xs,
-                  color: colors.text.secondary,
-                }}
-              >
-                {name}
               </span>
             </motion.button>
           ))}

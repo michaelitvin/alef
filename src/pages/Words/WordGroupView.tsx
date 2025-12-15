@@ -42,6 +42,18 @@ const WORD_GROUPS = [
 
 type LearningStep = 'intro' | 'breakdown' | 'quiz'
 
+const STEP_NAMES: Record<LearningStep, string> = {
+  intro: 'היכרות',
+  breakdown: 'פירוק הברות',
+  quiz: 'חידון'
+}
+
+const STEP_COMPONENTS: Record<LearningStep, string> = {
+  intro: 'WordIntro',
+  breakdown: 'SyllableBreakdown',
+  quiz: 'WordQuiz'
+}
+
 /**
  * WordGroupView - Learning experience for a group of words
  * Cycles through: WordIntro → SyllableBreakdown → WordQuiz for each word
@@ -59,15 +71,14 @@ export function WordGroupView() {
   const currentStep: LearningStep = urlStep || 'intro'
   const currentWordIndex = urlWordIndex ? parseInt(urlWordIndex, 10) : 0
 
+  // Log activity type on load
+  useEffect(() => {
+    console.log(`[Activity] Level: words | Node: ${groupId} | Step: ${currentStep} | Activity: ${STEP_NAMES[currentStep]} | Component: ${STEP_COMPONENTS[currentStep]} | Item: ${currentWordIndex}`)
+  }, [groupId, currentStep, currentWordIndex])
+
   // Helper to change step via URL
   const setCurrentStep = useCallback((newStep: LearningStep) => {
     setSearchParams({ step: newStep, word: String(currentWordIndex) }, { replace: false })
-  }, [setSearchParams, currentWordIndex])
-
-  // Helper to change word index via URL
-  const setCurrentWordIndex = useCallback((newIndex: number | ((prev: number) => number)) => {
-    const resolvedIndex = typeof newIndex === 'function' ? newIndex(currentWordIndex) : newIndex
-    setSearchParams({ step: 'intro', word: String(resolvedIndex) }, { replace: false })
   }, [setSearchParams, currentWordIndex])
 
   const [wordsData, setWordsData] = useState<WordData[]>([])
@@ -167,9 +178,9 @@ export function WordGroupView() {
 
     // Check if there are more words
     if (currentWordIndex < wordsData.length - 1) {
-      // Move to next word
-      setCurrentWordIndex((prev) => prev + 1)
-      setCurrentStep('intro')
+      // Move to next word - use URL directly to avoid race condition
+      const nextIndex = currentWordIndex + 1
+      setSearchParams({ step: 'intro', word: String(nextIndex) }, { replace: false })
     } else {
       // All words complete
       setAllWordsComplete(true)
@@ -192,6 +203,7 @@ export function WordGroupView() {
     updateLevelProgress,
     checkLevelUnlock,
     navigate,
+    setSearchParams,
   ])
 
   // Handle back button
@@ -354,12 +366,11 @@ export function WordGroupView() {
 
               {currentStep === 'quiz' && (
                 <WordQuiz
-                  prompt={`בחר את המילה: "${currentWord.translation}"`}
+                  prompt="בחר את המילה הנכונה:"
                   options={generateQuizOptions()}
                   onAnswer={handleQuizAnswer}
                   onComplete={handleQuizComplete}
                   onPlaySound={playWord}
-                  translationHint={currentWord.translation}
                 />
               )}
             </motion.div>

@@ -11,22 +11,39 @@ import { Header } from '../../components/navigation/Navigation'
 import { useAudio } from '../../hooks/useAudio'
 import { getTTS, isTTSEnabled } from '../../services/tts'
 
-// Nikkud data structure
+// Nikkud data structure with soundGroup for quiz logic
 const NIKKUD = [
-  { id: 'kamatz', mark: 'ָ', name: 'קָמָץ', sound: 'אָ', description: 'פה פתוח גדול - אָ' },
-  { id: 'patach', mark: 'ַ', name: 'פַּתָח', sound: 'אַ', description: 'פה פתוח קצר - אַ' },
-  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֵי', sound: 'אֵ', description: 'שתי נקודות - אֵ' },
-  { id: 'segol', mark: 'ֶ', name: 'סֶגּוֹל', sound: 'אֶ', description: 'שלוש נקודות - אֶ' },
-  { id: 'chirik', mark: 'ִ', name: 'חִירִיק', sound: 'אִ', description: 'נקודה אחת למטה - אִ' },
-  { id: 'cholam', mark: 'ֹ', name: 'חוֹלָם', sound: 'אֹ', description: 'נקודה למעלה - אֹ' },
-  { id: 'kubutz', mark: 'ֻ', name: 'קֻבּוּץ', sound: 'אֻ', description: 'שלוש נקודות באלכסון - אֻ' },
-  { id: 'shva', mark: 'ְ', name: 'שְׁוָא', sound: 'אְ', description: 'שתי נקודות אנכיות - אְ' },
+  { id: 'kamatz', mark: 'ָ', name: 'קָמָץ', sound: 'אָ', description: 'פה פתוח גדול - אָ', soundGroup: 'a', isFullVowel: false },
+  { id: 'patach', mark: 'ַ', name: 'פַּתָח', sound: 'אַ', description: 'פה פתוח קצר - אַ', soundGroup: 'a', isFullVowel: false },
+  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֵי', sound: 'אֵ', description: 'שתי נקודות - אֵ', soundGroup: 'e', isFullVowel: false },
+  { id: 'segol', mark: 'ֶ', name: 'סֶגּוֹל', sound: 'אֶ', description: 'שלוש נקודות - אֶ', soundGroup: 'e', isFullVowel: false },
+  { id: 'chirik', mark: 'ִ', name: 'חִירִיק', sound: 'אִ', description: 'נקודה אחת למטה - אִ', soundGroup: 'i', isFullVowel: false },
+  { id: 'cholam', mark: 'ֹ', name: 'חוֹלָם', sound: 'אֹ', description: 'נקודה למעלה - אֹ', soundGroup: 'o', isFullVowel: false },
+  { id: 'kubutz', mark: 'ֻ', name: 'קֻבּוּץ', sound: 'אֻ', description: 'שלוש נקודות באלכסון - אֻ', soundGroup: 'u', isFullVowel: false },
+  { id: 'shva', mark: 'ְ', name: 'שְׁוָא', sound: 'אְ', description: 'שתי נקודות אנכיות - אְ', soundGroup: 'silent', isFullVowel: false },
+  // Full vowels (vav-based)
+  { id: 'holam-male', mark: 'וֹ', name: 'חוֹלָם מָלֵא', sound: 'וֹ', description: 'וָו עם נקודה למעלה - וֹ', soundGroup: 'o', isFullVowel: true },
+  { id: 'shuruk', mark: 'וּ', name: 'שׁוּרוּק', sound: 'וּ', description: 'וָו עם נקודה באמצע - וּ', soundGroup: 'u', isFullVowel: true },
 ]
 
 // Sample letters for building combinations
 const PRACTICE_LETTERS = ['ב', 'מ', 'ל', 'ש']
 
 type LearningStep = 'intro' | 'quiz' | 'builder' | 'complete'
+
+const STEP_NAMES: Record<LearningStep, string> = {
+  intro: 'היכרות',
+  quiz: 'חידון',
+  builder: 'בונה צירופים',
+  complete: 'סיום'
+}
+
+const STEP_COMPONENTS: Record<LearningStep, string> = {
+  intro: 'NikkudIntro',
+  quiz: 'NikkudQuiz',
+  builder: 'CombinationBuilder',
+  complete: 'Celebration'
+}
 
 /**
  * NikkudNodeView - Learning experience for a single nikkud mark
@@ -40,6 +57,11 @@ export function NikkudNodeView() {
   // Get step from URL, default to 'intro'
   const urlStep = searchParams.get('step') as LearningStep | null
   const currentStep: LearningStep = urlStep || 'intro'
+
+  // Log activity type on load
+  useEffect(() => {
+    console.log(`[Activity] Level: nikkud | Node: ${nikkudId} | Step: ${currentStep} | Activity: ${STEP_NAMES[currentStep]} | Component: ${STEP_COMPONENTS[currentStep]}`)
+  }, [nikkudId, currentStep])
 
   // Helper to change step via URL (enables browser back button)
   const setCurrentStep = useCallback((newStep: LearningStep) => {
@@ -83,18 +105,34 @@ export function NikkudNodeView() {
   const nodeId = `nikkud-${nikkudId}`
 
   // Generate quiz options for the current nikkud
+  // Uses different letters for each option to prevent visual nikkud matching
+  // Avoids similar-sounding distractors (patach/kamatz, tsere/segol)
   const generateQuizOptions = (): NikkudQuizOption[] => {
-    const correctLetter = PRACTICE_LETTERS[0] // Use 'ב' for correct answer
-    const otherNikkud = NIKKUD.filter((n) => n.id !== nikkudId).slice(0, 3)
+    // Get the sound group of the target nikkud
+    const targetSoundGroup = nikkudData.soundGroup
 
+    // Filter out nikkud with the same sound group (to avoid confusing similar sounds)
+    // Also exclude the target nikkud itself
+    const eligibleDistractors = NIKKUD.filter(
+      (n) => n.id !== nikkudId && n.soundGroup !== targetSoundGroup
+    )
+
+    // Shuffle and pick 3 distractors
+    const shuffledDistractors = [...eligibleDistractors].sort(() => Math.random() - 0.5)
+    const selectedDistractors = shuffledDistractors.slice(0, 3)
+
+    // Shuffle the practice letters to get different letters for each option
+    const shuffledLetters = [...PRACTICE_LETTERS].sort(() => Math.random() - 0.5)
+
+    // Create options with different letters for each
     const options: NikkudQuizOption[] = [
       {
-        letter: correctLetter,
+        letter: shuffledLetters[0],
         nikkud: nikkudData.mark,
         isCorrect: true,
       },
-      ...otherNikkud.map((n) => ({
-        letter: correctLetter,
+      ...selectedDistractors.map((n, index) => ({
+        letter: shuffledLetters[index + 1] || shuffledLetters[0], // Fallback if not enough letters
         nikkud: n.mark,
         isCorrect: false,
       })),
@@ -245,7 +283,8 @@ export function NikkudNodeView() {
                 nikkud={nikkudData.mark}
                 nikkudName={nikkudData.name}
                 description={nikkudData.description}
-                exampleLetter="ב"
+                exampleLetter={nikkudData.isFullVowel ? (nikkudData.id === 'holam-male' ? 'טוֹב' : 'שׁוּק') : 'ב'}
+                isFullVowel={nikkudData.isFullVowel}
                 onPlaySound={handlePlaySound}
                 onContinue={handleIntroContinue}
               />

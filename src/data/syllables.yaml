@@ -1,0 +1,489 @@
+# CV Syllable Combinations Data
+# Hebrew Reading Didactic Activities - Feature 002
+# Based on Israeli CV (tseruf) syllable method
+
+# CV Syllables (Consonant + Vowel combinations)
+# Starting with bet (ב) as it's typically taught first
+syllables:
+  # Bet + all vowels
+  - id: bet-kamatz
+    letterId: bet
+    nikkudId: kamatz
+    display: בָּ
+    sound: ba
+    audio: syllables/bet-kamatz.mp3
+    hasDagesh: true
+    frequency: 5
+    order: 1
+
+  - id: bet-patach
+    letterId: bet
+    nikkudId: patach
+    display: בַּ
+    sound: ba
+    audio: syllables/bet-patach.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 2
+
+  - id: bet-tzeire
+    letterId: bet
+    nikkudId: tzeire
+    display: בֵּ
+    sound: be
+    audio: syllables/bet-tzeire.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 3
+
+  - id: bet-segol
+    letterId: bet
+    nikkudId: segol
+    display: בֶּ
+    sound: be
+    audio: syllables/bet-segol.mp3
+    hasDagesh: true
+    frequency: 3
+    order: 4
+
+  - id: bet-chirik
+    letterId: bet
+    nikkudId: chirik
+    display: בִּ
+    sound: bi
+    audio: syllables/bet-chirik.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 5
+
+  - id: bet-cholam
+    letterId: bet
+    nikkudId: cholam
+    display: בֹּ
+    sound: bo
+    audio: syllables/bet-cholam.mp3
+    hasDagesh: true
+    frequency: 3
+    order: 6
+
+  - id: bet-kubutz
+    letterId: bet
+    nikkudId: kubutz
+    display: בֻּ
+    sound: bu
+    audio: syllables/bet-kubutz.mp3
+    hasDagesh: true
+    frequency: 3
+    order: 7
+
+  # Mem + common vowels
+  - id: mem-kamatz
+    letterId: mem
+    nikkudId: kamatz
+    display: מָ
+    sound: ma
+    audio: syllables/mem-kamatz.mp3
+    hasDagesh: false
+    frequency: 5
+    order: 8
+
+  - id: mem-patach
+    letterId: mem
+    nikkudId: patach
+    display: מַ
+    sound: ma
+    audio: syllables/mem-patach.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 9
+
+  - id: mem-chirik
+    letterId: mem
+    nikkudId: chirik
+    display: מִ
+    sound: mi
+    audio: syllables/mem-chirik.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 10
+
+  - id: mem-tzeire
+    letterId: mem
+    nikkudId: tzeire
+    display: מֵ
+    sound: me
+    audio: syllables/mem-tzeire.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 11
+
+  - id: mem-cholam
+    letterId: mem
+    nikkudId: cholam
+    display: מֹ
+    sound: mo
+    audio: syllables/mem-cholam.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 12
+
+  # Lamed + common vowels
+  - id: lamed-kamatz
+    letterId: lamed
+    nikkudId: kamatz
+    display: לָ
+    sound: la
+    audio: syllables/lamed-kamatz.mp3
+    hasDagesh: false
+    frequency: 5
+    order: 13
+
+  - id: lamed-tzeire
+    letterId: lamed
+    nikkudId: tzeire
+    display: לֵ
+    sound: le
+    audio: syllables/lamed-tzeire.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 14
+
+  - id: lamed-chirik
+    letterId: lamed
+    nikkudId: chirik
+    display: לִ
+    sound: li
+    audio: syllables/lamed-chirik.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 15
+
+  - id: lamed-cholam
+    letterId: lamed
+    nikkudId: cholam
+    display: לֹ
+    sound: lo
+    audio: syllables/lamed-cholam.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 16
+
+  # Shin + common vowels
+  - id: shin-kamatz
+    letterId: shin
+    nikkudId: kamatz
+    display: שָׁ
+    sound: sha
+    audio: syllables/shin-kamatz.mp3
+    hasDagesh: false
+    frequency: 5
+    order: 17
+
+  - id: shin-tzeire
+    letterId: shin
+    nikkudId: tzeire
+    display: שֵׁ
+    sound: she
+    audio: syllables/shin-tzeire.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 18
+
+  - id: shin-chirik
+    letterId: shin
+    nikkudId: chirik
+    display: שִׁ
+    sound: shi
+    audio: syllables/shin-chirik.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 19
+
+  - id: shin-cholam
+    letterId: shin
+    nikkudId: cholam
+    display: שֹׁ
+    sound: sho
+    audio: syllables/shin-cholam.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 20
+
+  # Tav + common vowels
+  - id: tav-kamatz
+    letterId: tav
+    nikkudId: kamatz
+    display: תָּ
+    sound: ta
+    audio: syllables/tav-kamatz.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 21
+
+  - id: tav-chirik
+    letterId: tav
+    nikkudId: chirik
+    display: תִּ
+    sound: ti
+    audio: syllables/tav-chirik.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 22
+
+  - id: tav-tzeire
+    letterId: tav
+    nikkudId: tzeire
+    display: תֵּ
+    sound: te
+    audio: syllables/tav-tzeire.mp3
+    hasDagesh: true
+    frequency: 3
+    order: 23
+
+  # Nun + common vowels
+  - id: nun-kamatz
+    letterId: nun
+    nikkudId: kamatz
+    display: נָ
+    sound: na
+    audio: syllables/nun-kamatz.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 24
+
+  - id: nun-chirik
+    letterId: nun
+    nikkudId: chirik
+    display: נִ
+    sound: ni
+    audio: syllables/nun-chirik.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 25
+
+  - id: nun-cholam
+    letterId: nun
+    nikkudId: cholam
+    display: נֹ
+    sound: no
+    audio: syllables/nun-cholam.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 26
+
+  # Dalet + common vowels
+  - id: dalet-kamatz
+    letterId: dalet
+    nikkudId: kamatz
+    display: דָּ
+    sound: da
+    audio: syllables/dalet-kamatz.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 27
+
+  - id: dalet-chirik
+    letterId: dalet
+    nikkudId: chirik
+    display: דִּ
+    sound: di
+    audio: syllables/dalet-chirik.mp3
+    hasDagesh: true
+    frequency: 4
+    order: 28
+
+  - id: dalet-cholam
+    letterId: dalet
+    nikkudId: cholam
+    display: דֹּ
+    sound: do
+    audio: syllables/dalet-cholam.mp3
+    hasDagesh: true
+    frequency: 3
+    order: 29
+
+  # Resh + common vowels
+  - id: resh-kamatz
+    letterId: resh
+    nikkudId: kamatz
+    display: רָ
+    sound: ra
+    audio: syllables/resh-kamatz.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 30
+
+  - id: resh-tzeire
+    letterId: resh
+    nikkudId: tzeire
+    display: רֵ
+    sound: re
+    audio: syllables/resh-tzeire.mp3
+    hasDagesh: false
+    frequency: 4
+    order: 31
+
+  - id: resh-chirik
+    letterId: resh
+    nikkudId: chirik
+    display: רִ
+    sound: ri
+    audio: syllables/resh-chirik.mp3
+    hasDagesh: false
+    frequency: 3
+    order: 32
+
+# Syllable Drills - Grouped practice sessions
+drills:
+  - id: drill-bet-all
+    name: תרגול בֵּית
+    syllableIds: [bet-kamatz, bet-patach, bet-tzeire, bet-segol, bet-chirik, bet-cholam, bet-kubutz]
+    minItems: 5
+    successThreshold: 0.8
+    difficulty: 1
+
+  - id: drill-mem-all
+    name: תרגול מֵם
+    syllableIds: [mem-kamatz, mem-patach, mem-chirik, mem-tzeire, mem-cholam]
+    minItems: 5
+    successThreshold: 0.8
+    difficulty: 1
+    prerequisiteIds: [drill-bet-all]
+
+  - id: drill-lamed-all
+    name: תרגול לָמֶד
+    syllableIds: [lamed-kamatz, lamed-tzeire, lamed-chirik, lamed-cholam]
+    minItems: 4
+    successThreshold: 0.8
+    difficulty: 1
+    prerequisiteIds: [drill-mem-all]
+
+  - id: drill-shin-all
+    name: תרגול שִׁין
+    syllableIds: [shin-kamatz, shin-tzeire, shin-chirik, shin-cholam]
+    minItems: 4
+    successThreshold: 0.8
+    difficulty: 1
+    prerequisiteIds: [drill-lamed-all]
+
+  - id: drill-mixed-basic
+    name: תרגול מעורב
+    syllableIds: [bet-kamatz, mem-kamatz, lamed-kamatz, shin-kamatz, bet-chirik, mem-chirik, lamed-chirik, shin-chirik]
+    minItems: 8
+    successThreshold: 0.8
+    difficulty: 2
+    prerequisiteIds: [drill-shin-all]
+
+# Minimal Pairs for discrimination practice
+pairs:
+  # Consonant contrasts
+  - id: pair-bet-pe
+    syllable1Id: bet-kamatz
+    syllable2Id: bet-kamatz  # Would need pe-kamatz to be added
+    contrastType: consonant
+    contrastDescription: ב ופ - צלילים דומים
+    difficulty: 2
+
+  - id: pair-mem-nun
+    syllable1Id: mem-kamatz
+    syllable2Id: nun-kamatz
+    contrastType: consonant
+    contrastDescription: מ ונ - צלילים דומים
+    difficulty: 2
+
+  # Vowel contrasts
+  - id: pair-kamatz-patach
+    syllable1Id: bet-kamatz
+    syllable2Id: bet-patach
+    contrastType: vowel
+    contrastDescription: קָמָץ ופַּתָח - שני צלילי א'
+    difficulty: 3
+
+  - id: pair-tzeire-segol
+    syllable1Id: bet-tzeire
+    syllable2Id: bet-segol
+    contrastType: vowel
+    contrastDescription: צֵירֵי וסֶגּוֹל - שני צלילי ע'
+    difficulty: 3
+
+# Blend activities (word building from syllables)
+blends:
+  - id: blend-mama
+    word: מָמָא
+    wordSound: mama
+    syllableIds: [mem-kamatz, mem-kamatz]
+    difficulty: 1
+
+  - id: blend-baba
+    word: בָּבָּא
+    wordSound: baba
+    syllableIds: [bet-kamatz, bet-kamatz]
+    difficulty: 1
+
+  - id: blend-doda
+    word: דּוֹדָה
+    wordSound: doda
+    syllableIds: [dalet-cholam, dalet-kamatz]
+    difficulty: 1
+
+  - id: blend-shalom
+    word: שָׁלוֹם
+    wordSound: shalom
+    syllableIds: [shin-kamatz, lamed-cholam, mem-sofit]
+    difficulty: 2
+
+  - id: blend-tov
+    word: טוֹב
+    wordSound: tov
+    syllableIds: [tet-cholam, bet-shva]
+    difficulty: 1
+
+  - id: blend-bayit
+    word: בַּיִת
+    wordSound: bayit
+    syllableIds: [bet-patach, yod-chirik, tav-shva]
+    difficulty: 2
+
+  - id: blend-shemesh
+    word: שֶׁמֶשׁ
+    wordSound: shemesh
+    syllableIds: [shin-segol, mem-segol, shin-sofit]
+    difficulty: 2
+
+  - id: blend-yeled
+    word: יֶלֶד
+    wordSound: yeled
+    syllableIds: [yod-segol, lamed-segol, dalet-shva]
+    difficulty: 2
+
+# Segment activities (word segmentation)
+segments:
+  - id: segment-mama
+    word: מָמָא
+    wordSound: mama
+    syllableIds: [mem-kamatz, mem-kamatz]
+    difficulty: 1
+
+  - id: segment-baba
+    word: בָּבָּא
+    wordSound: baba
+    syllableIds: [bet-kamatz, bet-kamatz]
+    difficulty: 1
+
+  - id: segment-doda
+    word: דּוֹדָה
+    wordSound: doda
+    syllableIds: [dalet-cholam, dalet-kamatz]
+    difficulty: 1
+
+  - id: segment-tov
+    word: טוֹב
+    wordSound: tov
+    syllableIds: [tet-cholam, bet-shva]
+    difficulty: 1
+
+  - id: segment-shalom
+    word: שָׁלוֹם
+    wordSound: shalom
+    syllableIds: [shin-kamatz, lamed-cholam, mem-sofit]
+    difficulty: 2

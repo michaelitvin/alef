@@ -5,7 +5,7 @@ import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
 
 interface LevelInfo {
-  id: 'letters' | 'nikkud' | 'words' | 'sentences'
+  id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   name: string
   description: string
   icon: string
@@ -26,6 +26,13 @@ const LEVELS: LevelInfo[] = [
     description: 'למד את הניקוד',
     icon: 'בָ',
     path: '/nikkud',
+  },
+  {
+    id: 'syllables',
+    name: 'צֵרוּפִים',
+    description: 'תרגול קריאת צֵרוּפִים',
+    icon: 'בָּ',
+    path: '/syllables',
   },
   {
     id: 'words',

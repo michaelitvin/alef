@@ -7,6 +7,7 @@ nikkud:
     name: קָמָץ
     nameTranslit: Kamatz
     sound: a # As in "father"
+    soundGroup: a
     order: 1
     position: below
     exampleCombo: בָּ
@@ -19,6 +20,7 @@ nikkud:
     name: פַּתָח
     nameTranslit: Patach
     sound: a # Short 'a' as in "cat"
+    soundGroup: a
     order: 2
     position: below
     exampleCombo: בַּ
@@ -31,6 +33,7 @@ nikkud:
     name: צֵירֵי
     nameTranslit: Tzeire
     sound: e # As in "they"
+    soundGroup: e
     order: 3
     position: below
     exampleCombo: בֵּ
@@ -43,6 +46,7 @@ nikkud:
     name: סֶגּוֹל
     nameTranslit: Segol
     sound: e # Short 'e' as in "bed"
+    soundGroup: e
     order: 4
     position: below
     exampleCombo: בֶּ
@@ -55,6 +59,7 @@ nikkud:
     name: חִירִיק
     nameTranslit: Chirik
     sound: i # As in "see"
+    soundGroup: i
     order: 5
     position: below
     exampleCombo: בִּ
@@ -67,6 +72,7 @@ nikkud:
     name: חוֹלָם
     nameTranslit: Cholam
     sound: o # As in "go"
+    soundGroup: o
     order: 6
     position: above
     exampleCombo: בֹּ
@@ -79,6 +85,7 @@ nikkud:
     name: קֻבּוּץ
     nameTranslit: Kubutz
     sound: u # As in "blue"
+    soundGroup: u
     order: 7
     position: below
     exampleCombo: בֻּ
@@ -91,12 +98,42 @@ nikkud:
     name: שְׁוָא
     nameTranslit: Shva
     sound: "" # Silent or very short 'e'
+    soundGroup: silent
     order: 8
     position: below
     exampleCombo: בְּ
     audioName: nikkud/shva-name.mp3
     audioSound: nikkud/shva-sound.mp3
     description: שתי נקודות אנכיות - אְ
+
+  # Full vowels (vav-based)
+  - id: holam-male
+    mark: וֹ
+    name: חוֹלָם מָלֵא
+    nameTranslit: Holam Male
+    sound: o # As in "go"
+    soundGroup: o
+    order: 9
+    position: inline
+    isFullVowel: true
+    exampleCombo: טוֹב
+    audioName: nikkud/holam-male-name.mp3
+    audioSound: nikkud/holam-male-sound.mp3
+    description: וָו עם נקודה למעלה - וֹ
+
+  - id: shuruk
+    mark: וּ
+    name: שׁוּרוּק
+    nameTranslit: Shuruk
+    sound: u # As in "blue"
+    soundGroup: u
+    order: 10
+    position: inline
+    isFullVowel: true
+    exampleCombo: שׁוּק
+    audioName: nikkud/shuruk-name.mp3
+    audioSound: nikkud/shuruk-sound.mp3
+    description: וָו עם נקודה באמצע - וּ
 
 # Common letter+nikkud combinations for practice
 combinations:

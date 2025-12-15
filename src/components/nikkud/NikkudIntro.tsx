@@ -11,6 +11,8 @@ export interface NikkudIntroProps {
   description: string
   /** The letter used in the example */
   exampleLetter: string
+  /** Whether this is a full vowel (holam male or shuruk) */
+  isFullVowel?: boolean
   /** Called when user wants to hear the nikkud name */
   onPlayName?: () => void
   /** Called when user wants to hear the sound */
@@ -28,6 +30,7 @@ export function NikkudIntro({
   nikkudName,
   description,
   exampleLetter,
+  isFullVowel = false,
   onPlayName,
   onPlaySound,
   onContinue,
@@ -44,20 +47,51 @@ export function NikkudIntro({
         margin: '0 auto',
       }}
     >
-      {/* Nikkud mark display (shown with alef) */}
+      {/* Nikkud mark display - full vowels show inline, regular nikkud shown with alef */}
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <NikkudCard
-          letter="א"
-          nikkud={nikkud}
-          size="xl"
-          animate="pulse"
-          showGlow
-          onClick={onPlaySound}
-        />
+        {isFullVowel ? (
+          // Full vowels (holam male, shuruk) are displayed inline without a base letter
+          <motion.div
+            style={{
+              width: '180px',
+              height: '180px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: colors.surface,
+              borderRadius: borderRadius['2xl'],
+              boxShadow: shadows.glow,
+              cursor: 'pointer',
+            }}
+            onClick={onPlaySound}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <span
+              style={{
+                fontFamily: typography.fontFamily.hebrew,
+                fontSize: '8rem',
+                lineHeight: 1,
+                color: colors.text.primary,
+              }}
+            >
+              {nikkud}
+            </span>
+          </motion.div>
+        ) : (
+          <NikkudCard
+            letter="א"
+            nikkud={nikkud}
+            size="xl"
+            animate="pulse"
+            showGlow
+            onClick={onPlaySound}
+          />
+        )}
       </motion.div>
 
       {/* Nikkud name */}
@@ -93,7 +127,7 @@ export function NikkudIntro({
         </p>
       </motion.div>
 
-      {/* Example with letter */}
+      {/* Example - for regular nikkud show with letter, for full vowels show word example */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -106,22 +140,65 @@ export function NikkudIntro({
           width: '100%',
         }}
       >
-        <p
-          style={{
-            fontFamily: typography.fontFamily.hebrew,
-            fontSize: typography.fontSize.lg,
-            color: colors.secondary[700],
-            marginBottom: spacing[3],
-          }}
-        >
-          דוגמה עם האות {exampleLetter}:
-        </p>
-        <NikkudCard
-          letter={exampleLetter}
-          nikkud={nikkud}
-          size="lg"
-          onClick={onPlaySound}
-        />
+        {isFullVowel ? (
+          // Full vowels show word example instead of letter+nikkud combination
+          <>
+            <p
+              style={{
+                fontFamily: typography.fontFamily.hebrew,
+                fontSize: typography.fontSize.lg,
+                color: colors.secondary[700],
+                marginBottom: spacing[3],
+              }}
+            >
+              דוגמה במילה:
+            </p>
+            <motion.div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: colors.surface,
+                borderRadius: borderRadius.xl,
+                padding: spacing[4],
+                boxShadow: shadows.md,
+                cursor: 'pointer',
+              }}
+              onClick={onPlaySound}
+              whileHover={{ scale: 1.05 }}
+            >
+              <span
+                style={{
+                  fontFamily: typography.fontFamily.hebrew,
+                  fontSize: '4rem',
+                  lineHeight: 1,
+                  color: colors.text.primary,
+                }}
+              >
+                {exampleLetter}
+              </span>
+            </motion.div>
+          </>
+        ) : (
+          <>
+            <p
+              style={{
+                fontFamily: typography.fontFamily.hebrew,
+                fontSize: typography.fontSize.lg,
+                color: colors.secondary[700],
+                marginBottom: spacing[3],
+              }}
+            >
+              דוגמה עם האות {exampleLetter}:
+            </p>
+            <NikkudCard
+              letter={exampleLetter}
+              nikkud={nikkud}
+              size="lg"
+              onClick={onPlaySound}
+            />
+          </>
+        )}
       </motion.div>
 
       {/* Action buttons */}

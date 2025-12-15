@@ -44,7 +44,7 @@ export interface NodeProgress {
  */
 export interface LevelProgress {
   /** Level ID */
-  levelId: 'letters' | 'nikkud' | 'words' | 'sentences'
+  levelId: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   /** Whether the level is unlocked */
   unlocked: boolean
   /** When the level was unlocked */
@@ -153,7 +153,7 @@ export interface CurrentSession {
   /** Session start time */
   startedAt: number
   /** Current level being played */
-  currentLevel?: 'letters' | 'nikkud' | 'words' | 'sentences'
+  currentLevel?: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
   /** Current node being played */
   currentNodeId?: string
   /** Current activity being played */
@@ -239,6 +239,14 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     totalNodes: 8,
     timeSpentMs: 0,
   },
+  syllables: {
+    levelId: 'syllables',
+    unlocked: false,
+    successRate: 0,
+    nodesMastered: 0,
+    totalNodes: 8, // 5 drills + blend + segment + pairs
+    timeSpentMs: 0,
+  },
   words: {
     levelId: 'words',
     unlocked: false,
@@ -274,8 +282,9 @@ export const INITIAL_PROGRESS_STATE: ProgressState = {
  * Level unlock thresholds (success rate required to unlock next level)
  */
 export const LEVEL_UNLOCK_THRESHOLDS = {
-  letters: 0,    // Always unlocked
-  nikkud: 0.8,   // 80% success in letters
-  words: 0.8,    // 80% success in nikkud
+  letters: 0,     // Always unlocked
+  nikkud: 0.8,    // 80% success in letters
+  syllables: 0.8, // 80% success in nikkud
+  words: 0.8,     // 80% success in syllables
   sentences: 0.8, // 80% success in words
 } as const
