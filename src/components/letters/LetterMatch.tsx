@@ -5,7 +5,7 @@ import { LetterCard } from './LetterCard'
 import { Button } from '../common/Button'
 import { FeedbackOverlay } from '../common/FeedbackOverlay'
 import { useAudio, useSoundEffects } from '../../hooks/useAudio'
-import { getLetterAudioPaths } from '../../utils/audio'
+import { getLetterNameAudio } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
 export interface LetterMatchProps {
@@ -134,32 +134,24 @@ export function LetterMatch({
     (item: MatchItem) => {
       if (state !== 'selecting' || item.matched) return
 
-      // Play the letter sound
-      const letter = selectedLetters.find((l) => l.id === item.letterId)
-      if (letter) {
-        const paths = getLetterAudioPaths(letter.id)
-        play(paths.sound).catch(console.error)
-      }
+      // Play the letter name audio
+      play(getLetterNameAudio(item.letterId)).catch(console.error)
 
       setSelectedLetter(item)
     },
-    [state, selectedLetters, play]
+    [state, play]
   )
 
   const handleSoundClick = useCallback(
     (item: MatchItem) => {
       if (state !== 'selecting' || item.matched) return
 
-      // Play the letter name
-      const letter = selectedLetters.find((l) => l.id === item.letterId)
-      if (letter) {
-        const paths = getLetterAudioPaths(letter.id)
-        play(paths.name).catch(console.error)
-      }
+      // Play the letter name audio
+      play(getLetterNameAudio(item.letterId)).catch(console.error)
 
       setSelectedSound(item)
     },
-    [state, selectedLetters, play]
+    [state, play]
   )
 
   const letterItems = items.filter((item) => item.type === 'letter')

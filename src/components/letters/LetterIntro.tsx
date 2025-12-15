@@ -4,7 +4,7 @@ import { colors, typography, spacing } from '../../styles/theme'
 import { LetterCard } from './LetterCard'
 import { Button } from '../common/Button'
 import { useAudio } from '../../hooks/useAudio'
-import { getLetterAudioPaths } from '../../utils/audio'
+import { getLetterNameAudio } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
 export interface LetterIntroProps {
@@ -25,24 +25,24 @@ type IntroPhase = 'letter' | 'name' | 'complete'
 export function LetterIntro({ letter, onComplete }: LetterIntroProps) {
   const [phase, setPhase] = useState<IntroPhase>('letter')
   const { play, isPlaying } = useAudio()
-  const audioPaths = getLetterAudioPaths(letter.id)
 
   // Auto-advance through phases
   useEffect(() => {
     const timer = setTimeout(() => {
       if (phase === 'letter') {
         setPhase('name')
-        play(audioPaths.name).catch(console.error)
+        // Play letter name audio (TTS or pre-recorded)
+        play(getLetterNameAudio(letter.id)).catch(console.error)
       } else if (phase === 'name' && !isPlaying) {
         setPhase('complete')
       }
     }, phase === 'letter' ? 1000 : 500)
 
     return () => clearTimeout(timer)
-  }, [phase, isPlaying, play, audioPaths])
+  }, [phase, isPlaying, play, letter.id])
 
   const handleReplayName = () => {
-    play(audioPaths.name).catch(console.error)
+    play(getLetterNameAudio(letter.id)).catch(console.error)
   }
 
   return (

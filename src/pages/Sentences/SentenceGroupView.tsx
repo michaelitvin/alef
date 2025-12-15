@@ -8,6 +8,8 @@ import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { importYaml } from '../../utils/yaml'
 import { colors, typography, spacing, borderRadius } from '../../styles/theme'
+import { useAudio } from '../../hooks/useAudio'
+import { getTTS, isTTSEnabled } from '../../services/tts'
 
 // Types matching the YAML structure
 interface SentenceData {
@@ -79,6 +81,7 @@ export function SentenceGroupView() {
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const setNodeState = useProgressStore((state) => state.setNodeState)
   const updateCurrentActivity = useProgressStore((state) => state.updateCurrentActivity)
+  const { play } = useAudio()
 
   // Find the current group
   const currentGroup = SENTENCE_GROUPS.find((g) => g.id === groupId)
@@ -195,15 +198,18 @@ export function SentenceGroupView() {
     navigate('/sentences')
   }
 
-  // Audio handlers (placeholder - could integrate Howler.js)
+  // Audio handlers
   const handlePlayWord = (index: number) => {
-    console.log('Play word:', currentSentence.words[index])
-    // TODO: Implement audio playback
+    if (currentSentence && isTTSEnabled()) {
+      const word = currentSentence.words[index]
+      play(getTTS(word)).catch(console.error)
+    }
   }
 
   const handlePlaySentence = () => {
-    console.log('Play sentence:', currentSentence.sentence)
-    // TODO: Implement audio playback
+    if (currentSentence && isTTSEnabled()) {
+      play(getTTS(currentSentence.sentence)).catch(console.error)
+    }
   }
 
   // Loading state

@@ -6,7 +6,7 @@ import { Button } from '../common/Button'
 import { FeedbackOverlay } from '../common/FeedbackOverlay'
 import { useAudio } from '../../hooks/useAudio'
 import { useSoundEffects } from '../../hooks/useAudio'
-import { getLetterAudioPaths } from '../../utils/audio'
+import { getLetterNameAudio } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
 export interface LetterQuizProps {
@@ -43,7 +43,6 @@ export function LetterQuiz({
 
   const { play } = useAudio()
   const { playSuccess, playError } = useSoundEffects()
-  const audioPaths = getLetterAudioPaths(targetLetter.id)
 
   // Play audio prompt on mount
   useEffect(() => {
@@ -51,7 +50,7 @@ export function LetterQuiz({
 
     if (playAudio) {
       const timer = setTimeout(() => {
-        play(audioPaths.name)
+        play(getLetterNameAudio(targetLetter.id))
           .then(() => setState('answering'))
           .catch(() => setState('answering'))
       }, 500)
@@ -59,7 +58,7 @@ export function LetterQuiz({
     } else {
       setState('answering')
     }
-  }, [playAudio, audioPaths.name, play, state])
+  }, [playAudio, targetLetter.id, play, state])
 
   const handleOptionClick = useCallback(
     (letter: Letter) => {
@@ -92,8 +91,8 @@ export function LetterQuiz({
   }, [])
 
   const handleReplayPrompt = useCallback(() => {
-    play(audioPaths.name).catch(console.error)
-  }, [play, audioPaths.name])
+    play(getLetterNameAudio(targetLetter.id)).catch(console.error)
+  }, [play, targetLetter.id])
 
   const defaultPrompt = `מצא את האות ${targetLetter.name}`
 

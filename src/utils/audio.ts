@@ -1,4 +1,54 @@
 import { preloadAudio } from '../hooks/useAudio'
+import { getTTS, isTTSEnabled, preloadTTS } from '../services/tts'
+
+/**
+ * Hebrew letter names for TTS
+ */
+const LETTER_NAMES_HEBREW: Record<string, string> = {
+  alef: 'אָלֶף',
+  bet: 'בֵּית',
+  gimel: 'גִּימֶל',
+  dalet: 'דָּלֶת',
+  he: 'הֵא',
+  vav: 'וָו',
+  zayin: 'זַיִן',
+  chet: 'חֵית',
+  tet: 'טֵית',
+  yod: 'יוֹד',
+  kaf: 'כָּף',
+  lamed: 'לָמֶד',
+  mem: 'מֵם',
+  nun: 'נוּן',
+  samech: 'סָמֶך',
+  ayin: 'עַיִן',
+  pe: 'פֵּא',
+  tsadi: 'צָדִי',
+  qof: 'קוֹף',
+  resh: 'רֵישׁ',
+  shin: 'שִׁין',
+  tav: 'תָּו',
+  // Final forms (sofiyot)
+  'kaf-sofit': 'כָּף סוֹפִית',
+  'mem-sofit': 'מֵם סוֹפִית',
+  'nun-sofit': 'נוּן סוֹפִית',
+  'pe-sofit': 'פֵּא סוֹפִית',
+  'tsadi-sofit': 'צָדִי סוֹפִית',
+}
+
+/**
+ * Nikkud names for TTS
+ */
+const NIKKUD_NAMES_HEBREW: Record<string, string> = {
+  patach: 'פַּתָּח',
+  kamatz: 'קָמָץ',
+  segol: 'סֶגוֹל',
+  tsere: 'צֵירֵי',
+  chirik: 'חִירִיק',
+  cholam: 'חוֹלָם',
+  kubutz: 'קֻבּוּץ',
+  shuruk: 'שׁוּרוּק',
+  shva: 'שְׁוָא',
+}
 
 /**
  * Audio manifest entry
@@ -49,7 +99,7 @@ export function getAudioPath(
 }
 
 /**
- * Get letter audio paths
+ * Get letter audio paths (for pre-recorded files)
  */
 export function getLetterAudioPaths(letterId: string): {
   name: string
@@ -59,6 +109,81 @@ export function getLetterAudioPaths(letterId: string): {
     name: getAudioPath('letters', `${letterId}-name.mp3`),
     sound: getAudioPath('letters', `${letterId}-sound.mp3`),
   }
+}
+
+/**
+ * Get letter name audio - uses TTS if enabled, otherwise falls back to pre-recorded
+ */
+export async function getLetterNameAudio(letterId: string): Promise<string> {
+  if (isTTSEnabled() && LETTER_NAMES_HEBREW[letterId]) {
+    return getTTS(LETTER_NAMES_HEBREW[letterId])
+  }
+  return getAudioPath('letters', `${letterId}-name.mp3`)
+}
+
+/**
+ * Get word audio - uses TTS if enabled
+ */
+export async function getWordAudio(word: string): Promise<string> {
+  if (isTTSEnabled()) {
+    return getTTS(word)
+  }
+  // Fallback to pre-recorded (by word ID/slug)
+  return getAudioPath('words', `${word}.mp3`)
+}
+
+/**
+ * Get sentence audio - uses TTS if enabled
+ */
+export async function getSentenceAudio(sentence: string): Promise<string> {
+  if (isTTSEnabled()) {
+    return getTTS(sentence)
+  }
+  // Fallback to pre-recorded
+  return getAudioPath('sentences', `${sentence}.mp3`)
+}
+
+/**
+ * Get nikkud name audio - uses TTS if enabled
+ */
+export async function getNikkudNameAudio(nikkudId: string): Promise<string> {
+  if (isTTSEnabled() && NIKKUD_NAMES_HEBREW[nikkudId]) {
+    return getTTS(NIKKUD_NAMES_HEBREW[nikkudId])
+  }
+  return getAudioPath('nikkud', `${nikkudId}-name.mp3`)
+}
+
+/**
+ * Get combination audio (letter + nikkud) - uses TTS if enabled
+ */
+export async function getCombinationAudio(
+  letter: string,
+  nikkudChar: string
+): Promise<string> {
+  if (isTTSEnabled()) {
+    // Combine the letter with the nikkud character for TTS
+    return getTTS(`${letter}${nikkudChar}`)
+  }
+  // Fallback to pre-recorded
+  return getAudioPath('combinations', `${letter}-${nikkudChar}.mp3`)
+}
+
+/**
+ * Preload TTS for letter names (when TTS is enabled)
+ */
+export async function preloadLetterNamesTTS(): Promise<void> {
+  if (!isTTSEnabled()) return
+  const texts = Object.values(LETTER_NAMES_HEBREW)
+  await preloadTTS(texts)
+}
+
+/**
+ * Preload TTS for nikkud names (when TTS is enabled)
+ */
+export async function preloadNikkudNamesTTS(): Promise<void> {
+  if (!isTTSEnabled()) return
+  const texts = Object.values(NIKKUD_NAMES_HEBREW)
+  await preloadTTS(texts)
 }
 
 /**

@@ -11,6 +11,7 @@ import { useProgressStore } from '../../stores/progressStore'
 import { useAudio } from '../../hooks/useAudio'
 import { importYaml } from '../../utils/yaml'
 import { useResponsive } from '../../hooks/useResponsive'
+import { getTTS, isTTSEnabled } from '../../services/tts'
 
 // Word data structure from YAML
 interface WordData {
@@ -115,20 +116,20 @@ export function WordGroupView() {
 
   // Play word audio
   const playWord = useCallback(() => {
-    if (currentWord) {
-      play(`/assets/audio/${currentWord.audioWord}`)
+    if (currentWord && isTTSEnabled()) {
+      play(getTTS(currentWord.word)).catch(console.error)
     }
   }, [currentWord, play])
 
   // Play syllable audio
   const playSyllable = useCallback(
     (index: number) => {
-      if (currentWord && currentWord.syllables[index]) {
-        // For now, play the full word (individual syllable audio would need to be added to YAML)
-        playWord()
+      if (currentWord && currentWord.syllables[index] && isTTSEnabled()) {
+        // Play just the syllable
+        play(getTTS(currentWord.syllables[index])).catch(console.error)
       }
     },
-    [currentWord, playWord]
+    [currentWord, play]
   )
 
   // Handle intro continue

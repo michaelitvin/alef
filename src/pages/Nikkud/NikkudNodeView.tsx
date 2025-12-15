@@ -8,6 +8,8 @@ import { CombinationBuilder } from '../../components/nikkud/CombinationBuilder'
 import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
 import { useProgressStore } from '../../stores/progressStore'
 import { Header } from '../../components/navigation/Navigation'
+import { useAudio } from '../../hooks/useAudio'
+import { getTTS, isTTSEnabled } from '../../services/tts'
 
 // Nikkud data structure
 const NIKKUD = [
@@ -49,6 +51,7 @@ export function NikkudNodeView() {
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const setNodeState = useProgressStore((state) => state.setNodeState)
+  const { play } = useAudio()
 
   // Find the nikkud data
   const nikkudData = NIKKUD.find((n) => n.id === nikkudId)
@@ -162,8 +165,9 @@ export function NikkudNodeView() {
   }
 
   const handlePlaySound = () => {
-    // TODO: Implement audio playback when audio system is ready
-    console.log('Play sound:', nikkudData.sound)
+    if (nikkudData && isTTSEnabled()) {
+      play(getTTS(nikkudData.sound)).catch(console.error)
+    }
   }
 
   const handleBack = () => {

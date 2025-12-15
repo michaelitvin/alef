@@ -27,11 +27,17 @@ function getHowl(src: string, volume: number): Howl {
     audioCache.delete(src)
   }
 
+  // For blob URLs (from TTS), we need to specify the format
+  // since Howler can't detect it from the URL
+  // Also use Web Audio API (html5: false) for blobs to avoid audio pool exhaustion
+  const isBlobUrl = src.startsWith('blob:')
+
   const howl = new Howl({
     src: [src],
     volume,
-    html5: true, // Use HTML5 Audio for better mobile support
+    html5: !isBlobUrl, // Use Web Audio for blobs, HTML5 for files
     preload: true,
+    format: isBlobUrl ? ['mp3'] : undefined,
   })
 
   audioCache.set(src, howl)
@@ -76,16 +82,27 @@ export function useAudio() {
 
   /**
    * Play an audio file
+   * Accepts either a string path or a Promise that resolves to a string path
+   * (useful for TTS which returns blob URLs asynchronously)
    */
   const play = useCallback(
-    (src: string): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        // Check if sound is enabled
-        if (!soundEnabled) {
-          resolve()
-          return
-        }
+    async (srcOrPromise: string | Promise<string>): Promise<void> => {
+      // Check if sound is enabled
+      if (!soundEnabled) {
+        return
+      }
 
+      // Resolve the source if it's a promise (e.g., from TTS)
+      let src: string
+      try {
+        src = typeof srcOrPromise === 'string' ? srcOrPromise : await srcOrPromise
+      } catch (error) {
+        console.error('Failed to get audio source:', error)
+        setStatus('error')
+        throw error
+      }
+
+      return new Promise((resolve, reject) => {
         // Stop any currently playing audio
         if (currentHowlRef.current) {
           currentHowlRef.current.stop()
@@ -166,9 +183,10 @@ export function useAudio() {
 
   /**
    * Play multiple audio files in sequence
+   * Accepts either string paths or Promises that resolve to string paths
    */
   const playSequence = useCallback(
-    async (srcs: string[]): Promise<void> => {
+    async (srcs: (string | Promise<string>)[]): Promise<void> => {
       for (const src of srcs) {
         await play(src)
       }
