@@ -315,13 +315,14 @@ export function SyllableNodeView() {
     return [{ syllable: target, isCorrect: true }, ...distractors.map((s) => ({ syllable: s, isCorrect: false }))].sort(() => Math.random() - 0.5)
   }, [shuffledItems, currentItemIndex])
 
-  // Generate segment options
+  // Generate segment options (only for segment activity type)
   const segmentOptions = useMemo((): SegmentSyllable[] => {
+    if (activityType !== 'segment') return []
     const word = shuffledItems[currentItemIndex] as SegmentWord
-    if (!word) return []
+    if (!word || !word.syllables) return []
     const extraOptions = SYLLABLES.slice(0, 6).map((s) => ({ id: s.id, display: s.display, sound: s.sound }))
     return [...word.syllables, ...extraOptions.filter((o) => !word.syllables.some((w) => w.id === o.id))].sort(() => Math.random() - 0.5).slice(0, 6)
-  }, [shuffledItems, currentItemIndex])
+  }, [shuffledItems, currentItemIndex, activityType])
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', flexDirection: 'column' }}>
