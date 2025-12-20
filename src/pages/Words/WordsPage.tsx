@@ -4,18 +4,7 @@ import { JourneyPath, type JourneyNode } from '../../components/navigation/Journ
 import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
-
-// Word nodes - grouping simple words for first graders
-const WORD_GROUPS = [
-  { id: 'family', name: 'משפחה', icon: '👨‍👩‍👧‍👦', words: ['ima', 'aba'] },
-  { id: 'people', name: 'אנשים', icon: '👦', words: ['yeled', 'yalda'] },
-  { id: 'animals', name: 'חיות', icon: '🐾', words: ['kelev', 'chatul'] },
-  { id: 'home', name: 'בית', icon: '🏠', words: ['bait', 'sefer'] },
-  { id: 'nature', name: 'טבע', icon: '🌳', words: ['shemesh', 'mayim'] },
-  { id: 'food', name: 'אוכל', icon: '🍎', words: ['lechem', 'tapuach', 'chalav'] },
-  { id: 'actions', name: 'פעולות', icon: '🏃', words: ['holeech', 'ratz', 'yoshev'] },
-  { id: 'colors', name: 'צבעים', icon: '🎨', words: ['adom', 'yarok', 'kachol'] },
-]
+import { WORD_NODES } from '../../data/levelNodes'
 
 /**
  * WordsPage - Main page for word reading journey
@@ -24,7 +13,7 @@ const WORD_GROUPS = [
 export function WordsPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
+  const nodes = useProgressStore((state) => state.nodes)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
   const devMode = useProgressStore((state) => state.settings.devMode)
@@ -33,9 +22,9 @@ export function WordsPage() {
   const levelUnlocked = isLevelUnlocked('words')
 
   // Convert word groups to journey nodes with progress state
-  const journeyNodes: JourneyNode[] = WORD_GROUPS.map((group, index) => {
+  const journeyNodes: JourneyNode[] = WORD_NODES.map((group, index) => {
     const nodeId = `words-${group.id}`
-    const progress = getNodeProgress(nodeId)
+    const progress = nodes[nodeId]
 
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
@@ -54,8 +43,8 @@ export function WordsPage() {
       }
     } else {
       // Other groups depend on previous group's progress
-      const prevNodeId = `words-${WORD_GROUPS[index - 1].id}`
-      const prevProgress = getNodeProgress(prevNodeId)
+      const prevNodeId = `words-${WORD_NODES[index - 1].id}`
+      const prevProgress = nodes[prevNodeId]
 
       if (prevProgress?.state === 'mastered' || prevProgress?.state === 'in_progress') {
         // Previous group started, this one becomes available
@@ -75,11 +64,6 @@ export function WordsPage() {
       order: index + 1,
     }
   })
-
-  // Find active node (first in_progress or first available)
-  const activeNode = journeyNodes.find(
-    (n) => n.state === 'in_progress' || n.state === 'available'
-  )
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -177,7 +161,6 @@ export function WordsPage() {
             {/* Journey path */}
             <JourneyPath
               nodes={journeyNodes}
-              activeNodeId={activeNode?.id}
               onNodeClick={handleNodeClick}
               title="מסע המילים שלי"
             />
@@ -192,7 +175,7 @@ export function WordsPage() {
                 alignItems: 'center',
               }}
             >
-              {WORD_GROUPS.map((group, index) => {
+              {WORD_NODES.map((group, index) => {
                 const node = journeyNodes[index]
                 const isUnlocked = node.state !== 'locked'
 

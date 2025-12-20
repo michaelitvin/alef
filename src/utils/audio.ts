@@ -12,7 +12,7 @@ const LETTER_NAMES_HEBREW: Record<string, string> = {
   he: 'הֵא',
   vav: 'וָו',
   zayin: 'זַיִן',
-  chet: 'חֵית',
+  chet: 'חֵת',
   tet: 'טֵית',
   yod: 'יוֹד',
   kaf: 'כָּף',
@@ -113,20 +113,47 @@ export function getLetterAudioPaths(letterId: string): {
 
 /**
  * Get letter name audio - uses TTS if enabled, otherwise falls back to pre-recorded
+ * Uses [letter_name] context prefix for better TTS articulation
+ * @param priority - If true, skip queue for immediate playback
  */
-export async function getLetterNameAudio(letterId: string): Promise<string> {
+export async function getLetterNameAudio(letterId: string, priority = true): Promise<string> {
   if (isTTSEnabled() && LETTER_NAMES_HEBREW[letterId]) {
-    return getTTS(LETTER_NAMES_HEBREW[letterId])
+    return getTTS(`[letter_name]${LETTER_NAMES_HEBREW[letterId]}`, undefined, priority)
   }
   return getAudioPath('letters', `${letterId}-name.mp3`)
 }
 
 /**
- * Get word audio - uses TTS if enabled
+ * Get TTS for a vowel sound (nikkud) with context prefix
+ * @param priority - If true, skip queue for immediate playback
  */
-export async function getWordAudio(word: string): Promise<string> {
+export async function getVowelSoundTTS(sound: string, priority = true): Promise<string> {
+  return getTTS(`[vowel_sound]${sound}`, undefined, priority)
+}
+
+/**
+ * Get TTS for a consonant sound with context prefix
+ * @param priority - If true, skip queue for immediate playback
+ */
+export async function getConsonantSoundTTS(sound: string, priority = true): Promise<string> {
+  return getTTS(`[consonant_sound]${sound}`, undefined, priority)
+}
+
+/**
+ * Get TTS for a syllable (consonant + vowel) with context prefix
+ * @param priority - If true, skip queue for immediate playback
+ */
+export async function getSyllableSoundTTS(sound: string, priority = true): Promise<string> {
+  return getTTS(`[syllable]${sound}`, undefined, priority)
+}
+
+/**
+ * Get word audio - uses TTS if enabled
+ * @param priority - If true, skip queue for immediate playback
+ */
+export async function getWordAudio(word: string, priority = true): Promise<string> {
   if (isTTSEnabled()) {
-    return getTTS(word)
+    return getTTS(word, undefined, priority)
   }
   // Fallback to pre-recorded (by word ID/slug)
   return getAudioPath('words', `${word}.mp3`)
@@ -134,10 +161,11 @@ export async function getWordAudio(word: string): Promise<string> {
 
 /**
  * Get sentence audio - uses TTS if enabled
+ * @param priority - If true, skip queue for immediate playback
  */
-export async function getSentenceAudio(sentence: string): Promise<string> {
+export async function getSentenceAudio(sentence: string, priority = true): Promise<string> {
   if (isTTSEnabled()) {
-    return getTTS(sentence)
+    return getTTS(sentence, undefined, priority)
   }
   // Fallback to pre-recorded
   return getAudioPath('sentences', `${sentence}.mp3`)
@@ -145,24 +173,27 @@ export async function getSentenceAudio(sentence: string): Promise<string> {
 
 /**
  * Get nikkud name audio - uses TTS if enabled
+ * @param priority - If true, skip queue for immediate playback
  */
-export async function getNikkudNameAudio(nikkudId: string): Promise<string> {
+export async function getNikkudNameAudio(nikkudId: string, priority = true): Promise<string> {
   if (isTTSEnabled() && NIKKUD_NAMES_HEBREW[nikkudId]) {
-    return getTTS(NIKKUD_NAMES_HEBREW[nikkudId])
+    return getTTS(NIKKUD_NAMES_HEBREW[nikkudId], undefined, priority)
   }
   return getAudioPath('nikkud', `${nikkudId}-name.mp3`)
 }
 
 /**
  * Get combination audio (letter + nikkud) - uses TTS if enabled
+ * @param priority - If true, skip queue for immediate playback
  */
 export async function getCombinationAudio(
   letter: string,
-  nikkudChar: string
+  nikkudChar: string,
+  priority = true
 ): Promise<string> {
   if (isTTSEnabled()) {
     // Combine the letter with the nikkud character for TTS
-    return getTTS(`${letter}${nikkudChar}`)
+    return getTTS(`${letter}${nikkudChar}`, undefined, priority)
   }
   // Fallback to pre-recorded
   return getAudioPath('combinations', `${letter}-${nikkudChar}.mp3`)
@@ -170,21 +201,24 @@ export async function getCombinationAudio(
 
 /**
  * Preload TTS for letter names (when TTS is enabled)
+ * Uses [letter_name] prefix to match getLetterNameAudio cache keys
  */
 export async function preloadLetterNamesTTS(): Promise<void> {
   if (!isTTSEnabled()) return
-  const texts = Object.values(LETTER_NAMES_HEBREW)
-  await preloadTTS(texts)
+  const texts = Object.values(LETTER_NAMES_HEBREW).map(name => `[letter_name]${name}`)
+  await preloadTTS(texts) // preloadTTS uses priority=false internally
 }
 
 /**
  * Preload TTS for specific letter IDs
+ * Uses [letter_name] prefix to match getLetterNameAudio cache keys
  */
 export async function preloadLetterNamesByIds(letterIds: string[]): Promise<void> {
   if (!isTTSEnabled()) return
   const texts = letterIds
     .map(id => LETTER_NAMES_HEBREW[id])
     .filter((name): name is string => !!name)
+    .map(name => `[letter_name]${name}`)
   if (texts.length > 0) {
     await preloadTTS(texts)
   }

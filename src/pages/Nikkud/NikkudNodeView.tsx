@@ -6,10 +6,12 @@ import { NikkudIntro, type ExampleLetter } from '../../components/nikkud/NikkudI
 import { NikkudQuiz, type NikkudQuizOption } from '../../components/nikkud/NikkudQuiz'
 import { CombinationBuilder } from '../../components/nikkud/CombinationBuilder'
 import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
+import { LevelCompleteScreen } from '../../components/common/LevelCompleteScreen'
 import { useProgressStore } from '../../stores/progressStore'
 import { Header } from '../../components/navigation/Navigation'
-import { useAudio } from '../../hooks/useAudio'
-import { getTTS, isTTSEnabled, preloadTTS } from '../../services/tts'
+import { useAudio, useSoundEffects } from '../../hooks/useAudio'
+import { isTTSEnabled, preloadTTS } from '../../services/tts'
+import { getSyllableSoundTTS } from '../../utils/audio'
 
 // Nikkud data structure with soundGroup for quiz logic
 const NIKKUD = [
@@ -22,8 +24,8 @@ const NIKKUD = [
   { id: 'kubutz', mark: 'ֻ', name: 'קֻבּוּץ', sound: 'אֻ', description: 'שלוש נקודות באלכסון - אֻ', soundGroup: 'u', isFullVowel: false },
   { id: 'shva', mark: 'ְ', name: 'שְׁוָא', sound: 'אְ', description: 'שתי נקודות אנכיות - אְ', soundGroup: 'silent', isFullVowel: false },
   // Full vowels (vav-based)
-  { id: 'holam-male', mark: 'וֹ', name: 'חוֹלָם מָלֵא', sound: 'וֹ', description: 'וָו עם נקודה למעלה - וֹ', soundGroup: 'o', isFullVowel: true },
-  { id: 'shuruk', mark: 'וּ', name: 'שׁוּרוּק', sound: 'וּ', description: 'וָו עם נקודה באמצע - וּ', soundGroup: 'u', isFullVowel: true },
+  { id: 'holam-male', mark: 'וֹ', name: 'חוֹלָם מָלֵא', sound: 'אוֹ', description: 'וָו עם נקודה למעלה - וֹ', soundGroup: 'o', isFullVowel: true },
+  { id: 'shuruk', mark: 'וּ', name: 'שׁוּרוּק', sound: 'אוּ', description: 'וָו עם נקודה באמצע - וּ', soundGroup: 'u', isFullVowel: true },
 ]
 
 // Fisher-Yates shuffle for proper randomization
@@ -89,11 +91,16 @@ export function NikkudNodeView() {
   }, [setSearchParams])
 
   const [showCelebration, setShowCelebration] = useState(false)
+  const [showLevelComplete, setShowLevelComplete] = useState(false)
 
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const setNodeState = useProgressStore((state) => state.setNodeState)
+  const updateLevelProgress = useProgressStore((state) => state.updateLevelProgress)
+  const isLevelComplete = useProgressStore((state) => state.isLevelComplete)
+  const markLevelComplete = useProgressStore((state) => state.markLevelComplete)
   const { play } = useAudio()
+  const { playCelebrate } = useSoundEffects()
 
   // Find the nikkud data
   const nikkudData = NIKKUD.find((n) => n.id === nikkudId)
@@ -103,7 +110,11 @@ export function NikkudNodeView() {
     if (nikkudId) {
       const nodeId = `nikkud-${nikkudId}`
       initializeNode(nodeId, 'nikkud')
-      setNodeState(nodeId, 'in_progress')
+      // Only set to in_progress if not already mastered
+      const currentNode = useProgressStore.getState().nodes[nodeId]
+      if (!currentNode || currentNode.state !== 'mastered') {
+        setNodeState(nodeId, 'in_progress')
+      }
 
       // Set initial step if not in URL
       if (!urlStep) {
@@ -130,18 +141,6 @@ export function NikkudNodeView() {
   }, [nikkudData])
 
   const exampleLetters = generateExampleLetters()
-
-  // Preload all sounds (main nikkud + example letters)
-  useEffect(() => {
-    if (nikkudData && isTTSEnabled()) {
-      const sounds = [nikkudData.sound]
-      // Add example letter sounds for non-full vowels
-      if (!nikkudData.isFullVowel) {
-        exampleLetters.forEach(ex => sounds.push(ex.sound))
-      }
-      preloadTTS(sounds)
-    }
-  }, [nikkudData, exampleLetters])
 
   // Handle unknown nikkud
   if (!nikkudData) {
@@ -209,6 +208,40 @@ export function NikkudNodeView() {
     return { letter, sound }
   }, [nikkudData.mark])
 
+  // Preload sounds for current step only
+  useEffect(() => {
+    if (!nikkudData || !isTTSEnabled()) return
+
+    const sounds: string[] = []
+
+    switch (currentStep) {
+      case 'intro':
+        // Main nikkud sound + example letters
+        sounds.push(`[syllable]${nikkudData.sound}`)
+        if (!nikkudData.isFullVowel) {
+          exampleLetters.forEach(ex => sounds.push(`[syllable]${ex.sound}`))
+        }
+        break
+      case 'quiz': {
+        // Just the correct quiz option sound
+        const correctOption = quizOptions.find(opt => opt.isCorrect)
+        if (correctOption) {
+          sounds.push(`[syllable]${correctOption.letter}${correctOption.nikkud}`)
+        }
+        break
+      }
+      case 'builder':
+        // Just the builder target sound
+        sounds.push(`[syllable]${builderTarget.sound}`)
+        break
+      // 'complete' step doesn't need audio
+    }
+
+    if (sounds.length > 0) {
+      preloadTTS(sounds)
+    }
+  }, [nikkudData, currentStep, exampleLetters, quizOptions, builderTarget])
+
   // Step handlers
   const handleIntroContinue = () => {
     setCurrentStep('quiz')
@@ -237,14 +270,23 @@ export function NikkudNodeView() {
 
     // Move to completion
     setTimeout(() => {
-      setCurrentStep('complete')
-      setShowCelebration(true)
       setNodeState(nodeId, 'mastered')
+      updateLevelProgress('nikkud')
 
-      // Navigate back after celebration
-      setTimeout(() => {
-        navigate('/nikkud')
-      }, 3000)
+      // Check if this completes the entire level
+      if (isLevelComplete('nikkud')) {
+        markLevelComplete('nikkud')
+        setShowLevelComplete(true)
+      } else {
+        setCurrentStep('complete')
+        setShowCelebration(true)
+        playCelebrate()
+
+        // Navigate back after celebration
+        setTimeout(() => {
+          navigate('/nikkud')
+        }, 3000)
+      }
     }, 1500)
   }
 
@@ -259,7 +301,7 @@ export function NikkudNodeView() {
 
   const handlePlaySound = () => {
     if (nikkudData && isTTSEnabled()) {
-      play(getTTS(nikkudData.sound)).catch(console.error)
+      play(getSyllableSoundTTS(nikkudData.sound)).catch(console.error)
     }
   }
 
@@ -269,20 +311,20 @@ export function NikkudNodeView() {
       const correctOption = quizOptions.find(opt => opt.isCorrect)
       if (correctOption) {
         const sound = correctOption.letter + correctOption.nikkud
-        play(getTTS(sound)).catch(console.error)
+        play(getSyllableSoundTTS(sound)).catch(console.error)
       }
     }
   }, [quizOptions, play])
 
   const handlePlayBuilderSound = () => {
     if (isTTSEnabled()) {
-      play(getTTS(builderTarget.sound)).catch(console.error)
+      play(getSyllableSoundTTS(builderTarget.sound)).catch(console.error)
     }
   }
 
   const handlePlayExample = (sound: string) => {
     if (isTTSEnabled()) {
-      play(getTTS(sound)).catch(console.error)
+      play(getSyllableSoundTTS(sound)).catch(console.error)
     }
   }
 
@@ -487,7 +529,7 @@ export function NikkudNodeView() {
                     lineHeight: 1,
                   }}
                 >
-                  א{nikkudData.mark}
+                  {nikkudData.isFullVowel ? nikkudData.mark : `א${nikkudData.mark}`}
                 </span>
               </motion.div>
             </motion.div>
@@ -502,6 +544,14 @@ export function NikkudNodeView() {
           onHide={() => setShowCelebration(false)}
           autoHideMs={2500}
         />
+
+        {/* Level complete screen */}
+        {showLevelComplete && (
+          <LevelCompleteScreen
+            levelId="nikkud"
+            nextLevelId="syllables"
+          />
+        )}
       </main>
     </div>
   )

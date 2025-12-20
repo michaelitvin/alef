@@ -14,6 +14,7 @@ import {
   INITIAL_PROGRESS_STATE,
   LEVEL_UNLOCK_THRESHOLDS,
 } from '../types/progress'
+import { LEVEL_NODE_COUNTS } from '../data/levelNodes'
 
 /**
  * Actions for the progress store
@@ -55,6 +56,8 @@ interface ProgressActions {
   getNodeProgress: (nodeId: string) => NodeProgress | undefined
   getLevelProgress: (levelId: string) => LevelProgress | undefined
   isLevelUnlocked: (levelId: string) => boolean
+  isLevelComplete: (levelId: string) => boolean
+  markLevelComplete: (levelId: string) => void
   getNextAvailableNode: (levelId: string) => string | null
 }
 
@@ -466,6 +469,47 @@ export const useProgressStore = create<ProgressStore>()(
         if (get().settings.devMode) return true
         const level = get().levels[levelId]
         return level?.unlocked ?? false
+      },
+
+      isLevelComplete: (levelId) => {
+        const state = get()
+        const totalNodes = LEVEL_NODE_COUNTS[levelId as keyof typeof LEVEL_NODE_COUNTS]
+        if (!totalNodes) return false
+
+        // Recalculate mastered count from actual nodes to avoid stale data
+        const nodeIds = Object.keys(state.nodes).filter(
+          (id) => id.startsWith(`${levelId}-`)
+        )
+        const masteredCount = nodeIds.filter(
+          (id) => state.nodes[id].state === 'mastered'
+        ).length
+
+        return masteredCount >= totalNodes
+      },
+
+      markLevelComplete: (levelId) => {
+        set((state) => {
+          // Check if already rewarded
+          const alreadyRewarded = state.rewards.some(
+            (r) => r.type === 'level_mastered' && r.contentId === levelId
+          )
+          if (alreadyRewarded) return state
+
+          return {
+            rewards: [
+              ...state.rewards,
+              {
+                type: 'level_mastered' as const,
+                earnedAt: Date.now(),
+                contentId: levelId,
+                seen: false,
+              },
+            ],
+          }
+        })
+
+        // Also check for unlocking next level
+        get().checkLevelUnlock()
       },
 
       getNextAvailableNode: (levelId) => {

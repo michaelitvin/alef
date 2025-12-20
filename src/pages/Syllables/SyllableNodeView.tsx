@@ -14,9 +14,10 @@ import {
   type MinimalPairData,
 } from '../../components/syllables'
 import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
+import { LevelCompleteScreen } from '../../components/common/LevelCompleteScreen'
 import { useProgressStore } from '../../stores/progressStore'
 import { Header } from '../../components/navigation/Navigation'
-import { useAudio } from '../../hooks/useAudio'
+import { useAudio, useSoundEffects } from '../../hooks/useAudio'
 import { getTTS, isTTSEnabled, preloadTTS } from '../../services/tts'
 import type { CVSyllable } from '../../types/entities'
 
@@ -134,12 +135,17 @@ export function SyllableNodeView() {
   const [currentItemIndex, setCurrentItemIndex] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [showLevelComplete, setShowLevelComplete] = useState(false)
   const [shuffledItems, setShuffledItems] = useState<CVSyllable[] | BlendWord[] | SegmentWord[] | MinimalPairData[]>([])
 
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const setNodeState = useProgressStore((state) => state.setNodeState)
+  const updateLevelProgress = useProgressStore((state) => state.updateLevelProgress)
+  const isLevelComplete = useProgressStore((state) => state.isLevelComplete)
+  const markLevelComplete = useProgressStore((state) => state.markLevelComplete)
   const { play } = useAudio()
+  const { playCelebrate } = useSoundEffects()
 
   // Get activity config
   const activityConfig = drillId ? ACTIVITY_CONFIGS[drillId] : null
@@ -182,7 +188,11 @@ export function SyllableNodeView() {
     if (drillId) {
       const nodeId = `syllables-${drillId}`
       initializeNode(nodeId, 'syllables')
-      setNodeState(nodeId, 'in_progress')
+      // Only set to in_progress if not already mastered
+      const currentNode = useProgressStore.getState().nodes[nodeId]
+      if (!currentNode || currentNode.state !== 'mastered') {
+        setNodeState(nodeId, 'in_progress')
+      }
 
       if (!urlStep) {
         setSearchParams({ step: 'intro' }, { replace: true })
@@ -190,30 +200,31 @@ export function SyllableNodeView() {
     }
   }, [drillId, initializeNode, setNodeState, urlStep, setSearchParams])
 
-  // Preload audio for current activity items only
+  // Preload audio for current + next item only (progressive loading)
   useEffect(() => {
-    if (!isTTSEnabled() || shuffledItems.length === 0) return
+    if (!isTTSEnabled() || shuffledItems.length === 0 || currentStep !== 'activity') return
 
     const sounds: string[] = []
+    const itemsToPreload = shuffledItems.slice(currentItemIndex, currentItemIndex + 2)
+
     switch (activityType) {
       case 'drill':
-        // Only preload the shuffled items we'll actually use
-        (shuffledItems as CVSyllable[]).forEach(s => sounds.push(s.sound))
+        (itemsToPreload as CVSyllable[]).forEach(s => sounds.push(s.sound))
         break
       case 'blend':
-        (shuffledItems as BlendWord[]).forEach(w => {
+        (itemsToPreload as BlendWord[]).forEach(w => {
           w.syllables.forEach(s => sounds.push(s.sound))
           sounds.push(w.wordSound)
         })
         break
       case 'segment':
-        (shuffledItems as SegmentWord[]).forEach(w => {
+        (itemsToPreload as SegmentWord[]).forEach(w => {
           sounds.push(w.wordSound)
           w.syllables.forEach(s => sounds.push(s.sound))
         })
         break
       case 'pairs':
-        (shuffledItems as MinimalPairData[]).forEach(p => {
+        (itemsToPreload as MinimalPairData[]).forEach(p => {
           sounds.push(p.syllable1.sound, p.syllable2.sound)
         })
         break
@@ -221,7 +232,7 @@ export function SyllableNodeView() {
     if (sounds.length > 0) {
       preloadTTS([...new Set(sounds)])
     }
-  }, [shuffledItems, activityType])
+  }, [shuffledItems, activityType, currentItemIndex, currentStep])
 
   // Handle unknown activity
   if (!activityConfig || !drillId) {
@@ -237,15 +248,26 @@ export function SyllableNodeView() {
   const totalItems = shuffledItems.length
 
   // Handlers
-  const handleIntroContinue = () => setCurrentStep('activity')
+  const handleIntroContinue = () => {
+    setCurrentStep('activity')
+  }
 
   const handleComplete = () => {
     const successRate = correctCount / totalItems
     if (successRate >= 0.6) {
       setNodeState(nodeId, 'mastered')
+      updateLevelProgress('syllables')
+
+      // Check if this completes the entire level
+      if (isLevelComplete('syllables')) {
+        markLevelComplete('syllables')
+        setShowLevelComplete(true)
+        return
+      }
     }
     setCurrentStep('complete')
     setShowCelebration(true)
+    playCelebrate()
     setTimeout(() => navigate('/syllables'), 3000)
   }
 
@@ -307,13 +329,14 @@ export function SyllableNodeView() {
     }
   }, [play])
 
-  // Generate drill options
-  const generateDrillOptions = useCallback((): SyllableDrillOption[] => {
+  // Generate drill options (memoized to prevent reshuffling on re-renders)
+  const drillOptions = useMemo((): SyllableDrillOption[] => {
+    if (activityType !== 'drill') return []
     const target = shuffledItems[currentItemIndex] as CVSyllable
     if (!target) return []
     const distractors = SYLLABLES.filter((s) => s.id !== target.id).sort(() => Math.random() - 0.5).slice(0, 3)
     return [{ syllable: target, isCorrect: true }, ...distractors.map((s) => ({ syllable: s, isCorrect: false }))].sort(() => Math.random() - 0.5)
-  }, [shuffledItems, currentItemIndex])
+  }, [shuffledItems, currentItemIndex, activityType])
 
   // Generate segment options (only for segment activity type)
   const segmentOptions = useMemo((): SegmentSyllable[] => {
@@ -363,7 +386,7 @@ export function SyllableNodeView() {
               {activityType === 'drill' && (
                 <SyllableDrill
                   targetSyllable={shuffledItems[currentItemIndex] as CVSyllable}
-                  options={generateDrillOptions()}
+                  options={drillOptions}
                   onAnswer={handleDrillAnswer}
                   onComplete={handleDrillComplete}
                   onPlaySound={() => handlePlaySyllable(shuffledItems[currentItemIndex] as CVSyllable)}
@@ -430,6 +453,14 @@ export function SyllableNodeView() {
         </AnimatePresence>
 
         <FeedbackOverlay visible={showCelebration} type="celebration" message={`סיימת את ${activityConfig.name}!`} onHide={() => setShowCelebration(false)} autoHideMs={2500} />
+
+        {/* Level complete screen */}
+        {showLevelComplete && (
+          <LevelCompleteScreen
+            levelId="syllables"
+            nextLevelId="words"
+          />
+        )}
       </main>
     </div>
   )

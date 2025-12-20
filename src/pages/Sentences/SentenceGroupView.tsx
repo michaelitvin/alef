@@ -8,8 +8,10 @@ import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { importYaml } from '../../utils/yaml'
 import { colors, typography, spacing, borderRadius } from '../../styles/theme'
-import { useAudio } from '../../hooks/useAudio'
+import { useAudio, useSoundEffects } from '../../hooks/useAudio'
+import { LevelCompleteScreen } from '../../components/common/LevelCompleteScreen'
 import { getTTS, isTTSEnabled } from '../../services/tts'
+import { SENTENCE_NODES } from '../../data/levelNodes'
 
 // Types matching the YAML structure
 interface SentenceData {
@@ -32,15 +34,6 @@ interface SentencesYaml {
   comprehension: ComprehensionData[]
 }
 
-// Sentence group definitions (matching SentencesPage.tsx)
-const SENTENCE_GROUPS = [
-  { id: 'basic-1', name: 'משפטים פשוטים א', icon: '📖', difficulty: 1 },
-  { id: 'basic-2', name: 'משפטים פשוטים ב', icon: '📗', difficulty: 1 },
-  { id: 'medium-1', name: 'משפטים בינוניים א', icon: '📘', difficulty: 2 },
-  { id: 'medium-2', name: 'משפטים בינוניים ב', icon: '📙', difficulty: 2 },
-  { id: 'advanced-1', name: 'משפטים מתקדמים א', icon: '📕', difficulty: 3 },
-  { id: 'advanced-2', name: 'משפטים מתקדמים ב', icon: '📚', difficulty: 3 },
-]
 
 type LearningPhase = 'reading' | 'quiz'
 
@@ -85,15 +78,20 @@ export function SentenceGroupView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [showLevelComplete, setShowLevelComplete] = useState(false)
 
   // Progress store
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const setNodeState = useProgressStore((state) => state.setNodeState)
   const updateCurrentActivity = useProgressStore((state) => state.updateCurrentActivity)
+  const updateLevelProgress = useProgressStore((state) => state.updateLevelProgress)
+  const isLevelComplete = useProgressStore((state) => state.isLevelComplete)
+  const markLevelComplete = useProgressStore((state) => state.markLevelComplete)
   const { play } = useAudio()
+  const { playCelebrate } = useSoundEffects()
 
   // Find the current group
-  const currentGroup = SENTENCE_GROUPS.find((g) => g.id === groupId)
+  const currentGroup = SENTENCE_NODES.find((g) => g.id === groupId)
   const nodeId = `sentences-${groupId}`
 
   // Load sentences from YAML
@@ -159,13 +157,22 @@ export function SentenceGroupView() {
       } else {
         // All sentences completed
         setNodeState(nodeId, 'mastered')
-        setShowCelebration(true)
-        setTimeout(() => {
-          navigate('/sentences')
-        }, 3000)
+        updateLevelProgress('sentences')
+
+        // Check if this completes the entire level
+        if (isLevelComplete('sentences')) {
+          markLevelComplete('sentences')
+          setShowLevelComplete(true)
+        } else {
+          setShowCelebration(true)
+          playCelebrate()
+          setTimeout(() => {
+            navigate('/sentences')
+          }, 3000)
+        }
       }
     }
-  }, [currentComprehension, currentSentenceIndex, sentences.length, setPhase, setSearchParams, setNodeState, nodeId, navigate])
+  }, [currentComprehension, currentSentenceIndex, sentences.length, setPhase, setSearchParams, setNodeState, nodeId, navigate, playCelebrate, updateLevelProgress, isLevelComplete, markLevelComplete])
 
   // Handle quiz answer
   const handleQuizAnswer = useCallback(
@@ -190,12 +197,21 @@ export function SentenceGroupView() {
     } else {
       // All sentences completed
       setNodeState(nodeId, 'mastered')
-      setShowCelebration(true)
-      setTimeout(() => {
-        navigate('/sentences')
-      }, 3000)
+      updateLevelProgress('sentences')
+
+      // Check if this completes the entire level
+      if (isLevelComplete('sentences')) {
+        markLevelComplete('sentences')
+        setShowLevelComplete(true)
+      } else {
+        setShowCelebration(true)
+        playCelebrate()
+        setTimeout(() => {
+          navigate('/sentences')
+        }, 3000)
+      }
     }
-  }, [currentSentenceIndex, sentences.length, setSearchParams, setNodeState, nodeId, navigate])
+  }, [currentSentenceIndex, sentences.length, setSearchParams, setNodeState, nodeId, navigate, playCelebrate, updateLevelProgress, isLevelComplete, markLevelComplete])
 
   // Handle back button
   const handleBack = () => {
@@ -206,13 +222,13 @@ export function SentenceGroupView() {
   const handlePlayWord = (index: number) => {
     if (currentSentence && isTTSEnabled()) {
       const word = currentSentence.words[index]
-      play(getTTS(word)).catch(console.error)
+      play(getTTS(word, 'word')).catch(console.error)
     }
   }
 
   const handlePlaySentence = () => {
     if (currentSentence && isTTSEnabled()) {
-      play(getTTS(currentSentence.sentence)).catch(console.error)
+      play(getTTS(currentSentence.sentence, 'sentence')).catch(console.error)
     }
   }
 
@@ -443,6 +459,13 @@ export function SentenceGroupView() {
           </p>
         </motion.div>
       </FeedbackOverlay>
+
+      {/* Level complete screen - sentences is the final level */}
+      {showLevelComplete && (
+        <LevelCompleteScreen
+          levelId="sentences"
+        />
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface SegmentSyllable {
   id: string
@@ -50,6 +51,7 @@ export function SyllableSegment({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   const expectedCount = segmentWord.syllables.length
 
@@ -60,10 +62,9 @@ export function SyllableSegment({
     setFeedbackVisible(false)
     setIsComplete(false)
     // Auto-play word on mount
-    if (onPlayWord) {
-      setTimeout(onPlayWord, 500)
-    }
-  }, [segmentWord.id, onPlayWord])
+    setTimeout(() => onPlayWord?.(), 500)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [segmentWord.id])
 
   // Check if selection matches
   useEffect(() => {
@@ -75,11 +76,13 @@ export function SyllableSegment({
       if (isCorrect) {
         setFeedback('success')
         setFeedbackVisible(true)
+        playSuccess()
         setIsComplete(true)
         setTimeout(() => onComplete(true), 2000)
       } else {
         setFeedback('error')
         setFeedbackVisible(true)
+        playError()
         // Reset after showing error
         setTimeout(() => {
           setSelectedSyllables([])
@@ -88,7 +91,7 @@ export function SyllableSegment({
         }, 1500)
       }
     }
-  }, [selectedSyllables, expectedCount, segmentWord.syllables, isComplete, onComplete])
+  }, [selectedSyllables, expectedCount, segmentWord.syllables, isComplete, onComplete, playSuccess, playError])
 
   const handleOptionClick = useCallback(
     (syllable: SegmentSyllable) => {

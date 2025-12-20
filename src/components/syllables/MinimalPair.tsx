@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface PairSyllable {
   id: string
@@ -48,6 +49,7 @@ export function MinimalPair({
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [correctCount, setCorrectCount] = useState(0)
   const [answered, setAnswered] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   const totalRounds = 4 // 4 rounds per pair
 
@@ -61,16 +63,16 @@ export function MinimalPair({
     setFeedbackVisible(false)
 
     // Auto-play after short delay
-    if (onPlaySyllable) {
-      setTimeout(() => onPlaySyllable(target), 600)
-    }
-  }, [pair.id, round, onPlaySyllable, pair.syllable1, pair.syllable2])
+    setTimeout(() => onPlaySyllable?.(target), 600)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pair.id, round])
 
   const handlePlayAgain = useCallback(() => {
-    if (targetSyllable && onPlaySyllable) {
-      onPlaySyllable(targetSyllable)
+    if (targetSyllable) {
+      onPlaySyllable?.(targetSyllable)
     }
-  }, [targetSyllable, onPlaySyllable])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetSyllable])
 
   const handleSelect = useCallback(
     (syllable: PairSyllable) => {
@@ -84,8 +86,10 @@ export function MinimalPair({
       if (isCorrect) {
         setCorrectCount((prev) => prev + 1)
         setFeedback('success')
+        playSuccess()
       } else {
         setFeedback('error')
+        playError()
       }
       setFeedbackVisible(true)
 
@@ -99,7 +103,7 @@ export function MinimalPair({
         }
       }, 1500)
     },
-    [answered, targetSyllable, round, totalRounds, correctCount, onComplete]
+    [answered, targetSyllable, round, totalRounds, correctCount, onComplete, playSuccess, playError]
   )
 
   const syllables = [pair.syllable1, pair.syllable2]

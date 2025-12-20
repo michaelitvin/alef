@@ -8,10 +8,12 @@ import { WordQuiz, type WordQuizOption } from '../../components/words/WordQuiz'
 import { FeedbackOverlay } from '../../components/common/FeedbackOverlay'
 import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
-import { useAudio } from '../../hooks/useAudio'
+import { useAudio, useSoundEffects } from '../../hooks/useAudio'
+import { LevelCompleteScreen } from '../../components/common/LevelCompleteScreen'
 import { importYaml } from '../../utils/yaml'
 import { useResponsive } from '../../hooks/useResponsive'
 import { getTTS, isTTSEnabled } from '../../services/tts'
+import { WORD_NODES } from '../../data/levelNodes'
 
 // Word data structure from YAML
 interface WordData {
@@ -28,17 +30,6 @@ interface WordsYaml {
   words: WordData[]
 }
 
-// Word groups matching WordsPage.tsx
-const WORD_GROUPS = [
-  { id: 'family', name: 'משפחה', icon: '👨‍👩‍👧‍👦', words: ['ima', 'aba'] },
-  { id: 'people', name: 'אנשים', icon: '👦', words: ['yeled', 'yalda'] },
-  { id: 'animals', name: 'חיות', icon: '🐾', words: ['kelev', 'chatul'] },
-  { id: 'home', name: 'בית', icon: '🏠', words: ['bait', 'sefer'] },
-  { id: 'nature', name: 'טבע', icon: '🌳', words: ['shemesh', 'mayim'] },
-  { id: 'food', name: 'אוכל', icon: '🍎', words: ['lechem', 'tapuach', 'chalav'] },
-  { id: 'actions', name: 'פעולות', icon: '🏃', words: ['holeech', 'ratz', 'yoshev'] },
-  { id: 'colors', name: 'צבעים', icon: '🎨', words: ['adom', 'yarok', 'kachol'] },
-]
 
 type LearningStep = 'intro' | 'breakdown' | 'quiz'
 
@@ -64,6 +55,7 @@ export function WordGroupView() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { isMobile } = useResponsive()
   const { play } = useAudio()
+  const { playCelebrate } = useSoundEffects()
 
   // Get step and word index from URL (enables browser back button)
   const urlStep = searchParams.get('step') as LearningStep | null
@@ -85,14 +77,18 @@ export function WordGroupView() {
   const [loading, setLoading] = useState(true)
   const [showCelebration, setShowCelebration] = useState(false)
   const [allWordsComplete, setAllWordsComplete] = useState(false)
+  const [showLevelComplete, setShowLevelComplete] = useState(false)
 
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const addToVocabulary = useProgressStore((state) => state.addToVocabulary)
+  const setNodeState = useProgressStore((state) => state.setNodeState)
   const updateLevelProgress = useProgressStore((state) => state.updateLevelProgress)
   const checkLevelUnlock = useProgressStore((state) => state.checkLevelUnlock)
+  const isLevelComplete = useProgressStore((state) => state.isLevelComplete)
+  const markLevelComplete = useProgressStore((state) => state.markLevelComplete)
 
   // Find the word group
-  const wordGroup = WORD_GROUPS.find((g) => g.id === groupId)
+  const wordGroup = WORD_NODES.find((g) => g.id === groupId)
   const nodeId = `words-${groupId}`
 
   // Load words from YAML
@@ -146,12 +142,12 @@ export function WordGroupView() {
   // Handle intro continue
   const handleIntroContinue = useCallback(() => {
     setCurrentStep('breakdown')
-  }, [])
+  }, [setCurrentStep])
 
   // Handle breakdown complete
   const handleBreakdownComplete = useCallback(() => {
     setCurrentStep('quiz')
-  }, [])
+  }, [setCurrentStep])
 
   // Handle quiz answer
   const handleQuizAnswer = useCallback(
@@ -184,26 +180,42 @@ export function WordGroupView() {
     } else {
       // All words complete
       setAllWordsComplete(true)
-      setShowCelebration(true)
+
+      // Mark node as mastered
+      setNodeState(nodeId, 'mastered')
 
       // Update progress
       updateLevelProgress('words')
       checkLevelUnlock()
 
-      // Navigate back after celebration
-      setTimeout(() => {
-        navigate('/words')
-      }, 3000)
+      // Check if this completes the entire level
+      if (isLevelComplete('words')) {
+        markLevelComplete('words')
+        setShowLevelComplete(true)
+      } else {
+        setShowCelebration(true)
+        playCelebrate()
+
+        // Navigate back after celebration
+        setTimeout(() => {
+          navigate('/words')
+        }, 3000)
+      }
     }
   }, [
     currentWord,
     currentWordIndex,
     wordsData.length,
     addToVocabulary,
+    setNodeState,
+    nodeId,
     updateLevelProgress,
     checkLevelUnlock,
     navigate,
     setSearchParams,
+    playCelebrate,
+    isLevelComplete,
+    markLevelComplete,
   ])
 
   // Handle back button
@@ -415,6 +427,14 @@ export function WordGroupView() {
         autoHideMs={3000}
         onHide={() => setShowCelebration(false)}
       />
+
+      {/* Level complete screen */}
+      {showLevelComplete && (
+        <LevelCompleteScreen
+          levelId="words"
+          nextLevelId="sentences"
+        />
+      )}
     </div>
   )
 }

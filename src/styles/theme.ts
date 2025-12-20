@@ -85,8 +85,6 @@ export const colors = {
 export const fonts = {
   default: "'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif",
   cursive: "'Dana Yad', 'Guttman Yad-Brush', 'Hillel CLM', sans-serif",
-  modern: "'Noto Sans Hebrew', 'Arial Hebrew', 'Heebo', sans-serif",
-  rounded: "'Varela Round', 'Rubik', 'Noto Sans Hebrew', sans-serif",
 } as const
 
 export type FontKey = keyof typeof fonts
@@ -94,7 +92,8 @@ export type FontKey = keyof typeof fonts
 // Typography
 export const typography = {
   fontFamily: {
-    hebrew: fonts.default,
+    // Use CSS variable so font changes take effect globally
+    hebrew: 'var(--font-hebrew)',
     hebrewCursive: fonts.cursive,
   },
   fontSize: {

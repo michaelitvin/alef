@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius } from '../../styles/theme'
 import { NikkudCard } from './NikkudCard'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface NikkudQuizOption {
   letter: string
@@ -39,6 +40,7 @@ export function NikkudQuiz({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   // Auto-play sound on mount (immediately)
   useEffect(() => {
@@ -56,12 +58,14 @@ export function NikkudQuiz({
       if (option.isCorrect) {
         setFeedback('success')
         setFeedbackVisible(true)
+        playSuccess()
         onAnswer(true, option)
         // Auto-advance after success
         setTimeout(onComplete, 1500)
       } else {
         setFeedback('error')
         setFeedbackVisible(true)
+        playError()
         onAnswer(false, option)
         // Allow retry after showing feedback
         setTimeout(() => {
@@ -72,7 +76,7 @@ export function NikkudQuiz({
         }, 1200)
       }
     },
-    [answered, options, onAnswer, onComplete]
+    [answered, options, onAnswer, onComplete, playSuccess, playError]
   )
 
   return (

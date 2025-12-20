@@ -57,7 +57,7 @@ export default {
             text,
             model_id: MODEL_ID,
             voice_settings: {
-              stability: 0.5,
+              stability: 1.0, // Robust - clearest pronunciation (valid: 0.0, 0.5, 1.0)
               similarity_boost: 0.75,
             },
           }),

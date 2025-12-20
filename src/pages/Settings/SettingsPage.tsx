@@ -22,10 +22,8 @@ export function SettingsPage() {
 
   // Font options with display names
   const fontOptions: { id: FontType; name: string; preview: string }[] = [
-    { id: 'default', name: 'קלאסי', preview: 'אָלֶף' },
+    { id: 'default', name: 'דפוס', preview: 'אָלֶף' },
     { id: 'cursive', name: 'כתב יד', preview: 'אָלֶף' },
-    { id: 'modern', name: 'מודרני', preview: 'אָלֶף' },
-    { id: 'rounded', name: 'מעוגל', preview: 'אָלֶף' },
   ]
 
   const handleBack = () => {

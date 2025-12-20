@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
+import { LEVEL_NODE_COUNTS } from '../../data/levelNodes'
 
 interface LevelInfo {
   id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
@@ -58,6 +59,7 @@ export function HomePage() {
   const { isMobile, isTablet } = useResponsive()
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
   const stats = useProgressStore((state) => state.stats)
+  const nodes = useProgressStore((state) => state.nodes)
   const startSession = useProgressStore((state) => state.startSession)
 
   // Start session on first visit
@@ -187,8 +189,15 @@ export function HomePage() {
       >
         {LEVELS.map((level, index) => {
           const unlocked = isLevelUnlocked(level.id)
-          const levelProgress = useProgressStore.getState().levels[level.id]
-          const progress = levelProgress?.successRate || 0
+          const totalNodes = LEVEL_NODE_COUNTS[level.id]
+          // Count mastered nodes directly from subscribed state
+          const levelNodeIds = Object.keys(nodes).filter(
+            (id) => id.startsWith(`${level.id}-`)
+          )
+          const masteredCount = levelNodeIds.filter(
+            (id) => nodes[id].state === 'mastered'
+          ).length
+          const progress = totalNodes > 0 ? masteredCount / totalNodes : 0
 
           return (
             <motion.div

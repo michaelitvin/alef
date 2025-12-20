@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useSoundEffects } from './hooks/useAudio'
 import HomePage from './pages/Home/HomePage'
 import LettersPage from './pages/Letters/LettersPage'
 import LetterNodeView from './pages/Letters/LetterNodeView'
@@ -16,6 +17,35 @@ import SettingsPage from './pages/Settings/SettingsPage'
 import RoutesPage from './pages/Debug/RoutesPage'
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
+
+/**
+ * Plays page turn sound on route changes
+ */
+function NavigationSoundEffect() {
+  const location = useLocation()
+  const { playPageTurn } = useSoundEffects()
+  const isFirstRender = useRef(true)
+  const prevLocation = useRef(location.pathname + location.search)
+
+  useEffect(() => {
+    const currentLocation = location.pathname + location.search
+
+    // Skip first render (initial page load)
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      prevLocation.current = currentLocation
+      return
+    }
+
+    // Only play if location actually changed
+    if (prevLocation.current !== currentLocation) {
+      prevLocation.current = currentLocation
+      playPageTurn().catch(console.error)
+    }
+  }, [location.pathname, location.search, playPageTurn])
+
+  return null
+}
 
 function App() {
   const { settings, setDevMode } = useProgressStore()
@@ -57,6 +87,7 @@ function App() {
 
   return (
     <HashRouter>
+      <NavigationSoundEffect />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/letters" element={<LettersPage />} />

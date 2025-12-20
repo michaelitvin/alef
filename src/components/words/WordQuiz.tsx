@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius } from '../../styles/theme'
 import { WordCard } from './WordCard'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface WordQuizOption {
   word: string
@@ -41,6 +42,7 @@ export function WordQuiz({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   // Auto-play sound on mount (immediately)
   useEffect(() => {
@@ -60,12 +62,14 @@ export function WordQuiz({
       if (option.isCorrect) {
         setFeedback('success')
         setFeedbackVisible(true)
+        playSuccess()
         onAnswer(true, option)
         // Auto-advance after success
         setTimeout(onComplete, 1500)
       } else {
         setFeedback('error')
         setFeedbackVisible(true)
+        playError()
         onAnswer(false, option)
         // Allow retry after showing feedback
         setTimeout(() => {
@@ -76,7 +80,7 @@ export function WordQuiz({
         }, 1200)
       }
     },
-    [answered, options, onAnswer, onComplete]
+    [answered, options, onAnswer, onComplete, playSuccess, playError]
   )
 
   return (

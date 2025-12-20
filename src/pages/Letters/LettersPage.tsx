@@ -44,14 +44,14 @@ const LETTERS = [
 export function LettersPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
+  const nodes = useProgressStore((state) => state.nodes)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const devMode = useProgressStore((state) => state.settings.devMode)
 
   // Convert letters to journey nodes with progress state
   const journeyNodes: JourneyNode[] = LETTERS.map((letter, index) => {
     const nodeId = `letters-${letter.id}`
-    const progress = getNodeProgress(nodeId)
+    const progress = nodes[nodeId]
 
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
@@ -68,7 +68,7 @@ export function LettersPage() {
     } else {
       // Other letters depend on previous letter's progress
       const prevNodeId = `letters-${LETTERS[index - 1].id}`
-      const prevProgress = getNodeProgress(prevNodeId)
+      const prevProgress = nodes[prevNodeId]
 
       if (prevProgress?.state === 'mastered' || prevProgress?.state === 'in_progress') {
         // Previous letter started, this one becomes available
@@ -88,11 +88,6 @@ export function LettersPage() {
       order: index + 1,
     }
   })
-
-  // Find active node (first in_progress or first available)
-  const activeNode = journeyNodes.find(
-    (n) => n.state === 'in_progress' || n.state === 'available'
-  )
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -152,7 +147,6 @@ export function LettersPage() {
         {/* Journey path */}
         <JourneyPath
           nodes={journeyNodes}
-          activeNodeId={activeNode?.id}
           onNodeClick={handleNodeClick}
           title="מסע האותיות שלי"
         />

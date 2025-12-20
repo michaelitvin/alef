@@ -208,51 +208,14 @@ export function LetterQuiz({
             </Button>
           </motion.div>
         )}
-
-        {state === 'incorrect' && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: spacing[3],
-            }}
-          >
-            <p
-              style={{
-                fontFamily: typography.fontFamily.hebrew,
-                fontSize: typography.fontSize.lg,
-                color: colors.text.secondary,
-                textAlign: 'center',
-              }}
-            >
-              הנה האות הנכונה! 👆
-            </p>
-            <Button variant="primary" size="lg" onClick={handleTryAgain}>
-              ננסה שוב
-            </Button>
-          </motion.div>
-        )}
       </AnimatePresence>
 
-      {/* Feedback overlay */}
-      <FeedbackOverlay
-        visible={state === 'correct'}
-        type="success"
-        message="כל הכבוד! 🌟"
-        autoHideMs={1500}
-        onHide={() => {}}
-      />
-
+      {/* Error feedback overlay - tap or timeout to try again */}
       <FeedbackOverlay
         visible={state === 'incorrect'}
         type="error"
-        message="כמעט! נסה שוב"
         autoHideMs={1500}
-        onHide={() => {}}
+        onHide={handleTryAgain}
       />
     </div>
   )

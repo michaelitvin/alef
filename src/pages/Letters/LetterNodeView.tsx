@@ -7,6 +7,8 @@ import { LetterIntro } from '../../components/letters/LetterIntro'
 import { LetterQuiz } from '../../components/letters/LetterQuiz'
 import { LetterMatch } from '../../components/letters/LetterMatch'
 import { useProgressStore } from '../../stores/progressStore'
+import { useSoundEffects } from '../../hooks/useAudio'
+import { LevelCompleteScreen } from '../../components/common/LevelCompleteScreen'
 import { getLetterById, getLetterQuizOptions, LETTERS_SIMPLE } from '../../data/lettersData'
 import type { Letter } from '../../types/entities'
 
@@ -59,10 +61,14 @@ export function LetterNodeView() {
   const [letter, setLetter] = useState<Letter | null>(null)
   const [quizOptions, setQuizOptions] = useState<Letter[]>([])
   const [matchLetters, setMatchLetters] = useState<Letter[]>([])
+  const [showLevelComplete, setShowLevelComplete] = useState(false)
 
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const setNodeState = useProgressStore((state) => state.setNodeState)
   const updateLevelProgress = useProgressStore((state) => state.updateLevelProgress)
+  const isLevelComplete = useProgressStore((state) => state.isLevelComplete)
+  const markLevelComplete = useProgressStore((state) => state.markLevelComplete)
+  const { playCelebrate } = useSoundEffects()
 
   // Load letter data
   useEffect(() => {
@@ -112,9 +118,12 @@ export function LetterNodeView() {
         )
         setMatchLetters(matchData.filter((l): l is Letter => l !== null))
 
-        // Mark node as in progress
+        // Mark node as in progress (only if not already mastered)
         const nodeId = `letters-${letterId}`
-        setNodeState(nodeId, 'in_progress')
+        const currentNode = useProgressStore.getState().nodes[nodeId]
+        if (!currentNode || currentNode.state !== 'mastered') {
+          setNodeState(nodeId, 'in_progress')
+        }
 
         // Only set step to intro if no step is in URL (first load)
         // Use replace to avoid adding to history on initial load
@@ -163,13 +172,20 @@ export function LetterNodeView() {
   }
 
   const handleMatchComplete = () => {
-    setStep('complete')
-
     // Mark letter as mastered
     if (letterId) {
       const nodeId = `letters-${letterId}`
       setNodeState(nodeId, 'mastered')
       updateLevelProgress('letters')
+
+      // Check if this completes the entire level
+      if (isLevelComplete('letters')) {
+        markLevelComplete('letters')
+        setShowLevelComplete(true)
+      } else {
+        setStep('complete')
+        playCelebrate()
+      }
     }
   }
 
@@ -373,6 +389,14 @@ export function LetterNodeView() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Level complete screen */}
+        {showLevelComplete && (
+          <LevelCompleteScreen
+            levelId="letters"
+            nextLevelId="nikkud"
+          />
+        )}
       </main>
     </div>
   )

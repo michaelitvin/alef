@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 import type { CVSyllable } from '../../types/entities'
 
 export interface SyllableDrillOption {
@@ -43,13 +44,13 @@ export function SyllableDrill({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [answered, setAnswered] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
-  // Auto-play sound on mount (immediately)
+  // Auto-play sound when target syllable changes
   useEffect(() => {
-    if (onPlaySound) {
-      onPlaySound()
-    }
-  }, [onPlaySound, targetSyllable.id])
+    onPlaySound?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetSyllable.id])
 
   const handleOptionClick = useCallback(
     (index: number) => {
@@ -62,12 +63,14 @@ export function SyllableDrill({
       if (option.isCorrect) {
         setFeedback('success')
         setFeedbackVisible(true)
+        playSuccess()
         onAnswer(true, option)
         // Auto-advance after success
         setTimeout(onComplete, 1500)
       } else {
         setFeedback('error')
         setFeedbackVisible(true)
+        playError()
         onAnswer(false, option)
         // Allow retry after showing feedback
         setTimeout(() => {
@@ -78,7 +81,7 @@ export function SyllableDrill({
         }, 1200)
       }
     },
-    [answered, options, onAnswer, onComplete]
+    [answered, options, onAnswer, onComplete, playSuccess, playError]
   )
 
   return (

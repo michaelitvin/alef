@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { LetterCard } from '../letters/LetterCard'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface CombinationBuilderProps {
   /** Available letters to choose from */
@@ -39,6 +40,7 @@ export function CombinationBuilder({
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
   const [checking, setChecking] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   // Auto-play sound on mount
   useEffect(() => {
@@ -48,37 +50,45 @@ export function CombinationBuilder({
     return () => clearTimeout(timer)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCheck = useCallback(() => {
+  // Auto-check when both letter and nikkud are selected
+  useEffect(() => {
     if (!selectedLetter || !selectedNikkud || checking) return
 
-    setChecking(true)
+    // Small delay for visual feedback before checking
+    const timer = setTimeout(() => {
+      setChecking(true)
 
-    const isCorrect =
-      selectedLetter === targetLetter && selectedNikkud === targetNikkud
+      const isCorrect =
+        selectedLetter === targetLetter && selectedNikkud === targetNikkud
 
-    if (isCorrect) {
-      setFeedback('success')
-      setFeedbackVisible(true)
-      onCorrect()
-      // Keep showing success for a moment
-      setTimeout(() => {
-        setFeedbackVisible(false)
-        setFeedback(null)
-        setChecking(false)
-      }, 2000)
-    } else {
-      setFeedback('error')
-      setFeedbackVisible(true)
-      onIncorrect()
-      // Reset after showing feedback
-      setTimeout(() => {
-        setFeedbackVisible(false)
-        setFeedback(null)
-        setSelectedLetter(null)
-        setSelectedNikkud(null)
-        setChecking(false)
-      }, 1500)
-    }
+      if (isCorrect) {
+        setFeedback('success')
+        setFeedbackVisible(true)
+        playSuccess()
+        onCorrect()
+        // Keep showing success for a moment
+        setTimeout(() => {
+          setFeedbackVisible(false)
+          setFeedback(null)
+          setChecking(false)
+        }, 2000)
+      } else {
+        setFeedback('error')
+        setFeedbackVisible(true)
+        playError()
+        onIncorrect()
+        // Reset after showing feedback
+        setTimeout(() => {
+          setFeedbackVisible(false)
+          setFeedback(null)
+          setSelectedLetter(null)
+          setSelectedNikkud(null)
+          setChecking(false)
+        }, 1500)
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
   }, [
     selectedLetter,
     selectedNikkud,
@@ -87,6 +97,8 @@ export function CombinationBuilder({
     targetNikkud,
     onCorrect,
     onIncorrect,
+    playSuccess,
+    playError,
   ])
 
   const combination =
@@ -287,39 +299,6 @@ export function CombinationBuilder({
           ))}
         </div>
       </div>
-
-      {/* Check button */}
-      <motion.button
-        onClick={handleCheck}
-        disabled={!selectedLetter || !selectedNikkud || checking}
-        style={{
-          padding: `${spacing[3]} ${spacing[8]}`,
-          borderRadius: borderRadius.xl,
-          border: 'none',
-          backgroundColor:
-            selectedLetter && selectedNikkud
-              ? colors.primary[500]
-              : colors.neutral[300],
-          boxShadow: selectedLetter && selectedNikkud ? shadows.md : 'none',
-          fontFamily: typography.fontFamily.hebrew,
-          fontSize: typography.fontSize.xl,
-          fontWeight: typography.fontWeight.semibold,
-          color: colors.surface,
-          cursor:
-            selectedLetter && selectedNikkud && !checking
-              ? 'pointer'
-              : 'not-allowed',
-          opacity: checking ? 0.6 : 1,
-        }}
-        whileHover={
-          selectedLetter && selectedNikkud && !checking ? { scale: 1.02 } : {}
-        }
-        whileTap={
-          selectedLetter && selectedNikkud && !checking ? { scale: 0.98 } : {}
-        }
-      >
-        בדוק ✓
-      </motion.button>
 
       {/* Feedback overlay */}
       <FeedbackOverlay

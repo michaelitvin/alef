@@ -8,8 +8,8 @@ export interface NodeIconProps {
   label: string
   /** Current state of the node */
   state: NodeState
-  /** Whether this node is currently active/selected */
-  isActive?: boolean
+  /** Whether this is the next node to complete (shows prominent glow) */
+  isNext?: boolean
   /** Click handler */
   onClick?: () => void
   /** Size variant */
@@ -52,13 +52,30 @@ const stateColors: Record<NodeState, { bg: string; border: string; text: string 
 export function NodeIcon({
   label,
   state,
-  isActive = false,
+  isNext = false,
   onClick,
   size = 'md',
 }: NodeIconProps) {
   const config = sizeConfig[size]
   const stateStyle = stateColors[state]
   const isClickable = state !== 'locked'
+
+  // Animation for next node only - prominent pulsing glow
+  const nextNodeAnimation = isNext
+    ? {
+        boxShadow: [
+          `0 0 0 0 ${colors.primary[400]}, 0 0 20px ${colors.primary[300]}`,
+          `0 0 0 12px ${colors.primary[200]}, 0 0 30px ${colors.primary[400]}`,
+          `0 0 0 0 ${colors.primary[400]}, 0 0 20px ${colors.primary[300]}`,
+        ],
+        scale: [1, 1.05, 1],
+        transition: {
+          duration: 1.5,
+          repeat: Infinity,
+          ease: 'easeInOut' as const,
+        },
+      }
+    : undefined
 
   return (
     <motion.button
@@ -76,31 +93,7 @@ export function NodeIcon({
       }}
       whileHover={isClickable ? { scale: 1.1 } : undefined}
       whileTap={isClickable ? { scale: 0.95 } : undefined}
-      animate={
-        state === 'available'
-          ? {
-              scale: [1, 1.05, 1],
-              transition: {
-                duration: 2,
-                repeat: Infinity,
-                ease: 'easeInOut' as const,
-              },
-            }
-          : state === 'in_progress'
-          ? {
-              boxShadow: [
-                `0 0 0 0 ${colors.primary[300]}`,
-                `0 0 0 8px ${colors.primary[100]}`,
-                `0 0 0 0 ${colors.primary[300]}`,
-              ],
-              transition: {
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut' as const,
-              },
-            }
-          : undefined
-      }
+      animate={nextNodeAnimation}
     >
       {/* Outer ring */}
       <div
@@ -108,12 +101,12 @@ export function NodeIcon({
           width: '100%',
           height: '100%',
           borderRadius: borderRadius.full,
-          border: `3px solid ${isActive ? colors.primary[500] : stateStyle.border}`,
+          border: `3px solid ${isNext ? colors.primary[500] : stateStyle.border}`,
           backgroundColor: stateStyle.bg,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: isActive ? shadows.glow : shadows.sm,
+          boxShadow: isNext ? shadows.glow : shadows.sm,
         }}
       >
         {/* Inner content */}

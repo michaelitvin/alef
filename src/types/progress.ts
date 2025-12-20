@@ -41,6 +41,7 @@ export interface NodeProgress {
 /**
  * Level Progress
  * Progress for an entire level (letters, nikkud, words, sentences)
+ * Note: totalNodes is derived dynamically from LEVEL_NODE_COUNTS in levelNodes.ts
  */
 export interface LevelProgress {
   /** Level ID */
@@ -53,8 +54,6 @@ export interface LevelProgress {
   successRate: number
   /** Number of nodes mastered */
   nodesMastered: number
-  /** Total nodes in this level */
-  totalNodes: number
   /** Total time spent in milliseconds */
   timeSpentMs: number
 }
@@ -129,7 +128,7 @@ export interface Stats {
 /**
  * Font type options for Hebrew text
  */
-export type FontType = 'default' | 'cursive' | 'modern' | 'rounded'
+export type FontType = 'default' | 'cursive'
 
 /**
  * Settings
@@ -236,7 +235,6 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     unlocked: true, // Letters always unlocked
     successRate: 0,
     nodesMastered: 0,
-    totalNodes: 27, // 22 letters + 5 sofiyot
     timeSpentMs: 0,
   },
   nikkud: {
@@ -244,7 +242,6 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     unlocked: false,
     successRate: 0,
     nodesMastered: 0,
-    totalNodes: 8,
     timeSpentMs: 0,
   },
   syllables: {
@@ -252,7 +249,6 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     unlocked: false,
     successRate: 0,
     nodesMastered: 0,
-    totalNodes: 8, // 5 drills + blend + segment + pairs
     timeSpentMs: 0,
   },
   words: {
@@ -260,7 +256,6 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     unlocked: false,
     successRate: 0,
     nodesMastered: 0,
-    totalNodes: 25,
     timeSpentMs: 0,
   },
   sentences: {
@@ -268,7 +263,6 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
     unlocked: false,
     successRate: 0,
     nodesMastered: 0,
-    totalNodes: 15,
     timeSpentMs: 0,
   },
 }

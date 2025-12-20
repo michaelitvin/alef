@@ -4,22 +4,7 @@ import { JourneyPath, type JourneyNode } from '../../components/navigation/Journ
 import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
-
-// Activity types with their data
-const ACTIVITIES = [
-  // Basic drills
-  { id: 'drill-bet-all', type: 'drill', name: 'תרגול בֵּית', display: 'בָּ', order: 1 },
-  { id: 'drill-mem-all', type: 'drill', name: 'תרגול מֵם', display: 'מָ', order: 2 },
-  { id: 'drill-lamed-all', type: 'drill', name: 'תרגול לָמֶד', display: 'לָ', order: 3 },
-  { id: 'drill-shin-all', type: 'drill', name: 'תרגול שִׁין', display: 'שָׁ', order: 4 },
-  { id: 'drill-mixed-basic', type: 'drill', name: 'תרגול מעורב', display: '🎯', order: 5 },
-  // Blending activities
-  { id: 'blend-easy', type: 'blend', name: 'מרכיבים מילים', display: '🔗', order: 6 },
-  // Segmentation activities
-  { id: 'segment-easy', type: 'segment', name: 'מפרקים מילים', display: '✂️', order: 7 },
-  // Minimal pair activities
-  { id: 'pairs-consonant', type: 'pairs', name: 'צלילים דומים', display: '👂', order: 8 },
-]
+import { SYLLABLE_NODES } from '../../data/levelNodes'
 
 /**
  * SyllablesPage - Main page for CV syllable drilling journey
@@ -28,7 +13,7 @@ const ACTIVITIES = [
 export function SyllablesPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
+  const nodes = useProgressStore((state) => state.nodes)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
   const devMode = useProgressStore((state) => state.settings.devMode)
@@ -37,9 +22,9 @@ export function SyllablesPage() {
   const levelUnlocked = isLevelUnlocked('syllables')
 
   // Convert activities to journey nodes with progress state
-  const journeyNodes: JourneyNode[] = ACTIVITIES.map((activity, index) => {
+  const journeyNodes: JourneyNode[] = SYLLABLE_NODES.map((activity, index) => {
     const nodeId = `syllables-${activity.id}`
-    const progress = getNodeProgress(nodeId)
+    const progress = nodes[nodeId]
 
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
@@ -58,8 +43,8 @@ export function SyllablesPage() {
       }
     } else {
       // Other activities depend on previous activity's progress
-      const prevNodeId = `syllables-${ACTIVITIES[index - 1].id}`
-      const prevProgress = getNodeProgress(prevNodeId)
+      const prevNodeId = `syllables-${SYLLABLE_NODES[index - 1].id}`
+      const prevProgress = nodes[prevNodeId]
 
       if (prevProgress?.state === 'mastered' || prevProgress?.state === 'in_progress') {
         // Previous activity started, this one becomes available
@@ -79,11 +64,6 @@ export function SyllablesPage() {
       order: activity.order,
     }
   })
-
-  // Find active node (first in_progress or first available)
-  const activeNode = journeyNodes.find(
-    (n) => n.state === 'in_progress' || n.state === 'available'
-  )
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -181,7 +161,6 @@ export function SyllablesPage() {
             {/* Journey path */}
             <JourneyPath
               nodes={journeyNodes}
-              activeNodeId={activeNode?.id}
               onNodeClick={handleNodeClick}
               title="מסע הצֵרוּפִים שלי"
             />

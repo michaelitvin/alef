@@ -4,18 +4,7 @@ import { JourneyPath, type JourneyNode } from '../../components/navigation/Journ
 import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
-
-// 8 main nikkud marks in teaching order
-const NIKKUD = [
-  { id: 'kamatz', mark: 'ָ', name: 'קָמָץ' },
-  { id: 'patach', mark: 'ַ', name: 'פַּתָח' },
-  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֵי' },
-  { id: 'segol', mark: 'ֶ', name: 'סֶגּוֹל' },
-  { id: 'chirik', mark: 'ִ', name: 'חִירִיק' },
-  { id: 'cholam', mark: 'ֹ', name: 'חוֹלָם' },
-  { id: 'kubutz', mark: 'ֻ', name: 'קֻבּוּץ' },
-  { id: 'shva', mark: 'ְ', name: 'שְׁוָא' },
-]
+import { NIKKUD_NODES } from '../../data/levelNodes'
 
 /**
  * NikkudPage - Main page for nikkud (vowel marks) learning journey
@@ -24,7 +13,7 @@ const NIKKUD = [
 export function NikkudPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
+  const nodes = useProgressStore((state) => state.nodes)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
   const devMode = useProgressStore((state) => state.settings.devMode)
@@ -33,9 +22,9 @@ export function NikkudPage() {
   const levelUnlocked = isLevelUnlocked('nikkud')
 
   // Convert nikkud to journey nodes with progress state
-  const journeyNodes: JourneyNode[] = NIKKUD.map((nikkud, index) => {
+  const journeyNodes: JourneyNode[] = NIKKUD_NODES.map((nikkud, index) => {
     const nodeId = `nikkud-${nikkud.id}`
-    const progress = getNodeProgress(nodeId)
+    const progress = nodes[nodeId]
 
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
@@ -54,8 +43,8 @@ export function NikkudPage() {
       }
     } else {
       // Other nikkud depend on previous nikkud's progress
-      const prevNodeId = `nikkud-${NIKKUD[index - 1].id}`
-      const prevProgress = getNodeProgress(prevNodeId)
+      const prevNodeId = `nikkud-${NIKKUD_NODES[index - 1].id}`
+      const prevProgress = nodes[prevNodeId]
 
       if (prevProgress?.state === 'mastered' || prevProgress?.state === 'in_progress') {
         // Previous nikkud started, this one becomes available
@@ -68,19 +57,14 @@ export function NikkudPage() {
       }
     }
 
-    // Display as alef + nikkud for visibility
+    // Display as alef + nikkud for visibility (full vowels show just the mark)
     return {
       id: nodeId,
-      label: `א${nikkud.mark}`,
+      label: nikkud.isFullVowel ? nikkud.mark : `א${nikkud.mark}`,
       state,
       order: index + 1,
     }
   })
-
-  // Find active node (first in_progress or first available)
-  const activeNode = journeyNodes.find(
-    (n) => n.state === 'in_progress' || n.state === 'available'
-  )
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -178,7 +162,6 @@ export function NikkudPage() {
             {/* Journey path */}
             <JourneyPath
               nodes={journeyNodes}
-              activeNodeId={activeNode?.id}
               onNodeClick={handleNodeClick}
               title="מסע הניקוד שלי"
             />

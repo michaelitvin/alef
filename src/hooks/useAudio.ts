@@ -325,7 +325,8 @@ export function useSoundEffects() {
   }, [play])
 
   const playError = useCallback(() => {
-    return play(`${EFFECTS_BASE}/error.mp3`)
+    const variant = Math.floor(Math.random() * 5) + 1
+    return play(`${EFFECTS_BASE}/error-${variant}.mp3`)
   }, [play])
 
   const playTap = useCallback(() => {
@@ -340,12 +341,17 @@ export function useSoundEffects() {
     return play(`${EFFECTS_BASE}/celebrate.mp3`)
   }, [play])
 
+  const playPageTurn = useCallback(() => {
+    return play(`${EFFECTS_BASE}/page-turn.mp3`)
+  }, [play])
+
   return {
     playSuccess,
     playError,
     playTap,
     playUnlock,
     playCelebrate,
+    playPageTurn,
   }
 }
 

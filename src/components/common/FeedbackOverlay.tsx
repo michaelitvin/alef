@@ -38,7 +38,7 @@ const feedbackConfig: Record<
     icon: '✗',
     color: colors.error[400],
     bgColor: 'rgba(244, 67, 54, 0.1)',
-    defaultMessage: 'ננסה שוב!',
+    defaultMessage: 'נסה שוב',
   },
   celebration: {
     icon: '🌟',
@@ -77,6 +77,7 @@ export function FeedbackOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          onClick={onHide}
           style={{
             position: 'fixed',
             top: 0,
@@ -88,7 +89,7 @@ export function FeedbackOverlay({
             justifyContent: 'center',
             backgroundColor: config.bgColor,
             zIndex: zIndex.overlay,
-            pointerEvents: 'none',
+            cursor: 'pointer',
           }}
         >
           <motion.div

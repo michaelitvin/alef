@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
+import { useSoundEffects } from '../../hooks/useAudio'
 
 export interface BlendSyllable {
   id: string
@@ -47,6 +48,7 @@ export function SyllableBlend({
   const [showBlended, setShowBlended] = useState(false)
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const [feedbackVisible, setFeedbackVisible] = useState(false)
+  const { playSuccess, playError } = useSoundEffects()
 
   const allTapped = tappedIndices.length === blendWord.syllables.length
 
@@ -68,11 +70,12 @@ export function SyllableBlend({
         }
         setFeedback('success')
         setFeedbackVisible(true)
+        playSuccess()
         // Auto-advance after showing word
         setTimeout(onComplete, 2500)
       }, 500)
     }
-  }, [allTapped, showBlended, onPlayWord, onComplete])
+  }, [allTapped, showBlended, onPlayWord, onComplete, playSuccess])
 
   const handleSyllableTap = useCallback(
     (index: number) => {
@@ -84,6 +87,7 @@ export function SyllableBlend({
         // Wrong order - show hint
         setFeedback('error')
         setFeedbackVisible(true)
+        playError()
         setTimeout(() => {
           setFeedbackVisible(false)
           setFeedback(null)

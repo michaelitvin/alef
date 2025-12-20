@@ -4,16 +4,7 @@ import { JourneyPath, type JourneyNode } from '../../components/navigation/Journ
 import { Header } from '../../components/navigation/Navigation'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
-
-// Sentence groups by difficulty
-const SENTENCE_GROUPS = [
-  { id: 'basic-1', name: 'משפטים פשוטים א', icon: '📖', difficulty: 1 },
-  { id: 'basic-2', name: 'משפטים פשוטים ב', icon: '📗', difficulty: 1 },
-  { id: 'medium-1', name: 'משפטים בינוניים א', icon: '📘', difficulty: 2 },
-  { id: 'medium-2', name: 'משפטים בינוניים ב', icon: '📙', difficulty: 2 },
-  { id: 'advanced-1', name: 'משפטים מתקדמים א', icon: '📕', difficulty: 3 },
-  { id: 'advanced-2', name: 'משפטים מתקדמים ב', icon: '📚', difficulty: 3 },
-]
+import { SENTENCE_NODES } from '../../data/levelNodes'
 
 /**
  * SentencesPage - Main page for sentence reading journey
@@ -22,7 +13,7 @@ const SENTENCE_GROUPS = [
 export function SentencesPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const getNodeProgress = useProgressStore((state) => state.getNodeProgress)
+  const nodes = useProgressStore((state) => state.nodes)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const isLevelUnlocked = useProgressStore((state) => state.isLevelUnlocked)
   const devMode = useProgressStore((state) => state.settings.devMode)
@@ -31,9 +22,9 @@ export function SentencesPage() {
   const levelUnlocked = isLevelUnlocked('sentences')
 
   // Convert sentence groups to journey nodes with progress state
-  const journeyNodes: JourneyNode[] = SENTENCE_GROUPS.map((group, index) => {
+  const journeyNodes: JourneyNode[] = SENTENCE_NODES.map((group, index) => {
     const nodeId = `sentences-${group.id}`
-    const progress = getNodeProgress(nodeId)
+    const progress = nodes[nodeId]
 
     // Determine node state
     let state: JourneyNode['state'] = 'locked'
@@ -52,8 +43,8 @@ export function SentencesPage() {
       }
     } else {
       // Other groups depend on previous group's progress
-      const prevNodeId = `sentences-${SENTENCE_GROUPS[index - 1].id}`
-      const prevProgress = getNodeProgress(prevNodeId)
+      const prevNodeId = `sentences-${SENTENCE_NODES[index - 1].id}`
+      const prevProgress = nodes[prevNodeId]
 
       if (prevProgress?.state === 'mastered' || prevProgress?.state === 'in_progress') {
         // Previous group started, this one becomes available
@@ -73,11 +64,6 @@ export function SentencesPage() {
       order: index + 1,
     }
   })
-
-  // Find active node (first in_progress or first available)
-  const activeNode = journeyNodes.find(
-    (n) => n.state === 'in_progress' || n.state === 'available'
-  )
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -175,7 +161,6 @@ export function SentencesPage() {
             {/* Journey path */}
             <JourneyPath
               nodes={journeyNodes}
-              activeNodeId={activeNode?.id}
               onNodeClick={handleNodeClick}
               title="מסע המשפטים שלי"
             />
@@ -190,7 +175,7 @@ export function SentencesPage() {
                 alignItems: 'center',
               }}
             >
-              {SENTENCE_GROUPS.map((group, index) => {
+              {SENTENCE_NODES.map((group, index) => {
                 const node = journeyNodes[index]
                 const isUnlocked = node.state !== 'locked'
 
