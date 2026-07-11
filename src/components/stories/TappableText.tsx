@@ -32,7 +32,7 @@ export function TappableText({
     <span
       style={{
         direction: 'rtl',
-        unicodeBidi: 'plaintext',
+        unicodeBidi: 'isolate',
         fontFamily: typography.fontFamily.hebrew,
         fontSize,
         fontWeight,
