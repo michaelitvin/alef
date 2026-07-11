@@ -89,7 +89,10 @@ export function FeedbackOverlay({
             justifyContent: 'center',
             backgroundColor: config.bgColor,
             zIndex: zIndex.overlay,
-            cursor: 'pointer',
+            // Without a dismiss handler the overlay is decorative — it must not
+            // eat taps (its exit fade keeps it mounted after it turns invisible)
+            pointerEvents: onHide ? 'auto' : 'none',
+            cursor: onHide ? 'pointer' : 'default',
           }}
         >
           <motion.div

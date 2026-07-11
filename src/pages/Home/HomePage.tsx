@@ -6,7 +6,7 @@ import { useResponsive } from '../../hooks/useResponsive'
 import { LEVEL_NODE_COUNTS } from '../../data/levelNodes'
 
 interface LevelInfo {
-  id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences'
+  id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences' | 'stories'
   name: string
   description: string
   icon: string
@@ -49,6 +49,13 @@ const LEVELS: LevelInfo[] = [
     icon: '📝',
     path: '/sentences',
   },
+  {
+    id: 'stories',
+    name: 'סיפורים',
+    description: 'קרא סיפור וענה על שאלות',
+    icon: '📚',
+    path: '/stories',
+  },
 ]
 
 /**
@@ -68,7 +75,7 @@ export function HomePage() {
   }
 
   const handleLevelClick = (level: LevelInfo) => {
-    if (isLevelUnlocked(level.id)) {
+    if (level.id === 'stories' || isLevelUnlocked(level.id)) {
       navigate(level.path)
     }
   }
@@ -188,8 +195,9 @@ export function HomePage() {
         }}
       >
         {LEVELS.map((level, index) => {
-          const unlocked = isLevelUnlocked(level.id)
-          const totalNodes = LEVEL_NODE_COUNTS[level.id]
+          const unlocked = level.id === 'stories' || isLevelUnlocked(level.id)
+          // Stories has no LEVEL_NODE_COUNTS entry; its completion badges live on the picker
+          const totalNodes = level.id === 'stories' ? 0 : LEVEL_NODE_COUNTS[level.id]
           // Count mastered nodes directly from subscribed state
           const levelNodeIds = Object.keys(nodes).filter(
             (id) => id.startsWith(`${level.id}-`)

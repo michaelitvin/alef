@@ -21,7 +21,7 @@ import { LEVEL_NODE_COUNTS } from '../data/levelNodes'
  */
 interface ProgressActions {
   // Node progress
-  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences') => void
+  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences' | 'stories') => void
   recordAttempt: (nodeId: string, attempt: ActivityAttempt) => void
   setNodeState: (nodeId: string, state: NodeProgress['state']) => void
 
