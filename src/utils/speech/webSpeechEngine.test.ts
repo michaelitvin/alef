@@ -45,6 +45,12 @@ class FakeSynth {
   }
 }
 
+class SilentFakeSynth extends FakeSynth {
+  override speak(u: FakeUtterance) {
+    this.spoken.push(u) // never fires onend — simulates a browser that stays silent
+  }
+}
+
 const HEBREW_VOICE = { lang: 'he-IL', localService: true, name: 'Carmit' }
 const ENGLISH_VOICE = { lang: 'en-US', localService: true, name: 'Alex' }
 
@@ -94,5 +100,27 @@ describe('WebSpeechEngine', () => {
     expect(synth.spoken[0].text).toBe('אַבָּא')
     expect(synth.spoken[0].rate).toBeCloseTo(0.85)
     expect(synth.spoken[0].volume).toBeCloseTo(0.5)
+  })
+
+  it('cancel() resolves an in-flight speak() promise even if no event fires', async () => {
+    const synth = new SilentFakeSynth()
+    synth.voices = [HEBREW_VOICE]
+    const engine = makeEngine(synth as unknown as FakeSynth)
+    const speaking = engine.speak('אַבָּא')
+    await engine.whenReady()
+    engine.cancel()
+    await speaking // must not hang
+    expect(synth.cancelCount).toBeGreaterThanOrEqual(1)
+  })
+
+  it('a new speak() resolves the previous in-flight promise', async () => {
+    const synth = new SilentFakeSynth()
+    synth.voices = [HEBREW_VOICE]
+    const engine = makeEngine(synth as unknown as FakeSynth)
+    const first = engine.speak('אַבָּא')
+    await engine.whenReady()
+    void engine.speak('אִמָּא')
+    await first // must not hang
+    expect(synth.spoken).toHaveLength(2)
   })
 })
