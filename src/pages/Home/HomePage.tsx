@@ -5,7 +5,7 @@ import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
 
 interface LevelInfo {
-  id: 'letters' | 'nikkud' | 'words' | 'sentences'
+  id: 'letters' | 'nikkud' | 'words' | 'sentences' | 'stories'
   name: string
   description: string
   icon: string
@@ -41,6 +41,13 @@ const LEVELS: LevelInfo[] = [
     icon: '📝',
     path: '/sentences',
   },
+  {
+    id: 'stories',
+    name: 'סיפורים',
+    description: 'קרא סיפור וענה על שאלות',
+    icon: '📚',
+    path: '/stories',
+  },
 ]
 
 /**
@@ -59,7 +66,7 @@ export function HomePage() {
   }
 
   const handleLevelClick = (level: LevelInfo) => {
-    if (isLevelUnlocked(level.id)) {
+    if (level.id === 'stories' || isLevelUnlocked(level.id)) {
       navigate(level.path)
     }
   }
@@ -179,7 +186,7 @@ export function HomePage() {
         }}
       >
         {LEVELS.map((level, index) => {
-          const unlocked = isLevelUnlocked(level.id)
+          const unlocked = level.id === 'stories' || isLevelUnlocked(level.id)
           const levelProgress = useProgressStore.getState().levels[level.id]
           const progress = levelProgress?.successRate || 0
 

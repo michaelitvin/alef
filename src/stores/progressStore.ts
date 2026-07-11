@@ -19,7 +19,7 @@ import {
  */
 interface ProgressActions {
   // Node progress
-  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'words' | 'sentences') => void
+  initializeNode: (nodeId: string, level: 'letters' | 'nikkud' | 'words' | 'sentences' | 'stories') => void
   recordAttempt: (nodeId: string, attempt: ActivityAttempt) => void
   setNodeState: (nodeId: string, state: NodeProgress['state']) => void
 

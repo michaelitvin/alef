@@ -9,6 +9,8 @@ import WordsPage from './pages/Words/WordsPage'
 import WordGroupView from './pages/Words/WordGroupView'
 import SentencesPage from './pages/Sentences/SentencesPage'
 import SentenceGroupView from './pages/Sentences/SentenceGroupView'
+import StoriesPage from './pages/Stories/StoriesPage'
+import StoryView from './pages/Stories/StoryView'
 import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import { useProgressStore } from './stores/progressStore'
@@ -60,6 +62,8 @@ function App() {
         <Route path="/words/:groupId" element={<WordGroupView />} />
         <Route path="/sentences" element={<SentencesPage />} />
         <Route path="/sentences/:groupId" element={<SentenceGroupView />} />
+        <Route path="/stories" element={<StoriesPage />} />
+        <Route path="/stories/:storyId" element={<StoryView />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
