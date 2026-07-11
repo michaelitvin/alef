@@ -20,6 +20,9 @@ describe('stories.yaml', () => {
     (_id, story) => {
       expect(story.questions.length).toBeGreaterThanOrEqual(3)
       expect(story.questions.length).toBeLessThanOrEqual(4)
+      expect(story.difficulty).toBeGreaterThanOrEqual(1)
+      expect(story.difficulty).toBeLessThanOrEqual(3)
+      expect(story.emoji.length).toBeGreaterThan(0)
       for (const q of story.questions) {
         expect(q.options).toHaveLength(3)
         expect(q.correctIndex).toBeGreaterThanOrEqual(0)

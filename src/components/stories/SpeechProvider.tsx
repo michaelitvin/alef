@@ -17,6 +17,9 @@ import {
 import { decodeWord, stripPunctuation } from '../../utils/decodeWord'
 import { useProgressStore } from '../../stores/progressStore'
 
+/** Taps must visibly highlight even when speech resolves instantly (no Hebrew voice) */
+const MIN_HIGHLIGHT_MS = 400
+
 interface SpeechContextValue {
   /** Handle a tap on a word. wordKey identifies the word's location on screen. */
   tapWord: (wordKey: string, word: string) => void
@@ -60,7 +63,10 @@ export function SpeechProvider({
     const volume = useProgressStore.getState().settings.volume
     setSpeakingKey(key)
     try {
-      await engineRef.current?.speak(text, { volume })
+      await Promise.all([
+        engineRef.current?.speak(text, { volume }),
+        new Promise((resolve) => setTimeout(resolve, MIN_HIGHLIGHT_MS)),
+      ])
     } finally {
       setSpeakingKey((current) => (current === key ? null : current))
     }

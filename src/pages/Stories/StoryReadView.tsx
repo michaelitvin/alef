@@ -32,9 +32,17 @@ export function StoryReadView({ story, onFinished }: StoryReadViewProps) {
           boxShadow: shadows.lg,
         }}
       >
-        <h1 style={{ textAlign: 'center', margin: 0, marginBottom: spacing[4] }}>
+        <h1
+          style={{
+            textAlign: 'center',
+            margin: 0,
+            marginBottom: spacing[4],
+            direction: 'rtl',
+          }}
+        >
+          <span style={{ marginInlineEnd: spacing[2] }}>{story.emoji}</span>
           <TappableText
-            text={`${story.emoji} ${story.title}`}
+            text={story.title}
             blockId="title"
             fontSize={typography.fontSize['3xl']}
             fontWeight={typography.fontWeight.bold}
