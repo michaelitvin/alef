@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { TappableText } from '../../components/stories'
@@ -23,18 +23,27 @@ export function StoryQuizView({ story, onComplete }: StoryQuizViewProps) {
   const [wrongThisQuestion, setWrongThisQuestion] = useState(false)
   const [feedback, setFeedback] = useState<FeedbackType | null>(null)
   const firstTryRef = useRef<boolean[]>([])
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { playSuccess, playError } = useSoundEffects()
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
+    }
+  }, [])
 
   const question = story.questions[questionIndex]
 
   const handleAnswer = (optionIndex: number) => {
     if (feedback === 'success') return
 
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current)
+
     if (optionIndex === question.correctIndex) {
       void playSuccess()
       firstTryRef.current[questionIndex] = !wrongThisQuestion
       setFeedback('success')
-      setTimeout(() => {
+      feedbackTimerRef.current = setTimeout(() => {
         setFeedback(null)
         setWrongThisQuestion(false)
         if (questionIndex + 1 < story.questions.length) {
@@ -47,7 +56,7 @@ export function StoryQuizView({ story, onComplete }: StoryQuizViewProps) {
       void playError()
       setWrongThisQuestion(true)
       setFeedback('error')
-      setTimeout(() => setFeedback(null), 1000)
+      feedbackTimerRef.current = setTimeout(() => setFeedback(null), 1000)
     }
   }
 
@@ -186,6 +195,7 @@ export function StoryQuizView({ story, onComplete }: StoryQuizViewProps) {
       <FeedbackOverlay
         visible={feedback !== null}
         type={feedback ?? 'success'}
+        message={feedback === 'error' ? 'נְנַסֶּה שׁוּב!' : 'כָּל הַכָּבוֹד!'}
         autoHideMs={0}
       />
     </div>
