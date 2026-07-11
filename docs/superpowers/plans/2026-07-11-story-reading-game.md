@@ -271,7 +271,7 @@ export function decodeWord(word: string): string {
   const clusters = toClusters(bare)
   if (!clusters) {
     console.warn(`decodeWord: cannot decode "${word}"`)
-    return word
+    return word.normalize('NFC')
   }
 
   const phrases: string[] = []
@@ -279,11 +279,12 @@ export function decodeWord(word: string): string {
     const phrase = vavPhrase(cluster) ?? clusterPhrase(cluster)
     if (!phrase) {
       console.warn(`decodeWord: cannot decode "${word}"`)
-      return bare
+      return bare.normalize('NFC')
     }
     phrases.push(phrase)
   }
-  return `${phrases.join(', ')} - ${bare}`
+  // NFC so output is stable regardless of combining-mark order in data sources
+  return `${phrases.join(', ')} - ${bare}`.normalize('NFC')
 }
 ```
 
