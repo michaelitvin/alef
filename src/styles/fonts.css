@@ -1,11 +1,11 @@
 /* Hebrew Fonts for Alef Reading Game */
 
-/* Hillel CLM - Print/Block letter font */
+/* Sigalit - Print letter font with full niqqud support */
 @font-face {
-  font-family: 'Hillel CLM';
-  src: url('/fonts/hillel/hillelclm-medium-webfont.woff') format('woff'),
-       url('/fonts/hillel/hillelclm-medium-webfont.ttf') format('truetype');
-  font-weight: 500;
+  font-family: 'Sigalit';
+  src: url('/fonts/sigalit/sigalit-regular-fm.woff2') format('woff2'),
+       url('/fonts/sigalit/sigalit-regular-fm.woff') format('woff');
+  font-weight: normal;
   font-style: normal;
   font-display: swap;
 }

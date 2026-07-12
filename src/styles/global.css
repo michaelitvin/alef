@@ -18,7 +18,7 @@ html {
 
 /* CSS variable for dynamic font selection */
 :root {
-  --font-hebrew: 'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif;
+  --font-hebrew: 'Sigalit', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif;
 }
 
 html,

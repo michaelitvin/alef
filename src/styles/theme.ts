@@ -83,8 +83,8 @@ export const colors = {
 
 // Font options for Hebrew text
 export const fonts = {
-  default: "'Hillel CLM', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif",
-  cursive: "'Dana Yad', 'Guttman Yad-Brush', 'Hillel CLM', sans-serif",
+  default: "'Sigalit', 'David CLM', 'Arial Hebrew', 'Noto Sans Hebrew', sans-serif",
+  cursive: "'Dana Yad', 'Guttman Yad-Brush', 'Sigalit', sans-serif",
 } as const
 
 export type FontKey = keyof typeof fonts
