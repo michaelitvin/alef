@@ -29,6 +29,8 @@ interface SpeechContextValue {
   pendingKey: string | null
   /** Last-tapped wordKey; keeps a soft highlight inviting the next tap */
   lastTappedKey: string | null
+  /** Total word taps since mount (measures how much TTS help was used) */
+  tapCount: number
   /** False when the device has no Hebrew voice */
   hebrewVoiceAvailable: boolean
 }
@@ -50,6 +52,7 @@ export function SpeechProvider({
   const [speakingKey, setSpeakingKey] = useState<string | null>(null)
   const [pendingKey, setPendingKey] = useState<string | null>(null)
   const [lastTappedKey, setLastTappedKey] = useState<string | null>(null)
+  const [tapCount, setTapCount] = useState(0)
   const [hebrewVoiceAvailable, setHebrewVoiceAvailable] = useState(true)
 
   useEffect(() => {
@@ -93,6 +96,7 @@ export function SpeechProvider({
       const { mode, state } = nextTap(tapStateRef.current, wordKey)
       tapStateRef.current = state
       setLastTappedKey(wordKey)
+      setTapCount((count) => count + 1)
       const text = mode === 'word' ? stripPunctuation(word) || word : decodeWord(word)
       void speakText(wordKey, text)
     },
@@ -101,7 +105,7 @@ export function SpeechProvider({
 
   return (
     <SpeechContext.Provider
-      value={{ tapWord, speakingKey, pendingKey, lastTappedKey, hebrewVoiceAvailable }}
+      value={{ tapWord, speakingKey, pendingKey, lastTappedKey, tapCount, hebrewVoiceAvailable }}
     >
       {children}
     </SpeechContext.Provider>

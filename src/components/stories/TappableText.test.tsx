@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent, screen, waitFor, act } from '@testing-library/react'
-import { SpeechProvider } from './SpeechProvider'
+import { SpeechProvider, useSpeech } from './SpeechProvider'
 import { TappableText } from './TappableText'
 import { decodeWord } from '../../utils/decodeWord'
 import type { SpeakOptions, SpeechEngine } from '../../utils/speech/types'
@@ -59,7 +59,7 @@ describe('TappableText', () => {
     expect(screen.getByText('תַּפּוּחַ')).toBeTruthy()
   })
 
-  it('first tap speaks the word, second tap speaks the decode, third the word again', async () => {
+  it('first tap speaks the decode, second tap speaks the word, third the decode again', async () => {
     const engine = makeMockEngine()
     render(
       <SpeechProvider engine={engine}>
@@ -68,15 +68,15 @@ describe('TappableText', () => {
     )
     fireEvent.click(screen.getByText('אַבָּא'))
     await waitFor(() => expect(engine.spoken).toHaveLength(1))
-    expect(engine.spoken[0]).toBe('אַבָּא')
+    expect(engine.spoken[0]).toBe(decodeWord('אַבָּא'))
 
     fireEvent.click(screen.getByText('אַבָּא'))
     await waitFor(() => expect(engine.spoken).toHaveLength(2))
-    expect(engine.spoken[1]).toBe(decodeWord('אַבָּא'))
+    expect(engine.spoken[1]).toBe('אַבָּא')
 
     fireEvent.click(screen.getByText('אַבָּא'))
     await waitFor(() => expect(engine.spoken).toHaveLength(3))
-    expect(engine.spoken[2]).toBe('אַבָּא')
+    expect(engine.spoken[2]).toBe(decodeWord('אַבָּא'))
   })
 
   it('tapping a different word resets the cycle', async () => {
@@ -89,7 +89,7 @@ describe('TappableText', () => {
     fireEvent.click(screen.getByText('אַבָּא'))
     fireEvent.click(screen.getByText('אוֹכֵל'))
     await waitFor(() => expect(engine.spoken).toHaveLength(2))
-    expect(engine.spoken[1]).toBe('אוֹכֵל')
+    expect(engine.spoken[1]).toBe(decodeWord('אוֹכֵל'))
   })
 
   it('shows a loader on the tapped word until speech starts', async () => {
@@ -152,7 +152,7 @@ describe('TappableText', () => {
     await waitFor(() => expect(first.style.backgroundColor).toBe('transparent'))
   })
 
-  it('strips punctuation when speaking the word', async () => {
+  it('strips punctuation when speaking the whole word', async () => {
     const engine = makeMockEngine()
     render(
       <SpeechProvider engine={engine}>
@@ -160,7 +160,29 @@ describe('TappableText', () => {
       </SpeechProvider>
     )
     fireEvent.click(screen.getByText('מוֹתֶק!'))
-    await waitFor(() => expect(engine.spoken).toHaveLength(1))
-    expect(engine.spoken[0]).toBe('מוֹתֶק')
+    fireEvent.click(screen.getByText('מוֹתֶק!'))
+    await waitFor(() => expect(engine.spoken).toHaveLength(2))
+    expect(engine.spoken[1]).toBe('מוֹתֶק')
+  })
+
+  it('counts every word tap', async () => {
+    const engine = makeMockEngine()
+    function CountProbe() {
+      const { tapCount } = useSpeech()
+      return <span data-testid="tap-count">{tapCount}</span>
+    }
+    render(
+      <SpeechProvider engine={engine}>
+        <TappableText text="אַבָּא אוֹכֵל" blockId="t" />
+        <CountProbe />
+      </SpeechProvider>
+    )
+    expect(screen.getByTestId('tap-count').textContent).toBe('0')
+    fireEvent.click(screen.getByText('אַבָּא'))
+    fireEvent.click(screen.getByText('אַבָּא'))
+    fireEvent.click(screen.getByText('אוֹכֵל'))
+    await waitFor(() =>
+      expect(screen.getByTestId('tap-count').textContent).toBe('3')
+    )
   })
 })

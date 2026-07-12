@@ -74,6 +74,7 @@ export type RewardType =
   | 'first_session'     // First time playing
   | 'daily_return'      // Returned after a day
   | 'game_complete'     // Finished all content
+  | 'story_self_read'   // Read a story with almost no TTS help
 
 /**
  * Reward

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
@@ -11,6 +11,9 @@ import { StoryReadView } from './StoryReadView'
 import { StoryQuizView } from './StoryQuizView'
 
 const { stories } = storiesYaml as StoriesData
+
+/** Finishing the read phase with at most this many word taps earns the self-read badge */
+const SELF_READ_MAX_TAPS = 5
 
 /**
  * StoryView - a full story session: read -> quiz -> celebration.
@@ -32,10 +35,13 @@ type Phase = 'read' | 'quiz' | 'done'
 function StorySession({ story }: { story: Story }) {
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('read')
-  const { hebrewVoiceAvailable } = useSpeech()
+  const [selfRead, setSelfRead] = useState(false)
+  const { hebrewVoiceAvailable, tapCount } = useSpeech()
+  const readTapsRef = useRef<number | null>(null)
   const initializeNode = useProgressStore((state) => state.initializeNode)
   const recordAttempt = useProgressStore((state) => state.recordAttempt)
   const setNodeState = useProgressStore((state) => state.setNodeState)
+  const addReward = useProgressStore((state) => state.addReward)
 
   const handleQuizComplete = useCallback(
     (firstTryCorrect: boolean[]) => {
@@ -50,9 +56,12 @@ function StorySession({ story }: { story: Story }) {
         })
       })
       setNodeState(nodeId, 'mastered')
+      const earnedSelfRead = (readTapsRef.current ?? Infinity) <= SELF_READ_MAX_TAPS
+      if (earnedSelfRead) addReward('story_self_read', story.id)
+      setSelfRead(earnedSelfRead)
       setPhase('done')
     },
-    [story.id, initializeNode, recordAttempt, setNodeState]
+    [story.id, initializeNode, recordAttempt, setNodeState, addReward]
   )
 
   return (
@@ -113,19 +122,32 @@ function StorySession({ story }: { story: Story }) {
       )}
 
       {phase === 'read' && (
-        <StoryReadView story={story} onFinished={() => setPhase('quiz')} />
+        <StoryReadView
+          story={story}
+          onFinished={() => {
+            readTapsRef.current = tapCount
+            setPhase('quiz')
+          }}
+        />
       )}
       {phase === 'quiz' && (
         <StoryQuizView story={story} onComplete={handleQuizComplete} />
       )}
       {phase === 'done' && (
-        <StoryCelebration onBack={() => navigate('/stories')} />
+        <StoryCelebration selfRead={selfRead} onBack={() => navigate('/stories')} />
       )}
     </div>
   )
 }
 
-function StoryCelebration({ onBack }: { onBack: () => void }) {
+export function StoryCelebration({
+  onBack,
+  selfRead,
+}: {
+  onBack: () => void
+  /** True when the story was read with almost no TTS help */
+  selfRead: boolean
+}) {
   const { playCelebrate } = useSoundEffects()
 
   useEffect(() => {
@@ -169,6 +191,25 @@ function StoryCelebration({ onBack }: { onBack: () => void }) {
       >
         כָּל הַכָּבוֹד!
       </h1>
+      {selfRead && (
+        <motion.div
+          initial={{ scale: 0, rotate: -8 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 0.4, type: 'spring', stiffness: 260, damping: 14 }}
+          style={{
+            padding: `${spacing[2]} ${spacing[5]}`,
+            backgroundColor: colors.secondary[100],
+            borderRadius: borderRadius.full,
+            fontFamily: typography.fontFamily.hebrew,
+            fontSize: typography.fontSize['2xl'],
+            fontWeight: typography.fontWeight.bold,
+            color: colors.secondary[800],
+            direction: 'rtl',
+          }}
+        >
+          ⭐ קָרָאתָ לְבַד! ⭐
+        </motion.div>
+      )}
       <p
         style={{
           fontFamily: typography.fontFamily.hebrew,
