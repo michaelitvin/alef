@@ -52,6 +52,8 @@ class SilentFakeSynth extends FakeSynth {
 }
 
 const HEBREW_VOICE = { lang: 'he-IL', localService: true, name: 'Carmit' }
+// Android/Chrome reports Hebrew with the legacy ISO code "iw", not "he"
+const ANDROID_HEBREW_VOICE = { lang: 'iw_IL', localService: true, name: 'Hebrew Israel' }
 const ENGLISH_VOICE = { lang: 'en-US', localService: true, name: 'Alex' }
 
 beforeEach(() => {
@@ -69,6 +71,17 @@ describe('WebSpeechEngine', () => {
     const engine = makeEngine(synth)
     await engine.whenReady()
     expect(engine.isAvailable()).toBe(true)
+  })
+
+  it("selects Android's legacy iw_IL Hebrew voice", async () => {
+    const synth = new FakeSynth()
+    synth.voices = [ENGLISH_VOICE, ANDROID_HEBREW_VOICE]
+    const engine = makeEngine(synth)
+    await engine.whenReady()
+    expect(engine.isAvailable()).toBe(true)
+    await engine.speak('שָׁלוֹם')
+    expect(synth.spoken).toHaveLength(1)
+    expect(synth.spoken[0].voice).toBe(ANDROID_HEBREW_VOICE)
   })
 
   it('finds the Hebrew voice after voiceschanged fires', async () => {

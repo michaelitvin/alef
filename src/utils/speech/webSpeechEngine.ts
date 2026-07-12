@@ -22,9 +22,10 @@ export class WebSpeechEngine implements SpeechEngine {
   private loadVoice(synth: SpeechSynthesis): Promise<void> {
     return new Promise((resolve) => {
       const pick = (): boolean => {
+        // Android/Chrome reports Hebrew as the legacy ISO code "iw" (e.g. iw_IL)
         const hebrew = synth
           .getVoices()
-          .filter((v) => v.lang.toLowerCase().startsWith('he'))
+          .filter((v) => /^(he|iw)([-_]|$)/i.test(v.lang))
         this.voice = hebrew.find((v) => v.localService) ?? hebrew[0] ?? null
         return this.voice !== null
       }
