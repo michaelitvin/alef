@@ -3,6 +3,8 @@ export interface SpeakOptions {
   rate?: number
   /** Volume 0-1; default 1 */
   volume?: number
+  /** Called when audio actually begins (TTS startup can be slow) */
+  onStart?: () => void
 }
 
 /**

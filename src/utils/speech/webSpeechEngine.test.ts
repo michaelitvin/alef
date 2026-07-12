@@ -16,6 +16,7 @@ class FakeUtterance implements FakeUtteranceShape {
   lang = ''
   rate = 1
   volume = 1
+  onstart: (() => void) | null = null
   onend: (() => void) | null = null
   onerror: (() => void) | null = null
   constructor(public text: string) {}
@@ -38,6 +39,7 @@ class FakeSynth {
   }
   speak(u: FakeUtterance) {
     this.spoken.push(u)
+    u.onstart?.()
     u.onend?.() // finish immediately
   }
   cancel() {
@@ -113,6 +115,23 @@ describe('WebSpeechEngine', () => {
     expect(synth.spoken[0].text).toBe('אַבָּא')
     expect(synth.spoken[0].rate).toBeCloseTo(0.85)
     expect(synth.spoken[0].volume).toBeCloseTo(0.5)
+  })
+
+  it('applies pronunciation fixes to the spoken text', async () => {
+    const synth = new FakeSynth()
+    synth.voices = [HEBREW_VOICE]
+    const engine = makeEngine(synth)
+    await engine.speak('כָּל הַחַיּוֹת')
+    expect(synth.spoken[0].text).toBe('כּוֹל הַחַיּוֹת')
+  })
+
+  it('reports when the utterance actually starts via onStart', async () => {
+    const synth = new FakeSynth()
+    synth.voices = [HEBREW_VOICE]
+    const engine = makeEngine(synth)
+    const onStart = vi.fn()
+    await engine.speak('אַבָּא', { onStart })
+    expect(onStart).toHaveBeenCalledTimes(1)
   })
 
   it('cancel() resolves an in-flight speak() promise even if no event fires', async () => {

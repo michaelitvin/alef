@@ -1,4 +1,5 @@
 import type { SpeakOptions, SpeechEngine } from './types'
+import { fixPronunciation } from './pronunciation'
 
 const VOICE_LOAD_TIMEOUT_MS = 2000
 const DEFAULT_RATE = 0.85
@@ -75,11 +76,12 @@ export class WebSpeechEngine implements SpeechEngine {
         resolve()
       }
       this.pendingResolve = finish
-      const utterance = new SpeechSynthesisUtterance(text)
+      const utterance = new SpeechSynthesisUtterance(fixPronunciation(text))
       utterance.voice = voice
       utterance.lang = voice.lang
       utterance.rate = opts.rate ?? DEFAULT_RATE
       utterance.volume = opts.volume ?? 1
+      utterance.onstart = () => opts.onStart?.()
       utterance.onend = finish
       utterance.onerror = finish
       synth.speak(utterance)

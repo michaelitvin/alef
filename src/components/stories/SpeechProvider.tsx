@@ -25,6 +25,10 @@ interface SpeechContextValue {
   tapWord: (wordKey: string, word: string) => void
   /** wordKey currently being spoken (for highlight), or null */
   speakingKey: string | null
+  /** wordKey tapped but whose audio hasn't started yet (for loader), or null */
+  pendingKey: string | null
+  /** Last-tapped wordKey; keeps a soft highlight inviting the next tap */
+  lastTappedKey: string | null
   /** False when the device has no Hebrew voice */
   hebrewVoiceAvailable: boolean
 }
@@ -44,6 +48,8 @@ export function SpeechProvider({
   }
   const tapStateRef = useRef<TapState>(INITIAL_TAP_STATE)
   const [speakingKey, setSpeakingKey] = useState<string | null>(null)
+  const [pendingKey, setPendingKey] = useState<string | null>(null)
+  const [lastTappedKey, setLastTappedKey] = useState<string | null>(null)
   const [hebrewVoiceAvailable, setHebrewVoiceAvailable] = useState(true)
 
   useEffect(() => {
@@ -62,9 +68,19 @@ export function SpeechProvider({
   const speakText = useCallback(async (key: string | null, text: string) => {
     const volume = useProgressStore.getState().settings.volume
     setSpeakingKey(key)
+    setPendingKey(key)
+    const clearPending = () =>
+      setPendingKey((current) => (current === key ? null : current))
+    const speaking = (async () => {
+      try {
+        await engineRef.current?.speak(text, { volume, onStart: clearPending })
+      } finally {
+        clearPending()
+      }
+    })()
     try {
       await Promise.all([
-        engineRef.current?.speak(text, { volume }),
+        speaking,
         new Promise((resolve) => setTimeout(resolve, MIN_HIGHLIGHT_MS)),
       ])
     } finally {
@@ -76,6 +92,7 @@ export function SpeechProvider({
     (wordKey: string, word: string) => {
       const { mode, state } = nextTap(tapStateRef.current, wordKey)
       tapStateRef.current = state
+      setLastTappedKey(wordKey)
       const text = mode === 'word' ? stripPunctuation(word) || word : decodeWord(word)
       void speakText(wordKey, text)
     },
@@ -84,7 +101,7 @@ export function SpeechProvider({
 
   return (
     <SpeechContext.Provider
-      value={{ tapWord, speakingKey, hebrewVoiceAvailable }}
+      value={{ tapWord, speakingKey, pendingKey, lastTappedKey, hebrewVoiceAvailable }}
     >
       {children}
     </SpeechContext.Provider>
