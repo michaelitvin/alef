@@ -26,6 +26,7 @@ Drive script essentials (see git history / past sessions for a full example):
 
 ## Gotchas
 
+- `window.speechSynthesis` is a readonly accessor — plain assignment in the init script silently no-ops and the app hits the native API (native `speak` then throws on the stub utterance class). Install the recorder with `Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: {...} })`.
 - Unit tests (jsdom) cannot catch RTL/bidi layout bugs — ALWAYS eyeball screenshots of Hebrew screens; a past bug rendered every word in reverse order while all tests passed (`unicode-bidi: plaintext` + inline-block words → LTR fallback).
 - Hebrew string literals: compare via codepoints, never by retyping (invisible combining marks). decodeWord output is NFC-normalized.
 - Success feedback window is 1200ms, error window 1000ms — sleep ≥1300ms after a correct answer before the next interaction.

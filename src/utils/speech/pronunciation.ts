@@ -3,9 +3,18 @@
  * e.g. כָּל comes out as "kal" instead of "kol". Respell such words with an
  * unambiguous holam male for speech only; displayed text is unaffected.
  */
+/**
+ * HEBREW ACCENT OLE — marks the stressed syllable for TTS engines that
+ * default to final stress (e.g. the name מוֹתֶק is mil'el: "MO-tek").
+ * Engines that don't understand it ignore it.
+ */
+const OLE = '֫'
+
 const PRONUNCIATION_FIXES = new Map(
   (
     [
+      ['מוֹתֶק', `מ${OLE}וֹתֶק`],
+      ['לְמוֹתֶק', `לְמ${OLE}וֹתֶק`],
       ['כָּל', 'כּוֹל'],
       ['וְכָל', 'וְכוֹל'],
       ['בְּכָל', 'בְּכוֹל'],

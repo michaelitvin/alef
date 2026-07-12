@@ -35,4 +35,9 @@ describe('fixPronunciation', () => {
   it('passes non-Hebrew text through unchanged', () => {
     expect(fixPronunciation('hello')).toBe('hello')
   })
+
+  it('marks penultimate stress on מוֹתֶק with an ole accent', () => {
+    expect(fixPronunciation('מוֹתֶק')).toBe('מ֫וֹתֶק')
+    expect(fixPronunciation('לְמוֹתֶק הַכֶּלֶב')).toBe('לְמ֫וֹתֶק הַכֶּלֶב')
+  })
 })
