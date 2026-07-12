@@ -36,6 +36,10 @@ describe('fixPronunciation', () => {
     expect(fixPronunciation('hello')).toBe('hello')
   })
 
+  it('respells וּכְחֻלָּה so the u-prefix is spoken "ve"', () => {
+    expect(fixPronunciation('רַכָּה וּכְחֻלָּה.')).toBe('רַכָּה וֶכְחֻלָּה.')
+  })
+
   // Accent marks make voices spell the word letter-by-letter; never add them
   it('leaves מוֹתֶק untouched', () => {
     expect(fixPronunciation('לְמוֹתֶק הַכֶּלֶב')).toBe('לְמוֹתֶק הַכֶּלֶב')
