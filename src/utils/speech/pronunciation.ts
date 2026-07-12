@@ -3,18 +3,12 @@
  * e.g. כָּל comes out as "kal" instead of "kol". Respell such words with an
  * unambiguous holam male for speech only; displayed text is unaffected.
  */
-/**
- * HEBREW ACCENT OLE — marks the stressed syllable for TTS engines that
- * default to final stress (e.g. the name מוֹתֶק is mil'el: "MO-tek").
- * Engines that don't understand it ignore it.
- */
-const OLE = '֫'
-
+// Only vowel-respelling fixes work here. Stress cannot be controlled: adding an
+// accent mark (tried ole U+05AB for מוֹתֶק) makes voices spell the word out
+// letter-by-letter instead of shifting the stress.
 const PRONUNCIATION_FIXES = new Map(
   (
     [
-      ['מוֹתֶק', `מ${OLE}וֹתֶק`],
-      ['לְמוֹתֶק', `לְמ${OLE}וֹתֶק`],
       ['כָּל', 'כּוֹל'],
       ['וְכָל', 'וְכוֹל'],
       ['בְּכָל', 'בְּכוֹל'],

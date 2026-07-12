@@ -36,8 +36,8 @@ describe('fixPronunciation', () => {
     expect(fixPronunciation('hello')).toBe('hello')
   })
 
-  it('marks penultimate stress on מוֹתֶק with an ole accent', () => {
-    expect(fixPronunciation('מוֹתֶק')).toBe('מ֫וֹתֶק')
-    expect(fixPronunciation('לְמוֹתֶק הַכֶּלֶב')).toBe('לְמ֫וֹתֶק הַכֶּלֶב')
+  // Accent marks make voices spell the word letter-by-letter; never add them
+  it('leaves מוֹתֶק untouched', () => {
+    expect(fixPronunciation('לְמוֹתֶק הַכֶּלֶב')).toBe('לְמוֹתֶק הַכֶּלֶב')
   })
 })
