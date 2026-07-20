@@ -6,8 +6,8 @@ import { decodeWord, stripPunctuation } from '../utils/decodeWord'
 const { stories } = storiesYaml as StoriesData
 
 describe('stories.yaml', () => {
-  it('has 8 stories', () => {
-    expect(stories).toHaveLength(8)
+  it('has 9 stories', () => {
+    expect(stories).toHaveLength(9)
   })
 
   it('has unique ids', () => {
