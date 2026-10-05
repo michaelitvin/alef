@@ -12,7 +12,7 @@ import { RunSummary } from '../../components/duel/RunSummary'
 import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
 import { Icon, type IconName } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
-import { WIZARD } from '../../assets/duel/sprites'
+import { WIZARD, preloadDuelImages } from '../../assets/duel/sprites'
 import { preloadDuelAudio } from '../../utils/duel/duelAudio'
 import { markById } from '../../utils/duel/marks'
 import { MEGA_MAX, MONSTERS_PER_WAVE } from '../../utils/duel/rules'
@@ -61,7 +61,10 @@ export default function DuelPage() {
   const bestScore = useProgressStore((s) => s.duel.bestScore)
   const shakeCtl = useAnimationControls()
 
-  useEffect(() => preloadDuelAudio(), [])
+  useEffect(() => {
+    preloadDuelImages()
+    preloadDuelAudio()
+  }, [])
   useEffect(() => {
     if (!game.shake) return
     const s = game.shake.power

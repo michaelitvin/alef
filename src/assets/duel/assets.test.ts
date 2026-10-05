@@ -35,3 +35,21 @@ describe('duel assets', () => {
     expect(Object.keys(MUSIC_URLS)).toHaveLength(6)
   })
 })
+
+describe('image preloading', () => {
+  it('preloads every sprite and picture word so first appearances are never blank', async () => {
+    const { preloadDuelImages } = await import('./sprites')
+    const created: string[] = []
+    const Orig = globalThis.Image
+    globalThis.Image = class { set src(v: string) { created.push(v) } } as unknown as typeof Image
+    try {
+      const srcs = preloadDuelImages()
+      for (const w of PICTURE_WORDS) expect(srcs).toContain(WORD_PICTURE[w.key])
+      for (const m of Object.values(MONSTERS)) expect(srcs).toContain(m.src)
+      expect(srcs).toContain(TOWER)
+      expect(created.sort()).toEqual([...srcs].sort())
+    } finally {
+      globalThis.Image = Orig
+    }
+  })
+})
