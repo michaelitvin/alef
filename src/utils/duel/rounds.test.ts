@@ -33,9 +33,10 @@ describe('makeRound', () => {
       if (r.type === 'C' && twin) expect(r.runes.map((m) => m.id)).toContain(twin.id)
     }
   })
-  it('waves 1-2 only use A and D; boss rounds use the wave boss and slower walk', () => {
+  it('waves 1-2 only use A; no D rounds at all; boss rounds use the wave boss and slower walk', () => {
     const rng = seeded(2)
-    for (let i = 0; i < 100; i++) expect(['A', 'D']).toContain(makeRound({ id: i, wave: 2, boss: false, rng, ...base }).type)
+    for (let i = 0; i < 100; i++) expect(makeRound({ id: i, wave: 2, boss: false, rng, ...base }).type).toBe('A')
+    for (let i = 0; i < 200; i++) expect(makeRound({ id: i, wave: 4, boss: false, rng, ...base }).type).not.toBe('D')
     const boss = makeRound({ id: 1, wave: 10, boss: true, rng, ...base })
     expect(boss.monster).toBe('troll')
     expect(boss.walkMs).toBeCloseTo(Math.max(3500, 9000 - 650 * 9) * 1.4)

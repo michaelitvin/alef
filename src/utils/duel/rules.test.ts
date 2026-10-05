@@ -36,8 +36,8 @@ describe('rules', () => {
     expect(walkMs(2, false)).toBe(8350)
     expect(walkMs(30, false)).toBe(3500)
     expect(walkMs(1, true)).toBeCloseTo(12600)
-    expect(screenTypesFor(1)).toEqual(['A', 'D'])
-    expect(screenTypesFor(3)).toEqual(['A', 'B', 'C', 'D'])
+    expect(screenTypesFor(1)).toEqual(['A']) // D (pick a picture) dropped after playtesting
+    expect(screenTypesFor(3)).toEqual(['A', 'B', 'C'])
     expect(padSize(2)).toBe(4)
     expect(padSize(3)).toBe(6)
   })
