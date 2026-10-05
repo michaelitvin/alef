@@ -9,7 +9,7 @@ export const PICTURE_WORDS: PictureWord[] = [
   { key: 'a', group: 'a', he: 'אַרְיֵה' },
   { key: 'pineapple', group: 'a', he: 'אַנָּנָס' },
   { key: 'mouse', group: 'a', he: 'עַכְבָּר' },
-  { key: 'watermelon', group: 'a', he: 'אַבַּטִּיחַ' },
+  { key: 'watermelon', group: 'a', he: 'אֲבַטִּיחַ' },
   { key: 'e', group: 'e', he: 'אֶפְרוֹחַ' },
   { key: 'tree', group: 'e', he: 'עֵץ' },
   { key: 'goat', group: 'e', he: 'עֵז' },
