@@ -17,7 +17,6 @@ import StoryView from './pages/Stories/StoryView'
 import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import RoutesPage from './pages/Debug/RoutesPage'
-import NikkudDuelPrototype from './pages/Prototype/NikkudDuelPrototype' // PROTOTYPE
 
 const DuelPage = lazy(() => import('./pages/Duel/DuelPage'))
 const DuelGlyphSheet = lazy(() => import('./pages/Duel/DuelGlyphSheet'))
@@ -112,7 +111,6 @@ function App() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
-        <Route path="/prototype/nikkud-duel" element={<NikkudDuelPrototype />} />
         {DUEL_TEST_HOOKS && (
           <Route
             path="/duel/glyphs"
