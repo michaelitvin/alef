@@ -17,7 +17,7 @@ nikkud:
 
   - id: patach
     mark: ַ
-    name: פַּתָח
+    name: פַּתָּח
     nameTranslit: Patach
     sound: a # Short 'a' as in "cat"
     soundGroup: a
@@ -30,7 +30,7 @@ nikkud:
 
   - id: tzeire
     mark: ֵ
-    name: צֵירֵי
+    name: צֵירֶה
     nameTranslit: Tzeire
     sound: e # As in "they"
     soundGroup: e

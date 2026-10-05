@@ -396,14 +396,14 @@ pairs:
     syllable1Id: bet-kamatz
     syllable2Id: bet-patach
     contrastType: vowel
-    contrastDescription: קָמָץ ופַּתָח - שני צלילי א'
+    contrastDescription: קָמָץ ופַּתָּח - שני צלילי א'
     difficulty: 3
 
   - id: pair-tzeire-segol
     syllable1Id: bet-tzeire
     syllable2Id: bet-segol
     contrastType: vowel
-    contrastDescription: צֵירֵי וסֶגּוֹל - שני צלילי ע'
+    contrastDescription: צֵירֶה וסֶגּוֹל - שני צלילי ע'
     difficulty: 3
 
 # Blend activities (word building from syllables)

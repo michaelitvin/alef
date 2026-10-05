@@ -23,7 +23,7 @@ const NIKKUD_NAMES = new Map(nikkud.map((n) => [n.mark, n.name]))
 /** Marks that appear in vocalized text but are not in nikkud.yaml */
 const EXTRA_MARK_NAMES = new Map<string, string>([
   ['\u05B1', 'חֲטַף סֶגּוֹל'],
-  ['\u05B2', 'חֲטַף פַּתָח'],
+  ['\u05B2', 'חֲטַף פַּתָּח'],
   ['\u05B3', 'חֲטַף קָמָץ'],
   ['\u05C7', 'קָמָץ קָטָן'],
 ])
@@ -108,7 +108,7 @@ function clusterPhrase(c: Cluster): string | null {
 
 /**
  * Turn a vocalized Hebrew word into a decode sentence:
- * "אָלֶף עִם פַּתָח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא"
+ * "אָלֶף עִם פַּתָּח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא"
  * Falls back to the word itself if any cluster can't be decoded.
  */
 export function decodeWord(word: string): string {
