@@ -13,8 +13,8 @@ describe('Battlefield', () => {
   it('mirrors right-facing monsters only', () => {
     const { container, rerender } = render(<Battlefield round={r('ghost')} outcome={null} walking paused={false} landscape={false} banner={null} />)
     expect((container.querySelector('.nd-sprite') as HTMLElement).style.transform).toBe('scaleX(-1)')
-    rerender(<Battlefield round={r('imp')} outcome={null} walking paused={false} landscape={false} banner={null} />)
-    expect((container.querySelector('.nd-sprite') as HTMLElement).style.transform).toBe('')
+    rerender(<Battlefield round={r('bat')} outcome={null} walking paused={false} landscape={false} banner={null} />)
+    expect((container.querySelector('.nd-sprite') as HTMLElement).style.transform).toBe('') // the bat faces left as drawn
   })
   it('shows the time bar only while walking and not paused', () => {
     const { container, rerender } = render(<Battlefield round={r('imp')} outcome={null} walking={false} paused={false} landscape={false} banner={null} />)
