@@ -3,7 +3,7 @@
 **Date:** 2026-10-05
 **Status:** Approved by Michael on 2026-10-05; implementation plan next
 **Design doc & mock:** https://claude.ai/code/artifact/b7b4518b-0efb-4a0d-a864-ead7332fe7e4
-**Playable prototype:** branch `prototype/nikkud-duel`, route `#/prototype/nikkud-duel` (throwaway; see `src/pages/Prototype/nikkudDuel/NOTES.md`)
+**Game:** `#/duel` (branch `feature/nikkud-duel`). The throwaway prototype it was distilled from was removed once the game shipped (it's in this branch's history).
 
 ## Overview
 
@@ -255,4 +255,3 @@ The tools live in `/data/ws/scratch/nikkud-duel/` on the Jetson, served at `/nik
 
 - **Playtest verdict:** walk speed and wave length (effects are decided: presets mixed at random).
 - **Michael's review:** all voice lines: the wizard's 10 names, 5 vowel sounds, 17 picture words ("כְּמוֹ אַרְיֵה"), 14 instruction lines and "almost"; Clyde's 17 picture words; Clyde's 10 names and 5 vowels; the mute puff. Defaults are in use until then.
-- **Cleanup:** delete the prototype route and code once the real game ships.
