@@ -293,3 +293,11 @@
 .nd-wave-bar div { height: 100%; background: linear-gradient(90deg, #ffb02e, #ffd34d); box-shadow: 0 0 8px #ffd34d; transition: width 0.4s; }
 
 .nd-banner-monster .nd-sprite { height: 150px; filter: drop-shadow(0 0 20px #b48cff); }
+
+/* way out without the system back gesture (start, pause, summary) */
+.nd-home-btn {
+  position: absolute; top: 14px; inset-inline-end: 14px; width: 54px; height: 54px; border-radius: 50%;
+  border: 3px solid #fff6d8; background: linear-gradient(#ffb02e, #ff6a1a); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 0 18px rgba(255, 140, 40, 0.7);
+}
+.nd-new-best { color: #ffd34d; text-shadow: 0 0 14px #ffb02e, 0 0 28px #ff7ae0; animation: nd-pulse 0.6s infinite alternate; }

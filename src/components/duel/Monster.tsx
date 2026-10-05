@@ -6,8 +6,11 @@ import { Clue } from './Clue'
 import { Icon } from './Icon'
 import { MonsterImg } from './Explosion'
 
-export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay }: {
-  round: Round; walking: boolean; startX: number; endX: number; bossHp: number; onReplay: () => void
+/** Time left on the clock: a re-measure (rotation) re-targets the tween over this, not the full walk. */
+export const remainingWalkMs = (walkMs: number, startedAt: number, now: number) => Math.max(0, walkMs - (now - startedAt))
+
+export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay, remainingMs }: {
+  round: Round; walking: boolean; startX: number; endX: number; bossHp: number; onReplay: () => void; remainingMs: number
 }) {
   const mute = round.type === 'B' && round.target.group === 'silent'
   return (
@@ -17,7 +20,7 @@ export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay 
       style={{ x: '-50%' }}
       initial={{ left: `${startX}%`, scale: 0 }}
       animate={{ left: walking ? `${endX}%` : `${startX}%`, scale: 1 }}
-      transition={{ left: { duration: walking ? round.walkMs / 1000 : 0, ease: 'linear' }, scale: { duration: 0.35, type: 'spring' } }}
+      transition={{ left: { duration: walking ? remainingMs / 1000 : 0, ease: 'linear' }, scale: { duration: 0.35, type: 'spring' } }}
     >
       <Clue round={round} onReplay={onReplay} />
       <motion.span

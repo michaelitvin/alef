@@ -9,7 +9,7 @@ export type MusicTrack = 'calm' | 'mid' | 'fast' | 'boss' | 'victory'
 
 const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.1
-const LINE_TIMEOUT_MS = 5000
+const LINE_TIMEOUT_MS = 9000 // > longest line (~4.2 s) plus a slow first load
 const SFX_TIMEOUT_MS = 3000
 
 let cfg = { sfx: true, music: true, volume: 0.8 }
@@ -100,6 +100,8 @@ export const trackForWave = (wave: number, boss: boolean): MusicTrack => (boss ?
 
 export function playMusic(track: MusicTrack) {
   if (!cfg.music) return
+  const bossHowls = [howls.get(MUSIC_URLS.boss1), howls.get(MUSIC_URLS.boss2)]
+  if (track === 'boss' && current && bossHowls.includes(current) && current.playing()) return // same fight, same track
   let url: string
   if (track === 'boss') {
     bossToggle = !bossToggle

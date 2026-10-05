@@ -6,7 +6,7 @@ import type { CSSProperties } from 'react'
 export type IconName =
   | 'heart' | 'heartEmpty' | 'sparkle' | 'pause' | 'play' | 'replay' | 'eye' | 'ear' | 'shield' | 'flame'
   | 'bolt' | 'swords' | 'speaker' | 'speakerOff' | 'talk' | 'puff' | 'trophy' | 'music' | 'musicOff'
-  | 'chart' | 'bonk' | 'wand' | 'bossHeart'
+  | 'chart' | 'bonk' | 'wand' | 'bossHeart' | 'home'
 
 const GOLD = '#ffd34d'
 const CREAM = '#fff6d8'
@@ -57,6 +57,8 @@ function paths(name: IconName) {
       return <path d="M4 20V10h3.5v10zm6.25 0V4h3.5v16zm6.25 0v-7H20v7z" fill={CREAM} />
     case 'bonk':
       return <path d="M12 1l2.2 6 6.1-2.4-2.6 5.9 5.3 1.5-5.3 1.6 2.6 5.9-6.1-2.4L12 23l-2.2-5.9-6.1 2.4 2.6-5.9L1 12l5.3-1.5-2.6-5.9 6.1 2.4z" fill="#ff4d6a" stroke={CREAM} strokeWidth={1} />
+    case 'home':
+      return <path d="M12 3l9 8h-2.5v9.5h-5v-6h-3v6h-5V11H3z" fill="#2a0f00" />
     case 'wand':
       return (<><path d="M3 21L15 9" stroke="#b48cff" strokeWidth={3} strokeLinecap="round" /><path d="M17 2l1.2 3.8L22 7l-3.8 1.2L17 12l-1.2-3.8L12 7l3.8-1.2z" fill={GOLD} /></>)
   }
@@ -64,7 +66,7 @@ function paths(name: IconName) {
 
 export function Icon({ name, size = 24, style, className }: { name: IconName; size?: number; style?: CSSProperties; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" width={size} height={size} style={{ display: 'inline-block', verticalAlign: 'middle', ...style }} className={className} aria-hidden>
+    <svg data-icon={name} viewBox="0 0 24 24" width={size} height={size} style={{ display: 'inline-block', verticalAlign: 'middle', ...style }} className={className} aria-hidden>
       {paths(name)}
     </svg>
   )

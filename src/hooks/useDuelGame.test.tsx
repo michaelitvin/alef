@@ -9,7 +9,10 @@ vi.mock('../utils/duel/duelAudio', () => ({
   playLine: vi.fn((id: string) => new Promise<void>((resolve) => pending.push({ id, resolve }))),
 }))
 import { useDuelGame } from './useDuelGame'
-import { playLine } from '../utils/duel/duelAudio'
+import { muteDuelAudio, playLine, unlockDuelAudio } from '../utils/duel/duelAudio'
+import { markById } from '../utils/duel/marks'
+import { wordsFor } from '../utils/duel/words'
+import type { Round } from '../types/duel'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 
@@ -86,5 +89,64 @@ describe('useDuelGame', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(3100) })
     expect(result.current.state.outcome).toMatchObject({ kind: 'miss', choiceKey: null })
     expect(result.current.state.hearts).toBe(2)
+  })
+})
+
+const cRound = (): Round => ({
+  id: 77, type: 'C', target: markById('kamatz'), runes: [markById('kamatz'), markById('patach'), markById('segol'), markById('chirik')],
+  word: wordsFor('a')[0], padWords: [], monster: 'fuzzy', boss: false, walkMs: 60000,
+})
+
+describe('useDuelGame review fixes', () => {
+  it('leaving while paused does not leave the app muted; a new run unmutes', async () => {
+    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.pause())
+    vi.mocked(muteDuelAudio).mockClear()
+    unmount()
+    expect(vi.mocked(muteDuelAudio)).toHaveBeenLastCalledWith(false)
+    const second = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    vi.mocked(muteDuelAudio).mockClear()
+    act(() => second.result.current.start())
+    expect(vi.mocked(muteDuelAudio)).toHaveBeenCalledWith(false)
+  })
+  it('resume re-unlocks audio inside the tap', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.pause())
+    vi.mocked(unlockDuelAudio).mockClear()
+    act(() => result.current.resume())
+    expect(vi.mocked(unlockDuelAudio)).toHaveBeenCalled()
+  })
+  it('a fast double tap on the forgiven twin costs nothing and records one twin', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    act(() => result.current.start())
+    await flushLines()
+    expect(result.current.state.round?.type).toBe('C')
+    act(() => {
+      result.current.choose({ kind: 'rune', mark: markById('patach') })
+      result.current.choose({ kind: 'rune', mark: markById('patach') })
+    })
+    expect(result.current.state.hearts).toBe(3)
+    expect(result.current.state.outcome).toBeNull()
+    expect(useProgressStore.getState().duel.byMark.kamatz.twin).toBe(1)
+    // the right answer still works afterwards
+    act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
+    expect(result.current.state.outcome?.kind).toBe('hit')
+  })
+  it('the outcome speech waits for the "almost" lines to finish (no overlapping wizard voices)', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
+    act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    // "almost" is still speaking (unresolved) → the name feedback must not have started
+    expect(pending.map((p) => p.id)).toEqual(['line-almost'])
+    expect(lines()).not.toContain('wiz-kamatz')
+    await flushLines()
+    expect(lines()).toEqual(expect.arrayContaining(['line-almost', 'wiz-patach', 'wiz-kamatz']))
   })
 })

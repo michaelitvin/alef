@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import type { Choice, DuelMark, Next, PictureWord, Rng, Round } from '../types/duel'
 import { duelReducer, initialDuelState } from '../utils/duel/reducer'
-import { makeRound } from '../utils/duel/rounds'
-import { MEGA_MAX, bossFor, isCorrect, isTwin, newMonsterAt, pickEffect } from '../utils/duel/rules'
+import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
+import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, pickEffect } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
@@ -26,9 +26,11 @@ export interface UseDuelGameOpts {
   rng?: Rng
   /** verify/test builds only: fixed monster walk time */
   walkOverride?: number
+  /** injectable round factory (tests) */
+  makeRound?: (o: MakeRoundOpts) => Round
 }
 
-export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts = {}) {
+export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defaultMakeRound }: UseDuelGameOpts = {}) {
   const [state, dispatch] = useReducer(duelReducer, initialDuelState)
   const [banner, setBanner] = useState<BannerVisual | null>(null)
   const [newBest, setNewBest] = useState(false)
@@ -45,6 +47,8 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
   const walkStartedAt = useRef(0)
   const answeredRound = useRef(-1) // guards double taps between renders
   const twinRound = useRef(-1)
+  const twinKey = useRef<string | null>(null)
+  const almost = useRef<Promise<void>>(Promise.resolve()) // "almost" + twin name; the outcome speech waits for it
   const megaAnnounced = useRef(false)
   const pendingSpawn = useRef<Extract<Next, { kind: 'spawn' }> | null>(null)
   const resumeAdvance = useRef(false)
@@ -72,6 +76,7 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
   const begin = useCallback(
     (r: Round) => {
       const token = ++roundToken.current
+      almost.current = Promise.resolve()
       dispatch({ type: 'ROUND_READY', round: r })
       spawnedAt.current = performance.now()
       walkStartedAt.current = performance.now()
@@ -133,7 +138,7 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
       }
       begin(r)
     },
-    [begin, rng, store, walkOverride],
+    [begin, makeRound, rng, store, walkOverride],
   )
 
   // React to the reducer asking for the next step.
@@ -195,7 +200,7 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !megaAnnounced.current
     if (megaLine) megaAnnounced.current = true
 
-    const speech = delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)
+    const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       .then(() => sayMark(r.target, r.word))
       .then(() => (comboLine ? playLine('line-combo') : undefined))
       .then(() => (megaLine ? playLine('line-mega') : undefined))
@@ -214,6 +219,7 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
 
   const start = useCallback(() => {
     unlockDuelAudio()
+    muteDuelAudio(false) // a run left while paused must not leave everything muted
     const { settings } = store.getState()
     configureDuelAudio({ sfx: settings.soundEffects, music: duelMusicOn(settings), volume: settings.volume })
     store.getState().recordDuelSession()
@@ -233,11 +239,13 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
     const s = stateRef.current
     const r = s.round
     if (!r || s.outcome || s.paused || s.phase !== 'playing' || answeredRound.current === r.id) return
+    if (twinRound.current === r.id && keyOf(c) === twinKey.current) return // same twin again: still forgiven
     if (!isCorrect(r, c) && isTwin(r, c) && !s.twinTried && twinRound.current !== r.id) {
       // forgiven once: no heart, no combo break — hear which mark he tapped, then try again
       twinRound.current = r.id
+      twinKey.current = keyOf(c)
       store.getState().recordDuelTwin(r.target.id, r.type)
-      if (c.kind === 'rune') void playLine('line-almost').then(() => playLine(`wiz-${c.mark.id}`))
+      if (c.kind === 'rune') almost.current = playLine('line-almost').then(() => playLine(`wiz-${c.mark.id}`))
       dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle' })
       return
     }
@@ -266,6 +274,7 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
   const resume = useCallback(() => {
     if (!pausedRef.current) return
     pausedRef.current = false
+    unlockDuelAudio() // inside the ▶ tap: Android may have suspended audio during a long lock
     dispatch({ type: 'RESUME' })
     muteDuelAudio(false)
     const s = stateRef.current
@@ -301,8 +310,10 @@ export function useDuelGame({ rng = Math.random, walkOverride }: UseDuelGameOpts
     () => () => {
       runId.current += 1
       roundToken.current += 1
+      pausedRef.current = false
       stopMusic()
       stopAllLines()
+      muteDuelAudio(false) // leaving while paused must not leave the app muted
     },
     [],
   )

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import type { Outcome, Round } from '../../types/duel'
 import { TOWER, WIZARD } from '../../assets/duel/sprites'
 import { Explosion, type Geo } from './Explosion'
-import { LungingMonster, WalkingMonster } from './Monster'
+import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
@@ -70,11 +70,14 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
   }, [landscape])
   const geo: Geo = { ...(landscape ? LANDSCAPE : PORTRAIT), ...measured }
 
-  // Where the monster is when the round resolves (it walks linearly from start to end over walkMs).
+  // Walk clock: set synchronously the first render the round walks, so the tween and the hook's timer agree.
   const walkStart = useRef(0)
-  useEffect(() => {
-    if (walking) walkStart.current = performance.now()
-  }, [walking, round?.id])
+  const walkKey = useRef(-1)
+  if (walking && round && walkKey.current !== round.id) {
+    walkKey.current = round.id
+    walkStart.current = performance.now()
+  }
+  if (!walking) walkKey.current = -1
   const outcomeX = useMemo(() => {
     if (!outcome || !round) return geo.start
     if (!walking) return geo.start
@@ -115,7 +118,8 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
       )}
 
       {round && !outcome && (
-        <WalkingMonster round={round} walking={walking} startX={geo.start} endX={geo.end} bossHp={bossHp} onReplay={onReplay} />
+        <WalkingMonster round={round} walking={walking} startX={geo.start} endX={geo.end} bossHp={bossHp} onReplay={onReplay}
+          remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} />}

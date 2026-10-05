@@ -40,14 +40,15 @@ describe('duelReducer', () => {
   it('timeout counts as a miss with no choice', () => {
     expect(duelReducer(ready(start()), { type: 'TIMEOUT' }).outcome).toMatchObject({ kind: 'miss', choiceKey: null })
   })
-  it('twin on C is forgiven once; a second wrong tap is a miss', () => {
-    const c = ready(start(), mk({ type: 'C', runes: [markById('kamatz'), markById('patach')] }))
+  it('twin on C is forgiven once; tapping the same twin again is ignored; a different wrong tap is a miss', () => {
+    const c = ready(start(), mk({ type: 'C', runes: [markById('kamatz'), markById('patach'), markById('segol')] }))
     const t1 = tap(c, 'patach')
     expect(t1.outcome).toBeNull()
     expect(t1).toMatchObject({ twinTried: 'patach', hearts: 3, combo: 0 })
-    const t2 = tap(t1, 'patach')
-    expect(t2.outcome).toMatchObject({ kind: 'miss' })
-    expect(t2.hearts).toBe(2)
+    expect(tap(t1, 'patach')).toBe(t1)
+    const t3 = tap(t1, 'segol')
+    expect(t3.outcome).toMatchObject({ kind: 'miss' })
+    expect(t3.hearts).toBe(2)
   })
   it('a wave is 5 kills; misses do not count', () => {
     let s = start()

@@ -103,12 +103,12 @@ export default function DuelPage() {
 
       {state.phase === 'idle' && (
         <StartCover onPlay={game.start} musicOn={duelMusicOn(settings)} onToggleMusic={() => setDuelMusic(!duelMusicOn(settings))}
-          onParent={() => navigate('/progress')} />
+          onParent={() => navigate('/progress')} onHome={() => navigate('/')} />
       )}
-      {state.paused && playing && <PauseCover onResume={game.resume} />}
+      {state.paused && playing && <PauseCover onResume={game.resume} onHome={() => navigate('/')} />}
       {state.phase === 'over' && (
         <RunSummary wave={state.wave} score={state.score} bestCombo={state.bestCombo} best={bestScore} newBest={game.newBest}
-          missed={missed} onSay={(m) => void game.sayMark(m)} onReplay={game.start} />
+          missed={missed} onSay={(m) => void game.sayMark(m)} onReplay={game.start} onHome={() => navigate('/')} />
       )}
     </div>
   )
