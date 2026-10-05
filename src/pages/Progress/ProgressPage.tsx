@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { DuelStatsCard } from '../../components/duel/DuelStatsCard'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { Header } from '../../components/navigation/Navigation'
@@ -266,6 +267,9 @@ export function ProgressPage() {
             <LevelProgressBar label="משפטים" progress={sentencesMastered / 6} icon="📝" />
           </div>
         </motion.section>
+
+        {/* Nikkud Wizard Duel — parent stats */}
+        <DuelStatsCard />
 
         {/* Achievements */}
         <motion.section
