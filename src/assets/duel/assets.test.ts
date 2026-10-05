@@ -6,14 +6,13 @@ import { DUEL_MARKS, SOUND_GROUPS } from '../../utils/duel/marks'
 import { ROSTER } from '../../utils/duel/rules'
 
 describe('duel assets', () => {
-  it('every monster (roster + bosses) has a sprite, a facing and a safe voice rate', () => {
+  it('every monster (roster + bosses) has a sprite and a facing (no per-monster voice)', () => {
     for (const id of [...ROSTER.map((m) => m.id), 'dragon', 'troll']) {
       const m = MONSTERS[id]
       expect(m, id).toBeTruthy()
       expect(m.src, id).toBeTruthy()
       expect(['left', 'right', 'front']).toContain(m.faces)
-      expect(m.rate).toBeGreaterThanOrEqual(0.7)
-      expect(m.rate).toBeLessThanOrEqual(1.3)
+      expect('rate' in m).toBe(false)
     }
     expect(WIZARD.idle && WIZARD.cast && WIZARD.dizzy && TOWER).toBeTruthy()
   })
@@ -22,13 +21,14 @@ describe('duel assets', () => {
   })
   it('every voice line the game uses exists; SFX and music are complete', () => {
     const needed = [
-      ...DUEL_MARKS.flatMap((m) => [`wiz-${m.id}`, `mon-name-${m.id}`]),
-      ...SOUND_GROUPS.filter((g) => g !== 'silent').flatMap((g) => [`wiz-vowel-${g}`, `mon-vowel-${g}`]),
-      ...PICTURE_WORDS.filter((w) => w.group !== 'silent').flatMap((w) => [`wiz-word-${w.key}`, `mon-word-${w.key}`]),
-      'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-D', 'line-how-silent', 'line-wave',
+      ...DUEL_MARKS.map((m) => `wiz-${m.id}`),
+      ...SOUND_GROUPS.filter((g) => g !== 'silent').map((g) => `wiz-vowel-${g}`),
+      ...PICTURE_WORDS.filter((w) => w.group !== 'silent').map((w) => `wiz-word-${w.key}`),
+      'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-silent', 'line-wave',
       'line-new-spells', 'line-new-monster', 'line-boss', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
     ]
     for (const id of needed) expect(VOICE_URLS[id], id).toBeTruthy()
+    expect(Object.keys(VOICE_URLS).filter((k) => k.startsWith('mon-'))).toEqual([]) // the monster voice is gone
     for (const [k, v] of Object.entries(SFX_URLS)) expect(v, k).toBeTruthy()
     for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)

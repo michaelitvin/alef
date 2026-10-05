@@ -24,7 +24,8 @@ export const newMonsterAt = (wave: number) => (wave > 1 ? (ROSTER.find((m) => m.
 export const bossFor = (wave: number): 'dragon' | 'troll' => (wave % (BOSS_EVERY * 2) === 0 ? 'troll' : 'dragon')
 
 export const walkMs = (wave: number, boss: boolean) => Math.max(3500, 9000 - 650 * (wave - 1)) * (boss ? 1.4 : 1)
-export const screenTypesFor = (wave: number): ScreenType[] => (wave < 3 ? ['A', 'D'] : ['A', 'B', 'C', 'D'])
+// Screen D (rune → pick one of several pictures) was dropped after playtesting: too hard, even for adults.
+export const screenTypesFor = (wave: number): ScreenType[] => (wave < 3 ? ['A'] : ['A', 'B', 'C'])
 export const padSize = (wave: number) => (wave < 3 ? 4 : 6)
 
 export const keyOf = (c: Choice) => (c.kind === 'rune' ? c.mark.id : `g-${c.group}`)

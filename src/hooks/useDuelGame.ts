@@ -10,7 +10,6 @@ import { wordsFor } from '../utils/duel/words'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
 } from '../utils/duel/duelAudio'
-import { MONSTERS } from '../assets/duel/sprites'
 import { EFFECT_PRESETS } from '../components/duel/Explosion'
 import type { IconName } from '../components/duel/Icon'
 import { duelMusicOn, useProgressStore } from '../stores/progressStore'
@@ -64,11 +63,12 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       .then(() => (m.group === 'silent' ? undefined : delay(200).then(() => playLine(`wiz-word-${w.key}`))))
   }, [])
 
+  // Clues are said once, cleanly, by the narrator — the same verified lines as the feedback. (The monster voice
+  // and its pitch-shifting were dropped after playtesting: they moaned.)
   const playClue = useCallback((r: Round) => {
-    const rate = MONSTERS[r.monster]?.rate ?? 1
-    if (r.type === 'B') return r.target.group === 'silent' ? playLine('sfx-mute', rate) : playLine(`mon-vowel-${r.target.group}`, rate)
-    if (r.type === 'C') return playLine(`mon-name-${r.target.id}`, rate)
-    if (r.type === 'A' && r.word.he) return playLine(`mon-word-${r.word.key}`, rate)
+    if (r.type === 'B') return r.target.group === 'silent' ? playLine('sfx-mute') : playLine(`wiz-vowel-${r.target.group}`)
+    if (r.type === 'C') return playLine(`wiz-${r.target.id}`)
+    if (r.type === 'A' && r.word.he) return playLine(`wiz-word-${r.word.key}`)
     return Promise.resolve()
   }, [])
 

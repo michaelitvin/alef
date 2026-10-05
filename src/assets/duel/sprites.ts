@@ -21,18 +21,17 @@ export const TOWER = tower
 
 export type Faces = 'left' | 'right' | 'front'
 
-/** rate: the one verified Clyde recording, played faster (higher) or slower (deeper) per monster; 0.7–1.3. */
-export const MONSTERS: Record<string, { src: string; faces: Faces; rate: number }> = {
-  fuzzy: { src: fuzzy, faces: 'right', rate: 1.0 },
-  blob: { src: blob, faces: 'front', rate: 1.12 },
-  imp: { src: imp, faces: 'left', rate: 1.25 },
-  ghost: { src: ghost, faces: 'right', rate: 0.92 },
-  bat: { src: bat, faces: 'left', rate: 1.3 },
-  mushroom: { src: mushroom, faces: 'front', rate: 1.05 },
-  golem: { src: golem, faces: 'front', rate: 0.85 },
-  octopus: { src: octopus, faces: 'front', rate: 1.15 },
-  dragon: { src: dragon, faces: 'left', rate: 0.8 },
-  troll: { src: troll, faces: 'left', rate: 0.72 },
+export const MONSTERS: Record<string, { src: string; faces: Faces }> = {
+  fuzzy: { src: fuzzy, faces: 'right' },
+  blob: { src: blob, faces: 'front' },
+  imp: { src: imp, faces: 'left' },
+  ghost: { src: ghost, faces: 'right' },
+  bat: { src: bat, faces: 'left' },
+  mushroom: { src: mushroom, faces: 'front' },
+  golem: { src: golem, faces: 'front' },
+  octopus: { src: octopus, faces: 'front' },
+  dragon: { src: dragon, faces: 'left' },
+  troll: { src: troll, faces: 'left' },
 }
 
 const wordFiles = import.meta.glob('./sprites/word-*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>

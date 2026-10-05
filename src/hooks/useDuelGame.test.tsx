@@ -140,13 +140,32 @@ describe('useDuelGame review fixes', () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
     act(() => result.current.start())
     await flushLines()
+    const namesBefore = lines().filter((l) => l === 'wiz-kamatz').length // the clue itself says the name
     act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
     act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
     await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
     // "almost" is still speaking (unresolved) → the name feedback must not have started
     expect(pending.map((p) => p.id)).toEqual(['line-almost'])
-    expect(lines()).not.toContain('wiz-kamatz')
+    expect(lines().filter((l) => l === 'wiz-kamatz').length).toBe(namesBefore)
     await flushLines()
     expect(lines()).toEqual(expect.arrayContaining(['line-almost', 'wiz-patach', 'wiz-kamatz']))
+  })
+})
+
+describe('clues are spoken once, cleanly, by the narrator (no monster voice)', () => {
+  const bRound = (): Round => ({ ...cRound(), id: 78, type: 'B', target: markById('cholam') })
+  it('name screen: the clue is the mark name line; sound screen: the vowel line; never a mon- line or a changed rate', async () => {
+    for (const [mk, expected] of [[cRound, 'wiz-kamatz'], [bRound, 'wiz-vowel-o']] as const) {
+      vi.mocked(playLine).mockClear()
+      pending.length = 0
+      const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+      act(() => result.current.start())
+      await flushLines()
+      const calls = vi.mocked(playLine).mock.calls
+      expect(calls.map((c) => c[0])).toContain(expected)
+      expect(calls.some((c) => String(c[0]).startsWith('mon-'))).toBe(false)
+      expect(calls.every((c) => c[1] === undefined || c[1] === 1)).toBe(true)
+      unmount()
+    }
   })
 })
