@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useSoundEffects } from './hooks/useAudio'
 import HomePage from './pages/Home/HomePage'
@@ -18,6 +18,8 @@ import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import RoutesPage from './pages/Debug/RoutesPage'
 import NikkudDuelPrototype from './pages/Prototype/NikkudDuelPrototype' // PROTOTYPE
+
+const DuelPage = lazy(() => import('./pages/Duel/DuelPage'))
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
 
@@ -109,6 +111,14 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
         <Route path="/prototype/nikkud-duel" element={<NikkudDuelPrototype />} />
+        <Route
+          path="/duel"
+          element={
+            <Suspense fallback={null}>
+              <DuelPage />
+            </Suspense>
+          }
+        />
       </Routes>
     </HashRouter>
   )
