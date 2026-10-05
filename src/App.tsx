@@ -17,6 +17,7 @@ import StoryView from './pages/Stories/StoryView'
 import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import RoutesPage from './pages/Debug/RoutesPage'
+import NikkudDuelPrototype from './pages/Prototype/NikkudDuelPrototype' // PROTOTYPE
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
 
@@ -107,6 +108,7 @@ function App() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
+        <Route path="/prototype/nikkud-duel" element={<NikkudDuelPrototype />} />
       </Routes>
     </HashRouter>
   )
