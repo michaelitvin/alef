@@ -6,6 +6,11 @@ import { RunSummary } from './RunSummary'
 import { markById } from '../../utils/duel/marks'
 
 describe('duel covers', () => {
+  it('the start cover is opaque, so the tower wizard behind it does not show (one wizard on screen)', () => {
+    const { container } = render(<StartCover onPlay={() => {}} musicOn onToggleMusic={() => {}} onParent={() => {}} onHome={() => {}} />)
+    expect(container.querySelector('.nd-overlay')!.className).toContain('nd-opaque')
+    expect(container.querySelectorAll('img')).toHaveLength(1)
+  })
   it('every cover has a home button (a way out without the system back gesture)', () => {
     const onHome = vi.fn()
     const { unmount } = render(<StartCover onPlay={() => {}} musicOn onToggleMusic={() => {}} onParent={() => {}} onHome={onHome} />)

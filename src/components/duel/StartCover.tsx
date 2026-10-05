@@ -8,7 +8,7 @@ export function StartCover({ onPlay, musicOn, onToggleMusic, onParent, onHome }:
   onPlay: () => void; musicOn: boolean; onToggleMusic: () => void; onParent: () => void; onHome: () => void
 }) {
   return (
-    <div className="nd-overlay">
+    <div className="nd-overlay nd-opaque">
       <button className="nd-home-btn" onClick={onHome} aria-label="home">
         <Icon name="home" size={30} />
       </button>
