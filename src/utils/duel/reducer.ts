@@ -81,6 +81,7 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
       if (!canAnswer(s)) return s
       const r = s.round!
       if (isCorrect(r, a.choice)) return hit(s, keyOf(a.choice), false, a.effect)
+      if (isTwin(r, a.choice) && keyOf(a.choice) === s.twinTried) return s // same twin again: still forgiven, ignored
       if (isTwin(r, a.choice) && !s.twinTried) return { ...s, twinTried: keyOf(a.choice) }
       return miss(s, keyOf(a.choice))
     }

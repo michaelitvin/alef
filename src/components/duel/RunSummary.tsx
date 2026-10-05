@@ -6,12 +6,15 @@ import { TOWER, WIZARD } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 import { RuneGlyph } from './RuneGlyph'
 
-export function RunSummary({ wave, score, bestCombo, best, newBest, missed, onSay, onReplay }: {
+export function RunSummary({ wave, score, bestCombo, best, newBest, missed, onSay, onReplay, onHome }: {
   wave: number; score: number; bestCombo: number; best: number; newBest: boolean; missed: DuelMark[]
-  onSay: (m: DuelMark) => void; onReplay: () => void
+  onSay: (m: DuelMark) => void; onReplay: () => void; onHome: () => void
 }) {
   return (
     <div className="nd-overlay">
+      <button className="nd-home-btn" onClick={onHome} aria-label="home">
+        <Icon name="home" size={30} />
+      </button>
       <div className="nd-over-scene">
         <motion.img className="nd-over-tower" src={TOWER} alt="" initial={{ rotate: 0 }} animate={{ rotate: -14, y: 10 }} transition={{ type: 'spring', stiffness: 60 }} />
         <img className="nd-over-wizard" src={WIZARD.dizzy} alt="" />
@@ -20,7 +23,8 @@ export function RunSummary({ wave, score, bestCombo, best, newBest, missed, onSa
         <div><Icon name="swords" size={30} /> {wave}</div>
         <div><Icon name="sparkle" size={30} /> {score.toLocaleString('en-US')}</div>
         <div><Icon name="flame" size={30} /> ×{bestCombo}</div>
-        <div><Icon name="trophy" size={30} /> {newBest ? <Icon name="sparkle" size={30} /> : best.toLocaleString('en-US')}</div>
+        {/* a new record glows; the sparkle icon only ever means "score" */}
+        <div className={newBest ? 'nd-new-best' : ''}><Icon name="trophy" size={30} /> {(newBest ? score : best).toLocaleString('en-US')}</div>
       </div>
       {missed.length > 0 && (
         <div className="nd-practice-row">

@@ -57,7 +57,7 @@ describe('duelAudio', () => {
     const audio = await import('./duelAudio')
     let done = false
     void audio.playLine('wiz-kamatz').then(() => { done = true })
-    await vi.advanceTimersByTimeAsync(4900)
+    await vi.advanceTimersByTimeAsync(8900)
     expect(done).toBe(false)
     await vi.advanceTimersByTimeAsync(200)
     expect(done).toBe(true)
@@ -98,6 +98,15 @@ describe('duelAudio', () => {
     audio.playMusic('calm')
     audio.playMusic('boss')
     expect(byUrl('mb2').playing()).toBe(true)
+  })
+  it('a boss fight keeps one boss track across its rounds', async () => {
+    const audio = await import('./duelAudio')
+    audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
+    audio.playMusic('boss')
+    audio.playMusic('boss')
+    audio.playMusic('boss')
+    expect(byUrl('mb1').playing()).toBe(true)
+    expect(instances.some((i) => i.src[0] === 'mb2')).toBe(false)
   })
   it('sfx off: playSfx resolves without playing', async () => {
     const audio = await import('./duelAudio')
