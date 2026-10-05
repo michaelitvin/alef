@@ -20,6 +20,8 @@ import RoutesPage from './pages/Debug/RoutesPage'
 import NikkudDuelPrototype from './pages/Prototype/NikkudDuelPrototype' // PROTOTYPE
 
 const DuelPage = lazy(() => import('./pages/Duel/DuelPage'))
+const DuelGlyphSheet = lazy(() => import('./pages/Duel/DuelGlyphSheet'))
+const DUEL_TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
 
@@ -111,6 +113,16 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
         <Route path="/prototype/nikkud-duel" element={<NikkudDuelPrototype />} />
+        {DUEL_TEST_HOOKS && (
+          <Route
+            path="/duel/glyphs"
+            element={
+              <Suspense fallback={null}>
+                <DuelGlyphSheet />
+              </Suspense>
+            }
+          />
+        )}
         <Route
           path="/duel"
           element={

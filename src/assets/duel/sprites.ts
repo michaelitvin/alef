@@ -41,3 +41,10 @@ const wordFiles = import.meta.glob('./sprites/word-*.webp', { eager: true, query
 export const WORD_PICTURE: Record<string, string> = Object.fromEntries(
   Object.entries(wordFiles).map(([p, url]) => [p.replace(/^.*word-/, '').replace('.webp', ''), url]),
 )
+
+/** Start loading every sprite and picture word (called on the start screen) so nothing appears blank. */
+export function preloadDuelImages(): string[] {
+  const srcs = [...Object.values(WIZARD), TOWER, ...Object.values(MONSTERS).map((m) => m.src), ...Object.values(WORD_PICTURE)]
+  for (const src of srcs) new Image().src = src
+  return srcs
+}

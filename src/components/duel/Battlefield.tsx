@@ -10,7 +10,7 @@ import { LungingMonster, WalkingMonster } from './Monster'
 import { ResultBanner } from './ResultBanner'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
-const LANDSCAPE: Geo = { start: 90, end: 16, wizLeft: 9, wizBottom: 52 }
+const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
 export const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
 
 /** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout. */
