@@ -1,5 +1,5 @@
 // Duel audio, picked by Michael on the review page (/nikkud-duel/review/) and synced by sync_voice.py.
-// SFX picks: arrival 1–3 rotate, cast 3, boom r2 options 1+3 rotate, ouch r2 option 4, mega 1, sparkle 1.
+// SFX picks (Michael, review 2026-10-05): arrival = 3 non-vocal options rotating, cast = new fireball (pending review), boom option 1 (both slots), ouch option 4, mega option 3, sparkle 1.
 // Music: calm/mid/fast by wave, two boss tracks alternate, victory 1.
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.mp3', ''), url]))

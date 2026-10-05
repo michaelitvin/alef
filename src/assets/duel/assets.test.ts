@@ -36,6 +36,12 @@ describe('duel assets', () => {
   })
 })
 
+describe('monster facing (playtest: these walked backwards)', () => {
+  it('the imp is mirrored: its stride and gaze point right as drawn', () => {
+    expect(MONSTERS.imp.faces).toBe('right')
+  })
+})
+
 describe('image preloading', () => {
   it('preloads every sprite and picture word so first appearances are never blank', async () => {
     const { preloadDuelImages } = await import('./sprites')

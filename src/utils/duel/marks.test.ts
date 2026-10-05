@@ -19,6 +19,9 @@ describe('duel marks', () => {
 })
 
 describe('picture words', () => {
+  it('spells watermelon אֲבַטִּיחַ (avatiach: chataf patach, no dagesh in the bet)', () => {
+    expect(PICTURE_WORDS.find((w) => w.key === 'watermelon')!.he.normalize('NFC')).toBe('אֲבַטִּיחַ'.normalize('NFC'))
+  })
   it('every sound group has at least 2 words, silent exactly one', () => {
     for (const g of SOUND_GROUPS.filter((g) => g !== 'silent')) expect(wordsFor(g).length, g).toBeGreaterThanOrEqual(2)
     expect(wordsFor('silent').map((w) => w.key)).toEqual(['silent'])
