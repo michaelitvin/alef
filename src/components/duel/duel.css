@@ -301,3 +301,6 @@
   display: flex; align-items: center; justify-content: center; box-shadow: 0 0 18px rgba(255, 140, 40, 0.7);
 }
 .nd-new-best { color: #ffd34d; text-shadow: 0 0 14px #ffb02e, 0 0 28px #ff7ae0; animation: nd-pulse 0.6s infinite alternate; }
+
+/* start cover hides the battlefield, so its tower wizard doesn't double the big one */
+.nd-opaque { background: radial-gradient(ellipse at 50% 35%, #3a1d78, #0b0824 75%); z-index: 50; }
