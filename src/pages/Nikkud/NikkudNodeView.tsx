@@ -16,8 +16,8 @@ import { getSyllableSoundTTS } from '../../utils/audio'
 // Nikkud data structure with soundGroup for quiz logic
 const NIKKUD = [
   { id: 'kamatz', mark: 'ָ', name: 'קָמָץ', sound: 'אָ', description: 'פה פתוח גדול - אָ', soundGroup: 'a', isFullVowel: false },
-  { id: 'patach', mark: 'ַ', name: 'פַּתָח', sound: 'אַ', description: 'פה פתוח קצר - אַ', soundGroup: 'a', isFullVowel: false },
-  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֵי', sound: 'אֵ', description: 'שתי נקודות - אֵ', soundGroup: 'e', isFullVowel: false },
+  { id: 'patach', mark: 'ַ', name: 'פַּתָּח', sound: 'אַ', description: 'פה פתוח קצר - אַ', soundGroup: 'a', isFullVowel: false },
+  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֶה', sound: 'אֵ', description: 'שתי נקודות - אֵ', soundGroup: 'e', isFullVowel: false },
   { id: 'segol', mark: 'ֶ', name: 'סֶגּוֹל', sound: 'אֶ', description: 'שלוש נקודות - אֶ', soundGroup: 'e', isFullVowel: false },
   { id: 'chirik', mark: 'ִ', name: 'חִירִיק', sound: 'אִ', description: 'נקודה אחת למטה - אִ', soundGroup: 'i', isFullVowel: false },
   { id: 'cholam', mark: 'ֹ', name: 'חוֹלָם', sound: 'אֹ', description: 'נקודה למעלה - אֹ', soundGroup: 'o', isFullVowel: false },

@@ -38,16 +38,17 @@ const LETTER_NAMES_HEBREW: Record<string, string> = {
 /**
  * Nikkud names for TTS
  */
-const NIKKUD_NAMES_HEBREW: Record<string, string> = {
+export const NIKKUD_NAMES_HEBREW: Record<string, string> = {
   patach: 'פַּתָּח',
   kamatz: 'קָמָץ',
   segol: 'סֶגוֹל',
-  tsere: 'צֵירֵי',
+  tzeire: 'צֵירֶה',
   chirik: 'חִירִיק',
   cholam: 'חוֹלָם',
   kubutz: 'קֻבּוּץ',
   shuruk: 'שׁוּרוּק',
   shva: 'שְׁוָא',
+  'holam-male': 'חוֹלָם מָלֵא',
 }
 
 /**
