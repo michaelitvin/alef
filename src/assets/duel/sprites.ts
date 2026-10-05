@@ -1,0 +1,43 @@
+// Duel sprites: Gemini renders in the approved "night sky magic" style (sheet B), magenta keyed out by
+// /data/ws/scratch/nikkud-duel/art/export_final.py. Monsters walk right → left: `faces` records the drawing's
+// direction and right-facing ones are mirrored (motion cues count — the ghost's trailing tail).
+import wizardIdle from './sprites/wizard-idle.webp'
+import wizardCast from './sprites/wizard-cast.webp'
+import wizardDizzy from './sprites/wizard-dizzy.webp'
+import tower from './sprites/tower.webp'
+import fuzzy from './sprites/mon-fuzzy.webp'
+import blob from './sprites/mon-blob.webp'
+import imp from './sprites/mon-imp.webp'
+import ghost from './sprites/mon-ghost.webp'
+import bat from './sprites/mon-bat.webp'
+import mushroom from './sprites/mon-mushroom.webp'
+import golem from './sprites/mon-golem.webp'
+import octopus from './sprites/mon-octopus.webp'
+import dragon from './sprites/boss-dragon.webp'
+import troll from './sprites/boss-troll.webp'
+
+export const WIZARD = { idle: wizardIdle, cast: wizardCast, dizzy: wizardDizzy }
+export const TOWER = tower
+
+export type Faces = 'left' | 'right' | 'front'
+
+/** rate: the one verified Clyde recording, played faster (higher) or slower (deeper) per monster; 0.7–1.3. */
+export const MONSTERS: Record<string, { src: string; faces: Faces; rate: number }> = {
+  fuzzy: { src: fuzzy, faces: 'right', rate: 1.0 },
+  blob: { src: blob, faces: 'front', rate: 1.12 },
+  imp: { src: imp, faces: 'left', rate: 1.25 },
+  ghost: { src: ghost, faces: 'right', rate: 0.92 },
+  bat: { src: bat, faces: 'left', rate: 1.3 },
+  mushroom: { src: mushroom, faces: 'front', rate: 1.05 },
+  golem: { src: golem, faces: 'front', rate: 0.85 },
+  octopus: { src: octopus, faces: 'front', rate: 1.15 },
+  dragon: { src: dragon, faces: 'left', rate: 0.8 },
+  troll: { src: troll, faces: 'left', rate: 0.72 },
+}
+
+const wordFiles = import.meta.glob('./sprites/word-*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+
+/** Picture-word images keyed by PictureWord.key. */
+export const WORD_PICTURE: Record<string, string> = Object.fromEntries(
+  Object.entries(wordFiles).map(([p, url]) => [p.replace(/^.*word-/, '').replace('.webp', ''), url]),
+)
