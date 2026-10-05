@@ -9,12 +9,19 @@ import type {
   ActivityAttempt,
   CurrentSession,
   FontType,
+  Settings,
 } from '../types/progress'
+import type { RoundResult, ScreenType, Tally } from '../types/duel'
 import {
   INITIAL_PROGRESS_STATE,
   LEVEL_UNLOCK_THRESHOLDS,
 } from '../types/progress'
 import { LEVEL_NODE_COUNTS } from '../data/levelNodes'
+
+const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0, mega: 0 }
+
+/** Duel music is on unless explicitly turned off (saves from before the duel have no value). */
+export const duelMusicOn = (s: Settings) => s.duelMusic !== false
 
 /**
  * Actions for the progress store
@@ -50,6 +57,11 @@ interface ProgressActions {
   setVolume: (volume: number) => void
   setDevMode: (enabled: boolean) => void
   setFont: (font: FontType) => void
+  setDuelMusic: (on: boolean) => void
+  recordDuelSession: () => void
+  recordDuelRound: (markId: string, type: ScreenType, result: RoundResult, ms: number) => void
+  recordDuelTwin: (markId: string, type: ScreenType) => void
+  recordDuelRunEnd: (score: number, wave: number) => void
 
   // Utility
   resetProgress: () => void
@@ -447,6 +459,47 @@ export const useProgressStore = create<ProgressStore>()(
         }))
       },
 
+      // Nikkud Wizard Duel
+      setDuelMusic: (on) => {
+        set((state) => ({ settings: { ...state.settings, duelMusic: on } }))
+      },
+      recordDuelSession: () => {
+        set((state) => ({ duel: { ...state.duel, sessions: state.duel.sessions + 1, lastPlayed: Date.now() } }))
+      },
+      recordDuelRound: (markId, type, result, ms) => {
+        const bump = (t: Tally | undefined): Tally => {
+          const b = { ...EMPTY_TALLY, ...t }
+          return { ...b, seen: b.seen + 1, [result]: b[result] + 1 }
+        }
+        set((state) => ({
+          duel: {
+            ...state.duel,
+            roundsMs: state.duel.roundsMs + Math.max(0, Math.round(ms)),
+            lastPlayed: Date.now(),
+            byMark: { ...state.duel.byMark, [markId]: bump(state.duel.byMark[markId]) },
+            byType: { ...state.duel.byType, [type]: bump(state.duel.byType[type]) },
+          },
+        }))
+      },
+      recordDuelTwin: (markId, type) => {
+        const twin = (t: Tally | undefined): Tally => {
+          const b = { ...EMPTY_TALLY, ...t }
+          return { ...b, twin: b.twin + 1 }
+        }
+        set((state) => ({
+          duel: {
+            ...state.duel,
+            byMark: { ...state.duel.byMark, [markId]: twin(state.duel.byMark[markId]) },
+            byType: { ...state.duel.byType, [type]: twin(state.duel.byType[type]) },
+          },
+        }))
+      },
+      recordDuelRunEnd: (score, wave) => {
+        set((state) => ({
+          duel: { ...state.duel, bestScore: Math.max(state.duel.bestScore, score), bestWave: Math.max(state.duel.bestWave, wave) },
+        }))
+      },
+
       // Reset all progress
       resetProgress: () => {
         set({
@@ -545,7 +598,13 @@ export const useProgressStore = create<ProgressStore>()(
         settings: state.settings,
         gameCompleted: state.gameCompleted,
         vocabulary: state.vocabulary,
+        duel: state.duel,
       }),
+      // Saves from before the duel lack `duel` (or carry null) and `settings.duelMusic`: keep the defaults.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<ProgressState>
+        return { ...current, ...p, duel: p.duel ?? current.duel, settings: { ...current.settings, ...p.settings } }
+      },
     }
   )
 )
