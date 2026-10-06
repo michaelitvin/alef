@@ -39,7 +39,11 @@ describe('picture words', () => {
   it('retires pictures he named with a different word (sheep, מכונית, סירה, woman, mouse)', () => {
     const keys = PICTURE_WORDS.map((w) => w.key)
     for (const retired of ['goat', 'o', 'ship', 'mom', 'hamster']) expect(keys).not.toContain(retired)
-    expect(wordsFor('o').map((w) => w.key).sort()).toEqual(['bicycle', 'bus', 'tent'])
-    expect(wordsFor('e').map((w) => w.key).sort()).toEqual(['e', 'fire', 'tree'])
+  })
+  it('the Alef-Bet song words he kept are in, sorted by the vowel of their first syllable', () => {
+    const groupOf = Object.fromEntries(PICTURE_WORDS.map((w) => [w.key, w.group]))
+    expect(groupOf).toMatchObject({ house: 'a', camel: 'a', eye: 'a', butterfly: 'a', door: 'e', rose: 'e', book: 'e', monkey: 'o' })
+    expect(wordsFor('o').map((w) => w.key).sort()).toEqual(['bicycle', 'bus', 'monkey', 'tent'])
+    expect(wordsFor('e').map((w) => w.key).sort()).toEqual(['book', 'door', 'e', 'fire', 'rose', 'tree'])
   })
 })
