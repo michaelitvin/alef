@@ -4,6 +4,7 @@
 // can never stall waiting for audio.
 import { Howl, Howler } from 'howler'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
+import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
 
 export type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
 export type MusicTrack = 'calm' | 'mid' | 'fast' | 'boss' | 'victory'
@@ -83,14 +84,32 @@ export function playSfx(name: SfxName, power = 1): Promise<void> {
   return playOnce(h, 1, SFX_TIMEOUT_MS)
 }
 
-/** Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line. */
-export function playLine(id: string): Promise<void> {
+/**
+ * Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line.
+ * `onCue` hears each LINE_CUES word as it is spoken; any not yet heard fire when the line ends
+ * (early, failed or missing), so what a line promises — "tap the lightning" — always shows up.
+ */
+export function playLine(id: string, onCue?: (cue: LineCue) => void): Promise<void> {
+  const cues = onCue ? (LINE_CUES[id] ?? []) : []
+  const fired = new Set<number>()
+  const fire = (i: number) => {
+    if (fired.has(i)) return
+    fired.add(i)
+    onCue!(cues[i].cue)
+  }
+  const fireRest = () => cues.forEach((_, i) => fire(i))
   const url = VOICE_URLS[id]
-  if (!url) return Promise.resolve()
+  if (!url) {
+    fireRest()
+    return Promise.resolve()
+  }
   const dramatic = DRAMATIC.has(id)
   duck(true)
   if (dramatic) hush(true)
+  const timers = cues.map((c, i) => window.setTimeout(() => fire(i), (c.at / VOICE_RATE) * 1000))
   return playOnce(howl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
+    timers.forEach((t) => window.clearTimeout(t))
+    fireRest()
     duck(false)
     if (dramatic) hush(false)
   })

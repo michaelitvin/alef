@@ -77,7 +77,7 @@ export default function DuelPage() {
   const playing = state.phase === 'playing'
 
   return (
-    <div className={`nd-root${landscape ? ' nd-landscape' : ''}`} dir="rtl">
+    <div className={`nd-root${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-cue={game.cue ?? undefined}>
       <RuneGlowDefs />
       <motion.div className="nd-screen" animate={shakeCtl}>
         <Starfield />
@@ -87,8 +87,8 @@ export default function DuelPage() {
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} onReplay={game.replayClue} />
         <div className="nd-pad-area">
           <div className="nd-prompt">{state.round ? <Icon name={PROMPT_ICON[state.round.type]} size={32} /> : null}</div>
-          {state.mega >= MEGA_MAX && state.round && !state.outcome && playing && (
-            <motion.button className="nd-mega-btn" style={{ x: '-50%' }} animate={{ scale: [1, 1.1, 1] }}
+          {state.mega >= MEGA_MAX && game.lightning && state.round && playing && (
+            <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0 }} animate={{ scale: [1, 1.1, 1] }}
               transition={{ repeat: Infinity, duration: 0.6 }} onClick={game.megaCast} aria-label="mega">
               <Icon name="bolt" size={40} />
             </motion.button>
