@@ -16,15 +16,24 @@ function shuffle<T>(rng: Rng, xs: T[]) {
 export type LifetimeTally = Partial<Pick<Tally, 'seen' | 'correct' | 'wrong' | 'timeout'>>
 export type Confusions = Record<string, Record<string, number>>
 
-/** Smoothed lifetime mistake rate (wrong + timeout) / seen; a mark never seen starts at 0.25. */
-export const mistakeRate = (t: LifetimeTally | undefined) => ((t?.wrong ?? 0) + (t?.timeout ?? 0) + 0.5) / ((t?.seen ?? 0) + 2)
+/** Desirable difficulty: aim each round at about one mistake in five. */
+export const TARGET_MISTAKE_RATE = 0.2
+
+/** Predicted chance he misses this mark: lifetime rate, with this run's misses counted again (recent = more telling). */
+export function predictedMistakeRate(t: LifetimeTally | undefined, runMisses = 0) {
+  const r = 2 * runMisses
+  return ((t?.wrong ?? 0) + (t?.timeout ?? 0) + 0.5 + r) / ((t?.seen ?? 0) + 2 + r)
+}
 
 /**
- * Weight = 1 + 3 × misses this run + 6 × lifetime mistake RATE. The rate, not the count: 3 misses in 4 is a
- * weak mark, 3 in 400 is a learned one.
+ * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available.
+ * Weight = 0.03 (every mark keeps some chance: variety) + a bell around the aim whose width scales with it.
  */
 export function pickTarget(rng: Rng, runMisses: Record<string, number>, lifetime: Record<string, LifetimeTally>): DuelMark {
-  const w = DUEL_MARKS.map((m) => 1 + 3 * (runMisses[m.id] ?? 0) + 6 * mistakeRate(lifetime[m.id]))
+  const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], runMisses[m.id] ?? 0))
+  const aim = Math.min(TARGET_MISTAKE_RATE, Math.max(...p))
+  const width = Math.max(0.03, aim * 0.35)
+  const w = p.map((x) => 0.03 + Math.exp(-(((x - aim) / width) ** 2)))
   let r = rng() * w.reduce((s, x) => s + x, 0)
   for (let i = 0; i < DUEL_MARKS.length; i++) {
     r -= w[i]

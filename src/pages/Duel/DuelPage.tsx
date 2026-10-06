@@ -93,13 +93,14 @@ export default function DuelPage() {
         <DuelHud hearts={state.hearts} score={state.score} combo={state.combo} mega={state.mega} megaMax={MEGA_MAX}
           kills={state.kills} killsPerWave={MONSTERS_PER_WAVE} onPause={game.pause} />
         <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused}
-          landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} onReplay={game.replayClue} />
+          landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} onReplay={game.replayClue} />
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
           <div className="nd-prompt">{state.round ? <Icon name={PROMPT_ICON[state.round.type]} size={32} /> : null}</div>
           {state.mega >= MEGA_MAX && game.lightning && state.round && playing && (
-            <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0 }} animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Infinity, duration: 0.6 }} onClick={game.megaCast} aria-label="mega">
+            <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0, rotate: -120 }}
+              animate={{ scale: [0, 1.9, 0.9, 1.15, 1], rotate: [-120, 20, -10, 0, 0] }}
+              transition={{ duration: 0.9, ease: 'easeOut' }} onClick={game.megaCast} aria-label="mega">
               <Icon name="bolt" size={40} />
             </motion.button>
           )}

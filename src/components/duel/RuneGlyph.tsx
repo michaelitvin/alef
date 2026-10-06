@@ -3,7 +3,8 @@
 import type { DuelMark } from '../../types/duel'
 
 const INK = '#fff6d8'
-const GUIDE = 'rgba(255, 236, 190, 0.55)'
+/** Placeholder: faint and cool-toned, so the warm mark dominates (playtest: the circle was too strong). */
+const GUIDE = 'rgba(150, 170, 255, 0.3)'
 
 function Dot({ x, y }: { x: number; y: number }) {
   return <circle cx={x} cy={y} r={3.4} fill={INK} />
@@ -20,10 +21,11 @@ export function RuneGlyph({ mark, box = false, size = 56 }: { mark: DuelMark; bo
     <svg viewBox={hasVav ? '0 0 64 64' : '0 0 60 64'} width={size} height={size} aria-label={mark.name}>
       <g filter="url(#rune-glow)">
         {box ? (
-          <rect x={cx - 13} y={c - 13} width={26} height={26} rx={5} fill="none" stroke={GUIDE} strokeWidth={2} strokeDasharray="4 4" />
+          <rect className="nd-rune-guide" x={cx - 13} y={c - 13} width={26} height={26} rx={5} fill="none" stroke={GUIDE} strokeWidth={2} strokeDasharray="4 4" />
         ) : (
-          <circle cx={cx} cy={c} r={13} fill="none" stroke={GUIDE} strokeWidth={2} strokeDasharray="4 4" />
+          <circle className="nd-rune-guide" cx={cx} cy={c} r={13} fill="none" stroke={GUIDE} strokeWidth={2} strokeDasharray="4 4" />
         )}
+        <g className="nd-rune-mark">
         {(k === 'patach' || k === 'kamatz') && <line x1={cx - 11} x2={cx + 11} y1={b} y2={b} stroke={INK} strokeWidth={3.4} strokeLinecap="round" />}
         {k === 'kamatz' && <line x1={cx} x2={cx} y1={b} y2={b + 10} stroke={INK} strokeWidth={3.4} strokeLinecap="round" />}
         {k === 'tzeire' && (<><Dot x={cx - 6} y={b} /><Dot x={cx + 6} y={b} /></>)}
@@ -42,6 +44,7 @@ export function RuneGlyph({ mark, box = false, size = 56 }: { mark: DuelMark; bo
             {mark.vav === 'holam' ? <Dot x={5} y={c - 21} /> : <Dot x={7} y={c + 4} />}
           </>
         )}
+        </g>
       </g>
     </svg>
   )

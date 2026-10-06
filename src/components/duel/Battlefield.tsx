@@ -35,10 +35,11 @@ interface Props {
   landscape: boolean
   banner: ReactNode | null
   bossHp?: number
+  speaking?: 'sound' | 'name' | 'word' | null
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, onReplay = () => {} }: Props) {
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)
@@ -123,7 +124,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} />}
-      {round && outcome && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} />}
+      {round && outcome && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (
         <motion.div className="nd-wave-banner" initial={{ scale: 0, rotate: -8 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>

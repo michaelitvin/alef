@@ -61,48 +61,52 @@ describe('makeRound', () => {
   })
 })
 
-describe('pickTarget weighting', () => {
+describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
   type L = Record<string, { seen?: number; correct?: number; wrong?: number; timeout?: number }>
-  const share = (runMisses: Record<string, number>, lifetime: L, seed: number, id = 'segol') => {
+  const tally = (seen: number, wrong: number) => ({ seen, correct: seen - wrong, wrong })
+  const shares = (lifetime: L, seed: number, runMisses: Record<string, number> = {}) => {
     const rng = seeded(seed)
-    let n = 0
-    for (let i = 0; i < 4000; i++) if (pickTarget(rng, runMisses, lifetime).id === id) n++
-    return n / 4000
+    const n: Record<string, number> = {}
+    for (let i = 0; i < 4000; i++) { const id = pickTarget(rng, runMisses, lifetime).id; n[id] = (n[id] ?? 0) + 1 }
+    return (id: string) => (n[id] ?? 0) / 4000
   }
-  it('uniform without history (~1/10)', () => {
-    const s = share({}, {}, 4)
-    expect(s).toBeGreaterThan(0.07)
-    expect(s).toBeLessThan(0.13)
+  const all = (t: { seen: number; correct: number; wrong: number }): L => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, t]))
+  it('no history: every mark sits at the same prior, so all are picked about equally', () => {
+    const s = shares({}, 4)
+    for (const m of DUEL_MARKS) { expect(s(m.id)).toBeGreaterThan(0.06); expect(s(m.id)).toBeLessThan(0.14) }
   })
-  it('run misses weigh 3 each', () => {
-    expect(share({ segol: 2 }, {}, 5)).toBeGreaterThan(0.25)
+  it('a mark he gets wrong about 1 in 5 is preferred over both a mastered one and a hopeless one', () => {
+    const s = shares({ ...all(tally(40, 1)), segol: tally(40, 8), chirik: tally(40, 30) }, 5)
+    expect(s('segol')).toBeGreaterThan(0.35)
+    expect(s('segol')).toBeGreaterThan(3 * s('chirik'))
+    expect(s('segol')).toBeGreaterThan(3 * s('kamatz'))
   })
-  it('lifetime: the mistake RATE counts, not the number of mistakes', () => {
-    const others: L = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 20, correct: 18, wrong: 2 }]))
-    const shaky = share({}, { ...others, segol: { seen: 4, correct: 1, wrong: 3 } }, 6)
-    const solid = share({}, { ...others, segol: { seen: 400, correct: 397, wrong: 3 } }, 7)
-    expect(shaky).toBeGreaterThan(0.2)
-    expect(solid).toBeLessThan(0.1)
+  it('when nothing reaches 1 in 5, the hardest available marks are preferred', () => {
+    const s = shares({ ...all(tally(60, 0)), segol: tally(60, 6) }, 6) // segol ~10%, the rest ~1%
+    expect(s('segol')).toBeGreaterThan(0.3)
   })
-  it('timeouts count as mistakes; a mark never seen sits between shaky and solid', () => {
-    const solid: L = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 50, correct: 50 }]))
-    expect(share({}, { ...solid, segol: { seen: 4, timeout: 3, correct: 1 } }, 8)).toBeGreaterThan(0.2)
-    const { segol: _drop, ...rest } = solid
-    const unseen = share({}, rest, 9)
-    expect(unseen).toBeGreaterThan(0.1)
-    expect(unseen).toBeLessThan(0.3)
+  it('mistakes this run raise a mark\'s predicted rate right away', () => {
+    const lifetime = all(tally(60, 0))
+    expect(shares(lifetime, 7, { segol: 2 })('segol')).toBeGreaterThan(0.3)
   })
-  it('always returns a mark', () => {
+  it('every mark keeps a small chance (variety), and it always returns a mark', () => {
+    const s = shares({ ...all(tally(40, 0)), segol: tally(40, 8) }, 8)
+    for (const m of DUEL_MARKS) expect(s(m.id)).toBeGreaterThan(0.005)
     const rng = seeded(3)
     for (let i = 0; i < 50; i++) expect(DUEL_MARKS).toContain(pickTarget(rng, {}, {}))
   })
 })
 
 describe('directional confusion', () => {
-  const forced = (id: string) => ({ runMisses: { [id]: 1e6 }, lifetime: {} })
-  const pads = (wave: number, target: string, confusions: Record<string, Record<string, number>>, seed: number, n = 200) => {
+  // the target sits near 1-in-5 and the rest are mastered, so it is picked most; only its rounds are examined
+  const forced = (id: string) => ({
+    runMisses: {},
+    lifetime: { ...Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 400, correct: 400 }])), [id]: { seen: 40, correct: 32, wrong: 8 } },
+  })
+  const pads = (wave: number, target: string, confusions: Record<string, Record<string, number>>, seed: number, n = 300) => {
     const rng = seeded(seed)
     return Array.from({ length: n }, (_, i) => makeRound({ id: i, wave, kills: 1, boss: false, rng, ...forced(target), confusions }))
+      .filter((r) => r.target.id === target)
   }
   it('a mark he keeps tapping for the target is always on the board with it', () => {
     for (const r of pads(1, 'segol', { segol: { chirik: 3 } }, 11)) expect(r.runes.map((m) => m.id)).toContain('chirik')

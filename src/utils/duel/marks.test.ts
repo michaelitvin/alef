@@ -31,6 +31,11 @@ describe('picture words', () => {
     expect(new Set(keys).size).toBe(keys.length)
     for (const retired of ['ear', 'finger', 'blueberries']) expect(keys).not.toContain(retired)
   })
+  it('no word whose first vowel is pronounced differently from how it is written (e.g. תְּמָנוּן: shva, said "ta")', () => {
+    const keys = PICTURE_WORDS.map((w) => w.key)
+    expect(keys).not.toContain('octopus')
+    for (const w of PICTURE_WORDS.filter((w) => w.he)) expect(w.he.normalize('NFD')).not.toMatch(/^.\u05BC?\u05B0/) // no shva on the first letter
+  })
   it('retires pictures he named with a different word (sheep, מכונית, סירה, woman, mouse)', () => {
     const keys = PICTURE_WORDS.map((w) => w.key)
     for (const retired of ['goat', 'o', 'ship', 'mom', 'hamster']) expect(keys).not.toContain(retired)

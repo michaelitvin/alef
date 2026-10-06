@@ -23,7 +23,15 @@ function useReplayTap(onReplay: () => void) {
       else onReplay()
     },
     whileTap: { scale: 1.25 }, // he sees the tap land before the sound starts
+    ...ARRIVE,
   }
+}
+
+/** The bubble pops and wiggles as its monster appears, to draw his eye to the clue. */
+const ARRIVE = {
+  initial: { scale: 0, rotate: -20 },
+  animate: { scale: [0, 1.4, 0.92, 1.08, 1], rotate: [-20, 12, -8, 4, 0] },
+  transition: { duration: 0.9, ease: 'easeOut' as const },
 }
 
 export function Clue({ round, onReplay }: { round: Round; onReplay: () => void }) {
@@ -36,16 +44,16 @@ export function Clue({ round, onReplay }: { round: Round; onReplay: () => void }
     )
   if (round.type === 'D')
     return (
-      <div className="nd-clue nd-clue-shield">
+      <motion.div className="nd-clue nd-clue-shield" {...ARRIVE}>
         <RuneGlyph mark={round.target} box size={54} />
-      </div>
+      </motion.div>
     )
   if (round.type === 'B' && round.target.group === 'silent')
     return (
-      <div className="nd-clue">
+      <motion.div className="nd-clue" {...ARRIVE}>
         <Icon name="speakerOff" size={34} />
         <Icon name="puff" size={34} />
-      </div>
+      </motion.div>
     )
   return (
     <motion.button className="nd-clue nd-clue-audio" {...tap} aria-label="hear again">
