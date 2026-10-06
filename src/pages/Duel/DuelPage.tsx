@@ -12,6 +12,7 @@ import { RunSummary } from '../../components/duel/RunSummary'
 import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
 import { Icon, type IconName } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
+import { ComboBurst } from '../../components/duel/ComboBurst'
 import { preloadDuelImages } from '../../assets/duel/sprites'
 import { preloadDuelAudio } from '../../utils/duel/duelAudio'
 import { markById } from '../../utils/duel/marks'
@@ -93,6 +94,7 @@ export default function DuelPage() {
           kills={state.kills} killsPerWave={MONSTERS_PER_WAVE} onPause={game.pause} />
         <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused}
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} onReplay={game.replayClue} />
+        {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
           <div className="nd-prompt">{state.round ? <Icon name={PROMPT_ICON[state.round.type]} size={32} /> : null}</div>
           {state.mega >= MEGA_MAX && game.lightning && state.round && playing && (

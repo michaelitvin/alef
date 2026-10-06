@@ -22,6 +22,8 @@ import { duelMusicOn, useProgressStore } from '../stores/progressStore'
 export type BannerVisual = { icons: IconName[] } | { sprite: string }
 
 const delay = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
+/** Playtest: lines ran into each other (intro → instruction); a beat of silence between consecutive lines. */
+const LINE_GAP_MS = 800
 
 const HOW_ICON: Record<string, IconName> = { A: 'eye', B: 'ear', C: 'ear', D: 'shield', silent: 'ear' }
 
@@ -42,6 +44,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const [cue, setCue] = useState<LineCue | null>(null)
   /** The mega button shows only once the wizard says "tap the lightning" (בָּרָק). */
   const [lightning, setLightning] = useState(false)
+  /** A streak being celebrated (every 5 hits in a row): DuelPage shows the burst. */
+  const [celebrate, setCelebrate] = useState<{ combo: number; at: number } | null>(null)
 
   const stateRef = useRef(state)
   stateRef.current = state
@@ -134,6 +138,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       if (introDue.current) {
         // no banner: the wizard on the tower is the one speaking (a second wizard picture doubled him)
         await say('line-intro', onCue)
+        await delay(LINE_GAP_MS)
         if (run !== runId.current) return
         introDue.current = false
         if (held()) return void (pendingSpawn.current = next)
@@ -147,6 +152,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         track('announce', { kind: next.announce, wave: next.wave })
         await say(`line-${next.announce}`)
         setBanner(null)
+        await delay(LINE_GAP_MS)
         if (held()) return void (pendingSpawn.current = next)
       }
 
@@ -241,7 +247,12 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       .then(() => sayMark(r.target, r.word))
-      .then(() => (comboLine ? say('line-combo') : undefined))
+      .then(() => {
+        if (!comboLine) return
+        setCelebrate({ combo: state.combo, at: Date.now() })
+        void playSfx('sparkle')
+        return say('line-combo').then(() => setCelebrate(null))
+      })
       .then(() => (megaLine ? say('line-mega', onCue) : undefined))
     void Promise.all([delay(wait), speech])
       .then(() => delay(500))
@@ -274,6 +285,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     megaQueued.current = false
     setLightning(false)
     setCue(null)
+    setCelebrate(null)
     setNewBest(false)
     setBanner(null)
     dispatch({ type: 'START' })
@@ -402,5 +414,5 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   }, [state.mega])
   useEffect(() => () => window.clearTimeout(cueTimer.current), [])
 
-  return { state, banner, newBest, shake, cue, lightning, start, choose, megaCast, pause, resume, replayClue, sayMark }
+  return { state, banner, newBest, shake, cue, lightning, celebrate, start, choose, megaCast, pause, resume, replayClue, sayMark }
 }
