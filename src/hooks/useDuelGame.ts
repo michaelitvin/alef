@@ -15,7 +15,7 @@ import type { IconName } from '../components/duel/Icon'
 import { duelMusicOn, useProgressStore } from '../stores/progressStore'
 
 /** What the announcement banner shows while the wizard speaks (rendered by DuelPage). */
-export type BannerVisual = { icons: IconName[] } | { sprite: string } | { wizard: true }
+export type BannerVisual = { icons: IconName[] } | { sprite: string }
 
 const delay = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 
@@ -103,9 +103,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       if (pausedRef.current) return void (pendingSpawn.current = next)
 
       if (introDue.current) {
-        setBanner({ wizard: true })
+        // no banner: the wizard on the tower is the one speaking (a second wizard picture doubled him)
         await playLine('line-intro')
-        setBanner(null)
         if (run !== runId.current) return
         introDue.current = false
         if (held()) return void (pendingSpawn.current = next)
