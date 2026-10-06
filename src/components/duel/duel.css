@@ -325,3 +325,7 @@
   position: absolute; top: 38%; display: flex; align-items: center; gap: 4px; direction: ltr;
   font-size: 56px; font-weight: 800; color: #ffd36b; text-shadow: 0 0 18px rgba(255, 160, 40, 0.9);
 }
+
+/* Clue bubbles walk with their monster: an invisible margin makes them easier to hit with a small finger. */
+.nd-clue-sign, .nd-clue-audio { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.nd-clue-sign::before, .nd-clue-audio::before { content: ''; position: absolute; inset: -18px; }
