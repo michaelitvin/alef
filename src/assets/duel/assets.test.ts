@@ -40,6 +40,9 @@ describe('monster facing (playtest: these walked backwards)', () => {
   it('the imp is mirrored: its stride and gaze point right as drawn', () => {
     expect(MONSTERS.imp.faces).toBe('right')
   })
+  it('the blob is mirrored: its eye looks right as drawn (review: walked backwards)', () => {
+    expect(MONSTERS.blob.faces).toBe('right')
+  })
 })
 
 describe('image preloading', () => {
