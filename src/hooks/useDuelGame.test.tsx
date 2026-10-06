@@ -13,6 +13,7 @@ import { muteDuelAudio, playLine, unlockDuelAudio } from '../utils/duel/duelAudi
 import { markById } from '../utils/duel/marks'
 import { wordsFor } from '../utils/duel/words'
 import type { Round } from '../types/duel'
+import type { MakeRoundOpts } from '../utils/duel/rounds'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 
@@ -121,6 +122,29 @@ describe('useDuelGame', () => {
     })
     await flushLines()
     expect(useProgressStore.getState().duel.byMark[r.target.id].seen).toBe(1)
+  })
+  it('a wrong tap is recorded as a confusion, and the next round is built from lifetime stats and confusions', async () => {
+    const seen: MakeRoundOpts[] = []
+    const mk = (o: MakeRoundOpts) => { seen.push(o); return { ...cRound(), id: o.id } }
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.choose({ kind: 'rune', mark: markById('segol') })) // asked kamatz
+    await flushLines()
+    expect(useProgressStore.getState().duel.confusions).toEqual({ kamatz: { segol: 1 } })
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    await flushLines()
+    expect(seen.length).toBeGreaterThan(1)
+    const last = seen[seen.length - 1]
+    expect(last.confusions).toEqual({ kamatz: { segol: 1 } })
+    expect(last.lifetime.kamatz).toMatchObject({ seen: 1, wrong: 1 })
+  })
+  it('the forgiven twin tap also counts as a confusion', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
+    expect(useProgressStore.getState().duel.confusions).toEqual({ kamatz: { patach: 1 } })
   })
   it('a monster that reaches the tower costs a heart (timeout)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000 }))

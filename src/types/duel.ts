@@ -84,4 +84,6 @@ export interface DuelStats {
   lastPlayed: number | null
   byMark: Record<string, Tally>
   byType: Partial<Record<ScreenType, Tally>>
+  /** confusions[asked][tapped]: how often he tapped `tapped` when `asked` was the answer (wrong taps + forgiven twins) */
+  confusions?: Record<string, Record<string, number>>
 }
