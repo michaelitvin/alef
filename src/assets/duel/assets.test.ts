@@ -25,10 +25,11 @@ describe('duel assets', () => {
       ...SOUND_GROUPS.filter((g) => g !== 'silent').map((g) => `wiz-vowel-${g}`),
       ...PICTURE_WORDS.filter((w) => w.group !== 'silent').map((w) => `wiz-word-${w.key}`),
       'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-silent', 'line-wave',
-      'line-new-spells', 'line-new-monster', 'line-boss', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
+      'line-new-monster', 'line-boss', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
     ]
     for (const id of needed) expect(VOICE_URLS[id], id).toBeTruthy()
     expect(Object.keys(VOICE_URLS).filter((k) => k.startsWith('mon-'))).toEqual([]) // the monster voice is gone
+    expect(VOICE_URLS['line-new-spells']).toBeUndefined() // dropped: unclear; wave 3 opens with a sound screen instead
     for (const [k, v] of Object.entries(SFX_URLS)) expect(v, k).toBeTruthy()
     for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)

@@ -113,7 +113,6 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         const visual: BannerVisual =
           next.announce === 'boss' ? { sprite: bossFor(next.wave) }
           : next.announce === 'new-monster' ? { sprite: newMonsterAt(next.wave) ?? 'fuzzy' }
-          : next.announce === 'new-spells' ? { icons: ['sparkle', 'wand', 'sparkle'] }
           : { icons: ['swords'] }
         setBanner(visual)
         await playLine(`line-${next.announce}`)
@@ -124,7 +123,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       const s = stateRef.current
       const lifetime: Record<string, number> = {}
       for (const [id, t] of Object.entries(store.getState().duel.byMark)) lifetime[id] = t.wrong + t.timeout
-      const r = makeRound({ id: nextId.current++, wave: next.wave, boss: next.boss, rng, runMisses: s.runMisses, lifetimeMisses: lifetime })
+      const r = makeRound({ id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng, runMisses: s.runMisses, lifetimeMisses: lifetime })
       if (walkOverride) r.walkMs = walkOverride
 
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type

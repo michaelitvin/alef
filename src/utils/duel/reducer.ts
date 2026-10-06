@@ -50,7 +50,7 @@ function miss(s: DuelState, choiceKey: string | null): DuelState {
 }
 
 function newWave(wave: number): { state: Partial<DuelState>; next: Next } {
-  const announce = wave === 3 ? 'new-spells' : newMonsterAt(wave) ? 'new-monster' : 'wave'
+  const announce = newMonsterAt(wave) ? 'new-monster' : 'wave'
   return { state: { wave, kills: 0 }, next: { kind: 'spawn', wave, boss: false, announce } }
 }
 

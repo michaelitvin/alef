@@ -42,7 +42,7 @@ export interface Outcome {
   effect: EffectPreset
 }
 
-export type Announcement = 'wave' | 'new-spells' | 'boss' | 'new-monster'
+export type Announcement = 'wave' | 'boss' | 'new-monster'
 
 /** What the hook must do after an outcome has played out. */
 export type Next = { kind: 'over' } | { kind: 'spawn'; wave: number; boss: boolean; announce: Announcement | null }

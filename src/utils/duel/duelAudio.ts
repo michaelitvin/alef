@@ -1,6 +1,7 @@
-// Duel audio: Howler on Web Audio (html5 off — per-monster playback rates need it).
-// Every spoken line ducks the music; anything missing, failing or silent resolves via a safety timeout
-// so the game can never stall waiting for audio.
+// Duel audio: effects and music on Web Audio; speech on html5 audio, whose playbackRate keeps the pitch,
+// so lines can play faster without sounding like chipmunks. Every spoken line ducks the music; dramatic
+// lines pause it outright. Anything missing, failing or silent resolves via a safety timeout so the game
+// can never stall waiting for audio.
 import { Howl, Howler } from 'howler'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 
@@ -11,14 +12,18 @@ const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.1
 const LINE_TIMEOUT_MS = 9000 // > longest line (~4.2 s) plus a slow first load
 const SFX_TIMEOUT_MS = 3000
+/** Playtest: the recorded speech felt slow and made the whole game feel slow. */
+export const VOICE_RATE = 1.15
+/** Announcements that should land on their own: the background music pauses while they play. */
+const DRAMATIC = new Set(['line-mega', 'line-boss', 'line-new-monster', 'line-combo', 'line-record'])
 
 let cfg = { sfx: true, music: true, volume: 0.8 }
 const howls = new Map<string, Howl>()
 
-function howl(src: string, loop = false): Howl {
+function howl(src: string, loop = false, html5 = false): Howl {
   let h = howls.get(src)
   if (!h) {
-    h = new Howl({ src: [src], loop, preload: true, html5: false })
+    h = new Howl({ src: [src], loop, preload: true, html5 })
     howls.set(src, h)
   }
   return h
@@ -38,7 +43,7 @@ export function unlockDuelAudio() {
 
 export function preloadDuelAudio() {
   Object.values(SFX_URLS).forEach((u) => howl(u))
-  Object.values(VOICE_URLS).forEach((u) => howl(u))
+  Object.values(VOICE_URLS).forEach((u) => howl(u, false, true))
 }
 
 /** Play once; resolve on end, stop or error, or after `timeout`. */
@@ -78,13 +83,17 @@ export function playSfx(name: SfxName, power = 1): Promise<void> {
   return playOnce(h, 1, SFX_TIMEOUT_MS)
 }
 
-/** Plays a voice line at a rate clamped to 0.7–1.3 (lines are verified at rate 1); music ducks meanwhile. */
-export function playLine(id: string, rate = 1): Promise<void> {
+/** Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line. */
+export function playLine(id: string): Promise<void> {
   const url = VOICE_URLS[id]
   if (!url) return Promise.resolve()
+  const dramatic = DRAMATIC.has(id)
   duck(true)
-  const r = Math.min(1.3, Math.max(0.7, rate))
-  return playOnce(howl(url), r, LINE_TIMEOUT_MS).finally(() => duck(false))
+  if (dramatic) hush(true)
+  return playOnce(howl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
+    duck(false)
+    if (dramatic) hush(false)
+  })
 }
 
 export function stopAllLines() {
@@ -93,7 +102,9 @@ export function stopAllLines() {
 
 // ---- music ----
 let current: Howl | null = null
+let musicId: number | undefined // the playing sound in `current`, so a resume continues it instead of layering a new one
 let ducks = 0
+let hushes = 0
 let bossToggle = false
 
 export const trackForWave = (wave: number, boss: boolean): MusicTrack => (boss ? 'boss' : wave <= 2 ? 'calm' : wave <= 5 ? 'mid' : 'fast')
@@ -111,8 +122,10 @@ export function playMusic(track: MusicTrack) {
   if (current === next && next.playing()) return
   stopMusic()
   current = next
+  musicId = undefined
   next.volume(0)
-  next.play()
+  if (hushes > 0) return // a dramatic line is speaking: start when it ends
+  musicId = next.play()
   next.fade(0, ducks > 0 ? DUCK_VOL : MUSIC_VOL, 800)
 }
 
@@ -120,13 +133,31 @@ export function stopMusic() {
   if (!current) return
   const h = current
   current = null
+  musicId = undefined
   h.fade(h.volume(), 0, 300)
   window.setTimeout(() => h.stop(), 320)
 }
 
+/** Pause the music for a dramatic line (fade out, then pause); resume where it stopped once all have ended. */
+function hush(on: boolean) {
+  hushes = Math.max(0, hushes + (on ? 1 : -1))
+  const h = current
+  if (!h) return
+  if (on && hushes === 1) {
+    h.fade(h.volume(), 0, 150)
+    window.setTimeout(() => {
+      if (hushes > 0 && current === h && musicId !== undefined) h.pause(musicId)
+    }, 160)
+  } else if (!on && hushes === 0) {
+    if (musicId !== undefined) h.play(musicId)
+    else musicId = h.play()
+    h.fade(0, ducks > 0 ? DUCK_VOL : MUSIC_VOL, 400)
+  }
+}
+
 function duck(on: boolean) {
   ducks = Math.max(0, ducks + (on ? 1 : -1))
-  if (current?.playing()) current.fade(current.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)
+  if (current?.playing() && hushes === 0) current.fade(current.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)
 }
 
 export function muteDuelAudio(on: boolean) {

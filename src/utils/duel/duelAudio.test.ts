@@ -8,14 +8,18 @@ class FakeHowl {
   _vol = 1
   _rate = 1
   playing_ = false
-  constructor(o: { src: string[] }) {
+  html5: boolean
+  constructor(o: { src: string[]; html5?: boolean }) {
     this.src = o.src
+    this.html5 = !!o.html5
     instances.push(this)
   }
   on(ev: string, fn: Handler) { (this.handlers[ev] ||= []).push(fn); return this }
   once(ev: string, fn: Handler) { return this.on(ev, fn) }
   emit(ev: string) { const hs = this.handlers[ev] || []; this.handlers[ev] = []; hs.forEach((f) => f(1)) }
-  play() { this.playing_ = true; return 1 }
+  plays = 0
+  play() { this.playing_ = true; this.plays++; return 1 }
+  pause() { this.playing_ = false; return this }
   stop() { this.playing_ = false; this.emit('stop'); return this }
   rate(r?: number) { if (r !== undefined) this._rate = r; return this._rate }
   volume(v?: number) { if (v !== undefined) this._vol = v; return this._vol }
@@ -28,7 +32,7 @@ vi.mock('howler', () => ({ Howl: FakeHowl, Howler: { mute: vi.fn(), volume: vi.f
 vi.mock('../../assets/duel/audioFiles', () => ({
   SFX_URLS: { arrival1: 'a1', arrival2: 'a2', arrival3: 'a3', cast: 'c', boom1: 'b1', boom2: 'b2', ouch: 'o', mega: 'm', sparkle: 's' },
   MUSIC_URLS: { calm: 'mc', mid: 'mm', fast: 'mf', boss1: 'mb1', boss2: 'mb2', victory: 'mv' },
-  VOICE_URLS: { 'wiz-kamatz': 'wk', 'mon-vowel-a': 'mva' },
+  VOICE_URLS: { 'wiz-kamatz': 'wk', 'line-mega': 'lm' },
 }))
 
 const byUrl = (u: string) => instances.find((i) => i.src[0] === u)!
@@ -40,14 +44,42 @@ beforeEach(() => {
 })
 
 describe('duelAudio', () => {
-  it('playLine resolves when the line ends and clamps the rate to 0.7–1.3', async () => {
+  it('playLine resolves when the line ends', async () => {
     const audio = await import('./duelAudio')
-    const p = audio.playLine('mon-vowel-a', 2)
-    expect(byUrl('mva')._rate).toBe(1.3)
-    byUrl('mva').emit('end')
+    const p = audio.playLine('wiz-kamatz')
+    byUrl('wk').emit('end')
     await expect(p).resolves.toBeUndefined()
-    void audio.playLine('mon-vowel-a', 0.1)
-    expect(byUrl('mva')._rate).toBe(0.7)
+  })
+  it('speech plays faster with natural pitch: html5 audio (pitch-preserving) at VOICE_RATE', async () => {
+    const audio = await import('./duelAudio')
+    void audio.playLine('wiz-kamatz')
+    expect(audio.VOICE_RATE).toBeGreaterThan(1.05)
+    expect(byUrl('wk')._rate).toBe(audio.VOICE_RATE)
+    expect(byUrl('wk').html5).toBe(true)
+    audio.playSfx('cast')
+    expect(byUrl('c').html5).toBe(false) // effects stay on Web Audio
+  })
+  it('dramatic lines pause the music outright and resume the same track after', async () => {
+    const audio = await import('./duelAudio')
+    audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
+    audio.playMusic('calm')
+    const m = byUrl('mc')
+    const p = audio.playLine('line-mega')
+    await vi.advanceTimersByTimeAsync(400)
+    expect(m.playing()).toBe(false)
+    byUrl('lm').emit('end')
+    await p
+    expect(m.playing()).toBe(true)
+    expect(m.plays).toBe(2) // resumed, not a second track layered on top
+    expect(m._vol).toBeGreaterThan(0.2)
+  })
+  it('ordinary lines only duck the music (it keeps playing)', async () => {
+    const audio = await import('./duelAudio')
+    audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
+    audio.playMusic('calm')
+    void audio.playLine('wiz-kamatz')
+    await vi.advanceTimersByTimeAsync(400)
+    expect(byUrl('mc').playing()).toBe(true)
   })
   it('a missing line resolves immediately', async () => {
     const audio = await import('./duelAudio')

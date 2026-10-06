@@ -1,7 +1,7 @@
 import type { DuelMark, Rng, Round } from '../../types/duel'
 import { DUEL_MARKS, SOUND_GROUPS, twinOf } from './marks'
 import { wordsFor } from './words'
-import { bossFor, padSize, screenTypesFor, unlockedMonsters, walkMs } from './rules'
+import { bossFor, newMonsterAt, padSize, screenTypesFor, unlockedMonsters, walkMs } from './rules'
 
 const pick = <T,>(rng: Rng, xs: T[]) => xs[Math.floor(rng() * xs.length)]
 function shuffle<T>(rng: Rng, xs: T[]) {
@@ -27,14 +27,19 @@ export function pickTarget(rng: Rng, runMisses: Record<string, number>, lifetime
 export interface MakeRoundOpts {
   id: number
   wave: number
+  /** Kills so far this wave (0 = its first round). */
+  kills?: number
   boss: boolean
   rng: Rng
   runMisses: Record<string, number>
   lifetimeMisses: Record<string, number>
 }
 
-export function makeRound({ id, wave, boss, rng, runMisses, lifetimeMisses }: MakeRoundOpts): Round {
-  const type = pick(rng, screenTypesFor(wave))
+/** Sound clues start at wave 3; its first round is a sound screen so the spoken instruction introduces them in context. */
+const FIRST_SOUND_WAVE = 3
+
+export function makeRound({ id, wave, kills, boss, rng, runMisses, lifetimeMisses }: MakeRoundOpts): Round {
+  const type = wave === FIRST_SOUND_WAVE && kills === 0 && !boss ? 'B' : pick(rng, screenTypesFor(wave))
   const target = pickTarget(rng, runMisses, lifetimeMisses)
   const word = pick(rng, wordsFor(target.group))
 
@@ -53,7 +58,8 @@ export function makeRound({ id, wave, boss, rng, runMisses, lifetimeMisses }: Ma
 
   return {
     id, type, target, runes, word, padWords,
-    monster: boss ? bossFor(wave) : pick(rng, unlockedMonsters(wave)),
+    // right after "a new monster!" comes that monster
+    monster: boss ? bossFor(wave) : (kills === 0 && newMonsterAt(wave)) || pick(rng, unlockedMonsters(wave)),
     boss,
     walkMs: walkMs(wave, boss),
   }
