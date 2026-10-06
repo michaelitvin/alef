@@ -46,6 +46,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const [lightning, setLightning] = useState(false)
   /** A streak being celebrated (every 5 hits in a row): DuelPage shows the burst. */
   const [celebrate, setCelebrate] = useState<{ combo: number; at: number } | null>(null)
+  /** Which part of the result the wizard is saying now: the banner animates it. */
+  const [speaking, setSpeaking] = useState<'sound' | 'name' | 'word' | null>(null)
 
   const stateRef = useRef(state)
   stateRef.current = state
@@ -79,14 +81,25 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     return playLine(id, cb)
   }, [])
 
-  /** Wizard feedback: name → sound → "כְּמוֹ <word>" (shva: name → the silent puff). */
+  /** Wizard feedback: sound → name → picture word (shva: the silent puff → name), each highlighted as it is said. */
   const sayMark = useCallback((m: DuelMark, word?: PictureWord) => {
     const w = word ?? wordsFor(m.group)[0]
-    return say(`wiz-${m.id}`)
+    setSpeaking('sound')
+    return (m.group === 'silent' ? say('sfx-mute') : say(`wiz-vowel-${m.group}`))
       .then(() => delay(250))
-      .then(() => (m.group === 'silent' ? say('sfx-mute') : say(`wiz-vowel-${m.group}`)))
-      .then(() => (m.group === 'silent' ? undefined : delay(200).then(() => say(`wiz-word-${w.key}`))))
-  }, [])
+      .then(() => {
+        setSpeaking('name')
+        return say(`wiz-${m.id}`)
+      })
+      .then(() => {
+        if (m.group === 'silent') return undefined
+        return delay(200).then(() => {
+          setSpeaking('word')
+          return say(`wiz-word-${w.key}`)
+        })
+      })
+      .finally(() => setSpeaking(null))
+  }, [say])
 
   // Clues are said once, cleanly, by the narrator — the same verified lines as the feedback. (The monster voice
   // and its pitch-shifting were dropped after playtesting: they moaned.)
@@ -414,5 +427,5 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   }, [state.mega])
   useEffect(() => () => window.clearTimeout(cueTimer.current), [])
 
-  return { state, banner, newBest, shake, cue, lightning, celebrate, start, choose, megaCast, pause, resume, replayClue, sayMark }
+  return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, start, choose, megaCast, pause, resume, replayClue, sayMark }
 }

@@ -121,6 +121,24 @@ describe('useDuelGame', () => {
     expect(pending.map((p) => p.id)).toEqual(['line-intro'])
     expect(result.current.banner).toBeNull()
   })
+  it('after a round: the SOUND first, then the mark name, then the picture word — each highlighted while spoken', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    const r = result.current.state.round!
+    act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    const said: [string, string | null][] = []
+    for (let g = 0; g < 6 && pending.length; g++) {
+      said.push([pending[0].id, result.current.speaking])
+      await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(600) })
+    }
+    expect(said.slice(0, 3)).toEqual([
+      [`wiz-vowel-${r.target.group}`, 'sound'],
+      [`wiz-${r.target.id}`, 'name'],
+      [`wiz-word-${r.word.key}`, 'word'],
+    ])
+  })
   it('a beat of silence separates consecutive wizard lines (intro → instruction)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())

@@ -3,7 +3,7 @@
 export type LineCue = 'lightning' | 'picture' | 'pad' | 'listen' | 'monster' | 'tower'
 
 export const LINE_CUES: Record<string, { at: number; cue: LineCue }[]> = {
-  'line-mega': [{ at: 2.61, cue: 'lightning' }], // הברק
+  'line-mega': [{ at: 0.11, cue: 'lightning' }], // מגה
   'line-how-A': [{ at: 1.1, cue: 'picture' }, { at: 2.99, cue: 'pad' }], // בתמונה, הניקוד
   'line-how-B': [{ at: 0.51, cue: 'listen' }, { at: 2.59, cue: 'pad' }], // לצליל, הניקוד
   'line-how-C': [{ at: 0.71, cue: 'listen' }, { at: 2.53, cue: 'pad' }], // לשם, הניקוד
