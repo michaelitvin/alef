@@ -4,9 +4,9 @@ export type LineCue = 'lightning' | 'picture' | 'pad' | 'listen' | 'monster' | '
 
 export const LINE_CUES: Record<string, { at: number; cue: LineCue }[]> = {
   'line-mega': [{ at: 2.61, cue: 'lightning' }], // הברק
-  'line-how-A': [{ at: 1.19, cue: 'picture' }, { at: 2.86, cue: 'pad' }], // בתמונה, הניקוד
-  'line-how-B': [{ at: 0.53, cue: 'listen' }, { at: 2.19, cue: 'pad' }], // לצליל, הניקוד
-  'line-how-C': [{ at: 0.71, cue: 'listen' }, { at: 1.9, cue: 'pad' }], // לשם, הניקוד
-  'line-how-silent': [{ at: 0.09, cue: 'monster' }, { at: 2.67, cue: 'pad' }], // המפלצת, ניקוד
-  'line-intro': [{ at: 2.83, cue: 'tower' }], // המגדל
+  'line-how-A': [{ at: 1.1, cue: 'picture' }, { at: 2.99, cue: 'pad' }], // בתמונה, הניקוד
+  'line-how-B': [{ at: 0.51, cue: 'listen' }, { at: 2.59, cue: 'pad' }], // לצליל, הניקוד
+  'line-how-C': [{ at: 0.71, cue: 'listen' }, { at: 2.53, cue: 'pad' }], // לשם, הניקוד
+  'line-how-silent': [{ at: 0.09, cue: 'monster' }, { at: 2.83, cue: 'pad' }], // המפלצת, ניקוד
+  'line-intro': [{ at: 2.7, cue: 'tower' }], // המגדל
 }

@@ -88,6 +88,22 @@ describe('useDuelGame', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
     expect(result.current.state.outcome?.mega).toBe(true)
   })
+  it('every 5 hits in a row is celebrated when the combo line starts', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-combo'); guard++) {
+      const r = result.current.state.round!
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      for (let g = 0; g < 10 && pending.length && !pending.some((p) => p.id === 'line-combo'); g++) {
+        expect(result.current.celebrate).toBeNull()
+        await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
+      }
+    }
+    expect(pending.some((p) => p.id === 'line-combo')).toBe(true)
+    expect(result.current.celebrate).toMatchObject({ combo: 5 })
+  })
   it('a named target lights up while its word is spoken, then fades', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())
@@ -104,6 +120,15 @@ describe('useDuelGame', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
     expect(pending.map((p) => p.id)).toEqual(['line-intro'])
     expect(result.current.banner).toBeNull()
+  })
+  it('a beat of silence separates consecutive wizard lines (intro → instruction)', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await act(async () => { await vi.advanceTimersByTimeAsync(50) })
+    await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(400) })
+    expect(pending.map((p) => p.id)).toEqual([]) // still the pause after the intro
+    await act(async () => { await vi.advanceTimersByTimeAsync(600) })
+    expect(pending.map((p) => p.id)).toEqual(['line-how-A'])
   })
   it('intro and the first-screen instruction play before the monster appears', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))

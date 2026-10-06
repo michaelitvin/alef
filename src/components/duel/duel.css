@@ -317,3 +317,11 @@
 .nd-root[data-cue='tower'] .nd-tower {
   animation: nd-cue-pulse 0.5s ease-in-out 3;
 }
+
+/* Streak celebration: a burst of stars around a big flame. */
+.nd-combo-burst { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 30; }
+.nd-burst-star { position: absolute; left: 50%; top: 45%; margin: -15px 0 0 -15px; filter: drop-shadow(0 0 8px rgba(255, 220, 120, 0.9)); }
+.nd-burst-center {
+  position: absolute; top: 38%; display: flex; align-items: center; gap: 4px; direction: ltr;
+  font-size: 56px; font-weight: 800; color: #ffd36b; text-shadow: 0 0 18px rgba(255, 160, 40, 0.9);
+}
