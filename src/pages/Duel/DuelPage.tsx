@@ -12,7 +12,7 @@ import { RunSummary } from '../../components/duel/RunSummary'
 import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
 import { Icon, type IconName } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
-import { WIZARD, preloadDuelImages } from '../../assets/duel/sprites'
+import { preloadDuelImages } from '../../assets/duel/sprites'
 import { preloadDuelAudio } from '../../utils/duel/duelAudio'
 import { markById } from '../../utils/duel/marks'
 import { MEGA_MAX, MONSTERS_PER_WAVE } from '../../utils/duel/rules'
@@ -38,7 +38,6 @@ function Starfield() {
 }
 
 function Banner({ v }: { v: BannerVisual }) {
-  if ('wizard' in v) return <img className="nd-banner-sprite" src={WIZARD.cast} alt="" />
   if ('sprite' in v) return <span className="nd-banner-monster"><MonsterImg id={v.sprite} /></span>
   return (
     <span>

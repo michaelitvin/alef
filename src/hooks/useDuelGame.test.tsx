@@ -37,6 +37,13 @@ beforeEach(() => {
 })
 
 describe('useDuelGame', () => {
+  it('no second wizard: the intro shows no banner (the wizard on the tower is the one speaking)', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    expect(pending.map((p) => p.id)).toEqual(['line-intro'])
+    expect(result.current.banner).toBeNull()
+  })
   it('intro and the first-screen instruction play before the monster appears', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())
