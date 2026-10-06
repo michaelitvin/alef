@@ -8,6 +8,9 @@ import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel
 import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, pickEffect } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
 import type { LineCue } from '../assets/duel/lineCues'
+import { VOICE_URLS } from '../assets/duel/audioFiles'
+import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
+import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
 } from '../utils/duel/duelAudio'
@@ -66,33 +69,45 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   }, [])
 
   const store = useProgressStore
+  /** Every voice line goes through here so telemetry knows exactly which asset played. */
+  const say = useCallback((id: string, cb?: (c: LineCue) => void) => {
+    track('line', { id, url: VOICE_URLS[id] ?? null })
+    return playLine(id, cb)
+  }, [])
 
   /** Wizard feedback: name → sound → "כְּמוֹ <word>" (shva: name → the silent puff). */
   const sayMark = useCallback((m: DuelMark, word?: PictureWord) => {
     const w = word ?? wordsFor(m.group)[0]
-    return playLine(`wiz-${m.id}`)
+    return say(`wiz-${m.id}`)
       .then(() => delay(250))
-      .then(() => (m.group === 'silent' ? playLine('sfx-mute') : playLine(`wiz-vowel-${m.group}`)))
-      .then(() => (m.group === 'silent' ? undefined : delay(200).then(() => playLine(`wiz-word-${w.key}`))))
+      .then(() => (m.group === 'silent' ? say('sfx-mute') : say(`wiz-vowel-${m.group}`)))
+      .then(() => (m.group === 'silent' ? undefined : delay(200).then(() => say(`wiz-word-${w.key}`))))
   }, [])
 
   // Clues are said once, cleanly, by the narrator — the same verified lines as the feedback. (The monster voice
   // and its pitch-shifting were dropped after playtesting: they moaned.)
   const playClue = useCallback((r: Round) => {
-    if (r.type === 'B') return r.target.group === 'silent' ? playLine('sfx-mute') : playLine(`wiz-vowel-${r.target.group}`)
-    if (r.type === 'C') return playLine(`wiz-${r.target.id}`)
-    if (r.type === 'A' && r.word.he) return playLine(`wiz-word-${r.word.key}`)
+    if (r.type === 'B') return r.target.group === 'silent' ? say('sfx-mute') : say(`wiz-vowel-${r.target.group}`)
+    if (r.type === 'C') return say(`wiz-${r.target.id}`)
+    if (r.type === 'A' && r.word.he) return say(`wiz-word-${r.word.key}`)
     return Promise.resolve()
   }, [])
 
   /** Show the monster; A/D walk at once, B/C after arrival sound → silence → clue. */
   const begin = useCallback(
-    (r: Round) => {
+    (r: Round, restart = false) => {
       const token = ++roundToken.current
       almost.current = Promise.resolve()
       dispatch({ type: 'ROUND_READY', round: r })
       spawnedAt.current = performance.now()
       walkStartedAt.current = performance.now()
+      const s = stateRef.current
+      track('round', {
+        round: r.id, restart, wave: s.wave, kills: s.kills, boss: r.boss, bossHp: s.bossHp, hearts: s.hearts,
+        combo: s.combo, type: r.type, target: r.target.id, word: r.word.key, picture: r.type === 'A' ? WORD_PICTURE[r.word.key] : null,
+        monster: r.monster, monsterSrc: MONSTERS[r.monster]?.src ?? null, walkMs: r.walkMs,
+        pad: r.runes.map((m) => m.id), padWords: r.padWords.map((w) => w.key),
+      })
       playMusic(trackForWave(stateRef.current.wave, r.boss))
       const arrived = playSfx('arrival')
       if (r.type === 'A' || r.type === 'D') return
@@ -102,6 +117,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         .then(() => {
           if (token !== roundToken.current || pausedRef.current) return
           walkStartedAt.current = performance.now()
+          track('walk', { round: r.id, clueMs: Math.round(walkStartedAt.current - spawnedAt.current) })
           dispatch({ type: 'WALK_START' })
         })
     },
@@ -117,7 +133,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
 
       if (introDue.current) {
         // no banner: the wizard on the tower is the one speaking (a second wizard picture doubled him)
-        await playLine('line-intro', onCue)
+        await say('line-intro', onCue)
         if (run !== runId.current) return
         introDue.current = false
         if (held()) return void (pendingSpawn.current = next)
@@ -128,7 +144,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
           : next.announce === 'new-monster' ? { sprite: newMonsterAt(next.wave) ?? 'fuzzy' }
           : { icons: ['swords'] }
         setBanner(visual)
-        await playLine(`line-${next.announce}`)
+        track('announce', { kind: next.announce, wave: next.wave })
+        await say(`line-${next.announce}`)
         setBanner(null)
         if (held()) return void (pendingSpawn.current = next)
       }
@@ -144,7 +161,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
       if (!s.seenScreens.includes(key)) {
         setBanner({ icons: [HOW_ICON[key]] })
-        await playLine(`line-how-${key}`, onCue)
+        await say(`line-how-${key}`, onCue)
         setBanner(null)
         if (held()) return void (pendingSpawn.current = { ...next, announce: null })
         dispatch({ type: 'SCREEN_EXPLAINED', key })
@@ -166,9 +183,11 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const best = store.getState().duel.bestScore
     const isBest = state.score > best
     store.getState().recordDuelRunEnd(state.score, state.wave)
+    track('run_end', { reason: 'hearts', score: state.score, wave: state.wave, bestCombo: state.bestCombo, newBest: isBest })
+    flushTelemetry()
     setNewBest(isBest)
     playMusic('victory')
-    void playLine('line-over').then(() => (isBest ? playLine('line-record') : undefined))
+    void say('line-over').then(() => (isBest ? say('line-record') : undefined))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.next])
 
@@ -189,6 +208,12 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const token = roundToken.current
     const result = o.mega ? 'mega' : o.kind === 'hit' ? 'correct' : o.choiceKey ? 'wrong' : 'timeout'
     store.getState().recordDuelRound(r.target.id, r.type, result, performance.now() - spawnedAt.current)
+    const now = performance.now()
+    track('outcome', {
+      round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
+      hearts: state.hearts, combo: state.combo, score: state.score, bossHp: state.bossHp,
+      msShown: Math.round(now - spawnedAt.current), msWalk: Math.round(now - walkStartedAt.current),
+    })
 
     const juice = EFFECT_PRESETS[o.effect]
     let wait: number
@@ -210,13 +235,14 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     }
     if (o.mega) megaAnnounced.current = false
     const comboLine = o.kind === 'hit' && state.combo > 0 && state.combo % 5 === 0
+    if (comboLine) track('combo', { round: r.id, combo: state.combo })
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !megaAnnounced.current
     if (megaLine) megaAnnounced.current = true
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       .then(() => sayMark(r.target, r.word))
-      .then(() => (comboLine ? playLine('line-combo') : undefined))
-      .then(() => (megaLine ? playLine('line-mega', onCue) : undefined))
+      .then(() => (comboLine ? say('line-combo') : undefined))
+      .then(() => (megaLine ? say('line-mega', onCue) : undefined))
     void Promise.all([delay(wait), speech])
       .then(() => delay(500))
       .then(() => {
@@ -237,6 +263,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     configureDuelAudio({ sfx: settings.soundEffects, music: duelMusicOn(settings), volume: settings.volume })
     store.getState().recordDuelSession()
     runId.current += 1
+    setTelemetryRun(runId.current)
+    track('run_start', { music: duelMusicOn(settings), sfx: settings.soundEffects, volume: settings.volume })
     roundToken.current += 1
     pausedRef.current = false
     pendingSpawn.current = null
@@ -256,13 +284,19 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const r = s.round
     if (!r || s.outcome || s.paused || s.phase !== 'playing' || answeredRound.current === r.id) return
     if (twinRound.current === r.id && keyOf(c) === twinKey.current) return // same twin again: still forgiven
+    const now = performance.now()
+    const pos = c.kind === 'rune' ? r.runes.findIndex((m) => m.id === c.mark.id) : r.padWords.findIndex((w) => w.group === c.group)
+    track('choice', {
+      round: r.id, key: keyOf(c), pos, correct: isCorrect(r, c), twin: !isCorrect(r, c) && isTwin(r, c), walking: s.walking,
+      msShown: Math.round(now - spawnedAt.current), msWalk: s.walking ? Math.round(now - walkStartedAt.current) : null,
+    })
     if (!isCorrect(r, c) && isTwin(r, c) && !s.twinTried && twinRound.current !== r.id) {
       // forgiven once: no heart, no combo break — hear which mark he tapped, then try again
       twinRound.current = r.id
       twinKey.current = keyOf(c)
       store.getState().recordDuelTwin(r.target.id, r.type)
       store.getState().recordDuelConfusion(r.target.id, keyOf(c))
-      if (c.kind === 'rune') almost.current = playLine('line-almost').then(() => playLine(`wiz-${c.mark.id}`))
+      if (c.kind === 'rune') almost.current = say('line-almost').then(() => say(`wiz-${c.mark.id}`))
       dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle' })
       return
     }
@@ -276,6 +310,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const s = stateRef.current
     const r = s.round
     if (s.paused || s.mega < MEGA_MAX) return
+    track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
     if (!r || s.outcome) {
       megaQueued.current = true // he did what the wizard said; it fires when the next monster appears
       return
@@ -290,6 +325,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const s = stateRef.current
     if (s.phase !== 'playing' || pausedRef.current) return
     pausedRef.current = true
+    track('pause', { cause: document.hidden ? 'hidden' : 'button', round: s.round?.id ?? null, duringOutcome: !!s.outcome })
+    flushTelemetry()
     dispatch({ type: 'PAUSE' })
     muteDuelAudio(true)
     stopAllLines()
@@ -299,6 +336,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (!pausedRef.current) return
     pausedRef.current = false
     unlockDuelAudio() // inside the ▶ tap: Android may have suspended audio during a long lock
+    track('resume', {})
     dispatch({ type: 'RESUME' })
     muteDuelAudio(false)
     const s = stateRef.current
@@ -311,12 +349,13 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       dispatch({ type: 'ADVANCE' })
     } else if (s.round && !s.outcome) {
       // restart the interrupted round from the right edge, clue and all
-      begin({ ...s.round, id: nextId.current++ })
+      begin({ ...s.round, id: nextId.current++ }, true)
     }
   }, [begin, spawn])
 
   const replayClue = useCallback(() => {
     const r = stateRef.current.round
+    if (r) track('replay', { round: r.id })
     if (r) void playClue(r)
   }, [playClue])
 
@@ -332,6 +371,15 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   // Leaving the page stops everything.
   useEffect(
     () => () => {
+      const s = stateRef.current
+      if (s.phase === 'playing') {
+        // left mid-run (home button, back, closed): churn
+        track('abandon', {
+          round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused, duringOutcome: !!s.outcome,
+          msShown: s.round ? Math.round(performance.now() - spawnedAt.current) : null,
+        })
+      }
+      flushTelemetry()
       runId.current += 1
       roundToken.current += 1
       pausedRef.current = false

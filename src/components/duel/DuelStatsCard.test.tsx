@@ -1,12 +1,32 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { clearTelemetry, track } from '../../utils/duel/telemetry'
 import { DuelStatsCard } from './DuelStatsCard'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
-beforeEach(() => useProgressStore.setState({ ...INITIAL_PROGRESS_STATE }))
+beforeEach(() => {
+  useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+  clearTelemetry()
+})
 
 describe('DuelStatsCard', () => {
+  it('exports the telemetry log as a JSON file (with the event count shown)', async () => {
+    useProgressStore.getState().recordDuelSession()
+    track('run_start', {})
+    track('choice', { key: 'segol' })
+    const urls: Blob[] = []
+    URL.createObjectURL = vi.fn((b: Blob) => { urls.push(b); return 'blob:x' }) as typeof URL.createObjectURL
+    URL.revokeObjectURL = vi.fn()
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    render(<DuelStatsCard />)
+    const btn = screen.getByRole('button', { name: /ייצוא נתוני משחק/ })
+    expect(btn.textContent).toContain('2')
+    fireEvent.click(btn)
+    expect(click).toHaveBeenCalled()
+    const doc = JSON.parse(await urls[0].text())
+    expect(doc.events.map((e: { e: string }) => e.e)).toEqual(['run_start', 'choice'])
+  })
   it('shows an empty state before the first game', () => {
     render(<DuelStatsCard />)
     expect(screen.getByText('עוד לא שיחקו')).toBeTruthy()
