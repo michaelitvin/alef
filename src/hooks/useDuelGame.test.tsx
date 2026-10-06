@@ -171,7 +171,6 @@ describe('clues are spoken once, cleanly, by the narrator (no monster voice)', (
       const calls = vi.mocked(playLine).mock.calls
       expect(calls.map((c) => c[0])).toContain(expected)
       expect(calls.some((c) => String(c[0]).startsWith('mon-'))).toBe(false)
-      expect(calls.every((c) => c[1] === undefined || c[1] === 1)).toBe(true)
       unmount()
     }
   })

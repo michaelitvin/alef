@@ -1,3 +1,4 @@
+import { BOSS_HP, MONSTERS_PER_WAVE } from './rules'
 import { describe, it, expect } from 'vitest'
 import { duelReducer, initialDuelState } from './reducer'
 import { markById } from './marks'
@@ -12,6 +13,12 @@ const start = () => duelReducer(initialDuelState, { type: 'START' })
 const ready = (s: DuelState, r = mk()) => duelReducer(s, { type: 'ROUND_READY', round: r })
 const tap = (s: DuelState, id: string) => duelReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
 const adv = (s: DuelState) => duelReducer(s, { type: 'ADVANCE' })
+
+describe('boss strength', () => {
+  it('the boss takes more hits than a whole wave of monsters (playtest: 3 hits after 5 kills felt like an anticlimax)', () => {
+    expect(BOSS_HP).toBeGreaterThan(MONSTERS_PER_WAVE)
+  })
+})
 
 describe('duelReducer', () => {
   it('starts a run and asks for the first spawn', () => {
@@ -61,19 +68,19 @@ describe('duelReducer', () => {
     expect(s.kills).toBe(0)
     expect(s.next).toEqual({ kind: 'spawn', wave: 2, boss: false, announce: 'new-monster' })
   })
-  it('wave 3 announces new spells; wave 5 ends in a boss that keeps damage through a miss', () => {
+  it('wave 3 announces its new monster (the ghost), not "new spells"; wave 5 ends in a boss that keeps damage through a miss', () => {
     let s: DuelState = { ...start(), wave: 2, kills: 4, round: mk(), walking: true, next: null }
     s = adv(tap(s, 'kamatz'))
-    expect(s.next).toEqual({ kind: 'spawn', wave: 3, boss: false, announce: 'new-spells' })
+    expect(s.next).toEqual({ kind: 'spawn', wave: 3, boss: false, announce: 'new-monster' })
     s = { ...s, wave: 5, kills: 4, round: mk(), walking: true, outcome: null, next: null }
     s = adv(tap(s, 'kamatz'))
-    expect(s.bossHp).toBe(3)
+    expect(s.bossHp).toBe(BOSS_HP)
     expect(s.next).toEqual({ kind: 'spawn', wave: 5, boss: true, announce: 'boss' })
     s = tap(ready(s, mk({ boss: true, monster: 'dragon' })), 'kamatz')
     expect(s.outcome).toMatchObject({ final: false })
-    expect(s.bossHp).toBe(2)
+    expect(s.bossHp).toBe(BOSS_HP - 1)
     s = tap(ready(adv(s), mk({ boss: true, monster: 'dragon', id: 7 })), 'segol')
-    expect(s.bossHp).toBe(2)
+    expect(s.bossHp).toBe(BOSS_HP - 1)
     expect(s.hearts).toBe(2)
   })
   it('the last boss hit is final and starts the next wave', () => {

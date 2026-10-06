@@ -14,6 +14,20 @@ function seeded(seed: number) {
 const base = { runMisses: {}, lifetimeMisses: {} }
 
 describe('makeRound', () => {
+  it('the round right after "a new monster!" brings that monster; later rounds mix', () => {
+    const rng = seeded(9)
+    for (let i = 0; i < 30; i++) expect(makeRound({ id: i, wave: 4, kills: 0, boss: false, rng, ...base }).monster).toBe('bat')
+    for (let i = 0; i < 30; i++) expect(makeRound({ id: i, wave: 3, kills: 0, boss: false, rng, ...base }).monster).toBe('ghost')
+    const later = new Set(Array.from({ length: 60 }, (_, i) => makeRound({ id: i, wave: 4, kills: 1, boss: false, rng, ...base }).monster))
+    expect(later.size).toBeGreaterThan(1)
+  })
+  it('the first round of wave 3 is a sound screen, so its instruction explains the new kind of clue', () => {
+    const rng = seeded(7)
+    for (let i = 0; i < 50; i++) expect(makeRound({ id: i, wave: 3, kills: 0, boss: false, rng, ...base }).type).toBe('B')
+    const later = new Set(Array.from({ length: 100 }, (_, i) => makeRound({ id: i, wave: 3, kills: 2, boss: false, rng, ...base }).type))
+    expect([...later].sort()).toEqual(['A', 'B', 'C'])
+    for (let i = 0; i < 50; i++) expect(makeRound({ id: i, wave: 4, kills: 0, boss: false, rng, ...base }).type).not.toBe('D')
+  })
   it('pads: target present, right size, distinct marks; D has one picture per sound', () => {
     const rng = seeded(1)
     for (let i = 0; i < 300; i++) {
