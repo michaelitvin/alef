@@ -17,6 +17,7 @@ import { preloadDuelAudio } from '../../utils/duel/duelAudio'
 import { markById } from '../../utils/duel/marks'
 import { MEGA_MAX, MONSTERS_PER_WAVE } from '../../utils/duel/rules'
 import { duelMusicOn, useProgressStore } from '../../stores/progressStore'
+import { track } from '../../utils/duel/telemetry'
 import '../../components/duel/duel.css'
 
 export const TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
@@ -55,6 +56,13 @@ export default function DuelPage() {
   const game = useDuelGame({ walkOverride })
   const { state } = game
   const landscape = useLandscape()
+  // Telemetry: the device and layout, so a tap's pad position can be read as one row (landscape) or a grid.
+  useEffect(() => {
+    track('screen', {
+      landscape, layout: landscape ? 'one-row' : 'grid', w: window.innerWidth, h: window.innerHeight,
+      dpr: window.devicePixelRatio, ua: navigator.userAgent, mode: import.meta.env.MODE,
+    })
+  }, [landscape])
   const settings = useProgressStore((s) => s.settings)
   const setDuelMusic = useProgressStore((s) => s.setDuelMusic)
   const bestScore = useProgressStore((s) => s.duel.bestScore)

@@ -5,6 +5,7 @@ import { useProgressStore } from '../../stores/progressStore'
 import { DUEL_MARKS } from '../../utils/duel/marks'
 import type { ScreenType, Tally } from '../../types/duel'
 import { RuneGlyph } from './RuneGlyph'
+import { exportTelemetry, telemetryCount } from '../../utils/duel/telemetry'
 
 const TYPE_NAMES: Record<ScreenType, string> = { A: 'תמונה ← ניקוד', B: 'צליל ← ניקוד', C: 'שם ← ניקוד', D: 'ניקוד ← תמונה' }
 const COLS: { key: keyof Tally | 'correctPct'; label: string }[] = [
@@ -21,6 +22,18 @@ const cell = (t: Tally | undefined, key: (typeof COLS)[number]['key']) => {
   return String(t?.[key] ?? 0)
 }
 const misses = (t?: Tally) => (t ? t.wrong + t.timeout : -1)
+
+/** Download the duel telemetry log (every round, tap, latency and asset) for offline analysis. */
+function downloadTelemetry() {
+  const url = URL.createObjectURL(new Blob([exportTelemetry()], { type: 'application/json' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `alef-duel-telemetry-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
 
 const th: React.CSSProperties = { padding: spacing[1], fontWeight: typography.fontWeight.semibold, color: colors.text.secondary, fontSize: typography.fontSize.sm }
 const td: React.CSSProperties = { padding: spacing[1], textAlign: 'center', fontSize: typography.fontSize.sm, borderTop: `1px solid ${colors.neutral[200]}` }
@@ -83,6 +96,14 @@ export function DuelStatsCard() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: spacing[3] }}>
+            <button
+              onClick={downloadTelemetry}
+              style={{ fontFamily: typography.fontFamily.hebrew, fontSize: typography.fontSize.sm, padding: `${spacing[1]} ${spacing[3]}`, borderRadius: borderRadius.lg, border: `1px solid ${colors.neutral[300]}`, background: colors.surface, color: colors.text.secondary, cursor: 'pointer' }}
+            >
+              ⬇ ייצוא נתוני משחק ({telemetryCount().toLocaleString('en-US')} אירועים)
+            </button>
           </div>
         </>
       )}

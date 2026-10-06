@@ -15,6 +15,7 @@ import { wordsFor } from '../utils/duel/words'
 import type { Round } from '../types/duel'
 import type { MakeRoundOpts } from '../utils/duel/rounds'
 import { useProgressStore } from '../stores/progressStore'
+import { clearTelemetry, exportTelemetry } from '../utils/duel/telemetry'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 
 /** Finish spoken lines one by one, letting the timers between them run. */
@@ -34,10 +35,36 @@ beforeEach(() => {
   pending.length = 0
   vi.mocked(playLine).mockClear()
   localStorage.clear()
+  clearTelemetry()
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
 })
 
 describe('useDuelGame', () => {
+  it('telemetry: what was shown where, the tap (position, latency), the outcome, assets used, and quitting mid-round', async () => {
+    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    const r = result.current.state.round!
+    await act(async () => { await vi.advanceTimersByTimeAsync(700) })
+    const pos = r.runes.findIndex((m) => m.id === r.target.id)
+    act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+    await flushLines()
+    const r2 = result.current.state.round!
+    unmount() // left mid-round: churn
+    const ev = (JSON.parse(exportTelemetry()).events as Record<string, unknown>[])
+    const names = ev.map((e) => e.e)
+    expect(names.slice(0, 3)).toEqual(['run_start', 'line', 'line']) // intro + first instruction
+    expect(ev.find((e) => e.e === 'line')).toMatchObject({ id: 'line-intro', url: expect.any(String) })
+    const shown = ev.find((e) => e.e === 'round' && e.round === r.id)!
+    expect(shown).toMatchObject({ type: 'A', target: r.target.id, word: r.word.key, monster: r.monster, walkMs: r.walkMs, pad: r.runes.map((m) => m.id) })
+    expect(shown.picture).toEqual(expect.any(String))
+    const tap = ev.find((e) => e.e === 'choice')!
+    expect(tap).toMatchObject({ round: r.id, key: r.target.id, pos, correct: true })
+    expect(tap.msShown as number).toBeGreaterThanOrEqual(700)
+    expect(ev.find((e) => e.e === 'outcome')).toMatchObject({ round: r.id, result: 'correct' })
+    expect(ev[ev.length - 1]).toMatchObject({ e: 'abandon', round: r2.id })
+    for (const e of ev) expect(e.t).toEqual(expect.any(Number))
+  })
   it('the lightning appears when "ברק" is spoken; a tap before the next monster casts as soon as it arrives', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())
