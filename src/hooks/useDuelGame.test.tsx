@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
-const pending: { id: string; resolve: () => void }[] = []
+const pending: { id: string; resolve: () => void; onCue?: (c: string) => void }[] = []
 vi.mock('../utils/duel/duelAudio', () => ({
   unlockDuelAudio: vi.fn(), preloadDuelAudio: vi.fn(), configureDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
   playMusic: vi.fn(), stopMusic: vi.fn(), trackForWave: () => 'calm',
   playSfx: vi.fn(() => Promise.resolve()),
-  playLine: vi.fn((id: string) => new Promise<void>((resolve) => pending.push({ id, resolve }))),
+  playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
 }))
 import { useDuelGame } from './useDuelGame'
 import { muteDuelAudio, playLine, unlockDuelAudio } from '../utils/duel/duelAudio'
@@ -37,6 +37,39 @@ beforeEach(() => {
 })
 
 describe('useDuelGame', () => {
+  it('the lightning appears when "ברק" is spoken; a tap before the next monster casts as soon as it arrives', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-mega'); guard++) {
+      const r = result.current.state.round!
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      for (let g = 0; g < 10 && pending.length && !pending.some((p) => p.id === 'line-mega'); g++) {
+        await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
+      }
+    }
+    const mega = pending.find((p) => p.id === 'line-mega')!
+    expect(mega).toBeTruthy()
+    expect(result.current.lightning).toBe(false) // full meter, but not yet named
+    act(() => mega.onCue!('lightning'))
+    expect(result.current.lightning).toBe(true)
+    act(() => result.current.megaCast()) // tapped while the last explosion is still settling
+    expect(result.current.state.outcome?.mega).toBeFalsy()
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(result.current.state.outcome?.mega).toBe(true)
+  })
+  it('a named target lights up while its word is spoken, then fades', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
+    const how = pending.find((p) => p.id === 'line-how-A')!
+    act(() => how.onCue!('picture'))
+    expect(result.current.cue).toBe('picture')
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+    expect(result.current.cue).toBeNull()
+  })
   it('no second wizard: the intro shows no banner (the wizard on the tower is the one speaking)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())

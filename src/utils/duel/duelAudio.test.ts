@@ -29,6 +29,7 @@ class FakeHowl {
   load() { return this }
 }
 vi.mock('howler', () => ({ Howl: FakeHowl, Howler: { mute: vi.fn(), volume: vi.fn(), ctx: { state: 'running', resume: vi.fn() } } }))
+vi.mock('../../assets/duel/lineCues', () => ({ LINE_CUES: { 'line-mega': [{ at: 1.15, cue: 'lightning' }], nope: [{ at: 0.5, cue: 'pad' }] } }))
 vi.mock('../../assets/duel/audioFiles', () => ({
   SFX_URLS: { arrival1: 'a1', arrival2: 'a2', arrival3: 'a3', cast: 'c', boom1: 'b1', boom2: 'b2', ouch: 'o', mega: 'm', sparkle: 's' },
   MUSIC_URLS: { calm: 'mc', mid: 'mm', fast: 'mf', boss1: 'mb1', boss2: 'mb2', victory: 'mv' },
@@ -80,6 +81,29 @@ describe('duelAudio', () => {
     void audio.playLine('wiz-kamatz')
     await vi.advanceTimersByTimeAsync(400)
     expect(byUrl('mc').playing()).toBe(true)
+  })
+  it('a cue fires when its word is spoken (file time ÷ VOICE_RATE)', async () => {
+    const audio = await import('./duelAudio')
+    const cues: string[] = []
+    void audio.playLine('line-mega', (c) => cues.push(c))
+    await vi.advanceTimersByTimeAsync((1.15 / audio.VOICE_RATE) * 1000 - 50)
+    expect(cues).toEqual([])
+    await vi.advanceTimersByTimeAsync(100)
+    expect(cues).toEqual(['lightning'])
+    byUrl('lm').emit('end')
+    await vi.advanceTimersByTimeAsync(10)
+    expect(cues).toEqual(['lightning']) // once
+  })
+  it('cues not yet fired fire when the line ends early, fails or is missing (the lightning always appears)', async () => {
+    const audio = await import('./duelAudio')
+    const cues: string[] = []
+    const p = audio.playLine('line-mega', (c) => cues.push(c))
+    byUrl('lm').emit('loaderror')
+    await p
+    expect(cues).toEqual(['lightning'])
+    const missing: string[] = []
+    await audio.playLine('nope', (c) => missing.push(c))
+    expect(missing).toEqual(['pad'])
   })
   it('a missing line resolves immediately', async () => {
     const audio = await import('./duelAudio')

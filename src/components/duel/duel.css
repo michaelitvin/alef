@@ -304,3 +304,16 @@
 
 /* start cover hides the battlefield, so its tower wizard doesn't double the big one */
 .nd-opaque { background: radial-gradient(ellipse at 50% 35%, #3a1d78, #0b0824 75%); z-index: 50; }
+
+/* The wizard names something on screen ("the picture", "the marks"…): it glows while he says it. */
+@keyframes nd-cue-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 220, 120, 0)); }
+  50% { transform: scale(1.12); filter: drop-shadow(0 0 14px rgba(255, 220, 120, 0.95)); }
+}
+.nd-root[data-cue='picture'] .nd-clue-sign,
+.nd-root[data-cue='listen'] .nd-clue-audio,
+.nd-root[data-cue='pad'] .nd-pad,
+.nd-root[data-cue='monster'] .nd-monster-emoji,
+.nd-root[data-cue='tower'] .nd-tower {
+  animation: nd-cue-pulse 0.5s ease-in-out 3;
+}

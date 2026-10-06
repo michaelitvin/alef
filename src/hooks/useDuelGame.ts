@@ -7,6 +7,7 @@ import { duelReducer, initialDuelState } from '../utils/duel/reducer'
 import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
 import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, pickEffect } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
+import type { LineCue } from '../assets/duel/lineCues'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
 } from '../utils/duel/duelAudio'
@@ -34,6 +35,10 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const [banner, setBanner] = useState<BannerVisual | null>(null)
   const [newBest, setNewBest] = useState(false)
   const [shake, setShake] = useState<{ power: number; at: number } | null>(null)
+  /** What the wizard is naming right now ("the picture", "the marks"…): DuelPage makes it glow. */
+  const [cue, setCue] = useState<LineCue | null>(null)
+  /** The mega button shows only once the wizard says "tap the lightning" (בָּרָק). */
+  const [lightning, setLightning] = useState(false)
 
   const stateRef = useRef(state)
   stateRef.current = state
@@ -49,8 +54,16 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const twinKey = useRef<string | null>(null)
   const almost = useRef<Promise<void>>(Promise.resolve()) // "almost" + twin name; the outcome speech waits for it
   const megaAnnounced = useRef(false)
+  const megaQueued = useRef(false) // lightning tapped between monsters: cast on the next one
+  const cueTimer = useRef(0)
   const pendingSpawn = useRef<Extract<Next, { kind: 'spawn' }> | null>(null)
   const resumeAdvance = useRef(false)
+  const onCue = useCallback((c: LineCue) => {
+    if (c === 'lightning') setLightning(true)
+    setCue(c)
+    window.clearTimeout(cueTimer.current)
+    cueTimer.current = window.setTimeout(() => setCue(null), 1500)
+  }, [])
 
   const store = useProgressStore
 
@@ -104,7 +117,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
 
       if (introDue.current) {
         // no banner: the wizard on the tower is the one speaking (a second wizard picture doubled him)
-        await playLine('line-intro')
+        await playLine('line-intro', onCue)
         if (run !== runId.current) return
         introDue.current = false
         if (held()) return void (pendingSpawn.current = next)
@@ -129,7 +142,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
       if (!s.seenScreens.includes(key)) {
         setBanner({ icons: [HOW_ICON[key]] })
-        await playLine(`line-how-${key}`)
+        await playLine(`line-how-${key}`, onCue)
         setBanner(null)
         if (held()) return void (pendingSpawn.current = { ...next, announce: null })
         dispatch({ type: 'SCREEN_EXPLAINED', key })
@@ -201,7 +214,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       .then(() => sayMark(r.target, r.word))
       .then(() => (comboLine ? playLine('line-combo') : undefined))
-      .then(() => (megaLine ? playLine('line-mega') : undefined))
+      .then(() => (megaLine ? playLine('line-mega', onCue) : undefined))
     void Promise.all([delay(wait), speech])
       .then(() => delay(500))
       .then(() => {
@@ -228,6 +241,9 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     resumeAdvance.current = false
     introDue.current = true
     megaAnnounced.current = false
+    megaQueued.current = false
+    setLightning(false)
+    setCue(null)
     setNewBest(false)
     setBanner(null)
     dispatch({ type: 'START' })
@@ -255,7 +271,13 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const megaCast = useCallback(() => {
     const s = stateRef.current
     const r = s.round
-    if (!r || s.outcome || s.paused || s.mega < MEGA_MAX || answeredRound.current === r.id) return
+    if (s.paused || s.mega < MEGA_MAX) return
+    if (!r || s.outcome) {
+      megaQueued.current = true // he did what the wizard said; it fires when the next monster appears
+      return
+    }
+    if (answeredRound.current === r.id) return
+    megaQueued.current = false
     answeredRound.current = r.id
     dispatch({ type: 'MEGA', effect: 'mega' })
   }, [])
@@ -316,5 +338,17 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     [],
   )
 
-  return { state, banner, newBest, shake, start, choose, megaCast, pause, resume, replayClue, sayMark }
+  // A lightning tap queued between monsters fires as soon as the next one is on the field.
+  useEffect(() => {
+    if (megaQueued.current && state.round && !state.outcome && !state.paused) megaCast()
+  }, [state.round, state.outcome, state.paused, megaCast])
+  useEffect(() => {
+    if (state.mega < MEGA_MAX) {
+      setLightning(false)
+      megaQueued.current = false
+    }
+  }, [state.mega])
+  useEffect(() => () => window.clearTimeout(cueTimer.current), [])
+
+  return { state, banner, newBest, shake, cue, lightning, start, choose, megaCast, pause, resume, replayClue, sayMark }
 }
