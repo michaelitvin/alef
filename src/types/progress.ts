@@ -274,7 +274,7 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
   },
 }
 
-export const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {} }
+export const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {} }
 
 export const INITIAL_PROGRESS_STATE: ProgressState = {
   version: 1,

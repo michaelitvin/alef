@@ -28,6 +28,13 @@ describe('duel slice', () => {
     expect(d.bestWave).toBe(4)
     expect(d.lastPlayed).toBeTypeOf('number')
   })
+  it('records directional confusions: confusions[asked][tapped]', () => {
+    const st = useProgressStore.getState()
+    st.recordDuelConfusion('segol', 'chirik')
+    st.recordDuelConfusion('segol', 'chirik')
+    st.recordDuelConfusion('chirik', 'segol')
+    expect(useProgressStore.getState().duel.confusions).toEqual({ segol: { chirik: 2 }, chirik: { segol: 1 } })
+  })
   it('persists the duel slice', () => {
     useProgressStore.getState().recordDuelSession()
     const saved = JSON.parse(localStorage.getItem('alef-progress')!)

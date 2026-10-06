@@ -11,7 +11,7 @@ function seeded(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
-const base = { runMisses: {}, lifetimeMisses: {} }
+const base = { runMisses: {}, lifetime: {} }
 
 describe('makeRound', () => {
   it('the round right after "a new monster!" brings that monster; later rounds mix', () => {
@@ -62,27 +62,67 @@ describe('makeRound', () => {
 })
 
 describe('pickTarget weighting', () => {
-  const share = (runMisses: Record<string, number>, lifetimeMisses: Record<string, number>, seed: number) => {
+  type L = Record<string, { seen?: number; correct?: number; wrong?: number; timeout?: number }>
+  const share = (runMisses: Record<string, number>, lifetime: L, seed: number, id = 'segol') => {
     const rng = seeded(seed)
     let n = 0
-    for (let i = 0; i < 4000; i++) if (pickTarget(rng, runMisses, lifetimeMisses).id === 'segol') n++
+    for (let i = 0; i < 4000; i++) if (pickTarget(rng, runMisses, lifetime).id === id) n++
     return n / 4000
   }
-  it('uniform without misses (~1/10)', () => {
+  it('uniform without history (~1/10)', () => {
     const s = share({}, {}, 4)
     expect(s).toBeGreaterThan(0.07)
     expect(s).toBeLessThan(0.13)
   })
-  it('run misses weigh 2 each: weight 5 of 14', () => {
-    expect(share({ segol: 2 }, {}, 5)).toBeGreaterThan(0.3)
+  it('run misses weigh 3 each', () => {
+    expect(share({ segol: 2 }, {}, 5)).toBeGreaterThan(0.25)
   })
-  it('lifetime misses add at most 2: weight 3 of 12', () => {
-    const s = share({}, { segol: 1000 }, 6)
-    expect(s).toBeGreaterThan(0.18)
-    expect(s).toBeLessThan(0.32)
+  it('lifetime: the mistake RATE counts, not the number of mistakes', () => {
+    const others: L = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 20, correct: 18, wrong: 2 }]))
+    const shaky = share({}, { ...others, segol: { seen: 4, correct: 1, wrong: 3 } }, 6)
+    const solid = share({}, { ...others, segol: { seen: 400, correct: 397, wrong: 3 } }, 7)
+    expect(shaky).toBeGreaterThan(0.2)
+    expect(solid).toBeLessThan(0.1)
   })
-  it('only returns real marks', () => {
-    const rng = seeded(7)
+  it('timeouts count as mistakes; a mark never seen sits between shaky and solid', () => {
+    const solid: L = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 50, correct: 50 }]))
+    expect(share({}, { ...solid, segol: { seen: 4, timeout: 3, correct: 1 } }, 8)).toBeGreaterThan(0.2)
+    const { segol: _drop, ...rest } = solid
+    const unseen = share({}, rest, 9)
+    expect(unseen).toBeGreaterThan(0.1)
+    expect(unseen).toBeLessThan(0.3)
+  })
+  it('always returns a mark', () => {
+    const rng = seeded(3)
     for (let i = 0; i < 50; i++) expect(DUEL_MARKS).toContain(pickTarget(rng, {}, {}))
+  })
+})
+
+describe('directional confusion', () => {
+  const forced = (id: string) => ({ runMisses: { [id]: 1e6 }, lifetime: {} })
+  const pads = (wave: number, target: string, confusions: Record<string, Record<string, number>>, seed: number, n = 200) => {
+    const rng = seeded(seed)
+    return Array.from({ length: n }, (_, i) => makeRound({ id: i, wave, kills: 1, boss: false, rng, ...forced(target), confusions }))
+  }
+  it('a mark he keeps tapping for the target is always on the board with it', () => {
+    for (const r of pads(1, 'segol', { segol: { chirik: 3 } }, 11)) expect(r.runes.map((m) => m.id)).toContain('chirik')
+  })
+  it('it is one-way: confusing chirik→segol does not force chirik onto segol rounds', () => {
+    const rs = pads(1, 'segol', { chirik: { segol: 3 } }, 12)
+    const withChirik = rs.filter((r) => r.runes.some((m) => m.id === 'chirik')).length
+    expect(withChirik).toBeLessThan(rs.length)
+  })
+  it('a single slip is not a pattern (needs 2+)', () => {
+    const rs = pads(1, 'segol', { segol: { chirik: 1 } }, 13)
+    expect(rs.filter((r) => r.runes.some((m) => m.id === 'chirik')).length).toBeLessThan(rs.length)
+  })
+  it('a same-sound partner joins name screens only (on picture/sound screens both would be right)', () => {
+    const rs = pads(4, 'cholam', { cholam: { 'holam-male': 4 } }, 14, 300)
+    for (const r of rs) {
+      const has = r.runes.some((m) => m.id === 'holam-male')
+      if (r.type === 'C') expect(has).toBe(true)
+      else expect(has).toBe(false)
+    }
+    expect(rs.some((r) => r.type === 'C')).toBe(true)
   })
 })

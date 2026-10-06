@@ -134,9 +134,11 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       }
 
       const s = stateRef.current
-      const lifetime: Record<string, number> = {}
-      for (const [id, t] of Object.entries(store.getState().duel.byMark)) lifetime[id] = t.wrong + t.timeout
-      const r = makeRound({ id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng, runMisses: s.runMisses, lifetimeMisses: lifetime })
+      const { byMark, confusions } = store.getState().duel
+      const r = makeRound({
+        id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng,
+        runMisses: s.runMisses, lifetime: byMark, confusions: confusions ?? {},
+      })
       if (walkOverride) r.walkMs = walkOverride
 
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
@@ -259,11 +261,13 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       twinRound.current = r.id
       twinKey.current = keyOf(c)
       store.getState().recordDuelTwin(r.target.id, r.type)
+      store.getState().recordDuelConfusion(r.target.id, keyOf(c))
       if (c.kind === 'rune') almost.current = playLine('line-almost').then(() => playLine(`wiz-${c.mark.id}`))
       dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle' })
       return
     }
     answeredRound.current = r.id
+    if (!isCorrect(r, c)) store.getState().recordDuelConfusion(r.target.id, keyOf(c))
     const effect = pickEffect(rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
     dispatch({ type: 'CHOOSE', choice: c, effect })
   }, [rng, store])
