@@ -31,4 +31,10 @@ describe('picture words', () => {
     expect(new Set(keys).size).toBe(keys.length)
     for (const retired of ['ear', 'finger', 'blueberries']) expect(keys).not.toContain(retired)
   })
+  it('retires pictures he named with a different word (sheep, מכונית, סירה, woman, mouse)', () => {
+    const keys = PICTURE_WORDS.map((w) => w.key)
+    for (const retired of ['goat', 'o', 'ship', 'mom', 'hamster']) expect(keys).not.toContain(retired)
+    expect(wordsFor('o').map((w) => w.key).sort()).toEqual(['bicycle', 'bus', 'tent'])
+    expect(wordsFor('e').map((w) => w.key).sort()).toEqual(['e', 'fire', 'tree'])
+  })
 })

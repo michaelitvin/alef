@@ -23,7 +23,7 @@ export type Faces = 'left' | 'right' | 'front'
 
 export const MONSTERS: Record<string, { src: string; faces: Faces }> = {
   fuzzy: { src: fuzzy, faces: 'right' },
-  blob: { src: blob, faces: 'front' },
+  blob: { src: blob, faces: 'right' }, // review: walked backwards — the eye looks right as drawn
   imp: { src: imp, faces: 'right' }, // playtest: walked backwards — stride and gaze point right as drawn
   ghost: { src: ghost, faces: 'right' },
   bat: { src: bat, faces: 'left' },
