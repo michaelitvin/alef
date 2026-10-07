@@ -34,7 +34,10 @@ describe('duel assets', () => {
     for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)
     expect(Object.keys(MUSIC_URLS)).toHaveLength(14)
-    for (const [tier, urls] of Object.entries(MUSIC_SETS)) expect(urls.length, tier).toBeGreaterThanOrEqual(tier === 'victory' ? 1 : 3)
+    for (const tier of ['calm', 'mid', 'fast'] as const) expect(MUSIC_SETS[tier].length, tier).toBeGreaterThanOrEqual(3)
+    // bosses keep their original two tracks as their signature; the newer battle tracks play in the fast waves
+    expect(MUSIC_SETS.boss).toEqual([MUSIC_URLS.boss1, MUSIC_URLS.boss2])
+    expect(MUSIC_SETS.fast).toEqual(expect.arrayContaining([MUSIC_URLS.boss3, MUSIC_URLS.boss4]))
   })
 })
 
