@@ -88,4 +88,6 @@ export interface DuelStats {
   confusions?: Record<string, Record<string, number>>
   /** each mark's last answers, newest last: x = wrong or too slow, o = right */
   recent?: Record<string, string>
+  /** adaptive walk-time multiplier carried between games (1 = the wave's normal pace) */
+  pace?: number
 }

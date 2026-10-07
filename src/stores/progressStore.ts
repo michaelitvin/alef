@@ -64,6 +64,7 @@ interface ProgressActions {
   recordDuelTwin: (markId: string, type: ScreenType) => void
   /** He tapped `tappedId` when `askedId` was the answer (directional). */
   recordDuelConfusion: (askedId: string, tappedId: string) => void
+  setDuelPace: (pace: number) => void
   recordDuelRunEnd: (score: number, wave: number) => void
 
   // Utility
@@ -507,6 +508,9 @@ export const useProgressStore = create<ProgressStore>()(
           const row = all[askedId] ?? {}
           return { duel: { ...state.duel, confusions: { ...all, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } } }
         })
+      },
+      setDuelPace: (pace) => {
+        set((state) => ({ duel: { ...state.duel, pace } }))
       },
       recordDuelRunEnd: (score, wave) => {
         set((state) => ({

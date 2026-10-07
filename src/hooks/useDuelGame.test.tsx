@@ -223,6 +223,25 @@ describe('useDuelGame', () => {
     act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
     expect(useProgressStore.getState().duel.confusions).toEqual({ kamatz: { patach: 1 } })
   })
+  it('adaptive pace: after a monster reaches the tower the next one walks a little slower, and the pace is remembered', async () => {
+    const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 3000 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    act(() => result.current.start())
+    await flushLines()
+    const first = result.current.state.round!
+    expect(first.walkMs).toBe(3000)
+    await act(async () => { await vi.advanceTimersByTimeAsync(3100) })
+    expect(result.current.state.outcome).toMatchObject({ kind: 'miss', choiceKey: null })
+    for (let g = 0; g < 10 && result.current.state.round?.id === first.id; g++) {
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
+    }
+    expect(result.current.state.round!.id).not.toBe(first.id)
+    const w = result.current.state.round!.walkMs
+    expect(w).toBeGreaterThan(3000)
+    expect(w).toBeLessThanOrEqual(3000 * 1.12)
+    expect(useProgressStore.getState().duel.pace).toBeGreaterThan(1)
+  })
   it('a monster that reaches the tower costs a heart (timeout)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000 }))
     act(() => result.current.start())
