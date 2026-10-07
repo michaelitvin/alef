@@ -186,7 +186,6 @@
   box-shadow: 0 -8px 30px rgba(140, 90, 255, 0.3);
   z-index: 5;
 }
-.nd-prompt { text-align: center; font-size: 18px; font-weight: 700; color: #d8c8ff; margin-bottom: 8px; min-height: 24px; }
 .nd-pad { display: grid; gap: 10px; }
 .nd-rune {
   height: 84px;
@@ -254,14 +253,12 @@
 .nd-landscape .nd-boss .nd-sprite { height: 200px; }
 .nd-landscape .nd-pad-area { padding: 6px 24px 40px; }
 .nd-landscape .nd-rune { height: 96px; }
-.nd-landscape .nd-prompt { margin-bottom: 6px; }
 .nd-landscape .nd-mega-btn { top: -62px; }
 
 /* non-reader UI: icons, dots and pictures instead of words */
 .nd-wave-dots { display: flex; gap: 6px; }
 .nd-wave-dots span { font-size: 16px; line-height: 1; color: rgba(255, 211, 77, 0.25); } /* stars, not dots: dots look like nikkud */
 .nd-wave-dots span.on { color: #ffd34d; text-shadow: 0 0 8px #ffd34d; }
-.nd-prompt { font-size: 30px; line-height: 1; }
 .nd-banner-sprite { height: 150px; width: auto; filter: drop-shadow(0 0 20px #b48cff); }
 .nd-wave-banner { font-size: 72px; }
 .nd-play-btn { font-size: 54px; padding: 10px 64px; line-height: 1; }
