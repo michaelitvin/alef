@@ -169,10 +169,10 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       }
 
       const s = stateRef.current
-      const { byMark, confusions } = store.getState().duel
+      const { byMark, confusions, recent } = store.getState().duel
       const r = makeRound({
         id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng,
-        runMisses: s.runMisses, lifetime: byMark, confusions: confusions ?? {},
+        lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
       })
       if (walkOverride) r.walkMs = walkOverride
 
