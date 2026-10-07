@@ -14,6 +14,14 @@ function seeded(seed: number) {
 const base = { lifetime: {}, recent: {} }
 
 describe('makeRound', () => {
+  it('a continuing boss starts where it was and walks only the rest of the way (same speed)', () => {
+    const rng = seeded(21)
+    const fresh = makeRound({ id: 1, wave: 5, kills: 5, boss: true, rng, ...base })
+    const cont = makeRound({ id: 2, wave: 5, kills: 5, boss: true, rng, ...base, bossStart: 0.4 })
+    expect(fresh.startFrac ?? 0).toBe(0)
+    expect(cont.startFrac).toBe(0.4)
+    expect(cont.walkMs).toBe(Math.round(fresh.walkMs * 0.6))
+  })
   it('the round right after "a new monster!" brings that monster; later rounds mix', () => {
     const rng = seeded(9)
     for (let i = 0; i < 30; i++) expect(makeRound({ id: i, wave: 4, kills: 0, boss: false, rng, ...base }).monster).toBe('bat')

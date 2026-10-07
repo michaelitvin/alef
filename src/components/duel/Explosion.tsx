@@ -92,8 +92,15 @@ export function Explosion({ round, outcome, x, geo }: { round: Round; outcome: O
             <MonsterImg id={round.monster} />
           </motion.span>
         ) : (
-          <motion.span className="nd-monster-chunk" initial={{ x: 0 }} animate={{ x: [0, 40, 30] }} transition={{ delay, duration: 0.4 }}>
+          <motion.span className={`nd-monster-chunk${round.boss ? ' nd-boss-hurt' : ''}`} initial={{ x: 0 }} animate={{ x: [0, 46, 34] }} transition={{ delay, duration: 0.4 }}>
             <MonsterImg id={round.monster} />
+            {round.boss && (
+              // the lost heart shatters
+              <motion.span className="nd-heart-shatter" initial={{ y: 0, scale: 1, opacity: 1, rotate: 0 }}
+                animate={{ y: -70, scale: [1, 1.6, 0.4], opacity: [1, 1, 0], rotate: 25 }} transition={{ delay, duration: 0.7 }}>
+                <Icon name="bossHeart" size={30} />
+              </motion.span>
+            )}
           </motion.span>
         )}
         <motion.span className="nd-plus" initial={{ y: 0, opacity: 0 }} animate={{ y: -90, opacity: [0, 1, 0] }} transition={{ delay: delay + 0.1, duration: 1 }}>

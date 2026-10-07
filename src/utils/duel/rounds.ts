@@ -84,12 +84,14 @@ export interface MakeRoundOpts {
   recent?: Record<string, string>
   /** confusions[target][tapped] = times he tapped `tapped` when `target` was asked */
   confusions?: Confusions
+  /** a boss fight continuing: where the boss starts (0..1 along the path) */
+  bossStart?: number
 }
 
 /** Sound clues start at wave 3; its first round is a sound screen so the spoken instruction introduces them in context. */
 const FIRST_SOUND_WAVE = 3
 
-export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confusions }: MakeRoundOpts): Round {
+export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confusions, bossStart }: MakeRoundOpts): Round {
   const type = wave === FIRST_SOUND_WAVE && kills === 0 && !boss ? 'B' : pick(rng, screenTypesFor(wave))
   const target = pickTarget(rng, lifetime, recent)
   const word = pick(rng, wordsFor(target.group))
@@ -117,6 +119,7 @@ export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confus
     // right after "a new monster!" comes that monster
     monster: boss ? bossFor(wave) : (kills === 0 && newMonsterAt(wave)) || pick(rng, unlockedMonsters(wave)),
     boss,
-    walkMs: walkMs(wave, boss),
+    walkMs: Math.round(walkMs(wave, boss) * (1 - (boss && bossStart ? bossStart : 0))),
+    ...(boss && bossStart ? { startFrac: bossStart } : {}),
   }
 }

@@ -29,6 +29,8 @@ export interface Round {
   monster: string // sprite id
   boss: boolean
   walkMs: number
+  /** where along its path it starts (0 = right edge, 1 = tower); a continuing boss picks up where it was */
+  startFrac?: number
 }
 
 export type Choice = { kind: 'rune'; mark: DuelMark } | { kind: 'sound'; group: SoundGroup }
