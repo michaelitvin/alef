@@ -40,6 +40,14 @@ beforeEach(() => {
 })
 
 describe('useDuelGame', () => {
+  it('telemetry: closing or leaving the page mid-run is recorded as an abandon (not only a pause)', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => { window.dispatchEvent(new Event('pagehide')) })
+    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    expect(ev[ev.length - 1]).toMatchObject({ e: 'abandon', reason: 'pagehide', round: result.current.state.round!.id })
+  })
   it('telemetry: what was shown where, the tap (position, latency), the outcome, assets used, and quitting mid-round', async () => {
     const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())

@@ -410,6 +410,21 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (r) void playClue(r)
   }, [playClue])
 
+  // The tab closed or navigated away mid-run (no unmount happens then): record the churn.
+  useEffect(() => {
+    const onHide = () => {
+      const s = stateRef.current
+      if (s.phase !== 'playing') return
+      track('abandon', {
+        reason: 'pagehide', round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused,
+        duringOutcome: !!s.outcome, msShown: s.round ? Math.round(performance.now() - spawnedAt.current) : null,
+      })
+      flushTelemetry()
+    }
+    window.addEventListener('pagehide', onHide)
+    return () => window.removeEventListener('pagehide', onHide)
+  }, [])
+
   // Tablet locked / tab hidden → pause.
   useEffect(() => {
     const onVis = () => {
@@ -424,8 +439,9 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     () => () => {
       const s = stateRef.current
       if (s.phase === 'playing') {
-        // left mid-run (home button, back, closed): churn
+        // left mid-run (home button, back): churn
         track('abandon', {
+          reason: 'unmount',
           round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused, duringOutcome: !!s.outcome,
           msShown: s.round ? Math.round(performance.now() - spawnedAt.current) : null,
         })
