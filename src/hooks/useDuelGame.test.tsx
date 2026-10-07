@@ -275,6 +275,30 @@ describe('useDuelGame', () => {
     expect(w).toBeLessThanOrEqual(3000 * 1.12)
     expect(useProgressStore.getState().duel.pace).toBeGreaterThan(1)
   })
+  it('shorter feedback: first time this game → full recap; later, a quick right answer on a strong mark → just the sound', async () => {
+    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel,
+      byMark: { kamatz: { seen: 40, correct: 40, wrong: 0, timeout: 0, twin: 0, mega: 0 } }, recent: { kamatz: 'oooooooo' } } })
+    const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 60000 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    act(() => result.current.start())
+    await flushLines()
+    const afterTap = async () => {
+      vi.mocked(playLine).mockClear()
+      act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      const said: string[] = []
+      for (let g = 0; g < 6 && pending.length; g++) {
+        said.push(pending[0].id)
+        await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(800) })
+      }
+      return said
+    }
+    expect((await afterTap()).slice(0, 3)).toEqual(['wiz-vowel-a', 'wiz-kamatz', expect.stringMatching(/^wiz-word-/)])
+    await flushLines()
+    const second = await afterTap()
+    expect(second[0]).toBe('wiz-vowel-a')
+    expect(second).not.toContain('wiz-kamatz')
+  })
   it('a monster that reaches the tower costs a heart (timeout)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000 }))
     act(() => result.current.start())

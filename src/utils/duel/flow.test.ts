@@ -22,6 +22,28 @@ describe('feedback plan: bosses flow, regular rounds teach', () => {
   })
 })
 
+describe('feedback scales with how sure the answer was', () => {
+  const sure = { firstThisRun: false, predicted: 0.05, usedFrac: 0.3, twin: false }
+  it('right, quick, on a strong mark: just the sound and a short pause', () => {
+    const p = feedbackPlan(round(false), out('hit', true), sure)
+    expect(p.say).toBe('sound')
+    expect(p.waitMs + p.tailMs).toBeLessThan(1600)
+  })
+  it('right but slow (over 60% of the walk): sound and name, no word', () => {
+    expect(feedbackPlan(round(false), out('hit', true), { ...sure, usedFrac: 0.7 }).say).toBe('sound-name')
+  })
+  it('the full sound → name → word whenever he is unsure: first time this game, a weak mark, a forgiven twin, a miss', () => {
+    expect(feedbackPlan(round(false), out('hit', true), { ...sure, firstThisRun: true }).say).toBe('full')
+    expect(feedbackPlan(round(false), out('hit', true), { ...sure, predicted: 0.2 }).say).toBe('full')
+    expect(feedbackPlan(round(false), out('hit', true), { ...sure, twin: true }).say).toBe('full')
+    expect(feedbackPlan(round(false), out('miss', false), sure).say).toBe('full')
+  })
+  it('every plan shows the result banner except a boss hit that does not finish it', () => {
+    expect(feedbackPlan(round(false), out('hit', true), sure).banner).toBe(true)
+    expect(feedbackPlan(round(true), out('hit', false), sure).banner).toBe(false)
+  })
+})
+
 describe('a boss keeps coming from where it was', () => {
   it('a hit knocks it back a step from where it stood', () => {
     // started at 0.2 of the way, walked half its remaining time → stood at 0.6
