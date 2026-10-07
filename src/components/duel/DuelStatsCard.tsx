@@ -7,7 +7,8 @@ import type { ScreenType, Tally } from '../../types/duel'
 import { RuneGlyph } from './RuneGlyph'
 import { exportTelemetry, telemetryCount } from '../../utils/duel/telemetry'
 
-const TYPE_NAMES: Record<ScreenType, string> = { A: 'תמונה ← ניקוד', B: 'צליל ← ניקוד', C: 'שם ← ניקוד', D: 'ניקוד ← תמונה' }
+// Screens in the game (the picture-choice screen D was dropped, so it has no row).
+const TYPE_NAMES: Partial<Record<ScreenType, string>> = { A: 'תמונה ← ניקוד', B: 'צליל ← ניקוד', C: 'שם ← ניקוד' }
 const COLS: { key: keyof Tally | 'correctPct'; label: string }[] = [
   { key: 'seen', label: 'הופיע' },
   { key: 'correctPct', label: 'נכון' },
@@ -88,7 +89,7 @@ export function DuelStatsCard() {
                 </tr>
               </thead>
               <tbody>
-                {(['A', 'B', 'C', 'D'] as const).map((k) => (
+                {(['A', 'B', 'C'] as const).map((k) => (
                   <tr key={k} data-type={k}>
                     <td style={{ ...td, textAlign: 'start' }}>{TYPE_NAMES[k]}</td>
                     {COLS.map((c) => <td key={c.key} style={td} data-col={c.key === 'correctPct' ? 'correct' : c.key}>{cell(d.byType[k], c.key)}</td>)}
