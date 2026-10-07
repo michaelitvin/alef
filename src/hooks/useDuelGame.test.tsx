@@ -299,6 +299,22 @@ describe('useDuelGame', () => {
     expect(second[0]).toBe('wiz-vowel-a')
     expect(second).not.toContain('wiz-kamatz')
   })
+  it('a defeated boss is congratulated first, then the usual recap', async () => {
+    const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, boss: true, monster: 'dragon', walkMs: 60000 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    act(() => result.current.start())
+    await flushLines()
+    act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(result.current.state.outcome).toMatchObject({ kind: 'hit', final: true })
+    const said: string[] = []
+    for (let g = 0; g < 6 && pending.length; g++) {
+      said.push(pending[0].id)
+      await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(800) })
+    }
+    expect(said[0]).toBe('line-boss-win')
+    expect(said[1]).toBe('wiz-vowel-a')
+  })
   it('a monster that reaches the tower costs a heart (timeout)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000 }))
     act(() => result.current.start())

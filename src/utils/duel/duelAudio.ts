@@ -16,7 +16,7 @@ const SFX_TIMEOUT_MS = 3000
 /** Playtest: the recorded speech felt slow and made the whole game feel slow. */
 export const VOICE_RATE = 1.15
 /** Announcements that should land on their own: the background music pauses while they play. */
-const DRAMATIC = new Set(['line-mega', 'line-boss', 'line-new-monster', 'line-combo', 'line-record'])
+const DRAMATIC = new Set(['line-mega', 'line-boss', 'line-boss-win', 'line-new-monster', 'line-combo', 'line-record'])
 
 let cfg = { sfx: true, music: true, volume: 0.8 }
 const howls = new Map<string, Howl>()
