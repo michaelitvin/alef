@@ -11,7 +11,8 @@ import { LINE_CUES, type LineCue } from '../assets/duel/lineCues'
 import { VOICE_URLS } from '../assets/duel/audioFiles'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
 import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
-import { feedbackPlan, nextBossStart } from '../utils/duel/flow'
+import { feedbackPlan, nextBossStart, type FeedbackPlan } from '../utils/duel/flow'
+import { predictedMistakeRate } from '../utils/duel/rounds'
 import { makeFxPicker, type FxStyle } from '../utils/duel/fxStyle'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
@@ -53,6 +54,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const [hidden, setHidden] = useState<LineCue[]>([])
   /** The look of the current hit (projectile, burst, exit, colours, cast), dealt so hits don't repeat. */
   const [fx, setFx] = useState<FxStyle | null>(null)
+  /** How the current result is fed back (full recap / sound + name / sound only); DuelPage shows the banner from it. */
+  const [feedback, setFeedback] = useState<FeedbackPlan | null>(null)
   const nextFx = useRef<(() => FxStyle) | null>(null)
 
   const stateRef = useRef(state)
@@ -69,6 +72,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const twinKey = useRef<string | null>(null)
   const almost = useRef<Promise<void>>(Promise.resolve()) // "almost" + twin name; the outcome speech waits for it
   const megaAnnounced = useRef(false)
+  const marksThisRun = useRef(new Set<string>()) // marks already answered this game (the first time gets the full recap)
   const bossStart = useRef(0) // a boss fight continues from where the boss stood
   const megaQueued = useRef(false) // lightning tapped between monsters: cast on the next one
   const cueTimer = useRef(0)
@@ -89,18 +93,20 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     return playLine(id, cb)
   }, [])
 
-  /** Wizard feedback: sound → name → picture word (shva: the silent puff → name), each highlighted as it is said. */
-  const sayMark = useCallback((m: DuelMark, word?: PictureWord) => {
+  /**
+   * Wizard feedback: sound → name → picture word (shva: the silent puff → name), each highlighted as it is said.
+   * `parts` shortens it after confident answers: 'sound-name' drops the word, 'sound' says only the sound.
+   */
+  const sayMark = useCallback((m: DuelMark, word?: PictureWord, parts: FeedbackPlan['say'] = 'full') => {
     const w = word ?? wordsFor(m.group)[0]
     setSpeaking('sound')
     return (m.group === 'silent' ? say('sfx-mute') : say(`wiz-vowel-${m.group}`))
-      .then(() => delay(250))
-      .then(() => {
+      .then(() => (parts === 'sound' ? undefined : delay(250).then(() => {
         setSpeaking('name')
         return say(`wiz-${m.id}`)
-      })
+      })))
       .then(() => {
-        if (m.group === 'silent') return undefined
+        if (m.group === 'silent' || parts !== 'full') return undefined
         return delay(200).then(() => {
           setSpeaking('word')
           return say(`wiz-word-${w.key}`)
@@ -248,15 +254,25 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (!o || !r || state.phase !== 'playing') return
     const token = roundToken.current
     const result = o.mega ? 'mega' : o.kind === 'hit' ? 'correct' : o.choiceKey ? 'wrong' : 'timeout'
+    // how sure the answer was — measured before this round is recorded
+    const before = store.getState().duel
+    const confidence = {
+      firstThisRun: !marksThisRun.current.has(r.target.id),
+      predicted: predictedMistakeRate(before.byMark[r.target.id], before.recent?.[r.target.id]),
+      usedFrac: state.walking ? (performance.now() - walkStartedAt.current) / r.walkMs : null,
+      twin: state.twinTried !== null,
+    }
+    marksThisRun.current.add(r.target.id)
     store.getState().recordDuelRound(r.target.id, r.type, result, performance.now() - spawnedAt.current)
     const now = performance.now()
     const msWalk = state.walking || result === 'timeout' ? now - walkStartedAt.current : null
     const pace = nextPace(store.getState().duel.pace ?? 1, { result, msWalk, walkMs: r.walkMs })
     if (r.boss) bossStart.current = o.final ? 0 : nextBossStart(r.startFrac ?? 0, msWalk, r.walkMs, result)
-    const plan = feedbackPlan(r, o)
+    const plan = feedbackPlan(r, o, confidence)
+    setFeedback(plan)
     store.getState().setDuelPace(pace)
     track('outcome', {
-      pace,
+      pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
       hearts: state.hearts, combo: state.combo, score: state.score, bossHp: state.bossHp,
       msShown: Math.round(now - spawnedAt.current), msWalk: Math.round(now - walkStartedAt.current),
@@ -287,7 +303,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (megaLine) megaAnnounced.current = true
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
-      .then(() => (plan.say === 'full' ? sayMark(r.target, r.word) : say(r.target.group === 'silent' ? 'sfx-mute' : `wiz-vowel-${r.target.group}`)))
+      .then(() => sayMark(r.target, r.word, plan.say))
       .then(() => {
         if (!comboLine) return
         setCelebrate({ combo: state.combo, at: Date.now() })
@@ -325,6 +341,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     megaAnnounced.current = false
     megaQueued.current = false
     bossStart.current = 0
+    marksThisRun.current = new Set()
     setLightning(false)
     setCue(null)
     setCelebrate(null)
@@ -475,5 +492,5 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   }, [state.mega])
   useEffect(() => () => window.clearTimeout(cueTimer.current), [])
 
-  return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, hidden, fx, start, choose, megaCast, pause, resume, replayClue, sayMark }
+  return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, hidden, fx, feedback, start, choose, megaCast, pause, resume, replayClue, sayMark }
 }

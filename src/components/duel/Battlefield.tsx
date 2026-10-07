@@ -8,7 +8,6 @@ import { TOWER, WIZARD } from '../../assets/duel/sprites'
 import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
-import { feedbackPlan } from '../../utils/duel/flow'
 import type { FxStyle } from '../../utils/duel/fxStyle'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
@@ -43,10 +42,12 @@ interface Props {
   speaking?: 'sound' | 'name' | 'word' | null
   /** the look of this hit */
   fx?: FxStyle | null
+  /** show the result banner (off for a boss hit that does not finish it) */
+  resultBanner?: boolean
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, onReplay = () => {} }: Props) {
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)
@@ -132,7 +133,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} />}
-      {round && outcome && feedbackPlan(round, outcome).banner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
+      {round && outcome && resultBanner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (
         <motion.div className="nd-wave-banner" initial={{ scale: 0, rotate: -8 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>
