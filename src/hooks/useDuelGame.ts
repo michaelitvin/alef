@@ -11,6 +11,7 @@ import { LINE_CUES, type LineCue } from '../assets/duel/lineCues'
 import { VOICE_URLS } from '../assets/duel/audioFiles'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
 import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
+import { feedbackPlan, nextBossStart } from '../utils/duel/flow'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
 } from '../utils/duel/duelAudio'
@@ -64,6 +65,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const twinKey = useRef<string | null>(null)
   const almost = useRef<Promise<void>>(Promise.resolve()) // "almost" + twin name; the outcome speech waits for it
   const megaAnnounced = useRef(false)
+  const bossStart = useRef(0) // a boss fight continues from where the boss stood
   const megaQueued = useRef(false) // lightning tapped between monsters: cast on the next one
   const cueTimer = useRef(0)
   const pendingSpawn = useRef<Extract<Next, { kind: 'spawn' }> | null>(null)
@@ -128,7 +130,14 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         pad: r.runes.map((m) => m.id), padWords: r.padWords.map((w) => w.key),
       })
       playMusic(trackForWave(stateRef.current.wave, r.boss))
-      const arrived = playSfx('arrival')
+      if (r.boss && !r.startFrac) {
+        // a boss stomps in: the ground shakes
+        window.setTimeout(() => {
+          setShake({ power: 9, at: Date.now() })
+          void playSfx('boom', 0.5)
+        }, 280)
+      }
+      const arrived = r.startFrac ? Promise.resolve() : playSfx('arrival')
       if (r.type === 'A' || r.type === 'D') return
       void arrived
         .then(() => delay(450))
@@ -177,6 +186,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       const r = makeRound({
         id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng,
         lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
+        bossStart: next.boss ? bossStart.current : undefined,
       })
       // adaptive pace, applied silently between monsters (a ?walk= override in test builds wins)
       r.walkMs = walkOverride ?? Math.round(r.walkMs * (store.getState().duel.pace ?? 1))
@@ -238,6 +248,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const now = performance.now()
     const msWalk = state.walking || result === 'timeout' ? now - walkStartedAt.current : null
     const pace = nextPace(store.getState().duel.pace ?? 1, { result, msWalk, walkMs: r.walkMs })
+    if (r.boss) bossStart.current = o.final ? 0 : nextBossStart(r.startFrac ?? 0, msWalk, r.walkMs, result)
+    const plan = feedbackPlan(r, o)
     store.getState().setDuelPace(pace)
     track('outcome', {
       pace,
@@ -256,13 +268,13 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         void playSfx('sparkle')
         setShake({ power: o.final ? juice.shake : juice.shake * 0.4, at: Date.now() })
       }, impact)
-      wait = 1300 + juice.hitstopMs
+      wait = plan.waitMs
     } else {
       window.setTimeout(() => {
         void playSfx('ouch')
         setShake({ power: 8, at: Date.now() })
       }, 380)
-      wait = 2000
+      wait = plan.waitMs
     }
     if (o.mega) megaAnnounced.current = false
     const comboLine = o.kind === 'hit' && state.combo > 0 && state.combo % 5 === 0
@@ -271,7 +283,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (megaLine) megaAnnounced.current = true
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
-      .then(() => sayMark(r.target, r.word))
+      .then(() => (plan.say === 'full' ? sayMark(r.target, r.word) : say(r.target.group === 'silent' ? 'sfx-mute' : `wiz-vowel-${r.target.group}`)))
       .then(() => {
         if (!comboLine) return
         setCelebrate({ combo: state.combo, at: Date.now() })
@@ -280,7 +292,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       })
       .then(() => (megaLine ? say('line-mega', onCue) : undefined))
     void Promise.all([delay(wait), speech])
-      .then(() => delay(500))
+      .then(() => delay(plan.tailMs))
       .then(() => {
         if (token !== roundToken.current) return
         if (pausedRef.current) {
@@ -308,6 +320,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     introDue.current = true
     megaAnnounced.current = false
     megaQueued.current = false
+    bossStart.current = 0
     setLightning(false)
     setCue(null)
     setCelebrate(null)

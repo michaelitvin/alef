@@ -8,6 +8,7 @@ import { TOWER, WIZARD } from '../../assets/duel/sprites'
 import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
+import { feedbackPlan } from '../../utils/duel/flow'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
@@ -81,9 +82,10 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
   if (!walking) walkKey.current = -1
   const outcomeX = useMemo(() => {
     if (!outcome || !round) return geo.start
-    if (!walking) return geo.start
+    if (!walking) return geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
     const frac = Math.min(1, (performance.now() - walkStart.current) / round.walkMs)
-    return geo.start - (geo.start - geo.end) * frac
+    const from = geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
+    return from - (from - geo.end) * frac
     // freeze at the moment the outcome arrives
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outcome])
@@ -119,12 +121,12 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
       )}
 
       {round && !outcome && (
-        <WalkingMonster round={round} walking={walking} startX={geo.start} endX={geo.end} bossHp={bossHp} onReplay={onReplay}
+        <WalkingMonster round={round} walking={walking} startX={geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)} endX={geo.end} bossHp={bossHp} onReplay={onReplay}
           remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} />}
-      {round && outcome && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
+      {round && outcome && feedbackPlan(round, outcome).banner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (
         <motion.div className="nd-wave-banner" initial={{ scale: 0, rotate: -8 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>
