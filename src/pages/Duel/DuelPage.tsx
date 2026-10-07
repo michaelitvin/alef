@@ -10,7 +10,7 @@ import { StartCover } from '../../components/duel/StartCover'
 import { PauseCover } from '../../components/duel/PauseCover'
 import { RunSummary } from '../../components/duel/RunSummary'
 import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
-import { Icon, type IconName } from '../../components/duel/Icon'
+import { Icon } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
 import { ComboBurst } from '../../components/duel/ComboBurst'
 import { preloadDuelImages } from '../../assets/duel/sprites'
@@ -23,7 +23,6 @@ import '../../components/duel/duel.css'
 
 export const TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
 
-const PROMPT_ICON: Record<string, IconName> = { A: 'eye', B: 'ear', C: 'ear', D: 'shield' }
 
 function Starfield() {
   const stars = useMemo(
@@ -96,7 +95,6 @@ export default function DuelPage() {
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} onReplay={game.replayClue} />
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
-          <div className="nd-prompt">{state.round ? <Icon name={PROMPT_ICON[state.round.type]} size={32} /> : null}</div>
           {state.mega >= MEGA_MAX && game.lightning && state.round && playing && (
             <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0, rotate: -120 }}
               animate={{ scale: [0, 1.9, 0.9, 1.15, 1], rotate: [-120, 20, -10, 0, 0] }}

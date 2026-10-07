@@ -25,7 +25,6 @@ const delay = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 /** Playtest: lines ran into each other (intro → instruction); a beat of silence between consecutive lines. */
 const LINE_GAP_MS = 800
 
-const HOW_ICON: Record<string, IconName> = { A: 'eye', B: 'ear', C: 'ear', D: 'shield', silent: 'ear' }
 
 export interface UseDuelGameOpts {
   rng?: Rng
@@ -179,7 +178,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
 
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
       if (!s.seenScreens.includes(key)) {
-        setBanner({ icons: [HOW_ICON[key]] })
+        // no look/listen icon (playtest: not needed); the glow cues point at the picture, speaker and marks
         await say(`line-how-${key}`, onCue)
         setBanner(null)
         if (held()) return void (pendingSpawn.current = { ...next, announce: null })

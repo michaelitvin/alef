@@ -139,6 +139,13 @@ describe('useDuelGame', () => {
       [`wiz-word-${r.word.key}`, 'word'],
     ])
   })
+  it('instructions show no look/listen icon banner (the glow cues point at the real things)', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(1500) })
+    expect(pending.map((p) => p.id)).toEqual(['line-how-A'])
+    expect(result.current.banner).toBeNull()
+  })
   it('a beat of silence separates consecutive wizard lines (intro → instruction)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())
