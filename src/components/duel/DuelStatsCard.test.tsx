@@ -48,5 +48,6 @@ describe('DuelStatsCard', () => {
     expect(container.querySelector('tr[data-mark="chirik"] [data-col="correct"]')!.textContent).toBe('0%')
     expect(container.querySelector('tr[data-mark="shva"] [data-col="correct"]')!.textContent).toBe('—')
     expect(container.querySelector('tr[data-type="C"] [data-col="twin"]')!.textContent).toBe('1')
+    expect(container.querySelector('tr[data-type="D"]')).toBeNull() // the picture-choice screen was dropped: no row
   })
 })
