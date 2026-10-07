@@ -33,6 +33,7 @@ vi.mock('../../assets/duel/lineCues', () => ({ LINE_CUES: { 'line-mega': [{ at: 
 vi.mock('../../assets/duel/audioFiles', () => ({
   SFX_URLS: { arrival1: 'a1', arrival2: 'a2', arrival3: 'a3', cast: 'c', boom1: 'b1', boom2: 'b2', ouch: 'o', mega: 'm', sparkle: 's' },
   MUSIC_URLS: { calm: 'mc', mid: 'mm', fast: 'mf', boss1: 'mb1', boss2: 'mb2', victory: 'mv' },
+  MUSIC_SETS: { calm: ['mc', 'mc2', 'mc3'], mid: ['mm', 'mm2'], fast: ['mf'], boss: ['mb1', 'mb2', 'mb3'], victory: ['mv'] },
   VOICE_URLS: { 'wiz-kamatz': 'wk', 'line-mega': 'lm' },
 }))
 
@@ -64,7 +65,7 @@ describe('duelAudio', () => {
     const audio = await import('./duelAudio')
     audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
     audio.playMusic('calm')
-    const m = byUrl('mc')
+    const m = instances.find((i) => i.playing())!
     const p = audio.playLine('line-mega')
     await vi.advanceTimersByTimeAsync(400)
     expect(m.playing()).toBe(false)
@@ -80,7 +81,7 @@ describe('duelAudio', () => {
     audio.playMusic('calm')
     void audio.playLine('wiz-kamatz')
     await vi.advanceTimersByTimeAsync(400)
-    expect(byUrl('mc').playing()).toBe(true)
+    expect(instances.find((i) => i.src[0].startsWith('mc'))!.playing()).toBe(true)
   })
   it('a cue fires when its word is spoken (file time ÷ VOICE_RATE)', async () => {
     const audio = await import('./duelAudio')
@@ -128,7 +129,7 @@ describe('duelAudio', () => {
     const audio = await import('./duelAudio')
     audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
     audio.playMusic('calm')
-    const m = byUrl('mc')
+    const m = instances.find((i) => i.src[0].startsWith('mc'))!
     expect(m._vol).toBeGreaterThan(0.2)
     const p = audio.playLine('wiz-kamatz')
     expect(m._vol).toBeLessThan(0.2)
@@ -146,23 +147,49 @@ describe('duelAudio', () => {
     expect(audio.trackForWave(7, false)).toBe('fast')
     expect(audio.trackForWave(5, true)).toBe('boss')
   })
+  it('music varies: each new wave switches to another variation of its tier; the same wave keeps it', async () => {
+    const audio = await import('./duelAudio')
+    audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
+    const playing = () => instances.filter((i) => i.playing()).map((i) => i.src[0])
+    audio.playMusic('calm', 1)
+    const first = playing()
+    audio.playMusic('calm', 1)
+    expect(playing()).toEqual(first) // same wave: keeps playing
+    const seen = new Set(first)
+    for (let w = 2; w <= 6; w++) {
+      vi.advanceTimersByTime(400) // the previous track fades out
+      const before = playing()[0]
+      audio.playMusic('calm', w)
+      vi.advanceTimersByTime(400)
+      const now = playing()
+      expect(now).toHaveLength(1)
+      expect(now[0]).not.toBe(before)
+      seen.add(now[0])
+    }
+    expect(seen.size).toBe(3) // every calm variation came up
+  })
   it('boss tracks alternate', async () => {
     const audio = await import('./duelAudio')
     audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
-    audio.playMusic('boss')
-    expect(byUrl('mb1').playing()).toBe(true)
-    audio.playMusic('calm')
-    audio.playMusic('boss')
-    expect(byUrl('mb2').playing()).toBe(true)
+    audio.playMusic('boss', 5)
+    const a = instances.find((i) => i.playing())!.src[0]
+    audio.playMusic('calm', 6)
+    vi.advanceTimersByTime(400)
+    audio.playMusic('boss', 10)
+    vi.advanceTimersByTime(400)
+    const b = instances.filter((i) => i.playing()).map((i) => i.src[0]).find((u) => u.startsWith('mb'))
+    expect(b).toBeTruthy()
+    expect(b).not.toBe(a)
   })
   it('a boss fight keeps one boss track across its rounds', async () => {
     const audio = await import('./duelAudio')
     audio.configureDuelAudio({ sfx: true, music: true, volume: 1 })
-    audio.playMusic('boss')
-    audio.playMusic('boss')
-    audio.playMusic('boss')
-    expect(byUrl('mb1').playing()).toBe(true)
-    expect(instances.some((i) => i.src[0] === 'mb2')).toBe(false)
+    audio.playMusic('boss', 5)
+    const a = instances.find((i) => i.playing())!.src[0]
+    audio.playMusic('boss', 5)
+    audio.playMusic('boss', 5)
+    expect(byUrl(a).playing()).toBe(true)
+    expect(instances.filter((i) => i.src[0].startsWith('mb'))).toHaveLength(1)
   })
   it('sfx off: playSfx resolves without playing', async () => {
     const audio = await import('./duelAudio')

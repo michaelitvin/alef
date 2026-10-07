@@ -12,6 +12,7 @@ import { VOICE_URLS } from '../assets/duel/audioFiles'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
 import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
 import { feedbackPlan, nextBossStart } from '../utils/duel/flow'
+import { makeFxPicker, type FxStyle } from '../utils/duel/fxStyle'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
 } from '../utils/duel/duelAudio'
@@ -50,6 +51,9 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const [speaking, setSpeaking] = useState<'sound' | 'name' | 'word' | null>(null)
   /** Things not on screen yet: each appears when the wizard names it ("…the tower", "…the picture", "…the marks"). */
   const [hidden, setHidden] = useState<LineCue[]>([])
+  /** The look of the current hit (projectile, burst, exit, colours, cast), dealt so hits don't repeat. */
+  const [fx, setFx] = useState<FxStyle | null>(null)
+  const nextFx = useRef<(() => FxStyle) | null>(null)
 
   const stateRef = useRef(state)
   stateRef.current = state
@@ -129,7 +133,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         monster: r.monster, monsterSrc: MONSTERS[r.monster]?.src ?? null, walkMs: r.walkMs,
         pad: r.runes.map((m) => m.id), padWords: r.padWords.map((w) => w.key),
       })
-      playMusic(trackForWave(stateRef.current.wave, r.boss))
+      playMusic(trackForWave(stateRef.current.wave, r.boss), stateRef.current.wave)
       if (r.boss && !r.startFrac) {
         // a boss stomps in: the ground shakes
         window.setTimeout(() => {
@@ -353,6 +357,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     }
     answeredRound.current = r.id
     if (!isCorrect(r, c)) store.getState().recordDuelConfusion(r.target.id, keyOf(c))
+    setFx((nextFx.current ??= makeFxPicker(rng))())
     const effect = pickEffect(rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
     dispatch({ type: 'CHOOSE', choice: c, effect })
   }, [rng, store])
@@ -369,6 +374,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (answeredRound.current === r.id) return
     megaQueued.current = false
     answeredRound.current = r.id
+    setFx((nextFx.current ??= makeFxPicker(Math.random))())
     dispatch({ type: 'MEGA', effect: 'mega' })
   }, [])
 
@@ -469,5 +475,5 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   }, [state.mega])
   useEffect(() => () => window.clearTimeout(cueTimer.current), [])
 
-  return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, hidden, start, choose, megaCast, pause, resume, replayClue, sayMark }
+  return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, hidden, fx, start, choose, megaCast, pause, resume, replayClue, sayMark }
 }

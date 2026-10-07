@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { MONSTERS, WORD_PICTURE, WIZARD, TOWER } from './sprites'
-import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from './audioFiles'
+import { MUSIC_SETS, MUSIC_URLS, SFX_URLS, VOICE_URLS } from './audioFiles'
 import { PICTURE_WORDS } from '../../utils/duel/words'
 import { DUEL_MARKS, SOUND_GROUPS } from '../../utils/duel/marks'
 import { ROSTER } from '../../utils/duel/rules'
@@ -33,7 +33,8 @@ describe('duel assets', () => {
     for (const [k, v] of Object.entries(SFX_URLS)) expect(v, k).toBeTruthy()
     for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)
-    expect(Object.keys(MUSIC_URLS)).toHaveLength(6)
+    expect(Object.keys(MUSIC_URLS)).toHaveLength(14)
+    for (const [tier, urls] of Object.entries(MUSIC_SETS)) expect(urls.length, tier).toBeGreaterThanOrEqual(tier === 'victory' ? 1 : 3)
   })
 })
 
