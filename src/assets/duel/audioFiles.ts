@@ -36,12 +36,15 @@ export const MUSIC_URLS = {
   victory: music['music-victory'],
 }
 
-/** Variations per tier: they rotate wave by wave (playtest: one loop got monotonous). */
+/**
+ * Variations per tier: they rotate wave by wave (playtest: one loop got monotonous). Bosses keep their original two
+ * tracks as their signature; the newer battle tracks (boss3/boss4) play in the fast waves instead.
+ */
 export const MUSIC_SETS = {
   calm: [MUSIC_URLS.calm, MUSIC_URLS.calm2, MUSIC_URLS.calm3],
   mid: [MUSIC_URLS.mid, MUSIC_URLS.mid2, MUSIC_URLS.mid3],
-  fast: [MUSIC_URLS.fast, MUSIC_URLS.fast2, MUSIC_URLS.fast3],
-  boss: [MUSIC_URLS.boss1, MUSIC_URLS.boss2, MUSIC_URLS.boss3, MUSIC_URLS.boss4],
+  fast: [MUSIC_URLS.fast, MUSIC_URLS.fast2, MUSIC_URLS.fast3, MUSIC_URLS.boss3, MUSIC_URLS.boss4],
+  boss: [MUSIC_URLS.boss1, MUSIC_URLS.boss2],
   victory: [MUSIC_URLS.victory],
 }
 
