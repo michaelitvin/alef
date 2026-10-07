@@ -381,3 +381,11 @@
 .nd-boss-hurt .nd-sprite { animation: nd-hurt 0.5s ease-out 0.3s 2; }
 @keyframes nd-hurt { 0%, 100% { filter: none; } 40% { filter: brightness(1.6) sepia(1) saturate(6) hue-rotate(-30deg); } }
 .nd-heart-shatter { position: absolute; left: 50%; top: -10px; }
+
+/* Projectiles (fxStyle): fireball keeps .nd-fireball; the rest are drawn here. */
+.nd-proj { position: absolute; width: 34px; height: 34px; margin-left: -17px; z-index: 6; pointer-events: none; }
+.nd-proj-iceshard { width: 22px; height: 44px; margin-left: -11px; background: linear-gradient(#ffffff, #8fd8ff 50%, #3a7bd5); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter: drop-shadow(0 0 10px #8fd8ff); }
+.nd-proj-star { display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 12px #ffd34d); animation: nd-spin 0.3s linear infinite; }
+.nd-proj-rainbow { width: 60px; height: 14px; margin-left: -30px; border-radius: 8px; background: linear-gradient(90deg, #ff5a5a, #ffd34d, #7dff9a, #8fd8ff, #b48cff); filter: drop-shadow(0 0 8px #fff); }
+.nd-proj-bubble { border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, rgba(143, 216, 255, 0.5) 40%, rgba(180, 140, 255, 0.25) 70%); border: 2px solid rgba(255, 255, 255, 0.8); }
+@keyframes nd-spin { to { transform: rotate(360deg); } }

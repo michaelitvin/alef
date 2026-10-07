@@ -9,6 +9,7 @@ import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
 import { feedbackPlan } from '../../utils/duel/flow'
+import type { FxStyle } from '../../utils/duel/fxStyle'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
@@ -28,6 +29,9 @@ export function useLandscape() {
   return on
 }
 
+/** The wizard's casting move varies with the hit's style. */
+const CAST_ANIM = { pulse: { scale: [1, 1.12, 1] }, twirl: { rotate: [0, 360] }, jump: { y: [0, -26, 0] } }
+
 interface Props {
   round: Round | null
   outcome: Outcome | null
@@ -37,10 +41,12 @@ interface Props {
   banner: ReactNode | null
   bossHp?: number
   speaking?: 'sound' | 'name' | 'word' | null
+  /** the look of this hit */
+  fx?: FxStyle | null
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, onReplay = () => {} }: Props) {
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)
@@ -104,7 +110,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
         alt=""
         draggable={false}
         onLoad={relayout}
-        animate={outcome?.kind === 'hit' ? { scale: [1, 1.12, 1] } : outcome?.kind === 'miss' ? { rotate: [0, -6, 6, -4, 0] } : { y: [0, -3, 0] }}
+        animate={outcome?.kind === 'hit' ? CAST_ANIM[fx?.cast ?? 'pulse'] : outcome?.kind === 'miss' ? { rotate: [0, -6, 6, -4, 0] } : { y: [0, -3, 0] }}
         transition={outcome ? { duration: 0.4 } : { repeat: Infinity, duration: 1.8 }}
       />
 
@@ -125,7 +131,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
           remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
-      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} />}
+      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} />}
       {round && outcome && feedbackPlan(round, outcome).banner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (

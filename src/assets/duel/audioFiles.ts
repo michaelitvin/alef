@@ -21,11 +21,28 @@ export const SFX_URLS = {
 
 export const MUSIC_URLS = {
   calm: music['music-calm'],
+  calm2: music['music-calm-2'],
+  calm3: music['music-calm-3'],
   mid: music['music-mid'],
+  mid2: music['music-mid-2'],
+  mid3: music['music-mid-3'],
   fast: music['music-fast'],
+  fast2: music['music-fast-2'],
+  fast3: music['music-fast-3'],
   boss1: music['music-boss-1'],
   boss2: music['music-boss-2'],
+  boss3: music['music-boss-3'],
+  boss4: music['music-boss-4'],
   victory: music['music-victory'],
+}
+
+/** Variations per tier: they rotate wave by wave (playtest: one loop got monotonous). */
+export const MUSIC_SETS = {
+  calm: [MUSIC_URLS.calm, MUSIC_URLS.calm2, MUSIC_URLS.calm3],
+  mid: [MUSIC_URLS.mid, MUSIC_URLS.mid2, MUSIC_URLS.mid3],
+  fast: [MUSIC_URLS.fast, MUSIC_URLS.fast2, MUSIC_URLS.fast3],
+  boss: [MUSIC_URLS.boss1, MUSIC_URLS.boss2, MUSIC_URLS.boss3, MUSIC_URLS.boss4],
+  victory: [MUSIC_URLS.victory],
 }
 
 /** Voice lines keyed by id: wiz-<mark>, wiz-vowel-<g>, wiz-word-<key>, mon-name-<mark>, mon-vowel-<g>, mon-word-<key>, sfx-mute, line-*. */

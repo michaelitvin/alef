@@ -3,7 +3,7 @@
 // lines pause it outright. Anything missing, failing or silent resolves via a safety timeout so the game
 // can never stall waiting for audio.
 import { Howl, Howler } from 'howler'
-import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
+import { MUSIC_SETS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
 
 export type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
@@ -124,22 +124,25 @@ let current: Howl | null = null
 let musicId: number | undefined // the playing sound in `current`, so a resume continues it instead of layering a new one
 let ducks = 0
 let hushes = 0
-let bossToggle = false
+/** Which variation each tier played last (they rotate). */
+const lastVariation: Partial<Record<MusicTrack, number>> = {}
+/** The tier + wave the current track belongs to: a new wave (or a new boss fight) moves to the next variation. */
+let currentKey = ''
 
 export const trackForWave = (wave: number, boss: boolean): MusicTrack => (boss ? 'boss' : wave <= 2 ? 'calm' : wave <= 5 ? 'mid' : 'fast')
 
-export function playMusic(track: MusicTrack) {
+/** Starts the tier's music for this wave: the same wave keeps its track; a new wave gets the tier's next variation. */
+export function playMusic(track: MusicTrack, wave = 0) {
   if (!cfg.music) return
-  const bossHowls = [howls.get(MUSIC_URLS.boss1), howls.get(MUSIC_URLS.boss2)]
-  if (track === 'boss' && current && bossHowls.includes(current) && current.playing()) return // same fight, same track
-  let url: string
-  if (track === 'boss') {
-    bossToggle = !bossToggle
-    url = bossToggle ? MUSIC_URLS.boss1 : MUSIC_URLS.boss2
-  } else url = MUSIC_URLS[track]
-  const next = howl(url, track !== 'victory')
-  if (current === next && next.playing()) return
+  const key = track === 'victory' ? 'victory' : `${track}:${wave}`
+  if (key === currentKey && current) return // same wave or same boss fight: keep the track (even while paused for a line)
+  const set = MUSIC_SETS[track]
+  const prev = lastVariation[track] ?? Math.floor(Math.random() * set.length) - 1
+  const i = (prev + 1) % set.length
+  lastVariation[track] = i
+  const next = howl(set[i], track !== 'victory')
   stopMusic()
+  currentKey = key
   current = next
   musicId = undefined
   next.volume(0)
@@ -152,6 +155,7 @@ export function stopMusic() {
   if (!current) return
   const h = current
   current = null
+  currentKey = ''
   musicId = undefined
   h.fade(h.volume(), 0, 300)
   window.setTimeout(() => h.stop(), 320)
