@@ -15,13 +15,13 @@ describe('stripPunctuation', () => {
 describe('decodeWord', () => {
   it('decodes אַבָּא (patach, dagesh+kamatz, bare final alef)', () => {
     expect(decodeWord('אַבָּא')).toBe(
-      'אָלֶף עִם פַּתָח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא'
+      'אָלֶף עִם פַּתָּח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא'
     )
   })
 
   it('decodes יַלְדָּה (shva, final he)', () => {
     expect(decodeWord('יַלְדָּה')).toBe(
-      'יוֹד עִם פַּתָח, לָמֶד עִם שְׁוָא, דָּלֶת עִם דָּגֵשׁ וְקָמָץ, הֵא - יַלְדָּה'
+      'יוֹד עִם פַּתָּח, לָמֶד עִם שְׁוָא, דָּלֶת עִם דָּגֵשׁ וְקָמָץ, הֵא - יַלְדָּה'
     )
   })
 
@@ -44,16 +44,16 @@ describe('decodeWord', () => {
   })
 
   it('decodes חֲתוּל with chataf-patach', () => {
-    expect(decodeWord('חֲתוּל')).toBe('חֵית עִם חֲטַף פַּתָח, תָּו, שׁוּרוּק, לָמֶד - חֲתוּל')
+    expect(decodeWord('חֲתוּל')).toBe('חֵית עִם חֲטַף פַּתָּח, תָּו, שׁוּרוּק, לָמֶד - חֲתוּל')
   })
 
   it('treats consonant vav with shva normally (not shuruk)', () => {
-    expect(decodeWord('וְגַם')).toBe('וָו עִם שְׁוָא, גִּימֶל עִם פַּתָח, מֵם סוֹפִית - וְגַם')
+    expect(decodeWord('וְגַם')).toBe('וָו עִם שְׁוָא, גִּימֶל עִם פַּתָּח, מֵם סוֹפִית - וְגַם')
   })
 
   it('ignores punctuation and decodes the bare word', () => {
     expect(decodeWord('אַבָּא!')).toBe(
-      'אָלֶף עִם פַּתָח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא'
+      'אָלֶף עִם פַּתָּח, בֵּית עִם דָּגֵשׁ וְקָמָץ, אָלֶף - אַבָּא'
     )
   })
 
