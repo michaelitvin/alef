@@ -13,9 +13,11 @@ interface Props {
   onChoose: (c: Choice) => void
   /** verify/test builds only: marks the right answers for headless checks */
   showTestHooks: boolean
+  /** the wizard is still explaining the round: marks can't be tapped yet */
+  locked?: boolean
 }
 
-export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTestHooks }: Props) {
+export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTestHooks, locked = false }: Props) {
   const choices: Choice[] =
     round.type === 'D' ? round.padWords.map((w) => ({ kind: 'sound', group: w.group })) : round.runes.map((mark) => ({ kind: 'rune', mark }))
   const wordFor = (g: string) => round.padWords.find((w) => w.group === g)!
@@ -35,7 +37,7 @@ export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTest
             key={`${round.id}-${k}`}
             className={`nd-rune ${state}`}
             {...(showTestHooks ? { 'data-correct': right ? '1' : '0' } : {})}
-            disabled={Boolean(outcome)}
+            disabled={Boolean(outcome) || locked}
             initial={{ scale: 0.6, opacity: 0 }}
             animate={state === 'miss' ? { x: [0, -8, 8, -5, 5, 0], scale: 1, opacity: 1 } : { scale: state === 'hit' ? 1.12 : 1, opacity: 1 }}
             transition={{ duration: 0.3 }}

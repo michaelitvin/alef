@@ -14,6 +14,21 @@ const ready = (s: DuelState, r = mk()) => duelReducer(s, { type: 'ROUND_READY', 
 const tap = (s: DuelState, id: string) => duelReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
 const adv = (s: DuelState) => duelReducer(s, { type: 'ADVANCE' })
 
+describe('round preview (shown while the wizard explains it)', () => {
+  it('shows the round without walking, ignores taps and the mega spell, and ROUND_READY starts it', () => {
+    const r = mk()
+    let s = duelReducer(start(), { type: 'ROUND_PREVIEW', round: r })
+    expect(s.round).toBe(r)
+    expect(s.walking).toBe(false)
+    expect(s.preview).toBe(true)
+    expect(tap(s, 'kamatz').outcome).toBeNull()
+    expect(duelReducer({ ...s, mega: 99 }, { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+    s = ready(s, r)
+    expect(s.preview).toBe(false)
+    expect(tap(s, 'kamatz').outcome).toMatchObject({ kind: 'hit' })
+  })
+})
+
 describe('boss strength', () => {
   it('the boss takes more hits than a whole wave of monsters (playtest: 3 hits after 5 kills felt like an anticlimax)', () => {
     expect(BOSS_HP).toBeGreaterThan(MONSTERS_PER_WAVE)

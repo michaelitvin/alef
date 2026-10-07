@@ -64,6 +64,8 @@ export interface DuelState {
   outcome: Outcome | null
   runMisses: Record<string, number> // mark id → misses this run
   seenScreens: string[] // 'A' | 'B' | 'C' | 'D' | 'silent' already explained this run
+  /** the round is on screen while the wizard explains it: no walking, taps ignored */
+  preview: boolean
   next: Next | null
 }
 

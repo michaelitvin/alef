@@ -12,6 +12,13 @@ const round: Round = {
 }
 
 describe('SpellPad', () => {
+  it('locked while the wizard explains the round: every mark is disabled', () => {
+    const r: Round = { ...round, runes: [markById('kamatz'), markById('segol')] }
+    const { container } = render(<SpellPad round={r} outcome={null} twinTried={null} oneRow={false} onChoose={() => {}} showTestHooks={false} locked />)
+    const btns = [...container.querySelectorAll('button')]
+    expect(btns.length).toBe(2)
+    for (const b of btns) expect((b as HTMLButtonElement).disabled).toBe(true)
+  })
   it('renders one button per rune and reports the choice', () => {
     const onChoose = vi.fn()
     render(<SpellPad round={round} outcome={null} twinTried={null} oneRow={false} onChoose={onChoose} showTestHooks />)

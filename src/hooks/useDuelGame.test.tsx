@@ -139,6 +139,31 @@ describe('useDuelGame', () => {
       [`wiz-word-${r.word.key}`, 'word'],
     ])
   })
+  it('things appear when they are said: the tower at "המגדל"; the picture and the marks at their words', async () => {
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    act(() => result.current.start())
+    expect(result.current.hidden).toEqual(['tower'])
+    await act(async () => { await vi.advanceTimersByTimeAsync(50) })
+    const intro = pending.find((p) => p.id === 'line-intro')!
+    act(() => intro.onCue!('tower'))
+    expect(result.current.hidden).toEqual([])
+    await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(1500) })
+    const how = pending.find((p) => p.id === 'line-how-A')!
+    // the round is on screen (monster waiting at the edge) while the wizard explains it
+    expect(result.current.state.round).not.toBeNull()
+    expect(result.current.state.walking).toBe(false)
+    expect(result.current.hidden).toEqual(['picture', 'pad'])
+    act(() => how.onCue!('picture'))
+    expect(result.current.hidden).toEqual(['pad'])
+    const r = result.current.state.round!
+    act(() => result.current.choose({ kind: 'rune', mark: r.target })) // too early: still explaining
+    expect(result.current.state.outcome).toBeNull()
+    act(() => how.onCue!('pad'))
+    expect(result.current.hidden).toEqual([])
+    await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(100) })
+    expect(result.current.state.round!.id).toBe(r.id) // the same round, now walking
+    expect(result.current.state.walking).toBe(true)
+  })
   it('instructions show no look/listen icon banner (the glow cues point at the real things)', async () => {
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
     act(() => result.current.start())
