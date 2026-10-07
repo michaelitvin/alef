@@ -5,7 +5,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import type { Choice, DuelMark, Next, PictureWord, Rng, Round } from '../types/duel'
 import { duelReducer, initialDuelState } from '../utils/duel/reducer'
 import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
-import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, pickEffect } from '../utils/duel/rules'
+import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pickEffect } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
 import type { LineCue } from '../assets/duel/lineCues'
 import { VOICE_URLS } from '../assets/duel/audioFiles'
@@ -174,7 +174,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng,
         lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
       })
-      if (walkOverride) r.walkMs = walkOverride
+      // adaptive pace, applied silently between monsters (a ?walk= override in test builds wins)
+      r.walkMs = walkOverride ?? Math.round(r.walkMs * (store.getState().duel.pace ?? 1))
 
       const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
       if (!s.seenScreens.includes(key)) {
@@ -227,7 +228,11 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const result = o.mega ? 'mega' : o.kind === 'hit' ? 'correct' : o.choiceKey ? 'wrong' : 'timeout'
     store.getState().recordDuelRound(r.target.id, r.type, result, performance.now() - spawnedAt.current)
     const now = performance.now()
+    const msWalk = state.walking || result === 'timeout' ? now - walkStartedAt.current : null
+    const pace = nextPace(store.getState().duel.pace ?? 1, { result, msWalk, walkMs: r.walkMs })
+    store.getState().setDuelPace(pace)
     track('outcome', {
+      pace,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
       hearts: state.hearts, combo: state.combo, score: state.score, bossHp: state.bossHp,
       msShown: Math.round(now - spawnedAt.current), msWalk: Math.round(now - walkStartedAt.current),

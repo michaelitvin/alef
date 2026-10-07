@@ -4,6 +4,7 @@ import { wordsFor } from './words'
 import {
   bossFor, isCorrect, isTwin, keyOf, newMonsterAt, padSize, pickEffect, points, screenTypesFor, unlockedMonsters, walkMs,
 } from './rules'
+import { nextPace, PACE_MAX, PACE_MIN } from './rules'
 import type { Round } from '../../types/duel'
 
 const round = (type: Round['type'], targetId: string): Round => ({
@@ -62,5 +63,27 @@ describe('rules', () => {
     expect(pickEffect(() => 0.1, { final: true, mega: true })).toBe('mega')
     expect(pickEffect(() => 0.1, { final: true, mega: false, boss: true })).toBe('mega')
     expect(pickEffect(() => 0.1, { final: false, mega: false, boss: true })).toBe('gentle')
+  })
+})
+
+describe('adaptive pace (walk-time multiplier), as unnoticeable as possible', () => {
+  const o = (result: 'correct' | 'wrong' | 'timeout' | 'mega', frac: number | null) => ({ result, msWalk: frac === null ? null : frac * 8000, walkMs: 8000 })
+  it('a monster reaching the tower slows the next ones; a quick right answer speeds them up a little', () => {
+    expect(nextPace(1, o('timeout', null))).toBeGreaterThan(1)
+    expect(nextPace(1, o('correct', 0.3))).toBeLessThan(1)
+    expect(nextPace(1, o('correct', 0.85))).toBeGreaterThan(1) // made it, but only just
+    expect(nextPace(1, o('correct', 0.55))).toBe(1) // comfortable: leave it
+    expect(nextPace(1, o('wrong', 0.2))).toBe(1) // a wrong tap is about knowing, not speed
+  })
+  it('every step is small (≤12%) so he does not notice; the pace stays within bounds', () => {
+    for (const x of [o('timeout', null), o('correct', 0.1), o('correct', 0.9), o('mega', 0.2)]) {
+      const r = nextPace(1, x) / 1
+      expect(Math.abs(r - 1)).toBeLessThanOrEqual(0.12 + 1e-9)
+    }
+    let p = 1
+    for (let i = 0; i < 50; i++) p = nextPace(p, o('timeout', null))
+    expect(p).toBe(PACE_MAX)
+    for (let i = 0; i < 200; i++) p = nextPace(p, o('correct', 0.1))
+    expect(p).toBe(PACE_MIN)
   })
 })
