@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useSoundEffects } from './hooks/useAudio'
 import HomePage from './pages/Home/HomePage'
@@ -17,6 +17,10 @@ import StoryView from './pages/Stories/StoryView'
 import ProgressPage from './pages/Progress/ProgressPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import RoutesPage from './pages/Debug/RoutesPage'
+
+const DuelPage = lazy(() => import('./pages/Duel/DuelPage'))
+const DuelGlyphSheet = lazy(() => import('./pages/Duel/DuelGlyphSheet'))
+const DUEL_TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
 
@@ -107,6 +111,24 @@ function App() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
+        {DUEL_TEST_HOOKS && (
+          <Route
+            path="/duel/glyphs"
+            element={
+              <Suspense fallback={null}>
+                <DuelGlyphSheet />
+              </Suspense>
+            }
+          />
+        )}
+        <Route
+          path="/duel"
+          element={
+            <Suspense fallback={null}>
+              <DuelPage />
+            </Suspense>
+          }
+        />
       </Routes>
     </HashRouter>
   )

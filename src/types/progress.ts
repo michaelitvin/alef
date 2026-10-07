@@ -1,3 +1,4 @@
+import type { DuelStats } from './duel'
 // Progress and state types for the Hebrew Reading Game
 
 /**
@@ -150,6 +151,8 @@ export interface Settings {
   devMode: boolean
   /** Selected font for Hebrew text */
   font: FontType
+  /** Duel music; undefined (saves from before the duel) means on — see duelMusicOn() */
+  duelMusic?: boolean
 }
 
 /**
@@ -198,6 +201,8 @@ export interface ProgressState {
   gameCompleted: boolean
   /** Vocabulary list - IDs of learned words */
   vocabulary: string[]
+  /** Nikkud Wizard Duel stats (parent view) */
+  duel: DuelStats
 }
 
 /**
@@ -211,6 +216,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHints: true,
   devMode: false,
   font: 'default',
+  duelMusic: true,
 }
 
 export const DEFAULT_STATS: Stats = {
@@ -268,6 +274,8 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
   },
 }
 
+export const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {}, recent: {} }
+
 export const INITIAL_PROGRESS_STATE: ProgressState = {
   version: 1,
   lastSavedAt: 0,
@@ -279,6 +287,7 @@ export const INITIAL_PROGRESS_STATE: ProgressState = {
   currentSession: undefined,
   gameCompleted: false,
   vocabulary: [],
+  duel: EMPTY_DUEL_STATS,
 }
 
 /**

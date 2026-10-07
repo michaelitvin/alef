@@ -8,8 +8,8 @@ import { LETTERS_SIMPLE } from './lettersData'
 // Nikkud marks in teaching order
 export const NIKKUD_NODES = [
   { id: 'kamatz', mark: 'ָ', name: 'קָמָץ', isFullVowel: false },
-  { id: 'patach', mark: 'ַ', name: 'פַּתָח', isFullVowel: false },
-  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֵי', isFullVowel: false },
+  { id: 'patach', mark: 'ַ', name: 'פַּתָּח', isFullVowel: false },
+  { id: 'tzeire', mark: 'ֵ', name: 'צֵירֶה', isFullVowel: false },
   { id: 'segol', mark: 'ֶ', name: 'סֶגּוֹל', isFullVowel: false },
   { id: 'chirik', mark: 'ִ', name: 'חִירִיק', isFullVowel: false },
   { id: 'cholam', mark: 'ֹ', name: 'חוֹלָם', isFullVowel: false },
