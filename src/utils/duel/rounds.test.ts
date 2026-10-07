@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { makeRound, pickTarget } from './rounds'
+import { makeRound, pickTarget, predictedMistakeRate } from './rounds'
 import { DUEL_MARKS, twinOf } from './marks'
 
 /** Deterministic RNG (mulberry32) for repeatable tests. */
@@ -11,7 +11,7 @@ function seeded(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
-const base = { runMisses: {}, lifetime: {} }
+const base = { lifetime: {}, recent: {} }
 
 describe('makeRound', () => {
   it('the round right after "a new monster!" brings that monster; later rounds mix', () => {
@@ -61,13 +61,32 @@ describe('makeRound', () => {
   })
 })
 
+describe('predicted mistake rate: recent answers weigh most, history is remembered', () => {
+  const t = (seen: number, wrong: number) => ({ seen, correct: seen - wrong, wrong })
+  it('recent misses outweigh a long good history', () => {
+    expect(predictedMistakeRate(t(50, 2), 'ooooxxx')).toBeGreaterThan(0.35)
+    expect(predictedMistakeRate(t(50, 2), 'xxxoooo')).toBeLessThan(0.15)
+  })
+  it('the newest answer counts most', () => {
+    expect(predictedMistakeRate(t(20, 2), 'ox')).toBeGreaterThan(predictedMistakeRate(t(20, 2), 'xo'))
+  })
+  it('history is not forgotten: a long-hard mark with two recent successes stays well above a mastered one', () => {
+    const hard = predictedMistakeRate(t(40, 20), 'oo')
+    expect(hard).toBeGreaterThan(0.2)
+    expect(hard).toBeGreaterThan(3 * predictedMistakeRate(t(40, 0), 'oo'))
+  })
+  it('no history and no recent answers: the 0.25 prior', () => {
+    expect(predictedMistakeRate(undefined, '')).toBeCloseTo(0.25, 2)
+  })
+})
+
 describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
   type L = Record<string, { seen?: number; correct?: number; wrong?: number; timeout?: number }>
   const tally = (seen: number, wrong: number) => ({ seen, correct: seen - wrong, wrong })
-  const shares = (lifetime: L, seed: number, runMisses: Record<string, number> = {}) => {
+  const shares = (lifetime: L, seed: number, recent: Record<string, string> = {}) => {
     const rng = seeded(seed)
     const n: Record<string, number> = {}
-    for (let i = 0; i < 4000; i++) { const id = pickTarget(rng, runMisses, lifetime).id; n[id] = (n[id] ?? 0) + 1 }
+    for (let i = 0; i < 4000; i++) { const id = pickTarget(rng, lifetime, recent).id; n[id] = (n[id] ?? 0) + 1 }
     return (id: string) => (n[id] ?? 0) / 4000
   }
   const all = (t: { seen: number; correct: number; wrong: number }): L => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, t]))
@@ -82,12 +101,11 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
     expect(s('segol')).toBeGreaterThan(3 * s('kamatz'))
   })
   it('when nothing reaches 1 in 5, the hardest available marks are preferred', () => {
-    const s = shares({ ...all(tally(60, 0)), segol: tally(60, 6) }, 6) // segol ~10%, the rest ~1%
+    const s = shares({ ...all(tally(60, 0)), segol: tally(60, 6) }, 6)
     expect(s('segol')).toBeGreaterThan(0.3)
   })
-  it('mistakes this run raise a mark\'s predicted rate right away', () => {
-    const lifetime = all(tally(60, 0))
-    expect(shares(lifetime, 7, { segol: 2 })('segol')).toBeGreaterThan(0.3)
+  it('a fresh slip on a mastered mark brings it back right away', () => {
+    expect(shares(all(tally(60, 0)), 7, { segol: 'oooox' })('segol')).toBeGreaterThan(0.3)
   })
   it('every mark keeps a small chance (variety), and it always returns a mark', () => {
     const s = shares({ ...all(tally(40, 0)), segol: tally(40, 8) }, 8)
@@ -100,7 +118,7 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
 describe('directional confusion', () => {
   // the target sits near 1-in-5 and the rest are mastered, so it is picked most; only its rounds are examined
   const forced = (id: string) => ({
-    runMisses: {},
+    recent: {},
     lifetime: { ...Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 400, correct: 400 }])), [id]: { seen: 40, correct: 32, wrong: 8 } },
   })
   const pads = (wave: number, target: string, confusions: Record<string, Record<string, number>>, seed: number, n = 300) => {

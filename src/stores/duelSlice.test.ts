@@ -35,6 +35,16 @@ describe('duel slice', () => {
     st.recordDuelConfusion('chirik', 'segol')
     expect(useProgressStore.getState().duel.confusions).toEqual({ segol: { chirik: 2 }, chirik: { segol: 1 } })
   })
+  it('keeps each mark\'s last 12 answers, newest last (x = wrong or too slow, o = right)', () => {
+    const st = useProgressStore.getState()
+    st.recordDuelRound('segol', 'A', 'correct', 100)
+    st.recordDuelRound('segol', 'A', 'wrong', 100)
+    st.recordDuelRound('segol', 'B', 'timeout', 100)
+    st.recordDuelRound('segol', 'C', 'mega', 100)
+    expect(useProgressStore.getState().duel.recent).toEqual({ segol: 'oxxo' })
+    for (let i = 0; i < 20; i++) st.recordDuelRound('kamatz', 'A', i % 2 ? 'wrong' : 'correct', 100)
+    expect(useProgressStore.getState().duel.recent!.kamatz).toBe('oxoxoxoxoxox')
+  })
   it('persists the duel slice', () => {
     useProgressStore.getState().recordDuelSession()
     const saved = JSON.parse(localStorage.getItem('alef-progress')!)

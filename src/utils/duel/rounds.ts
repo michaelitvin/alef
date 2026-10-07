@@ -19,18 +19,33 @@ export type Confusions = Record<string, Record<string, number>>
 /** Desirable difficulty: aim each round at about one mistake in five. */
 export const TARGET_MISTAKE_RATE = 0.2
 
-/** Predicted chance he misses this mark: lifetime rate, with this run's misses counted again (recent = more telling). */
-export function predictedMistakeRate(t: LifetimeTally | undefined, runMisses = 0) {
-  const r = 2 * runMisses
-  return ((t?.wrong ?? 0) + (t?.timeout ?? 0) + 0.5 + r) / ((t?.seen ?? 0) + 2 + r)
+/** How fast older answers fade: the newest counts 1, the one before 0.75, then 0.56… */
+export const RECENT_DECAY = 0.75
+/** The lifetime rate counts like this many recent answers: recent results lead, history is remembered. */
+export const HISTORY_WEIGHT = 3
+/** Answers kept per mark (x = wrong or too slow, o = right), newest last. */
+export const RECENT_KEEP = 12
+
+/** Predicted chance he misses this mark: recent answers (decaying) blended with the smoothed lifetime rate. */
+export function predictedMistakeRate(t: LifetimeTally | undefined, recent = '') {
+  const history = ((t?.wrong ?? 0) + (t?.timeout ?? 0) + 0.5) / ((t?.seen ?? 0) + 2)
+  let weight = 0
+  let missed = 0
+  let w = 1
+  for (let i = recent.length - 1; i >= 0; i--) {
+    weight += w
+    if (recent[i] === 'x') missed += w
+    w *= RECENT_DECAY
+  }
+  return (missed + HISTORY_WEIGHT * history) / (weight + HISTORY_WEIGHT)
 }
 
 /**
  * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available.
  * Weight = 0.03 (every mark keeps some chance: variety) + a bell around the aim whose width scales with it.
  */
-export function pickTarget(rng: Rng, runMisses: Record<string, number>, lifetime: Record<string, LifetimeTally>): DuelMark {
-  const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], runMisses[m.id] ?? 0))
+export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}): DuelMark {
+  const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], recent[m.id]))
   const aim = Math.min(TARGET_MISTAKE_RATE, Math.max(...p))
   const width = Math.max(0.03, aim * 0.35)
   const w = p.map((x) => 0.03 + Math.exp(-(((x - aim) / width) ** 2)))
@@ -64,8 +79,9 @@ export interface MakeRoundOpts {
   kills?: number
   boss: boolean
   rng: Rng
-  runMisses: Record<string, number>
   lifetime: Record<string, LifetimeTally>
+  /** each mark's last answers, newest last (x = miss, o = right) */
+  recent?: Record<string, string>
   /** confusions[target][tapped] = times he tapped `tapped` when `target` was asked */
   confusions?: Confusions
 }
@@ -73,9 +89,9 @@ export interface MakeRoundOpts {
 /** Sound clues start at wave 3; its first round is a sound screen so the spoken instruction introduces them in context. */
 const FIRST_SOUND_WAVE = 3
 
-export function makeRound({ id, wave, kills, boss, rng, runMisses, lifetime, confusions }: MakeRoundOpts): Round {
+export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confusions }: MakeRoundOpts): Round {
   const type = wave === FIRST_SOUND_WAVE && kills === 0 && !boss ? 'B' : pick(rng, screenTypesFor(wave))
-  const target = pickTarget(rng, runMisses, lifetime)
+  const target = pickTarget(rng, lifetime, recent)
   const word = pick(rng, wordsFor(target.group))
 
   let runes: DuelMark[] = []

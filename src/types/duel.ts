@@ -86,4 +86,6 @@ export interface DuelStats {
   byType: Partial<Record<ScreenType, Tally>>
   /** confusions[asked][tapped]: how often he tapped `tapped` when `asked` was the answer (wrong taps + forgiven twins) */
   confusions?: Record<string, Record<string, number>>
+  /** each mark's last answers, newest last: x = wrong or too slow, o = right */
+  recent?: Record<string, string>
 }

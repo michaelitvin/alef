@@ -12,6 +12,7 @@ import type {
   Settings,
 } from '../types/progress'
 import type { RoundResult, ScreenType, Tally } from '../types/duel'
+import { RECENT_KEEP } from '../utils/duel/rounds'
 import {
   INITIAL_PROGRESS_STATE,
   LEVEL_UNLOCK_THRESHOLDS,
@@ -480,6 +481,10 @@ export const useProgressStore = create<ProgressStore>()(
             lastPlayed: Date.now(),
             byMark: { ...state.duel.byMark, [markId]: bump(state.duel.byMark[markId]) },
             byType: { ...state.duel.byType, [type]: bump(state.duel.byType[type]) },
+            recent: {
+              ...state.duel.recent,
+              [markId]: ((state.duel.recent?.[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
+            },
           },
         }))
       },
