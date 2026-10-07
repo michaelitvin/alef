@@ -85,7 +85,7 @@ export default function DuelPage() {
   const playing = state.phase === 'playing'
 
   return (
-    <div className={`nd-root${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-cue={game.cue ?? undefined}>
+    <div className={`nd-root${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-cue={game.cue ?? undefined} data-hidden={game.hidden.length ? game.hidden.join(' ') : undefined}>
       <RuneGlowDefs />
       <motion.div className="nd-screen" animate={shakeCtl}>
         <Starfield />
@@ -104,7 +104,7 @@ export default function DuelPage() {
           )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}
-              onChoose={game.choose} showTestHooks={TEST_HOOKS} />
+              onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} />
           )}
         </div>
       </motion.div>

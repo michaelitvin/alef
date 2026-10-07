@@ -4,6 +4,8 @@ import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, is
 export type DuelAction =
   | { type: 'START' }
   | { type: 'ROUND_READY'; round: Round }
+  /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
+  | { type: 'ROUND_PREVIEW'; round: Round }
   | { type: 'WALK_START' }
   | { type: 'CHOOSE'; choice: Choice; effect: EffectPreset }
   | { type: 'TIMEOUT' }
@@ -15,10 +17,10 @@ export type DuelAction =
 
 export const initialDuelState: DuelState = {
   phase: 'idle', paused: false, hearts: HEARTS, score: 0, combo: 0, bestCombo: 0, wave: 1, kills: 0, bossHp: 0, mega: 0,
-  round: null, walking: false, twinTried: null, outcome: null, runMisses: {}, seenScreens: [], next: null,
+  round: null, preview: false, walking: false, twinTried: null, outcome: null, runMisses: {}, seenScreens: [], next: null,
 }
 
-const canAnswer = (s: DuelState) => s.phase === 'playing' && !s.paused && s.round !== null && s.outcome === null
+const canAnswer = (s: DuelState) => s.phase === 'playing' && !s.paused && !s.preview && s.round !== null && s.outcome === null
 
 function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: EffectPreset): DuelState {
   const round = s.round!
@@ -74,7 +76,9 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
     case 'START':
       return { ...initialDuelState, phase: 'playing', next: { kind: 'spawn', wave: 1, boss: false, announce: null } }
     case 'ROUND_READY':
-      return { ...s, round: a.round, outcome: null, twinTried: null, next: null, walking: a.round.type === 'A' || a.round.type === 'D' }
+      return { ...s, round: a.round, outcome: null, twinTried: null, next: null, preview: false, walking: a.round.type === 'A' || a.round.type === 'D' }
+    case 'ROUND_PREVIEW':
+      return { ...s, round: a.round, outcome: null, twinTried: null, next: null, preview: true, walking: false }
     case 'WALK_START':
       return s.round && !s.outcome ? { ...s, walking: true } : s
     case 'CHOOSE': {
