@@ -303,6 +303,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (megaLine) megaAnnounced.current = true
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
+      // a defeated boss is congratulated first (music pauses for it), then the usual recap
+      .then(() => (r.boss && o.kind === 'hit' && o.final ? say('line-boss-win') : undefined))
       .then(() => sayMark(r.target, r.word, plan.say))
       .then(() => {
         if (!comboLine) return

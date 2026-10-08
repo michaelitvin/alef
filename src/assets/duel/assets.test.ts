@@ -25,7 +25,7 @@ describe('duel assets', () => {
       ...SOUND_GROUPS.filter((g) => g !== 'silent').map((g) => `wiz-vowel-${g}`),
       ...PICTURE_WORDS.filter((w) => w.group !== 'silent').map((w) => `wiz-word-${w.key}`),
       'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-silent', 'line-wave',
-      'line-new-monster', 'line-boss', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
+      'line-new-monster', 'line-boss', 'line-boss-win', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
     ]
     for (const id of needed) expect(VOICE_URLS[id], id).toBeTruthy()
     expect(Object.keys(VOICE_URLS).filter((k) => k.startsWith('mon-'))).toEqual([]) // the monster voice is gone
