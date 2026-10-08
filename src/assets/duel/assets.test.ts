@@ -33,11 +33,11 @@ describe('duel assets', () => {
     for (const [k, v] of Object.entries(SFX_URLS)) expect(v, k).toBeTruthy()
     for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)
-    expect(Object.keys(MUSIC_URLS)).toHaveLength(14)
+    expect(Object.keys(MUSIC_URLS)).toHaveLength(11)
     for (const tier of ['calm', 'mid', 'fast'] as const) expect(MUSIC_SETS[tier].length, tier).toBeGreaterThanOrEqual(3)
-    // bosses keep their original two tracks as their signature; the newer battle tracks play in the fast waves
-    expect(MUSIC_SETS.boss).toEqual([MUSIC_URLS.boss1, MUSIC_URLS.boss2])
-    expect(MUSIC_SETS.fast).toEqual(expect.arrayContaining([MUSIC_URLS.boss3, MUSIC_URLS.boss4]))
+    // review: bosses keep just the one existing boss track (their signature); the new boss variations were rejected
+    expect(MUSIC_SETS.boss).toEqual([MUSIC_URLS.boss])
+    expect(Object.keys(MUSIC_URLS).filter((k) => k.startsWith('boss'))).toEqual(['boss'])
   })
 })
 
