@@ -29,22 +29,19 @@ export const MUSIC_URLS = {
   fast: music['music-fast'],
   fast2: music['music-fast-2'],
   fast3: music['music-fast-3'],
-  boss1: music['music-boss-1'],
-  boss2: music['music-boss-2'],
-  boss3: music['music-boss-3'],
-  boss4: music['music-boss-4'],
+  boss: music['music-boss-1'],
   victory: music['music-victory'],
 }
 
 /**
- * Variations per tier: they rotate wave by wave (playtest: one loop got monotonous). Bosses keep their original two
- * tracks as their signature; the newer battle tracks (boss3/boss4) play in the fast waves instead.
+ * Variations per tier: they rotate wave by wave (playtest: one loop got monotonous). Bosses keep the one existing
+ * boss track as their signature (review: the new boss variations were rejected).
  */
 export const MUSIC_SETS = {
   calm: [MUSIC_URLS.calm, MUSIC_URLS.calm2, MUSIC_URLS.calm3],
   mid: [MUSIC_URLS.mid, MUSIC_URLS.mid2, MUSIC_URLS.mid3],
-  fast: [MUSIC_URLS.fast, MUSIC_URLS.fast2, MUSIC_URLS.fast3, MUSIC_URLS.boss3, MUSIC_URLS.boss4],
-  boss: [MUSIC_URLS.boss1, MUSIC_URLS.boss2],
+  fast: [MUSIC_URLS.fast, MUSIC_URLS.fast2, MUSIC_URLS.fast3],
+  boss: [MUSIC_URLS.boss],
   victory: [MUSIC_URLS.victory],
 }
 
