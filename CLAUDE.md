@@ -8,6 +8,19 @@ Auto-generated from all feature plans. Last updated: 2025-12-13
 
 - TypeScript 5.x with React 18.x + React, Vite (build tool), Zustand (state management), Framer Motion (animations), Howler.js (audio) (001-hebrew-reading-game)
 
+## Minigame Design Rules
+
+Before you design, build or review a child-facing minigame or screen, read
+[docs/minigame-rules.md](docs/minigame-rules.md). It holds the parent's rules: speech instead of text,
+audio sequencing, symbol ambiguity, adaptive difficulty, parent tracking and asset review.
+
+When the parent gives significant steering on a minigame (a correction, a new preference, a review note
+that applies to more than one item), add it to that file as a general rule. Write it in ASD-STE100 style
+with a reason or an example. Change or remove a rule that the new steering replaces.
+
+When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
+`asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
+
 ## Project Structure
 
 ```text
