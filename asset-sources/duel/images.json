@@ -1,0 +1,455 @@
+{
+ "note": "One entry per shipped duel image: the Gemini request that made it. Render with tools/gen_ref.py --ref <refs> --prompt-file <prompt> --aspect <aspect>, then tools/export_final.py. Image generation is not deterministic: a re-render gives a new picture in the same style, and it needs a new review.",
+ "files": [
+  {
+   "file": "asset-sources/duel/reference/concept-p3-glow.png",
+   "role": "style concept (Michael picked \"night sky magic\" from 4 concepts)",
+   "model": "gemini-3-pro-image",
+   "aspect": "9:16",
+   "refs": [],
+   "prompt": "Concept art for a mobile game screen (portrait phone, 9:16) for a 7-year-old boy learning Hebrew vowel marks. Layout is right-to-left: a young kid wizard stands on top of a small stone tower on the RIGHT side, casting a big fireball toward a goofy monster approaching from the LEFT. The fireball is hitting the monster at this exact moment: a huge colorful explosion with sparks, stars and magic particles, screen-shake energy. Above the monster floats a speech-bubble sign. The bottom third of the screen is a spell pad of 6 big rounded rune buttons in a 3x2 grid; each button shows only a simple small glowing dot-and-line symbol on an empty dotted circle (no letters, no words). Top bar: three hearts on the right, a sparkle score on the left, a combo flame badge. Do not write any readable text or letters anywhere. Fun, exciting, magical, not scary.\nStyle: dark starry night sky, glowing neon runes and magic, purple and gold light, luminous particle effects, epic fantasy but kid-friendly."
+  },
+  {
+   "file": "asset-sources/duel/reference/style-sheet-b.png",
+   "role": "style anchor sheet B (Michael: \"B is slightly better\"); the reference image for every sprite",
+   "model": "gemini-3-pro-image",
+   "aspect": "16:9",
+   "refs": [
+    "asset-sources/duel/reference/concept-p3-glow.png"
+   ],
+   "prompt": "Character and asset sheet for a children's mobile game, drawn in EXACTLY the art style, line quality, shading, color palette and glow of the reference image (night-sky magic: purple and gold light, luminous glow, cute cartoon).\nLay out these separate items in a neat grid with generous empty space between them, each item complete and not overlapping, on a perfectly flat solid pure magenta background (#FF00FF) with no gradients, no shadows on the background and no scenery:\nRow 1: the same kid wizard from the reference in three poses: standing idle holding his staff; casting a spell with the staff raised and a glowing orb; dizzy and dazed after being hit (swirly eyes, hat tilted, little stars).\nRow 2: a round stone wizard tower with glowing golden runes and crenellations (full tower, front view); a goofy fuzzy horned monster (like the reference); a round one-eyed purple slime blob monster.\nRow 3: a small mischievous red imp with tiny horns; a cute silly ghost; a chubby baby dragon boss, bigger than the others, green-teal with small wings, friendly-scary.\nAll monsters face LEFT (they walk toward the left). The wizard faces RIGHT. No text, no letters, no labels, no UI."
+  },
+  {
+   "file": "src/assets/duel/sprites/boss-dragon.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a chubby baby dragon boss, green-teal with small wings and horns, friendly-scary grin, big, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/boss-troll.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a big stone troll king boss with a tiny crown, mossy shoulders, goofy underbite, friendly-scary, big, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-bat.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a round chubby purple bat monster with big ears and tiny fangs, flapping, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-blob.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a round one-eyed purple slime blob monster with a cheeky smile, glossy, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-fuzzy.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a goofy fuzzy beige horned monster with big googly eyes, walking, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-ghost.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a cute silly white ghost with blushing cheeks, floating, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-golem.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a small cute rock golem made of mossy boulders with glowing blue eyes, stomping, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-imp.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a small mischievous red imp with tiny horns and a pointy tail, running, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-mushroom.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a grumpy little mushroom goblin with a red spotted cap and stubby legs, walking, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/mon-octopus.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a baby blue octopus monster walking on its tentacles, silly expression, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/tower.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a round stone wizard tower with crenellations on top, an arched wooden door, and a decorative band of small glowing golden STARS and crescent MOONS around the top. IMPORTANT: no runes, no letters, no symbols that look like writing, no dots in rows. Front view, full tower.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/wizard-cast.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard casting a spell: staff raised and pointing RIGHT with a big swirling glowing purple-gold magic orb at its tip, cape flowing, excited face, full body.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/wizard-dizzy.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard dazed after being bonked: swirly eyes, hat tilted, little stars circling his head, wobbly pose, full body, facing RIGHT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/wizard-idle.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard standing idle, holding his wooden staff with a small glowing flame, gentle smile, full body, facing RIGHT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-a.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a friendly cartoon lion (אריה) head and mane, big smile.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-bicycle.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon bicycle (אופניים), side view.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-book.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon closed book (ספר) standing slightly tilted, thick colorful cover, visible pages on the side, no writing on it.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-bus.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon long city bus (אוטובוס), side view, many passenger windows in a row, clearly a bus and not a car.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-butterfly.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon butterfly (פרפר) seen from above, wings open, big colorful wings with stripes (no spots).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-camel.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon camel (גמל), side view, standing, with two big humps, friendly face.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-cookie.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a classic cartoon chocolate chip cookie (עוגייה), round, golden-brown, with one bite taken out of its edge. The chocolate chips are a few (4-6) BIG, chunky, irregular dark-chocolate pieces with shine highlights, clearly chocolate chunks, not small round dots.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no crumbs, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-door.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon wooden door (דלת) on its own in a door frame, slightly open, with a round door handle; just the door, no house.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-e.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute fluffy yellow baby chick (אפרוח) just hatched, with a bit of eggshell.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-eye.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single big cartoon eye (עין) with eyelashes and a colorful iris, friendly, just the eye.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-fire.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a big bright cartoon fire flame (אש), orange and yellow tongues of fire, floating on its own with no logs, no wood, no campfire, no candle.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-house.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon house (בית): simple front view, walls, a triangular roof, a door and two windows, a little chimney.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-i.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single colorful pencil (עיפרון), sharpened tip, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-igloo.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon igloo (איגלו) made of snow blocks.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-island.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a tiny cartoon island (אי) with one palm tree, surrounded by a ring of blue water.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-monkey.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon monkey (קוף), sitting, friendly face, long curly tail, holding a banana.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-mouse.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute small grey cartoon mouse (עכבר), whole body.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-pineapple.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon pineapple (אננס).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-rose.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single cartoon red rose (ורד) with a green stem and two leaves, clearly a rose, not a bouquet.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-silent.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon kid face doing \"shh\", finger on closed lips, eyes winking, quiet gesture.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-tent.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon camping tent (אוהל), front view, triangular, with the door flaps tied open.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-tree.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single leafy green cartoon tree (עץ).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-u.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a birthday cake (עוגה) with candles and frosting, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  },
+  {
+   "file": "src/assets/duel/sprites/word-watermelon.webp",
+   "model": "gemini-3-pro-image",
+   "aspect": "1:1",
+   "refs": [
+    "asset-sources/duel/reference/style-sheet-b.png"
+   ],
+   "post": "tools/export_final.py (magenta key, de-spill, crop → WebP)",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a slice of watermelon (אבטיח) with seeds, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
+  }
+ ],
+ "retired": [
+  {
+   "name": "word-blueberries",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small bunch of blueberries (אוכמניות) with a leaf, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "a dot cluster looks like nikkud"
+  },
+  {
+   "name": "word-cookie-star",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single star-shaped golden butter cookie (עוגייה) with smooth white icing outline only. IMPORTANT: no chocolate chips, no sprinkles, no dots or spots of any kind on it.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "Michael: not a cookie, give it the chocolate chips (and a star can be called כוכב); replaced by big chunky chips"
+  },
+  {
+   "name": "word-cookie",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a round chocolate chip cookie (עוגייה), cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "did not look like a cookie"
+  },
+  {
+   "name": "word-ear",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single cartoon human ear (אוזן), clearly an ear.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "means \"listen\" and hints at mute (shva)"
+  },
+  {
+   "name": "word-finger",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon hand pointing up with one index finger (אצבע), clearly the finger is the subject.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "means \"tap\", \"one\" and shh"
+  },
+  {
+   "name": "word-goat",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon goat (עז), whole body, small horns.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "he called it \"sheep\""
+  },
+  {
+   "name": "word-hamster",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute chubby cartoon hamster (אוגר) holding a seed, whole body.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "he called it \"mouse\""
+  },
+  {
+   "name": "word-mom",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a friendly cartoon mom (אמא) smiling, upper body, warm and motherly.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "he called it \"woman\""
+  },
+  {
+   "name": "word-o",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small cute red cartoon car (אוטו), side view.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "car: he called it מכונית, not אוטו"
+  },
+  {
+   "name": "word-ship",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon ship (אונייה) on a little wave, side view.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters.",
+   "why": "he called it סירה"
+  }
+ ]
+}
