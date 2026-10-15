@@ -1244,7 +1244,7 @@ export const WORD_PICTURE: Record<string, string> = Object.fromEntries(
 - [ ] **Step 4: Implement `src/assets/duel/audioFiles.ts`**
 
 ```ts
-// Duel audio, picked by Michael on the review page (/nikkud-duel/review/) and synced by sync_voice.py.
+// Duel audio, picked by Michael on the review page (the host-local review page) and synced by sync_voice.py.
 // SFX picks: arrival 1–3 rotate, cast 3, boom r2 options 1+3 rotate, ouch r2 option 4, mega 1, sparkle 1.
 // Music: calm/mid/fast by wave, two boss tracks alternate, victory 1.
 const glob = (files: Record<string, string>) =>
@@ -1999,12 +1999,12 @@ describe('DuelStatsCard', () => {
 
 **Files** (outside the repo, host-local, like the existing hshell scripts):
 - Create: `~/ws/scratch/cdp/verify-duel.mjs`
-- Build target: `/data/ws/scratch/nikkud-duel/play/` (served at `https://jetson.tail22a204.ts.net/nikkud-duel/play/`, basic auth `guest`/`abracadabra`)
+- Build target: `/data/ws/scratch/nikkud-duel/play/` (served at `<playtest URL>`, basic auth (host-local credentials))
 
 - [ ] **Step 1: Build in verify mode** (test hooks on) to the served directory:
 
 ```bash
-cd /data/ws/alef && npx vite build --mode verify --base=/nikkud-duel/play/ --outDir /data/ws/scratch/nikkud-duel/play --emptyOutDir
+cd /data/ws/alef && npx vite build --mode verify --base=<playtest base> --outDir /data/ws/scratch/nikkud-duel/play --emptyOutDir
 ```
 
 - [ ] **Step 2: Write `verify-duel.mjs`** (puppeteer-core via the warm hshell at `127.0.0.1:9222`; see `~/ws/scratch/cdp/nd-*.js` for the patterns). It must, for both the 390×780 portrait and 1024×600 landscape viewports:
@@ -2060,12 +2060,12 @@ npx vitest run && npm run build
 - [ ] **Step 2: Deploy the playtest build** (production mode, no test hooks) and repoint the gallery:
 
 ```bash
-npx vite build --base=/nikkud-duel/play/ --outDir /data/ws/scratch/nikkud-duel/play --emptyOutDir
+npx vite build --base=<playtest base> --outDir /data/ws/scratch/nikkud-duel/play --emptyOutDir
 sed -i 's#play/\#/prototype/nikkud-duel#play/\#/duel#g' /data/ws/scratch/nikkud-duel/index.html
-curl -s -o /dev/null -w '%{http_code}\n' -u guest:abracadabra https://jetson.tail22a204.ts.net/nikkud-duel/play/
+curl -s -o /dev/null -w '%{http_code}\n' -u <user>:<password> <playtest URL>
 ```
 
-Then run `verify-duel.mjs` once more. The production build has no `data-correct` and ignores `?walk=`. For this run, point the script at a verify-mode build in `/data/ws/scratch/nikkud-duel/play-verify/` (`--base=/nikkud-duel/play-verify/`), so the production deploy stays clean.
+Then run `verify-duel.mjs` once more. The production build has no `data-correct` and ignores `?walk=`. For this run, point the script at a verify-mode build in `/data/ws/scratch/nikkud-duel/play-verify/` (`--base=<verify base>`), so the production deploy stays clean.
 
 - [ ] **Step 3: Commit**
 
