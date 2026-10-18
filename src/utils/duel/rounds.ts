@@ -1,6 +1,8 @@
 import type { DuelMark, Rng, Round, Tally } from '../../types/duel'
 import { DUEL_MARKS, SOUND_GROUPS, twinOf } from './marks'
 import { wordsFor } from './words'
+import { pickNearTarget, predictedMistakeRate } from '../../shared/adaptive'
+export { TARGET_MISTAKE_RATE, RECENT_DECAY, HISTORY_WEIGHT, RECENT_KEEP, predictedMistakeRate } from '../../shared/adaptive'
 import { bossFor, newMonsterAt, padSize, screenTypesFor, unlockedMonsters, walkMs } from './rules'
 
 const pick = <T,>(rng: Rng, xs: T[]) => xs[Math.floor(rng() * xs.length)]
@@ -16,45 +18,13 @@ function shuffle<T>(rng: Rng, xs: T[]) {
 export type LifetimeTally = Partial<Pick<Tally, 'seen' | 'correct' | 'wrong' | 'timeout'>>
 export type Confusions = Record<string, Record<string, number>>
 
-/** Desirable difficulty: aim each round at about one mistake in five. */
-export const TARGET_MISTAKE_RATE = 0.2
-
-/** How fast older answers fade: the newest counts 1, the one before 0.75, then 0.56… */
-export const RECENT_DECAY = 0.75
-/** The lifetime rate counts like this many recent answers: recent results lead, history is remembered. */
-export const HISTORY_WEIGHT = 3
-/** Answers kept per mark (x = wrong or too slow, o = right), newest last. */
-export const RECENT_KEEP = 12
-
-/** Predicted chance he misses this mark: recent answers (decaying) blended with the smoothed lifetime rate. */
-export function predictedMistakeRate(t: LifetimeTally | undefined, recent = '') {
-  const history = ((t?.wrong ?? 0) + (t?.timeout ?? 0) + 0.5) / ((t?.seen ?? 0) + 2)
-  let weight = 0
-  let missed = 0
-  let w = 1
-  for (let i = recent.length - 1; i >= 0; i--) {
-    weight += w
-    if (recent[i] === 'x') missed += w
-    w *= RECENT_DECAY
-  }
-  return (missed + HISTORY_WEIGHT * history) / (weight + HISTORY_WEIGHT)
-}
-
 /**
- * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available.
- * Weight = 0.03 (every mark keeps some chance: variety) + a bell around the aim whose width scales with it.
+ * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available
+ * (see pickNearTarget).
  */
 export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}): DuelMark {
   const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], recent[m.id]))
-  const aim = Math.min(TARGET_MISTAKE_RATE, Math.max(...p))
-  const width = Math.max(0.03, aim * 0.35)
-  const w = p.map((x) => 0.03 + Math.exp(-(((x - aim) / width) ** 2)))
-  let r = rng() * w.reduce((s, x) => s + x, 0)
-  for (let i = 0; i < DUEL_MARKS.length; i++) {
-    r -= w[i]
-    if (r <= 0) return DUEL_MARKS[i]
-  }
-  return DUEL_MARKS[DUEL_MARKS.length - 1]
+  return DUEL_MARKS[pickNearTarget(rng, p)]
 }
 
 /** A mistake he has made 2+ times is a pattern, not a slip. */

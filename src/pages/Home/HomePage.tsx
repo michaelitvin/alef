@@ -5,6 +5,7 @@ import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
 import { LEVEL_NODE_COUNTS } from '../../data/levelNodes'
 import { DuelEntryCard } from '../../components/duel/DuelEntryCard'
+import { ClockEntryCard } from '../../components/clock/ClockEntryCard'
 
 interface LevelInfo {
   id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences' | 'stories'
@@ -187,6 +188,11 @@ export function HomePage() {
       {/* Nikkud Wizard Duel — available from the start */}
       <div style={{ width: '100%', padding: `0 ${spacing[4]}` }}>
         <DuelEntryCard />
+      </div>
+
+      {/* Clockmaker's Workshop — available from the start */}
+      <div style={{ width: '100%', padding: `0 ${spacing[4]}` }}>
+        <ClockEntryCard />
       </div>
 
       {/* Level cards */}
