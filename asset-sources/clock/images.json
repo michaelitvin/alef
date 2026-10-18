@@ -1,0 +1,212 @@
+[
+ {
+  "name": "bear-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly brown bear customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + bear-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "bear-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly brown bear customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-alarm",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a classic twin-bell alarm clock with two bells on top and two little feet. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-cuckoo",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a wooden cuckoo clock in a little house shape with a pitched roof, a small closed door above the face, and two hanging pine-cone weights on chains. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-grandfather",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a tall wooden grandfather longcase clock whose round face disc is in the upper part, with a pendulum window below. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-pocket",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a brass pocket watch with a crown knob on top and a ring and short chain. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-station",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a railway station platform clock: a round clock hanging from a metal bracket on a black pole arm with a simple hanging frame. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-tower",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a stone clock tower top section, with a round clock-face opening in a stone wall framed by a gabled roof. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-wall",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a round wooden wall clock with a chunky wooden frame. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "case-wrist",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. Decoration for a clock: a wristwatch with a strap, seen from the front, strap above and below the round case. IMPORTANT: the round clock-face area must be a plain flat cream-coloured disc (#FBF1DC), perfectly circular, centered in the image, taking about 75% of the image width, with NO hands, NO numbers, NO tick marks, NO marks of any kind on it. Only the case and decoration around the disc. Front view, symmetric, roughly square.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "cat-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly orange tabby cat standing on two legs like a person customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + cat-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "cat-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly orange tabby cat standing on two legs like a person customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "cuckoo-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The small friendly brown cuckoo bird standing upright on small feet, wings folded, beak closed, calm smile, facing left. Match the bird design of the second reference exactly (same small round bird, same colors, flat colors, no wood grain), only beak closed and wings folded. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing.",
+  "reference": "style-sheet.png + cuckoo-speak (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "cuckoo-speak",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The small friendly brown cuckoo bird standing upright on small feet, facing left, beak wide open as if talking cheerfully, one wing slightly raised.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "fox-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly orange fox standing on two legs customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "fox-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly orange fox standing on two legs customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "hedgehog-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly hedgehog customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "hedgehog-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly hedgehog customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing. Match the character design of the second reference image exactly (flat colors, no wood-grain on the body), only pose and mood change.",
+  "reference": "style-sheet.png + hedgehog-happy (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "owl-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly owl with big friendly eyes, standing customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + owl-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "owl-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly owl with big friendly eyes, standing customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "penguin-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly penguin wearing a small red scarf customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + penguin-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "penguin-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly penguin wearing a small red scarf customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "rabbit-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly white and grey rabbit with long ears, standing on two legs customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + rabbit-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "rabbit-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly white and grey rabbit with long ears, standing on two legs customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-0",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: just the stone foundation base plinth, low and wide, with a small wooden door, nothing above it. Same width stone tower in every stage, bottom of the image is the ground line. The foundation is the same width as the tower floors above will be: a narrow square-ish stone base about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-1",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 1 stone floor stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 1. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-2",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 2 stone floors stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 2. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-3",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 3 stone floors stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 3. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-4",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 4 stone floors stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 4. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-5",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 5 stone floors stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 5. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-6",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: a foundation with a door and exactly 6 stone floors stacked above it, flat top, no roof, no clock. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same stone, same width, same windows, same colors) and add exactly one more identical stone floor on top. Total floors above foundation: 6. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "tower-7",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. a stone clock tower built floor by floor, front view, grey-beige stone bricks with arched wooden windows, simple stone ledge between floors. Show: the COMPLETE tower: foundation with a door, 6 stone floors, topped by a clock room with a big plain flat cream circular clock-face disc (no hands, no numbers, no marks) and a red pointed roof with a small flag. Same width stone tower in every stage, bottom of the image is the ground line. Copy the reference image's tower exactly (same width, same stone, same windows, same colors) and add on top a clock room with a big plain flat cream clock-face disc and a red pointed roof. Keep the tower about half the image width, centered. [Final file is composed programmatically: foundation + n repeated floor slices cut from the generated tower-6 render, tower-7 adds the clock room cut from the generated tower-7 render.]",
+  "reference": "style-sheet.png + previous tower stage (chained generation)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "turtle-happy",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. The same kind of friendly green turtle with a patterned shell, standing upright customer, full body, facing left (body and face turned left), delighted: big open smile, both arms raised cheerfully, no hearts, no stars. The animal MUST be drawn in side profile / three-quarter view looking toward the LEFT edge of the image: its nose and beak point left, its body is turned left, NOT facing the viewer. Flat colors only, no wood-grain texture on the animal's body or clothing. Match the character design of the second reference image exactly (same animal, same colors), only the pose and mood change.",
+  "reference": "style-sheet.png + turtle-idle (raw render)",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "turtle-idle",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). ONE single subject, centered, on a perfectly flat solid magenta #FF00FF background, nothing else in the image, no ground shadow, no text, no letters, no numbers, no small dots, specks, sparkles or crumbs. A friendly green turtle with a patterned shell, standing upright customer, full body, facing left (toward the left edge, body and face turned left), gentle calm smile, arms relaxed, holding nothing.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ },
+ {
+  "name": "workshop",
+  "prompt": "In exactly the same cosy flat-vector style as the reference style sheet (bold warm-brown outlines, simple broad wood-grain bands, warm palette). Empty cosy clockmaker's workshop interior, landscape, no characters, no animals: back wall, an empty wooden workbench in the centre-right with a few gears and tools on it and a clear empty area on top, a wooden shelf on the left, a hanging lamp casting warm light, a window with a plain blue sky and simple clouds (no tower), wooden floor. No text, no numbers, no small dots or specks.",
+  "reference": "style-sheet.png",
+  "model": "gemini-3-pro-image"
+ }
+]

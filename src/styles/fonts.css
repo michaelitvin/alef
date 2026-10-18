@@ -19,3 +19,12 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Andika - SIL font for beginning readers (OFL), used for English read-along captions in the clock game */
+@font-face {
+  font-family: 'Andika';
+  src: url('/fonts/andika/Andika-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

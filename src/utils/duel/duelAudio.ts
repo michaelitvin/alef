@@ -2,7 +2,11 @@
 // so lines can play faster without sounding like chipmunks. Every spoken line ducks the music; dramatic
 // lines pause it outright. Anything missing, failing or silent resolves via a safety timeout so the game
 // can never stall waiting for audio.
-import { Howl, Howler } from 'howler'
+import type { Howl } from 'howler'
+import { Howler } from 'howler'
+import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
+
+export { VOICE_RATE } from '../../shared/audioCore'
 import { MUSIC_SETS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
 
@@ -13,22 +17,10 @@ const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.1
 const LINE_TIMEOUT_MS = 9000 // > longest line (~4.2 s) plus a slow first load
 const SFX_TIMEOUT_MS = 3000
-/** Playtest: the recorded speech felt slow and made the whole game feel slow. */
-export const VOICE_RATE = 1.15
 /** Announcements that should land on their own: the background music pauses while they play. */
 const DRAMATIC = new Set(['line-mega', 'line-boss', 'line-boss-win', 'line-new-monster', 'line-combo', 'line-record'])
 
 let cfg = { sfx: true, music: true, volume: 0.8 }
-const howls = new Map<string, Howl>()
-
-function howl(src: string, loop = false, html5 = false): Howl {
-  let h = howls.get(src)
-  if (!h) {
-    h = new Howl({ src: [src], loop, preload: true, html5 })
-    howls.set(src, h)
-  }
-  return h
-}
 
 export function configureDuelAudio(o: { sfx: boolean; music: boolean; volume: number }) {
   cfg = o
@@ -38,32 +30,12 @@ export function configureDuelAudio(o: { sfx: boolean; music: boolean; volume: nu
 
 /** Call inside the ▶ tap: resumes the AudioContext (autoplay policies). */
 export function unlockDuelAudio() {
-  const ctx = (Howler as unknown as { ctx?: AudioContext }).ctx
-  if (ctx && ctx.state === 'suspended') void ctx.resume()
+  unlockAudio()
 }
 
 export function preloadDuelAudio() {
-  Object.values(SFX_URLS).forEach((u) => howl(u))
-  Object.values(VOICE_URLS).forEach((u) => howl(u, false, true))
-}
-
-/** Play once; resolve on end, stop or error, or after `timeout`. */
-function playOnce(h: Howl, rate: number, timeout: number): Promise<void> {
-  return new Promise((resolve) => {
-    let done = false
-    const finish = () => {
-      if (done) return
-      done = true
-      resolve()
-    }
-    const id = h.play()
-    h.rate(rate, id)
-    h.once('end', finish, id)
-    h.once('stop', finish, id)
-    h.once('playerror', finish, id)
-    h.once('loaderror', finish)
-    window.setTimeout(finish, timeout)
-  })
+  Object.values(SFX_URLS).forEach((u) => getHowl(u))
+  Object.values(VOICE_URLS).forEach((u) => getHowl(u, false, true))
 }
 
 const VARIANTS: Record<SfxName, string[]> = {
@@ -79,7 +51,7 @@ const VARIANTS: Record<SfxName, string[]> = {
 export function playSfx(name: SfxName, power = 1): Promise<void> {
   if (!cfg.sfx) return Promise.resolve()
   const vs = VARIANTS[name]
-  const h = howl(vs[Math.floor(Math.random() * vs.length)])
+  const h = getHowl(vs[Math.floor(Math.random() * vs.length)])
   h.volume(name === 'boom' ? Math.min(1, 0.6 + 0.3 * power) : 0.8)
   return playOnce(h, 1, SFX_TIMEOUT_MS)
 }
@@ -107,7 +79,7 @@ export function playLine(id: string, onCue?: (cue: LineCue) => void): Promise<vo
   duck(true)
   if (dramatic) hush(true)
   const timers = cues.map((c, i) => window.setTimeout(() => fire(i), (c.at / VOICE_RATE) * 1000))
-  return playOnce(howl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
+  return playOnce(getHowl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
     timers.forEach((t) => window.clearTimeout(t))
     fireRest()
     duck(false)
@@ -116,7 +88,7 @@ export function playLine(id: string, onCue?: (cue: LineCue) => void): Promise<vo
 }
 
 export function stopAllLines() {
-  Object.values(VOICE_URLS).forEach((u) => howls.get(u)?.stop())
+  Object.values(VOICE_URLS).forEach((u) => peekHowl(u)?.stop())
 }
 
 // ---- music ----
@@ -140,7 +112,7 @@ export function playMusic(track: MusicTrack, wave = 0) {
   const prev = lastVariation[track] ?? Math.floor(Math.random() * set.length) - 1
   const i = (prev + 1) % set.length
   lastVariation[track] = i
-  const next = howl(set[i], track !== 'victory')
+  const next = getHowl(set[i], track !== 'victory')
   stopMusic()
   currentKey = key
   current = next
