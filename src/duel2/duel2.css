@@ -1,3 +1,19 @@
 html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-root { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent; color: #fff6d8; font-family: Rubik, 'Noto Sans Hebrew', system-ui, sans-serif; }
+.d2-topbar { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 24px; right: 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between; z-index: 20; pointer-events: none; direction: ltr; }
+.d2-topbar-side, .d2-topbar-mid { display: flex; gap: 12px; align-items: center; pointer-events: auto; }
+.d2-topbar-mid { position: absolute; left: 50%; transform: translateX(-50%); }
+.d2-hearts { gap: 6px; }
+.d2-heart { width: 40px; height: 40px; filter: drop-shadow(0 0 6px #ff5a7a88); }
+.d2-btn { width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255, 211, 77, 0.75); background: #28145ad9;
+  display: grid; place-items: center; padding: 0; cursor: pointer; box-shadow: 0 0 12px #b48cff80; touch-action: manipulation; }
+.d2-btn:active { transform: scale(0.92); }
+.d2-btn-next { width: 84px; height: 84px; background: linear-gradient(#ffb02e, #ff6a1a); border-color: #fff6d8;
+  box-shadow: 0 0 24px #ff8c28cc; animation: d2-pulse 1s ease-in-out infinite alternate; }
+@keyframes d2-pulse { to { transform: scale(1.08); } }
+.d2-explain-controls { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 16px; align-items: center; z-index: 25; direction: ltr; }
+.d2-ring { animation: d2-ring 0.5s ease-in-out infinite alternate; }
+@keyframes d2-ring { to { opacity: 0.55; } }
