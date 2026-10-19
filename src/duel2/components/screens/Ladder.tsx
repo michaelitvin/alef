@@ -12,13 +12,18 @@ const RUNG_Y = (k: number) => 790 - k * 150
 const PLATE_X = 1260
 const PLATE_W = 300
 
+/** The three plates float by the next empty rung. */
+export function plateYs(built: number, rungs: number): number[] {
+  const ny = RUNG_Y(Math.min(built, rungs - 1))
+  const ys = [ny - 170, ny, ny + 170].map((y) => Math.min(800, Math.max(170, y)))
+  return ys[0] === ys[1] || ys[1] === ys[2] ? [300, 470, 640] : ys
+}
+export const LADDER_PLATE_X = PLATE_X
+
 export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; onPick: (id: string) => void; phase: Phase; reveal?: { right: string; wrong?: string }; correctId?: string }) {
   const lh = 790 - RUNG_Y(p.rungs - 1) + 170
   const lw = lh * (216 / 600)
-  const next = Math.min(p.built.length, p.rungs - 1)
-  const ny = RUNG_Y(next)
-  const plateY = [ny - 170, ny, ny + 170].map((y) => Math.min(800, Math.max(170, y)))
-  const fixY = plateY[0] === plateY[1] || plateY[1] === plateY[2] ? [300, 470, 640] : plateY
+  const fixY = plateYs(p.built.length, p.rungs)
   const standY = p.built.length ? RUNG_Y(p.built.length - 1) : 880
   const wizH = 230
   const can = p.phase === 'answer'

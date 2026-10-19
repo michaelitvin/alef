@@ -11,7 +11,7 @@ export const GHOST_W = 290
 export const GHOST_H = GHOST_W * (600 / 574)
 export const GHOST_SIGN = 160
 export const GHOST_GLYPH_PX = 100
-const SLOTS = [{ x: 620, top: 250 }, { x: 980, top: 205 }, { x: 1340, top: 255 }]
+export const GHOST_SLOTS = [{ x: 620, top: 250 }, { x: 980, top: 205 }, { x: 1340, top: 255 }]
 
 export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase: Phase; zapped?: string; reveal?: { right: string; wrong?: string }; correctId?: string }) {
   const can = p.phase === 'answer'
@@ -20,7 +20,7 @@ export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase
     <Stage bg="bg-ground">
       {IMAGES['s-wizard-cast'] && <image data-wizard href={IMAGES['s-wizard-cast']} x={90} y={875 - wizH} width={wizH * (449 / 420)} height={wizH} />}
       {p.signs.map((c, i) => {
-        const s = SLOTS[i]
+        const s = GHOST_SLOTS[i]
         const cy = s.top + GHOST_H * 0.74
         let state: PickState = can ? 'idle' : 'off'
         if (p.reveal?.right === c.id) state = 'reveal'
