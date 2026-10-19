@@ -203,7 +203,8 @@ describe('run controller', () => {
   })
 
   it('a full cycle completes with no audio files', async () => {
-    setVoicePlayer(null)
+    // a missing file resolves at once (duel2Audio playFile): simulate every clip missing
+    setVoicePlayer(() => Promise.resolve())
     useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
     const c = make()
     c.start()
