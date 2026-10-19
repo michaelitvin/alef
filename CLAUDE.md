@@ -18,6 +18,10 @@ When the parent gives significant steering on a minigame (a correction, a new pr
 that applies to more than one item), add it to that file as a general rule. Write it in ASD-STE100 style
 with a reason or an example. Change or remove a rule that the new steering replaces.
 
+For a new minigame, work in this order: brainstorm → mockups built from parts (see *Art generation* in the rules) →
+spec → rule-by-rule review of the spec plus a builder check (see *Working with the parent*) → plan → build. Agree on the
+image budget at the start.
+
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
 `asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
 
