@@ -66,6 +66,14 @@ describe('duel2Audio', () => {
     await p
     expect(log).toEqual(['a'])
   })
+  it('test builds log every voice part in order', async () => {
+    vi.useFakeTimers()
+    const w = window as unknown as { __d2audio?: string[] }
+    w.__d2audio = []
+    setVoicePlayer(() => Promise.resolve())
+    await say(['q-ghosts-1', 'syl-b-a'], 0)
+    expect(w.__d2audio).toEqual(['q-ghosts-1', 'syl-b-a'])
+  })
   it('playSfx resolves for a missing effect', async () => {
     await expect(playSfx('wave')).resolves.toBeUndefined()
   })

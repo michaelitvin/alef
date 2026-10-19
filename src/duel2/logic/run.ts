@@ -42,6 +42,8 @@ export const BASE_TRAVEL_MS = 5200
 export const travelMs = (pace: number, cycle: number) => BASE_TRAVEL_MS * pace * Math.max(0.6, 0.93 ** cycle)
 /** 1 at the right edge → 0 at the wizard */
 export const waveX = (startMs: number, nowMs: number, travel: number) => Math.min(1, Math.max(0, 1 - (nowMs - startMs) / travel))
+/** a wave resolves when it is this close to the wizard (0 = at the wizard, 1 = at the right edge) */
+export const CATCH_AT = 0.04
 export const LANES = 3
 export const laneAt = (y01: number): 0 | 1 | 2 => Math.min(2, Math.max(0, Math.floor(y01 * LANES))) as 0 | 1 | 2
 export { nextPace, PACE_MIN, PACE_MAX } from '../../utils/duel/rules'

@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, VISIT, heartsOnScreenStart, newRound, nextPace, nextScreen, onAnswer, runStart, travelMs, waveX,
+  CATCH_AT, TARGET_EVERY, VISIT, heartsOnScreenStart, newRound, nextPace, nextScreen, onAnswer, runStart, travelMs, waveX,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -62,7 +62,6 @@ const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
 const WAVE_EVERY = 0.55
-const CATCH_AT = 0.08
 
 const sylFeatures = (c: Choice, screen: ScreenId) => {
   const it = itemOf(c.itemId)
