@@ -97,7 +97,7 @@ function syllablePartner(ctx: RoundCtx, c: Choice): { itemId: string; group: Vow
 }
 
 /** Adds candidates in order, skipping any that repeats an id or sounds like one already in. */
-function fill(rng: Rng, start: Choice[], ordered: Choice[], random: () => Choice, n = 3): Choice[] {
+function fill(_rng: Rng, start: Choice[], ordered: Choice[], random: () => Choice, n = 3): Choice[] {
   const out = [...start]
   const ok = (c: Choice) => !out.some((o) => o.id === c.id || sameSound(o, c))
   for (const c of ordered) if (out.length < n && ok(c)) out.push(c)
