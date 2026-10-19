@@ -6,6 +6,7 @@ import { useResponsive } from '../../hooks/useResponsive'
 import { LEVEL_NODE_COUNTS } from '../../data/levelNodes'
 import { DuelEntryCard } from '../../components/duel/DuelEntryCard'
 import { ClockEntryCard } from '../../components/clock/ClockEntryCard'
+import { Duel2EntryCard } from '../../components/duel2/Duel2EntryCard'
 
 interface LevelInfo {
   id: 'letters' | 'nikkud' | 'syllables' | 'words' | 'sentences' | 'stories'
@@ -193,6 +194,11 @@ export function HomePage() {
       {/* Clockmaker's Workshop — available from the start */}
       <div style={{ width: '100%', padding: `0 ${spacing[4]}` }}>
         <ClockEntryCard />
+      </div>
+
+      {/* Book 2 (letters and syllables) — available from the start */}
+      <div style={{ width: '100%', padding: `0 ${spacing[4]}` }}>
+        <Duel2EntryCard />
       </div>
 
       {/* Level cards */}
