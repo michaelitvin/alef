@@ -33,7 +33,7 @@ export function Cauldron(p: {
         const d = drag?.id === m.id ? drag : null
         const x = d ? d.x : ORB_X[i]
         const y = d ? d.y : ORB_Y
-        let state: PickState = can ? 'idle' : 'off'
+        let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === m.id) state = 'reveal'
         else if (p.reveal?.wrong === m.id) state = 'wrong'
         return (

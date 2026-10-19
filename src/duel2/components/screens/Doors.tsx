@@ -57,8 +57,8 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
       </g>
       {!p.opening && p.keys.map((k, i) => (
         <KeyShape key={k.id} x={KEY_X[i]} y={690} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id}
-          state={p.reveal?.right === k.id ? 'reveal' : p.reveal?.wrong === k.id ? 'wrong' : can ? 'idle' : 'off'}
-          onPick={() => p.onPick(k.id)} />
+          state={p.reveal?.right === k.id ? 'reveal' : p.reveal?.wrong === k.id ? 'wrong' : p.phase === 'feedback' ? 'off' : 'idle'}
+          onPick={() => { if (can) p.onPick(k.id) }} />
       ))}
     </Stage>
   )

@@ -41,12 +41,12 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
         <image data-wizard href={IMAGES['s-wizard-idle']} x={560 - wizH * 0.4} y={standY - wizH + 40} width={wizH * 0.8} height={wizH} className="d2-climb" />
       )}
       {p.plates.map((c, i) => {
-        let state: PickState = can ? 'idle' : 'off'
+        let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === c.id) state = 'reveal'
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         return (
           <g key={c.id} data-plate={c.id}>
-            <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} onPick={() => p.onPick(c.id)} testCorrect={c.id === p.correctId}>
+            <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} onPick={can ? () => p.onPick(c.id) : undefined} testCorrect={c.id === p.correctId}>
               <Glyph text={c.text} px={LADDER_GLYPH_PX} x={PLATE_X} y={fixY[i]} />
             </Plate>
           </g>
