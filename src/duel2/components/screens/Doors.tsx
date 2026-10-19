@@ -10,16 +10,23 @@ import { Stage, type Phase } from './Stage'
 export const DOOR_GLYPH_PX = 110
 export const KEY_X = [520, 800, 1080]
 
+/** Where the round handle's disc sits in the key sprite (measured): centre and radius as fractions of the sprite width/height. */
+export const KEY_BOW = { cx: 0.5, cy: 0.345, r: 0.369 }
+const DISC_R = 80
+const KEY_W = DISC_R / KEY_BOW.r
+const KEY_H = KEY_W * (600 / 428)
+
 function KeyShape(p: { x: number; y: number; picture: string; state: 'idle' | 'reveal' | 'wrong' | 'off'; onPick: () => void; correct: boolean }) {
   const ring = p.state === 'reveal' ? '#ffd34d' : p.state === 'wrong' ? '#ff4d6a' : '#e7b860'
+  const pic = DISC_R * 1.5
   return (
     <g data-key className="d2-key" opacity={p.state === 'off' ? 0.4 : 1}>
       {IMAGES['s-key']
-        ? <image href={IMAGES['s-key']} x={p.x - 95} y={p.y - 100} width={190} height={250} />
-        : <g stroke={ring} strokeWidth={12} fill="none"><circle cx={p.x} cy={p.y} r={92} /><path d={`M${p.x} ${p.y + 92} v110 m0 -40 h34 m-34 30 h24`} /></g>}
-      <circle cx={p.x} cy={p.y} r={80} fill="#2a1660" stroke={ring} strokeWidth={p.state === 'idle' ? 0 : 8} />
-      {IMAGES[p.picture] && <image href={IMAGES[p.picture]} x={p.x - 66} y={p.y - 66} width={132} height={132} />}
-      <rect data-pick x={p.x - 105} y={p.y - 105} width={210} height={330} fill="transparent" {...(p.correct ? { 'data-correct': '1' } : {})}
+        ? <image href={IMAGES['s-key']} x={p.x - KEY_W * KEY_BOW.cx} y={p.y - KEY_H * KEY_BOW.cy} width={KEY_W} height={KEY_H} />
+        : <g stroke={ring} strokeWidth={12} fill="none"><circle cx={p.x} cy={p.y} r={DISC_R + 12} /><path d={`M${p.x} ${p.y + DISC_R + 12} v110 m0 -40 h34 m-34 30 h24`} /></g>}
+      <circle data-key-disc cx={p.x} cy={p.y} r={DISC_R} fill={IMAGES['s-key'] ? 'none' : '#2a1660'} stroke={ring} strokeWidth={p.state === 'idle' ? 0 : 10} />
+      {IMAGES[p.picture] && <image data-key-picture href={IMAGES[p.picture]} x={p.x - pic / 2} y={p.y - pic / 2} width={pic} height={pic} />}
+      <rect data-pick x={p.x - 110} y={p.y - 110} width={220} height={KEY_H * (1 - KEY_BOW.cy) + 110} fill="transparent" {...(p.correct ? { 'data-correct': '1' } : {})}
         onPointerDown={(e) => { e.preventDefault(); if (p.state === 'idle') p.onPick() }} />
     </g>
   )
@@ -36,9 +43,8 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
     <Stage bg="bg-ground">
       <g className={p.zooming ? 'd2-zoom' : undefined} style={{ transformOrigin: '800px 400px' }}>
         {IMAGES['s-door']
-          ? <image href={IMAGES['s-door']} x={800 - dw / 2} y={95} width={dw} height={dh} opacity={p.opening ? 0 : 1} style={{ transition: 'opacity 500ms' }} />
-          : <rect x={800 - dw / 2} y={95} width={dw} height={dh} rx={dw / 2} fill="#2a1660" stroke="#ffd34d" strokeWidth={8} />}
-        {p.opening && <rect x={800 - dw / 2 + 40} y={150} width={dw - 80} height={dh - 60} rx={120} fill="#fff6d8" opacity={0.85} className="d2-door-light" />}
+          ? <image href={IMAGES[p.opening && IMAGES['s-door-open'] ? 's-door-open' : 's-door']} x={800 - dw / 2} y={95} width={dw} height={dh} />
+          : <rect x={800 - dw / 2} y={95} width={dw} height={dh} rx={dw / 2} fill={p.opening ? '#fff6d8' : '#2a1660'} stroke="#ffd34d" strokeWidth={8} />}
         {!p.opening && (
           <Plate w={420} x={800} y={340} state="idle">
             {syls.map((t, i) => (
@@ -50,7 +56,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
         )}
       </g>
       {!p.opening && p.keys.map((k, i) => (
-        <KeyShape key={k.id} x={KEY_X[i]} y={740} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id}
+        <KeyShape key={k.id} x={KEY_X[i]} y={690} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id}
           state={p.reveal?.right === k.id ? 'reveal' : p.reveal?.wrong === k.id ? 'wrong' : can ? 'idle' : 'off'}
           onPick={() => p.onPick(k.id)} />
       ))}

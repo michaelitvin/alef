@@ -85,6 +85,15 @@ describe('screens', () => {
     expect(first.getAttribute('data-lit')).toBe('1')
     expect(second.getAttribute('data-lit')).toBe('0')
   })
+  it('the picture sits in the key handle', () => {
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const { container } = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="answer" opening={false} zooming={false} />)
+    const key = container.querySelector('[data-key]')!
+    const pic = key.querySelector('[data-key-picture]')!
+    const disc = key.querySelector('[data-key-disc]')!
+    expect(Number(pic.getAttribute('x')) + Number(pic.getAttribute('width')) / 2).toBeCloseTo(Number(disc.getAttribute('cx')))
+    expect(Number(pic.getAttribute('y')) + Number(pic.getAttribute('height')) / 2).toBeCloseTo(Number(disc.getAttribute('cy')))
+  })
   it('door shows no speaker on the plate', () => {
     const w = WORDS.find((x) => x.id === 'tent')!
     const { container } = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="answer" opening={false} zooming={false} />)

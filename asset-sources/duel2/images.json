@@ -1,0 +1,167 @@
+{
+ "note": "One entry per image in src/duel2/assets/img/: the Gemini request that made it (cut out from a flat color, cropped, WebP).",
+ "images": [
+  {
+   "name": "bg-ground",
+   "prompt": "Game background art for a children's tablet game, landscape. Drawn in EXACTLY the art style, colors and glow of the reference images. Deep purple-blue magical night sky with soft swirling nebula. Soft glowing lavender rolling ground along the bottom 18% of the image. Calm, nothing else. Stars are ONLY a few large 4-point sparkle shapes. Absolutely NO small round dots, NO dust, NO specks, NO dot clusters, NO tiny stars anywhere. No characters, no objects, no text.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "bg-sky",
+   "prompt": "Game background art for a children's tablet game, landscape. Drawn in EXACTLY the art style, colors and glow of the reference images. Deep purple-blue magical night sky with soft swirling nebula. Calm, nothing else in it. Stars are ONLY a few large 4-point sparkle shapes. Absolutely NO small round dots, NO dust, NO specks, NO dot clusters, NO tiny stars anywhere. No characters, no objects, no text.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-ball",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a classic black and white soccer ball (כדור), front view. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-banana",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one yellow banana (בננה), curved, peel closed. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-carrot",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one orange carrot (גזר) with green leafy top, diagonal. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-cat",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute orange cartoon cat (חתול) sitting, full body, front view, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-dog",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute brown cartoon dog (כלב) sitting, full body, floppy ears, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-fish",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon orange fish (דג), side view, big fins, smooth body with no scales drawn as dots. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-fox",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute orange cartoon fox (שועל) sitting, full body, bushy tail with a white tip, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-horse",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute brown cartoon horse (סוס) standing, full body, side view, dark mane. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-lemon",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one yellow lemon (לימון), whole, with one small green leaf. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-strawberry",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one big red strawberry (תות) with green leaves on top; its seeds drawn as tiny short yellow strokes, NOT round dots. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-cauldron",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A big round black iron witch cauldron on three short legs, full of glowing bubbling bright green brew with soft green steam rising above it. Front view. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-crystal-1",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing clear white quartz (rock crystal) crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-crystal-2",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing deep purple amethyst crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-crystal-3",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing pink rose quartz crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-crystal-4",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing smoky brown-gold quartz (citrine) crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-door-open",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. The same large arched magic door as the reference door image (dark purple wood planks, glowing polished golden arched frame, gold curl ornaments), but now swung OPEN inward: the doorway is filled with warm bright golden magical light. Front view, symmetric frame. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local) + the Book 2 door sprite",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-door",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A large arched magic door, closed, front view: dark purple wood planks with a glowing polished golden arched frame and a few elegant gold curl ornaments near the edges, the middle of the door left plain. Symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-ghost",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). One cute friendly white ghost, front view, smiling, floating, both small arms stretched forward and slightly down at belly height, hands empty, as if holding a round sign in front of its belly (but no sign). Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-key",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. A fantasy golden magic key standing upright: at the top a big round handle that is a thick polished gold ring holding a plain flat dark purple disc (completely blank, a picture will be placed on it), below it a short gold shaft with simple teeth at the bottom. Front view, symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-ladder",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A tall golden magic ladder standing straight up, front view: two glowing polished gold rails and exactly four thin gold rungs, evenly spaced, perfectly symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-orb",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A large round glowing magic orb seen straight on: deep purple glass sphere with a soft highlight at the top left and a thick polished gold rim ring around it, completely blank inside. Perfect circle, symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green (#00FF00) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-plate",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A wide rounded-rectangle magic plaque seen straight on, about 2.2 times wider than tall: deep purple smooth panel with a thick glowing polished gold frame, completely blank inside. Perfectly symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green (#00FF00) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "s-wizard-cast",
+   "prompt": "The duel's wizard sprite (src/assets/duel/sprites/wizard-cast.webp), reused",
+   "reference": null,
+   "model": null
+  },
+  {
+   "name": "s-wizard-idle",
+   "prompt": "The duel's wizard sprite (src/assets/duel/sprites/wizard-idle.webp), reused",
+   "reference": null,
+   "model": null
+  },
+  {
+   "name": "s-wizbroom",
+   "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). The kid wizard SITTING astride a broomstick, flying to the RIGHT: one leg on each side of the broom, both hands gripping the handle in front of him, leaning forward, cape streaming back, determined happy face, broom bristles behind him on the left. Side view, full body. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
+   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "model": "gemini-3-pro-image"
+  }
+ ]
+}
