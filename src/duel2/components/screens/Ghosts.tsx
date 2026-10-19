@@ -22,7 +22,7 @@ export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase
       {p.signs.map((c, i) => {
         const s = GHOST_SLOTS[i]
         const cy = s.top + GHOST_H * 0.74
-        let state: PickState = can ? 'idle' : 'off'
+        let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === c.id) state = 'reveal'
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         const gone = p.zapped !== undefined && p.zapped !== c.id
@@ -34,7 +34,7 @@ export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase
                 ? <image href={IMAGES['s-ghost']} x={s.x - GHOST_W / 2} y={s.top} width={GHOST_W} height={GHOST_H} />
                 : <ellipse cx={s.x} cy={s.top + GHOST_H / 2} rx={GHOST_W / 2.4} ry={GHOST_H / 2} fill="#f4f0ff" />}
             </g>
-            <Orb size={GHOST_SIGN} x={s.x} y={cy} state={state} onPick={() => p.onPick(c.id)} testCorrect={c.id === p.correctId}>
+            <Orb size={GHOST_SIGN} x={s.x} y={cy} state={state} onPick={can ? () => p.onPick(c.id) : undefined} testCorrect={c.id === p.correctId}>
               <Glyph text={c.text} px={GHOST_GLYPH_PX} x={s.x} y={cy} />
             </Orb>
           </g>

@@ -115,6 +115,20 @@ describe('screens', () => {
     const { container } = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="answer" opening={false} zooming={false} />)
     expect(container.querySelector('[aria-label="replay"]')).toBeNull()
   })
+  it('choices stay visible during the question but do not answer yet', () => {
+    const onPick = vi.fn()
+    const { container } = render(<Ghosts signs={wave} onPick={onPick} phase="question" />)
+    expect(container.querySelector('.d2-pick-off')).toBeNull()
+    fireEvent.pointerDown(container.querySelector('[data-pick]')!)
+    expect(onPick).not.toHaveBeenCalled()
+    const l = render(<Ladder built={[]} plates={wave} rungs={5} onPick={onPick} phase="demo" />)
+    expect(l.container.querySelector('.d2-pick-off')).toBeNull()
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const d = render(<Doors word={w} lit={2} keys={[w]} onPick={onPick} phase="question" opening={false} zooming={false} />)
+    expect(d.container.querySelector('[data-key]')!.getAttribute('opacity')).toBe('1')
+    fireEvent.pointerDown(d.container.querySelector('[data-key] [data-pick]')!)
+    expect(onPick).not.toHaveBeenCalled()
+  })
   it('ghosts face left', () => {
     const { container } = render(<Ghosts signs={wave} onPick={() => {}} phase="answer" />)
     const ghosts = [...container.querySelectorAll('[data-ghost]')]
