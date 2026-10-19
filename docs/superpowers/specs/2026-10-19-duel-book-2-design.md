@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-19
 **Status:** Draft for Michael's review. Michael decided the three open choices on 2026-10-19 (hearts refill per screen, a new $10 image budget, the crystal moment only).
-**Game:** a new minigame next to the Nikkud Wizard Duel (which stays as it is). Working name "Book 2"; route `#/duel2` (my call; rename freely). **Available from the start** on Home, not locked behind the duel or levels (rule).
+**Game:** a new minigame next to the Nikkud Wizard Duel (which stays as it is). Working name "Book 2"; a separate app at `duel2/`, like the clock game (plan's call; rename freely). **Available from the start** on Home, not locked behind the duel or levels (rule).
 **Mockups:** five screen mockups (painted pieces in the duel's art style, glyphs placed by code) were shown to Michael on 2026-10-19 and accepted as the direction. They live host-local, outside the repo.
 
 ## Intent
@@ -59,7 +59,7 @@ Book 2 is the next volume in a series of books: the duel taught the marks alone;
 | פ | פּ "p" · פ "f" |
 | ש | שׁ "sh" · שׂ "s" |
 
-That makes 26 consonant items. Dagesh in other letters does not change the sound; show the form that books use at the start of a word (for example תּ) and ignore that dagesh in grading.
+That makes 26 consonant items. Dagesh in other letters does not change the sound, so the game shows it only on בּ כּ פּ (plan's call: "the dot changes the sound" stays clean).
 
 **Vowels:** five sound groups, as in the duel: a (kamatz, patach), e (tsere, segol), i (chirik), o (cholam, cholam male), u (kubutz, shuruk). Marks that sound the same count as one sound. **A choice holds at most one mark per sound group**; which mark of the group appears rotates between rounds, so he sees both. (So there is no "twin mark" trap in Book 2; the duel already drills that.) Cholam male and shuruk include their vav: on a letter they show as בּוֹ / בּוּ; alone, on a cauldron orb, as the vav with its mark next to the dotted placeholder, so that the shuruk dot never shows alone (alone it looks like a dagesh).
 
