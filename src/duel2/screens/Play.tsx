@@ -51,7 +51,7 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
   if (s.screen === 'cauldron') { const i = s.orbs.indexOf(s.target.mark!); return { from: { x: ORB_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
   if (s.screen === 'ladder') { const i = s.plates.findIndex((p) => p.id === s.target.id); return { from: { x: 1300, y: 860 }, to: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs)[i] } } }
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
-  if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: 300, y: 860 }, to: { x: KEY_X[i], y: 740 } } }
+  if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: 300, y: 860 }, to: { x: KEY_X[i], y: 690 } } }
   return null
 }
 
