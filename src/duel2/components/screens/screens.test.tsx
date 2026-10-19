@@ -1,6 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H } from './Broom'
+import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
+import { CATCH_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder } from './Ladder'
 import { Ghosts, GHOST_GLYPH_PX, GHOST_H } from './Ghosts'
@@ -41,6 +42,12 @@ describe('screens', () => {
     now = 3000
     await act(async () => { await vi.advanceTimersByTimeAsync(500) })
     expect(container.querySelector('[data-wave="1"]')!.getAttribute('transform')).toBe(x0)
+  })
+  it('a wave resolves when its orbs touch the wizard', () => {
+    const w = wizardBox()
+    const x = orbX(CATCH_AT)
+    expect(x - BROOM_ORB / 2).toBeLessThanOrEqual(w.right)
+    expect(x).toBeGreaterThan(w.left + w.width / 2)
   })
   it('the wizard is small next to the glyphs', () => {
     expect(BROOM_WIZARD_H).toBeLessThanOrEqual(220 * 0.5 + 1)

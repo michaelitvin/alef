@@ -47,7 +47,7 @@ function ScreenFor({ run, v }: { run: Run; v: View }) {
 function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y: number } } | null {
   const s = v.screen
   if (!s) return null
-  if (s.screen === 'broom') return { from: { x: WIZ_X - 70, y: LANE_Y[1] }, to: { x: WIZ_X - 70, y: LANE_Y[0] } }
+  if (s.screen === 'broom') return { from: { x: WIZ_X, y: LANE_Y[1] }, to: { x: WIZ_X, y: LANE_Y[0] } }
   if (s.screen === 'cauldron') { const i = s.orbs.indexOf(s.target.mark!); return { from: { x: ORB_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
   if (s.screen === 'ladder') { const i = s.plates.findIndex((p) => p.id === s.target.id); return { from: { x: 1300, y: 860 }, to: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs)[i] } } }
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
@@ -66,7 +66,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const o = v.overlay
   const canReplay = v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className="d2-root" data-screen="play" data-phase={v.phase} aria-hidden={v.paused || undefined}>
+    <div className="d2-root" data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext}>
           {() => {

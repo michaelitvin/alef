@@ -12,12 +12,18 @@ import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
 
 export const LANE_Y = [250, 470, 690]
 export const LANE_H = 220
-export const WIZ_X = 250
+/** the wizard's centre (stage x) */
+export const WIZ_X = 170
 /** the wizard is about half a lane high, so dodging is clear (Michael) */
 export const BROOM_WIZARD_H = 110
 export const BROOM_ORB = 170
 export const BROOM_GLYPH_PX = 100
 const START_X = 1720
+const WIZ_W = BROOM_WIZARD_H * (600 / 512)
+/** the wizard sprite's box (stage x) */
+export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W / 2, width: WIZ_W })
+/** the orbs' centre x for a wave position k (1 = right edge, 0 = touching the wizard's front) */
+export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (START_X - WIZ_X)
 
 export interface BroomWave { id: number; choices: Choice[]; startMs: number }
 export function Broom(p: {
@@ -52,7 +58,7 @@ export function Broom(p: {
     setDragY(null)
     p.onLane(laneAt(Math.min(1, Math.max(0, (stageY(e) - 140) / (H - 140 - 30)))))
   }
-  const wizW = BROOM_WIZARD_H * (600 / 512)
+  const wizW = WIZ_W
   return (
     <Stage bg="bg-sky" ref={svgRef}
       onPointerDown={(e) => { down.current = e.pointerId; (e.target as Element).setPointerCapture?.(e.pointerId); setDragY(stageY(e)) }}
@@ -62,7 +68,7 @@ export function Broom(p: {
       {LANE_Y.map((ly) => <rect key={ly} x={0} y={ly - LANE_H / 2} width={1600} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
       {p.waves.map((w) => {
         const k = waveX(w.startMs, t, p.travelMs)
-        const x = WIZ_X + k * (START_X - WIZ_X)
+        const x = orbX(k)
         return (
           <g key={w.id} data-wave={w.id} transform={`translate(${x.toFixed(1)} 0)`}>
             {w.choices.map((c, lane) => {
@@ -84,10 +90,10 @@ export function Broom(p: {
       <defs>
         <linearGradient id="d2-trail" x1="0" x2="1"><stop offset="0" stopColor="#c8a0ff" stopOpacity="0.7" /><stop offset="1" stopColor="#8c5aff" stopOpacity="0" /></linearGradient>
       </defs>
-      <g data-wizard className="d2-bob" transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X - wizW / 2)}>
+      <g data-wizard data-lane={p.lane} className="d2-bob" transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
         {IMAGES['s-wizbroom']
-          ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW - 30} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
-          : <circle cx={WIZ_X - 90} cy={y} r={BROOM_WIZARD_H / 2} fill="#7a5ac8" />}
+          ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
+          : <circle cx={WIZ_X} cy={y} r={BROOM_WIZARD_H / 2} fill="#7a5ac8" />}
       </g>
     </Stage>
   )

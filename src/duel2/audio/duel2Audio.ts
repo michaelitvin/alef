@@ -4,6 +4,7 @@
 import { Howler } from 'howler'
 import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
+import { TEST_HOOKS } from '../testHooks'
 
 export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak'
 export const GAP_MS = 800
@@ -56,6 +57,8 @@ export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = 
       if (i > 0 && gapMs > 0) await wait(gapMs)
       if (epoch !== mine) return
       parts[i].onStart?.()
+      // test builds keep the order of everything said, for the QA audio log (rule)
+      if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(parts[i].id)
       await player(parts[i].id)
     }
   }
