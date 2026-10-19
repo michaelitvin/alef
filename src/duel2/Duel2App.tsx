@@ -14,6 +14,19 @@ import type { View } from './controller'
 
 type Screen = 'cover' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play'
 
+/** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
+function RotateHint() {
+  return (
+    <div className="d2-rotate" aria-hidden>
+      <svg viewBox="0 0 120 120" width="160" height="160">
+        <rect x="38" y="18" width="44" height="78" rx="8" fill="none" stroke="#fff6d8" strokeWidth="5" className="d2-rotate-phone" />
+        <path d="M24 70 a40 40 0 0 1 22 -46" fill="none" stroke="#ffd34d" strokeWidth="5" strokeLinecap="round" />
+        <path d="M40 18 l7 6 -9 4" fill="none" stroke="#ffd34d" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  )
+}
+
 export default function Duel2App() {
   const [screen, setScreen] = useState<Screen>('cover')
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
@@ -49,6 +62,7 @@ export default function Duel2App() {
       setScreen('play')
     })
   }
+  const view = (() => {
   if (screen === 'play') return <Play key={runNo} opts={{}} onOver={(o) => { setOver(o); setScreen('summary') }} />
   if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} />
@@ -62,4 +76,6 @@ export default function Duel2App() {
     )
   }
   return <Cover onPlay={play} onParent={() => setScreen('parent')} loading={loading} />
+  })()
+  return <>{view}{screen !== 'parent' && screen !== 'gallery' && <RotateHint />}</>
 }
