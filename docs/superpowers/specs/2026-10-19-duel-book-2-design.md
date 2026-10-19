@@ -1,7 +1,7 @@
 # Wizard Duel, Book 2 — Letters and Syllables — Design
 
 **Date:** 2026-10-19
-**Status:** Draft for Michael's review. Three choices are open (see *Open for Michael*); the text assumes the recommended option and marks it.
+**Status:** Draft for Michael's review. Michael decided the three open choices on 2026-10-19 (hearts refill per screen, a new $10 image budget, the crystal moment only).
 **Game:** a new minigame next to the Nikkud Wizard Duel (which stays as it is). Working name "Book 2"; route `#/duel2` (my call; rename freely). **Available from the start** on Home, not locked behind the duel or levels (rule).
 **Mockups:** five screen mockups (painted pieces in the duel's art style, glyphs placed by code) were shown to Michael on 2026-10-19 and accepted as the direction. They live host-local, outside the repo.
 
@@ -89,7 +89,7 @@ A run uses the duel's frame: **3 hearts**, it gets faster, it ends at 0 hearts w
 
 **broom flight → cauldron → ladder → look-alike ghosts → door corridor → crystal**, then again, a little faster.
 
-**Hearts and run length — open (see *Open for Michael*, 1).** At the 1-in-5 target, 3 hearts last about 15 answers, and one cycle has about 25. *Assumed (recommended): the hearts refill when a new screen starts, and a new run starts at the screen after the one where the last run ended.* So he reaches every screen, and a good run goes on for many cycles.
+**Hearts and run length** (Michael, 2026-10-19): at the 1-in-5 target, 3 hearts last about 15 answers, and one cycle has about 25. So **the hearts refill when a new screen starts**, and **a new run starts at the screen after the one where the last run ended**. He reaches every screen, and a good run goes on for many cycles. The run ends when the hearts run out inside one screen.
 
 **Visit lengths** (my guess; tune in playtest): broom flight 10 waves, cauldron 4 rounds, ladder 5 rungs, ghosts 4 rounds, door corridor 3 doors. About 25 answers per cycle.
 
@@ -169,11 +169,11 @@ All screens: landscape tablet first, the player on the **left**, things come fro
 ### 6 · Crystal
 
 - Behind the last door: a glowing **crystal, quartz or amethyst** (Michael), in its own moment, with a burst of light and an excited voice line.
-- **Collection — open (see *Open for Michael*, 3).** *Assumed (recommended): v1 shows the crystal moment only* (rule: start simple; add a mechanic when the data shows a need).
+- **No collection in v1** (Michael, 2026-10-19): the crystal moment only (rule: start simple; add a mechanic when the data shows a need).
 
 ### Start screen
 
-It shows the game's world and its learning content, not a cropped background with a button (rule): for example, the wizard on his broom and glowing syllable orbs drifting by, and a big play button. If the crystal collection is chosen, the crystals show here, with a voice line when one is new, away from the corners and not drawn like controls (rule).
+It shows the game's world and its learning content, not a cropped background with a button (rule): for example, the wizard on his broom and glowing syllable orbs drifting by, and a big play button.
 
 ## Glyphs
 
@@ -224,16 +224,8 @@ It shows the game's world and its learning content, not a cropped background wit
 - The font, after the legibility sheet.
 - The word lists for the doors and the word link.
 
-## Open for Michael
+## Decided by Michael (2026-10-19)
 
-1. **Hearts and run length.** At 1 mistake in 5, 3 hearts last about 15 answers; a cycle has about 25, so most runs would end before the ghosts, doors and crystal.
-   - **A (recommended):** the hearts refill when a new screen starts; the next run starts at the screen after the one where the last run ended. Every run sees new screens; a good run lasts many cycles.
-   - **B:** 3 hearts per run, shorter visits (about 15 answers per cycle), a heart back at each crystal; the next run starts where the last one ended.
-   - **C:** only the broom flight costs hearts; the calm screens cost none (a mistake there only stops for next).
-2. **Image budget.** The duel's $10 is nearly spent (about $6.50 for the duel, about $2.85 for these mockups). Book 2 needs about 30–50 images (sprites, backgrounds, crystals, new picture words, retakes) at about $0.15 each.
-   - **A (recommended):** a new $10 budget for Book 2.
-   - **B:** $5: reuse the duel's sprites and picture words where possible, one crystal design.
-   - **C:** nothing new: only the mockup pieces and the duel's art; fewer door words.
-3. **Crystal collection.**
-   - **A (recommended):** v1 shows the crystal moment only (rule: start simple).
-   - **B:** each crystal is different and his crystals stay on the start screen.
+1. **Hearts:** refill when a new screen starts; the next run starts at the screen after the one where the last run ended (option A of three).
+2. **Image budget:** a new $10 Gemini budget for Book 2 (about $0.15 per image; record the spend). The mockups used about $2.85 of the duel's budget.
+3. **Crystal:** the crystal moment only; no collection in v1.

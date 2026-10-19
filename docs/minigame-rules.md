@@ -185,6 +185,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): the start screen is now a big cuckoo clock with the real time, and its cuckoo comes out to say hello.
 - Do not use emoji. Draw all icons as SVG.
   Reason: the old Android tablet and the headless browser show missing emoji as squares.
+- Show letters with nikkud in the app's nikkud font (Sigalit). Make a sheet of all letter and mark combinations at game
+  size, and look for shapes that look like a Latin letter, a digit or punctuation.
+  Example (book 2): in Hillel CLM, יִ looked like "!".
+- Center a glyph by its ink (the letter and its marks), not by its line box. Measure it after the font loads.
+  Example (book 2): syllables with a mark below sat too high on their orbs.
+- Do not let the scene show the answer.
+  Example (book 2): the word "דֶּלֶת" was on a door, and a door was one of the pictures to choose from.
+- Make the player sprite small enough for the action.
+  Example (book 2): the wizard on the broom filled most of his lane, so he could not dodge.
 
 ## Art generation
 
@@ -192,6 +201,14 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Make a style sheet from the selected concept. Use it as the reference image for every sprite, so that the style stays the same.
 - Ask for one subject on a flat magenta background, with no text. Then remove the background, the specks and the colored halos.
 - Make mocks in Hebrew, right to left. Put mocks where the parent can comment on them.
+- Make mocks from parts, as the game will be built: a background, sprites cut out from a flat color, and glyphs that
+  the code places. Do not make one generated picture of the whole screen.
+  Example (book 2): the parent called the first mock "ugly"; the generated scenes put the empty orbs in the wrong places,
+  and the wizard was too big to change.
+- Make the parent's mocks a page that opens on a phone. Write the voice lines on the mock only as a note for the parent,
+  and say that the game does not show them.
+- Cut out a sprite from a color that is far from its own colors.
+  Example (book 2): purple orbs lost their edges on magenta; green worked.
 - Agree on a spending limit before you use a paid API. Record the spend.
 
 ## Interaction
@@ -279,6 +296,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Pause the game when the tablet locks or the child switches to another app. Stop all sound, music too, and cover the game while it is paused.
   After the pause, continue with the same question.
 - Make a new minigame available from the start. Do not lock it behind levels.
+- Calculate how many answers a usual run has before the hearts run out (at 1 mistake in 5). Make sure that every screen
+  comes up in a usual run.
+  Example (book 2): 3 hearts gave approximately 15 answers, and one cycle of the screens had approximately 25. Now the
+  hearts fill again on each new screen, and the next run starts at the next screen.
+- Keep the story small until the parent asks for more. The challenge keeps the child playing. Put on a screen only
+  the things that the child acts on.
+  Example (book 2): the parent: "Don't add elements to the game that are not directly related to something that he
+  needs to do."
+- Use a timer only where speed is the game. Example (book 2): only the broom flight has a time limit.
 - Start with a simple version. Add a mechanic only when the data shows a need.
   Example (duel): a simple random repeat of mistakes was sufficient for v1.
 - A simple, repetitive drill is acceptable if it teaches the target skill and the child likes it.
@@ -346,6 +372,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - After a set of notes, list all open items from the parent's messages. Also list the important decisions that you made without the parent.
 - The parent sends many short notes while you work. Make each note a checklist item, and confirm each one.
 - Give choices as numbered or lettered options, with a recommendation.
+- Before you give a design to the parent, check it against each rule in this file, one by one. Also give it to a
+  reviewer who plans the build, and read the playtest fixes of the last games (their commit messages).
+  Example (book 2): the first draft had explanations that went on by themselves, no hints, one take for each syllable,
+  and runs too short to reach half of the screens.
+- When another session works in the same repository, work in a separate git worktree on your own branch.
 - Do not list an item again after the parent declines it.
 - Merge and push only when the parent asks. Run the tests and the build on the merged result before you push.
 - The repository is public. Do not put host addresses, routes or passwords in committed files.
