@@ -5,7 +5,7 @@ import { Orb } from './Orb'
 import { MarkAlone } from './MarkAlone'
 import { ExplainPanel } from './ExplainPanel'
 import { mark } from '../logic/content'
-import { setVoicePlayer, stopVoice } from '../audio/duel2Audio'
+import { sayParts, setVoicePlayer, stopVoice } from '../audio/duel2Audio'
 
 describe('parts', () => {
   afterEach(() => {
@@ -36,6 +36,20 @@ describe('parts', () => {
     rerender(<svg><Orb size={100} x={0} y={0} onPick={onPick} state="right" /></svg>)
     fireEvent.pointerDown(container.querySelector('[data-pick]')!)
     expect(onPick).toHaveBeenCalledTimes(1)
+  })
+  it('closing an explanation does not silence what the game says next', async () => {
+    vi.useFakeTimers()
+    const played: string[] = []
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 50)) })
+    const { unmount } = render(<ExplainPanel parts={[{ id: 'ln-bet', highlight: 'letter' }]} onNext={() => {}}>{() => null}</ExplainPanel>)
+    await act(async () => { await vi.advanceTimersByTimeAsync(200) })
+    let started = false
+    const next = sayParts([{ id: 'q-ghosts-1' }, { id: 'syl-b-a', onStart: () => { started = true } }])
+    unmount()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await next
+    expect(played).toContain('q-ghosts-1')
+    expect(started).toBe(true)
   })
   it('shuruk alone shows the vav', () => {
     const { container } = render(<svg><MarkAlone mark={mark('shuruk')} size={100} x={0} y={0} /></svg>)

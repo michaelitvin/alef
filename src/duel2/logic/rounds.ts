@@ -4,7 +4,7 @@
 // - one mark per vowel group in one choice (kamatz and patach never meet; which one rotates).
 import type { Rng, Tally } from '../../shared/adaptive'
 import {
-  GROUPS, GROUP_MARKS, ITEMS, SHAPE_GROUPS, item as itemOf, mark as markOf, syllable,
+  GROUPS, GROUP_MARKS, ITEMS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, syllable,
   type Item, type Mark, type MarkId, type Stage, type Syllable, type VowelGroup,
 } from './content.ts'
 import { features, pickTarget, type ScreenId } from './predict'
@@ -99,7 +99,7 @@ function syllablePartner(ctx: RoundCtx, c: Choice): { itemId: string; group: Vow
 /** Adds candidates in order, skipping any that repeats an id or sounds like one already in. */
 function fill(_rng: Rng, start: Choice[], ordered: Choice[], random: () => Choice, n = 3): Choice[] {
   const out = [...start]
-  const ok = (c: Choice) => !out.some((o) => o.id === c.id || sameSound(o, c))
+  const ok = (c: Choice) => !out.some((o) => o.id === c.id || sameSound(o, c)) && (!c.mark || isAllowed(c.itemId, c.mark))
   for (const c of ordered) if (out.length < n && ok(c)) out.push(c)
   for (let guard = 0; out.length < n && guard < 500; guard++) {
     const c = random()
@@ -113,6 +113,13 @@ function markNearMiss(target: Choice, cs: Choice[]): Choice[] {
   return cs.map((c) => (pair && c.itemId === pair && c.group === target.group ? { ...c, nearMissOf: target.id } : c))
 }
 
+/** The item with this group's chosen mark, or the group's other mark when that syllable is left out; null if none is allowed. */
+function sylFor(itemId: string, g: VowelGroup, preferred: Mark): Choice | null {
+  if (isAllowed(itemId, preferred.id)) return syl(itemId, preferred)
+  const alt = GROUP_MARKS[g].find((m) => isAllowed(itemId, m))
+  return alt ? syl(itemId, markOf(alt)) : null
+}
+
 function syl(itemId: string, m: Mark): Choice {
   return syllableChoice(syllable(itemId, m.id))
 }
@@ -124,7 +131,7 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
   if (kind === 'letter') cands = openedItems(stage).map(letterChoice)
   else {
     const marks = marksFor(rng)
-    cands = syllableItems(stage).flatMap((it) => GROUPS.map((g) => syl(it.id, marks[g])))
+    cands = syllableItems(stage).flatMap((it) => GROUPS.map((g) => sylFor(it.id, g, marks[g]))).filter((c): c is Choice => c !== null)
   }
   if (avoid) cands = cands.filter((c) => c.id !== avoid && c.soundId !== avoid)
   const fresh = cands.filter((c) => isNewStageChoice(stage, c))
@@ -176,15 +183,14 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
     const L = broomTarget(ctx, 'syllable', undefined, 'ladder').itemId
     for (let k = 0; k < rungs; k++) {
       const marks = marksFor(rng)
-      const groups = shuffle(rng, GROUPS).slice(0, 3)
-      const plates = groups.map((g) => syl(L, marks[g]))
+      const plates = shuffle(rng, GROUPS).map((g) => sylFor(L, g, marks[g])).filter((c): c is Choice => c !== null).slice(0, 3)
       const target = pickTarget(rng, plates, (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
       steps.push({ target, plates: markNearMiss(target, plates) })
     }
   } else if (fixed === 'vowel') {
     const m = markOf(pick(rng, GROUP_MARKS[pick(rng, GROUPS)]))
     for (let k = 0; k < rungs; k++) {
-      const cands = items.map((it) => syl(it.id, m))
+      const cands = items.filter((it) => isAllowed(it.id, m.id)).map((it) => syl(it.id, m))
       const target = pickTarget(rng, cands, (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
       const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m))
       const plates = shuffle(rng, fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m)))
@@ -195,7 +201,7 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
     for (let k = 0; k < rungs; k++) {
       const it = pick(rng, dotted)
       const g = pick(rng, GROUPS)
-      const m = markOf(pick(rng, GROUP_MARKS[g]))
+      const m = markOf(pick(rng, GROUP_MARKS[g].filter((x) => isAllowed(it.id, x) && isAllowed(it.pair!, x))))
       const target = syl(it.id, m)
       const pair = syl(it.pair!, m)
       const look = lookAlikeGroup(ctx, it.id).slice(1).filter((id) => id !== it.pair).map((id) => syl(id, m))

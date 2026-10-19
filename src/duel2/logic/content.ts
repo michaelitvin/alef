@@ -109,13 +109,20 @@ export function syllable(itemId: string, markId: MarkId): Syllable {
   return { id: `${itemId}-${markId}`, item: it, mark: m, text, soundId: `syl-${it.sound}-${m.group}` }
 }
 
+/**
+ * Syllables the game never shows (legibility sheet 2026-10-20; rule: no symbol that can be read two ways):
+ * וֹ (vav + cholam) looks like the vowel cholam male "o"; יִ (yod + chirik) looks like an upside-down "!".
+ */
+export const LEFT_OUT = new Set(['vav-cholam', 'yod-chirik'])
+export const isAllowed = (itemId: string, markId: MarkId) => !LEFT_OUT.has(`${itemId}-${markId}`)
+
 export function itemsOfStage(stage: Stage): Item[] {
   return stage >= 3 || stage === 1 ? ITEMS : ITEMS.filter((i) => !i.soft)
 }
 
 export function syllablesOfStage(stage: Stage): Syllable[] {
   const items = stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft)
-  return items.flatMap((i) => MARKS.map((m) => syllable(i.id, m.id)))
+  return items.flatMap((i) => MARKS.filter((m) => isAllowed(i.id, m.id)).map((m) => syllable(i.id, m.id)))
 }
 
 /** Letters that look alike (start groups for the ghosts, replaced by his real mix-ups when known). */

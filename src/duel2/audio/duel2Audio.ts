@@ -29,6 +29,10 @@ export function setHidden(on: boolean) { hidden = on; applyMute() }
 export function holdAudio(on: boolean) { held = on; applyMute() }
 
 let current: string | null = null
+let currentSignal: VoiceSignal | null = null
+/** A speaker's own handle: cancelling it stops only that speaker's parts (an explanation closing must not silence the game). */
+export interface VoiceSignal { cancelled: boolean }
+export const voiceSignal = (): VoiceSignal => ({ cancelled: false })
 function playFile(id: string): Promise<void> {
   const url = VOICE_URLS[id]
   if (!url) return Promise.resolve()
@@ -49,13 +53,14 @@ let epoch = 0
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 
 /** Plays the parts in order with `gapMs` between them, after anything already queued. A stopVoice drops what is left. */
-export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = GAP_MS): Promise<void> {
+export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = GAP_MS, signal?: VoiceSignal): Promise<void> {
   const mine = epoch
   const run = async () => {
     for (let i = 0; i < parts.length; i++) {
-      if (epoch !== mine) return
+      if (epoch !== mine || signal?.cancelled) return
       if (i > 0 && gapMs > 0) await wait(gapMs)
-      if (epoch !== mine) return
+      if (epoch !== mine || signal?.cancelled) return
+      currentSignal = signal ?? null
       parts[i].onStart?.()
       // test builds keep the order of everything said, for the QA audio log (rule)
       if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(parts[i].id)
@@ -67,6 +72,12 @@ export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = 
   return p
 }
 export const say = (ids: string[], gapMs = GAP_MS) => sayParts(ids.map((id) => ({ id })), gapMs)
+
+/** Stops one speaker's parts (playing or queued); everything else in the queue goes on. */
+export function cancelVoice(signal: VoiceSignal) {
+  signal.cancelled = true
+  if (currentSignal === signal && current) peekHowl(current)?.stop()
+}
 
 /** Stops the voice now and drops the queued parts (a tap on the cue, leaving the screen). */
 export function stopVoice() {

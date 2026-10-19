@@ -1,6 +1,6 @@
 // Writes Book 2's audio catalogue (every voice clip with its text, settings, where it plays and the glyph to show next to it
 // on the review page) as JSON for the host-local generation pipeline. Run: node scripts/duel2/export-audio-catalog.ts > catalog.json
-import { GROUPS, ITEMS, syllable, type MarkId, type VowelGroup } from '../../src/duel2/logic/content.ts'
+import { GROUPS, GROUP_MARKS, ITEMS, isAllowed, syllable, type MarkId, type VowelGroup } from '../../src/duel2/logic/content.ts'
 import { WORDS } from '../../src/duel2/data/words.ts'
 import { LINES, VOICE, lineAudioId } from '../../src/duel2/data/lines.ts'
 
@@ -18,10 +18,12 @@ const SPELL: Record<VowelGroup, MarkId> = { a: 'kamatz', e: 'tsere', i: 'chirik'
 const seen = new Set<string>()
 for (const it of ITEMS)
   for (const g of GROUPS) {
-    const s = syllable(it.id, SPELL[g])
+    const m = isAllowed(it.id, SPELL[g]) ? SPELL[g] : GROUP_MARKS[g].find((x) => isAllowed(it.id, x))
+    if (!m) continue
+    const s = syllable(it.id, m)
     if (seen.has(s.soundId)) continue
     seen.add(s.soundId)
-    const same = ITEMS.filter((o) => o.sound === it.sound).map((o) => syllable(o.id, SPELL[g]).text)
+    const same = ITEMS.filter((o) => o.sound === it.sound && isAllowed(o.id, m)).map((o) => syllable(o.id, m).text)
     items.push({
       id: s.soundId, kind: 'tts', group: 'syllable', text: s.text, spoken: `${s.text}.`, where: 'The sound he hears and the feedback (all screens)',
       context: same.join(' / '), stability: 1, takes: 2, ...voice,
