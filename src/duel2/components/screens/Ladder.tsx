@@ -14,9 +14,9 @@ const PLATE_W = 300
 
 /** The three plates float by the next empty rung. */
 export function plateYs(built: number, rungs: number): number[] {
-  const ny = RUNG_Y(Math.min(built, rungs - 1))
-  const ys = [ny - 170, ny, ny + 170].map((y) => Math.min(800, Math.max(170, y)))
-  return ys[0] === ys[1] || ys[1] === ys[2] ? [300, 470, 640] : ys
+  // centred on the next rung, shifted (not squashed) to stay on the stage
+  const c = Math.min(800 - 170, Math.max(160 + 170, RUNG_Y(Math.min(built, rungs - 1))))
+  return [c - 170, c, c + 170]
 }
 export const LADDER_PLATE_X = PLATE_X
 

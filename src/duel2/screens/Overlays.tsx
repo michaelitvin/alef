@@ -11,7 +11,7 @@ function Frame({ children, dim = true }: { children: React.ReactNode; dim?: bool
   return (
     <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
       <GlyphDefs />
-      {dim && <rect width={1600} height={900} fill="#0b0824" opacity={0.82} />}
+      {dim && <rect width={1600} height={900} fill="#0b0824" opacity={0.96} />}
       {children}
     </svg>
   )

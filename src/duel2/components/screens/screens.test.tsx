@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
 import { CATCH_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
-import { Ladder } from './Ladder'
+import { Ladder, plateYs } from './Ladder'
 import { Ghosts, GHOST_GLYPH_PX, GHOST_H } from './Ghosts'
 import { Doors } from './Doors'
 import { Crystal } from './Crystal'
@@ -75,6 +75,15 @@ describe('screens', () => {
     fireEvent.pointerMove(orb, { clientX: 1400, clientY: 300, pointerId: 3 })
     fireEvent.pointerUp(orb, { clientX: 1450, clientY: 300, pointerId: 3 })
     expect(onPick).not.toHaveBeenCalled()
+  })
+  it('ladder plates never overlap, on every rung', () => {
+    for (let built = 0; built < 5; built++) {
+      const ys = [...plateYs(built, 5)].sort((a, b) => a - b)
+      expect(ys[1] - ys[0], `rung ${built}`).toBeGreaterThanOrEqual(160)
+      expect(ys[2] - ys[1], `rung ${built}`).toBeGreaterThanOrEqual(160)
+      expect(Math.min(...ys)).toBeGreaterThanOrEqual(150)
+      expect(Math.max(...ys)).toBeLessThanOrEqual(820)
+    }
   })
   it('ladder shows the built rungs and three plates', () => {
     const { container } = render(<Ladder built={[c('lamed', 'kamatz')]} plates={[c('lamed', 'chirik'), c('lamed', 'shuruk'), c('lamed', 'segol')]} rungs={5} onPick={() => {}} phase="answer" />)
