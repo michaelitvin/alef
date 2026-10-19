@@ -34,12 +34,12 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
       <svg className="d2-stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
         <GlyphDefs />
         {IMAGES['bg-sky'] ? <image href={IMAGES['bg-sky']} width={1600} height={900} preserveAspectRatio="xMidYMid slice" /> : <rect width={1600} height={900} fill="#1b0f3c" />}
-        {SAMPLE.map((t, i) => (
+        {SAMPLE.map((t, i) => { const oy = [150, 330, 780][i]; return (
           <g key={t} className="d2-drift" style={{ animationDelay: `${-i * 4}s` }}>
-            {IMAGES['s-orb'] ? <image href={IMAGES['s-orb']} x={-80} y={180 + i * 210 - 80} width={160} height={160} /> : <circle cx={0} cy={180 + i * 210} r={80} fill="#2a1660" />}
-            <Glyph text={t} px={92} x={0} y={180 + i * 210} />
+            {IMAGES['s-orb'] ? <image href={IMAGES['s-orb']} x={-80} y={oy - 80} width={160} height={160} /> : <circle cx={0} cy={oy} r={80} fill="#2a1660" />}
+            <Glyph text={t} px={92} x={0} y={oy} />
           </g>
-        ))}
+        ) })}
         <g className="d2-bob">
           {IMAGES['s-wizbroom'] && <image href={IMAGES['s-wizbroom']} x={170} y={300} width={380} height={324} />}
         </g>
