@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ITEMS, MARKS, GROUP_MARKS, SHAPE_GROUPS, itemsOfStage, syllable, syllablesOfStage, soundOfItem } from './content.ts'
+import { ITEMS, MARKS, GROUP_MARKS, SHAPE_GROUPS, isAllowed, itemsOfStage, syllable, syllablesOfStage, soundOfItem } from './content.ts'
 
 describe('content', () => {
   it('26 items, 4 soft', () => {
@@ -21,11 +21,18 @@ describe('content', () => {
   })
   it('stage 2 has no soft items, stage 3 has all', () => {
     expect(syllablesOfStage(2).some((s) => s.item.soft)).toBe(false)
-    expect(syllablesOfStage(3).length).toBe(26 * 9)
+    expect(syllablesOfStage(3).length).toBe(26 * 9 - 2)
     expect(itemsOfStage(1).length).toBe(26)
   })
-  it('about 100 distinct syllable sounds', () => {
-    expect(new Set(syllablesOfStage(3).map((s) => s.soundId)).size).toBe(100)
+  it('ambiguous or misread syllables are left out', () => {
+    // וֹ looks like the vowel cholam male "o"; יִ looks like an upside-down "!" (legibility sheet 2026-10-20)
+    expect(isAllowed('vav', 'cholam')).toBe(false)
+    expect(isAllowed('yod', 'chirik')).toBe(false)
+    expect(isAllowed('vav', 'cholam-male')).toBe(true)
+    expect(syllablesOfStage(3).some((s) => s.id === 'vav-cholam' || s.id === 'yod-chirik')).toBe(false)
+  })
+  it('99 distinct syllable sounds (yi is left out)', () => {
+    expect(new Set(syllablesOfStage(3).map((s) => s.soundId)).size).toBe(99)
   })
   it('marks and groups', () => {
     expect(MARKS.length).toBe(9)

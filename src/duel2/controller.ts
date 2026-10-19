@@ -392,8 +392,9 @@ export class RunController {
       if (autoHint) {
         if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
         await this.playHint(c, true, t)
-        open()
       }
+      // the answers open after the question even if the cue was cut short (a stopped voice must never leave the round shut)
+      if (this.view.phase === 'question') open()
     }
     for (;;) {
       const picked = await this.waitPick(t)
