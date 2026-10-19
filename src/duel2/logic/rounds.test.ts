@@ -82,6 +82,11 @@ describe('rounds', () => {
       }
     }
   })
+  it('ladder kind can be forced (the gallery)', () => {
+    expect(ladderPlan(ctx(3, 1), 5, 'vowel').fixed).toBe('vowel')
+    expect(ladderPlan(ctx(3, 1), 5, 'dot').fixed).toBe('dot')
+    expect(ladderPlan(ctx(2, 1), 5, 'dot').fixed).not.toBe('dot')
+  })
   it('ladder dot contrast only from stage 3', () => {
     for (let seed = 1; seed <= 200; seed++) expect(ladderPlan(ctx(2, seed), 5).fixed).not.toBe('dot')
   })

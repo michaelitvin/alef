@@ -166,11 +166,11 @@ export function cauldronRound(ctx: RoundCtx): { letter: Item; target: Syllable; 
 
 export interface LadderStep { target: Choice; plates: Choice[] }
 /** A ladder: one part stays the same on every rung (the letter, the vowel, or the dot contrast from stage 3). */
-export function ladderPlan(ctx: RoundCtx, rungs: number): { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[] } {
+export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vowel' | 'dot'): { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[] } {
   const { rng, stage } = ctx
   const items = syllableItems(stage)
   const r = rng()
-  const fixed: 'letter' | 'vowel' | 'dot' = stage >= 3 && r < 0.3 ? 'dot' : r < 0.65 ? 'letter' : 'vowel'
+  const fixed: 'letter' | 'vowel' | 'dot' = force && (force !== 'dot' || stage >= 3) ? force : stage >= 3 && r < 0.3 ? 'dot' : r < 0.65 ? 'letter' : 'vowel'
   const steps: LadderStep[] = []
   if (fixed === 'letter') {
     const L = broomTarget(ctx, 'syllable', undefined, 'ladder').itemId
