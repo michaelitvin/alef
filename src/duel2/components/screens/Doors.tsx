@@ -8,7 +8,7 @@ import { Plate } from '../Orb'
 import { Stage, type Phase } from './Stage'
 
 export const DOOR_GLYPH_PX = 110
-const KEY_X = [520, 800, 1080]
+export const KEY_X = [520, 800, 1080]
 
 function KeyShape(p: { x: number; y: number; picture: string; state: 'idle' | 'reveal' | 'wrong' | 'off'; onPick: () => void; correct: boolean }) {
   const ring = p.state === 'reveal' ? '#ffd34d' : p.state === 'wrong' ? '#ff4d6a' : '#e7b860'
