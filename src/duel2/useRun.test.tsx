@@ -131,7 +131,7 @@ describe('run controller', () => {
 
   it('the question plays again after a demo', async () => {
     useDuel2Store.setState({ demosSeen: [] })
-    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable', demo: true } })
     c.start()
     await until(c, (v) => v.overlay?.kind === 'demo')
     expect(c.view.phase).toBe('demo')

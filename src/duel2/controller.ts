@@ -97,6 +97,7 @@ export class RunController {
   private waveId = 0
   private running = false
   private resuming = false
+  private demoShown = false
   private assets: string[] = []
 
   constructor(private opts: RunOpts = {}) {
@@ -159,7 +160,7 @@ export class RunController {
     const st = useDuel2Store.getState()
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'cauldron' : f.screen) : runStart(this.stage, st.lastEnded)
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded)
     void this.loop()
   }
   destroy() {
@@ -268,7 +269,8 @@ export class RunController {
     const kind = this.kindFor(screen)
     const st = useDuel2Store.getState()
     const demo = this.demoKey(screen, kind)
-    if ((this.opts.force?.demo ?? !st.demosSeen.includes(demo)) && this.roundInScreen === 0) {
+    if ((this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes(demo)) && this.roundInScreen === 0) {
+      this.demoShown = true
       this.prepareView(screen, kind)
       this.set({ phase: 'demo', overlay: { kind: 'demo', line: lineAudioId(demo, 1), demo } })
       if (!this.opts.sandbox) { st.markDemo(demo); duel2Telemetry.track('demo', { demo }) }
@@ -335,7 +337,8 @@ export class RunController {
 
   private needsDotIntro(choices: Choice[]): string | null {
     if (this.stage < 3) return null
-    const seen = useDuel2Store.getState().dotIntrosSeen
+    // the gallery's dot-intro entry shows the introduction every round
+    const seen = this.opts.force?.screen === 'dot' ? [] : useDuel2Store.getState().dotIntrosSeen
     for (const c of choices) {
       const it = itemOf(c.itemId)
       const hard = it.soft ? it.pair! : it.id
