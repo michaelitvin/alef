@@ -421,6 +421,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Look at every screen at phone sizes too. The learning content must stay the largest element.
   Example (clock): on a phone, the clock was smaller than the answer cards.
 - Look at a sheet of all glyphs and one walking frame of each sprite.
+- Test every drag with real touch events in a headless browser with touch on (CDP `Input.dispatchTouchEvent`), not with
+  mouse or synthetic pointer events. Make the stage itself `touch-action: none`: the browser ignores it on inner SVG parts,
+  takes the finger as a page pan and cancels the drag.
+  Example (book 2): the cauldron said "throw the vowel in", but on the tablet the orb did not move. The unit tests passed
+  with synthetic events.
 - Before you give a build to the parent, do a full QA pass yourself: play each level from a fresh start, at phone and
   tablet sizes, with wrong answers too. Log the order of all audio, and look at a screenshot of each step.
   For each step, ask: does it make sense to a child who hears it for the first time? Does every element fit on the screen?

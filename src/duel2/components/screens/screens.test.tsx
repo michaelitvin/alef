@@ -137,6 +137,11 @@ describe('screens', () => {
     fireEvent.pointerUp(orb2, { clientX: 800, clientY: 700, pointerId: 2 })
     expect(onPick).toHaveBeenLastCalledWith('kamatz')
   })
+  it('the cauldron stage keeps the finger for the drag (the browser does not pan and cancel it)', () => {
+    // touch-action on an inner SVG group is ignored by the browser: it must sit on the stage
+    const { container } = render(<Cauldron letter={item('mem')} orbs={[mark('kamatz'), mark('cholam'), mark('chirik')]} onPick={() => {}} phase="answer" />)
+    expect((container.querySelector('[data-stage]') as SVGElement).style.touchAction).toBe('none')
+  })
   it('a drag that ends away from the pot picks nothing', () => {
     const onPick = vi.fn()
     const { container } = render(<Cauldron letter={item('mem')} orbs={[mark('kamatz'), mark('cholam'), mark('chirik')]} onPick={onPick} phase="answer" />)
