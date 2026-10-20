@@ -45,7 +45,7 @@ describe('rounds', () => {
   it('no choice holds a left-out syllable', () => {
     for (const stage of [2, 3] as Stage[])
       for (let seed = 1; seed <= 400; seed++)
-        for (const cs of allChoiceSets(stage, seed)) expect(cs.some((c) => c.id === 'vav-cholam' || c.id === 'yod-chirik'), cs.map((c) => c.id).join()).toBe(false)
+        for (const cs of allChoiceSets(stage, seed)) expect(cs.some((c) => c.id === 'vav-cholam'), cs.map((c) => c.id).join()).toBe(false)
   }, 120_000)
   it('only opened-stage items', () => {
     for (let seed = 1; seed <= 300; seed++)

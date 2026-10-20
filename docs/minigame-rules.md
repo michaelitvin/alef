@@ -161,6 +161,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 - Do not show a shape that looks like a nikkud mark. This includes effect particles.
   Examples (duel): lowercase "i" (looks like cholam), small round dot clusters (blueberries), a bar with a dot (looks like a vav with a mark), crumbs and specks near a picture.
+- Do not remove learning content (a letter, a syllable, a word) because it looks like something else. Show it, and ask
+  the parent.
+  Example (book 2): יִ was left out because it looks like "¡"; the parent: "not cool". It is a common syllable.
 - When you remove a look-alike, make sure that the object stays recognizable.
   Example (duel): a cookie without chips did not look like a cookie. Big, irregular chocolate chunks are correct.
 - Give each symbol only one meaning. A picture word must not look like a UI icon. A particle must not look like a heart (life) or a placeholder.
