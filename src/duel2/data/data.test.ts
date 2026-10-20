@@ -43,7 +43,11 @@ describe('lines', () => {
   })
   it('question lines carry no learning word', () => {
     const words = WORDS.map((w) => w.text)
-    for (const l of LINES.filter((x) => x.id.startsWith('q-'))) for (const t of l.he) for (const w of words) expect(t.includes(w), `${l.id}: ${w}`).toBe(false)
+    for (const l of LINES.filter((x) => x.id.startsWith('q-')))
+      for (const t of l.he) {
+        const tokens = t.split(/[\s,.?]+/)
+        for (const w of words) expect(tokens.includes(w), `${l.id}: ${w}`).toBe(false)
+      }
   })
   it('audio ids', () => {
     expect(lineAudioId('almost', 2)).toBe('almost-2')

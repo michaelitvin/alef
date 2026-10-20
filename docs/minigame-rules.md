@@ -51,6 +51,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): "המגדל נפל. כל הכבוד" praised the child for a loss. The first "כִּמְעַט" sounded disappointed; it must encourage.
 - Do not use game or technical words. Say what happens.
   Example (duel): "wave" and "combo" were removed. "עוד מפלצות בדרך" replaced the wave line.
+- Use the full name of a thing when its short name has another meaning. Example (book 2): רוּחַ alone is "wind"; the
+  ghosts are רוּחוֹת רְפָאִים.
 - Use natural, spoken Hebrew. When the parent gives a wording, use it.
   Examples (duel): "מגה כישוף" (not "כישוף מגה"), "נשחק שוב?", "וואו, אתה בשוונג".
 - Make an announcement say something specific. Make the next round show it.
@@ -125,6 +127,17 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Caution: IPA can give an English accent. Example (duel): the bus in IPA sounded English.
 - Do not use IPA alone for a single vowel. Example (duel): "/a/." gave 5–6 bursts of extra speech.
 - Use the same correct spelling everywhere in the app. Example (duel): צֵירֶה, פַּתָּח.
+- Before you generate a word, look for an approved recording of it in the other games, and use that file. Also use their
+  pronunciation fixes.
+  Example (book 2): אוֹטוֹבּוּס and אַנָּנָס had the wrong stress again; the duel had fixed both. Book 2 now plays the duel's files.
+- The voice does not see a missing dagesh: it reads ב as "b" and פ as "p". Spell a "v" sound with ו (וָה), and test each
+  "f" spelling by transcription.
+  Example (book 2): בָ, the "va" syllable, was spoken "ba".
+- A lone letter with a vowel can be read as the letter's name. Add the vowel letter (גִּי, not גִ).
+  Example (book 2): גִ was spoken "gimel".
+- Say letter names in the modern spoken form: פֵּי, פֵי, טֶת, חֶת, וֶט, חַף; spell them so that the voice says that form.
+  Example (book 2): the parent rejected "teit", "veit", "pe", "kaf" (for chaf), and צָדִי with the stress on the last syllable.
+- Do not put an accent tag on a single syllable. Example (book 2): "[Israeli accent] רָ" was spoken two times.
 
 ## Music and sound effects
 
