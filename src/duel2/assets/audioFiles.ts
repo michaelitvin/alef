@@ -14,6 +14,17 @@ const VOWEL_NAME_FILE: Record<string, string> = {
 export const VOICE_URLS: Record<string, string> = { ...own }
 for (const [markId, file] of Object.entries(VOWEL_NAME_FILE)) if (duel[file]) VOICE_URLS[`vn-${markId}`] = duel[file]
 
+// Words the duel already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Book 2 plays those
+// (rule: ship the approved take; do not record a word again).
+const duelWords = byName(import.meta.glob('../../assets/duel/audio/voice/wiz-word-*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
+/** Book 2 word id → the duel's picture-word key */
+export const DUEL_WORD: Record<string, string> = {
+  tent: 'tent', camel: 'camel', cake: 'u', house: 'house', rose: 'rose', book: 'book', lion: 'a', pineapple: 'pineapple',
+  mouse: 'mouse', eye: 'eye', butterfly: 'butterfly', chick: 'e', tree: 'tree', fire: 'fire', door: 'door', pencil: 'i',
+  igloo: 'igloo', island: 'island', bicycle: 'bicycle', bus: 'bus', monkey: 'monkey', cookie: 'cookie',
+}
+for (const [id, key] of Object.entries(DUEL_WORD)) if (duelWords[`wiz-word-${key}`]) VOICE_URLS[`w-${id}`] = duelWords[`wiz-word-${key}`]
+
 const sfx = byName(import.meta.glob('./audio/sfx/*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
 /** effect name → its approved takes ("<name>-<n>.mp3" rotate) */
 export const SFX_URLS: Record<string, string[]> = {}
