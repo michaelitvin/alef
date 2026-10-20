@@ -40,7 +40,7 @@ export function Cauldron(p: {
         if (p.reveal?.right === m.id) state = 'reveal'
         else if (p.reveal?.wrong === m.id) state = 'wrong'
         return (
-          <g key={m.id} data-orb={m.id} style={{ touchAction: 'none', cursor: can ? 'grab' : 'default' }}
+          <g key={m.id} data-orb={m.id} style={{ cursor: can ? 'grab' : 'default' }}
             {...(p.correct === m.id ? { 'data-correct-orb': '1' } : {})}
             onPointerDown={(e) => {
               if (!can) return

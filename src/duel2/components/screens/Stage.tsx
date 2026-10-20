@@ -31,9 +31,11 @@ function Backdrop({ bg }: { bg: string }) {
   )
 }
 
-export function Stage({ bg, children, ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode } & SVGProps<SVGSVGElement>) {
+export function Stage({ bg, children, style, ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode } & SVGProps<SVGSVGElement>) {
   return (
-    <svg data-stage className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}>
+    <svg data-stage className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}
+      // no screen scrolls; without this the browser takes a drag as a pan and cancels it (touch-action on inner SVG parts is ignored)
+      style={{ touchAction: 'none', ...style }}>
       <GlyphDefs />
       <Backdrop bg={bg} />
       {children}
