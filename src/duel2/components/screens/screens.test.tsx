@@ -204,9 +204,56 @@ describe('screens', () => {
     expect(l.container.querySelector('.d2-pick-off')).toBeNull()
     const w = WORDS.find((x) => x.id === 'tent')!
     const d = render(<Doors word={w} lit={2} keys={[w]} onPick={onPick} phase="question" opening={false} zooming={false} />)
-    expect(d.container.querySelector('[data-key]')!.getAttribute('opacity')).toBe('1')
-    fireEvent.pointerDown(d.container.querySelector('[data-key] [data-pick]')!)
+    expect(d.container.querySelector('[data-key] .d2-key')!.getAttribute('opacity')).toBe('1')
+    fireEvent.pointerDown(d.container.querySelector('[data-key]')!)
+    fireEvent.pointerUp(d.container.querySelector('[data-key]')!)
     expect(onPick).not.toHaveBeenCalled()
+  })
+  it('a ladder plate can be dragged onto the next rung, or tapped', () => {
+    const onPick = vi.fn()
+    const { container } = render(<Ladder built={[]} plates={wave} rungs={5} onPick={onPick} phase="answer" />)
+    const ys = plateYs(0, 5)
+    const pl = container.querySelector(`[data-plate="${wave[1].id}"]`)!
+    fireEvent.pointerDown(pl, { clientX: 1260, clientY: ys[1], pointerId: 1 })
+    fireEvent.pointerMove(pl, { clientX: 1000, clientY: 790, pointerId: 1 })
+    expect(pl.getAttribute('transform')).toMatch(/translate/)
+    fireEvent.pointerUp(pl, { clientX: 800, clientY: 790, pointerId: 1 })
+    expect(onPick).toHaveBeenLastCalledWith(wave[1].id)
+    const p0 = container.querySelector(`[data-plate="${wave[0].id}"]`)!
+    fireEvent.pointerDown(p0, { clientX: 1260, clientY: ys[0], pointerId: 2 })
+    fireEvent.pointerUp(p0, { clientX: 1261, clientY: ys[0], pointerId: 2 })
+    expect(onPick).toHaveBeenLastCalledWith(wave[0].id)
+  })
+  it('a ladder plate dropped away from the ladder picks nothing', () => {
+    const onPick = vi.fn()
+    const { container } = render(<Ladder built={[]} plates={wave} rungs={5} onPick={onPick} phase="answer" />)
+    const pl = container.querySelector(`[data-plate="${wave[2].id}"]`)!
+    fireEvent.pointerDown(pl, { clientX: 1260, clientY: 600, pointerId: 3 })
+    fireEvent.pointerMove(pl, { clientX: 1450, clientY: 200, pointerId: 3 })
+    fireEvent.pointerUp(pl, { clientX: 1450, clientY: 200, pointerId: 3 })
+    expect(onPick).not.toHaveBeenCalled()
+  })
+  it('a key can be dragged onto the door, or tapped', () => {
+    const onPick = vi.fn()
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const keys = WORDS.filter((x) => x.door).slice(0, 3)
+    const { container } = render(<Doors word={w} lit={2} keys={keys} onPick={onPick} phase="answer" opening={false} zooming={false} />)
+    const k = container.querySelectorAll('[data-key]')[2]
+    fireEvent.pointerDown(k, { clientX: 1080, clientY: 690, pointerId: 4 })
+    fireEvent.pointerMove(k, { clientX: 900, clientY: 450, pointerId: 4 })
+    fireEvent.pointerUp(k, { clientX: 800, clientY: 400, pointerId: 4 })
+    expect(onPick).toHaveBeenLastCalledWith(keys[2].id)
+    const k0 = container.querySelectorAll('[data-key]')[0]
+    fireEvent.pointerDown(k0, { clientX: 520, clientY: 690, pointerId: 5 })
+    fireEvent.pointerUp(k0, { clientX: 520, clientY: 690, pointerId: 5 })
+    expect(onPick).toHaveBeenLastCalledWith(keys[0].id)
+  })
+  it('the ladder and door demos move the plate and the key with the hand', () => {
+    const l = render(<Ladder built={[]} plates={wave} rungs={5} onPick={() => {}} phase="demo" demo={{ id: wave[1].id, t: 1 }} />)
+    expect(l.container.querySelector(`[data-plate="${wave[1].id}"]`)!.getAttribute('transform')).toMatch(/translate\(-460/)
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const d = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="demo" opening={false} zooming={false} demo={{ id: w.id, t: 1 }} />)
+    expect(d.container.querySelector('[data-key]')!.getAttribute('transform')).toMatch(/translate/)
   })
   it('ghosts face left', () => {
     const { container } = render(<Ghosts signs={wave} onPick={() => {}} phase="answer" />)

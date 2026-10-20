@@ -53,6 +53,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): "wave" and "combo" were removed. "עוד מפלצות בדרך" replaced the wave line.
 - Use the full name of a thing when its short name has another meaning. Example (book 2): רוּחַ alone is "wind"; the
   ghosts are רוּחוֹת רְפָאִים.
+- Write each line as what an adult says to the child at that moment, in the order that the child hears it. Before you
+  generate, write out each sequence (what plays before, the line, what plays after) and read it aloud as a whole. Then
+  have a native reviewer (a person, or a model told to act as an Israeli kindergarten teacher) check each line in its
+  sequence and its nikkud.
+  Reason: the parent found the instructions "unnatural and out of place" in every game so far.
+  Example (book 2): "תִּתְפֹּס אֶת מָה שֶׁתִּשְׁמַע." + [בָּ] became "אֵיפֹה כָּתוּב..." + [בָּ]; "the word on the gate" for a door became
+  "מָה כָּתוּב עַל הַדֶּלֶת?"; the dotted-letter introduction says "בְּלִי נְקֻדָּה..." + [וָ], "וְעִם נְקֻדָּה..." + [בָּ].
+- Let a line that a sound follows lead into it, and end it open ("…") so that the voice does not close the sentence.
+  The speaker says "what I say", not "what you will hear".
 - Use natural, spoken Hebrew. When the parent gives a wording, use it.
   Examples (duel): "מגה כישוף" (not "כישוף מגה"), "נשחק שוב?", "וואו, אתה בשוונג".
 - Make an announcement say something specific. Make the next round show it.
@@ -258,6 +267,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
 - Do not use a clock for slow tasks, such as drawing.
+- When the screen shows a place where a choice goes (a pot, a ladder rung, a door), let the child drag the choice there.
+  Accept a tap too. Make the drop zone large, and let a choice that is dropped elsewhere fly back.
+  Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.
 - Show a gesture with a demo that does the gesture: a hand that the child recognizes as a hand, and the object moves with it.
   Example (clock): the demo finger was a blob that moved in an arc beside the clock. Now a pointing hand pulls the long
   hand round, and the short hand moves with it.
@@ -295,9 +307,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   on the screen when it ends, with a speaker that plays it again, until he taps next. Give the explanation of a mistake
   from time to time (not every time), after he has looked at the right answer.
   Example (clock): after a mistake the next customer came at once, and an explanation went on to the question at once.
-- Say the instruction (the question line) once on each visit to a screen. In later rounds, and after a mistake, play only
-  the sound to find. Play it again after a pause.
-  Example (book 2): the parent: "no instructions narration is needed while on the same screen".
+- Do not repeat the instruction in each round. The demo teaches a screen; after that, a round plays only the sound to find.
+  Play the instruction (and the sound again) only when the child has not answered for a while (book 2: 8 s).
+  Example (book 2): the parent: "no need to sound the instructions every time over and over. He gets it. Sound it only if
+  he hasn't picked anything for a while."
 - Let a moving answer reach the child before you judge it. Count a miss only when the answer has passed him, and end a
   round only when all the answers that are on the screen are done.
   Example (book 2): the broom said "missed" while the right letter still overlapped the wizard, and on the last round the
@@ -306,8 +319,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   while a hint plays, and let a pick stop the hint and count. After a mistake, let a tap on the marked right answer go on
   at once (no hint, no next button, no explanation). Let a tap anywhere on an explanation that covers the screen end it.
   Example (book 2): the parent: "explanations get the kid stuck if he already knows the answer".
-- Give hints that fit the question. Show a hint by itself in the first rounds, then put it behind a hint button. Show it
-  again on the right answer after a mistake.
+- Give hints that fit the question. Keep them behind a hint button. Show a hint by itself only when the child has not
+  answered for a long time (book 2: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the
+  right answer glows and its sound plays.
+  Example (book 2): the parent: "you're showing the hint too often and when it's uncalled for".
   Example (clock): the quarters (the face cut in four, 00/15/30/45) for :15/:30/:45, and the minutes at each number for
   the other five-minute times; none on the hour.
   Example (duel): a tap on the twin mark (kamatz for patach) costs no heart. The wizard says "כִּמְעַט" and the twin's name.

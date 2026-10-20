@@ -50,17 +50,21 @@ export const wavePos = (startMs: number, nowMs: number, travel: number) => Math.
 export const PASS_AT = -0.07
 
 /**
- * One tick of a wave: an orb in his lane between CATCH_AT and PASS_AT meets him (caught, or a hit); an orb past PASS_AT is
- * gone, and the target gone that way is a miss. `k` = each orb's wavePos, `isTarget` = it carries the target sound.
+ * One tick of a wave (forgiving for a child): the target is caught while it overlaps him in his lane (CATCH_AT to
+ * PASS_AT) and missed only once it has passed him; a wrong orb hits only if he is in its lane when it reaches him. `k` = each orb's wavePos, `isTarget` = it carries the target sound.
  */
 export function orbEvents(k: number[], resolved: boolean[], lane: number, isTarget: boolean[]): { resolved: boolean[]; hit: number | null; missedTarget: boolean } {
   const r = [...resolved]
   for (let i = 0; i < k.length; i++) {
     if (r[i]) continue
-    if (i === lane && k[i] <= CATCH_AT && k[i] >= PASS_AT) { r[i] = true; return { resolved: r, hit: i, missedTarget: false } }
-    if (k[i] < PASS_AT) {
+    if (isTarget[i]) {
+      // the target: caught any time it overlaps him in his lane; missed only once it has passed him
+      if (i === lane && k[i] <= CATCH_AT && k[i] >= PASS_AT) { r[i] = true; return { resolved: r, hit: i, missedTarget: false } }
+      if (k[i] < PASS_AT) { r[i] = true; return { resolved: r, hit: null, missedTarget: true } }
+    } else if (k[i] <= CATCH_AT) {
+      // a wrong orb hits only if he is in its lane when it reaches him; moving into one that is already passing is no hit
       r[i] = true
-      if (isTarget[i]) return { resolved: r, hit: null, missedTarget: true }
+      if (i === lane) return { resolved: r, hit: i, missedTarget: false }
     }
   }
   return { resolved: r, hit: null, missedTarget: false }

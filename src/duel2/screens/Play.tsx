@@ -34,11 +34,13 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
-      return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={pick} phase={v.phase} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
+      return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={pick} phase={v.phase} reveal={s.reveal} correctId={test ? s.target.id : undefined}
+        demo={demoT !== undefined ? { id: s.target.id, t: demoT } : undefined} />
     case 'ghosts':
       return <Ghosts signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
     case 'doors':
-      return <Doors word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} />
+      return <Doors word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test}
+        demo={demoT !== undefined ? { id: s.word.id, t: demoT } : undefined} />
     case 'crystal':
       return <Crystal kind={s.kind} onDone={() => {}} />
   }
@@ -50,9 +52,9 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
   if (!s) return null
   if (s.screen === 'broom') return { from: { x: WIZ_X, y: LANE_Y[1] }, to: { x: WIZ_X, y: LANE_Y[0] } }
   if (s.screen === 'cauldron') { const i = s.orbs.indexOf(s.target.mark!); return { from: { x: ORB_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
-  if (s.screen === 'ladder') { const i = s.plates.findIndex((p) => p.id === s.target.id); return { from: { x: 1300, y: 860 }, to: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs)[i] } } }
+  if (s.screen === 'ladder') { const i = s.plates.findIndex((p) => p.id === s.target.id); return { from: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs)[i] }, to: { x: 800, y: 790 - Math.min(s.built.length, s.rungs - 1) * 150 } } }
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
-  if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: 300, y: 860 }, to: { x: KEY_X[i], y: 690 } } }
+  if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: KEY_X[i], y: 690 }, to: { x: 800, y: 560 } } }
   return null
 }
 
