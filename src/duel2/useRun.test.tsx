@@ -286,4 +286,94 @@ describe('run controller', () => {
     expect(twice).toBe(false)
     c.destroy()
   })
+  it('a lock during feedback does not replay the answered round (ladder)', async () => {
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 300)) })
+    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await tick(50)
+    expect(c.view.phase).toBe('feedback')
+    c.pause()
+    c.resume()
+    await until(c, (v) => v.phase === 'answer')
+    const s = c.view.screen as Extract<View['screen'], { screen: 'ladder' }>
+    expect(s.built.length).toBe(1)
+    expect(s.plates.length).toBe(3)
+    expect(useDuel2Store.getState().roundNo).toBe(1)
+    c.destroy()
+  })
+
+  it('resume keeps the flight kind', async () => {
+    let calls = 0
+    useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts', demosSeen: allDemos })
+    const c = make({ rng: () => (calls++ === 0 ? 0.1 : 0.9) })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+    expect((c.view.screen as BroomView).kind).toBe('letter')
+    c.pause()
+    c.resume()
+    await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+    expect((c.view.screen as BroomView).kind).toBe('letter')
+    c.destroy()
+  })
+
+  it('a lock while the run ends still shows the summary', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    const c = make()
+    c.start()
+    for (let k = 0; k < 3; k++) {
+      await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      if (k < 2) { await until(c, (v) => v.needNext); await drain(c) }
+    }
+    await tick(5)
+    c.pause()
+    await until(c, (v) => v.over !== null, 5000)
+    expect(useDuel2Store.getState().runs).toBe(1)
+    c.destroy()
+  })
+
+  it('a lock during the crystal gives one crystal', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 200)) })
+    const c = make()
+    c.start()
+    for (let guard = 0; guard < 600 && c.view.screen?.screen !== 'crystal'; guard++) {
+      await tick(50)
+      if (c.view.needNext) c.next()
+      else if (c.view.phase === 'answer' && c.view.screen?.screen === 'doors') c.gesture({ type: 'pick', id: rightId(c.view) })
+    }
+    await until(c, (v) => v.phase === 'celebrate')
+    c.pause()
+    c.resume()
+    await until(c, (v) => v.screen?.screen === 'broom')
+    expect(useDuel2Store.getState().crystals).toBe(1)
+    c.destroy()
+  })
+
+  it('a tap during the cue answers at once', async () => {
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await tick(100)
+    expect(useDuel2Store.getState().roundNo).toBe(1)
+    c.destroy()
+  })
+
+  it('after a mistake the hint shows on the right answer', async () => {
+    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    const s = c.view.screen as Extract<View['screen'], { screen: 'ladder' }>
+    const target = s.target
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await until(c, (v) => v.needNext)
+    expect(played).toContain(`ln-${target.itemId}`)
+    expect(played).toContain(`vn-${target.mark}`)
+    c.destroy()
+  })
+
 })

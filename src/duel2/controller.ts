@@ -96,6 +96,14 @@ export class RunController {
   private waveId = 0
   private running = false
   private resuming = false
+  /** the current round was answered (right or wrong): a resume must not replay it */
+  private answered = false
+  /** a broom/ghost visit keeps its kind (letters or syllables) across a pause */
+  private visitKind: Kind | null = null
+  /** the run is ending: a pause no longer cancels the summary */
+  private ending = false
+  /** the crystal of this cycle was given (a pause during it must not give it twice) */
+  private crystalAwarded = false
   private demoShown = false
   private assets: string[] = []
 
@@ -171,7 +179,7 @@ export class RunController {
     if (!this.view.over && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
   }
   pause() {
-    if (this.view.paused || this.view.over) return
+    if (this.view.paused || this.view.over || this.ending) return
     this.token++
     this.pausedAt = this.now()
     this.stopBroom()
@@ -245,10 +253,13 @@ export class RunController {
           this.roundInScreen = 0
           this.ladder = null
           this.doorWords = []
+          this.visitKind = null
+          this.crystalAwarded = false
           this.hearts = heartsOnScreenStart()
           continue
         }
         if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
+        this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
         const nx = nextScreen(this.stage, from)
         if (nx.newCycle) this.cycle++
@@ -256,6 +267,7 @@ export class RunController {
         this.roundInScreen = 0
         this.ladder = null
         this.doorWords = []
+        this.visitKind = null
       }
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
@@ -265,7 +277,7 @@ export class RunController {
   private async runScreen(t: number, screen: ScreenId) {
     if (this.roundInScreen === 0) this.hearts = heartsOnScreenStart()
     this.set({ hearts: this.hearts.left, overlay: null, needNext: false })
-    const kind = this.kindFor(screen)
+    const kind = (this.visitKind ??= this.kindFor(screen))
     const st = useDuel2Store.getState()
     const demo = this.demoKey(screen, kind)
     if ((this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes(demo)) && this.roundInScreen === 0) {
@@ -291,13 +303,14 @@ export class RunController {
 
   private buildRound(screen: ScreenId, kind: Kind): Choice | Word {
     const cur = this.view.screen
-    if (this.resuming && cur && cur.screen === screen) {
+    if (this.resuming && cur && cur.screen === screen && !this.answered) {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
       this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
       return cur.screen === 'doors' ? cur.word : (cur as BroomView).target
     }
     this.resuming = false
+    this.answered = false
     const c = this.ctx()
     if (screen === 'broom') {
       const target = broomTarget(c, kind)
@@ -388,13 +401,24 @@ export class RunController {
       // an automatic hint is an instruction: answers count only after it (rule)
       const autoHint = this.autoHintDue(screen, c)
       const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
-      await this.say(t, [{ id: this.variation(this.questionLine(screen, kind)) }, { id: this.cueId(c), onStart: autoHint ? undefined : open }])
-      if (autoHint) {
-        if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
-        await this.playHint(c, true, t)
+      // the answers are open while the cue plays; a tap stops the reading (rule)
+      const early = this.waitPick(t)
+      const said = this.say(t, [{ id: this.variation(this.questionLine(screen, kind)) }, { id: this.cueId(c), onStart: autoHint ? undefined : open }])
+      const first = await Promise.race([said.then(() => null), early])
+      if (first !== null) {
+        stopVoice()
+        const res = await this.evaluate(t, screen, target, first)
+        if (res !== 'near') return res
+      } else {
+        if (autoHint) {
+          if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
+          await this.playHint(c, true, t)
+        }
+        // the answers open after the question even if the cue was cut short (a stopped voice must never leave the round shut)
+        if (this.view.phase === 'question') open()
+        const res = await this.evaluate(t, screen, target, await early)
+        if (res !== 'near') return res
       }
-      // the answers open after the question even if the cue was cut short (a stopped voice must never leave the round shut)
-      if (this.view.phase === 'question') open()
     }
     for (;;) {
       const picked = await this.waitPick(t)
@@ -433,6 +457,7 @@ export class RunController {
   }
 
   private record(screen: ScreenId, target: Choice | Word, tapped: Choice | Word | null, result: 'right' | 'wrong' | 'near') {
+    if (result !== 'near' && screen !== 'broom') this.answered = true
     const feats = 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : sylFeatures(target as Choice, screen)
     const ms = Math.round(this.now() - this.cueStarted)
     if (!this.opts.sandbox) {
@@ -468,6 +493,7 @@ export class RunController {
     const outcome = onAnswer(this.hearts, right ? 'right' : near ? 'near' : 'wrong')
     if (right) {
       this.record(screen, c, tapped, 'right')
+      this.roundInScreen++
       this.score++
       this.streak++
       this.set({ phase: 'feedback' })
@@ -478,7 +504,6 @@ export class RunController {
       await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       await this.maybeWordLink(t, c)
       if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
-      this.roundInScreen++
       await this.sleep(t, 300)
       return 'next'
     }
@@ -492,15 +517,17 @@ export class RunController {
     this.hearts = outcome.hearts
     this.streak = 0
     this.record(screen, c, tapped, 'wrong')
+    if (s.screen !== 'ladder') this.roundInScreen++
     this.sfx('hit')
     const reveal = s.screen === 'cauldron' ? { right: c.mark!, wrong: tapped.mark } : { right: c.id, wrong: tapped.id }
     this.setScreen({ reveal } as Partial<ScreenView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
+    if (outcome.over) return this.endRun(this.cueId(c))
     await this.say(t, [{ id: this.cueId(c) }])
-    if (outcome.over) return this.endRun(t)
+    // the hint shows again on the right answer after a mistake (spec)
+    await this.playHint(c, true, t)
     await this.waitNext(t)
     if (this.explanationDue(screen, c)) await this.explain(t, c)
-    if (s.screen !== 'ladder') this.roundInScreen++
     return 'next'
   }
 
@@ -510,6 +537,7 @@ export class RunController {
     const tapped = WORDS.find((w) => w.id === picked) ?? null
     if (right) {
       this.record('doors', word, tapped, 'right')
+      this.roundInScreen++
       this.score++
       this.streak++
       this.set({ phase: 'feedback' })
@@ -519,7 +547,6 @@ export class RunController {
       await this.say(t, [{ id: `w-${word.id}` }])
       this.setScreen({ zooming: true } as Partial<DoorsView>)
       await this.sleep(t, 700)
-      this.roundInScreen++
       return 'next'
     }
     this.hearts = outcome.hearts
@@ -528,8 +555,8 @@ export class RunController {
     this.sfx('hit')
     this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
+    if (outcome.over) return this.endRun(`w-${word.id}`)
     await this.say(t, [{ id: `w-${word.id}` }])
-    if (outcome.over) return this.endRun(t)
     await this.waitNext(t)
     // the same door again (it opens only with its key)
     return 'next'
@@ -575,15 +602,20 @@ export class RunController {
   }
 
   private async runCrystal(t: number) {
-    this.crystalsThisRun++
-    const kind = useDuel2Store.getState().crystals + this.crystalsThisRun
+    if (!this.crystalAwarded) {
+      this.crystalAwarded = true
+      this.crystalsThisRun++
+      if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind: useDuel2Store.getState().crystals }) }
+    }
+    const kind = useDuel2Store.getState().crystals
     this.set({ screen: { screen: 'crystal', kind }, overlay: null })
-    if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind }) }
     await this.celebrate(t, 'crystal')
     await this.sleep(t, 1200)
   }
 
-  private async endRun(t: number): Promise<'over'> {
+  /** Ends the run: says the right answer, then the summary. A pause can no longer cancel it (it is already saved). */
+  private async endRun(cue: string): Promise<'over'> {
+    this.ending = true
     this.stopBroom()
     stopMusic()
     const st = useDuel2Store.getState()
@@ -592,7 +624,8 @@ export class RunController {
       st.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
       duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
     }
-    await this.sleep(t, 600)
+    await sayParts([{ id: cue }])
+    await new Promise<void>((r) => window.setTimeout(r, 600))
     this.token++
     this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best }, needNext: false })
     return 'over'
@@ -708,8 +741,9 @@ export class RunController {
     const frozen = { id: ++this.waveId, choices, startMs: this.broomClock() - travelMs(st.pace, this.cycle) * (1 - CATCH_AT) }
     this.setScreen({ waves: [frozen], reveal: { right: target.id, wrong: hit.id } } as Partial<BroomView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
+    if (outcome.over) return this.endRun(this.cueId(target))
     await this.say(t, [{ id: this.cueId(target) }])
-    if (outcome.over) return this.endRun(t)
+    await this.playHint(target, true, t)
     await this.waitNext(t)
     if (this.explanationDue('broom', target)) await this.explain(t, target)
     return 'wrong'

@@ -16,6 +16,8 @@ const POT = { x: 800, top: 480, w: 330 }
 
 export function Cauldron(p: {
   letter: Item; orbs: Mark[]; onPick: (m: MarkId) => void; phase: Phase; joined?: Syllable; reveal?: { right: MarkId; wrong?: MarkId }; correct?: MarkId
+  /** the demo drags this orb to the pot as the hand moves (t from 0 to 1) */
+  demo?: { id: MarkId; t: number }
 }) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [drag, setDrag] = useState<{ id: MarkId; x: number; y: number; sx: number; sy: number; moved: boolean } | null>(null)
@@ -31,8 +33,9 @@ export function Cauldron(p: {
       {p.orbs.map((m, i) => {
         if (p.joined && m.id === p.joined.mark.id) return null
         const d = drag?.id === m.id ? drag : null
-        const x = d ? d.x : ORB_X[i]
-        const y = d ? d.y : ORB_Y
+        const dm = p.demo?.id === m.id ? p.demo.t : null
+        const x = d ? d.x : dm !== null ? ORB_X[i] + (800 - ORB_X[i]) * dm : ORB_X[i]
+        const y = d ? d.y : dm !== null ? ORB_Y + (650 - ORB_Y) * dm : ORB_Y
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === m.id) state = 'reveal'
         else if (p.reveal?.wrong === m.id) state = 'wrong'
