@@ -405,17 +405,26 @@
    "file": "src/duel2/assets/audio/voice/demo-broom-1.mp3",
    "where": "Demo: first broom flight with syllables",
    "caption": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-broom-1/v1.mp3",
+   "take": "clips/demo-broom-1/v3.mp3",
    "request": {
-    "text": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁתִּשְׁמַע.",
+    "text": "הקוסם עף. תגרור אותו אל מה שתשמע, ותתפוס אותו.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/demo-broom-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/demo-broom-1/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "demo-broom-letter-1",
@@ -423,17 +432,26 @@
    "file": "src/duel2/assets/audio/voice/demo-broom-letter-1.mp3",
    "where": "Demo: first broom flight with letters",
    "caption": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-broom-letter-1/v1.mp3",
+   "take": "clips/demo-broom-letter-1/v3.mp3",
    "request": {
-    "text": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁתִּשְׁמַע.",
+    "text": "הקוסם עף. תגרור אותו אל האות שתשמע, ותתפוס אותה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/demo-broom-letter-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/demo-broom-letter-1/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "demo-cauldron-1",
@@ -523,17 +541,26 @@
    "file": "src/duel2/assets/audio/voice/demo-ladder-1.mp3",
    "where": "Demo: first ladder",
    "caption": "כָּל תְּשׁוּבָה נְכוֹנָה בּוֹנָה שָׁלָב, וְהַקּוֹסֵם עוֹלֶה.",
-   "take": "clips/demo-ladder-1/v1.mp3",
+   "take": "clips/demo-ladder-1/v3.mp3",
    "request": {
-    "text": "כָּל תְּשׁוּבָה נְכוֹנָה בּוֹנָה שָׁלָב, וְהַקּוֹסֵם עוֹלֶה.",
+    "text": "כָּל תְשׁוּבָה נְכוֹנָה בּוֹנָה שָׁלָב, וְהַקּוֹסֵם עוֹלֶה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/demo-ladder-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/demo-ladder-1/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "dot-intro-1",
@@ -892,15 +919,15 @@
    "file": "src/duel2/assets/audio/voice/ln-pe.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "פֵּא",
-   "take": "clips/ln-pe/v3.mp3",
+   "take": "clips/ln-pe/v5.mp3",
    "request": {
-    "text": "פֵּיי.",
+    "text": "פֵּי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 1
     },
-    "seed": 102
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -910,6 +937,14 @@
     {
      "file": "clips/ln-pe/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/ln-pe/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/ln-pe/v4.mp3",
+     "seed": 103
     }
    ]
   },
@@ -1027,15 +1062,15 @@
    "file": "src/duel2/assets/audio/voice/ln-tet.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "טֵית",
-   "take": "clips/ln-tet/v3.mp3",
+   "take": "clips/ln-tet/v5.mp3",
    "request": {
-    "text": "טֶט.",
+    "text": "טֶת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 1
     },
-    "seed": 102
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -1045,6 +1080,14 @@
     {
      "file": "clips/ln-tet/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/ln-tet/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/ln-tet/v4.mp3",
+     "seed": 103
     }
    ]
   },
@@ -1054,15 +1097,15 @@
    "file": "src/duel2/assets/audio/voice/ln-tsadi.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "צָדִי",
-   "take": "clips/ln-tsadi/v3.mp3",
+   "take": "clips/ln-tsadi/v5.mp3",
    "request": {
-    "text": "/ˈtsadi/.",
+    "text": "צָֽדִי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 1
     },
-    "seed": 102
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -1072,6 +1115,14 @@
     {
      "file": "clips/ln-tsadi/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/ln-tsadi/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/ln-tsadi/v4.mp3",
+     "seed": 103
     }
    ]
   },
@@ -2110,15 +2161,15 @@
    "file": "src/duel2/assets/audio/voice/syl-f-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פָ",
-   "take": "clips/syl-f-a/v3.mp3",
+   "take": "clips/syl-f-a/v8.mp3",
    "request": {
-    "text": "פָה.",
+    "text": "fa.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.5
     },
-    "seed": 102
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -2130,8 +2181,24 @@
      "seed": 101
     },
     {
+     "file": "clips/syl-f-a/v3.mp3",
+     "seed": 102
+    },
+    {
      "file": "clips/syl-f-a/v4.mp3",
      "seed": 103
+    },
+    {
+     "file": "clips/syl-f-a/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-f-a/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-f-a/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -2164,15 +2231,15 @@
    "file": "src/duel2/assets/audio/voice/syl-f-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פִ",
-   "take": "clips/syl-f-i/v3.mp3",
+   "take": "clips/syl-f-i/v7.mp3",
    "request": {
-    "text": "פִי.",
+    "text": "fi.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.5
     },
-    "seed": 102
+    "seed": 106
    },
    "earlier_takes": [
     {
@@ -2184,8 +2251,20 @@
      "seed": 101
     },
     {
+     "file": "clips/syl-f-i/v3.mp3",
+     "seed": 102
+    },
+    {
      "file": "clips/syl-f-i/v4.mp3",
      "seed": 103
+    },
+    {
+     "file": "clips/syl-f-i/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-f-i/v6.mp3",
+     "seed": 105
     }
    ]
   },
@@ -3062,15 +3141,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רָ",
-   "take": "clips/syl-r-a/v4.mp3",
+   "take": "clips/syl-r-a/v8.mp3",
    "request": {
-    "text": "רָ.",
+    "text": "ra.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.75
+     "stability": 1
     },
-    "seed": 103
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3084,6 +3163,22 @@
     {
      "file": "clips/syl-r-a/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/syl-r-a/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/syl-r-a/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-r-a/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-r-a/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -3124,15 +3219,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רִ",
-   "take": "clips/syl-r-i/v4.mp3",
+   "take": "clips/syl-r-i/v8.mp3",
    "request": {
-    "text": "רִ.",
+    "text": "ri.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.75
+     "stability": 1
     },
-    "seed": 103
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3146,6 +3241,22 @@
     {
      "file": "clips/syl-r-i/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/syl-r-i/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/syl-r-i/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-r-i/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-r-i/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -3155,15 +3266,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוֹ",
-   "take": "clips/syl-r-o/v4.mp3",
+   "take": "clips/syl-r-o/v8.mp3",
    "request": {
-    "text": "רוֹ.",
+    "text": "ro.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.75
+     "stability": 1
     },
-    "seed": 103
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3177,6 +3288,22 @@
     {
      "file": "clips/syl-r-o/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/syl-r-o/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/syl-r-o/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-r-o/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-r-o/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -3186,15 +3313,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוּ",
-   "take": "clips/syl-r-u/v4.mp3",
+   "take": "clips/syl-r-u/v8.mp3",
    "request": {
-    "text": "רוּ.",
+    "text": "ru.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.75
+     "stability": 1
     },
-    "seed": 103
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3208,6 +3335,22 @@
     {
      "file": "clips/syl-r-u/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/syl-r-u/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/syl-r-u/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-r-u/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-r-u/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -3770,15 +3913,15 @@
    "file": "src/duel2/assets/audio/voice/syl-v-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בוֹ",
-   "take": "clips/syl-v-o/v4.mp3",
+   "take": "clips/syl-v-o/v8.mp3",
    "request": {
-    "text": "ווֹה.",
+    "text": "וֹוֹ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 1
     },
-    "seed": 103
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3792,6 +3935,22 @@
     {
      "file": "clips/syl-v-o/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/syl-v-o/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/syl-v-o/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-v-o/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-v-o/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -3801,15 +3960,15 @@
    "file": "src/duel2/assets/audio/voice/syl-v-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בוּ",
-   "take": "clips/syl-v-u/v3.mp3",
+   "take": "clips/syl-v-u/v6.mp3",
    "request": {
-    "text": "ווּ.",
+    "text": "vu.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 1
     },
-    "seed": 102
+    "seed": 105
    },
    "earlier_takes": [
     {
@@ -3821,8 +3980,20 @@
      "seed": 101
     },
     {
+     "file": "clips/syl-v-u/v3.mp3",
+     "seed": 102
+    },
+    {
      "file": "clips/syl-v-u/v4.mp3",
      "seed": 103
+    },
+    {
+     "file": "clips/syl-v-u/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-v-u/v7.mp3",
+     "seed": 106
     }
    ]
   },

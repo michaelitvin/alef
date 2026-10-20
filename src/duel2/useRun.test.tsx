@@ -228,6 +228,8 @@ describe('run controller', () => {
     expect(useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0).toBe(0)
     for (let i = 0; i < 4000 && c.view.phase !== 'mistake'; i++) { if (c.view.phase === 'answer') steer(c, false); await tick(50) }
     expect(c.view.phase).toBe('mistake')
+    // only the wave of the mistake stays, so the right answer is marked once
+    expect((c.view.screen as BroomView).waves.length).toBe(1)
     const frozen = JSON.stringify((c.view.screen as BroomView).waves)
     await tick(3000)
     expect(JSON.stringify((c.view.screen as BroomView).waves)).toBe(frozen)
