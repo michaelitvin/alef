@@ -1,7 +1,8 @@
 // 3 · Spell ladder: the ladder is built from his right answers. Three plates float by the next empty rung; the one he picks
-// flies into place and the wizard climbs onto it.
+// flies into place and the wizard climbs onto it. He drags a plate onto the next rung, or taps it.
 import { IMAGES } from '../../assets/images'
 import type { Choice } from '../../logic/rounds'
+import { DragPick } from '../DragPick'
 import { Glyph } from '../Glyph'
 import { Plate, type PickState } from '../Orb'
 import { Stage, type Phase } from './Stage'
@@ -20,7 +21,10 @@ export function plateYs(built: number, rungs: number): number[] {
 }
 export const LADDER_PLATE_X = PLATE_X
 
-export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; onPick: (id: string) => void; phase: Phase; reveal?: { right: string; wrong?: string }; correctId?: string }) {
+export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; onPick: (id: string) => void; phase: Phase; reveal?: { right: string; wrong?: string }; correctId?: string
+  /** the demo drags this plate to the next rung as the hand moves (t from 0 to 1) */
+  demo?: { id: string; t: number }
+}) {
   const lh = 790 - RUNG_Y(p.rungs - 1) + 170
   const lw = lh * (216 / 600)
   const fixY = plateYs(p.built.length, p.rungs)
@@ -44,12 +48,16 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === c.id) state = 'reveal'
         else if (p.reveal?.wrong === c.id) state = 'wrong'
+        const rungY = RUNG_Y(Math.min(p.built.length, p.rungs - 1))
         return (
-          <g key={c.id} data-plate={c.id}>
-            <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} onPick={can ? () => p.onPick(c.id) : undefined} testCorrect={c.id === p.correctId}>
+          <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can} onPick={() => p.onPick(c.id)}
+            // anywhere over the ladder counts (a child's drop is not precise)
+            inZone={(q) => Math.abs(q.x - 800) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
+            demo={p.demo?.id === c.id ? { t: p.demo.t, dx: 800 - PLATE_X, dy: rungY - fixY[i] } : undefined}>
+            <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
               <Glyph text={c.text} px={LADDER_GLYPH_PX} x={PLATE_X} y={fixY[i]} />
             </Plate>
-          </g>
+          </DragPick>
         )
       })}
     </Stage>

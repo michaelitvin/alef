@@ -1,12 +1,13 @@
 // 2 · Cauldron: a letter over a bubbling pot; three vowel orbs above. He drags the vowel he heard into the pot (or taps it);
 // the mark joins the letter.
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { IMAGES } from '../../assets/images'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
+import { DragPick } from '../DragPick'
 import { Glyph } from '../Glyph'
 import { MarkAlone } from '../MarkAlone'
 import { Orb, type PickState } from '../Orb'
-import { Stage, toStage, type Phase } from './Stage'
+import { Stage, type Phase } from './Stage'
 
 export const ORB_X = [450, 800, 1150]
 export const ORB_Y = 200
@@ -20,9 +21,7 @@ export function Cauldron(p: {
   demo?: { id: MarkId; t: number }
 }) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const [drag, setDrag] = useState<{ id: MarkId; x: number; y: number; sx: number; sy: number; moved: boolean } | null>(null)
   const can = p.phase === 'answer'
-  const at = (e: React.PointerEvent) => toStage(svgRef.current, e.clientX, e.clientY)
   const potH = POT.w * (600 / 496)
   return (
     <Stage bg="bg-ground" ref={svgRef}>
@@ -32,42 +31,19 @@ export function Cauldron(p: {
       <Glyph text={p.joined ? p.joined.text : p.letter.glyph} px={CAULDRON_GLYPH_PX} x={800} y={395} glow={p.joined ? 'hit' : 'soft'} />
       {p.orbs.map((m, i) => {
         if (p.joined && m.id === p.joined.mark.id) return null
-        const d = drag?.id === m.id ? drag : null
         const dm = p.demo?.id === m.id ? p.demo.t : null
-        const x = d ? d.x : dm !== null ? ORB_X[i] + (800 - ORB_X[i]) * dm : ORB_X[i]
-        const y = d ? d.y : dm !== null ? ORB_Y + (650 - ORB_Y) * dm : ORB_Y
+        const x = dm !== null ? ORB_X[i] + (800 - ORB_X[i]) * dm : ORB_X[i]
+        const y = dm !== null ? ORB_Y + (650 - ORB_Y) * dm : ORB_Y
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === m.id) state = 'reveal'
         else if (p.reveal?.wrong === m.id) state = 'wrong'
         return (
-          <g key={m.id} data-orb={m.id} style={{ cursor: can ? 'grab' : 'default' }}
-            {...(p.correct === m.id ? { 'data-correct-orb': '1' } : {})}
-            onPointerDown={(e) => {
-              if (!can) return
-              e.preventDefault()
-              ;(e.target as Element).setPointerCapture?.(e.pointerId)
-              const q = at(e)
-              setDrag({ id: m.id, x: ORB_X[i], y: ORB_Y, sx: q.x, sy: q.y, moved: false })
-            }}
-            onPointerMove={(e) => {
-              if (!drag || drag.id !== m.id) return
-              const q = at(e)
-              const moved = drag.moved || Math.hypot(q.x - drag.sx, q.y - drag.sy) > 20
-              setDrag({ ...drag, x: ORB_X[i] + q.x - drag.sx, y: ORB_Y + q.y - drag.sy, moved })
-            }}
-            onPointerUp={(e) => {
-              if (!drag || drag.id !== m.id) return
-              const q = at(e)
-              const moved = drag.moved || Math.hypot(q.x - drag.sx, q.y - drag.sy) > 20
-              setDrag(null)
-              const inPot = Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top
-              if (!moved || inPot) p.onPick(m.id)
-            }}
-            onPointerCancel={() => setDrag(null)}>
-            <Orb size={ORB_SIZE} x={x} y={y} state={state} testCorrect={p.correct === m.id} onPick={() => {}}>
+          <DragPick key={m.id} attrs={{ 'data-orb': m.id, ...(p.correct === m.id ? { 'data-correct-orb': '1' } : {}) }} enabled={can}
+            onPick={() => p.onPick(m.id)} inZone={(q) => Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top}>
+            <Orb size={ORB_SIZE} x={x} y={y} state={state} testCorrect={p.correct === m.id}>
               <MarkAlone mark={m} size={ORB_SIZE * 0.62} x={x} y={y} />
             </Orb>
-          </g>
+          </DragPick>
         )
       })}
     </Stage>

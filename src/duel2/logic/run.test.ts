@@ -71,4 +71,10 @@ describe('run', () => {
     expect(r).toEqual({ resolved: [true, false, false], hit: null, missedTarget: false })
   })
 
+  it('moving into a lane where a wrong orb is already passing is not a hit (it only hits when it reaches him in his lane)', () => {
+    // the wrong orb in lane 2 crossed his front while he was in lane 0: it is gone, not waiting for him
+    const r = orbEvents([0.5, 0.5, CATCH_AT - 0.01], [false, false, false], 0, [true, false, false])
+    expect(r).toEqual({ resolved: [false, false, true], hit: null, missedTarget: false })
+  })
+
 })

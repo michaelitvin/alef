@@ -58,7 +58,10 @@ export interface RunOpts {
 }
 
 class Aborted extends Error {}
-const HINT_AUTO = 6
+/** no pick for this long: the instruction and the sound play once */
+const IDLE_MS = 8000
+/** no pick for this long: the hint shows by itself */
+const IDLE_HINT_MS = 16000
 const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
@@ -95,8 +98,6 @@ export class RunController {
   private spokenTargets = new Set<string>()
   /** set when he taps the right answer during a mistake: the rest of the mistake is skipped */
   private skipMistake = false
-  /** the question line has played on this screen visit */
-  private askedHere = false
   /** the flight still sends new waves (false on the last round: only the orbs on the screen finish) */
   private spawnMore = true
   private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
@@ -212,8 +213,6 @@ export class RunController {
     if (!this.view.paused) return
     if (this.pausedAt !== null) this.pausedTotal += this.now() - this.pausedAt
     this.pausedAt = null
-    // after a break the question plays again
-    this.askedHere = false
     this.set({ paused: false })
     void this.loop()
   }
@@ -273,7 +272,6 @@ export class RunController {
         if (this.opts.force) {
           // the gallery plays one screen, then starts it again
           this.roundInScreen = 0
-          this.askedHere = false
           this.ladder = null
           this.doorWords = []
           this.visitKind = null
@@ -288,7 +286,6 @@ export class RunController {
         if (nx.newCycle) this.cycle++
         this.screenId = nx.screen
         this.roundInScreen = 0
-        this.askedHere = false
         this.ladder = null
         this.doorWords = []
         this.visitKind = null
@@ -389,7 +386,8 @@ export class RunController {
     const hardS = syllable(h.id, 'kamatz')
     const softS = syllable(s.id, 'kamatz')
     const parts: { id: string; highlight: Highlight }[] = [
-      { id: lineAudioId('dot-intro', 1), highlight: 'none' }, { id: softS.soundId, highlight: 'right' }, { id: hardS.soundId, highlight: 'left' },
+      { id: lineAudioId('dot-without', 1), highlight: 'right' }, { id: softS.soundId, highlight: 'right' },
+      { id: lineAudioId('dot-with', 1), highlight: 'left' }, { id: hardS.soundId, highlight: 'left' },
     ]
     this.set({ phase: 'explain', overlay: { kind: 'dot', parts, soft: softS.text, hard: hardS.text } })
     if (!this.opts.sandbox) useDuel2Store.getState().markDotIntro(hard)
@@ -398,7 +396,7 @@ export class RunController {
   }
 
   private questionLine(screen: ScreenId, kind: Kind) {
-    if (screen === 'broom') return kind === 'letter' ? 'q-broom-letter' : 'q-broom'
+    if (screen === 'ghosts' && kind === 'letter') return 'q-ghosts-letter'
     if (screen === 'doors') return 'q-door'
     return `q-${screen}`
   }
@@ -412,49 +410,61 @@ export class RunController {
     if (intro) await this.dotIntro(t, intro)
     this.set({ phase: 'question', overlay: null, hintAvailable: screen === 'doors' || (target as Choice).kind === 'syllable' })
     this.assets = []
+    // no instruction and no hint at the start of a round: he knows the screen (Michael). They come only when he waits
+    // (idleWait), and the hint button is always there.
     if (screen === 'doors') {
-      if (!this.askedHere) await this.say(t, [{ id: this.variation('q-door') }])
-      this.askedHere = true
       await this.sleep(t, 200)
       this.setScreen({ lit: 1 } as Partial<DoorsView>)
       await this.sleep(t, 900)
       this.setScreen({ lit: 2 } as Partial<DoorsView>)
       this.set({ phase: 'answer' })
       this.cueStarted = this.now()
-    } else {
-      const c = target as Choice
-      // the answers stay open through an automatic hint too: a pick stops it and counts (Michael: he must not be stuck
-      // listening to what he already knows)
-      const autoHint = this.autoHintDue(screen, c)
-      const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
-      // the answers are open while the cue plays; a tap stops the reading (rule)
-      const early = this.waitPick(t)
-      // the question line once per visit; later rounds say only the sound (Michael)
-      const q = this.askedHere ? [] : [{ id: this.variation(this.questionLine(screen, kind)) }]
-      this.askedHere = true
-      const said = this.say(t, [...q, { id: this.cueId(c), onStart: open }])
-      let first = await Promise.race([said.then(() => null), early])
-      if (first === null && autoHint) {
-        if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
-        first = await Promise.race([this.playHint(c, true, t).then(() => null), early])
-      }
-      if (first !== null) {
-        stopVoice()
-        if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
-        const res = await this.evaluate(t, screen, target, first)
-        if (res !== 'near') return res
-      } else {
-        // the answers open after the question even if the cue was cut short (a stopped voice must never leave the round shut)
-        if (this.view.phase === 'question') open()
-        const res = await this.evaluate(t, screen, target, await early)
+      for (;;) {
+        const res = await this.evaluate(t, screen, target, await this.idleWait(t, this.waitPick(t), screen, kind, null))
         if (res !== 'near') return res
       }
     }
+    const c = target as Choice
+    const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
+    // the answers are open while the cue plays; a tap stops the reading (rule)
+    const early = this.waitPick(t)
+    const said = this.say(t, [{ id: this.cueId(c), onStart: open }])
+    let picked = await Promise.race([said.then(() => null), early])
+    // the answers open after the cue even if it was cut short (a stopped voice must never leave the round shut)
+    if (this.view.phase === 'question') open()
     for (;;) {
-      const picked = await this.waitPick(t)
+      picked ??= await this.idleWait(t, early, screen, kind, c)
       const res = await this.evaluate(t, screen, target, picked)
-      if (res === 'near') continue
-      return res
+      if (res !== 'near') return res
+      picked = await this.idleWait(t, this.waitPick(t), screen, kind, c)
+    }
+  }
+
+  /**
+   * Waits for his pick. If none comes for IDLE_MS, the instruction and the sound play once; after IDLE_HINT_MS the hint
+   * shows. A pick stops whatever plays (he must never be stuck listening to what he already knows).
+   */
+  private async idleWait(t: number, pick: Promise<string>, screen: ScreenId, kind: Kind, c: Choice | null): Promise<string> {
+    let waiting = true
+    let spoke = false
+    const live = () => waiting && t === this.token && !this.view.paused && this.view.phase === 'answer'
+    const t1 = window.setTimeout(() => {
+      if (!live()) return
+      spoke = true
+      void sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
+    }, IDLE_MS)
+    const t2 = window.setTimeout(() => {
+      if (live() && c) { spoke = true; void this.playHint(c, true, t).catch(() => {}) }
+    }, IDLE_HINT_MS)
+    try {
+      const id = await pick
+      if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
+      if (spoke) stopVoice()
+      return id
+    } finally {
+      waiting = false
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
     }
   }
 
@@ -467,11 +477,6 @@ export class RunController {
     if (s.screen === 'broom') return [s.target]
     void screen
     return []
-  }
-
-  private autoHintDue(screen: ScreenId, c: Choice): boolean {
-    if (c.kind !== 'syllable' || screen === 'broom') return false
-    return (useDuel2Store.getState().hintsSeen[`${screen}:${this.stage}`] ?? 0) < HINT_AUTO
   }
 
   private async playHint(c: Choice, auto: boolean, t = this.token) {
@@ -555,8 +560,7 @@ export class RunController {
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(c))
     await this.say(t, [{ id: this.cueId(c) }])
-    // the hint shows again on the right answer after a mistake (spec), unless he already tapped the right answer
-    if (!this.skipMistake) await this.playHint(c, true, t)
+    // no hint here: the right answer glows and its sound plays (Michael: the hint came too often)
     await this.waitNext(t)
     if (!this.skipMistake && this.explanationDue(screen, c)) await this.explain(t, c)
     this.skipMistake = false
@@ -682,9 +686,8 @@ export class RunController {
       this.setScreen({ waves: [], reveal: undefined, missed: false } as Partial<BroomView>)
       this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
       this.assets = []
-      // the question line once per visit; after a mistake only the sound (Michael: no instructions again on the same screen)
-      const line = !first ? this.variation('target-new') : this.askedHere ? null : this.variation(this.questionLine('broom', kind))
-      this.askedHere = true
+      // only the sound (the demo taught the screen); a new target gets a short lead-in (Michael: no instructions again)
+      const line = first ? null : this.variation('target-new')
       await this.say(t, [...(line ? [{ id: line }] : []), { id: this.cueId(target) }])
       this.set({ phase: 'answer' })
     }
@@ -806,7 +809,6 @@ export class RunController {
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(target))
     await this.say(t, [{ id: this.cueId(target) }])
-    await this.playHint(target, true, t)
     await this.waitNext(t)
     if (this.explanationDue('broom', target)) await this.explain(t, target)
     return 'wrong'

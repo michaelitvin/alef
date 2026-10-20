@@ -313,107 +313,132 @@
    "id": "almost-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/almost-2.mp3",
-   "where": "Near miss: the other form of a dotted letter (encouraging)",
-   "caption": "כִּמְעַט, תִּסְתַּכֵּל עַל הַנְּקֻדָּה.",
-   "take": "clips/almost-2/v1.mp3",
+   "where": "Near miss: the other form of a dotted letter (encouraging; he tries again)",
+   "caption": "כִּמְעַט. תִּסְתַּכֵּל עַל הַנְּקֻדָּה.",
+   "take": "clips/almost-2/v2.mp3",
    "request": {
-    "text": "[encouraging] כִּמְעַט, תִּסְתַּכֵּל עַל הַנְּקֻדָּה.",
+    "text": "[encouraging] כִּמְעַט. תִּסְתַּכֵּל עַל הַנְּקֻדָּה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/almost-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "almost-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/almost-3.mp3",
-   "where": "Near miss: the other form of a dotted letter (encouraging)",
-   "caption": "קָרוֹב מְאוֹד.",
-   "take": "clips/almost-3/v1.mp3",
+   "where": "Near miss: the other form of a dotted letter (encouraging; he tries again)",
+   "caption": "מַמָּשׁ קָרוֹב.",
+   "take": "clips/almost-3/v2.mp3",
    "request": {
-    "text": "[encouraging] קָרוֹב מְאוֹד.",
+    "text": "[encouraging] מַמָּשׁ קָרוֹב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/almost-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "crystal-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/crystal-1.mp3",
    "where": "The crystal behind the last door",
-   "caption": "וָואוּ, גָּבִישׁ קָסוּם.",
-   "take": "clips/crystal-1/v1.mp3",
+   "caption": "וָואוּ, אֶבֶן קְסָמִים.",
+   "take": "clips/crystal-1/v2.mp3",
    "request": {
-    "text": "[amazed] וָואוּ, גָּבִישׁ קָסוּם.",
+    "text": "[amazed] וָואוּ, אֶבֶן קְסָמִים.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/crystal-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "crystal-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/crystal-2.mp3",
    "where": "The crystal behind the last door",
-   "caption": "מָצָאתָ גָּבִישׁ.",
-   "take": "clips/crystal-2/v1.mp3",
+   "caption": "מָצָאתָ אֶבֶן קְסָמִים.",
+   "take": "clips/crystal-2/v2.mp3",
    "request": {
-    "text": "[amazed] מָצָאתָ גָּבִישׁ.",
+    "text": "[amazed] מָצָאתָ אֶבֶן קְסָמִים.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/crystal-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "crystal-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/crystal-3.mp3",
    "where": "The crystal behind the last door",
-   "caption": "אֵיזֶה גָּבִישׁ נוֹצֵץ.",
-   "take": "clips/crystal-3/v1.mp3",
+   "caption": "אֵיזוֹ אֶבֶן נוֹצֶצֶת.",
+   "take": "clips/crystal-3/v2.mp3",
    "request": {
-    "text": "[amazed] אֵיזֶה גָּבִישׁ נוֹצֵץ.",
+    "text": "[amazed] אֵיזוֹ אֶבֶן נוֹצֶצֶת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/crystal-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "demo-broom-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-broom-1.mp3",
-   "where": "Demo: first broom flight with syllables",
-   "caption": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-broom-1/v3.mp3",
+   "where": "Demo: first broom flight with syllables (then the sound)",
+   "caption": "תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-broom-1/v4.mp3",
    "request": {
-    "text": "הקוסם עף. תגרור אותו אל מה שתשמע, ותתפוס אותו.",
+    "text": "תגרור את הקוסם למעלה ולמטה, ותתפוס את מה שאני אומר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 102
+    "seed": 103
    },
    "earlier_takes": [
     {
@@ -423,6 +448,10 @@
     {
      "file": "clips/demo-broom-1/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/demo-broom-1/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -430,17 +459,17 @@
    "id": "demo-broom-letter-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-broom-letter-1.mp3",
-   "where": "Demo: first broom flight with letters",
-   "caption": "הַקּוֹסֵם עָף. תִּגְרֹר אוֹתוֹ לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-broom-letter-1/v3.mp3",
+   "where": "Demo: first broom flight with letters (then the letter name)",
+   "caption": "תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-broom-letter-1/v4.mp3",
    "request": {
-    "text": "הקוסם עף. תגרור אותו אל האות שתשמע, ותתפוס אותה.",
+    "text": "תגרור את הקוסם למעלה ולמטה, ותתפוס את האות שאני אומר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 102
+    "seed": 103
    },
    "earlier_takes": [
     {
@@ -450,6 +479,10 @@
     {
      "file": "clips/demo-broom-letter-1/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/demo-broom-letter-1/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -457,93 +490,57 @@
    "id": "demo-cauldron-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-cauldron-1.mp3",
-   "where": "Demo: first cauldron",
-   "caption": "תִּגְרֹר אֶת הַנִּקּוּד הַנָּכוֹן לַסִּיר, וְהוּא יִתְחַבֵּר לָאוֹת.",
-   "take": "clips/demo-cauldron-1/v1.mp3",
+   "where": "Demo: first cauldron (then the sound)",
+   "caption": "תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-cauldron-1/v2.mp3",
    "request": {
-    "text": "תִּגְרֹר אֶת הַנִּקּוּד הַנָּכוֹן לַסִּיר, וְהוּא יִתְחַבֵּר לָאוֹת.",
+    "text": "תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/demo-cauldron-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "demo-doors-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-doors-1.mp3",
    "where": "Demo: first door",
-   "caption": "תִּקְרָא אֶת הַמִּלָּה שֶׁעַל הַשַּׁעַר, וְתִבְחַר אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה שֶׁלָּהּ.",
-   "take": "clips/demo-doors-1/v1.mp3",
+   "caption": "תִּקְרָא מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרֹר אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
+   "take": "clips/demo-doors-1/v2.mp3",
    "request": {
-    "text": "תִּקְרָא אֶת הַמִּלָּה שֶׁעַל הַשַּׁעַר, וְתִבְחַר אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה שֶׁלָּהּ.",
+    "text": "תִּקְרָא מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרֹר אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/demo-doors-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "demo-ghosts-letter-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-ghosts-letter-1.mp3",
-   "where": "Demo: first letter ghosts",
-   "caption": "כָּל רוּחַ רְפָאִים מַחֲזִיקָה אוֹת. תִּבְחַר אֶת הָאוֹת שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-ghosts-letter-1/v2.mp3",
+   "where": "Demo: first letter ghosts (then the letter name)",
+   "caption": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-ghosts-letter-1/v3.mp3",
    "request": {
-    "text": "כָּל רוּחַ רְפָאִים מַחֲזִיקָה אוֹת. תִּבְחַר אֶת הָאוֹת שֶׁתִּשְׁמַע.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 101
-   },
-   "earlier_takes": [
-    {
-     "file": "clips/demo-ghosts-letter-1/v1.mp3",
-     "seed": 1
-    }
-   ]
-  },
-  {
-   "id": "demo-ghosts-syllable-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1.mp3",
-   "where": "Demo: first syllable ghosts",
-   "caption": "כָּל רוּחַ רְפָאִים מַחֲזִיקָה שֶׁלֶט. תִּבְחַר אֶת מָה שֶׁתִּשְׁמַע.",
-   "take": "clips/demo-ghosts-syllable-1/v2.mp3",
-   "request": {
-    "text": "כָּל רוּחַ רְפָאִים מַחֲזִיקָה שֶׁלֶט. תִּבְחַר אֶת מָה שֶׁתִּשְׁמַע.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 101
-   },
-   "earlier_takes": [
-    {
-     "file": "clips/demo-ghosts-syllable-1/v1.mp3",
-     "seed": 1
-    }
-   ]
-  },
-  {
-   "id": "demo-ladder-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ladder-1.mp3",
-   "where": "Demo: first ladder",
-   "caption": "כָּל תְּשׁוּבָה נְכוֹנָה בּוֹנָה שָׁלָב, וְהַקּוֹסֵם עוֹלֶה.",
-   "take": "clips/demo-ladder-1/v3.mp3",
-   "request": {
-    "text": "כָּל תְשׁוּבָה נְכוֹנָה בּוֹנָה שָׁלָב, וְהַקּוֹסֵם עוֹלֶה.",
+    "text": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -553,12 +550,70 @@
    },
    "earlier_takes": [
     {
+     "file": "clips/demo-ghosts-letter-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/demo-ghosts-letter-1/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "demo-ghosts-syllable-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1.mp3",
+   "where": "Demo: first syllable ghosts (then the sound)",
+   "caption": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-ghosts-syllable-1/v3.mp3",
+   "request": {
+    "text": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/demo-ghosts-syllable-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/demo-ghosts-syllable-1/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "demo-ladder-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-ladder-1.mp3",
+   "where": "Demo: first ladder (then the sound)",
+   "caption": "תִּגְרֹר לַסֻּלָּם אֶת מָה שֶׁאֲנִי אוֹמֵר, וְהַקּוֹסֵם יְטַפֵּס.",
+   "take": "clips/demo-ladder-1/v4.mp3",
+   "request": {
+    "text": "תגרור לסולם את מה שאני אומר, והקוסם יטפס.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 103
+   },
+   "earlier_takes": [
+    {
      "file": "clips/demo-ladder-1/v1.mp3",
      "seed": 1
     },
     {
      "file": "clips/demo-ladder-1/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/demo-ladder-1/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -571,6 +626,42 @@
    "take": "clips/dot-intro-1/v1.mp3",
    "request": {
     "text": "[warmly] נְקֻדָּה אַחַת מְשַׁנָּה אֶת הַצְּלִיל.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "dot-with-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/dot-with-1.mp3",
+   "where": "Dotted-letter introduction: before the sound of the form with the dot",
+   "caption": "וְעִם נְקֻדָּה...",
+   "take": "clips/dot-with-1/v1.mp3",
+   "request": {
+    "text": "[warmly] וְעִם נְקֻדָּה...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "dot-without-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/dot-without-1.mp3",
+   "where": "Dotted-letter introduction: before the sound of the form without the dot",
+   "caption": "בְּלִי נְקֻדָּה...",
+   "take": "clips/dot-without-1/v1.mp3",
+   "request": {
+    "text": "[warmly] בְּלִי נְקֻדָּה...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -621,18 +712,23 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/ladder-top-2.mp3",
    "where": "The ladder is built to the top",
-   "caption": "כָּל הַסֻּלָּם, כָּל הַכָּבוֹד.",
-   "take": "clips/ladder-top-2/v1.mp3",
+   "caption": "בָּנִיתָ אֶת כָּל הַסֻּלָּם.",
+   "take": "clips/ladder-top-2/v2.mp3",
    "request": {
-    "text": "[excited] כָּל הַסֻּלָּם, כָּל הַכָּבוֹד.",
+    "text": "[excited] בָּנִיתָ אֶת כָּל הַסֻּלָּם.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/ladder-top-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "ladder-top-3",
@@ -1097,15 +1193,15 @@
    "file": "src/duel2/assets/audio/voice/ln-tsadi.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "צָדִי",
-   "take": "clips/ln-tsadi/v5.mp3",
+   "take": "clips/ln-tsadi/v9.mp3",
    "request": {
-    "text": "צָֽדִי.",
+    "text": "צָ֫דִי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.5
     },
-    "seed": 104
+    "seed": 108
    },
    "earlier_takes": [
     {
@@ -1123,6 +1219,22 @@
     {
      "file": "clips/ln-tsadi/v4.mp3",
      "seed": 103
+    },
+    {
+     "file": "clips/ln-tsadi/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/ln-tsadi/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/ln-tsadi/v7.mp3",
+     "seed": 106
+    },
+    {
+     "file": "clips/ln-tsadi/v8.mp3",
+     "seed": 107
     }
    ]
   },
@@ -1230,18 +1342,23 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/new-best-2.mp3",
    "where": "Summary: a new best run",
-   "caption": "זֶה הַשִּׂיא שֶׁלְּךָ.",
-   "take": "clips/new-best-2/v1.mp3",
+   "caption": "שָׁבַרְתָּ אֶת הַשִּׂיא שֶׁלְּךָ.",
+   "take": "clips/new-best-2/v2.mp3",
    "request": {
-    "text": "[excited] זֶה הַשִּׂיא שֶׁלְּךָ.",
+    "text": "[excited] שָׁבַרְתָּ אֶת הַשִּׂיא שֶׁלְּךָ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/new-best-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "q-broom-1",
@@ -1355,65 +1472,11 @@
    "id": "q-cauldron-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-cauldron-1.mp3",
-   "where": "Cauldron: the question before the syllable",
-   "caption": "תַּקְשִׁיב, וְתִזְרֹק לַסִּיר אֶת הַנִּקּוּד הַנָּכוֹן.",
-   "take": "clips/q-cauldron-1/v1.mp3",
+   "where": "Cauldron, when he waits: then the syllable",
+   "caption": "אֵיזֶה נִקּוּד צָרִיךְ לִזְרֹק לַסִּיר, כְּדֵי שֶׁיִּהְיֶה...",
+   "take": "clips/q-cauldron-1/v2.mp3",
    "request": {
-    "text": "[warmly] תַּקְשִׁיב, וְתִזְרֹק לַסִּיר אֶת הַנִּקּוּד הַנָּכוֹן.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "q-cauldron-2",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-2.mp3",
-   "where": "Cauldron: the question before the syllable",
-   "caption": "אֵיזֶה נִקּוּד חָסֵר? תִּזְרֹק אוֹתוֹ לַסִּיר.",
-   "take": "clips/q-cauldron-2/v1.mp3",
-   "request": {
-    "text": "[warmly] אֵיזֶה נִקּוּד חָסֵר? תִּזְרֹק אוֹתוֹ לַסִּיר.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "q-cauldron-3",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-3.mp3",
-   "where": "Cauldron: the question before the syllable",
-   "caption": "מָה צָרִיךְ לְהוֹסִיף לָאוֹת? תַּקְשִׁיב.",
-   "take": "clips/q-cauldron-3/v1.mp3",
-   "request": {
-    "text": "[warmly] מָה צָרִיךְ לְהוֹסִיף לָאוֹת? תַּקְשִׁיב.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "q-door-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-1.mp3",
-   "where": "Door: the question; it never says the word (he reads it)",
-   "caption": "אֵיזוֹ תְּמוּנָה הִיא הַמִּלָּה שֶׁעַל הַשַּׁעַר?",
-   "take": "clips/q-door-1/v2.mp3",
-   "request": {
-    "text": "[warmly] אֵיזוֹ תְּמוּנָה הִיא הַמִּלָּה שֶׁעַל הַשַּׁעַר?",
+    "text": "[warmly] אֵיזֶה נִקּוּד צָרִיךְ לִזְרֹק לַסִּיר, כְּדֵי שֶׁיִּהְיֶה...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1423,8 +1486,81 @@
    },
    "earlier_takes": [
     {
+     "file": "clips/q-cauldron-1/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "q-cauldron-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-cauldron-2.mp3",
+   "where": "Cauldron, when he waits: then the syllable",
+   "caption": "תִּזְרֹק לַסִּיר אֶת הַנִּקּוּד שֶׁל...",
+   "take": "clips/q-cauldron-2/v2.mp3",
+   "request": {
+    "text": "[warmly] תִּזְרֹק לַסִּיר אֶת הַנִּקּוּד שֶׁל...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/q-cauldron-2/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "q-cauldron-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-cauldron-3.mp3",
+   "where": "Cauldron, when he waits: then the syllable",
+   "caption": "מָה חָסֵר לָאוֹת, כְּדֵי שֶׁיִּהְיֶה...",
+   "take": "clips/q-cauldron-3/v2.mp3",
+   "request": {
+    "text": "[warmly] מָה חָסֵר לָאוֹת, כְּדֵי שֶׁיִּהְיֶה...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/q-cauldron-3/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "q-door-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-door-1.mp3",
+   "where": "Door, when he waits; it never says the word (he reads it)",
+   "caption": "מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיא אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
+   "take": "clips/q-door-1/v3.mp3",
+   "request": {
+    "text": "[warmly] מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיא אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
      "file": "clips/q-door-1/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/q-door-1/v2.mp3",
+     "seed": 101
     }
    ]
   },
@@ -1432,47 +1568,11 @@
    "id": "q-door-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-door-2.mp3",
-   "where": "Door: the question; it never says the word (he reads it)",
-   "caption": "תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר אֶת הַמַּפְתֵּחַ.",
-   "take": "clips/q-door-2/v1.mp3",
+   "where": "Door, when he waits; it never says the word (he reads it)",
+   "caption": "תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר מַפְתֵּחַ.",
+   "take": "clips/q-door-2/v2.mp3",
    "request": {
-    "text": "[warmly] תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר אֶת הַמַּפְתֵּחַ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "q-door-3",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-3.mp3",
-   "where": "Door: the question; it never says the word (he reads it)",
-   "caption": "מָה כָּתוּב עַל הַשַּׁעַר? תִּבְחַר מַפְתֵּחַ.",
-   "take": "clips/q-door-3/v1.mp3",
-   "request": {
-    "text": "[warmly] מָה כָּתוּב עַל הַשַּׁעַר? תִּבְחַר מַפְתֵּחַ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "q-ghosts-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-1.mp3",
-   "where": "Ghosts: the question before the letter name or syllable",
-   "caption": "אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת מָה שֶׁתִּשְׁמַע?",
-   "take": "clips/q-ghosts-1/v2.mp3",
-   "request": {
-    "text": "[playful] אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת מָה שֶׁתִּשְׁמַע?",
+    "text": "[warmly] תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר מַפְתֵּחַ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1482,8 +1582,58 @@
    },
    "earlier_takes": [
     {
+     "file": "clips/q-door-2/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "q-door-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-door-3.mp3",
+   "where": "Door, when he waits; it never says the word (he reads it)",
+   "caption": "אֵיזֶה מַפְתֵּחַ פּוֹתֵחַ אֶת הַדֶּלֶת?",
+   "take": "clips/q-door-3/v2.mp3",
+   "request": {
+    "text": "[warmly] אֵיזֶה מַפְתֵּחַ פּוֹתֵחַ אֶת הַדֶּלֶת?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/q-door-3/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "q-ghosts-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-1.mp3",
+   "where": "Ghosts (syllables), when he waits: then the syllable",
+   "caption": "אֵיפֹה כָּתוּב...",
+   "take": "clips/q-ghosts-1/v3.mp3",
+   "request": {
+    "text": "[playful] אֵיפֹה כָּתוּב...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
      "file": "clips/q-ghosts-1/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/q-ghosts-1/v2.mp3",
+     "seed": 101
     }
    ]
   },
@@ -1491,22 +1641,26 @@
    "id": "q-ghosts-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ghosts-2.mp3",
-   "where": "Ghosts: the question before the letter name or syllable",
-   "caption": "אֵיזוֹ רוּחַ רְפָאִים? תַּקְשִׁיב טוֹב.",
-   "take": "clips/q-ghosts-2/v2.mp3",
+   "where": "Ghosts (syllables), when he waits: then the syllable",
+   "caption": "אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת...",
+   "take": "clips/q-ghosts-2/v3.mp3",
    "request": {
-    "text": "[playful] אֵיזוֹ רוּחַ רְפָאִים? תַּקְשִׁיב טוֹב.",
+    "text": "[playful] אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 101
+    "seed": 102
    },
    "earlier_takes": [
     {
      "file": "clips/q-ghosts-2/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/q-ghosts-2/v2.mp3",
+     "seed": 101
     }
    ]
   },
@@ -1514,11 +1668,92 @@
    "id": "q-ghosts-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ghosts-3.mp3",
-   "where": "Ghosts: the question before the letter name or syllable",
-   "caption": "מִי מֵרוּחוֹת הָרְפָאִים מַחֲזִיקָה אֶת מָה שֶׁתִּשְׁמַע?",
-   "take": "clips/q-ghosts-3/v2.mp3",
+   "where": "Ghosts (syllables), when he waits: then the syllable",
+   "caption": "תִּמְצָא אֶת...",
+   "take": "clips/q-ghosts-3/v3.mp3",
    "request": {
-    "text": "[playful] מִי מֵרוּחוֹת הָרְפָאִים מַחֲזִיקָה אֶת מָה שֶׁתִּשְׁמַע?",
+    "text": "[playful] תִּמְצָא אֶת...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/q-ghosts-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/q-ghosts-3/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "q-ghosts-letter-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-1.mp3",
+   "where": "Ghosts (letters), when he waits: then the letter name",
+   "caption": "אֵיפֹה הָאוֹת...",
+   "take": "clips/q-ghosts-letter-1/v1.mp3",
+   "request": {
+    "text": "[playful] אֵיפֹה הָאוֹת...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "q-ghosts-letter-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-2.mp3",
+   "where": "Ghosts (letters), when he waits: then the letter name",
+   "caption": "אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת הָאוֹת...",
+   "take": "clips/q-ghosts-letter-2/v1.mp3",
+   "request": {
+    "text": "[playful] אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת הָאוֹת...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "q-ghosts-letter-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-3.mp3",
+   "where": "Ghosts (letters), when he waits: then the letter name",
+   "caption": "תִּמְצָא אֶת הָאוֹת...",
+   "take": "clips/q-ghosts-letter-3/v1.mp3",
+   "request": {
+    "text": "[playful] תִּמְצָא אֶת הָאוֹת...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "q-ladder-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ladder-1.mp3",
+   "where": "Ladder, when he waits: then the syllable",
+   "caption": "אֵיפֹה כָּתוּב...",
+   "take": "clips/q-ladder-1/v2.mp3",
+   "request": {
+    "text": "[warmly] אֵיפֹה כָּתוּב...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1528,118 +1763,137 @@
    },
    "earlier_takes": [
     {
-     "file": "clips/q-ghosts-3/v1.mp3",
+     "file": "clips/q-ladder-1/v1.mp3",
      "seed": 1
     }
    ]
   },
   {
-   "id": "q-ladder-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-1.mp3",
-   "where": "Ladder: the question before the syllable of the next rung",
-   "caption": "תִּבְחַר אֶת מָה שֶׁתִּשְׁמַע, וְתַעֲלֶה שָׁלָב.",
-   "take": "clips/q-ladder-1/v1.mp3",
-   "request": {
-    "text": "[warmly] תִּבְחַר אֶת מָה שֶׁתִּשְׁמַע, וְתַעֲלֶה שָׁלָב.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
    "id": "q-ladder-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ladder-2.mp3",
-   "where": "Ladder: the question before the syllable of the next rung",
-   "caption": "עוֹד שָׁלָב בַּסֻּלָּם. מָה שׁוֹמְעִים?",
-   "take": "clips/q-ladder-2/v1.mp3",
+   "where": "Ladder, when he waits: then the syllable",
+   "caption": "תִּגְרֹר לַסֻּלָּם אֶת הַשָּׁלָב...",
+   "take": "clips/q-ladder-2/v5.mp3",
    "request": {
-    "text": "[warmly] עוֹד שָׁלָב בַּסֻּלָּם. מָה שׁוֹמְעִים?",
+    "text": "[warmly] תִּגְרֹר לַסֻּלָּם אֶת הַשָּׁלָב...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 104
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/q-ladder-2/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/q-ladder-2/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/q-ladder-2/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/q-ladder-2/v4.mp3",
+     "seed": 103
+    }
+   ]
   },
   {
    "id": "q-ladder-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ladder-3.mp3",
-   "where": "Ladder: the question before the syllable of the next rung",
-   "caption": "תַּקְשִׁיב, וְתִבְנֶה עוֹד שָׁלָב.",
-   "take": "clips/q-ladder-3/v1.mp3",
+   "where": "Ladder, when he waits: then the syllable",
+   "caption": "תִּמְצָא אֶת...",
+   "take": "clips/q-ladder-3/v2.mp3",
    "request": {
-    "text": "[warmly] תַּקְשִׁיב, וְתִבְנֶה עוֹד שָׁלָב.",
+    "text": "[warmly] תִּמְצָא אֶת...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/q-ladder-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "run-end-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/run-end-1.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
-   "caption": "נִגְמְרוּ הַלְּבָבוֹת. נְשַׂחֵק שׁוּב?",
-   "take": "clips/run-end-1/v1.mp3",
+   "caption": "נִגְמְרוּ הַלְּבָבוֹת. עוֹד פַּעַם?",
+   "take": "clips/run-end-1/v2.mp3",
    "request": {
-    "text": "[warmly] נִגְמְרוּ הַלְּבָבוֹת. נְשַׂחֵק שׁוּב?",
+    "text": "[warmly] נִגְמְרוּ הַלְּבָבוֹת. עוֹד פַּעַם?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/run-end-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "run-end-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/run-end-2.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
-   "caption": "זֶהוּ לְהַפַּעַם. עוֹד סִבּוּב?",
-   "take": "clips/run-end-2/v1.mp3",
+   "caption": "זֶהוּ לְהַפַּעַם. נְשַׂחֵק שׁוּב?",
+   "take": "clips/run-end-2/v2.mp3",
    "request": {
-    "text": "[warmly] זֶהוּ לְהַפַּעַם. עוֹד סִבּוּב?",
+    "text": "[warmly] זֶהוּ לְהַפַּעַם. נְשַׂחֵק שׁוּב?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/run-end-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "run-end-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/run-end-3.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
-   "caption": "הַקְּסָמִים נָחִים. נְנַסֶּה שׁוּב?",
-   "take": "clips/run-end-3/v1.mp3",
+   "caption": "נִגְמַר הַסִּבּוּב. עוֹד סִבּוּב?",
+   "take": "clips/run-end-3/v2.mp3",
    "request": {
-    "text": "[warmly] הַקְּסָמִים נָחִים. נְנַסֶּה שׁוּב?",
+    "text": "[warmly] נִגְמַר הַסִּבּוּב. עוֹד סִבּוּב?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/run-end-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "streak-1",
@@ -1664,36 +1918,46 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/streak-2.mp3",
    "where": "A streak of right answers",
-   "caption": "אֵיזֶה רֶצֶף.",
-   "take": "clips/streak-2/v1.mp3",
+   "caption": "אַתָּה תּוֹתָח.",
+   "take": "clips/streak-2/v2.mp3",
    "request": {
-    "text": "[excited] אֵיזֶה רֶצֶף.",
+    "text": "[excited] אַתָּה תּוֹתָח.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/streak-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "streak-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/streak-3.mp3",
    "where": "A streak of right answers",
-   "caption": "אַתָּה פָּשׁוּט עָף.",
-   "take": "clips/streak-3/v1.mp3",
+   "caption": "אַתָּה עָף עַל זֶה.",
+   "take": "clips/streak-3/v2.mp3",
    "request": {
-    "text": "[excited] אַתָּה פָּשׁוּט עָף.",
+    "text": "[excited] אַתָּה עָף עַל זֶה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/streak-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "syl-0-a",
@@ -3883,7 +4147,7 @@
    "file": "src/duel2/assets/audio/voice/syl-v-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בֵ",
-   "take": "clips/syl-v-e/v3.mp3",
+   "take": "clips/syl-v-e/v8.mp3",
    "request": {
     "text": "וֶה.",
     "model_id": "eleven_v4",
@@ -3891,7 +4155,7 @@
     "voice_settings": {
      "stability": 1
     },
-    "seed": 102
+    "seed": 107
    },
    "earlier_takes": [
     {
@@ -3903,8 +4167,24 @@
      "seed": 101
     },
     {
+     "file": "clips/syl-v-e/v3.mp3",
+     "seed": 102
+    },
+    {
      "file": "clips/syl-v-e/v4.mp3",
      "seed": 103
+    },
+    {
+     "file": "clips/syl-v-e/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/syl-v-e/v6.mp3",
+     "seed": 105
+    },
+    {
+     "file": "clips/syl-v-e/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -4271,55 +4551,70 @@
    "id": "target-new-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/target-new-1.mp3",
-   "where": "Broom flight: a new target (then the new sound)",
-   "caption": "עַכְשָׁו תִּתְפֹּס מַשֶּׁהוּ חָדָשׁ.",
-   "take": "clips/target-new-1/v1.mp3",
+   "where": "Broom flight: a new sound to catch (then the new sound)",
+   "caption": "וְעַכְשָׁו...",
+   "take": "clips/target-new-1/v2.mp3",
    "request": {
-    "text": "[playful] עַכְשָׁו תִּתְפֹּס מַשֶּׁהוּ חָדָשׁ.",
+    "text": "[playful] וְעַכְשָׁו...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/target-new-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "target-new-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/target-new-2.mp3",
-   "where": "Broom flight: a new target (then the new sound)",
-   "caption": "מְחַפְּשִׂים מַשֶּׁהוּ חָדָשׁ.",
-   "take": "clips/target-new-2/v1.mp3",
+   "where": "Broom flight: a new sound to catch (then the new sound)",
+   "caption": "עַכְשָׁו תִּתְפֹּס אֶת...",
+   "take": "clips/target-new-2/v2.mp3",
    "request": {
-    "text": "[playful] מְחַפְּשִׂים מַשֶּׁהוּ חָדָשׁ.",
+    "text": "[playful] עַכְשָׁו תִּתְפֹּס אֶת...",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/target-new-2/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "target-new-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/target-new-3.mp3",
-   "where": "Broom flight: a new target (then the new sound)",
-   "caption": "שִׁנּוּי, תַּקְשִׁיב לַחָדָשׁ.",
-   "take": "clips/target-new-3/v1.mp3",
+   "where": "Broom flight: a new sound to catch (then the new sound)",
+   "caption": "וְעַכְשָׁו מַשֶּׁהוּ אַחֵר:",
+   "take": "clips/target-new-3/v2.mp3",
    "request": {
-    "text": "[playful] שִׁנּוּי, תַּקְשִׁיב לַחָדָשׁ.",
+    "text": "[playful] וְעַכְשָׁו מַשֶּׁהוּ אַחֵר:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/target-new-3/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "w-ball",

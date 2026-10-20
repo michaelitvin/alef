@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { syllable } from '../logic/content.ts'
 import { WORDS, wordLinkFor } from './words.ts'
-import { LINES, lineAudioId } from './lines.ts'
+import { LINES, lineAudioId, lineById } from './lines.ts'
 
-const PER_ROUND = ['q-broom', 'q-broom-letter', 'q-cauldron', 'q-ladder', 'q-ghosts', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end']
+const PER_ROUND = ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end']
 
 describe('words', () => {
   const doors = WORDS.filter((w) => w.door)
@@ -61,4 +61,20 @@ describe('lines', () => {
   it('audio ids', () => {
     expect(lineAudioId('almost', 2)).toBe('almost-2')
   })
+describe('lines lead into the sound', () => {
+  it('a line that a sound follows ends open (…), so the voice does not close the sentence first', () => {
+    for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with'])
+      for (const t of lineById(id)!.he) expect(/(\.\.\.|…|:)$/.test(t), `${id}: ${t}`).toBe(true)
+  })
+  it('the dotted-letter introduction names each form before its sound', () => {
+    expect(lineById('dot-without')!.he[0]).toMatch(/בְּלִי נְקֻדָּה/)
+    expect(lineById('dot-with')!.he[0]).toMatch(/עִם נְקֻדָּה/)
+    expect(lineById('dot-intro')).toBeUndefined()
+  })
+  it('no line is left that nothing plays (the broom asks nothing: its demo teaches it)', () => {
+    expect(lineById('q-broom')).toBeUndefined()
+    expect(lineById('q-broom-letter')).toBeUndefined()
+  })
+})
+
 })
