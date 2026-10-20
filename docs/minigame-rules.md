@@ -188,6 +188,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show each character only one time on a screen. Use opaque covers for start and pause screens.
   Example (duel): the wizard showed two times, on the tower and in the middle.
 - Animate a new element when it appears. Example (duel): the clue bubble bounces.
+- Do not move a group of targets as one straight column or row. Give each its own timing and a small offset.
+  Example (book 2): the parent: "3's of flying letters don't need to be so aligned, disperse them. Popcorn style."
+- Make a wrong answer a dramatic moment: shake the screen, flash, burst the wrong choice, show the player hit.
+  Example (book 2): the parent: "When wrong, something more dramatic needs to happen."
 - Change effects and animations from round to round. Give special characters (bosses) their own look and moves.
 - Give the child few, large, clear choices.
   Example (duel): a choice from 6 pictures was too hard, even for an adult. That screen was removed.
