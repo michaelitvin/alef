@@ -5,7 +5,8 @@ import { cancelVoice, sayParts, voiceSignal, type VoiceSignal } from '../audio/d
 import { NextIcon, SpeakerIcon } from './icons'
 
 export type Highlight = 'letter' | 'vowel' | 'all' | 'left' | 'right' | 'none'
-export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[]; children: (h: Highlight | null) => ReactNode; onNext: () => void }) {
+/** `autoNext`: a demo goes straight on into play when its words end (Michael: stopping there on a next button was unnatural). */
+export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[]; children: (h: Highlight | null) => ReactNode; onNext: () => void; autoNext?: boolean }) {
   const [h, setH] = useState<Highlight | null>(null)
   const [done, setDone] = useState(false)
   const alive = useRef(true)
@@ -17,6 +18,7 @@ export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[];
     void sayParts(p.parts.map((x) => ({ id: x.id, onStart: () => alive.current && setH(x.highlight) })), undefined, sig.current).then(() => {
       if (!alive.current) return
       setH(null)
+      if (p.autoNext) { window.setTimeout(() => { if (alive.current) p.onNext() }, 500); return }
       setDone(true)
     })
   }

@@ -51,6 +51,19 @@ describe('parts', () => {
     expect(played).toContain('q-ghosts-1')
     expect(started).toBe(true)
   })
+  it('a demo goes on by itself when its words end, with no next button', async () => {
+    vi.useFakeTimers()
+    setVoicePlayer(() => Promise.resolve())
+    const onNext = vi.fn()
+    render(<ExplainPanel parts={[{ id: 'demo-broom-1', highlight: 'none' }]} onNext={onNext} autoNext>{() => null}</ExplainPanel>)
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(onNext).toHaveBeenCalledTimes(1)
+    expect(screen.queryByLabelText('next')).toBeNull()
+  })
+  it('next looks like the play button', () => {
+    const { container } = render(<TopBar hearts={3} onNext={() => {}} />)
+    expect(container.querySelector('[aria-label="next"] [data-icon="play"]')).not.toBeNull()
+  })
   it('shuruk alone shows the vav', () => {
     const { container } = render(<svg><MarkAlone mark={mark('shuruk')} size={100} x={0} y={0} /></svg>)
     expect(container.querySelector('[data-vav]')).not.toBeNull()

@@ -85,3 +85,5 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
   75% { transform: scale(1.08) rotate(4deg); } 100% { transform: scale(1); } }
 .d2-dizzy { animation: d2-dizzy 0.9s ease-in-out 2; transform-box: fill-box; transform-origin: center; }
 @keyframes d2-dizzy { 0% { transform: rotate(0); } 30% { transform: rotate(-25deg); } 60% { transform: rotate(20deg); } 100% { transform: rotate(0); } }
+.d2-root { background: #160a35; }
+.d2-stage { overflow: visible; }

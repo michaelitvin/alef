@@ -9,9 +9,9 @@ import type { Highlight } from '../components/ExplainPanel'
 
 function Frame({ children, dim = true }: { children: React.ReactNode; dim?: boolean }) {
   return (
-    <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+    <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" overflow="visible">
       <GlyphDefs />
-      {dim && <rect width={1600} height={900} fill="#0b0824" opacity={0.96} />}
+      {dim && <rect x={-1600} y={-900} width={4800} height={2700} fill="#0b0824" opacity={0.96} />}
       {children}
     </svg>
   )

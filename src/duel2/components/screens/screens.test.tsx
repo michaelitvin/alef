@@ -2,6 +2,7 @@ import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
 import { MistakeFx } from '../MistakeFx'
+import { Stage } from './Stage'
 import { CATCH_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder, plateYs } from './Ladder'
@@ -87,8 +88,30 @@ describe('screens', () => {
     expect(x - BROOM_ORB / 2).toBeLessThanOrEqual(w.right)
     expect(x).toBeGreaterThan(w.left + w.width / 2)
   })
-  it('the wizard is small next to the glyphs', () => {
-    expect(BROOM_WIZARD_H).toBeLessThanOrEqual(220 * 0.5 + 1)
+  it('the background covers screens wider or taller than the stage', () => {
+    const { container } = render(<Stage bg="bg-sky"><g /></Stage>)
+    const svg = container.querySelector('svg[data-stage]')!
+    expect(svg.getAttribute('overflow')).toBe('visible')
+    const xs = [...svg.querySelectorAll('[data-bg-tile]')].map((e) => Number(e.getAttribute('data-x')))
+    const ys = [...svg.querySelectorAll('[data-bg-tile]')].map((e) => Number(e.getAttribute('data-y')))
+    expect(Math.min(...xs)).toBeLessThan(0)
+    expect(Math.max(...xs)).toBeGreaterThanOrEqual(1600)
+    expect(Math.min(...ys)).toBeLessThan(0)
+    expect(Math.max(...ys)).toBeGreaterThanOrEqual(900)
+  })
+  it('the lane bands reach the screen edges', () => {
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" clock={() => 0} />)
+    for (const b of container.querySelectorAll('[data-lane-band]')) {
+      expect(Number(b.getAttribute('x'))).toBeLessThan(0)
+      expect(Number(b.getAttribute('width'))).toBeGreaterThan(1600 * 2)
+    }
+    expect(container.querySelectorAll('[data-lane-band]').length).toBe(3)
+  })
+  it('the flying wizard is big enough to see and small enough to dodge', () => {
+    expect(BROOM_WIZARD_H).toBeGreaterThanOrEqual(140)
+    expect(BROOM_WIZARD_H).toBeLessThanOrEqual(220 * 0.75)
+  })
+  it('the glyphs are large', () => {
     expect(BROOM_GLYPH_PX).toBeGreaterThan(80)
     expect(GHOST_GLYPH_PX).toBeGreaterThanOrEqual(GHOST_H * 0.25)
   })
