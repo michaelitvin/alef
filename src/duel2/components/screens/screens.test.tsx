@@ -26,6 +26,22 @@ describe('screens', () => {
     fireEvent.pointerUp(stage, { clientY: 441, pointerId: 1 })
     expect(onLane).toHaveBeenLastCalledWith(1)
   })
+  it('dragging into a lane tells the game at once', () => {
+    const onLane = vi.fn()
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={onLane} phase="answer" clock={() => 0} />)
+    const stage = container.querySelector('[data-stage]')!
+    fireEvent.pointerDown(stage, { clientY: 470, pointerId: 1 })
+    fireEvent.pointerMove(stage, { clientY: 200, pointerId: 1 })
+    expect(onLane).toHaveBeenLastCalledWith(0)
+  })
+  it('the demo moves the cauldron orb with the hand', () => {
+    const { container } = render(<Cauldron letter={item('mem')} orbs={[mark('kamatz'), mark('cholam'), mark('chirik')]} onPick={() => {}} phase="demo" demo={{ id: 'cholam', t: 1 }} />)
+    const img = container.querySelector('[data-orb="cholam"] image')!
+    const cx = Number(img.getAttribute('x')) + Number(img.getAttribute('width')) / 2
+    const cy = Number(img.getAttribute('y')) + Number(img.getAttribute('height')) / 2
+    expect(cx).toBeCloseTo(800, 0)
+    expect(cy).toBeGreaterThan(600)
+  })
   it('tap on a lane jumps there', () => {
     const onLane = vi.fn()
     const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={onLane} phase="answer" clock={() => 0} />)

@@ -1,5 +1,5 @@
 // The play screen: the current screen, the top bar, the overlays and the pause cover, driven by the run controller.
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
 import { item as itemOf, mark as markOf } from '../logic/content'
@@ -19,19 +19,19 @@ import { TEST_HOOKS } from '../testHooks'
 
 type Run = ReturnType<typeof useRun>
 
-function ScreenFor({ run, v }: { run: Run; v: View }) {
+function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
   const s = v.screen
   if (!s) return null
   const pick = (id: string) => run.onGesture({ type: 'pick', id })
   const test = TEST_HOOKS && v.phase === 'answer'
   switch (s.screen) {
     case 'broom':
-      return <Broom waves={s.waves} travelMs={s.travelMs} lane={s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} clock={run.clock}
+      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} clock={run.clock}
         correctId={TEST_HOOKS ? s.target.id : undefined} />
     case 'cauldron':
       return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
-        correct={test ? s.target.mark : undefined} />
+        correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
       return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={pick} phase={v.phase} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
     case 'ghosts':
@@ -59,6 +59,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const run = useRun(opts)
   const v = run.view
   const reported = useRef(false)
+  const [demoT, setDemoT] = useState(0)
   if (v.over && !reported.current) {
     reported.current = true
     queueMicrotask(() => onOver(v.over!))
@@ -73,10 +74,10 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
             const path = demoPath(v)
             return (
               <>
-                <ScreenFor run={run} v={v} />
+                <ScreenFor run={run} v={v} demoT={demoT} />
                 {path && (
                   <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
-                    <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onDone={() => {}} />
+                    <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} />
                   </svg>
                 )}
               </>

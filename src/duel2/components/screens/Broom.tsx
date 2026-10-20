@@ -52,17 +52,28 @@ export function Broom(p: {
   const svgRef = useRef<SVGSVGElement>(null)
   const y = dragY ?? LANE_Y[p.lane]
   const stageY = (e: React.PointerEvent) => toStage(svgRef.current, e.clientX, e.clientY).y
+  const laneOf = (y: number) => laneAt(Math.min(1, Math.max(0, (y - 140) / (H - 140 - 30))))
+  const lastLane = useRef<0 | 1 | 2>(p.lane)
   const release = (e: React.PointerEvent) => {
     if (down.current === null) return
     down.current = null
     setDragY(null)
-    p.onLane(laneAt(Math.min(1, Math.max(0, (stageY(e) - 140) / (H - 140 - 30)))))
+    const l = laneOf(stageY(e))
+    lastLane.current = l
+    p.onLane(l)
   }
   const wizW = WIZ_W
   return (
     <Stage bg="bg-sky" ref={svgRef}
       onPointerDown={(e) => { down.current = e.pointerId; (e.target as Element).setPointerCapture?.(e.pointerId); setDragY(stageY(e)) }}
-      onPointerMove={(e) => { if (down.current !== null) setDragY(Math.min(LANE_Y[2], Math.max(LANE_Y[0], stageY(e)))) }}
+      onPointerMove={(e) => {
+        if (down.current === null) return
+        const y = stageY(e)
+        setDragY(Math.min(LANE_Y[2], Math.max(LANE_Y[0], y)))
+        // the game scores the lane he holds now, not the one he will let go in
+        const l = laneOf(y)
+        if (l !== lastLane.current) { lastLane.current = l; p.onLane(l) }
+      }}
       onPointerUp={release} onPointerCancel={release}
       style={{ touchAction: 'none' }}>
       {LANE_Y.map((ly) => <rect key={ly} x={0} y={ly - LANE_H / 2} width={1600} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
