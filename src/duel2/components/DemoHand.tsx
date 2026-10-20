@@ -2,18 +2,23 @@
 // `onMove(t)` lets the dragged object follow (t from 0 to 1); `onDone` fires at the end.
 import { useEffect, useState } from 'react'
 
-export function DemoHand(p: { from: { x: number; y: number }; to: { x: number; y: number }; durationMs: number; onMove?: (t: number) => void; onDone: () => void }) {
+/** `loop`: repeat the gesture (with a short rest) while the demo's words play. */
+export function DemoHand(p: { from: { x: number; y: number }; to: { x: number; y: number }; durationMs: number; onMove?: (t: number) => void; onDone: () => void; loop?: boolean }) {
   const [t, setT] = useState(0)
   useEffect(() => {
-    const start = performance.now()
+    let start = performance.now()
     let raf = 0
     let done = false
+    const REST = 700
     const step = (now: number) => {
       const k = Math.min(1, (now - start) / p.durationMs)
       setT(k)
       p.onMove?.(k)
       if (k < 1) raf = requestAnimationFrame(step)
-      else if (!done) { done = true; p.onDone() }
+      else if (p.loop) {
+        if (now - start >= p.durationMs + REST) start = now
+        raf = requestAnimationFrame(step)
+      } else if (!done) { done = true; p.onDone() }
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)

@@ -252,6 +252,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show a gesture with a demo that does the gesture: a hand that the child recognizes as a hand, and the object moves with it.
   Example (clock): the demo finger was a blob that moved in an arc beside the clock. Now a pointing hand pulls the long
   hand round, and the short hand moves with it.
+- Let a demo flow into play: when its words end, the round starts. Do not stop a demo on a next button.
+  Example (book 2): the broom demo ended on a still screen with an arrow; the parent: "unnatural ... not intuitive that you
+  need to press the left arrow". Use the play triangle for every next button (the clock game does).
+- Make the background fill the whole screen on any shape of screen. Keep the game area fixed and extend the background
+  around it. Example (book 2): wide phones showed black bars on both sides.
 - Target device: an older Android tablet in landscape. A phone on its side keeps the portrait layout.
 
 ## Game play and learning

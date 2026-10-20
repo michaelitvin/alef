@@ -8,13 +8,34 @@ export const W = 1600
 export const H = 900
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 
+/**
+ * The background around the stage: the stage keeps its 16:9 shape (the game never moves), and mirrored copies of the
+ * background fill the rest of a wider or taller screen, so no black bars show (Michael).
+ */
+function Backdrop({ bg }: { bg: string }) {
+  const url = IMAGES[bg]
+  const tiles: { x: number; y: number }[] = []
+  for (const x of [-W, 0, W]) for (const y of [-H, 0, H]) tiles.push({ x, y })
+  return (
+    <g aria-hidden>
+      {tiles.map(({ x, y }) => {
+        // mirror the copies so their edges meet the stage's edges seamlessly
+        const fx = x === 0 ? 1 : -1
+        const fy = y === 0 ? 1 : -1
+        const t = `translate(${x + (fx < 0 ? W : 0)} ${y + (fy < 0 ? H : 0)}) scale(${fx} ${fy})`
+        return url
+          ? <image key={`${x},${y}`} data-bg-tile data-x={x} data-y={y} href={url} width={W} height={H} preserveAspectRatio="none" transform={t} />
+          : <rect key={`${x},${y}`} data-bg-tile data-x={x} data-y={y} width={W} height={H} fill="#1b0f3c" transform={t} />
+      })}
+    </g>
+  )
+}
+
 export function Stage({ bg, children, ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode } & SVGProps<SVGSVGElement>) {
   return (
-    <svg data-stage className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" {...rest}>
+    <svg data-stage className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}>
       <GlyphDefs />
-      {IMAGES[bg]
-        ? <image href={IMAGES[bg]} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice" />
-        : <rect width={W} height={H} fill="#1b0f3c" />}
+      <Backdrop bg={bg} />
       {children}
     </svg>
   )

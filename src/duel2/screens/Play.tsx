@@ -70,7 +70,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   return (
     <div className={`d2-root${v.phase === 'mistake' ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
-        <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext}>
+        <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
             const path = demoPath(v)
             return (
@@ -78,7 +78,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
                 <ScreenFor run={run} v={v} demoT={demoT} />
                 {path && (
                   <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
-                    <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} />
+                    <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} loop />
                   </svg>
                 )}
               </>

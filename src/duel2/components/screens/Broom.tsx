@@ -14,8 +14,8 @@ export const LANE_Y = [250, 470, 690]
 export const LANE_H = 220
 /** the wizard's centre (stage x) */
 export const WIZ_X = 170
-/** the wizard is about half a lane high, so dodging is clear (Michael) */
-export const BROOM_WIZARD_H = 110
+/** about two thirds of a lane high: big enough to see, small enough to dodge (Michael: first too big, then too small) */
+export const BROOM_WIZARD_H = 150
 export const BROOM_ORB = 170
 export const BROOM_GLYPH_PX = 100
 const START_X = 1720
@@ -77,7 +77,7 @@ export function Broom(p: {
       }}
       onPointerUp={release} onPointerCancel={release}
       style={{ touchAction: 'none' }}>
-      {LANE_Y.map((ly) => <rect key={ly} x={0} y={ly - LANE_H / 2} width={1600} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
+      {LANE_Y.map((ly) => <rect key={ly} data-lane-band x={-1600} y={ly - LANE_H / 2} width={4800} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
       {p.waves.map((w) => (
         <g key={w.id} data-wave={w.id}>
           {w.choices.map((c, lane) => {

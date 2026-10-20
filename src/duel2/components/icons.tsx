@@ -17,11 +17,9 @@ export const HintIcon = () => (
     <path fill="#ffd34d" d="M17 2l1.2 3.3L21.5 6.5l-3.3 1.2L17 11l-1.2-3.3L12.5 6.5l3.3-1.2z" />
   </svg>
 )
-/** next: an arrow pointing left (the way Hebrew reads on) */
+/** next: the play triangle, as in the clock game (Michael: a left arrow was not understood as "go on") */
 export const NextIcon = () => (
-  <svg viewBox="0 0 24 24" width="62%" height="62%" aria-hidden>
-    <path d="M19 12H6M11 6l-6 6 6 6" stroke="#2a0f00" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+  <svg viewBox="0 0 24 24" width="55%" height="55%" aria-hidden data-icon="play"><path fill="#2a0f00" d="M8 5v14l11-7z" /></svg>
 )
 export const PlayIcon = () => (
   <svg viewBox="0 0 24 24" width="55%" height="55%" aria-hidden><path fill="#2a0f00" d="M8 5v14l11-7z" /></svg>
