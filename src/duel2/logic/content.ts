@@ -111,7 +111,7 @@ export function syllable(itemId: string, markId: MarkId): Syllable {
 
 /**
  * Syllables the game never shows (rule: no symbol that can be read two ways): וֹ (vav + cholam) looks like the vowel
- * cholam male "o". (יִ was left out for looking like "¡" and put back: Michael, 2026-10-20 — it is a common syllable.)
+ * cholam male "o"; "vo" is taught as ווֹ (Michael kept it out, 2026-10-20). (יִ was left out for looking like "¡" and put back: Michael, 2026-10-20 — it is a common syllable.)
  */
 export const LEFT_OUT = new Set(['vav-cholam'])
 export const isAllowed = (itemId: string, markId: MarkId) => !LEFT_OUT.has(`${itemId}-${markId}`)
