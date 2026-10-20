@@ -24,6 +24,10 @@ function Picker(p: { w: number; h: number; x: number; y: number; state: PickStat
         : p.round
           ? <circle cx={p.x} cy={p.y} r={p.w / 2} fill="#2a1660" stroke="#ffd34d" strokeWidth={p.w * 0.06} />
           : <rect x={p.x - p.w / 2} y={p.y - p.h / 2} width={p.w} height={p.h} rx={p.h * 0.2} fill="#2a1660" stroke="#ffd34d" strokeWidth={p.h * 0.08} />}
+      {/* a soft dark disc behind the glyph: the sprite's shine sits where marks like the cholam dot go */}
+      {p.round
+        ? <circle data-glyph-backing cx={p.x} cy={p.y} r={p.w * 0.36} fill="#1b0f3c" opacity={0.45} style={{ filter: 'blur(4px)' }} />
+        : <rect data-glyph-backing x={p.x - p.w * 0.38} y={p.y - p.h * 0.34} width={p.w * 0.76} height={p.h * 0.68} rx={p.h * 0.2} fill="#1b0f3c" opacity={0.35} />}
       {p.children}
       <rect data-pick x={p.x - hw} y={p.y - hh} width={hw * 2} height={hh * 2} fill="transparent"
         {...(TEST_HOOKS && p.testCorrect ? { 'data-correct': '1' } : {})}

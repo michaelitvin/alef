@@ -64,6 +64,10 @@ describe('parts', () => {
     const { container } = render(<TopBar hearts={3} onNext={() => {}} />)
     expect(container.querySelector('[aria-label="next"] [data-icon="play"]')).not.toBeNull()
   })
+  it('an orb darkens the place behind its glyph so marks show on the shine', () => {
+    const { container } = render(<svg><Orb size={100} x={0} y={0} /></svg>)
+    expect(container.querySelector('[data-glyph-backing]')).not.toBeNull()
+  })
   it('shuruk alone shows the vav', () => {
     const { container } = render(<svg><MarkAlone mark={mark('shuruk')} size={100} x={0} y={0} /></svg>)
     expect(container.querySelector('[data-vav]')).not.toBeNull()

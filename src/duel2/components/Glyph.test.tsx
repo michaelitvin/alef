@@ -16,6 +16,12 @@ describe('Glyph', () => {
     const { container } = render(<svg><Glyph text="ל" px={100} x={10} y={10} measurer={() => null} /></svg>)
     expect(Number(container.querySelector('text')!.getAttribute('y'))).toBe(45)
   })
+  it('glyphs have a dark outline so dots show on light places', () => {
+    const { container } = render(<svg><Glyph text="בֹ" px={100} x={0} y={0} measurer={() => null} /></svg>)
+    const t = container.querySelector('text')!
+    expect(t.style.stroke).not.toBe('')
+    expect(t.style.paintOrder).toBe('stroke')
+  })
   it('glyph text is isolated RTL', () => {
     const { container } = render(<svg><Glyph text="מוֹ" px={80} x={0} y={0} measurer={() => null} /></svg>)
     const t = container.querySelector('text')!

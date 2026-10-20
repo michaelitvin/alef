@@ -63,6 +63,15 @@ describe('screens', () => {
     const { container } = render(<Broom waves={[w]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" clock={() => 1000} />)
     expect(container.querySelectorAll('[data-wave="1"] [data-orb-i]').length).toBe(2)
   })
+  it('a missed target does not make the wizard dizzy', () => {
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" missed clock={() => 0} />)
+    expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).not.toMatch(/s-wizard-dizzy/)
+  })
+  it('a missed target shows a soft flash and no shake', () => {
+    const { container } = render(<MistakeFx active kind="miss" />)
+    expect(container.querySelector('.d2-flash-miss')).not.toBeNull()
+    expect(container.querySelector('.d2-flash-red')).toBeNull()
+  })
   it('a mistake makes the wizard dizzy', () => {
     const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => 0} />)
     expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).toMatch(/s-wizard-dizzy/)

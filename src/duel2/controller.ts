@@ -23,7 +23,7 @@ import type { Highlight } from './components/ExplainPanel'
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
 export interface BroomWave { id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[] }
-export interface BroomView { screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal }
+export interface BroomView { screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean }
 export interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
 export interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
 export interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
@@ -648,7 +648,7 @@ export class RunController {
     startMusic('flight')
     const announce = async (first: boolean) => {
       this.stopBroom()
-      this.setScreen({ waves: [], reveal: undefined } as Partial<BroomView>)
+      this.setScreen({ waves: [], reveal: undefined, missed: false } as Partial<BroomView>)
       this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
       this.assets = []
       const line = first ? this.variation(this.questionLine('broom', kind)) : this.variation('target-new')
@@ -761,9 +761,10 @@ export class RunController {
     this.streak = 0
     this.record('broom', target, hit, 'wrong')
     if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'timeout', msWalk: null, walkMs: 1 }))
-    this.sfx('hit')
+    // a miss (the target flew past in another lane) is a whoosh, not a crash
+    this.sfx(hit ? 'hit' : 'wave')
     // the flight stops where it is (the stage freezes outside the answer phase), the right one marked until next
-    this.setScreen({ reveal: { right: target.id, wrong: hit?.id } } as Partial<BroomView>)
+    this.setScreen({ reveal: { right: target.id, wrong: hit?.id }, missed: !hit } as Partial<BroomView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(target))
     await this.say(t, [{ id: this.cueId(target) }])
