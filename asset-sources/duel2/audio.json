@@ -3873,6 +3873,37 @@
    ]
   },
   {
+   "id": "syl-y-i",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/syl-y-i.mp3",
+   "where": "The sound he hears and the feedback (all screens)",
+   "caption": "יִ",
+   "take": "clips/syl-y-i/v4.mp3",
+   "request": {
+    "text": "יִי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 103
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/syl-y-i/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/syl-y-i/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/syl-y-i/v3.mp3",
+     "seed": 102
+    }
+   ]
+  },
+  {
    "id": "syl-y-o",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/syl-y-o.mp3",
