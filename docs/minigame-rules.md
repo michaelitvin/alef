@@ -126,6 +126,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Examples (duel): "/ˈmeɡa/ כִּשּׁוּף", "/anaˈnas/", "/baˈʃvunɡ/".
   Caution: IPA can give an English accent. Example (duel): the bus in IPA sounded English.
 - Do not use IPA alone for a single vowel. Example (duel): "/a/." gave 5–6 bursts of extra speech.
+- Do not write a syllable in Latin letters or in IPA for the voice. The voice can read Latin letters as English letter
+  names. Example (book 2): "fi." became "F, I" and "ru." became "R, U"; "/fi/" read the slashes. Use Hebrew text, for
+  example פִֿי with the rafe sign. Check each take with an open question to a listener ("what is said, how many
+  syllables, any letter names?"), not with a question that tells it to expect one syllable.
 - Use the same correct spelling everywhere in the app. Example (duel): צֵירֶה, פַּתָּח.
 - Before you generate a word, look for an approved recording of it in the other games, and use that file. Also use their
   pronunciation fixes.
@@ -174,6 +178,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): תמנון has shva, but people say "ta". Do not use it.
 - Give each sound several picture words. Take them from things that the child knows.
   Reason: the child must learn the sound, not one picture. Example (duel): words from the Alef-Bet song.
+- Link a letter or syllable only to a picture word that starts with that same letter, not only the same sound.
+  Example (book 2): כָ showed חָתוּל (the same sound, another letter); the parent: "I don't want the kid to learn this mistake".
 - Show a learning mark on a neutral placeholder (circle or box), not on a carrier letter.
 - Make the learning content the strongest element on the screen. Make helper shapes faint. Make sure a highlight does not hide the mark.
   Example (book 2): the cholam dot fell on the bubble's shine and vanished; glyphs now have a dark outline and a dark disc behind them.
@@ -238,7 +244,7 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 - Let the child tap each clue to hear it again. Respond on finger-down, with a large tap area and a bounce.
   Reason: a moving target is hard to tap on a real tablet.
-- Do not accept answer taps while an instruction plays. Keep a power-button tap that comes between rounds, and use it in the next round.
+- Do not accept answer taps while an instruction plays. Keep a power-button tap that comes between rounds, and use it in the next round. A hint or an explanation is not an instruction (see the skip rule below).
   Accept answer taps while the answers themselves are read aloud. A tap stops the reading.
   Example (clock): the child had to wait until all three answers were read before he could choose.
 - Show a speaker icon on everything that plays a sound when the child taps it, next to the text it says again. A tap on
@@ -289,6 +295,17 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   on the screen when it ends, with a speaker that plays it again, until he taps next. Give the explanation of a mistake
   from time to time (not every time), after he has looked at the right answer.
   Example (clock): after a mistake the next customer came at once, and an explanation went on to the question at once.
+- Say the instruction (the question line) once on each visit to a screen. In later rounds, and after a mistake, play only
+  the sound to find. Play it again after a pause.
+  Example (book 2): the parent: "no instructions narration is needed while on the same screen".
+- Let a moving answer reach the child before you judge it. Count a miss only when the answer has passed him, and end a
+  round only when all the answers that are on the screen are done.
+  Example (book 2): the broom said "missed" while the right letter still overlapped the wizard, and on the last round the
+  letters still flying vanished.
+- Let the child skip a hint or an explanation when he shows that he knows: he tries to pick. Keep the answers open
+  while a hint plays, and let a pick stop the hint and count. After a mistake, let a tap on the marked right answer go on
+  at once (no hint, no next button, no explanation). Let a tap anywhere on an explanation that covers the screen end it.
+  Example (book 2): the parent: "explanations get the kid stuck if he already knows the answer".
 - Give hints that fit the question. Show a hint by itself in the first rounds, then put it behind a hint button. Show it
   again on the right answer after a mistake.
   Example (clock): the quarters (the face cut in four, 00/15/30/45) for :15/:30/:45, and the minutes at each number for

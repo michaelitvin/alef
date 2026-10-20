@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
 import { MistakeFx } from '../MistakeFx'
 import { Stage } from './Stage'
-import { CATCH_AT } from '../../logic/run'
+import { CATCH_AT, PASS_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder, plateYs } from './Ladder'
 import { Ghosts, GHOST_GLYPH_PX, GHOST_H } from './Ghosts'
@@ -96,6 +96,10 @@ describe('screens', () => {
     const x = orbX(CATCH_AT)
     expect(x - BROOM_ORB / 2).toBeLessThanOrEqual(w.right)
     expect(x).toBeGreaterThan(w.left + w.width / 2)
+  })
+  it('the target counts as missed only once its centre is past the back of the wizard', () => {
+    expect(orbX(PASS_AT)).toBeLessThanOrEqual(wizardBox().left)
+    expect(orbX(PASS_AT)).toBeGreaterThan(wizardBox().left - BROOM_ORB / 2)
   })
   it('the background covers screens wider or taller than the stage', () => {
     const { container } = render(<Stage bg="bg-sky"><g /></Stage>)

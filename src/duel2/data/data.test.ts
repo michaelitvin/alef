@@ -25,8 +25,17 @@ describe('words', () => {
     }
   })
   it('word link finds a word for בָּ', () => {
-    expect(wordLinkFor('syl-b-a', () => 0)?.id).toMatch(/house|banana/)
-    expect(wordLinkFor('syl-zz-a')).toBeUndefined()
+    expect(wordLinkFor('bet', 'kamatz', () => 0)?.id).toMatch(/house|banana/)
+  })
+  it('word link never shows a word that starts with another letter of the same sound (כָ is not חָתוּל)', () => {
+    expect(wordLinkFor('het', 'kamatz', () => 0)?.id).toBe('cat')
+    expect(wordLinkFor('khaf', 'kamatz')).toBeUndefined()
+    for (const it of ['alef', 'bet', 'vet', 'gimel', 'dalet', 'he', 'vav', 'zayin', 'het', 'tet', 'yod', 'kaf', 'khaf', 'lamed', 'mem', 'nun', 'samech', 'ayin', 'pe', 'fe', 'tsadi', 'qof', 'resh', 'shin', 'sin', 'tav'])
+      for (const m of ['kamatz', 'patach', 'tsere', 'segol', 'chirik', 'cholam', 'cholam-male', 'kubutz', 'shuruk'] as const)
+        for (let r = 0; r < 1; r += 0.1) {
+          const w = wordLinkFor(it, m, () => r)
+          if (w) expect(w.first.item, `${it}-${m} -> ${w.id}`).toBe(it)
+        }
   })
 })
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS } from './run'
+import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT } from './run'
 
 describe('run', () => {
   it('cycle per stage', () => {
@@ -49,4 +49,26 @@ describe('run', () => {
     expect(laneAt(0.1)).toBe(0)
     expect(laneAt(0.95)).toBe(2)
   })
+  it('an orb keeps flying past the wizard (its position goes below 0)', () => {
+    expect(wavePos(1000, 1000, 5000)).toBe(1)
+    expect(wavePos(1000, 6500, 5000)).toBeCloseTo(-0.1)
+  })
+  it('the target can still be caught while it overlaps the wizard (Michael: it failed too early)', () => {
+    const k = [0.3, -0.03, 0.5]
+    // he is in lane 0, the target in lane 1 is at the wizard: not missed yet
+    expect(orbEvents(k, [false, false, false], 0, [false, true, false])).toEqual({ resolved: [false, false, false], hit: null, missedTarget: false })
+    // he moves into lane 1 in time: caught
+    expect(orbEvents(k, [false, false, false], 1, [false, true, false]).hit).toBe(1)
+  })
+  it('the target is missed only when it has passed the wizard', () => {
+    const r = orbEvents([0.3, PASS_AT - 0.01, 0.5], [false, false, false], 0, [false, true, false])
+    expect(r.missedTarget).toBe(true)
+    expect(r.resolved).toEqual([false, true, false])
+  })
+  it('a wrong orb hits him when it reaches him in his lane; one that passes in another lane is gone', () => {
+    expect(orbEvents([CATCH_AT - 0.01, 0.5, 0.5], [false, false, false], 0, [false, true, false]).hit).toBe(0)
+    const r = orbEvents([PASS_AT - 0.01, 0.5, 0.5], [false, false, false], 1, [false, true, false])
+    expect(r).toEqual({ resolved: [true, false, false], hit: null, missedTarget: false })
+  })
+
 })

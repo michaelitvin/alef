@@ -60,6 +60,15 @@ describe('parts', () => {
     expect(onNext).toHaveBeenCalledTimes(1)
     expect(screen.queryByLabelText('next')).toBeNull()
   })
+  it('a tap on an explanation ends it at once, while it still speaks (he already knows)', async () => {
+    vi.useFakeTimers()
+    setVoicePlayer(() => new Promise((r) => setTimeout(r, 5000)))
+    const onNext = vi.fn()
+    const { container } = render(<ExplainPanel parts={[{ id: 'ln-bet', highlight: 'letter' }]} onNext={onNext} skippable>{() => null}</ExplainPanel>)
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    fireEvent.pointerDown(container.querySelector('[data-skip]')!)
+    expect(onNext).toHaveBeenCalledTimes(1)
+  })
   it('next looks like the play button', () => {
     const { container } = render(<TopBar hearts={3} onNext={() => {}} />)
     expect(container.querySelector('[aria-label="next"] [data-icon="play"]')).not.toBeNull()
