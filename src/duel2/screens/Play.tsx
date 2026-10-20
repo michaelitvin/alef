@@ -14,6 +14,7 @@ import { ExplainPanel } from '../components/ExplainPanel'
 import { DemoHand } from '../components/DemoHand'
 import { DotOverlay, ExplainOverlay, HintCard, WordLink } from './Overlays'
 import { PauseCover } from './PauseCover'
+import { MistakeFx } from '../components/MistakeFx'
 import { holdAudio } from '../audio/duel2Audio'
 import { TEST_HOOKS } from '../testHooks'
 
@@ -67,7 +68,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const o = v.overlay
   const canReplay = v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className="d2-root" data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${v.phase === 'mistake' ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext}>
           {() => {
@@ -95,6 +96,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined}
           onNext={v.needNext ? run.onNext : undefined} />
       )}
+      <MistakeFx active={v.phase === 'mistake'} />
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
   )

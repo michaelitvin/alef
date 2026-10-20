@@ -1,6 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
+import { MistakeFx } from '../MistakeFx'
 import { CATCH_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder, plateYs } from './Ladder'
@@ -50,10 +51,31 @@ describe('screens', () => {
     fireEvent.pointerUp(stage, { clientY: 800, pointerId: 1 })
     expect(onLane).toHaveBeenLastCalledWith(2)
   })
+  it('the orbs of a wave fly popcorn style, not in a column', () => {
+    const w = { id: 1, choices: wave, startMs: 0, offsets: [0, 0.2, 0.1], jitter: [-20, 25, 0], resolved: [false, false, false] }
+    const { container } = render(<Broom waves={[w]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => 1000} />)
+    const xs = [...container.querySelectorAll('[data-wave="1"] [data-orb-i]')].map((e) => e.getAttribute('transform'))
+    expect(new Set(xs).size).toBe(3)
+  })
+  it('a resolved orb leaves the sky', () => {
+    const w = { id: 1, choices: wave, startMs: 0, offsets: [0, 0, 0], jitter: [0, 0, 0], resolved: [true, false, false] }
+    const { container } = render(<Broom waves={[w]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" clock={() => 1000} />)
+    expect(container.querySelectorAll('[data-wave="1"] [data-orb-i]').length).toBe(2)
+  })
+  it('a mistake makes the wizard dizzy', () => {
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => 0} />)
+    expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).toMatch(/s-wizard-dizzy/)
+  })
+  it('a mistake shakes the screen and flashes red', () => {
+    const { container, rerender } = render(<MistakeFx active={false} />)
+    expect(container.querySelector('.d2-flash-red')).toBeNull()
+    rerender(<MistakeFx active />)
+    expect(container.querySelector('.d2-flash-red')).not.toBeNull()
+  })
   it('waves do not move outside the answer phase', async () => {
     vi.useFakeTimers()
     let now = 1000
-    const { container } = render(<Broom waves={[{ id: 1, choices: wave, startMs: 0 }]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => now} />)
+    const { container } = render(<Broom waves={[{ id: 1, choices: wave, startMs: 0, offsets: [0, 0, 0], jitter: [0, 0, 0], resolved: [false, false, false] }]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => now} />)
     const x0 = container.querySelector('[data-wave="1"]')!.getAttribute('transform')
     now = 3000
     await act(async () => { await vi.advanceTimersByTimeAsync(500) })

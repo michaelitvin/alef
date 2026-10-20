@@ -25,7 +25,8 @@ export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W 
 /** the orbs' centre x for a wave position k (1 = right edge, 0 = touching the wizard's front) */
 export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (START_X - WIZ_X)
 
-export interface BroomWave { id: number; choices: Choice[]; startMs: number }
+/** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
+export interface BroomWave { id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[] }
 export function Broom(p: {
   waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; onLane: (l: 0 | 1 | 2) => void; phase: Phase
   reveal?: { right: string; wrong?: string }; clock?: () => number; correctId?: string
@@ -77,32 +78,34 @@ export function Broom(p: {
       onPointerUp={release} onPointerCancel={release}
       style={{ touchAction: 'none' }}>
       {LANE_Y.map((ly) => <rect key={ly} x={0} y={ly - LANE_H / 2} width={1600} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
-      {p.waves.map((w) => {
-        const k = waveX(w.startMs, t, p.travelMs)
-        const x = orbX(k)
-        return (
-          <g key={w.id} data-wave={w.id} transform={`translate(${x.toFixed(1)} 0)`}>
-            {w.choices.map((c, lane) => {
-              let state: PickState = 'idle'
-              if (p.reveal?.right === c.id) state = 'reveal'
-              else if (p.reveal?.wrong === c.id) state = 'wrong'
-              return (
-                <g key={c.id}>
-                  <ellipse cx={BROOM_ORB * 1.05} cy={LANE_Y[lane]} rx={BROOM_ORB * 1.1} ry={BROOM_ORB * 0.3} fill="url(#d2-trail)" />
-                  <Orb size={BROOM_ORB} x={0} y={LANE_Y[lane]} state={state} testCorrect={c.id === p.correctId}>
-                    <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={LANE_Y[lane]} />
-                  </Orb>
-                </g>
-              )
-            })}
-          </g>
-        )
-      })}
+      {p.waves.map((w) => (
+        <g key={w.id} data-wave={w.id}>
+          {w.choices.map((c, lane) => {
+            if (w.resolved[lane] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
+            const k = waveX(w.startMs + w.offsets[lane] * p.travelMs, t, p.travelMs)
+            const x = orbX(k)
+            const y = LANE_Y[lane] + w.jitter[lane]
+            let state: PickState = 'idle'
+            if (p.reveal?.right === c.id) state = 'reveal'
+            else if (p.reveal?.wrong === c.id) state = 'wrong'
+            return (
+              <g key={c.id} data-orb-i={lane} transform={`translate(${x.toFixed(1)} 0)`}>
+                <ellipse cx={BROOM_ORB * 1.05} cy={y} rx={BROOM_ORB * 1.1} ry={BROOM_ORB * 0.3} fill="url(#d2-trail)" />
+                <Orb size={BROOM_ORB} x={0} y={y} state={state} testCorrect={c.id === p.correctId}>
+                  <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={y} />
+                </Orb>
+              </g>
+            )
+          })}
+        </g>
+      ))}
       <defs>
         <linearGradient id="d2-trail" x1="0" x2="1"><stop offset="0" stopColor="#c8a0ff" stopOpacity="0.7" /><stop offset="1" stopColor="#8c5aff" stopOpacity="0" /></linearGradient>
       </defs>
       <g data-wizard data-lane={p.lane} className="d2-bob" transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
-        {IMAGES['s-wizbroom']
+        {p.phase === 'mistake' && IMAGES['s-wizard-dizzy']
+          ? <image href={IMAGES['s-wizard-dizzy']} className="d2-dizzy" x={WIZ_X - BROOM_WIZARD_H * 0.55} y={y - BROOM_WIZARD_H * 0.75} width={BROOM_WIZARD_H * 1.1} height={BROOM_WIZARD_H * 1.1} />
+          : IMAGES['s-wizbroom']
           ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
           : <circle cx={WIZ_X} cy={y} r={BROOM_WIZARD_H / 2} fill="#7a5ac8" />}
       </g>

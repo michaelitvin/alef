@@ -22,7 +22,8 @@ import type { Highlight } from './components/ExplainPanel'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
-export interface BroomView { screen: 'broom'; kind: Kind; waves: { id: number; choices: Choice[]; startMs: number }[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal }
+export interface BroomWave { id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[] }
+export interface BroomView { screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal }
 export interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
 export interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
 export interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
@@ -62,6 +63,8 @@ const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
 const WAVE_EVERY = 0.55
+/** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
+const POPCORN = 0.28
 
 const sylFeatures = (c: Choice, screen: ScreenId) => {
   const it = itemOf(c.itemId)
@@ -674,32 +677,53 @@ export class RunController {
     stopMusic()
   }
 
-  /** Spawns waves until one reaches the wizard; resolves with the outcome of that wave. */
+  /** Spawns popcorn waves; each orb resolves when it reaches the wizard: in his lane it is caught (or hits him); the target
+   * flying past in another lane is a miss. Resolves with the first outcome. */
   private flyWave(t: number, target: Choice, kind: Kind): Promise<'right' | 'wrong' | 'over'> {
     return this.guard(t, new Promise<'right' | 'wrong' | 'over'>((resolve, reject) => {
-      const s = this.view.screen as BroomView
       const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
       const spawn = () => {
         const choices = broomWave(this.ctx(), target, kind)
-        const w = { id: ++this.waveId, choices, startMs: this.broomClock() }
+        const w: BroomWave = {
+          id: ++this.waveId, choices, startMs: this.broomClock(),
+          offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
+          jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
+          resolved: choices.map(() => false),
+        }
         const cur = this.view.screen as BroomView
         this.setScreen({ waves: [...cur.waves, w], travelMs: travel } as Partial<BroomView>)
         this.sfx('wave')
         this.cueStarted = this.now()
       }
-      if (!s.waves.length) spawn()
+      const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
+      if (!open((this.view.screen as BroomView).waves)) spawn()
       let lastSpawn = this.broomClock()
       this.stopBroom()
       this.broomTimer = window.setInterval(() => {
         if (t !== this.token) { this.stopBroom(); reject(new Aborted()); return }
         const now = this.broomClock()
         const cur = this.view.screen as BroomView
-        const head = cur.waves[0]
-        if (head && waveX(head.startMs, now, travel) <= CATCH_AT) {
+        let outcome: { hit: Choice | null; choices: Choice[] } | null = null
+        const waves = cur.waves.map((w) => {
+          if (outcome) return w
+          const resolved = [...w.resolved]
+          for (let i = 0; i < w.choices.length && !outcome; i++) {
+            if (resolved[i] || waveX(w.startMs + w.offsets[i] * travel, now, travel) > CATCH_AT) continue
+            resolved[i] = true
+            const c = w.choices[i]
+            if (i === cur.lane) outcome = { hit: c, choices: w.choices }
+            else if (c.soundId === target.soundId) outcome = { hit: null, choices: w.choices }
+          }
+          return { ...w, resolved }
+        }).filter((w) => w.resolved.some((r) => !r) || (outcome && w.choices === outcome.choices))
+        const o0 = outcome as { hit: Choice | null; choices: Choice[] } | null
+        const missed = o0 !== null && (!o0.hit || o0.hit.soundId !== target.soundId)
+        // after a mistake only its wave stays on the stage, so the right answer is marked once
+        this.setScreen({ waves: missed ? waves.filter((w) => w.choices === o0!.choices) : waves } as Partial<BroomView>)
+        if (outcome) {
           this.stopBroom()
-          const hit = head.choices[cur.lane]
-          this.setScreen({ waves: cur.waves.slice(1) } as Partial<BroomView>)
-          void this.resolveWave(t, target, hit, head.choices).then(resolve, reject)
+          const o = outcome as { hit: Choice | null; choices: Choice[] }
+          void this.resolveWave(t, target, o.hit).then(resolve, reject)
           return
         }
         if (now - lastSpawn >= travel * WAVE_EVERY) { spawn(); lastSpawn = now }
@@ -707,9 +731,10 @@ export class RunController {
     }))
   }
 
-  private async resolveWave(t: number, target: Choice, hit: Choice, choices: Choice[]): Promise<'right' | 'wrong' | 'over'> {
-    const right = hit.soundId === target.soundId
-    const near = !right && hit.nearMissOf === target.id
+  /** `hit` = the orb he met; null = the target flew past in another lane (a miss). */
+  private async resolveWave(t: number, target: Choice, hit: Choice | null): Promise<'right' | 'wrong' | 'over'> {
+    const right = !!hit && hit.soundId === target.soundId
+    const near = !!hit && !right && hit.nearMissOf === target.id
     const st = useDuel2Store.getState()
     if (right) {
       this.record('broom', target, hit, 'right')
@@ -737,9 +762,8 @@ export class RunController {
     this.record('broom', target, hit, 'wrong')
     if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'timeout', msWalk: null, walkMs: 1 }))
     this.sfx('hit')
-    // the flight stops: the wave stays with the right one marked until next
-    const frozen = { id: ++this.waveId, choices, startMs: this.broomClock() - travelMs(st.pace, this.cycle) * (1 - CATCH_AT) }
-    this.setScreen({ waves: [frozen], reveal: { right: target.id, wrong: hit.id } } as Partial<BroomView>)
+    // the flight stops where it is (the stage freezes outside the answer phase), the right one marked until next
+    this.setScreen({ reveal: { right: target.id, wrong: hit?.id } } as Partial<BroomView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(target))
     await this.say(t, [{ id: this.cueId(target) }])
