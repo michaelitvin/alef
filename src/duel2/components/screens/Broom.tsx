@@ -18,7 +18,8 @@ export const WIZ_X = 170
 export const BROOM_WIZARD_H = 150
 export const BROOM_ORB = 170
 export const BROOM_GLYPH_PX = 100
-const START_X = 1720
+// beyond the widest screen edge (the background extends past the stage on wide screens), so orbs fly in, never pop in
+const START_X = 2000
 const WIZ_W = BROOM_WIZARD_H * (600 / 512)
 /** the wizard sprite's box (stage x) */
 export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W / 2, width: WIZ_W })
