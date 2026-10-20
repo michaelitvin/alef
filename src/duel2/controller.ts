@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  CATCH_AT, TARGET_EVERY, VISIT, heartsOnScreenStart, newRound, nextPace, nextScreen, onAnswer, runStart, travelMs, waveX,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsOnScreenStart, newRound, nextPace, nextScreen, onAnswer, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -93,6 +93,12 @@ export class RunController {
   private nextWaiter: (() => void) | null = null
   private cueStarted = 0
   private spokenTargets = new Set<string>()
+  /** set when he taps the right answer during a mistake: the rest of the mistake is skipped */
+  private skipMistake = false
+  /** the question line has played on this screen visit */
+  private askedHere = false
+  /** the flight still sends new waves (false on the last round: only the orbs on the screen finish) */
+  private spawnMore = true
   private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
   private doorWords: Word[] = []
   private broomTimer: number | undefined
@@ -129,6 +135,16 @@ export class RunController {
     if (this.view.paused) return
     if (g.type === 'lane') {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
+      return
+    }
+    if (this.view.phase === 'mistake' && !this.ending) {
+      // he shows he knows: a tap on the marked right answer skips the hint, the wait for next and the explanation (Michael)
+      const right = (this.view.screen as { reveal?: { right: string } } | null)?.reveal?.right
+      if (right && g.id === right) {
+        this.skipMistake = true
+        stopVoice()
+        if (this.nextWaiter) this.next()
+      }
       return
     }
     if (this.view.phase !== 'answer' || !this.pickWaiter) return
@@ -196,6 +212,8 @@ export class RunController {
     if (!this.view.paused) return
     if (this.pausedAt !== null) this.pausedTotal += this.now() - this.pausedAt
     this.pausedAt = null
+    // after a break the question plays again
+    this.askedHere = false
     this.set({ paused: false })
     void this.loop()
   }
@@ -218,6 +236,7 @@ export class RunController {
   }
   private waitPick(t: number) { return this.guard(t, new Promise<string>((r) => { this.pickWaiter = r })) }
   private waitNext(t: number) {
+    if (this.skipMistake) return Promise.resolve()
     this.set({ needNext: true })
     return this.guard(t, new Promise<void>((r) => { this.nextWaiter = r }))
   }
@@ -254,6 +273,7 @@ export class RunController {
         if (this.opts.force) {
           // the gallery plays one screen, then starts it again
           this.roundInScreen = 0
+          this.askedHere = false
           this.ladder = null
           this.doorWords = []
           this.visitKind = null
@@ -268,6 +288,7 @@ export class RunController {
         if (nx.newCycle) this.cycle++
         this.screenId = nx.screen
         this.roundInScreen = 0
+        this.askedHere = false
         this.ladder = null
         this.doorWords = []
         this.visitKind = null
@@ -392,7 +413,8 @@ export class RunController {
     this.set({ phase: 'question', overlay: null, hintAvailable: screen === 'doors' || (target as Choice).kind === 'syllable' })
     this.assets = []
     if (screen === 'doors') {
-      await this.say(t, [{ id: this.variation('q-door') }])
+      if (!this.askedHere) await this.say(t, [{ id: this.variation('q-door') }])
+      this.askedHere = true
       await this.sleep(t, 200)
       this.setScreen({ lit: 1 } as Partial<DoorsView>)
       await this.sleep(t, 900)
@@ -401,22 +423,27 @@ export class RunController {
       this.cueStarted = this.now()
     } else {
       const c = target as Choice
-      // an automatic hint is an instruction: answers count only after it (rule)
+      // the answers stay open through an automatic hint too: a pick stops it and counts (Michael: he must not be stuck
+      // listening to what he already knows)
       const autoHint = this.autoHintDue(screen, c)
       const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
       // the answers are open while the cue plays; a tap stops the reading (rule)
       const early = this.waitPick(t)
-      const said = this.say(t, [{ id: this.variation(this.questionLine(screen, kind)) }, { id: this.cueId(c), onStart: autoHint ? undefined : open }])
-      const first = await Promise.race([said.then(() => null), early])
+      // the question line once per visit; later rounds say only the sound (Michael)
+      const q = this.askedHere ? [] : [{ id: this.variation(this.questionLine(screen, kind)) }]
+      this.askedHere = true
+      const said = this.say(t, [...q, { id: this.cueId(c), onStart: open }])
+      let first = await Promise.race([said.then(() => null), early])
+      if (first === null && autoHint) {
+        if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
+        first = await Promise.race([this.playHint(c, true, t).then(() => null), early])
+      }
       if (first !== null) {
         stopVoice()
+        if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
         const res = await this.evaluate(t, screen, target, first)
         if (res !== 'near') return res
       } else {
-        if (autoHint) {
-          if (!this.opts.sandbox) useDuel2Store.getState().noteHint(`${screen}:${this.stage}`)
-          await this.playHint(c, true, t)
-        }
         // the answers open after the question even if the cue was cut short (a stopped voice must never leave the round shut)
         if (this.view.phase === 'question') open()
         const res = await this.evaluate(t, screen, target, await early)
@@ -523,14 +550,16 @@ export class RunController {
     if (s.screen !== 'ladder') this.roundInScreen++
     this.sfx('hit')
     const reveal = s.screen === 'cauldron' ? { right: c.mark!, wrong: tapped.mark } : { right: c.id, wrong: tapped.id }
+    this.skipMistake = false
     this.setScreen({ reveal } as Partial<ScreenView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(c))
     await this.say(t, [{ id: this.cueId(c) }])
-    // the hint shows again on the right answer after a mistake (spec)
-    await this.playHint(c, true, t)
+    // the hint shows again on the right answer after a mistake (spec), unless he already tapped the right answer
+    if (!this.skipMistake) await this.playHint(c, true, t)
     await this.waitNext(t)
-    if (this.explanationDue(screen, c)) await this.explain(t, c)
+    if (!this.skipMistake && this.explanationDue(screen, c)) await this.explain(t, c)
+    this.skipMistake = false
     return 'next'
   }
 
@@ -556,11 +585,13 @@ export class RunController {
     this.streak = 0
     this.record('doors', word, tapped, 'wrong')
     this.sfx('hit')
+    this.skipMistake = false
     this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(`w-${word.id}`)
     await this.say(t, [{ id: `w-${word.id}` }])
     await this.waitNext(t)
+    this.skipMistake = false
     // the same door again (it opens only with its key)
     return 'next'
   }
@@ -588,7 +619,7 @@ export class RunController {
   private async maybeWordLink(t: number, c: Choice) {
     if (c.kind !== 'syllable' || this.lastWordLink) { this.lastWordLink = false; return }
     if (this.rng() >= WORD_LINK_CHANCE) return
-    const w = wordLinkFor(c.soundId, this.rng)
+    const w = wordLinkFor(c.itemId, c.mark!, this.rng)
     if (!w) return
     this.lastWordLink = true
     this.set({ overlay: { kind: 'word', word: w } })
@@ -651,8 +682,10 @@ export class RunController {
       this.setScreen({ waves: [], reveal: undefined, missed: false } as Partial<BroomView>)
       this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
       this.assets = []
-      const line = first ? this.variation(this.questionLine('broom', kind)) : this.variation('target-new')
-      await this.say(t, [{ id: line }, { id: this.cueId(target) }])
+      // the question line once per visit; after a mistake only the sound (Michael: no instructions again on the same screen)
+      const line = !first ? this.variation('target-new') : this.askedHere ? null : this.variation(this.questionLine('broom', kind))
+      this.askedHere = true
+      await this.say(t, [...(line ? [{ id: line }] : []), { id: this.cueId(target) }])
       this.set({ phase: 'answer' })
     }
     await announce(true)
@@ -673,14 +706,21 @@ export class RunController {
         await announce(true)
       }
     }
+    // he finishes the orbs still on the screen before the flight ends (Michael); a mistake there ends it at once
+    for (;;) {
+      const r = await this.flyWave(t, target, kind, false)
+      if (r === 'over') throw new Aborted()
+      if (r !== 'right') break
+    }
     this.stopBroom()
     stopMusic()
   }
 
   /** Spawns popcorn waves; each orb resolves when it reaches the wizard: in his lane it is caught (or hits him); the target
    * flying past in another lane is a miss. Resolves with the first outcome. */
-  private flyWave(t: number, target: Choice, kind: Kind): Promise<'right' | 'wrong' | 'over'> {
-    return this.guard(t, new Promise<'right' | 'wrong' | 'over'>((resolve, reject) => {
+  private flyWave(t: number, target: Choice, kind: Kind, spawnMore = true): Promise<'right' | 'wrong' | 'over' | 'done'> {
+    this.spawnMore = spawnMore
+    return this.guard(t, new Promise<'right' | 'wrong' | 'over' | 'done'>((resolve, reject) => {
       const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
       const spawn = () => {
         const choices = broomWave(this.ctx(), target, kind)
@@ -696,7 +736,7 @@ export class RunController {
         this.cueStarted = this.now()
       }
       const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
-      if (!open((this.view.screen as BroomView).waves)) spawn()
+      if (spawnMore && !open((this.view.screen as BroomView).waves)) spawn()
       let lastSpawn = this.broomClock()
       this.stopBroom()
       this.broomTimer = window.setInterval(() => {
@@ -706,15 +746,11 @@ export class RunController {
         let outcome: { hit: Choice | null; choices: Choice[] } | null = null
         const waves = cur.waves.map((w) => {
           if (outcome) return w
-          const resolved = [...w.resolved]
-          for (let i = 0; i < w.choices.length && !outcome; i++) {
-            if (resolved[i] || waveX(w.startMs + w.offsets[i] * travel, now, travel) > CATCH_AT) continue
-            resolved[i] = true
-            const c = w.choices[i]
-            if (i === cur.lane) outcome = { hit: c, choices: w.choices }
-            else if (c.soundId === target.soundId) outcome = { hit: null, choices: w.choices }
-          }
-          return { ...w, resolved }
+          const k = w.choices.map((_, i) => wavePos(w.startMs + w.offsets[i] * travel, now, travel))
+          const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId))
+          if (e.hit !== null) outcome = { hit: w.choices[e.hit], choices: w.choices }
+          else if (e.missedTarget) outcome = { hit: null, choices: w.choices }
+          return { ...w, resolved: e.resolved }
         }).filter((w) => w.resolved.some((r) => !r) || (outcome && w.choices === outcome.choices))
         const o0 = outcome as { hit: Choice | null; choices: Choice[] } | null
         const missed = o0 !== null && (!o0.hit || o0.hit.soundId !== target.soundId)
@@ -726,13 +762,15 @@ export class RunController {
           void this.resolveWave(t, target, o.hit).then(resolve, reject)
           return
         }
-        if (now - lastSpawn >= travel * WAVE_EVERY) { spawn(); lastSpawn = now }
+        // the last round: no new waves; the flight ends when the orbs on the screen are done
+        if (!spawnMore && !open(waves)) { this.stopBroom(); resolve('done'); return }
+        if (spawnMore && now - lastSpawn >= travel * WAVE_EVERY) { spawn(); lastSpawn = now }
       }, 50)
     }))
   }
 
   /** `hit` = the orb he met; null = the target flew past in another lane (a miss). */
-  private async resolveWave(t: number, target: Choice, hit: Choice | null): Promise<'right' | 'wrong' | 'over'> {
+  private async resolveWave(t: number, target: Choice, hit: Choice | null): Promise<'right' | 'wrong' | 'over' | 'done'> {
     const right = !!hit && hit.soundId === target.soundId
     const near = !!hit && !right && hit.nearMissOf === target.id
     const st = useDuel2Store.getState()
@@ -775,7 +813,7 @@ export class RunController {
   }
 
   /** A forgiven near miss in the flight: the waves keep coming (not counted as a catch). */
-  private flyAgain(): Promise<'right' | 'wrong' | 'over'> {
-    return Promise.resolve('wrong' as const).then(() => this.flyWave(this.token, (this.view.screen as BroomView).target, (this.view.screen as BroomView).kind))
+  private flyAgain(): Promise<'right' | 'wrong' | 'over' | 'done'> {
+    return Promise.resolve('wrong' as const).then(() => this.flyWave(this.token, (this.view.screen as BroomView).target, (this.view.screen as BroomView).kind, this.spawnMore))
   }
 }

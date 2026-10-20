@@ -44,6 +44,27 @@ export const travelMs = (pace: number, cycle: number) => BASE_TRAVEL_MS * pace *
 export const waveX = (startMs: number, nowMs: number, travel: number) => Math.min(1, Math.max(0, 1 - (nowMs - startMs) / travel))
 /** a wave resolves when it is this close to the wizard (0 = at the wizard, 1 = at the right edge) */
 export const CATCH_AT = 0.04
+/** unclamped below: an orb flies on past the wizard (negative = behind his front) */
+export const wavePos = (startMs: number, nowMs: number, travel: number) => Math.min(1, 1 - (nowMs - startMs) / travel)
+/** the target counts as missed only when its centre is past the wizard's back (Michael: it failed while it still overlapped him) */
+export const PASS_AT = -0.07
+
+/**
+ * One tick of a wave: an orb in his lane between CATCH_AT and PASS_AT meets him (caught, or a hit); an orb past PASS_AT is
+ * gone, and the target gone that way is a miss. `k` = each orb's wavePos, `isTarget` = it carries the target sound.
+ */
+export function orbEvents(k: number[], resolved: boolean[], lane: number, isTarget: boolean[]): { resolved: boolean[]; hit: number | null; missedTarget: boolean } {
+  const r = [...resolved]
+  for (let i = 0; i < k.length; i++) {
+    if (r[i]) continue
+    if (i === lane && k[i] <= CATCH_AT && k[i] >= PASS_AT) { r[i] = true; return { resolved: r, hit: i, missedTarget: false } }
+    if (k[i] < PASS_AT) {
+      r[i] = true
+      if (isTarget[i]) return { resolved: r, hit: null, missedTarget: true }
+    }
+  }
+  return { resolved: r, hit: null, missedTarget: false }
+}
 export const LANES = 3
 export const laneAt = (y01: number): 0 | 1 | 2 => Math.min(2, Math.max(0, Math.floor(y01 * LANES))) as 0 | 1 | 2
 export { nextPace, PACE_MIN, PACE_MAX } from '../../utils/duel/rules'

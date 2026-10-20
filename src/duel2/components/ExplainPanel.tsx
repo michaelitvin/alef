@@ -5,8 +5,10 @@ import { cancelVoice, sayParts, voiceSignal, type VoiceSignal } from '../audio/d
 import { NextIcon, SpeakerIcon } from './icons'
 
 export type Highlight = 'letter' | 'vowel' | 'all' | 'left' | 'right' | 'none'
+/** `skippable`: a tap anywhere on the explanation (it covers the screen) ends it at once; he tries to pick because he
+ *  already knows (Michael: explanations got him stuck). */
 /** `autoNext`: a demo goes straight on into play when its words end (Michael: stopping there on a next button was unnatural). */
-export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[]; children: (h: Highlight | null) => ReactNode; onNext: () => void; autoNext?: boolean }) {
+export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[]; children: (h: Highlight | null) => ReactNode; onNext: () => void; autoNext?: boolean; skippable?: boolean }) {
   const [h, setH] = useState<Highlight | null>(null)
   const [done, setDone] = useState(false)
   const alive = useRef(true)
@@ -32,6 +34,7 @@ export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[];
   return (
     <>
       {p.children(h)}
+      {p.skippable && <div className="d2-explain-skip" data-skip onPointerDown={(e) => { e.preventDefault(); cancelVoice(sig.current); p.onNext() }} />}
       {done && (
         <div className="d2-explain-controls">
           <button type="button" aria-label="replay" className="d2-btn" onPointerDown={(e) => { e.preventDefault(); play() }}><SpeakerIcon /></button>

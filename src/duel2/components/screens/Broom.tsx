@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import { FACING } from '../../assets/facing'
-import { laneAt, waveX } from '../../logic/run'
+import { laneAt, wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
@@ -85,7 +85,7 @@ export function Broom(p: {
         <g key={w.id} data-wave={w.id}>
           {w.choices.map((c, lane) => {
             if (w.resolved[lane] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
-            const k = waveX(w.startMs + w.offsets[lane] * p.travelMs, t, p.travelMs)
+            const k = wavePos(w.startMs + w.offsets[lane] * p.travelMs, t, p.travelMs)
             const x = orbX(k)
             const y = LANE_Y[lane] + w.jitter[lane]
             let state: PickState = 'idle'

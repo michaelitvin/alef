@@ -70,8 +70,11 @@ const GROUP: Record<MarkId, string> = {
 }
 export const firstSoundId = (w: Word) => `syl-${SOUND[w.first.item]}-${GROUP[w.first.mark]}`
 
-/** A word whose first syllable has this sound (for the word link), or undefined. */
-export function wordLinkFor(soundId: string, rng: () => number = Math.random): Word | undefined {
-  const ws = WORDS.filter((w) => firstSoundId(w) === soundId)
+/**
+ * A word that starts with this letter and a vowel of the same sound (for the word link), or undefined. Match the letter,
+ * not only its sound: כָ must not show חָתוּל (the parent: he must not learn that mistake).
+ */
+export function wordLinkFor(itemId: string, markId: MarkId, rng: () => number = Math.random): Word | undefined {
+  const ws = WORDS.filter((w) => w.first.item === itemId && GROUP[w.first.mark] === GROUP[markId])
   return ws.length ? ws[Math.floor(rng() * ws.length) % ws.length] : undefined
 }

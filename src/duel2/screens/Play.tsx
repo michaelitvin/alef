@@ -87,8 +87,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
           }}
         </ExplainPanel>
       ) : <ScreenFor run={run} v={v} />}
-      {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext}>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
-      {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext}>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
+      {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
+      {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}
       {o?.kind === 'word' && <WordLink word={o.word} />}
       {(!o || o.kind === 'hint' || o.kind === 'word') && (

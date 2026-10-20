@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RunController, type BroomView, type View } from './controller'
 import { useRun } from './useRun'
 import { useDuel2Store } from './store'
+import { PASS_AT, VISIT } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
 
 function seeded(seed: number) {
@@ -375,6 +376,93 @@ describe('run controller', () => {
     await until(c, (v) => v.needNext)
     expect(played).toContain(`ln-${target.itemId}`)
     expect(played).toContain(`vn-${target.mark}`)
+    c.destroy()
+  })
+
+  it('a pick during the automatic hint stops the hint and counts (he already knows)', async () => {
+    useDuel2Store.setState({ hintsSeen: {} })
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
+    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
+    c.start()
+    await until(c, (v) => v.overlay?.kind === 'hint')
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await tick(100)
+    expect(useDuel2Store.getState().roundNo).toBe(1)
+    expect(c.view.overlay?.kind).not.toBe('hint')
+    c.destroy()
+  })
+
+  it('after a mistake a tap on the right answer goes on at once: no hint wait, no next, no explanation', async () => {
+    useDuel2Store.setState({ mistakes: [], roundNo: 10 })
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
+    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await until(c, (v) => v.needNext)
+    c.next()
+    await until(c, (v) => v.phase === 'answer')
+    // the same letter missed twice: an explanation is due after this mistake
+    const right = rightId(c.view)
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await until(c, (v) => v.phase === 'mistake')
+    played = []
+    c.gesture({ type: 'pick', id: right })
+    await until(c, (v) => v.phase === 'question' || v.phase === 'answer', 3000)
+    expect(played).not.toContain('explain-lead-1')
+    expect(c.view.overlay?.kind).not.toBe('explain')
+    c.destroy()
+  })
+
+  it('the question line plays once per screen visit; later rounds say only the sound', async () => {
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    expect(played.some((id) => id.startsWith('q-ghosts'))).toBe(true)
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await until(c, (v) => v.phase === 'feedback')
+    played = []
+    await until(c, (v) => v.phase === 'answer')
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await drain(c)
+    expect(played.some((id) => id.startsWith('q-'))).toBe(false)
+    c.destroy()
+  })
+
+  it('after a broom mistake the flight goes on with the sound only, no question line', async () => {
+    const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+    for (let i = 0; i < 4000 && c.view.phase !== 'mistake'; i++) { if (c.view.phase === 'answer') steer(c, false); await tick(50) }
+    played = []
+    await drain(c)
+    expect(played.some((id) => id.startsWith('q-'))).toBe(false)
+    c.destroy()
+  })
+
+  it('the last broom round lets the orbs on the screen finish before the flight ends', async () => {
+    const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+    const before = useDuel2Store.getState().roundNo
+    let doneBy = 0
+    for (let i = 0; i < 20000; i++) {
+      if (c.view.phase === 'mistake') break
+      const caught = useDuel2Store.getState().roundNo - before
+      const s = c.view.screen as BroomView
+      if (caught >= VISIT.broom && !doneBy) {
+        // the orbs on the screen at the last catch: the flight must go on until each has passed the wizard
+        const now = c.broomClock()
+        doneBy = Math.max(0, ...s.waves.flatMap((w) => w.choices.map((_, k) => w.resolved[k] ? 0 : w.startMs + w.offsets[k] * s.travelMs + s.travelMs * (1 - PASS_AT) - now)))
+        break
+      }
+      if (c.view.phase === 'answer') steer(c, true)
+      await tick(50)
+    }
+    expect(doneBy).toBeGreaterThan(300)
+    // some orbs are still flying: the flight goes on (a hit on the way is fine) and does not move on to the next round
+    await tick(doneBy - 250)
+    expect(['answer', 'mistake']).toContain(c.view.phase)
     c.destroy()
   })
 

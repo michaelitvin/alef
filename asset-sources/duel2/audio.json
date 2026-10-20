@@ -2231,15 +2231,15 @@
    "file": "src/duel2/assets/audio/voice/syl-f-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פִ",
-   "take": "clips/syl-f-i/v7.mp3",
+   "take": "clips/syl-f-i/v10.mp3",
    "request": {
-    "text": "fi.",
+    "text": "פִֿי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.5
+     "stability": 1
     },
-    "seed": 106
+    "seed": 109
    },
    "earlier_takes": [
     {
@@ -2265,6 +2265,26 @@
     {
      "file": "clips/syl-f-i/v6.mp3",
      "seed": 105
+    },
+    {
+     "file": "clips/syl-f-i/v7.mp3",
+     "seed": 106
+    },
+    {
+     "file": "clips/syl-f-i/v8.mp3",
+     "seed": 107
+    },
+    {
+     "file": "clips/syl-f-i/v9.mp3",
+     "seed": 108
+    },
+    {
+     "file": "clips/syl-f-i/v11.mp3",
+     "seed": 110
+    },
+    {
+     "file": "clips/syl-f-i/v12.mp3",
+     "seed": 111
     }
    ]
   },
@@ -3313,15 +3333,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוּ",
-   "take": "clips/syl-r-u/v8.mp3",
+   "take": "clips/syl-r-u/v11.mp3",
    "request": {
-    "text": "ru.",
+    "text": "רוּ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.75
     },
-    "seed": 107
+    "seed": 110
    },
    "earlier_takes": [
     {
@@ -3351,6 +3371,18 @@
     {
      "file": "clips/syl-r-u/v7.mp3",
      "seed": 106
+    },
+    {
+     "file": "clips/syl-r-u/v8.mp3",
+     "seed": 107
+    },
+    {
+     "file": "clips/syl-r-u/v9.mp3",
+     "seed": 108
+    },
+    {
+     "file": "clips/syl-r-u/v10.mp3",
+     "seed": 109
     }
    ]
   },
