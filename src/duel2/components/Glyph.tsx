@@ -56,6 +56,8 @@ export function Glyph(p: {
       direction="rtl"
       style={{
         fontFamily: 'Sigalit, "Noto Sans Hebrew", serif', unicodeBidi: 'isolate',
+        // a dark outline under the fill, so the marks show on the light shine of an orb (Michael: the cholam dot vanished)
+        stroke: '#1b0f3c', strokeWidth: Math.max(2, p.px * 0.05), paintOrder: 'stroke', strokeLinejoin: 'round',
         fill: glow === 'hit' ? '#ffffff' : '#fff6d8', opacity: p.dim ? 0.35 : 1,
         filter: p.dim || glow === 'none' ? undefined : glow === 'hit' ? 'url(#d2-glow-hit)' : 'url(#d2-glow)',
       }}

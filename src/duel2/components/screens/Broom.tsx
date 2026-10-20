@@ -31,6 +31,8 @@ export interface BroomWave { id: number; choices: Choice[]; startMs: number; off
 export function Broom(p: {
   waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; onLane: (l: 0 | 1 | 2) => void; phase: Phase
   reveal?: { right: string; wrong?: string }; clock?: () => number; correctId?: string
+  /** the target flew past in another lane: nothing hit him, so no dizzy wizard */
+  missed?: boolean
 }) {
   const clock = p.clock ?? (() => performance.now())
   const [now, setNow] = useState(clock)
@@ -104,7 +106,7 @@ export function Broom(p: {
         <linearGradient id="d2-trail" x1="0" x2="1"><stop offset="0" stopColor="#c8a0ff" stopOpacity="0.7" /><stop offset="1" stopColor="#8c5aff" stopOpacity="0" /></linearGradient>
       </defs>
       <g data-wizard data-lane={p.lane} className="d2-bob" transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
-        {p.phase === 'mistake' && IMAGES['s-wizard-dizzy']
+        {p.phase === 'mistake' && !p.missed && IMAGES['s-wizard-dizzy']
           ? <image href={IMAGES['s-wizard-dizzy']} className="d2-dizzy" x={WIZ_X - BROOM_WIZARD_H * 0.55} y={y - BROOM_WIZARD_H * 0.75} width={BROOM_WIZARD_H * 1.1} height={BROOM_WIZARD_H * 1.1} />
           : IMAGES['s-wizbroom']
           ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />

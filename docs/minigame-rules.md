@@ -176,6 +176,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Reason: the child must learn the sound, not one picture. Example (duel): words from the Alef-Bet song.
 - Show a learning mark on a neutral placeholder (circle or box), not on a carrier letter.
 - Make the learning content the strongest element on the screen. Make helper shapes faint. Make sure a highlight does not hide the mark.
+  Example (book 2): the cholam dot fell on the bubble's shine and vanished; glyphs now have a dark outline and a dark disc behind them.
+- Show the true cause of a mistake. Example (book 2): when the right letter flew past him, the wizard spun as if hit; now a miss
+  is a whoosh and a glow where the letter passed, and only a real hit makes him dizzy.
 - Make each moving sprite face the direction it moves. Judge by motion cues (tail, stride), not only the face.
 - Do not show a question and then hide it for another screen. Play the welcome and the explanations first, then show the question.
   Example (clock): the first question appeared, then the welcome hid it.

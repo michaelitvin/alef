@@ -87,3 +87,8 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-dizzy { 0% { transform: rotate(0); } 30% { transform: rotate(-25deg); } 60% { transform: rotate(20deg); } 100% { transform: rotate(0); } }
 .d2-root { background: #160a35; }
 .d2-stage { overflow: visible; }
+.d2-flash-miss { position: absolute; inset: 0; z-index: 14; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(143, 216, 255, 0.4) 100%); animation: d2-flash 0.9s ease-out forwards; }
+/* the missed orb glows where it passed: "here it was" */
+.d2-pick-reveal { animation: d2-here 0.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+@keyframes d2-here { to { transform: scale(1.12); } }

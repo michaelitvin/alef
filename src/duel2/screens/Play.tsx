@@ -27,7 +27,7 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
   const test = TEST_HOOKS && v.phase === 'answer'
   switch (s.screen) {
     case 'broom':
-      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} clock={run.clock}
+      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} clock={run.clock}
         correctId={TEST_HOOKS ? s.target.id : undefined} />
     case 'cauldron':
       return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
@@ -66,9 +66,10 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
     queueMicrotask(() => onOver(v.over!))
   }
   const o = v.overlay
+  const missed = v.screen?.screen === 'broom' && !!v.screen.missed
   const canReplay = v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className={`d2-root${v.phase === 'mistake' ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${v.phase === 'mistake' && !missed ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
@@ -96,7 +97,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined}
           onNext={v.needNext ? run.onNext : undefined} />
       )}
-      <MistakeFx active={v.phase === 'mistake'} />
+      <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
   )
