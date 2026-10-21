@@ -150,6 +150,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (book 2): גִ was spoken "gimel".
 - Say letter names in the modern spoken form: פֵּי, פֵי, טֶת, חֶת, וֶט, חַף; spell them so that the voice says that form.
   Example (book 2): the parent rejected "teit", "veit", "pe", "kaf" (for chaf), and צָדִי with the stress on the last syllable.
+- Check the stress of a two-syllable take by measurement (the loudness, length and pitch of each vowel), not by asking a
+  listener "TSA-di or tsa-DI?": a question that names the answer gets that answer back. Calibrate with a take that the
+  parent rejected. To move the stress to the first syllable, write the vowel long: צָאדִי.
+  Example (book 2): the listener said "first syllable" for every tsadi take, also for the rejected ones; the measurement
+  agreed with the parent's ear, and the parent heard the same stress problem two rounds in a row.
+- Write the Hebrew r syllables in Hebrew letters, and keep a take only if a listener hears a guttural (uvular) r each time
+  you ask. A Latin "ro." gives an English r and vowel; some Hebrew takes give a rolled r.
 - Do not put an accent tag on a single syllable. Example (book 2): "[Israeli accent] רָ" was spoken two times.
 
 ## Music and sound effects
