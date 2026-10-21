@@ -48,6 +48,8 @@ export interface View {
   hintAvailable: boolean
   paused: boolean
   over: { score: number; crystals: number; best: boolean } | null
+  /** the points of this run (right answers) */
+  score: number
 }
 
 export interface RunOpts {
@@ -75,7 +77,7 @@ const sylFeatures = (c: Choice, screen: ScreenId) => {
 }
 
 export class RunController {
-  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null }
+  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0 }
   private listeners = new Set<() => void>()
   private token = 0
   private rng: Rng
@@ -530,6 +532,7 @@ export class RunController {
       this.record(screen, c, tapped, 'right')
       this.roundInScreen++
       this.score++
+      this.set({ score: this.score })
       this.streak++
       this.set({ phase: 'feedback' })
       const confident = predict(sylFeatures(c, screen), useDuel2Store.getState().tallies, useDuel2Store.getState().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
@@ -575,6 +578,7 @@ export class RunController {
       this.record('doors', word, tapped, 'right')
       this.roundInScreen++
       this.score++
+      this.set({ score: this.score })
       this.streak++
       this.set({ phase: 'feedback' })
       this.sfx('key')
@@ -781,6 +785,7 @@ export class RunController {
       this.record('broom', target, hit, 'right')
       if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'correct', msWalk: 0, walkMs: 1 }))
       this.score++
+      this.set({ score: this.score })
       this.streak++
       this.sfx('catch')
       if (!this.spokenTargets.has(target.soundId)) {

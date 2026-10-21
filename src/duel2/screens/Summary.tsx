@@ -1,11 +1,15 @@
-// End of a run: the crystals he won, a trophy when it is his best run, play again and home. The voice says the run-end line
+// End of a run: the points of this run, his best, the crystals he won, a trophy when it is a new best, and play again —
+// nothing else (a home button next to play again took him out of the game by mistake). The voice says the run-end line
 // (and the new-best line) — neither praise for a loss nor disappointment (rule).
 import { useEffect } from 'react'
 import { say } from '../audio/duel2Audio'
 import { lineAudioId } from '../data/lines'
-import { HomeIcon, PlayIcon, TrophyIcon } from '../components/icons'
+import { PlayIcon, TrophyIcon } from '../components/icons'
+import { StarCount } from '../components/StarCount'
+import { useDuel2Store } from '../store'
 
 export function Summary({ over, onAgain }: { over: { score: number; crystals: number; best: boolean }; onAgain: () => void }) {
+  const best = useDuel2Store((s) => s.bestRun)
   useEffect(() => {
     const ids = [lineAudioId('run-end', 1 + Math.floor(Math.random() * 3))]
     if (over.best) ids.push(lineAudioId('new-best', 1 + Math.floor(Math.random() * 2)))
@@ -22,7 +26,10 @@ export function Summary({ over, onAgain }: { over: { score: number; crystals: nu
         ))}
       </div>
       <div className="d2-summary-row">
-        <a aria-label="alef" className="d2-btn" href={import.meta.env.BASE_URL}><HomeIcon /></a>
+        <StarCount n={over.score} size="big" attr="data-run-score" />
+        <span className="d2-best"><span className="d2-trophy-small"><TrophyIcon /></span><span data-num data-best-score>{Math.max(best, over.score)}</span></span>
+      </div>
+      <div className="d2-summary-row">
         <button aria-label="play again" className="d2-play" onClick={onAgain}><PlayIcon /></button>
       </div>
     </div>

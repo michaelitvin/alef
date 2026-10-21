@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from 'react'
 import { IMAGES } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
-import { HomeIcon, PlayIcon } from '../components/icons'
+import { PlayIcon } from '../components/icons'
+import { StarCount } from '../components/StarCount'
+import { useDuel2Store } from '../store'
 
 const HOLD_MS = 2000
 const RING_C = 2 * Math.PI * 25
 const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
+  const totalStars = useDuel2Store((s) => s.totalStars ?? 0)
   const timer = useRef<number | undefined>(undefined)
   const started = useRef(0)
   const [state, setState] = useState<'idle' | 'holding' | 'hint'>('idle')
@@ -44,7 +47,8 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
           {IMAGES['s-wizbroom'] && <image href={IMAGES['s-wizbroom']} x={170} y={300} width={380} height={324} />}
         </g>
       </svg>
-      <a aria-label="alef" className="d2-home d2-btn" href={import.meta.env.BASE_URL}><HomeIcon /></a>
+      {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
+      <div className="d2-cover-stars"><StarCount n={totalStars} size="big" attr="data-total-stars" /></div>
       <button aria-label="play" className={`d2-play${loading ? ' loading' : ''}`} onClick={onPlay} data-loading={loading || undefined}>
         <PlayIcon />
         {loading && <svg className="d2-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}

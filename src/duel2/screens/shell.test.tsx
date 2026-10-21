@@ -9,11 +9,13 @@ vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadDuel2Assets: () => 
 import { Cover } from './Cover'
 import { PauseCover } from './PauseCover'
 import { Summary } from './Summary'
+import { useDuel2Store } from '../store'
 import Duel2App from '../Duel2App'
 
 const noText = (root: Element) => {
   const clone = root.cloneNode(true) as Element
-  clone.querySelectorAll('[data-glyph]').forEach((e) => e.remove())
+  // digits (points, data-num) are the one text a child screen shows on purpose
+  clone.querySelectorAll('[data-glyph],[data-num]').forEach((e) => e.remove())
   return clone.textContent?.replace(/\s+/g, '') ?? ''
 }
 
@@ -58,4 +60,19 @@ describe('shell', () => {
     expect(container.querySelector('[data-best]')).not.toBeNull()
     expect(noText(container)).toBe('')
   })
+  it('the end screen shows the points of this run and his best, and only play again (no way out by mistake)', () => {
+    useDuel2Store.setState({ bestRun: 14 })
+    const { container } = render(<Summary over={{ score: 9, crystals: 0, best: false }} onAgain={() => {}} />)
+    expect(container.querySelector('[data-run-score]')!.textContent).toBe('9')
+    expect(container.querySelector('[data-best-score]')!.textContent).toBe('14')
+    expect(container.querySelector('a')).toBeNull()
+    expect(container.querySelectorAll('button').length).toBe(1)
+  })
+  it('the cover shows all the stars he has won so far, and has no link out', () => {
+    useDuel2Store.setState({ totalStars: 57 })
+    const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
+    expect(container.querySelector('[data-total-stars]')!.textContent).toBe('57')
+    expect(container.querySelector('a')).toBeNull()
+  })
+
 })

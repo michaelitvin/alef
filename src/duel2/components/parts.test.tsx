@@ -102,4 +102,9 @@ describe('parts', () => {
     fireEvent.pointerDown(screen.getByLabelText('next'))
     expect(onNext).toHaveBeenCalledTimes(1)
   })
+  it('the top bar shows the points of this run', () => {
+    const { container } = render(<TopBar hearts={3} score={7} />)
+    expect(container.querySelector('[data-score]')!.textContent).toBe('7')
+  })
+
 })

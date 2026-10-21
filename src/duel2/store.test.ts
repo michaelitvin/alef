@@ -44,4 +44,11 @@ describe('duel2 store', () => {
     expect(useDuel2Store.getState().settings.music).toBe(false)
     expect(useDuel2Store.getState().demosSeen).toEqual([])
   })
+  it('the stars of every run add up', () => {
+    useDuel2Store.getState().resetProgress()
+    useDuel2Store.getState().endRun('ladder', 30)
+    useDuel2Store.getState().endRun('broom', 12)
+    expect(useDuel2Store.getState().totalStars).toBe(42)
+  })
+
 })

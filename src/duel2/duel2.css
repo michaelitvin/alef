@@ -38,7 +38,18 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-play-ring { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); animation: d2-spin 1.2s linear infinite; }
 .d2-play-ring circle { fill: none; stroke: #ffd34d; stroke-width: 6; stroke-dasharray: 120 400; }
 @keyframes d2-spin { to { transform: rotate(360deg); } }
-.d2-home { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; }
+.d2-cover-stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; }
+.d2-stars { display: inline-flex; align-items: center; gap: 6px; color: #fff3c4; font-weight: 800; direction: ltr;
+  font-family: system-ui, sans-serif; text-shadow: 0 0 8px #ffd34d88; }
+.d2-stars-small { font-size: 30px; margin-inline-end: 10px; }
+.d2-stars-big { font-size: 56px; }
+.d2-stars-small .d2-star { width: 38px; height: 38px; }
+.d2-stars-big .d2-star { width: 70px; height: 70px; }
+.d2-star { display: inline-block; animation: d2-star-pop 0.45s ease-out; filter: drop-shadow(0 0 8px #ffd34d); }
+@keyframes d2-star-pop { 0% { transform: scale(1.7); } 100% { transform: scale(1); } }
+.d2-best { display: inline-flex; align-items: center; gap: 6px; color: #fff3c4; font-size: 40px; font-weight: 800; direction: ltr;
+  font-family: system-ui, sans-serif; opacity: 0.85; }
+.d2-trophy-small { display: inline-block; width: 48px; height: 48px; }
 .d2-parent-btn { position: absolute; bottom: 28px; right: 28px; width: 64px; height: 64px; border-radius: 50%; border: none;
   background: #28145a99; display: grid; place-items: center; z-index: 6; touch-action: none; }
 .d2-parent-ring[data-state="holding"] { animation: d2-hold 2s linear forwards; }

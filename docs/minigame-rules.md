@@ -270,6 +270,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Put floating buttons in the top bar, not over the content area. Before you add a button, check at phone size that it
   covers nothing.
   Example (clock): the hint button under the gear counter covered the question; now it is in the top bar beside the gears.
+- Do not put a way out of the game (home, back to the menu) on a child screen. Put it in the parent area.
+  Example (book 2): a home button next to "play again" took the child to the old duel twice; he did not know what he pressed.
+- Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
+  so far on the start screen. Digits are allowed; mark them for the no-text scan.
+  Example (book 2): the child asked "where can I see my points?".
 - Ask before you remove a control the child uses. A control that looks redundant to an adult can be one the child likes.
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
