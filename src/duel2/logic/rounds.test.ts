@@ -118,4 +118,27 @@ describe('rounds', () => {
       expect(r.letter.id).toBe(r.target.item.id)
     }
   })
+  it('a ladder never asks for the same sound twice (the parent: "da" three times in a row)', () => {
+    // a weak "da" in the tallies made every rung pick it
+    const weak = { 's:dalet-a': { seen: 10, wrong: 3 }, 'l:dalet': { seen: 10, wrong: 3 } }
+    for (const stage of [2, 3, 4] as Stage[])
+      for (const fixed of ['letter', 'vowel', 'dot'] as const)
+        for (let seed = 1; seed <= 60; seed++) {
+          if (fixed === 'dot' && stage < 3) continue
+          const p = ladderPlan(ctx(stage, seed, { tallies: weak }), 5, fixed)
+          const sounds = p.steps.map((st) => st.target.soundId)
+          expect(new Set(sounds).size, `${stage} ${fixed} ${seed}: ${sounds}`).toBe(sounds.length)
+          for (const st of p.steps) expect(st.plates.map((x) => x.id)).toContain(st.target.id)
+        }
+  })
+  it('ghosts and cauldron do not repeat the sound of the round before', () => {
+    for (let seed = 1; seed <= 80; seed++) {
+      const g = ghostRound(ctx(2, seed), 'syllable', 'syl-d-a')
+      expect(g.target.soundId).not.toBe('syl-d-a')
+      const l = ghostRound(ctx(2, seed), 'letter', 'ln-dalet')
+      expect(l.target.soundId).not.toBe('ln-dalet')
+      expect(cauldronRound(ctx(2, seed), 'syl-d-a').target.soundId).not.toBe('syl-d-a')
+    }
+  })
+
 })

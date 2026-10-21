@@ -335,13 +335,15 @@ export class RunController {
     this.resuming = false
     this.answered = false
     const c = this.ctx()
+    // never the same sound two rounds in a row on one screen
+    const prev = this.view.screen?.screen === screen ? (this.view.screen as { target?: Choice }).target?.soundId : undefined
     if (screen === 'broom') {
       const target = broomTarget(c, kind)
       this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(useDuel2Store.getState().pace, this.cycle), lane: 1, target } })
       return target
     }
     if (screen === 'cauldron') {
-      const r = cauldronRound(c)
+      const r = cauldronRound(c, prev)
       const target = { ...letterChoice(r.letter), kind: 'syllable' as Kind, id: r.target.id, text: r.target.text, soundId: r.target.soundId, group: r.target.mark.group, mark: r.target.mark.id }
       this.set({ screen: { screen: 'cauldron', letterId: r.letter.id, orbs: r.orbs.map((m) => m.id), target } })
       return target
@@ -353,7 +355,7 @@ export class RunController {
       return step.target
     }
     if (screen === 'ghosts') {
-      const r = ghostRound(c, kind)
+      const r = ghostRound(c, kind, prev)
       this.set({ screen: { screen: 'ghosts', signs: r.signs, target: r.target } })
       return r.target
     }
