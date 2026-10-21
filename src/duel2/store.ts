@@ -26,6 +26,8 @@ export interface Duel2Save {
   runs: number
   bestRun: number
   crystals: number
+  /** all the stars (right answers) of all his runs: shown on the cover */
+  totalStars: number
   settings: Duel2Settings
 }
 
@@ -44,7 +46,7 @@ interface Actions {
 export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8 }
 const fresh = (): Omit<Duel2Save, 'settings'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
-  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0,
+  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0,
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -79,7 +81,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
         return { passed }
       },
       setPace: (pace) => set({ pace }),
-      endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score) })),
+      endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), totalStars: (s.totalStars ?? 0) + score })),
       addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
       markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),
       markDotIntro: (pair) => set((s) => (s.dotIntrosSeen.includes(pair) ? s : { dotIntrosSeen: [...s.dotIntrosSeen, pair] })),

@@ -34,3 +34,8 @@ export const TrophyIcon = () => (
     <path fill="#ffd34d" d="M7 3h10v4a5 5 0 0 1-10 0zM4 4h3v2a3 3 0 0 1-3-2zm16 0h-3v2a3 3 0 0 0 3-2zM10 13h4v4h3v3H7v-3h3z" />
   </svg>
 )
+export const StarIcon = () => (
+  <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden>
+    <path fill="#ffd34d" stroke="#fff3c4" strokeWidth="1" d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" />
+  </svg>
+)

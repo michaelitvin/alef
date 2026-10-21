@@ -545,4 +545,15 @@ describe('run controller', () => {
     }
   })
 
+  it('the points of the run go up with each right answer', async () => {
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    expect(c.view.score).toBe(0)
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await until(c, (v) => v.phase === 'feedback')
+    expect(c.view.score).toBe(1)
+    c.destroy()
+  })
+
 })

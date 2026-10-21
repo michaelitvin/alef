@@ -38,4 +38,9 @@ describe('parent area', () => {
     fireEvent.click(screen.getByText('Reset progress'))
     expect(useDuel2Store.getState().crystals).toBe(0)
   })
+  it('the way back to the alef menu is here, behind the parent gate', () => {
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('a[data-alef-menu]')).not.toBeNull()
+  })
+
 })
