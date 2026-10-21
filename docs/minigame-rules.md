@@ -341,6 +341,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Keep the pace brisk. Between the answer and the next question, do not add fixed pauses longer than about 350 ms.
   Play sounds that belong together at the same time, and let a door bell ring while the round continues.
   Example (clock): a round had about 5 s of waiting after the answer, and the game felt slow.
+- Do not ask for the same thing twice in a row, and not twice in one set that the game plans ahead (a ladder). Choose the
+  next question after his last answer, or remember what the plan already asked: the adaptive choice picks the same weak
+  item again and again otherwise.
+  Example (book 2): a ladder planned all its rungs at the start and asked "דָ" three times in a row.
 - Keep the flow. Do not repeat the same feedback many times in one encounter.
   Example (duel): boss hits before the last one get only a sound.
 - Make a boss harder than the stage that it ends. Example (duel): a 3-hit boss after 5-kill waves was an anticlimax.

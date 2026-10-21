@@ -163,9 +163,10 @@ export function broomWave(ctx: RoundCtx, target: Choice, kind: Kind): Choice[] {
 }
 
 /** Cauldron: a letter, the syllable he hears, and 3 vowel orbs (one per group, the target's among them). */
-export function cauldronRound(ctx: RoundCtx): { letter: Item; target: Syllable; orbs: Mark[] } {
+/** `avoid`: the sound of the round before (never the same twice in a row) */
+export function cauldronRound(ctx: RoundCtx, avoid?: string): { letter: Item; target: Syllable; orbs: Mark[] } {
   const { rng } = ctx
-  const t = broomTarget(ctx, 'syllable', undefined, 'cauldron')
+  const t = broomTarget(ctx, 'syllable', avoid, 'cauldron')
   const target = syllable(t.itemId, t.mark!)
   const others = shuffle(rng, GROUPS.filter((g) => g !== target.mark.group)).slice(0, 2).map((g) => markOf(pick(rng, GROUP_MARKS[g])))
   return { letter: target.item, target, orbs: shuffle(rng, [target.mark, ...others]) }
@@ -179,43 +180,56 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
   const r = rng()
   const fixed: 'letter' | 'vowel' | 'dot' = force && (force !== 'dot' || stage >= 3) ? force : stage >= 3 && r < 0.3 ? 'dot' : r < 0.65 ? 'letter' : 'vowel'
   const steps: LadderStep[] = []
+  // no sound twice on one ladder: the plan is made before he answers, so the same weak syllable would win every rung
+  // (the parent saw "da" three times in a row); with too few sounds left, at least never the rung before's sound
+  const used = new Set<string>()
+  const fresh = (cs: Choice[]) => {
+    const prev = steps.length ? steps[steps.length - 1].target.soundId : null
+    const a = cs.filter((c) => !used.has(c.soundId))
+    return a.length ? a : cs.filter((c) => c.soundId !== prev)
+  }
+  const take = (target: Choice, plates: Choice[]) => { used.add(target.soundId); steps.push({ target, plates: markNearMiss(target, plates) }) }
   if (fixed === 'letter') {
     const L = broomTarget(ctx, 'syllable', undefined, 'ladder').itemId
     for (let k = 0; k < rungs; k++) {
       const marks = marksFor(rng)
-      const plates = shuffle(rng, GROUPS).map((g) => sylFor(L, g, marks[g])).filter((c): c is Choice => c !== null).slice(0, 3)
-      const target = pickTarget(rng, plates, (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
-      steps.push({ target, plates: markNearMiss(target, plates) })
+      const all = shuffle(rng, GROUPS).map((g) => sylFor(L, g, marks[g])).filter((c): c is Choice => c !== null)
+      const target = pickTarget(rng, fresh(all), (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
+      take(target, shuffle(rng, [target, ...all.filter((c) => c.soundId !== target.soundId).slice(0, 2)]))
     }
   } else if (fixed === 'vowel') {
     const m = markOf(pick(rng, GROUP_MARKS[pick(rng, GROUPS)]))
     for (let k = 0; k < rungs; k++) {
       const cands = items.filter((it) => isAllowed(it.id, m.id)).map((it) => syl(it.id, m))
-      const target = pickTarget(rng, cands, (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
+      const target = pickTarget(rng, fresh(cands), (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
       const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m))
-      const plates = shuffle(rng, fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m)))
-      steps.push({ target, plates: markNearMiss(target, plates) })
+      take(target, shuffle(rng, fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m))))
     }
   } else {
     const dotted = ITEMS.filter((i) => i.pair)
     for (let k = 0; k < rungs; k++) {
-      const it = pick(rng, dotted)
-      const g = pick(rng, GROUPS)
-      const m = markOf(pick(rng, GROUP_MARKS[g].filter((x) => isAllowed(it.id, x) && isAllowed(it.pair!, x))))
+      let it = pick(rng, dotted)
+      let m = markOf(pick(rng, GROUP_MARKS[GROUPS[0]]))
+      // draw until the sound is new on this ladder (8 dotted forms × 5 vowels leave plenty)
+      for (let tries = 0; tries < 50; tries++) {
+        it = pick(rng, dotted)
+        const g = pick(rng, GROUPS)
+        m = markOf(pick(rng, GROUP_MARKS[g].filter((x) => isAllowed(it.id, x) && isAllowed(it.pair!, x))))
+        if (!used.has(syl(it.id, m).soundId)) break
+      }
       const target = syl(it.id, m)
       const pair = syl(it.pair!, m)
       const look = lookAlikeGroup(ctx, it.id).slice(1).filter((id) => id !== it.pair).map((id) => syl(id, m))
-      const plates = shuffle(rng, fill(rng, [target, pair], shuffle(rng, look), () => syl(pick(rng, ITEMS).id, m)))
-      steps.push({ target, plates: markNearMiss(target, plates) })
+      take(target, shuffle(rng, fill(rng, [target, pair], shuffle(rng, look), () => syl(pick(rng, ITEMS).id, m))))
     }
   }
   return { fixed, steps }
 }
 
 /** Ghosts: the target and two look-alikes (his real mix-ups when known), all of one kind. */
-export function ghostRound(ctx: RoundCtx, kind: Kind): { target: Choice; signs: Choice[] } {
+export function ghostRound(ctx: RoundCtx, kind: Kind, avoid?: string): { target: Choice; signs: Choice[] } {
   const { rng, stage } = ctx
-  const target = broomTarget(ctx, kind, undefined, 'ghosts')
+  const target = broomTarget(ctx, kind, avoid, 'ghosts')
   if (kind === 'letter') {
     const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => openedItems(stage).some((i) => i.id === id))
     const signs = fill(rng, [target], shuffle(rng, look).map((id) => letterChoice(itemOf(id))), () => letterChoice(pick(rng, openedItems(stage))))

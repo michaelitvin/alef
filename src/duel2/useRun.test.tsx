@@ -556,4 +556,23 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  it('ghosts and cauldron never ask for the same sound two rounds in a row', async () => {
+    // a weak "da" in the tallies used to win round after round
+    useDuel2Store.setState({ tallies: { 's:dalet-a': { seen: 10, wrong: 3 }, 'l:dalet': { seen: 10, wrong: 3 } } })
+    for (const force of [{ screen: 'ghosts', stage: 2, kind: 'syllable' }, { screen: 'cauldron', stage: 2 }] as const)
+    for (const seed of [3, 5, 7, 11]) {
+      const c = make({ force, rng: seeded(seed) })
+      c.start()
+      const sounds: string[] = []
+      for (let r = 0; r < 12; r++) {
+        await until(c, (v) => v.phase === 'answer' && !v.needNext)
+        sounds.push((c.view.screen as { target: { soundId: string } }).target.soundId)
+        c.gesture({ type: 'pick', id: rightId(c.view) })
+        await until(c, (v) => v.phase !== 'answer')
+      }
+      for (let k = 1; k < sounds.length; k++) expect(sounds[k], `${force.screen}: ${sounds}`).not.toBe(sounds[k - 1])
+      c.destroy()
+    }
+  })
+
 })
