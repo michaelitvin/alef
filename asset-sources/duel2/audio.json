@@ -1193,15 +1193,15 @@
    "file": "src/duel2/assets/audio/voice/ln-tsadi.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "צָדִי",
-   "take": "clips/ln-tsadi/v9.mp3",
+   "take": "clips/ln-tsadi/v12.mp3",
    "request": {
-    "text": "צָ֫דִי.",
+    "text": "צָאדִי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.5
+     "stability": 1
     },
-    "seed": 108
+    "seed": 111
    },
    "earlier_takes": [
     {
@@ -1235,6 +1235,30 @@
     {
      "file": "clips/ln-tsadi/v8.mp3",
      "seed": 107
+    },
+    {
+     "file": "clips/ln-tsadi/v9.mp3",
+     "seed": 108
+    },
+    {
+     "file": "clips/ln-tsadi/v10.mp3",
+     "seed": 109
+    },
+    {
+     "file": "clips/ln-tsadi/v11.mp3",
+     "seed": 110
+    },
+    {
+     "file": "clips/ln-tsadi/v13.mp3",
+     "seed": 112
+    },
+    {
+     "file": "clips/ln-tsadi/v14.mp3",
+     "seed": 113
+    },
+    {
+     "file": "clips/ln-tsadi/v15.mp3",
+     "seed": 114
     }
    ]
   },
@@ -3550,15 +3574,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוֹ",
-   "take": "clips/syl-r-o/v8.mp3",
+   "take": "clips/syl-r-o/v14.mp3",
    "request": {
-    "text": "ro.",
+    "text": "רוֹה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.5
     },
-    "seed": 107
+    "seed": 113
    },
    "earlier_takes": [
     {
@@ -3588,6 +3612,34 @@
     {
      "file": "clips/syl-r-o/v7.mp3",
      "seed": 106
+    },
+    {
+     "file": "clips/syl-r-o/v8.mp3",
+     "seed": 107
+    },
+    {
+     "file": "clips/syl-r-o/v9.mp3",
+     "seed": 108
+    },
+    {
+     "file": "clips/syl-r-o/v10.mp3",
+     "seed": 109
+    },
+    {
+     "file": "clips/syl-r-o/v11.mp3",
+     "seed": 110
+    },
+    {
+     "file": "clips/syl-r-o/v12.mp3",
+     "seed": 111
+    },
+    {
+     "file": "clips/syl-r-o/v13.mp3",
+     "seed": 112
+    },
+    {
+     "file": "clips/syl-r-o/v15.mp3",
+     "seed": 114
     }
    ]
   },
