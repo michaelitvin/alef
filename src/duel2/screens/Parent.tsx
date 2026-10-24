@@ -46,6 +46,12 @@ export function Parent({ onClose, onGallery }: { onClose: () => void; onGallery:
       <h3>Top mix-ups (asked → tapped)</h3>
       <ul>{conf(s.confusions.letters).map((x) => <li key={`l${x.a}${x.b}`}>{name(x.a)} → {name(x.b)}: {x.n}</li>)}</ul>
       <ul>{conf(s.confusions.vowels).map((x) => <li key={`v${x.a}${x.b}`}>vowel {x.a} → {x.b}: {x.n}</li>)}</ul>
+      <h3>Flight speed</h3>
+      <p>
+        The broom flight adapts to him and is saved on this device only: <span data-pace>{s.pace.toFixed(2)}</span>× the normal
+        flight time (0.85 = fastest, 1.6 = slowest); each turn round all the screens also makes it a little faster within a run.{' '}
+        <button onClick={() => s.setPace(1)}>Reset flight speed</button>
+      </p>
       <h3>Sound</h3>
       <label><input type="checkbox" checked={s.settings.sfx} onChange={(e) => setSettings({ sfx: e.target.checked })} /> Effects</label>{' '}
       <label><input type="checkbox" checked={s.settings.music} onChange={(e) => setSettings({ music: e.target.checked })} /> Music</label>{' '}

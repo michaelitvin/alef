@@ -60,8 +60,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Reason: the parent found the instructions "unnatural and out of place" in every game so far.
   Example (book 2): "תִּתְפֹּס אֶת מָה שֶׁתִּשְׁמַע." + [בָּ] became "אֵיפֹה כָּתוּב..." + [בָּ]; "the word on the gate" for a door became
   "מָה כָּתוּב עַל הַדֶּלֶת?"; the dotted-letter introduction says "בְּלִי נְקֻדָּה..." + [וָ], "וְעִם נְקֻדָּה..." + [בָּ].
-- Let a line that a sound follows lead into it, and end it open ("…") so that the voice does not close the sentence.
-  The speaker says "what I say", not "what you will hear".
+- Let a line that a sound follows lead into it. The speaker says "what I say", not "what you will hear". Do not end it
+  with "…": the voice made a moan at the end. End it with ":" or "." and listen to the end of each take.
+  Example (book 2): "בְּלִי נְקֻדָּה..." was "too moany". The plain spelling "ועם נקודה" was read "ve'en" (ואין, the opposite):
+  keep nikkud on a word that the plain spelling makes ambiguous.
 - Use natural, spoken Hebrew. When the parent gives a wording, use it.
   Examples (duel): "מגה כישוף" (not "כישוף מגה"), "נשחק שוב?", "וואו, אתה בשוונג".
 - Make an announcement say something specific. Make the next round show it.
@@ -197,6 +199,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Link a letter or syllable only to a picture word that starts with that same letter, not only the same sound.
   Example (book 2): כָ showed חָתוּל (the same sound, another letter); the parent: "I don't want the kid to learn this mistake".
 - Show a learning mark on a neutral placeholder (circle or box), not on a carrier letter.
+- Put the syllables of one word on one baseline. Center a syllable alone by its ink, but a syllable in a word by the ink
+  of the whole word. Example (book 2): on the door, "עָ" (a mark below) sat higher than "שׁוּ".
+- Check how the font draws each dotted letter. Sigalit fuses the shin dot into ש's right arm (שׁ looked like ن); the
+  game draws its own dot above the arm.
+- Let the child see what he collects. Example (book 2): the crystals were a moment only; the parent: "if he hoards them,
+  he should see them" — the start screen now shows them by kind.
+- Show a passage (a door, a portal) from the inside: the next room through the opening, and a camera that flies through
+  it into that room, so that the next round starts where the flight ends. Animate it frame by frame, and avoid SVG masks
+  in the animation (they repaint slowly).
 - Make the learning content the strongest element on the screen. Make helper shapes faint. Make sure a highlight does not hide the mark.
   Example (book 2): the cholam dot fell on the bubble's shine and vanished; glyphs now have a dark outline and a dark disc behind them.
 - Show the true cause of a mistake. Example (book 2): when the right letter flew past him, the wizard spun as if hit; now a miss
@@ -345,6 +356,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   next question after his last answer, or remember what the plan already asked: the adaptive choice picks the same weak
   item again and again otherwise.
   Example (book 2): a ladder planned all its rungs at the start and asked "דָ" three times in a row.
+- Speak a praise line (a streak, the top of the ladder, a crystal) only the first two times of each kind. After that,
+  play only its sound. Example (book 2): the parent: "you don't need to tell him again that he went all the way to the top".
+- Let a sound effect ring a moment (about 0.4 s) before the voice goes on. Example (book 2): fluent rounds cut the effects.
+- In an action game (book 2: the broom flight), do not stop at a mistake. Flash, take a heart, mark the right answer for a
+  moment, play its sound again, and go on. One wave of choices costs at most one heart. Start a new target only when the
+  screen is empty, and announce it while the game goes on. Example (book 2): the parent: "make it more fluent, like an
+  arcade game"; the old flight stopped at each mistake and new target, and the orbs on the screen vanished.
 - Keep the flow. Do not repeat the same feedback many times in one encounter.
   Example (duel): boss hits before the last one get only a sound.
 - Make a boss harder than the stage that it ends. Example (duel): a 3-hit boss after 5-kill waves was an anticlimax.

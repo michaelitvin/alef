@@ -43,4 +43,12 @@ describe('parent area', () => {
     expect(container.querySelector('a[data-alef-menu]')).not.toBeNull()
   })
 
+  it('shows the flight speed this device has learned, and can reset it (it adapts per device)', () => {
+    useDuel2Store.setState({ pace: 0.85 })
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('[data-pace]')!.textContent).toMatch(/0\.85/)
+    fireEvent.click(screen.getByText('Reset flight speed'))
+    expect(useDuel2Store.getState().pace).toBe(1)
+  })
+
 })

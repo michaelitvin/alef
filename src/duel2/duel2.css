@@ -24,8 +24,6 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-hover { 50% { transform: translateY(-16px); } }
 .d2-zapped { animation: d2-zap 0.5s ease-in forwards; }
 @keyframes d2-zap { to { transform: translateY(-60px) scale(1.15); opacity: 0; } }
-.d2-zoom { animation: d2-zoom 0.9s ease-in forwards; transform-box: view-box; }
-@keyframes d2-zoom { to { transform: scale(3.2); opacity: 0; } }
 .d2-burst { animation: d2-burst 1.4s ease-out both; transform-origin: 800px 450px; transform-box: view-box; }
 @keyframes d2-burst { from { transform: scale(0.2); opacity: 0; } 50% { opacity: 1; } to { transform: scale(1.1); opacity: 0.7; } }
 .d2-crystal-in { animation: d2-cry 1s cubic-bezier(.2,1.4,.4,1) both; transform-origin: 800px 450px; transform-box: view-box; }
@@ -38,7 +36,12 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-play-ring { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); animation: d2-spin 1.2s linear infinite; }
 .d2-play-ring circle { fill: none; stroke: #ffd34d; stroke-width: 6; stroke-dasharray: 120 400; }
 @keyframes d2-spin { to { transform: rotate(360deg); } }
-.d2-cover-stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; }
+.d2-cover-stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.d2-fly-off { animation: d2-fly-off 2s cubic-bezier(0.45, 0, 0.6, 1) forwards; transform-box: view-box; }
+@keyframes d2-fly-off { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-30px, 20px) rotate(4deg); } 55% { transform: translate(500px, -90px) rotate(-10deg); } 100% { transform: translate(1900px, -360px) rotate(-14deg); } }
+.d2-crystal-shelf { display: flex; gap: 10px; align-items: flex-end; direction: ltr; padding: 8px 12px; border-radius: 18px; background: #1b0f3c99; box-shadow: 0 0 16px #b48cff66; }
+.d2-shelf-crystal { display: inline-flex; align-items: flex-end; gap: 2px; color: #fff3c4; font: 800 26px system-ui, sans-serif; }
+.d2-shelf-crystal img { height: 64px; width: auto; filter: drop-shadow(0 0 8px #b48cff); }
 .d2-stars { display: inline-flex; align-items: center; gap: 6px; color: #fff3c4; font-weight: 800; direction: ltr;
   font-family: system-ui, sans-serif; text-shadow: 0 0 8px #ffd34d88; }
 .d2-stars-small { font-size: 30px; margin-inline-end: 10px; }

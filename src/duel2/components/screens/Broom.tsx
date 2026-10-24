@@ -27,12 +27,20 @@ export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W 
 export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (START_X - WIZ_X)
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
-export interface BroomWave { id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[] }
+export interface BroomWave {
+  id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[]
+  /** a mistake happened in this wave: its other orbs no longer count */
+  spent?: boolean
+}
 export function Broom(p: {
   waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; onLane: (l: 0 | 1 | 2) => void; phase: Phase
   reveal?: { right: string; wrong?: string }; clock?: () => number; correctId?: string
   /** the target flew past in another lane: nothing hit him, so no dizzy wizard */
   missed?: boolean
+  /** the last hit or miss during the flight (it goes on): a hit makes the wizard dizzy for a moment */
+  fx?: { id: number; kind: 'hit' | 'miss'; at: number }
+  /** the flight is over: the wizard swoops away */
+  finished?: boolean
 }) {
   const clock = p.clock ?? (() => performance.now())
   const [now, setNow] = useState(clock)
@@ -51,6 +59,15 @@ export function Broom(p: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p.phase])
   const t = frozen.current ?? now
+  const [dizzyFx, setDizzyFx] = useState<number | null>(() => (p.fx?.kind === 'hit' ? p.fx.id : null))
+  useEffect(() => {
+    if (p.fx?.kind !== 'hit') return
+    setDizzyFx(p.fx.id)
+    const id = p.fx.id
+    const timer = window.setTimeout(() => setDizzyFx((d) => (d === id ? null : d)), 900)
+    return () => window.clearTimeout(timer)
+  }, [p.fx?.id, p.fx?.kind])
+  const dizzy = (p.phase === 'mistake' && !p.missed) || dizzyFx !== null
   const [dragY, setDragY] = useState<number | null>(null)
   const down = useRef<number | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -105,13 +122,14 @@ export function Broom(p: {
       <defs>
         <linearGradient id="d2-trail" x1="0" x2="1"><stop offset="0" stopColor="#c8a0ff" stopOpacity="0.7" /><stop offset="1" stopColor="#8c5aff" stopOpacity="0" /></linearGradient>
       </defs>
-      <g data-wizard data-lane={p.lane} className="d2-bob" transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
-        {p.phase === 'mistake' && !p.missed && IMAGES['s-wizard-dizzy']
+      {/* the animation on an outer group: a CSS transform would replace the facing transform attribute */}
+      <g data-wizard data-lane={p.lane} className={p.finished ? 'd2-fly-off' : 'd2-bob'}><g transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
+        {dizzy && IMAGES['s-wizard-dizzy']
           ? <image href={IMAGES['s-wizard-dizzy']} className="d2-dizzy" x={WIZ_X - BROOM_WIZARD_H * 0.55} y={y - BROOM_WIZARD_H * 0.75} width={BROOM_WIZARD_H * 1.1} height={BROOM_WIZARD_H * 1.1} />
           : IMAGES['s-wizbroom']
           ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
           : <circle cx={WIZ_X} cy={y} r={BROOM_WIZARD_H / 2} fill="#7a5ac8" />}
-      </g>
+      </g></g>
     </Stage>
   )
 }

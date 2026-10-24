@@ -14,6 +14,8 @@ import {
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
+import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
+import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
 import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
 import { useDuel2Store } from './store'
@@ -22,12 +24,26 @@ import type { Highlight } from './components/ExplainPanel'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
-export interface BroomWave { id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[] }
-export interface BroomView { screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean }
+export interface BroomWave {
+  id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[]
+  /** a mistake happened in this wave: its other orbs no longer count */
+  spent?: boolean
+}
+export interface BroomView {
+  screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean
+  /** the last hit or miss during the flight (the flight does not stop): drives the flash, the shake and the dizzy wizard */
+  fx?: { id: number; kind: 'hit' | 'miss'; at: number }
+  /** the flight is over: its finale (the wizard swoops away) */
+  finished?: boolean
+}
 export interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
 export interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
 export interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
-export interface DoorsView { screen: 'doors'; word: Word; lit: 0 | 1 | 2; keys: Word[]; opening: boolean; zooming: boolean; reveal?: Reveal }
+export interface DoorsView {
+  screen: 'doors'; word: Word; lit: 0 | 1 | 2; keys: Word[]; opening: boolean; zooming: boolean; reveal?: Reveal
+  /** the last door: the crystal (its kind) waits behind it */
+  behind?: { crystal: number }
+}
 export interface CrystalView { screen: 'crystal'; kind: number }
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView
 
@@ -61,6 +77,16 @@ export interface RunOpts {
 
 class Aborted extends Error {}
 /** no pick for this long: the instruction and the sound play once */
+/** an effect rings this long before the voice goes on (fluent, but not cut) */
+const SFX_RING_MS = 400
+/** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
+const FLIGHT_SETTLE_MS = 1400
+/** the flight's finale: the wizard swoops away */
+const FINALE_MS = 2500
+/** praise is spoken this many times per kind, then only its sound plays */
+const PRAISE_SPOKEN = 2
+/** how long a praise with no words lets its sound play */
+const PRAISE_SOUND_MS = 900
 const IDLE_MS = 8000
 /** no pick for this long: the hint shows by itself */
 const IDLE_HINT_MS = 16000
@@ -100,8 +126,7 @@ export class RunController {
   private spokenTargets = new Set<string>()
   /** set when he taps the right answer during a mistake: the rest of the mistake is skipped */
   private skipMistake = false
-  /** the flight still sends new waves (false on the last round: only the orbs on the screen finish) */
-  private spawnMore = true
+  private fxId = 0
   private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
   private doorWords: Word[] = []
   private broomTimer: number | undefined
@@ -368,32 +393,24 @@ export class RunController {
     const word = this.doorWords[this.roundInScreen % this.doorWords.length]
     const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => this.rng() - 0.5).slice(0, 2)
     const keys = [word, ...others].sort(() => this.rng() - 0.5)
-    this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false } })
+    // behind the last door: the crystal he is about to win (the kind runCrystal will show)
+    const behind = this.roundInScreen === VISIT.doors - 1
+      ? { crystal: useDuel2Store.getState().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
+    this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
     return word
   }
 
-  private needsDotIntro(choices: Choice[]): string | null {
-    if (this.stage < 3) return null
+  private needsDotIntro(target: Choice | Word): string | null {
+    if (!('itemId' in target)) return null
     // the gallery's dot-intro entry shows the introduction every round
     const seen = this.opts.force?.screen === 'dot' ? [] : useDuel2Store.getState().dotIntrosSeen
-    for (const c of choices) {
-      const it = itemOf(c.itemId)
-      const hard = it.soft ? it.pair! : it.id
-      if (it.pair && !seen.includes(hard)) return hard
-    }
-    return null
+    return dotIntroFor(target.itemId, this.stage, seen)
   }
 
   private async dotIntro(t: number, hard: string) {
-    const h = itemOf(hard)
-    const s = itemOf(h.pair!)
-    const hardS = syllable(h.id, 'kamatz')
-    const softS = syllable(s.id, 'kamatz')
-    const parts: { id: string; highlight: Highlight }[] = [
-      { id: lineAudioId('dot-without', 1), highlight: 'right' }, { id: softS.soundId, highlight: 'right' },
-      { id: lineAudioId('dot-with', 1), highlight: 'left' }, { id: hardS.soundId, highlight: 'left' },
-    ]
-    this.set({ phase: 'explain', overlay: { kind: 'dot', parts, soft: softS.text, hard: hardS.text } })
+    // the words only on his very first introduction (the parent: later they are understood from the screen)
+    const d = dotIntroParts(hard, useDuel2Store.getState().dotIntrosSeen.length === 0)
+    this.set({ phase: 'explain', overlay: { kind: 'dot', parts: d.parts, soft: d.right, hard: d.left } })
     if (!this.opts.sandbox) useDuel2Store.getState().markDotIntro(hard)
     await this.waitNext(t)
     this.set({ overlay: null })
@@ -409,8 +426,7 @@ export class RunController {
   private async runRound(t: number, screen: ScreenId, kind: Kind): Promise<'next' | 'over'> {
     this.hearts = newRound(this.hearts)
     const target = this.buildRound(screen, kind)
-    const choices = this.choicesOf(screen)
-    const intro = this.needsDotIntro(choices)
+    const intro = this.needsDotIntro(target)
     if (intro) await this.dotIntro(t, intro)
     this.set({ phase: 'question', overlay: null, hintAvailable: screen === 'doors' || (target as Choice).kind === 'syllable' })
     this.assets = []
@@ -541,6 +557,8 @@ export class RunController {
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
       if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
+      // let the effect ring a moment before the voice goes on (Michael: effects got cut)
+      await this.sleep(t, SFX_RING_MS)
       await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       await this.maybeWordLink(t, c)
       if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
@@ -564,6 +582,7 @@ export class RunController {
     this.setScreen({ reveal } as Partial<ScreenView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(c))
+    await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: this.cueId(c) }])
     // no hint here: the right answer glows and its sound plays (Michael: the hint came too often)
     await this.waitNext(t)
@@ -586,9 +605,11 @@ export class RunController {
       this.sfx('key')
       this.setScreen({ opening: true } as Partial<DoorsView>)
       this.sfx('door')
+      await this.sleep(t, SFX_RING_MS)
       await this.say(t, [{ id: `w-${word.id}` }])
+      // through the doorway to the next door (or the crystal): the round goes on where the flight ends
       this.setScreen({ zooming: true } as Partial<DoorsView>)
-      await this.sleep(t, 700)
+      await this.sleep(t, ZOOM_MS + 60)
       return 'next'
     }
     this.hearts = outcome.hearts
@@ -641,8 +662,17 @@ export class RunController {
     this.set({ phase: 'celebrate' })
     this.sfx(line === 'crystal' ? 'crystal' : 'streak')
     startMusic('celebrate')
-    await this.say(t, [{ id: this.variation(line) }])
+    const praise = this.praiseLine(line)
+    if (praise) await this.say(t, [{ id: praise }])
+    else await this.sleep(t, PRAISE_SOUND_MS)
     stopMusic()
+  }
+
+  /** The praise words only the first PRAISE_SPOKEN times of each kind; after that its sound is enough (Michael: "he knows it"). */
+  private praiseLine(kind: 'streak' | 'ladder-top' | 'crystal'): string | null {
+    if ((useDuel2Store.getState().praiseHeard?.[kind] ?? 0) >= PRAISE_SPOKEN) return null
+    if (!this.opts.sandbox) useDuel2Store.getState().notePraise(kind)
+    return this.variation(kind)
   }
 
   private async runCrystal(t: number) {
@@ -681,148 +711,149 @@ export class RunController {
     this.broomTimer = undefined
   }
 
+  /**
+   * The broom flight, one continuous arcade flow (Michael: "more fluent, like an arcade game"): orbs keep coming; a catch,
+   * a hit or a miss is handled on the fly with no stop and no next button. A new sound to catch comes only when the orbs on
+   * the screen are done, and is announced while he flies. The visit ends when its last orbs have all arrived.
+   */
   private async runBroom(t: number, kind: Kind) {
     this.hearts = newRound(this.hearts)
     let target = this.buildRound('broom', kind) as Choice
     this.spokenTargets.clear()
-    let catches = 0
     startMusic('flight')
-    const announce = async (first: boolean) => {
-      this.stopBroom()
-      this.setScreen({ waves: [], reveal: undefined, missed: false } as Partial<BroomView>)
-      this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
-      this.assets = []
-      // only the sound (the demo taught the screen); a new target gets a short lead-in (Michael: no instructions again)
-      const line = first ? null : this.variation('target-new')
-      await this.say(t, [...(line ? [{ id: line }] : []), { id: this.cueId(target) }])
-      this.set({ phase: 'answer' })
-    }
-    await announce(true)
-    while (this.roundInScreen < VISIT.broom) {
-      const r = await this.flyWave(t, target, kind)
-      if (r === 'right') {
-        catches++
-        this.roundInScreen++
-        if (catches % TARGET_EVERY === 0 && this.roundInScreen < VISIT.broom) {
-          target = broomTarget(this.ctx(), kind, target.soundId)
-          this.setScreen({ target } as Partial<BroomView>)
-          await announce(false)
-        }
-      } else if (r === 'over') {
-        throw new Aborted()
-      } else {
-        this.roundInScreen++
-        await announce(true)
-      }
-    }
-    // he finishes the orbs still on the screen before the flight ends (Michael); a mistake there ends it at once
-    for (;;) {
-      const r = await this.flyWave(t, target, kind, false)
-      if (r === 'over') throw new Aborted()
-      if (r !== 'right') break
-    }
     this.stopBroom()
-    stopMusic()
-  }
-
-  /** Spawns popcorn waves; each orb resolves when it reaches the wizard: in his lane it is caught (or hits him); the target
-   * flying past in another lane is a miss. Resolves with the first outcome. */
-  private flyWave(t: number, target: Choice, kind: Kind, spawnMore = true): Promise<'right' | 'wrong' | 'over' | 'done'> {
-    this.spawnMore = spawnMore
-    return this.guard(t, new Promise<'right' | 'wrong' | 'over' | 'done'>((resolve, reject) => {
-      const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
-      const spawn = () => {
-        const choices = broomWave(this.ctx(), target, kind)
-        const w: BroomWave = {
-          id: ++this.waveId, choices, startMs: this.broomClock(),
-          offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
-          jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
-          resolved: choices.map(() => false),
-        }
-        const cur = this.view.screen as BroomView
-        this.setScreen({ waves: [...cur.waves, w], travelMs: travel } as Partial<BroomView>)
-        this.sfx('wave')
-        this.cueStarted = this.now()
+    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false } as Partial<BroomView>)
+    this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
+    this.assets = []
+    // only the sound to catch (the demo taught the screen)
+    await this.say(t, [{ id: this.cueId(target) }])
+    this.set({ phase: 'answer' })
+    const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
+    let spawned = 0
+    let catches = 0
+    let newTargetDue = false
+    let announcing = false
+    let lastSpawn = -Infinity
+    const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
+    const spawn = (now: number) => {
+      const choices = broomWave(this.ctx(), target, kind)
+      const w: BroomWave = {
+        id: ++this.waveId, choices, startMs: now,
+        offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
+        jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
+        resolved: choices.map(() => false),
       }
-      const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
-      if (spawnMore && !open((this.view.screen as BroomView).waves)) spawn()
-      let lastSpawn = this.broomClock()
-      this.stopBroom()
+      this.setScreen({ waves: [...(this.view.screen as BroomView).waves, w], travelMs: travel } as Partial<BroomView>)
+      this.sfx('wave')
+      this.cueStarted = this.now()
+      spawned++
+      lastSpawn = now
+    }
+    const result = await this.guard(t, new Promise<'done' | 'over'>((resolve, reject) => {
       this.broomTimer = window.setInterval(() => {
         if (t !== this.token) { this.stopBroom(); reject(new Aborted()); return }
         const now = this.broomClock()
         const cur = this.view.screen as BroomView
-        let outcome: { hit: Choice | null; choices: Choice[] } | null = null
+        const events: { hit: Choice | null; wave: BroomWave }[] = []
         const waves = cur.waves.map((w) => {
-          if (outcome) return w
           const k = w.choices.map((_, i) => wavePos(w.startMs + w.offsets[i] * travel, now, travel))
           const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId))
-          if (e.hit !== null) outcome = { hit: w.choices[e.hit], choices: w.choices }
-          else if (e.missedTarget) outcome = { hit: null, choices: w.choices }
-          return { ...w, resolved: e.resolved }
-        }).filter((w) => w.resolved.some((r) => !r) || (outcome && w.choices === outcome.choices))
-        const o0 = outcome as { hit: Choice | null; choices: Choice[] } | null
-        const missed = o0 !== null && (!o0.hit || o0.hit.soundId !== target.soundId)
-        // after a mistake only its wave stays on the stage, so the right answer is marked once
-        this.setScreen({ waves: missed ? waves.filter((w) => w.choices === o0!.choices) : waves } as Partial<BroomView>)
-        if (outcome) {
-          this.stopBroom()
-          const o = outcome as { hit: Choice | null; choices: Choice[] }
-          void this.resolveWave(t, target, o.hit).then(resolve, reject)
-          return
+          const hitWrong = e.hit !== null && w.choices[e.hit].soundId !== target.soundId
+          // one wave is one question: after a mistake its other orbs fly on harmlessly (no second heart for the same wave)
+          if (w.spent) return { ...w, resolved: e.resolved }
+          if (e.hit !== null) events.push({ hit: w.choices[e.hit], wave: w })
+          else if (e.missedTarget) events.push({ hit: null, wave: w })
+          return { ...w, resolved: e.resolved, spent: hitWrong || e.missedTarget }
+        }).filter((w) => w.resolved.some((r) => !r))
+        this.setScreen({ waves } as Partial<BroomView>)
+        for (const ev of events) {
+          if (ev.hit && ev.hit.soundId === target.soundId) {
+            this.onCatch(target)
+            catches++
+            this.roundInScreen++
+            if (catches % TARGET_EVERY === 0 && spawned < VISIT.broom) newTargetDue = true
+          } else if (this.onFlightMistake(t, target, ev.hit, ev.wave) === 'over') {
+            this.stopBroom()
+            resolve('over')
+            return
+          }
         }
-        // the last round: no new waves; the flight ends when the orbs on the screen are done
-        if (!spawnMore && !open(waves)) { this.stopBroom(); resolve('done'); return }
-        if (spawnMore && now - lastSpawn >= travel * WAVE_EVERY) { spawn(); lastSpawn = now }
+        // a new sound: once no orb with the old sound is flying (other leftovers finish harmlessly), say it while he
+        // flies and send the next orbs at once — they need a moment to fly in anyway (Michael: no long waits)
+        const oldLeft = waves.some((w) => !w.spent && w.choices.some((c, j) => c.soundId === target.soundId && !w.resolved[j]))
+        if (newTargetDue && !announcing && !oldLeft) {
+          announcing = true
+          newTargetDue = false
+          const spentWaves = waves.map((w) => ({ ...w, spent: true }))
+          target = broomTarget(this.ctx(), kind, target.soundId)
+          this.setScreen({ target, waves: spentWaves } as Partial<BroomView>)
+          lastSpawn = -Infinity
+          void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target) }])
+            .catch(() => {}).finally(() => { announcing = false })
+        }
+        if (!newTargetDue && spawned < VISIT.broom && now - lastSpawn >= travel * WAVE_EVERY) spawn(now)
+        // the visit ends when all its orbs have arrived (Michael: "let me finish")
+        if (spawned >= VISIT.broom && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
       }, 50)
     }))
+    if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
+    this.stopBroom()
+    // a closure, never a jump from a correction to the next screen (Michael): let a last mistake's feedback finish, then
+    // a short finale — a celebration sound and the wizard swooping away
+    const fx = (this.view.screen as BroomView).fx
+    if (fx && this.now() - fx.at < FLIGHT_SETTLE_MS) await this.sleep(t, FLIGHT_SETTLE_MS - (this.now() - fx.at))
+    this.setScreen({ finished: true, reveal: undefined } as Partial<BroomView>)
+    this.set({ phase: 'celebrate' })
+    this.sfx('streak')
+    await this.sleep(t, FINALE_MS)
+    stopMusic()
   }
 
-  /** `hit` = the orb he met; null = the target flew past in another lane (a miss). */
-  private async resolveWave(t: number, target: Choice, hit: Choice | null): Promise<'right' | 'wrong' | 'over' | 'done'> {
-    const right = !!hit && hit.soundId === target.soundId
-    const near = !!hit && !right && hit.nearMissOf === target.id
+  private onCatch(target: Choice) {
     const st = useDuel2Store.getState()
-    if (right) {
-      this.record('broom', target, hit, 'right')
-      if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'correct', msWalk: 0, walkMs: 1 }))
-      this.score++
-      this.set({ score: this.score })
-      this.streak++
-      this.sfx('catch')
-      if (!this.spokenTargets.has(target.soundId)) {
-        this.spokenTargets.add(target.soundId)
-        void sayParts([{ id: this.cueId(target) }])
-      }
-      if (this.streak % STREAK_EVERY === 0) {
-        void sayParts([{ id: this.variation('streak') }])
-      }
-      return 'right'
+    this.record('broom', target, target, 'right')
+    if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'correct', msWalk: 0, walkMs: 1 }))
+    this.score++
+    this.set({ score: this.score })
+    this.streak++
+    this.sfx('catch')
+    if (!this.spokenTargets.has(target.soundId)) {
+      this.spokenTargets.add(target.soundId)
+      void sayParts([{ id: this.cueId(target) }])
     }
+    if (this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
+  }
+
+  /**
+   * A hit (`hit` = the wrong orb he met) or a miss (null: the target flew past) during the flight: a flash, a heart, the
+   * right orb of that wave glows a moment and its sound plays again — and the flight goes on.
+   */
+  private onFlightMistake(t: number, target: Choice, hit: Choice | null, wave: BroomWave): 'on' | 'over' {
+    const st = useDuel2Store.getState()
+    const near = !!hit && hit.nearMissOf === target.id
     const outcome = onAnswer(this.hearts, near ? 'near' : 'wrong')
     this.hearts = outcome.hearts
     if (outcome.forgiven) {
       this.record('broom', target, hit, 'near')
       void sayParts([{ id: this.variation('almost') }])
-      return this.flyAgain()
+      return 'on'
     }
     this.streak = 0
     this.record('broom', target, hit, 'wrong')
     if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'timeout', msWalk: null, walkMs: 1 }))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
     this.sfx(hit ? 'hit' : 'wave')
-    // the flight stops where it is (the stage freezes outside the answer phase), the right one marked until next
-    this.setScreen({ reveal: { right: target.id, wrong: hit?.id }, missed: !hit } as Partial<BroomView>)
-    this.set({ phase: 'mistake', hearts: this.hearts.left })
-    if (outcome.over) return this.endRun(this.cueId(target))
-    await this.say(t, [{ id: this.cueId(target) }])
-    await this.waitNext(t)
-    if (this.explanationDue('broom', target)) await this.explain(t, target)
-    return 'wrong'
+    const right = wave.choices.find((c) => c.soundId === target.soundId)
+    const fx = { id: ++this.fxId, kind: hit ? 'hit' as const : 'miss' as const, at: this.now() }
+    this.setScreen({ reveal: { right: right?.id ?? target.id, wrong: hit?.id }, missed: !hit, fx } as Partial<BroomView>)
+    this.set({ hearts: this.hearts.left })
+    if (outcome.over) return 'over'
+    void sayParts([{ id: this.cueId(target) }])
+    window.setTimeout(() => {
+      const s = this.view.screen
+      if (t === this.token && s?.screen === 'broom' && s.fx?.id === fx.id) this.setScreen({ reveal: undefined } as Partial<BroomView>)
+    }, 1400)
+    return 'on'
   }
 
-  /** A forgiven near miss in the flight: the waves keep coming (not counted as a catch). */
-  private flyAgain(): Promise<'right' | 'wrong' | 'over' | 'done'> {
-    return Promise.resolve('wrong' as const).then(() => this.flyWave(this.token, (this.view.screen as BroomView).target, (this.view.screen as BroomView).kind, this.spawnMore))
-  }
 }
