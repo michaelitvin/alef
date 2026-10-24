@@ -54,6 +54,8 @@ export const LINES: LineDef[] = [
   line('new-best', 'Summary: a new best run', ['שִׂיא חָדָשׁ.', 'שָׁבַרְתָּ אֶת הַשִּׂיא שֶׁלְּךָ.'], 0, 'excited'),
   line('dot-without', 'Dotted-letter introduction: before the sound of the form without the dot', ['בְּלִי נְקֻדָּה...'], 0.5, 'warmly'),
   line('dot-with', 'Dotted-letter introduction: before the sound of the form with the dot', ['וְעִם נְקֻדָּה...'], 0.5, 'warmly'),
+  line('dot-right', 'ש introduction: before the sound of שׁ (both forms have a dot; it differs by its side)', ['נְקֻדָּה מִיָּמִין...'], 0.5, 'warmly'),
+  line('dot-left', 'ש introduction: before the sound of שׂ', ['וּנְקֻדָּה מִשְּׂמֹאל...'], 0.5, 'warmly'),
   line('explain-lead', 'Explanation after a mistake: before letter name, vowel name, syllable', ['בּוֹא נִקְרָא לְאַט.'], 0.5, 'warmly'),
   line('demo-broom', 'Demo: first broom flight with syllables (then the sound)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-broom-letter', 'Demo: first broom flight with letters (then the letter name)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),

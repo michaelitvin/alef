@@ -28,6 +28,8 @@ export interface Duel2Save {
   crystals: number
   /** all the stars (right answers) of all his runs: shown on the cover */
   totalStars: number
+  /** how many times each praise line was spoken: after two it is only its sound */
+  praiseHeard: Record<string, number>
   settings: Duel2Settings
 }
 
@@ -35,6 +37,7 @@ interface Actions {
   recordAnswer: (a: { features: string[]; miss: boolean; asked?: Choice; tapped?: Choice; newStage: boolean }) => { passed: boolean }
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
+  notePraise: (kind: string) => void
   addCrystal: () => void
   markDemo: (id: string) => void
   markDotIntro: (pair: string) => void
@@ -46,7 +49,7 @@ interface Actions {
 export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8 }
 const fresh = (): Omit<Duel2Save, 'settings'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
-  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0,
+  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {},
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -83,6 +86,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       setPace: (pace) => set({ pace }),
       endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), totalStars: (s.totalStars ?? 0) + score })),
       addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
+      notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),
       markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),
       markDotIntro: (pair) => set((s) => (s.dotIntrosSeen.includes(pair) ? s : { dotIntrosSeen: [...s.dotIntrosSeen, pair] })),
       noteHint: (key) => set((s) => ({ hintsSeen: { ...s.hintsSeen, [key]: (s.hintsSeen[key] ?? 0) + 1 } })),

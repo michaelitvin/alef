@@ -75,4 +75,15 @@ describe('shell', () => {
     expect(container.querySelector('a')).toBeNull()
   })
 
+  it('the cover shows every crystal he has won, by kind (the parent: if he hoards them he should see them)', () => {
+    useDuel2Store.setState({ crystals: 0 })
+    const none = render(<Cover onPlay={() => {}} onParent={() => {}} />)
+    expect(none.container.querySelector('[data-crystal-shelf]')).toBeNull()
+    useDuel2Store.setState({ crystals: 6 })
+    const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
+    const kinds = [...container.querySelectorAll('[data-crystal-kind]')]
+    expect(kinds.length).toBe(4)
+    expect(kinds.reduce((n, k) => n + Number(k.getAttribute('data-count')), 0)).toBe(6)
+  })
+
 })

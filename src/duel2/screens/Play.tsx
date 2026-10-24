@@ -1,5 +1,5 @@
 // The play screen: the current screen, the top bar, the overlays and the pause cover, driven by the run controller.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
 import { item as itemOf, mark as markOf } from '../logic/content'
@@ -27,7 +27,7 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
   const test = TEST_HOOKS && v.phase === 'answer'
   switch (s.screen) {
     case 'broom':
-      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} clock={run.clock}
+      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} clock={run.clock}
         correctId={TEST_HOOKS ? s.target.id : undefined} />
     case 'cauldron':
       return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
@@ -39,7 +39,7 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
     case 'ghosts':
       return <Ghosts signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
     case 'doors':
-      return <Doors word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test}
+      return <Doors word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} behind={s.behind}
         demo={demoT !== undefined ? { id: s.word.id, t: demoT } : undefined} />
     case 'crystal':
       return <Crystal kind={s.kind} onDone={() => {}} />
@@ -69,9 +69,19 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   }
   const o = v.overlay
   const missed = v.screen?.screen === 'broom' && !!v.screen.missed
+  // the flight does not stop at a mistake: its flash and shake come from the broom's fx, once per mistake
+  const bfx = v.screen?.screen === 'broom' ? v.screen.fx : undefined
+  const [shake, setShake] = useState<number | null>(null)
+  useEffect(() => {
+    if (bfx?.kind !== 'hit') return
+    setShake(bfx.id)
+    const id = bfx.id
+    const timer = window.setTimeout(() => setShake((x) => (x === id ? null : x)), 450)
+    return () => window.clearTimeout(timer)
+  }, [bfx?.id, bfx?.kind])
   const canReplay = v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className={`d2-root${v.phase === 'mistake' && !missed ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
@@ -100,6 +110,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
           onNext={v.needNext ? run.onNext : undefined} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
+      {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
   )

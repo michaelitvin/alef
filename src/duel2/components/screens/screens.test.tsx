@@ -7,7 +7,7 @@ import { CATCH_AT, PASS_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder, plateYs } from './Ladder'
 import { Ghosts, GHOST_GLYPH_PX, GHOST_H } from './Ghosts'
-import { Doors } from './Doors'
+import { Doors, throughDoor, NEXT_DOOR, DOOR_BOX } from './Doors'
 import { Crystal } from './Crystal'
 import { item, mark, syllable } from '../../logic/content'
 import { syllableChoice } from '../../logic/rounds'
@@ -75,6 +75,15 @@ describe('screens', () => {
   it('a mistake makes the wizard dizzy', () => {
     const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => 0} />)
     expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).toMatch(/s-wizard-dizzy/)
+  })
+  it('a hit during the flight makes the wizard dizzy for a moment while the flight goes on', async () => {
+    vi.useFakeTimers()
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" fx={{ id: 1, kind: 'hit', at: 0 }} clock={() => 0} />)
+    expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).toMatch(/s-wizard-dizzy/)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1200) })
+    expect(container.querySelector('[data-wizard] image')!.getAttribute('href')).not.toMatch(/s-wizard-dizzy/)
+    const m = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" fx={{ id: 2, kind: 'miss', at: 0 }} clock={() => 0} />)
+    expect(m.container.querySelector('[data-wizard] image')!.getAttribute('href')).not.toMatch(/s-wizard-dizzy/)
   })
   it('a mistake shakes the screen and flashes red', () => {
     const { container, rerender } = render(<MistakeFx active={false} />)
@@ -268,4 +277,30 @@ describe('screens', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(4000) })
     expect(onDone).toHaveBeenCalledTimes(1)
   })
+  it('an opening door shows the next door down the corridor behind it (the parent: no door was shown behind)', () => {
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const shut = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="feedback" opening={false} zooming={false} />)
+    expect(shut.container.querySelector('[data-next-door]')).toBeNull()
+    const open = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="feedback" opening zooming={false} />)
+    expect(open.container.querySelector('[data-next-door]')).not.toBeNull()
+    const last = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="feedback" opening zooming={false} behind={{ crystal: 2 }} />)
+    expect(last.container.querySelector('[data-next-crystal]')).not.toBeNull()
+    expect(last.container.querySelector('[data-next-door]')).toBeNull()
+  })
+  it('going through the door ends exactly on the next door at full size (seamless into the next round)', () => {
+    const map = (u: number, y: number) => { const z = throughDoor(u); return z.oy + z.k * (y - z.oy) }
+    expect(throughDoor(0).k).toBe(1)
+    // the small door at the end of the corridor grows into the full door
+    expect(map(1, NEXT_DOOR.top)).toBeCloseTo(DOOR_BOX.top, 3)
+    expect(map(1, NEXT_DOOR.top + NEXT_DOOR.scale * DOOR_BOX.h)).toBeCloseTo(DOOR_BOX.top + DOOR_BOX.h, 3)
+    // smooth: it only ever moves forward
+    let prev = 0
+    for (let u = 0; u <= 1.0001; u += 0.05) { const k = throughDoor(Math.min(1, u)).k; expect(k).toBeGreaterThanOrEqual(prev); prev = k }
+  })
+
+  it('at the end of the flight the wizard swoops away', () => {
+    const { container } = render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="celebrate" finished clock={() => 0} />)
+    expect(container.querySelector('[data-wizard].d2-fly-off')).not.toBeNull()
+  })
+
 })

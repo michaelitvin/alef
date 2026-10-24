@@ -14,6 +14,7 @@ const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
   const totalStars = useDuel2Store((s) => s.totalStars ?? 0)
+  const crystals = useDuel2Store((s) => s.crystals ?? 0)
   const timer = useRef<number | undefined>(undefined)
   const started = useRef(0)
   const [state, setState] = useState<'idle' | 'holding' | 'hint'>('idle')
@@ -48,7 +49,24 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
         </g>
       </svg>
       {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
-      <div className="d2-cover-stars"><StarCount n={totalStars} size="big" attr="data-total-stars" /></div>
+      <div className="d2-cover-stars">
+        <StarCount n={totalStars} size="big" attr="data-total-stars" />
+        {/* his crystals, by kind (the nth crystal won is kind n % 4, as the crystal screen shows it) */}
+        {crystals > 0 && (
+          <div data-crystal-shelf className="d2-crystal-shelf">
+            {[1, 2, 3, 0].map((k) => {
+              const count = Math.floor(crystals / 4) + (k !== 0 && k <= crystals % 4 ? 1 : 0)
+              if (!count) return null
+              return (
+                <span key={k} data-crystal-kind={k} data-count={count} className="d2-shelf-crystal">
+                  {IMAGES[`s-crystal-${k + 1}`] && <img src={IMAGES[`s-crystal-${k + 1}`]} alt="" draggable={false} />}
+                  {count > 1 && <span data-num>{count}</span>}
+                </span>
+              )
+            })}
+          </div>
+        )}
+      </div>
       <button aria-label="play" className={`d2-play${loading ? ' loading' : ''}`} onClick={onPlay} data-loading={loading || undefined}>
         <PlayIcon />
         {loading && <svg className="d2-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}

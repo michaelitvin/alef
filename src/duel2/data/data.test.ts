@@ -63,7 +63,7 @@ describe('lines', () => {
   })
 describe('lines lead into the sound', () => {
   it('a line that a sound follows ends open (…), so the voice does not close the sentence first', () => {
-    for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with'])
+    for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with', 'dot-right', 'dot-left'])
       for (const t of lineById(id)!.he) expect(/(\.\.\.|…|:)$/.test(t), `${id}: ${t}`).toBe(true)
   })
   it('the dotted-letter introduction names each form before its sound', () => {
