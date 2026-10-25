@@ -107,4 +107,9 @@ describe('parts', () => {
     expect(container.querySelector('[data-score]')!.textContent).toBe('7')
   })
 
+  it('the top bar shows his coins beside the run points', () => {
+    const { container } = render(<TopBar hearts={3} score={4} coins={12} />)
+    expect(container.querySelector('[data-coins]')!.textContent).toBe('12')
+  })
+
 })

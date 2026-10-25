@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { useDuel2Store } from './store'
+import { coinsOf, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
@@ -44,11 +44,12 @@ describe('duel2 store', () => {
     expect(useDuel2Store.getState().settings.music).toBe(false)
     expect(useDuel2Store.getState().demosSeen).toEqual([])
   })
-  it('the stars of every run add up', () => {
+  it('every star is kept at once, across plays; a coin for every 10 (the parent: points that only grow from time to time)', () => {
     useDuel2Store.getState().resetProgress()
-    useDuel2Store.getState().endRun('ladder', 30)
-    useDuel2Store.getState().endRun('broom', 12)
-    expect(useDuel2Store.getState().totalStars).toBe(42)
+    for (let i = 0; i < 23; i++) useDuel2Store.getState().addStar()
+    useDuel2Store.getState().endRun('broom', 23)
+    expect(useDuel2Store.getState().totalStars).toBe(23)
+    expect(coinsOf(useDuel2Store.getState().totalStars)).toBe(2)
   })
 
 })

@@ -5,8 +5,8 @@ import { IMAGES } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
-import { StarCount } from '../components/StarCount'
-import { useDuel2Store } from '../store'
+import { CoinCount } from '../components/CoinCount'
+import { coinsOf, useDuel2Store } from '../store'
 
 const HOLD_MS = 2000
 const RING_C = 2 * Math.PI * 25
@@ -50,7 +50,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
       </svg>
       {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
       <div className="d2-cover-stars">
-        <StarCount n={totalStars} size="big" attr="data-total-stars" />
+        <CoinCount n={coinsOf(totalStars)} size="big" />
         {/* his crystals, by kind (the nth crystal won is kind n % 4, as the crystal screen shows it) */}
         {crystals > 0 && (
           <div data-crystal-shelf className="d2-crystal-shelf">

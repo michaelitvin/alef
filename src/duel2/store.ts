@@ -27,6 +27,7 @@ export interface Duel2Save {
   bestRun: number
   crystals: number
   /** all the stars (right answers) of all his runs: shown on the cover */
+  /** every star of every run, kept at once (a coin for each COIN_EVERY) */
   totalStars: number
   /** how many times each praise line was spoken: after two it is only its sound */
   praiseHeard: Record<string, number>
@@ -37,6 +38,7 @@ interface Actions {
   recordAnswer: (a: { features: string[]; miss: boolean; asked?: Choice; tapped?: Choice; newStage: boolean }) => { passed: boolean }
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
+  addStar: () => void
   notePraise: (kind: string) => void
   addCrystal: () => void
   markDemo: (id: string) => void
@@ -53,6 +55,10 @@ const fresh = (): Omit<Duel2Save, 'settings'> => ({
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
+
+/** a gold coin for every this many stars, across all his plays: points that grow only now and then (Michael) */
+export const COIN_EVERY = 10
+export const coinsOf = (stars: number) => Math.floor((stars ?? 0) / COIN_EVERY)
 
 export const useDuel2Store = create<Duel2Save & Actions>()(
   persist(
@@ -84,7 +90,8 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
         return { passed }
       },
       setPace: (pace) => set({ pace }),
-      endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), totalStars: (s.totalStars ?? 0) + score })),
+      endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), })),
+      addStar: () => set((s) => ({ totalStars: (s.totalStars ?? 0) + 1 })),
       addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
       notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),
       markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),

@@ -3627,15 +3627,15 @@
    "file": "src/duel2/assets/audio/voice/syl-r-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רָ",
-   "take": "clips/syl-r-a/v24.mp3",
+   "take": "clips/syl-r-a/v27.mp3",
    "request": {
-    "text": "rah.",
+    "text": "ra.",
     "model_id": "eleven_v4",
     "language_code": "fr",
     "voice_settings": {
-     "stability": 0.5
+     "stability": 1.0
     },
-    "seed": 123
+    "seed": 126
    },
    "earlier_takes": [
     {
@@ -3729,6 +3729,18 @@
     {
      "file": "clips/syl-r-a/v23.mp3",
      "seed": 122
+    },
+    {
+     "file": "clips/syl-r-a/v24.mp3",
+     "seed": 123
+    },
+    {
+     "file": "clips/syl-r-a/v25.mp3",
+     "seed": 124
+    },
+    {
+     "file": "clips/syl-r-a/v26.mp3",
+     "seed": 125
     }
    ]
   },
@@ -3769,7 +3781,7 @@
    "file": "src/duel2/assets/audio/voice/syl-r-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רִ",
-   "take": "clips/syl-r-i/v20.mp3",
+   "take": "clips/syl-r-i/v29.mp3",
    "request": {
     "text": "רִיה.",
     "model_id": "eleven_v4",
@@ -3777,7 +3789,7 @@
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 119
+    "seed": 128
    },
    "earlier_takes": [
     {
@@ -3857,6 +3869,10 @@
      "seed": 118
     },
     {
+     "file": "clips/syl-r-i/v20.mp3",
+     "seed": 119
+    },
+    {
      "file": "clips/syl-r-i/v21.mp3",
      "seed": 120
     },
@@ -3879,6 +3895,14 @@
     {
      "file": "clips/syl-r-i/v26.mp3",
      "seed": 125
+    },
+    {
+     "file": "clips/syl-r-i/v27.mp3",
+     "seed": 126
+    },
+    {
+     "file": "clips/syl-r-i/v28.mp3",
+     "seed": 127
     }
    ]
   },

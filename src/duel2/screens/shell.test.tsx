@@ -68,10 +68,10 @@ describe('shell', () => {
     expect(container.querySelector('a')).toBeNull()
     expect(container.querySelectorAll('button').length).toBe(1)
   })
-  it('the cover shows all the stars he has won so far, and has no link out', () => {
+  it('the cover shows his coins (one for every 10 stars, kept between plays), and has no link out', () => {
     useDuel2Store.setState({ totalStars: 57 })
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
-    expect(container.querySelector('[data-total-stars]')!.textContent).toBe('57')
+    expect(container.querySelector('[data-coins]')!.textContent).toBe('5')
     expect(container.querySelector('a')).toBeNull()
   })
 

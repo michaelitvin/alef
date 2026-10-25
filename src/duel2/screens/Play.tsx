@@ -16,6 +16,7 @@ import { DotOverlay, ExplainOverlay, HintCard, WordLink } from './Overlays'
 import { PauseCover } from './PauseCover'
 import { MistakeFx } from '../components/MistakeFx'
 import { holdAudio } from '../audio/duel2Audio'
+import { coinsOf, useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 
 type Run = ReturnType<typeof useRun>
@@ -60,6 +61,7 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
 
 export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void }) {
   const run = useRun(opts)
+  const coins = useDuel2Store((s) => coinsOf(s.totalStars ?? 0))
   const v = run.view
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)
@@ -104,7 +106,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}
       {o?.kind === 'word' && <WordLink word={o.word} />}
       {(!o || o.kind === 'hint' || o.kind === 'word') && (
-        <TopBar hearts={v.hearts} score={v.score}
+        <TopBar hearts={v.hearts} score={v.score} coins={coins}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined}
           onNext={v.needNext ? run.onNext : undefined} />
