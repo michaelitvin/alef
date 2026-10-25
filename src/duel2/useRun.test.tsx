@@ -719,4 +719,17 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  it('a right answer adds a star to his total at once; every 10th earns a coin with a pop', async () => {
+    useDuel2Store.setState({ totalStars: 9 })
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    expect(c.view.coinPop ?? 0).toBe(0)
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await until(c, (v) => v.phase === 'feedback')
+    expect(useDuel2Store.getState().totalStars).toBe(10)
+    expect(c.view.coinPop).toBe(1)
+    c.destroy()
+  })
+
 })

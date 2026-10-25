@@ -203,6 +203,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   of the whole word. Example (book 2): on the door, "עָ" (a mark below) sat higher than "שׁוּ".
 - Check how the font draws each dotted letter. Sigalit fuses the shin dot into ש's right arm (שׁ looked like ن); the
   game draws its own dot above the arm.
+- Give rewards at several paces: points for each answer (the run), a slower count that is kept between plays and grows
+  only now and then (book 2: a coin for every 10 points), and a rare prize (a crystal per lap). Example (book 2): the
+  parent asked for "points that are cumulative, kept between plays and only increase from time to time".
 - Let the child see what he collects. Example (book 2): the crystals were a moment only; the parent: "if he hoards them,
   he should see them" — the start screen now shows them by kind.
 - Show a passage (a door, a portal) from the inside: the next room through the opening, and a camera that flies through

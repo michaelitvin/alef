@@ -18,7 +18,7 @@ import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
 import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
-import { useDuel2Store } from './store'
+import { coinsOf, useDuel2Store } from './store'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
 
@@ -66,6 +66,8 @@ export interface View {
   over: { score: number; crystals: number; best: boolean } | null
   /** the points of this run (right answers) */
   score: number
+  /** counts the coins he earned this run (a coin pops in the top bar) */
+  coinPop?: number
 }
 
 export interface RunOpts {
@@ -549,8 +551,7 @@ export class RunController {
     if (right) {
       this.record(screen, c, tapped, 'right')
       this.roundInScreen++
-      this.score++
-      this.set({ score: this.score })
+      this.gainStar()
       this.streak++
       this.set({ phase: 'feedback' })
       const confident = predict(sylFeatures(c, screen), useDuel2Store.getState().tallies, useDuel2Store.getState().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
@@ -598,8 +599,7 @@ export class RunController {
     if (right) {
       this.record('doors', word, tapped, 'right')
       this.roundInScreen++
-      this.score++
-      this.set({ score: this.score })
+      this.gainStar()
       this.streak++
       this.set({ phase: 'feedback' })
       this.sfx('key')
@@ -809,12 +809,25 @@ export class RunController {
     stopMusic()
   }
 
+  /** A point: this run's score, and a star on his kept total; every COIN_EVERY-th star is a coin, with a sound. */
+  private gainStar() {
+    this.score++
+    this.set({ score: this.score })
+    if (this.opts.sandbox) return
+    const st = useDuel2Store.getState()
+    const before = coinsOf(st.totalStars)
+    st.addStar()
+    if (coinsOf(useDuel2Store.getState().totalStars) > before) {
+      this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
+      this.sfx('lock')
+    }
+  }
+
   private onCatch(target: Choice) {
     const st = useDuel2Store.getState()
     this.record('broom', target, target, 'right')
     if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'correct', msWalk: 0, walkMs: 1 }))
-    this.score++
-    this.set({ score: this.score })
+    this.gainStar()
     this.streak++
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
