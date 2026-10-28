@@ -201,6 +201,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show a learning mark on a neutral placeholder (circle or box), not on a carrier letter.
 - Put the syllables of one word on one baseline. Center a syllable alone by its ink, but a syllable in a word by the ink
   of the whole word. Example (book 2): on the door, "עָ" (a mark below) sat higher than "שׁוּ".
+- Place the parts of a word by their measured widths, not at fixed places, and make the letters smaller when the word does
+  not fit its frame. Check the longest word. Example (book 2): "דּוּר" of כַּדּוּר ran off the door plate.
+- Make a scene change look clean at every frame. Do not stretch a small picture to full size. Hide the change in a
+  natural effect (light, a fade) instead. Example (book 2): the parent found the exact fly-through-the-door zoom
+  "extremely ugly"; the camera now moves into the doorway's light, and the next door comes out of that light.
 - Check how the font draws each dotted letter. Sigalit fuses the shin dot into ש's right arm (שׁ looked like ن); the
   game draws its own dot above the arm.
 - Give rewards at several paces: points for each answer (the run), a slower count that is kept between plays and grows
@@ -289,6 +294,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
   so far on the start screen. Digits are allowed; mark them for the no-text scan.
   Example (book 2): the child asked "where can I see my points?".
+- Let a tap on each thing the child collects or keeps (hearts, points, coins, crystals, his best) say briefly what it is
+  and how he gets more. Say it once for a burst of taps. Reason: he cannot read a label.
+- Make the go-on button of an explanation large and glowing, and put it where the explanation leaves room (book 2: at the
+  bottom). Check at phone size that it covers nothing he must see.
+  Example (book 2): the parent: "make the play button more prominent, and make sure it doesn't hide any content".
 - Ask before you remove a control the child uses. A control that looks redundant to an adult can be one the child likes.
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
@@ -299,6 +309,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show a gesture with a demo that does the gesture: a hand that the child recognizes as a hand, and the object moves with it.
   Example (clock): the demo finger was a blob that moved in an arc beside the clock. Now a pointing hand pulls the long
   hand round, and the short hand moves with it.
+- Let the round that a demo shows be the first round he plays (the same letter, the same choices).
+  Example (book 2): the cauldron demo showed one letter; after the instruction the round changed to another letter.
 - Let a demo flow into play: when its words end, the round starts. Do not stop a demo on a next button.
   Example (book 2): the broom demo ended on a still screen with an arrow; the parent: "unnatural ... not intuitive that you
   need to press the left arrow". Use the play triangle for every next button (the clock game does).
@@ -329,10 +341,14 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   The parent: "too confusing, don't do this".
 - Forgive a near miss one time.
 - After a mistake or an explanation, do not go on by yourself. The child needs as much time as he wants to think.
-  Keep the right answer on the screen (with the wrong one marked) until the child taps a next button. Keep an explanation
-  on the screen when it ends, with a speaker that plays it again, until he taps next. Give the explanation of a mistake
-  from time to time (not every time), after he has looked at the right answer.
+  After a mistake, mark the right answer (and the wrong one) and let the child do the right move himself: drag the marked
+  choice to its place or tap it. Then do what a right answer does on that screen (no point: it was a mistake). Do not show
+  a next button for a mistake. If he waits, play the sound again. Keep an explanation on the screen when it ends, with a
+  speaker that plays it again, until he taps next. Give the explanation of a mistake from time to time (not every time),
+  after he has done the right move.
   Example (clock): after a mistake the next customer came at once, and an explanation went on to the question at once.
+  Example (book 2): the parent: "the kid should do it himself (e.g. drag the right option to wherever it needs to be
+  dragged). Prefer this to showing a play button".
 - Do not repeat the instruction in each round. The demo teaches a screen; after that, a round plays only the sound to find.
   Play the instruction (and the sound again) only when the child has not answered for a while (book 2: 8 s).
   Example (book 2): the parent: "no need to sound the instructions every time over and over. He gets it. Sound it only if
@@ -342,8 +358,7 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (book 2): the broom said "missed" while the right letter still overlapped the wizard, and on the last round the
   letters still flying vanished.
 - Let the child skip a hint or an explanation when he shows that he knows: he tries to pick. Keep the answers open
-  while a hint plays, and let a pick stop the hint and count. After a mistake, let a tap on the marked right answer go on
-  at once (no hint, no next button, no explanation). Let a tap anywhere on an explanation that covers the screen end it.
+  while a hint plays, and let a pick stop the hint and count. Let a tap anywhere on an explanation that covers the screen end it.
   Example (book 2): the parent: "explanations get the kid stuck if he already knows the answer".
 - Give hints that fit the question. Keep them behind a hint button. Show a hint by itself only when the child has not
   answered for a long time (book 2: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the

@@ -73,6 +73,14 @@ export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = 
 }
 export const say = (ids: string[], gapMs = GAP_MS) => sayParts(ids.map((id) => ({ id })), gapMs)
 
+let infoBusy = false
+/** A short explanation of something on the screen; ignored while one already plays or waits (a burst of taps says it once). */
+export function sayInfo(id: string) {
+  if (infoBusy) return
+  infoBusy = true
+  void say([id]).finally(() => { infoBusy = false })
+}
+
 /** Stops one speaker's parts (playing or queued); everything else in the queue goes on. */
 export function cancelVoice(signal: VoiceSignal) {
   signal.cancelled = true
@@ -82,6 +90,7 @@ export function cancelVoice(signal: VoiceSignal) {
 /** Stops the voice now and drops the queued parts (a tap on the cue, leaving the screen). */
 export function stopVoice() {
   epoch++
+  infoBusy = false
   queue = Promise.resolve()
   if (current) peekHowl(current)?.stop()
 }

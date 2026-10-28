@@ -1,7 +1,8 @@
 // 6 · The crystal behind the last door, in its own moment: a quartz or amethyst crystal with a burst of light.
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import { Stage } from './Stage'
+import { ArriveLight, takeArrivedThroughLight } from './Doors'
 
 export const CRYSTAL_MS = 3200
 const COLORS = [['#f4f7ff', '#b9c7ff'], ['#e6c8ff', '#8a4fd8'], ['#ffd6ea', '#d86fa8'], ['#e8ddd2', '#8a7660']]
@@ -13,6 +14,8 @@ export function Crystal(p: { kind: number; onDone: () => void }) {
     // once per crystal
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  // it comes out of the light of the last door
+  const [arrive] = useState(takeArrivedThroughLight)
   const k = ((p.kind % 4) + 4) % 4
   const [a, b] = COLORS[k]
   const img = IMAGES[`s-crystal-${k + 1}`]
@@ -31,6 +34,7 @@ export function Crystal(p: { kind: number; onDone: () => void }) {
               <polygon points="700,330 800,170 800,690 740,690" fill="#ffffff" opacity={0.25} />
             </g>}
       </g>
+      {arrive && <ArriveLight />}
     </Stage>
   )
 }

@@ -13,8 +13,14 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-btn-next { width: 84px; height: 84px; background: linear-gradient(#ffb02e, #ff6a1a); border-color: #fff6d8;
   box-shadow: 0 0 24px #ff8c28cc; animation: d2-pulse 1s ease-in-out infinite alternate; }
 @keyframes d2-pulse { to { transform: scale(1.08); } }
-.d2-explain-controls { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
-  display: flex; gap: 16px; align-items: center; z-index: 25; direction: ltr; }
+/* an explanation's go-on button (the parent: more prominent, and never over what he must see): big, glowing, at the
+   bottom where the explanation leaves room, with the replay button beside it */
+.d2-explain-controls { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 20px; align-items: center; z-index: 25; direction: ltr; pointer-events: none; }
+.d2-explain-controls > * { pointer-events: auto; }
+.d2-explain-controls .d2-btn-next { width: clamp(96px, 17vmin, 140px); height: clamp(96px, 17vmin, 140px); border-width: 5px;
+  box-shadow: 0 0 0 10px #ffb02e40, 0 0 40px 6px #ff8c28e6; animation: d2-pulse-big 0.9s ease-in-out infinite alternate; }
+@keyframes d2-pulse-big { to { transform: scale(1.1); box-shadow: 0 0 0 18px #ffb02e26, 0 0 56px 10px #ff8c28; } }
 .d2-ring { animation: d2-ring 0.5s ease-in-out infinite alternate; }
 @keyframes d2-ring { to { opacity: 0.55; } }
 .d2-stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -107,3 +113,12 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 /* the missed orb glows where it passed: "here it was" */
 .d2-pick-reveal { animation: d2-here 0.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
 @keyframes d2-here { to { transform: scale(1.12); } }
+/* a tap on what he collects says what it is (InfoTap) */
+.d2-info { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; touch-action: manipulation; }
+/* through a door: the next door (or the crystal) comes out of the doorway's light */
+.d2-arrive-light { animation: d2-arrive-light 0.7s ease-out forwards; }
+@keyframes d2-arrive-light { from { opacity: 1; } to { opacity: 0; } }
+.d2-arrive-scene { animation: d2-arrive-scene 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) both; transform-box: view-box; transform-origin: 800px 400px; }
+@keyframes d2-arrive-scene { from { transform: scale(1.12); } to { transform: scale(1); } }
+.d2-doorway-open { animation: d2-doorway-open 0.5s ease-out both; }
+@keyframes d2-doorway-open { from { opacity: 0; } to { opacity: 1; } }

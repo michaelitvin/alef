@@ -11,7 +11,7 @@ const RING: Record<PickState, string | undefined> = {
 
 function Picker(p: { w: number; h: number; x: number; y: number; state: PickState; onPick?: () => void; testCorrect?: boolean; round: boolean; children?: ReactNode; img: string }) {
   const ring = RING[p.state]
-  const can = p.state === 'idle' && !!p.onPick
+  const can = (p.state === 'idle' || p.state === 'reveal') && !!p.onPick
   const hw = p.w * 0.65
   const hh = p.h * 0.65
   return (
@@ -31,6 +31,7 @@ function Picker(p: { w: number; h: number; x: number; y: number; state: PickStat
       {p.children}
       <rect data-pick x={p.x - hw} y={p.y - hh} width={hw * 2} height={hh * 2} fill="transparent"
         {...(TEST_HOOKS && p.testCorrect ? { 'data-correct': '1' } : {})}
+        {...(p.state === 'reveal' ? { 'data-reveal': '1' } : {})}
         style={{ cursor: can ? 'pointer' : 'default' }}
         onPointerDown={(e) => { e.preventDefault(); if (can) p.onPick!() }} />
     </g>

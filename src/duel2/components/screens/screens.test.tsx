@@ -7,7 +7,7 @@ import { CATCH_AT, PASS_AT } from '../../logic/run'
 import { Cauldron } from './Cauldron'
 import { Ladder, plateYs } from './Ladder'
 import { Ghosts, GHOST_GLYPH_PX, GHOST_H } from './Ghosts'
-import { Doors, throughDoor, NEXT_DOOR, DOOR_BOX } from './Doors'
+import { Doors, throughDoor, markArrivedThroughLight, doorWordLayout, DOOR_GLYPH_PX, PLATE_INNER } from './Doors'
 import { Crystal } from './Crystal'
 import { item, mark, syllable } from '../../logic/content'
 import { syllableChoice } from '../../logic/rounds'
@@ -189,6 +189,22 @@ describe('screens', () => {
     expect(first.getAttribute('data-lit')).toBe('1')
     expect(second.getAttribute('data-lit')).toBe('0')
   })
+  it('a long word fits on the door plate: its syllables sit side by side by their widths, smaller if needed (the parent: דּוּר ran off)', () => {
+    const short = doorWordLayout([100, 110])
+    expect(short.px).toBe(DOOR_GLYPH_PX)
+    const long = doorWordLayout([130, 290])
+    expect(long.px).toBeLessThan(DOOR_GLYPH_PX)
+    for (const l of [short, long]) {
+      const [r, lft] = l.cx
+      expect(r).toBeGreaterThan(lft)
+      // the ink stays inside the plate
+      const ws = l === short ? [100, 110] : [130 * l.px / DOOR_GLYPH_PX, 290 * l.px / DOOR_GLYPH_PX]
+      expect(r + ws[0] / 2).toBeLessThanOrEqual(800 + PLATE_INNER / 2 + 0.5)
+      expect(lft - ws[1] / 2).toBeGreaterThanOrEqual(800 - PLATE_INNER / 2 - 0.5)
+      // centred, with the same gap between the syllables
+      expect(Math.abs((r + ws[0] / 2 + lft - ws[1] / 2) / 2 - 800)).toBeLessThan(0.5)
+    }
+  })
   it('the picture sits in the key handle', () => {
     const w = WORDS.find((x) => x.id === 'tent')!
     const { container } = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="answer" opening={false} zooming={false} />)
@@ -287,15 +303,26 @@ describe('screens', () => {
     expect(last.container.querySelector('[data-next-crystal]')).not.toBeNull()
     expect(last.container.querySelector('[data-next-door]')).toBeNull()
   })
-  it('going through the door ends exactly on the next door at full size (seamless into the next round)', () => {
-    const map = (u: number, y: number) => { const z = throughDoor(u); return z.oy + z.k * (y - z.oy) }
-    expect(throughDoor(0).k).toBe(1)
-    // the small door at the end of the corridor grows into the full door
-    expect(map(1, NEXT_DOOR.top)).toBeCloseTo(DOOR_BOX.top, 3)
-    expect(map(1, NEXT_DOOR.top + NEXT_DOOR.scale * DOOR_BOX.h)).toBeCloseTo(DOOR_BOX.top + DOOR_BOX.h, 3)
-    // smooth: it only ever moves forward
-    let prev = 0
-    for (let u = 0; u <= 1.0001; u += 0.05) { const k = throughDoor(Math.min(1, u)).k; expect(k).toBeGreaterThanOrEqual(prev); prev = k }
+  it('going through the door: the camera moves into the doorway while its light fills the screen (the parent: the old zoom was ugly)', () => {
+    expect(throughDoor(0)).toMatchObject({ k: 1, light: 0 })
+    expect(throughDoor(1).light).toBe(1)
+    expect(throughDoor(1).k).toBeGreaterThan(2)
+    let prev = { k: 0, light: 0 }
+    for (let u = 0; u <= 1.0001; u += 0.05) {
+      const z = throughDoor(Math.min(1, u))
+      expect(z.k).toBeGreaterThanOrEqual(prev.k)
+      expect(z.light).toBeGreaterThanOrEqual(prev.light)
+      prev = z
+    }
+  })
+  it('the next door comes out of the light after going through', () => {
+    const w = WORDS.find((x) => x.id === 'tent')!
+    const other = WORDS.find((x) => x.door && x.id !== 'tent')!
+    const first = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="answer" opening={false} zooming={false} />)
+    expect(first.container.querySelector('[data-arrive-light]')).toBeNull()
+    markArrivedThroughLight()
+    first.rerender(<Doors word={other} lit={0} keys={[other]} onPick={() => {}} phase="question" opening={false} zooming={false} />)
+    expect(first.container.querySelector('[data-arrive-light]')).not.toBeNull()
   })
 
   it('at the end of the flight the wizard swoops away', () => {
