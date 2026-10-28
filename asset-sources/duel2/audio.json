@@ -3627,7 +3627,7 @@
    "file": "src/duel2/assets/audio/voice/syl-r-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רָ",
-   "take": "clips/syl-r-a/v28.mp3",
+   "take": "clips/syl-r-a/v29.mp3",
    "request": {
     "model_id": "eleven_v4",
     "voice_settings": {
@@ -3635,7 +3635,7 @@
      "stability": 0.5,
      "similarity_boost": 0.75
     },
-    "note": "made by the parent in the ElevenLabs web UI, ElevenLabs_2026-10-28T21_14_49_Will_-_Relaxed_Optimist_pre_sp100_s50_sb75_v4.mp3"
+    "note": "made by the parent in the ElevenLabs web UI, ElevenLabs_2026-10-28T21_20_42"
    },
    "earlier_takes": [
     {
@@ -3745,6 +3745,10 @@
     {
      "file": "clips/syl-r-a/v27.mp3",
      "seed": 126
+    },
+    {
+     "file": "clips/syl-r-a/v28.mp3",
+     "seed": null
     }
    ]
   },
