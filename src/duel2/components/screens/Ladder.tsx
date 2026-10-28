@@ -50,7 +50,7 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         const rungY = RUNG_Y(Math.min(p.built.length, p.rungs - 1))
         return (
-          <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can} onPick={() => p.onPick(c.id)}
+          <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')} onPick={() => p.onPick(c.id)}
             // anywhere over the ladder counts (a child's drop is not precise)
             inZone={(q) => Math.abs(q.x - 800) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
             demo={p.demo?.id === c.id ? { t: p.demo.t, dx: 800 - PLATE_X, dy: rungY - fixY[i] } : undefined}>

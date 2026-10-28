@@ -10,6 +10,7 @@ import { Cover } from './Cover'
 import { PauseCover } from './PauseCover'
 import { Summary } from './Summary'
 import { useDuel2Store } from '../store'
+import { setVoicePlayer, stopVoice } from '../audio/duel2Audio'
 import Duel2App from '../Duel2App'
 
 const noText = (root: Element) => {
@@ -86,4 +87,26 @@ describe('shell', () => {
     expect(kinds.reduce((n, k) => n + Number(k.getAttribute('data-count')), 0)).toBe(6)
   })
 
+  it('a tap on his coins, crystals, run stars or best says what they are', async () => {
+    vi.useFakeTimers()
+    stopVoice()
+    const played: string[] = []
+    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    useDuel2Store.setState({ totalStars: 25, crystals: 3 })
+    const cover = render(<Cover onPlay={() => {}} onParent={() => {}} />)
+    fireEvent.pointerDown(cover.container.querySelector('[data-info="info-coins"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    fireEvent.pointerDown(cover.container.querySelector('[data-info="info-crystals"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    cover.unmount()
+    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    const sum = render(<Summary over={{ score: 9, crystals: 1, best: false }} onAgain={() => {}} />)
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    fireEvent.pointerDown(sum.container.querySelector('[data-info="info-stars"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    fireEvent.pointerDown(sum.container.querySelector('[data-info="info-best"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    expect(played.filter((id) => id.startsWith('info-'))).toEqual(['info-coins-1', 'info-crystals-1', 'info-stars-1', 'info-best-1'])
+    setVoicePlayer(null)
+  })
 })

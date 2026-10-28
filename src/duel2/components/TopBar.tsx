@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
+import { InfoTap } from './InfoTap'
 
 function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?: boolean }) {
   return (
@@ -24,9 +25,11 @@ export function TopBar(p: { hearts: number; score?: number; coins?: number; onRe
       </div>
       <div className="d2-topbar-mid">{p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>}</div>
       <div className="d2-topbar-side d2-hearts">
-        {p.coins !== undefined && <CoinCount n={p.coins} />}
-        {p.score !== undefined && <StarCount n={p.score} attr="data-score" />}
-        {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}
+        {p.coins !== undefined && <InfoTap line="info-coins"><CoinCount n={p.coins} /></InfoTap>}
+        {p.score !== undefined && <InfoTap line="info-stars"><StarCount n={p.score} attr="data-score" /></InfoTap>}
+        <InfoTap line="info-hearts" className="d2-hearts-row">
+          {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}
+        </InfoTap>
       </div>
     </div>
   )

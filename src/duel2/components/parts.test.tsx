@@ -112,4 +112,18 @@ describe('parts', () => {
     expect(container.querySelector('[data-coins]')!.textContent).toBe('12')
   })
 
+  it('a tap on the hearts, the stars or the coins says what they are, once per tap burst (the parent)', async () => {
+    vi.useFakeTimers()
+    const played: string[] = []
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
+    const { container } = render(<TopBar hearts={3} score={4} coins={2} />)
+    fireEvent.pointerDown(container.querySelector('[data-info="info-hearts"]')!)
+    fireEvent.pointerDown(container.querySelector('[data-info="info-hearts"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    fireEvent.pointerDown(container.querySelector('[data-info="info-stars"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    fireEvent.pointerDown(container.querySelector('[data-info="info-coins"]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(played).toEqual(['info-hearts-1', 'info-stars-1', 'info-coins-1'])
+  })
 })

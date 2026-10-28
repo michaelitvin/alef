@@ -17,6 +17,7 @@ function seeded(seed: number) {
   }
 }
 
+type Force = NonNullable<ConstructorParameters<typeof RunController>[0]>['force']
 let played: string[] = []
 const allDemos = ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors']
 const ALL_DOTS = ['bet', 'kaf', 'pe', 'shin']
@@ -44,10 +45,15 @@ function wrongId(v: View): string {
   if (s.screen === 'ladder') return s.plates.find((x) => x.id !== s.target.id && x.nearMissOf !== s.target.id)!.id
   throw new Error('no pick')
 }
-/** presses next through the mistake and any explanation until the next answer phase */
+/** after a mistake he does the right move himself (the marked answer); an explanation still has next */
+function proceed(c: RunController) {
+  if (c.view.fixing) c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
+  else if (c.view.needNext) c.next()
+}
+/** does the fix and presses next through any explanation until the next answer phase */
 async function drain(c: RunController) {
   for (let i = 0; i < 400 && !(c.view.phase === 'answer' && !c.view.needNext) && !c.view.over; i++) {
-    if (c.view.needNext) c.next()
+    proceed(c)
     await tick(50)
   }
 }
@@ -98,17 +104,48 @@ describe('run controller', () => {
     c.destroy()
   })
 
-  it('a mistake waits for next', async () => {
-    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+  it('after a mistake he does the right move himself: no next button, only the marked answer goes on (the parent)', async () => {
+    for (const force of [{ screen: 'ladder', stage: 2, fixed: 'letter' }, { screen: 'ghosts', stage: 2, kind: 'syllable' }, { screen: 'cauldron', stage: 2 }] as Force[]) {
+      useDuel2Store.getState().resetProgress()
+      const c = make({ force })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const wrong = wrongId(c.view)
+      c.gesture({ type: 'pick', id: wrong })
+      await until(c, (v) => v.phase === 'mistake' && !!v.fixing)
+      await tick(60_000)
+      expect(c.view.phase).toBe('mistake')
+      expect(c.view.needNext).toBe(false)
+      expect(c.view.hearts).toBe(2)
+      const before = useDuel2Store.getState().roundNo
+      c.gesture({ type: 'pick', id: wrong })
+      await tick(500)
+      expect(c.view.phase).toBe('mistake')
+      const score = c.view.score
+      c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
+      await until(c, (v) => !v.fixing && v.phase !== 'mistake')
+      // the right move does what a right answer does on that screen, but no star and no new answer recorded
+      const s = c.view.screen!
+      if (s.screen === 'ladder') expect(s.built.length).toBe(1)
+      if (s.screen === 'ghosts') expect(s.zapped).toBeTruthy()
+      if (s.screen === 'cauldron') expect(s.joined).toBe(true)
+      expect(c.view.score).toBe(score)
+      expect(useDuel2Store.getState().roundNo).toBe(before)
+      await drain(c)
+      expect(c.view.phase).toBe('answer')
+      c.destroy()
+    }
+  })
+
+  it('after a wrong key he drags the right key himself and the door opens', async () => {
+    const c = make({ force: { screen: 'doors', stage: 2 } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
     c.gesture({ type: 'pick', id: wrongId(c.view) })
-    await until(c, (v) => v.phase === 'mistake' && v.needNext)
-    await tick(60_000)
-    expect(c.view.phase).toBe('mistake')
-    expect(c.view.hearts).toBe(2)
-    c.next()
-    await until(c, (v) => v.phase === 'explain' || v.phase === 'question' || v.phase === 'answer')
+    await until(c, (v) => !!v.fixing)
+    expect(c.view.needNext).toBe(false)
+    c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
+    await until(c, (v) => (v.screen as { opening?: boolean }).opening === true)
     c.destroy()
   })
 
@@ -119,8 +156,8 @@ describe('run controller', () => {
     for (let k = 0; k < 2; k++) {
       await until(c, (v) => v.phase === 'answer')
       c.gesture({ type: 'pick', id: wrongId(c.view) })
-      await until(c, (v) => v.needNext)
-      c.next()
+      await until(c, (v) => v.needNext || !!v.fixing)
+      proceed(c)
       if (k === 0) await until(c, (v) => v.phase === 'question' || v.phase === 'answer')
     }
     await until(c, (v) => v.overlay?.kind === 'explain')
@@ -128,6 +165,21 @@ describe('run controller', () => {
     expect(o.parts.map((p) => p.id)[1]).toMatch(/^ln-/)
     expect(o.parts.map((p) => p.id)[2]).toMatch(/^vn-/)
     c.destroy()
+  })
+
+  it('the first round after a demo is the round the demo showed', async () => {
+    // the parent: the demo showed one letter and the round then asked about another
+    for (const force of [{ screen: 'cauldron', stage: 2, demo: true }, { screen: 'ghosts', stage: 2, kind: 'syllable', demo: true }] as Force[]) {
+      useDuel2Store.setState({ demosSeen: [] })
+      const c = make({ force })
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      const shown = JSON.stringify(c.view.screen)
+      c.next()
+      await until(c, (v) => v.phase === 'answer')
+      expect(JSON.stringify(c.view.screen)).toBe(shown)
+      c.destroy()
+    }
   })
 
   it('the sound to find plays again after a demo', async () => {
@@ -168,13 +220,13 @@ describe('run controller', () => {
     for (let k = 0; k < 2; k++) {
       await until(c, (v) => v.screen?.screen === 'cauldron' && v.phase === 'answer')
       c.gesture({ type: 'pick', id: wrongId(c.view) })
-      await until(c, (v) => v.needNext)
+      await until(c, (v) => v.needNext || !!v.fixing)
       await drain(c)
     }
     expect(c.view.hearts).toBe(1)
     for (let guard = 0; guard < 20 && c.view.screen?.screen === 'cauldron'; guard++) {
-      await until(c, (v) => v.phase === 'answer' || v.screen?.screen !== 'cauldron' || v.needNext)
-      if (c.view.needNext) { c.next(); continue }
+      await until(c, (v) => v.phase === 'answer' || v.screen?.screen !== 'cauldron' || v.needNext || !!v.fixing)
+      if (c.view.needNext || c.view.fixing) { proceed(c); continue }
       if (c.view.screen?.screen === 'cauldron') c.gesture({ type: 'pick', id: rightId(c.view) })
       await tick(100)
     }
@@ -190,7 +242,7 @@ describe('run controller', () => {
     for (let k = 0; k < 3; k++) {
       await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
       c.gesture({ type: 'pick', id: wrongId(c.view) })
-      await until(c, (v) => v.needNext || v.over !== null)
+      await until(c, (v) => v.needNext || !!v.fixing || v.over !== null)
       if (c.view.over) break
       await drain(c)
     }
@@ -212,7 +264,7 @@ describe('run controller', () => {
     c.start()
     for (let guard = 0; guard < 400 && c.view.screen?.screen !== 'crystal'; guard++) {
       await tick(50)
-      if (c.view.needNext) c.next()
+      if (c.view.needNext || c.view.fixing) proceed(c)
       else if (c.view.phase === 'answer' && c.view.screen && !['crystal', 'broom'].includes(c.view.screen.screen as string)) c.gesture({ type: 'pick', id: rightId(c.view) })
     }
     expect(c.view.screen?.screen).toBe('crystal')
@@ -331,7 +383,7 @@ describe('run controller', () => {
     for (let k = 0; k < 3; k++) {
       await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
       c.gesture({ type: 'pick', id: wrongId(c.view) })
-      if (k < 2) { await until(c, (v) => v.needNext); await drain(c) }
+      if (k < 2) { await until(c, (v) => v.needNext || !!v.fixing); await drain(c) }
     }
     await tick(5)
     c.pause()
@@ -347,7 +399,7 @@ describe('run controller', () => {
     c.start()
     for (let guard = 0; guard < 600 && c.view.screen?.screen !== 'crystal'; guard++) {
       await tick(50)
-      if (c.view.needNext) c.next()
+      if (c.view.needNext || c.view.fixing) proceed(c)
       else if (c.view.phase === 'answer' && c.view.screen?.screen === 'doors') c.gesture({ type: 'pick', id: rightId(c.view) })
     }
     await until(c, (v) => v.phase === 'celebrate')
@@ -377,7 +429,8 @@ describe('run controller', () => {
     const target = s.target
     played = []
     c.gesture({ type: 'pick', id: wrongId(c.view) })
-    await until(c, (v) => v.needNext)
+    await until(c, (v) => v.needNext || !!v.fixing)
+    await tick(1000)
     expect(played).toContain(target.soundId)
     expect(played).not.toContain(`vn-${target.mark}`)
     expect(c.view.overlay).toBeNull()
@@ -407,28 +460,6 @@ describe('run controller', () => {
     await tick(100)
     expect(useDuel2Store.getState().roundNo).toBe(1)
     expect(c.view.overlay?.kind).not.toBe('hint')
-    c.destroy()
-  })
-
-  it('after a mistake a tap on the right answer goes on at once: no hint wait, no next, no explanation', async () => {
-    useDuel2Store.setState({ mistakes: [], roundNo: 10 })
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
-    const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
-    c.start()
-    await until(c, (v) => v.phase === 'answer')
-    c.gesture({ type: 'pick', id: wrongId(c.view) })
-    await until(c, (v) => v.needNext)
-    c.next()
-    await until(c, (v) => v.phase === 'answer')
-    // the same letter missed twice: an explanation is due after this mistake
-    const right = rightId(c.view)
-    c.gesture({ type: 'pick', id: wrongId(c.view) })
-    await until(c, (v) => v.phase === 'mistake')
-    played = []
-    c.gesture({ type: 'pick', id: right })
-    await until(c, (v) => v.phase === 'question' || v.phase === 'answer', 3000)
-    expect(played).not.toContain('explain-lead-1')
-    expect(c.view.overlay?.kind).not.toBe('explain')
     c.destroy()
   })
 
@@ -464,6 +495,7 @@ describe('run controller', () => {
   })
 
   it('a new sound to catch comes only when the orbs on the screen are done, and the flight does not stop for it', async () => {
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1200)) })
     const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
@@ -474,6 +506,8 @@ describe('run controller', () => {
     let lastWave = 0
     let firstNewWave = -1
     let prevMax = 0
+    let cueAt = -1
+    let spawnAt = -1
     const phases = new Set<string>()
     for (let i = 0; i < 6000 && (changes === 0 || (firstNewWave < 0 && Date.now() - changedAt < 8000)); i++) {
       const s = c.view.screen as BroomView
@@ -486,7 +520,8 @@ describe('run controller', () => {
         changedAt = Date.now()
         lastWave = prevMax
       }
-      if (changedAt > 0 && firstNewWave < 0 && s.waves.some((w) => w.id > lastWave)) firstNewWave = Date.now() - changedAt
+      if (changedAt > 0 && cueAt < 0 && played.slice(-1)[0] === s.target.soundId) cueAt = Date.now()
+      if (changedAt > 0 && firstNewWave < 0 && s.waves.some((w) => w.id > lastWave)) { firstNewWave = Date.now() - changedAt; spawnAt = Date.now() }
       prevTarget = s.target.soundId
       prevMax = Math.max(prevMax, 0, ...s.waves.map((w) => w.id))
       phases.add(c.view.phase)
@@ -497,9 +532,12 @@ describe('run controller', () => {
     }
     expect(changes).toBe(1)
     expect([...phases]).toEqual(['answer'])
-    // the new orbs come while the new sound is said: no long wait (the parent)
+    // the new orbs set off when the new sound is said, not with "and now" (the parent: they were already close), and
+    // with no long wait after it either
     expect(firstNewWave).toBeGreaterThanOrEqual(0)
-    expect(firstNewWave).toBeLessThan(300)
+    expect(cueAt).toBeGreaterThan(0)
+    expect(spawnAt).toBeGreaterThanOrEqual(cueAt)
+    expect(spawnAt - cueAt).toBeLessThan(300)
     c.destroy()
   })
 
@@ -560,7 +598,7 @@ describe('run controller', () => {
       // the flight no longer stops at a mistake: count the hearts he loses
       if (c.view.hearts < hearts) mistakes++
       hearts = c.view.hearts
-      if (c.view.needNext) c.next()
+      if (c.view.needNext || c.view.fixing) proceed(c)
       if (c.view.phase === 'answer' && s?.waves?.length) {
         // he stays with the oldest wave until all of it has passed, then goes to the next target's lane
         const head = s.waves.find((w) => w.resolved.some((r) => !r))

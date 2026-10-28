@@ -6,6 +6,7 @@ import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
+import { InfoTap } from '../components/InfoTap'
 import { coinsOf, useDuel2Store } from '../store'
 
 const HOLD_MS = 2000
@@ -50,10 +51,10 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
       </svg>
       {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
       <div className="d2-cover-stars">
-        <CoinCount n={coinsOf(totalStars)} size="big" />
+        <InfoTap line="info-coins"><CoinCount n={coinsOf(totalStars)} size="big" /></InfoTap>
         {/* his crystals, by kind (the nth crystal won is kind n % 4, as the crystal screen shows it) */}
         {crystals > 0 && (
-          <div data-crystal-shelf className="d2-crystal-shelf">
+          <InfoTap line="info-crystals"><div data-crystal-shelf className="d2-crystal-shelf">
             {[1, 2, 3, 0].map((k) => {
               const count = Math.floor(crystals / 4) + (k !== 0 && k <= crystals % 4 ? 1 : 0)
               if (!count) return null
@@ -64,7 +65,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
                 </span>
               )
             })}
-          </div>
+          </div></InfoTap>
         )}
       </div>
       <button aria-label="play" className={`d2-play${loading ? ' loading' : ''}`} onClick={onPlay} data-loading={loading || undefined}>

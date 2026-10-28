@@ -814,6 +814,96 @@
    "earlier_takes": null
   },
   {
+   "id": "info-best-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-best-1.mp3",
+   "where": "A tap on his best run",
+   "caption": "זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.",
+   "take": "clips/info-best-1/v1.mp3",
+   "request": {
+    "text": "זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-coins-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-coins-1.mp3",
+   "where": "A tap on his coins",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+   "take": "clips/info-coins-1/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-crystals-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-crystals-1.mp3",
+   "where": "A tap on his crystals",
+   "caption": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
+   "take": "clips/info-crystals-1/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-hearts-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-hearts-1.mp3",
+   "where": "A tap on the hearts",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
+   "take": "clips/info-hearts-1/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-stars-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-stars-1.mp3",
+   "where": "A tap on the stars of this run",
+   "caption": "אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.",
+   "take": "clips/info-stars-1/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "ladder-top-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/ladder-top-1.mp3",
@@ -4734,15 +4824,15 @@
    "file": "src/duel2/assets/audio/voice/syl-v-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בוּ",
-   "take": "clips/syl-v-u/v10.mp3",
+   "take": "clips/syl-v-u/v18.mp3",
    "request": {
-    "text": "ווּ.",
+    "text": "vous.",
     "model_id": "eleven_v4",
-    "language_code": "he",
+    "language_code": "fr",
     "voice_settings": {
-     "stability": 1
+     "stability": 0.75
     },
-    "seed": 109
+    "seed": 117
    },
    "earlier_takes": [
     {
@@ -4782,8 +4872,36 @@
      "seed": 108
     },
     {
+     "file": "clips/syl-v-u/v10.mp3",
+     "seed": 109
+    },
+    {
      "file": "clips/syl-v-u/v11.mp3",
      "seed": 110
+    },
+    {
+     "file": "clips/syl-v-u/v12.mp3",
+     "seed": 111
+    },
+    {
+     "file": "clips/syl-v-u/v13.mp3",
+     "seed": 112
+    },
+    {
+     "file": "clips/syl-v-u/v14.mp3",
+     "seed": 113
+    },
+    {
+     "file": "clips/syl-v-u/v15.mp3",
+     "seed": 114
+    },
+    {
+     "file": "clips/syl-v-u/v16.mp3",
+     "seed": 115
+    },
+    {
+     "file": "clips/syl-v-u/v17.mp3",
+     "seed": 116
     }
    ]
   },

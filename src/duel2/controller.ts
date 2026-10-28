@@ -59,8 +59,10 @@ export interface View {
   hearts: number
   screen: ScreenView | null
   overlay: Overlay | null
-  /** the mistake waits for this; also after a celebration that needs a tap */
+  /** an explanation or a demo waits for this */
   needNext: boolean
+  /** after a mistake: the right answer is marked and the round waits for him to do the right move himself (the parent) */
+  fixing?: boolean
   hintAvailable: boolean
   paused: boolean
   over: { score: number; crystals: number; best: boolean } | null
@@ -81,6 +83,8 @@ class Aborted extends Error {}
 /** no pick for this long: the instruction and the sound play once */
 /** an effect rings this long before the voice goes on (fluent, but not cut) */
 const SFX_RING_MS = 400
+/** after his fixing move: the effect plays before the next round */
+const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
@@ -126,8 +130,9 @@ export class RunController {
   private nextWaiter: (() => void) | null = null
   private cueStarted = 0
   private spokenTargets = new Set<string>()
-  /** set when he taps the right answer during a mistake: the rest of the mistake is skipped */
-  private skipMistake = false
+  private fixWaiter: ((id: string) => void) | null = null
+  /** the round the demo showed is the first round he plays (the parent: the letter changed after the demo) */
+  private demoRound = false
   private fxId = 0
   private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
   private doorWords: Word[] = []
@@ -167,13 +172,13 @@ export class RunController {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
       return
     }
-    if (this.view.phase === 'mistake' && !this.ending) {
-      // he shows he knows: a tap on the marked right answer skips the hint, the wait for next and the explanation (Michael)
+    if (this.view.phase === 'mistake') {
+      // after a mistake only the marked right answer goes on: he does the right move himself (the parent)
       const right = (this.view.screen as { reveal?: { right: string } } | null)?.reveal?.right
-      if (right && g.id === right) {
-        this.skipMistake = true
-        stopVoice()
-        if (this.nextWaiter) this.next()
+      if (!this.ending && this.fixWaiter && right && g.id === right) {
+        const w = this.fixWaiter
+        this.fixWaiter = null
+        w(g.id)
       }
       return
     }
@@ -264,7 +269,6 @@ export class RunController {
   }
   private waitPick(t: number) { return this.guard(t, new Promise<string>((r) => { this.pickWaiter = r })) }
   private waitNext(t: number) {
-    if (this.skipMistake) return Promise.resolve()
     this.set({ needNext: true })
     return this.guard(t, new Promise<void>((r) => { this.nextWaiter = r }))
   }
@@ -333,6 +337,7 @@ export class RunController {
     if ((this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes(demo)) && this.roundInScreen === 0) {
       this.demoShown = true
       this.prepareView(screen, kind)
+      this.demoRound = screen !== 'broom'
       this.set({ phase: 'demo', overlay: { kind: 'demo', line: lineAudioId(demo, 1), demo } })
       if (!this.opts.sandbox) { st.markDemo(demo); duel2Telemetry.track('demo', { demo }) }
       await this.waitNext(t)
@@ -361,6 +366,10 @@ export class RunController {
     }
     this.resuming = false
     this.answered = false
+    if (this.demoRound) {
+      this.demoRound = false
+      if (cur && cur.screen === screen) return cur.screen === 'doors' ? cur.word : (cur as CauldronView).target
+    }
     const c = this.ctx()
     // never the same sound two rounds in a row on one screen
     const prev = this.view.screen?.screen === screen ? (this.view.screen as { target?: Choice }).target?.soundId : undefined
@@ -576,20 +585,43 @@ export class RunController {
     this.hearts = outcome.hearts
     this.streak = 0
     this.record(screen, c, tapped, 'wrong')
-    if (s.screen !== 'ladder') this.roundInScreen++
+    this.roundInScreen++
     this.sfx('hit')
     const reveal = s.screen === 'cauldron' ? { right: c.mark!, wrong: tapped.mark } : { right: c.id, wrong: tapped.id }
-    this.skipMistake = false
     this.setScreen({ reveal } as Partial<ScreenView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(c))
-    await this.sleep(t, SFX_RING_MS)
-    await this.say(t, [{ id: this.cueId(c) }])
-    // no hint here: the right answer glows and its sound plays (Michael: the hint came too often)
-    await this.waitNext(t)
-    if (!this.skipMistake && this.explanationDue(screen, c)) await this.explain(t, c)
-    this.skipMistake = false
+    // no hint here: the right answer glows and its sound plays (Michael: the hint came too often); then he does the
+    // right move himself, which does what a right answer does on that screen (no star: it was a mistake)
+    await this.fix(t, this.cueId(c))
+    this.set({ phase: 'feedback' })
+    if (s.screen === 'cauldron') { this.setScreen({ reveal: undefined, joined: true } as Partial<CauldronView>); this.sfx('puff') }
+    if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ reveal: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
+    if (s.screen === 'ghosts') { this.setScreen({ reveal: undefined, zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
+    await this.sleep(t, FIX_DONE_MS)
+    if (this.explanationDue(screen, c)) await this.explain(t, c)
     return 'next'
+  }
+
+  /** After a mistake: the right answer's sound, then wait until he does the right move; the sound again if he waits. */
+  private async fix(t: number, cue: string) {
+    const done = this.guard(t, new Promise<string>((r) => { this.fixWaiter = r }))
+    this.set({ fixing: true })
+    let waiting = true
+    void done.then(() => { waiting = false }, () => { waiting = false })
+    try {
+      await this.sleep(t, SFX_RING_MS)
+      await Promise.race([this.say(t, [{ id: cue }]), done])
+      for (;;) {
+        const r = await Promise.race([done.then(() => true), this.sleep(t, IDLE_MS).then(() => false)])
+        if (r) break
+        if (waiting && !this.view.paused) await Promise.race([this.say(t, [{ id: cue }]), done])
+      }
+      stopVoice()
+    } finally {
+      this.fixWaiter = null
+      this.set({ fixing: false })
+    }
   }
 
   private async evaluateDoor(t: number, word: Word, picked: string): Promise<'next' | 'over'> {
@@ -616,14 +648,20 @@ export class RunController {
     this.streak = 0
     this.record('doors', word, tapped, 'wrong')
     this.sfx('hit')
-    this.skipMistake = false
     this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(`w-${word.id}`)
+    // he drags the marked key himself and the door opens (no star: it was a mistake)
+    await this.fix(t, `w-${word.id}`)
+    this.roundInScreen++
+    this.set({ phase: 'feedback' })
+    this.sfx('key')
+    this.setScreen({ reveal: undefined, opening: true } as Partial<DoorsView>)
+    this.sfx('door')
+    await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: `w-${word.id}` }])
-    await this.waitNext(t)
-    this.skipMistake = false
-    // the same door again (it opens only with its key)
+    this.setScreen({ zooming: true } as Partial<DoorsView>)
+    await this.sleep(t, ZOOM_MS + 60)
     return 'next'
   }
 
@@ -733,6 +771,7 @@ export class RunController {
     let catches = 0
     let newTargetDue = false
     let announcing = false
+    let holdSpawn = false
     let lastSpawn = -Infinity
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
     const spawn = (now: number) => {
@@ -779,7 +818,8 @@ export class RunController {
           }
         }
         // a new sound: once no orb with the old sound is flying (other leftovers finish harmlessly), say it while he
-        // flies and send the next orbs at once — they need a moment to fly in anyway (Michael: no long waits)
+        // flies; the next orbs set off when the sound itself is said (Michael: with "and now" they were already close by
+        // the sound) and not later (no long waits)
         const oldLeft = waves.some((w) => !w.spent && w.choices.some((c, j) => c.soundId === target.soundId && !w.resolved[j]))
         if (newTargetDue && !announcing && !oldLeft) {
           announcing = true
@@ -787,11 +827,12 @@ export class RunController {
           const spentWaves = waves.map((w) => ({ ...w, spent: true }))
           target = broomTarget(this.ctx(), kind, target.soundId)
           this.setScreen({ target, waves: spentWaves } as Partial<BroomView>)
-          lastSpawn = -Infinity
-          void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target) }])
-            .catch(() => {}).finally(() => { announcing = false })
+          holdSpawn = true
+          const go = () => { holdSpawn = false; lastSpawn = -Infinity }
+          void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target), onStart: go }])
+            .catch(() => {}).finally(() => { announcing = false; if (holdSpawn) go() })
         }
-        if (!newTargetDue && spawned < VISIT.broom && now - lastSpawn >= travel * WAVE_EVERY) spawn(now)
+        if (!newTargetDue && !holdSpawn && spawned < VISIT.broom && now - lastSpawn >= travel * WAVE_EVERY) spawn(now)
         // the visit ends when all its orbs have arrived (Michael: "let me finish")
         if (spawned >= VISIT.broom && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
       }, 50)

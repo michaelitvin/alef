@@ -38,7 +38,7 @@ export function Cauldron(p: {
         if (p.reveal?.right === m.id) state = 'reveal'
         else if (p.reveal?.wrong === m.id) state = 'wrong'
         return (
-          <DragPick key={m.id} attrs={{ 'data-orb': m.id, ...(p.correct === m.id ? { 'data-correct-orb': '1' } : {}) }} enabled={can}
+          <DragPick key={m.id} attrs={{ 'data-orb': m.id, ...(p.correct === m.id ? { 'data-correct-orb': '1' } : {}) }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
             onPick={() => p.onPick(m.id)} inZone={(q) => Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top}>
             <Orb size={ORB_SIZE} x={x} y={y} state={state} testCorrect={p.correct === m.id}>
               <MarkAlone mark={m} size={ORB_SIZE * 0.62} x={x} y={y} />
