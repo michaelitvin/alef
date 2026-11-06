@@ -1,0 +1,114 @@
+// How each letter is written, stroke by stroke, in print (כתב דפוס, the game's print font) and in handwriting (כתב יד,
+// the Ktav Yad font). Loaded by plain Node: erasable TS only, data only.
+//
+// Coordinates: the letter's normalized box, plain x/y with the origin top-left (x is NOT right to left): y = 0 on the top
+// line, y = 1 on the baseline, x in the same unit. Descenders go below 1, ascenders above 0. Each stroke is a polyline,
+// its start point first. `w` is the letter's width (it sits centred in the slot).
+//
+// Sources (researched 2026-11-07; no official per-letter standard exists, but the Israeli teaching sources agree closely):
+// - Print: etze.co.il tracing sheets with numbered arrows
+//   (https://www.etze.co.il/images/stories/maarechet/yosrim/haashara/2010/otiyot_dfus/otiyot_dfus.pdf),
+//   Shlomit Oltchik's text for each letter (https://shlomitoltchik.com/the-letters-of-the-print/), likro.co.il staged
+//   images, 2times2.com arrow diagrams, Hebrew4Christians charts (https://www.ancient-hebrew.org/learn/how-to-write-hebrew.htm).
+//   The core rule is "like resh": start at the top-left, along the roof left to right, then down; then the other parts,
+//   each from top to bottom. Base lines that return under a letter (כ נ פ צ, ע, the bottom of ש) go right to left.
+//   Upward motions only in מ (starts bottom-left), ט (up its left side), ש (up its left arm) and one form of ם.
+// - Handwriting: etze.co.il cursive sheets (https://www.etze.co.il/images/stories/maarechet/yosrim/haashara/otiyot_ktav.pdf),
+//   2times2.com (https://2times2.com/hebrew/cursive.html, the school font Gveret Levin), likro.co.il
+//   (https://likro.co.il/otiyot-bekhtav-agol.htm), C. Abzug, James Madison University ("Writing the Alef-Bet").
+//   The arch family (ר ה ח ת ק כ ב פ ך) starts at the left and goes clockwise over the top. Paths follow the Ktav Yad font.
+// Where sources disagree the letter holds both variants, and either passes: print ם (one loop or two strokes), print ע
+// (the arms in either order); handwriting א (the line first in one source), and lenient directions (`either`) for
+// handwriting ס ע ש ף ץ. A pen lift that splits one stroke into two passes (the recognizer joins them), except for
+// `strict` letters: print ד is two strokes (the roof, then the down line with a corner) and ר is one curved stroke, and
+// the check must tell them apart by that (the parent).
+
+export type Pt = [number, number]
+export type Script = 'print' | 'hand'
+export interface StrokeDef { pts: Pt[]; /** both directions pass */ either?: boolean }
+export interface LetterDef { letter: string; script: Script; w: number; variants: StrokeDef[][]; strict?: boolean }
+
+const s = (...pts: Pt[]): StrokeDef => ({ pts })
+const e = (...pts: Pt[]): StrokeDef => ({ pts, either: true })
+const L = (letter: string, script: Script, w: number, variants: StrokeDef[][], strict?: boolean): LetterDef =>
+  ({ letter, script, w, variants, ...(strict ? { strict } : {}) })
+
+const PRINT: LetterDef[] = [
+  L('א', 'print', 1.1, [[s([0.1, 0.05], [1.05, 1]), s([1, 0.05], [0.7, 0.55]), s([0.33, 0.35], [0.05, 1])]]),
+  L('ב', 'print', 1.1, [[s([0.1, 0.08], [0.85, 0.08], [0.87, 0.95]), s([0.02, 0.95], [1.08, 0.95])]]),
+  L('ג', 'print', 0.75, [[s([0.15, 0.05], [0.45, 0.05], [0.72, 1]), s([0.5, 0.42], [0.08, 1])]]),
+  L('ד', 'print', 1.1, [[s([0.05, 0.08], [1.08, 0.08]), s([0.82, 0.12], [0.84, 1])]], true),
+  L('ה', 'print', 1.1, [[s([0.05, 0.08], [1, 0.08], [1.02, 1]), s([0.28, 0.45], [0.28, 1])]]),
+  L('ו', 'print', 0.35, [[s([0.03, 0.07], [0.25, 0.08], [0.27, 1])]]),
+  L('ז', 'print', 0.65, [[s([0.03, 0.05], [0.62, 0.2]), s([0.3, 0.18], [0.48, 1])]]),
+  L('ח', 'print', 1.1, [[s([0.05, 0.08], [1, 0.08], [1.02, 1]), s([0.12, 0.1], [0.12, 1])]]),
+  L('ט', 'print', 1.05, [[s([0.55, 0.38], [0.85, 0.05], [1, 0.22], [1, 0.95], [0.1, 0.95], [0.05, 0.05])]]),
+  L('י', 'print', 0.4, [[s([0.05, 0.08], [0.32, 0.1], [0.32, 0.6])]]),
+  L('כ', 'print', 1, [[s([0.05, 0.08], [0.88, 0.08], [0.95, 0.5], [0.88, 0.95], [0.05, 0.95])]]),
+  L('ך', 'print', 0.9, [[s([0.05, 0.08], [0.85, 0.08], [0.85, 1.45])], [s([0.05, 0.08], [0.88, 0.08]), s([0.75, 0.12], [0.75, 1.45])]]),
+  L('ל', 'print', 0.95, [[s([0.1, -0.35], [0.1, 0.1], [0.85, 0.1], [0.85, 0.5], [0.45, 1])]]),
+  L('מ', 'print', 1.2, [[s([0.05, 1], [0.75, 0.08], [0.95, 0.08], [1.15, 0.3], [1.15, 1], [0.65, 1]), s([0.08, 0.08], [0.35, 0.45])]]),
+  L('ם', 'print', 1.05, [
+    [s([0.05, 0.08], [1, 0.08], [1, 1], [0.05, 1], [0.05, 0.1])],
+    [s([0.05, 0.08], [1, 0.08], [1, 1]), s([0.05, 0.1], [0.05, 1], [1, 1])],
+  ]),
+  L('נ', 'print', 0.75, [[s([0.1, 0.08], [0.55, 0.08], [0.6, 0.95], [0.05, 0.95])]]),
+  L('ן', 'print', 0.35, [[s([0.03, 0.07], [0.25, 0.08], [0.27, 1.45])]]),
+  L('ס', 'print', 1.1, [[s([0.05, 0.05], [0.75, 0.05], [1.05, 0.35], [1, 0.8], [0.55, 1.02], [0.15, 0.85], [0.05, 0.4], [0.06, 0.1])]]),
+  L('ע', 'print', 1.1, [
+    [s([1.05, 0.05], [0.6, 0.95], [0, 1]), s([0.1, 0.05], [0.45, 0.65])],
+    [s([0.1, 0.05], [0.45, 0.65]), s([1.05, 0.05], [0.6, 0.95], [0, 1])],
+  ]),
+  L('פ', 'print', 1.05, [[s([0.05, 0.08], [0.9, 0.08], [1, 0.5], [0.9, 0.95], [0.05, 0.95]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])]]),
+  L('ף', 'print', 1.05, [[s([0.05, 0.08], [0.95, 0.08], [0.95, 1.45]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])]]),
+  L('צ', 'print', 1.05, [[s([0.05, 0.05], [0.85, 0.85], [0.9, 0.95], [0.05, 0.95]), s([1, 0.05], [0.5, 0.5])]]),
+  L('ץ', 'print', 1, [[s([0.05, 0.05], [0.25, 0.6], [0.35, 1.45]), s([0.95, 0.05], [0.22, 0.6])]]),
+  L('ק', 'print', 1.05, [[s([0.05, 0.08], [0.95, 0.08], [0.95, 0.65], [0.7, 0.95]), s([0.1, 0.3], [0.1, 1.45])]]),
+  L('ר', 'print', 0.95, [[s([0.05, 0.08], [0.7, 0.08], [0.85, 0.15], [0.9, 0.3], [0.9, 1])]], true),
+  L('ש', 'print', 1.25, [[s([1.2, 0.05], [1.05, 0.95], [0.2, 0.95], [0.05, 0.05]), s([0.6, 0.05], [0.62, 0.9])]]),
+  L('ת', 'print', 1.3, [[s([0.2, 0.08], [1.2, 0.08], [1.22, 1]), s([0.35, 0.12], [0.35, 1], [0.05, 1])]]),
+]
+
+const HAND: LetterDef[] = [
+  L('א', 'hand', 1.2, [
+    [s([1.15, 0.25], [0.95, 0.15], [0.7, 0.25], [0.58, 0.55], [0.7, 0.9], [1.1, 0.97]), s([0.97, -0.84], [0.1, 0.96])],
+    [s([0.97, -0.84], [0.1, 0.96]), s([1.15, 0.25], [0.95, 0.15], [0.7, 0.25], [0.58, 0.55], [0.7, 0.9], [1.1, 0.97])],
+  ]),
+  L('ב', 'hand', 1.3, [[s([0.09, 0.3], [0.3, 0.1], [0.61, 0.04], [1.05, 0.12], [1.27, 0.56], [1.14, 0.96], [0.96, 1], [0.7, 0.74], [0.48, 0.56], [0.22, 0.96])]]),
+  L('ג', 'hand', 1.05, [[s([0.56, -0.36], [0.7, -0.08], [1, 0.1], [0.75, 0.18], [0.35, 0.42], [0.1, 0.72], [0.22, 0.95], [0.65, 0.96])]]),
+  L('ד', 'hand', 1, [[s([0.1, 0.32], [0.4, 0.08], [0.8, 0.08], [0.92, 0.25], [0.7, 0.45], [0.45, 0.55], [0.8, 0.55], [0.98, 0.75], [0.7, 0.97])]]),
+  L('ה', 'hand', 1.3, [[s([0.1, 0.3], [0.54, 0.08], [0.98, 0.12], [1.25, 0.52], [1.03, 0.96]), s([0.32, 0.6], [0.5, 0.74], [0.37, 0.96])]]),
+  L('ו', 'hand', 0.65, [[s([0.58, -0.1], [0.1, 0.96])]]),
+  L('ז', 'hand', 1.15, [[s([0.7, -0.18], [0.44, 0.21], [0.83, 0.34], [1.1, 0.6], [0.88, 0.9], [0.44, 1], [0.04, 0.82])]]),
+  L('ח', 'hand', 1.2, [[s([0.4, 0.25], [0.55, 0.08], [0.8, 0.03], [1.1, 0.2], [1.12, 0.5], [0.98, 0.78], [0.8, 0.97]), s([0.33, 0.15], [0.1, 0.96])]]),
+  L('ט', 'hand', 1.2, [[s([1.1, 0.42], [0.9, 0.68], [0.62, 0.92], [0.4, 0.98], [0.16, 0.8], [0.14, 0.45], [0.3, 0.1], [0.6, -0.16], [1.05, -0.33])]]),
+  L('י', 'hand', 0.4, [[s([0.3, 0.08], [0.12, 0.43])]]),
+  L('כ', 'hand', 1.25, [[s([0.42, 0.17], [0.68, 0.04], [1.08, 0.21], [1.17, 0.56], [0.9, 0.91], [0.51, 1], [0.07, 0.85])]]),
+  L('ך', 'hand', 1.5, [[s([0.5, 0.25], [0.72, 0.06], [1.16, 0.08], [1.46, 0.48], [1.25, 0.89], [0.9, 0.94], [0.59, 0.8], [0.41, 1.48], [0.12, 2.05])]]),
+  L('ל', 'hand', 1.8, [[s([0.42, 0.55], [0.15, 0.75], [0.12, 0.97], [0.38, 0.93], [0.65, 0.45], [0.95, -0.4], [1.2, -0.85], [1.5, -0.95], [1.75, -0.75])]]),
+  L('מ', 'hand', 1.55, [[s([1.5, -0.18], [1.2, 0.4], [1, 0.82], [0.88, 0.95], [0.75, 0.82], [0.5, 0.33], [0.38, 0.26], [0.25, 0.5], [0.08, 0.95])]]),
+  L('ם', 'hand', 1.55, [[s([0.33, 0.32], [0.6, 0.1], [0.95, 0.03], [1.35, 0.2], [1.5, 0.5], [1.28, 0.88], [0.85, 1], [0.5, 0.85], [0.38, 0.6], [0.28, 0.5], [0.1, 1.12])]]),
+  L('נ', 'hand', 1.05, [[s([1, 0.05], [0.95, 0.5], [0.8, 0.9], [0.5, 1], [0.1, 0.95])]]),
+  L('ן', 'hand', 1.1, [[s([1, 0.08], [0.12, 2])]]),
+  L('ס', 'hand', 1.15, [[e([0.5, 0.05], [0.85, 0.05], [1.1, 0.3], [1.05, 0.7], [0.7, 0.97], [0.3, 0.95], [0.1, 0.65], [0.15, 0.25], [0.45, 0.07])]]),
+  L('ע', 'hand', 1.1, [[e([1, -0.12], [0.75, 0.12], [0.5, 0.4], [0.25, 0.85], [0.45, 1], [0.85, 0.8], [1.03, 0.4], [0.8, 0.1], [0.15, 0.1])]]),
+  L('פ', 'hand', 1.1, [[s([0.2, 0.22], [0.5, 0.05], [0.9, 0.08], [1.08, 0.4], [0.95, 0.8], [0.6, 0.98], [0.2, 0.92], [0.1, 0.7], [0.3, 0.52], [0.55, 0.58])]]),
+  L('ף', 'hand', 2, [
+    [e([0.48, 0.39], [0.09, 0.17], [0.35, -0.14], [1.23, -0.4], [1.75, -0.8], [1.97, -0.88], [1.84, -0.54], [1.31, -0.36], [1.05, 0.17], [0.79, 0.74], [0.53, 1], [0.44, 0.82], [0.7, 0.6])],
+    [s([0.2, 0.22], [0.5, 0.05], [0.9, 0.08], [1.08, 0.4], [0.95, 0.8], [0.6, 0.98], [0.2, 0.92], [0.1, 0.7], [0.3, 0.52], [0.55, 0.58]), s([1.05, 0.5], [1, 1.9])],
+  ]),
+  L('צ', 'hand', 1.4, [[s([0.64, -0.21], [1.02, -0.51], [1.35, -0.32], [1.17, 0.05], [0.83, 0.17], [1.2, 0.24], [1.35, 0.54], [1.05, 0.92], [0.64, 0.99], [0.11, 0.82])]]),
+  L('ץ', 'hand', 1.8, [[e([0.39, 0.95], [0.5, 0.69], [0.95, 0.24], [1.4, -0.32], [1.7, -0.77], [1.29, -0.55], [0.95, 0.17], [0.42, 0.13], [0.09, -0.02], [0.35, -0.36], [0.77, -0.4])]]),
+  L('ק', 'hand', 1.6, [[s([0.41, 0.39], [0.71, 0.13], [1.08, 0.04], [1.5, 0.28], [1.53, 0.65], [1.2, 0.88]), s([0.86, 0.58], [0.56, 1.33], [0.14, 2.12])]]),
+  L('ר', 'hand', 1.1, [[s([0.11, 0.39], [0.3, 0.13], [0.6, 0.05], [0.98, 0.32], [1.02, 0.62], [0.79, 0.95])]]),
+  L('ש', 'hand', 1.15, [[e([1.07, 0.69], [0.65, 0.92], [0.2, 0.95], [0.05, 0.5], [0.24, 0.17], [0.62, 0.04], [0.92, 0.2], [0.73, 0.47], [0.28, 0.65])]]),
+  L('ת', 'hand', 1.6, [[s([0.63, 0.28], [0.86, 0.09], [1.16, 0.04], [1.5, 0.28], [1.5, 0.65], [1.27, 0.99]), s([0.67, 0.32], [0.63, 0.73], [0.48, 0.99], [0.07, 1.01])]]),
+]
+
+export const STROKES: LetterDef[] = [...PRINT, ...HAND]
+export const LETTERS = 'אבגדהוזחטיכךלמםנןסעפףצץקרשת'
+export const strokesOf = (letter: string, script: Script): LetterDef => {
+  const d = STROKES.find((x) => x.letter === letter && x.script === script)
+  if (!d) throw new Error(`no strokes for ${letter} ${script}`)
+  return d
+}
