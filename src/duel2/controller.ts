@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsOnScreenStart, newRound, nextPace, nextScreen, onAnswer, runStart, travelMs,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsOnScreenStart, newRound, flightPace, nextScreen, onAnswer, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -119,7 +119,6 @@ export class RunController {
   private hearts: Hearts = heartsOnScreenStart()
   private screenId: ScreenId | 'crystal' = 'broom'
   private stage: Stage
-  private cycle = 0
   private roundInScreen = 0
   private score = 0
   private streak = 0
@@ -321,7 +320,6 @@ export class RunController {
         this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
         const nx = nextScreen(this.stage, from)
-        if (nx.newCycle) this.cycle++
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
@@ -380,7 +378,7 @@ export class RunController {
     const prev = this.view.screen?.screen === screen ? (this.view.screen as { target?: Choice }).target?.soundId : undefined
     if (screen === 'broom') {
       const target = broomTarget(c, kind)
-      this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(useDuel2Store.getState().pace, this.cycle), lane: 1, target } })
+      this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(useDuel2Store.getState().pace), lane: 1, target } })
       return target
     }
     if (screen === 'cauldron') {
@@ -776,7 +774,7 @@ export class RunController {
     // only the sound to catch (the demo taught the screen)
     await this.say(t, [{ id: this.cueId(target) }])
     this.set({ phase: 'answer' })
-    const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
+    const travel = travelMs(useDuel2Store.getState().pace)
     this.track('flight', { kind, travelMs: Math.round(travel), pace: useDuel2Store.getState().pace })
     let spawned = 0
     let catches = 0
@@ -878,7 +876,7 @@ export class RunController {
   private onCatch(target: Choice) {
     const st = useDuel2Store.getState()
     this.record('broom', target, target, 'right')
-    if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'correct', msWalk: 0, walkMs: 1 }))
+    if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'catch'))
     this.gainStar()
     this.streak++
     this.sfx('catch')
@@ -905,7 +903,7 @@ export class RunController {
     }
     this.streak = 0
     this.record('broom', target, hit, 'wrong')
-    if (!this.opts.sandbox) st.setPace(nextPace(st.pace, { result: 'timeout', msWalk: null, walkMs: 1 }))
+    if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
     this.sfx(hit ? 'hit' : 'wave')
     const right = wave.choices.find((c) => c.soundId === target.soundId)

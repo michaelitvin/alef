@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT } from './run'
+import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage', () => {
@@ -34,10 +34,16 @@ describe('run', () => {
     for (let i = 0; i < 3; i++) ({ hearts: h, over } = onAnswer(h, 'wrong'))
     expect(over).toBe(true)
   })
-  it('travel speeds up per cycle with a floor', () => {
-    expect(travelMs(1, 0)).toBe(5200)
-    expect(travelMs(1, 50)).toBeCloseTo(BASE_TRAVEL_MS * 0.6)
-    expect(travelMs(1, 1)).toBeCloseTo(5200 * 0.93)
+  it('the flight follows him: no speed-up per lap, base 5800 ms (spec: a gentler flight)', () => {
+    expect(BASE_TRAVEL_MS).toBe(5800)
+    expect(travelMs(1)).toBe(5800)
+    expect(travelMs(1.2)).toBeCloseTo(5800 * 1.2)
+  })
+  it('a catch speeds the flight up by 1%, a mistake slows it by 12%, inside the pace limits', () => {
+    expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
+    expect(flightPace(1, 'miss')).toBeCloseTo(1.12)
+    expect(flightPace(PACE_MIN, 'catch')).toBe(PACE_MIN)
+    expect(flightPace(PACE_MAX, 'miss')).toBe(PACE_MAX)
   })
   it('wave position runs from the right edge to the wizard', () => {
     expect(waveX(1000, 1000, 5000)).toBe(1)
