@@ -1,3 +1,5 @@
+/* the handwriting script of the drawing screen: Ktav Yad CLM (Culmus, GNU GPL v2; public/fonts/ktavyad/README.txt) */
+@font-face { font-family: 'Ktav Yad'; src: url('/fonts/ktavyad/KtavYadCLM-BoldItalic.woff2') format('woff2'); font-display: block; }
 html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-root { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent; color: #fff6d8; font-family: Rubik, 'Noto Sans Hebrew', system-ui, sans-serif; }
