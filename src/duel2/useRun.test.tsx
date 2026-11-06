@@ -789,7 +789,8 @@ describe('run controller', () => {
       if (c.view.hearts < hearts) lastLoss = Date.now()
       hearts = c.view.hearts
       if (s.finished && finaleAt < 0) finaleAt = Date.now()
-      if (finaleAt > 0 && c.view.phase === 'question') break
+      // the gallery starts the flight again (its question phase can be shorter than one tick)
+      if (finaleAt > 0 && (c.view.phase === 'question' || !s.finished)) break
       // a careful player who misses the very last target
       const head = s.waves.find((w) => w.resolved.some((r) => !r))
       const k = head ? head.choices.findIndex((x, j) => x.soundId === s.target.soundId && !head.resolved[j]) : -1
