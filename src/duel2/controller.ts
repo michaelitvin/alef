@@ -53,8 +53,8 @@ export interface BroomView {
   /** a boss visit (every second broom visit of a run) */
   boss?: BossView
   potion?: PotionView
-  /** a heart flies from the caught potion to the top bar (its id) */
-  heal?: number
+  /** a heart flies from the caught potion to the top bar (from its lane, at this broom-clock time) */
+  heal?: { id: number; lane: number; at: number }
   /** the last hit or miss during the flight (the flight does not stop): drives the flash, the shake and the dizzy wizard */
   fx?: { id: number; kind: 'hit' | 'miss'; at: number }
   /** the flight is over: its finale (the wizard swoops away) */
@@ -1085,7 +1085,7 @@ export class RunController {
   /** The potion caught: a gentle sound, and a heart flies from the bottle to the top bar. Never an answer. */
   private onPotion(t: number, pv: PotionView) {
     this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
-    const heal = ++this.fxId
+    const heal = { id: ++this.fxId, lane: pv.lane, at: this.broomClock() }
     this.setScreen({ potion: { ...pv, caught: true }, heal } as Partial<BroomView>)
     this.set({ hearts: this.hearts.left })
     this.sfx('potion')
