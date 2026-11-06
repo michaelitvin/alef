@@ -3,7 +3,7 @@ import { syllable } from '../logic/content.ts'
 import { WORDS, wordLinkFor } from './words.ts'
 import { LINES, lineAudioId, lineById } from './lines.ts'
 
-const PER_ROUND = ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end']
+const PER_ROUND = ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end', 'boss-arrive', 'boss-win']
 
 describe('words', () => {
   const doors = WORDS.filter((w) => w.door)
@@ -58,12 +58,21 @@ describe('lines', () => {
         for (const w of words) expect(tokens.includes(w), `${l.id}: ${w}`).toBe(false)
       }
   })
+  it('the boss and potion lines exist (text only: the parent pipeline records them), none ends with "…"', () => {
+    for (const id of ['boss-arrive', 'boss-win', 'boss-new', 'potion-intro', 'info-bosses', 'info-coin-ring']) {
+      const l = lineById(id)!
+      expect(l, id).toBeDefined()
+      for (const t of l.he) expect(/(\.\.\.|…)$/.test(t), `${id}: ${t}`).toBe(false)
+    }
+    expect(lineById('boss-arrive')!.variations).toBe(3)
+    expect(lineById('boss-win')!.variations).toBe(3)
+  })
   it('audio ids', () => {
     expect(lineAudioId('almost', 2)).toBe('almost-2')
   })
 describe('lines lead into the sound', () => {
   it('a line that a sound follows ends open (…), so the voice does not close the sentence first', () => {
-    for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with', 'dot-right', 'dot-left'])
+    for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with', 'dot-right', 'dot-left', 'boss-arrive'])
       for (const t of lineById(id)!.he) expect(/(\.\.\.|…|:)$/.test(t), `${id}: ${t}`).toBe(true)
   })
   it('the dotted-letter introduction names each form before its sound', () => {

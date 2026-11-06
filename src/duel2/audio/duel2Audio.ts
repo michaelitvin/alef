@@ -6,7 +6,9 @@ import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shar
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
 
-export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak'
+export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win'
+/** new effects play an existing one until the sfx pipeline gives them their own (spec: reuse the existing set) */
+const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { spell: 'zap', potion: 'crystal', 'boss-win': 'streak' }
 export const GAP_MS = 800
 const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.08
@@ -97,7 +99,8 @@ export function stopVoice() {
 
 const lastSfx: Record<string, number> = {}
 export function playSfx(name: Duel2Sfx): Promise<void> {
-  const takes = SFX_URLS[name]
+  const own = SFX_URLS[name]
+  const takes = own?.length ? own : SFX_URLS[SFX_FALLBACK[name] ?? name]
   if (!cfg.sfx || !takes?.length) return Promise.resolve()
   const i = ((lastSfx[name] ?? -1) + 1) % takes.length
   lastSfx[name] = i
@@ -110,12 +113,12 @@ let music: ReturnType<typeof getHowl> | null = null
 let ducks = 0
 const lastTrack: Record<string, number> = {}
 /** Music for the broom flight and the celebrations; each start moves to the next track of that kind. */
-export function startMusic(kind: 'flight' | 'celebrate') {
+export function startMusic(kind: 'flight' | 'celebrate' | 'boss') {
   const tracks = MUSIC_URLS[kind]
   if (!cfg.music || !tracks?.length) return
   const i = ((lastTrack[kind] ?? -1) + 1) % tracks.length
   lastTrack[kind] = i
-  const h = getHowl(tracks[i], kind === 'flight')
+  const h = getHowl(tracks[i], kind !== 'celebrate')
   if (music === h) return
   stopMusic()
   music = h
