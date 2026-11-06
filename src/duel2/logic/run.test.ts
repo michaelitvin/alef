@@ -83,4 +83,12 @@ describe('run', () => {
     expect(r).toEqual({ resolved: [false, false, true], hit: null, missedTarget: false })
   })
 
+  it('a two-orb wave: each orb in its own lane (lanes), the target caught in its lane only', () => {
+    // orb 0 in lane 2, orb 1 (the target) in lane 0
+    const k = [0.02, 0.02]
+    expect(orbEvents(k, [false, false], 0, [false, true], [2, 0]).hit).toBe(1)
+    expect(orbEvents(k, [false, false], 2, [false, true], [2, 0]).hit).toBe(0)
+    expect(orbEvents(k, [false, false], 1, [false, true], [2, 0]).hit).toBe(null)
+  })
+
 })

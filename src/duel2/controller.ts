@@ -26,6 +26,8 @@ export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'e
 export type Reveal = { right: string; wrong?: string }
 export interface BroomWave {
   id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[]
+  /** each orb's lane (a two-orb wave uses two of the three lanes); by default an orb's lane is its index */
+  lanes?: number[]
   /** a mistake happened in this wave: its other orbs no longer count */
   spent?: boolean
 }
@@ -785,8 +787,15 @@ export class RunController {
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
     const spawn = (now: number) => {
       const choices = broomWave(this.ctx(), target, kind)
+      // a two-orb wave takes two of the three lanes, at random
+      let lanes: number[] | undefined
+      if (choices.length === 2) {
+        const drop = Math.floor(this.rng() * 3) % 3
+        lanes = [0, 1, 2].filter((l) => l !== drop)
+        if (this.rng() < 0.5) lanes.reverse()
+      }
       const w: BroomWave = {
-        id: ++this.waveId, choices, startMs: now,
+        id: ++this.waveId, choices, startMs: now, ...(lanes ? { lanes } : {}),
         offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
         jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
         resolved: choices.map(() => false),
@@ -805,7 +814,7 @@ export class RunController {
         const events: { hit: Choice | null; wave: BroomWave }[] = []
         const waves = cur.waves.map((w) => {
           const k = w.choices.map((_, i) => wavePos(w.startMs + w.offsets[i] * travel, now, travel))
-          const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId))
+          const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
           const hitWrong = e.hit !== null && w.choices[e.hit].soundId !== target.soundId
           // one wave is one question: after a mistake its other orbs fly on harmlessly (no second heart for the same wave)
           if (w.spent) return { ...w, resolved: e.resolved }

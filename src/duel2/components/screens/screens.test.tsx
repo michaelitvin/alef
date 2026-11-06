@@ -1,6 +1,6 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Broom, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
+import { Broom, LANE_Y, BROOM_GLYPH_PX, BROOM_WIZARD_H, BROOM_ORB, orbX, wizardBox } from './Broom'
 import { MistakeFx } from '../MistakeFx'
 import { Stage } from './Stage'
 import { CATCH_AT, PASS_AT } from '../../logic/run'
@@ -57,6 +57,13 @@ describe('screens', () => {
     const { container } = render(<Broom waves={[w]} travelMs={5000} lane={1} onLane={() => {}} phase="mistake" clock={() => 1000} />)
     const xs = [...container.querySelectorAll('[data-wave="1"] [data-orb-i]')].map((e) => e.getAttribute('transform'))
     expect(new Set(xs).size).toBe(3)
+  })
+  it('a two-orb wave draws each orb in its own lane', () => {
+    const w = { id: 1, choices: wave.slice(0, 2), lanes: [2, 0], startMs: 0, offsets: [0, 0], jitter: [0, 0], resolved: [false, false] }
+    const { container } = render(<Broom waves={[w]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" clock={() => 1000} />)
+    const orbs = [...container.querySelectorAll('[data-wave="1"] [data-orb-i]')]
+    expect(orbs.map((e) => e.getAttribute('data-lane'))).toEqual(['2', '0'])
+    expect(orbs[0].querySelector('ellipse')!.getAttribute('cy')).toBe(String(LANE_Y[2]))
   })
   it('a resolved orb leaves the sky', () => {
     const w = { id: 1, choices: wave, startMs: 0, offsets: [0, 0, 0], jitter: [0, 0, 0], resolved: [true, false, false] }

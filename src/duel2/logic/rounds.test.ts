@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Stage } from './content.ts'
-import { item } from './content.ts'
+import { item, syllable } from './content.ts'
 import {
-  broomTarget, broomWave, cauldronRound, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
+  broomTarget, broomWave, cauldronRound, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
   type Choice, type RoundCtx,
 } from './rounds'
 
@@ -56,7 +56,10 @@ describe('rounds', () => {
       const c = ctx(3, seed)
       const t = broomTarget(c, 'syllable')
       const w = broomWave(c, t, 'syllable')
-      expect(new Set(w.map((x) => x.id)).size).toBe(3)
+      // a dotted target's wave can be two orbs: the target and its twin (spec 2026-11-07)
+      expect(new Set(w.map((x) => x.id)).size).toBe(w.length)
+      if (w.length === 2) expect(w.map((x) => x.itemId).sort()).toEqual([t.itemId, item(t.itemId).pair!].sort())
+      else expect(w.length).toBe(3)
       expect(w.some((x) => x.id === t.id)).toBe(true)
       const g = ghostRound(c, 'letter')
       expect(new Set(g.signs.map((x) => x.id)).size).toBe(3)
@@ -104,6 +107,33 @@ describe('rounds', () => {
       if (vet) { seen++; expect(vet.nearMissOf).toBe('bet-kamatz') }
     }
     expect(seen).toBeGreaterThan(0)
+  })
+  it('about a third of the waves of a dotted target are the target and its twin only (spec: two-orb dot waves)', () => {
+    for (const [it, pair] of [['bet', 'vet'], ['fe', 'pe'], ['kaf', 'khaf'], ['shin', 'sin']]) {
+      const c = ctx(3, 9)
+      const t = syllableChoice(syllable(it, 'patach'))
+      let two = 0
+      for (let i = 0; i < 300; i++) {
+        const w = broomWave(c, t, 'syllable')
+        if (w.length === 2) {
+          two++
+          const twin = w.find((x) => x.id !== t.id)!
+          expect(twin.itemId).toBe(pair)
+          expect(twin.mark).toBe(t.mark)
+          expect(w.some((x) => x.id === t.id)).toBe(true)
+        }
+      }
+      expect(two / 300, it).toBeGreaterThan(0.25)
+      expect(two / 300, it).toBeLessThan(0.42)
+    }
+  })
+  it('no two-orb wave before the twin is opened (stage 2), and none for a letter without a twin', () => {
+    const t2: Choice = { kind: 'syllable', id: 'bet-kamatz', text: 'בָּ', soundId: 'syl-b-a', itemId: 'bet', group: 'a', mark: 'kamatz' }
+    const t3: Choice = { kind: 'syllable', id: 'mem-kamatz', text: 'מָ', soundId: 'syl-m-a', itemId: 'mem', group: 'a', mark: 'kamatz' }
+    for (let seed = 1; seed <= 100; seed++) {
+      expect(broomWave(ctx(2, seed), t2, 'syllable').length).toBe(3)
+      expect(broomWave(ctx(3, seed), t3, 'syllable').length).toBe(3)
+    }
   })
   it('new-stage choices', () => {
     expect(isNewStageChoice(2, { kind: 'syllable', id: 'bet-kamatz', text: '', soundId: '', itemId: 'bet', group: 'a', mark: 'kamatz' })).toBe(true)

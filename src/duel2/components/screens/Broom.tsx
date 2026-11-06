@@ -29,6 +29,8 @@ export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (ST
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
 export interface BroomWave {
   id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[]
+  /** each orb's lane (a two-orb wave uses two of the three lanes); by default an orb's lane is its index */
+  lanes?: number[]
   /** a mistake happened in this wave: its other orbs no longer count */
   spent?: boolean
 }
@@ -100,16 +102,17 @@ export function Broom(p: {
       {LANE_Y.map((ly) => <rect key={ly} data-lane-band x={-1600} y={ly - LANE_H / 2} width={4800} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
       {p.waves.map((w) => (
         <g key={w.id} data-wave={w.id}>
-          {w.choices.map((c, lane) => {
-            if (w.resolved[lane] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
-            const k = wavePos(w.startMs + w.offsets[lane] * p.travelMs, t, p.travelMs)
+          {w.choices.map((c, i) => {
+            if (w.resolved[i] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
+            const lane = w.lanes?.[i] ?? i
+            const k = wavePos(w.startMs + w.offsets[i] * p.travelMs, t, p.travelMs)
             const x = orbX(k)
-            const y = LANE_Y[lane] + w.jitter[lane]
+            const y = LANE_Y[lane] + w.jitter[i]
             let state: PickState = 'idle'
             if (p.reveal?.right === c.id) state = 'reveal'
             else if (p.reveal?.wrong === c.id) state = 'wrong'
             return (
-              <g key={c.id} data-orb-i={lane} transform={`translate(${x.toFixed(1)} 0)`}>
+              <g key={c.id} data-orb-i={i} data-lane={lane} transform={`translate(${x.toFixed(1)} 0)`}>
                 <ellipse cx={BROOM_ORB * 1.05} cy={y} rx={BROOM_ORB * 1.1} ry={BROOM_ORB * 0.3} fill="url(#d2-trail)" />
                 <Orb size={BROOM_ORB} x={0} y={y} state={state} testCorrect={c.id === p.correctId}>
                   <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={y} />

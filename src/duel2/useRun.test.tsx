@@ -58,6 +58,20 @@ async function drain(c: RunController) {
     await tick(50)
   }
 }
+/** the lane of the first open orb with the target's sound in the oldest open wave (two-orb waves have their own lanes) */
+function targetLane(s: BroomView): number {
+  const head = s.waves.find((w) => w.resolved.some((r) => !r))
+  if (!head) return -1
+  const j = head.choices.findIndex((x, k) => x.soundId === s.target.soundId && !head.resolved[k])
+  return j < 0 ? -1 : (head.lanes?.[j] ?? j)
+}
+/** a careful player: always in the lane of the target of the oldest open wave */
+function fly(c: RunController) {
+  const s = c.view.screen
+  if (s?.screen !== 'broom' || c.view.phase !== 'answer') return
+  const k = targetLane(s)
+  if (k >= 0) c.gesture({ type: 'lane', lane: k as 0 | 1 | 2 })
+}
 /** steer the broom into the target's lane (or away from it) for the head wave */
 function steer(c: RunController, right: boolean) {
   const s = c.view.screen as BroomView
@@ -797,6 +811,32 @@ describe('run controller', () => {
     await until(c, (v) => v.phase === 'feedback')
     expect(useDuel2Store.getState().totalStars).toBe(10)
     expect(c.view.coinPop).toBe(1)
+    c.destroy()
+  })
+
+  it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
+    const c = make({ force: { screen: 'broom', stage: 3, kind: 'syllable' }, rng: seeded(11) })
+    useDuel2Store.setState({ stage: { stage: 3, newAnswers: '' } })
+    c.start()
+    const seen = new Set<number>()
+    let done = 0
+    let hearts = 3
+    let lost = 0
+    for (let i = 0; i < 8000 && done < 2; i++) {
+      const s = c.view.screen as BroomView
+      if (c.view.hearts < hearts) lost++
+      hearts = c.view.hearts
+      const ids = new Set((s?.waves ?? []).map((w) => w.id))
+      for (const id of seen) if (!ids.has(id)) { seen.delete(id); done++ }
+      for (const w of s?.waves ?? []) if (w.choices.length === 2) {
+        expect(w.lanes && new Set(w.lanes).size).toBe(2)
+        seen.add(w.id)
+      }
+      fly(c)
+      await tick(50)
+    }
+    expect(done).toBeGreaterThanOrEqual(2)
+    expect(lost).toBe(0)
     c.destroy()
   })
 
