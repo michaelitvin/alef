@@ -61,6 +61,25 @@ describe('lines', () => {
   it('audio ids', () => {
     expect(lineAudioId('almost', 2)).toBe('almost-2')
   })
+describe('drawing lines (spec: drawing)', () => {
+  it('has the new lines with their variations', () => {
+    const want: Record<string, number> = { 'demo-draw': 1, 'q-draw': 3, 'draw-again': 3, 'draw-mark': 1, 'line-tall': 1, 'line-low': 1, 'line-small': 1 }
+    for (const [id, n] of Object.entries(want)) expect(lineById(id)?.variations, id).toBe(n)
+  })
+  it('short, with nikkud, never ending in "…" (the voice moaned) and no "!"', () => {
+    for (const id of ['demo-draw', 'q-draw', 'draw-again', 'draw-mark', 'line-tall', 'line-low', 'line-small'])
+      for (const t of lineById(id)!.he) {
+        expect(/(\.\.\.|…)$/.test(t), `${id}: ${t}`).toBe(false)
+        expect(t.includes('!')).toBe(false)
+        expect(/[\u05B0-\u05BC]/.test(t), `${id} has nikkud`).toBe(true)
+        expect(t.split(/\s+/).length, `${id}: short`).toBeLessThanOrEqual(12)
+      }
+  })
+  it('the instruction leads into the word that follows it', () => {
+    for (const t of lineById('q-draw')!.he) expect(t.endsWith(':'), t).toBe(true)
+  })
+})
+
 describe('lines lead into the sound', () => {
   it('a line that a sound follows ends open (…), so the voice does not close the sentence first', () => {
     for (const id of ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'target-new', 'dot-without', 'dot-with', 'dot-right', 'dot-left'])

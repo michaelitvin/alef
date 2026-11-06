@@ -5,25 +5,30 @@ import type { ScreenId } from './predict'
 import { screensOfStage } from './stages'
 
 export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
-/** waves / rounds / rungs / rounds / doors per visit (spec: visit lengths, tune in playtest) */
-export const VISIT: Record<ScreenId, number> = { broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3 }
+/** the drawing screen goes after the ghosts, before the doors, when the parent has turned it on (spec: drawing) */
+const ORDER: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'draw', 'doors']
+/** waves / rounds / rungs / rounds / words / doors per visit (spec: visit lengths, tune in playtest) */
+export const VISIT: Record<ScreenId, number> = { broom: 10, cauldron: 4, ladder: 5, ghosts: 4, draw: 3, doors: 3 }
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3
 
-export const cycleOf = (stage: Stage): ScreenId[] => CYCLE.filter((s) => screensOfStage(stage).includes(s))
+export const cycleOf = (stage: Stage, draw = false): ScreenId[] =>
+  ORDER.filter((s) => (s === 'draw' ? draw : screensOfStage(stage).includes(s)))
 
-export function nextScreen(stage: Stage, current: ScreenId): { screen: ScreenId; newCycle: boolean } {
-  const c = cycleOf(stage)
-  const i = c.indexOf(current)
-  if (i < 0 || i === c.length - 1) return { screen: c[0], newCycle: true }
-  return { screen: c[i + 1], newCycle: false }
+/** The screen after `current` (which need not be in the cycle, e.g. drawing turned off since). */
+export function nextScreen(stage: Stage, current: ScreenId, draw = false): { screen: ScreenId; newCycle: boolean } {
+  const c = cycleOf(stage, draw)
+  const at = ORDER.indexOf(current)
+  const after = c.find((s) => ORDER.indexOf(s) > at)
+  return after ? { screen: after, newCycle: false } : { screen: c[0], newCycle: true }
 }
 
-export function runStart(stage: Stage, lastEnded: ScreenId | null): ScreenId {
-  const c = cycleOf(stage)
-  if (!lastEnded || !c.includes(lastEnded)) return c[0]
-  return nextScreen(stage, lastEnded).screen
+export function runStart(stage: Stage, lastEnded: ScreenId | null, draw = false): ScreenId {
+  const c = cycleOf(stage, draw)
+  // a screen of another stage starts the cycle over; the drawing screen turned off goes on after its place
+  if (!lastEnded || (!c.includes(lastEnded) && lastEnded !== 'draw')) return c[0]
+  return nextScreen(stage, lastEnded, draw).screen
 }
 
 export interface Hearts { left: number; nearMissUsed: boolean }
