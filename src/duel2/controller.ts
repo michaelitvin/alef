@@ -21,6 +21,10 @@ import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } fr
 import { coinsOf, useDuel2Store } from './store'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
+import { strokesOf, type Pt, type Script } from './data/strokes'
+import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
+import { drawFeature, drawWords, marksFor, needsDemo, scriptFor, splitWord } from './logic/draw'
+import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
@@ -45,7 +49,20 @@ export interface DoorsView {
   behind?: { crystal: number }
 }
 export interface CrystalView { screen: 'crystal'; kind: number }
-export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView
+/** one of his strokes on the drawing screen (letter units of the slot): live while judged, gold when right */
+export interface DrawStroke { id: number; pts: Pt[]; state: 'live' | 'pending' | 'ok' | 'wrong' | 'helped' | 'mark' }
+export interface DrawView {
+  screen: 'draw'; word: Word; script: Script; letter: string; layout: DrawLayout; marks: MarkSpec[]
+  strokes: DrawStroke[]
+  mode: 'letter' | 'mark' | 'done'
+  /** the glowing hand draws these strokes (a one-point stroke is a tap); a hint's demo stops at his next stroke */
+  demo?: { id: number; strokes: Pt[][]; hint?: boolean }
+  /** the letter left the lines: the part outside glows orange for a moment (it still counts) */
+  lineFx?: { kind: LineKind; outside?: { from: number; to: number } }
+  /** what the voice names glows: the marks' places */
+  glow?: 'marks'
+}
+export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView
 
 export type Overlay =
   | { kind: 'demo'; line: string; demo: string }
@@ -74,7 +91,7 @@ export interface View {
 
 export interface RunOpts {
   sandbox?: boolean
-  force?: { screen: ScreenId | 'crystal' | 'dot'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot' }
+  force?: { screen: ScreenId | 'crystal' | 'dot'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script }
   rng?: Rng
   now?: () => number
 }
@@ -102,6 +119,10 @@ const CONFIDENT_MS = 3000
 const WAVE_EVERY = 0.55
 /** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
 const POPCORN = 0.28
+/** drawing: wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
+const DRAW_TRIES = 3
+/** a stroke shorter than this (letter units) is a tap, not a stroke of the letter */
+const TAP_LEN = 0.06
 
 const sylFeatures = (c: Choice, screen: ScreenId) => {
   const it = itemOf(c.itemId)
@@ -150,6 +171,11 @@ export class RunController {
   private crystalAwarded = false
   private demoShown = false
   private assets: string[] = []
+  private drawPlan: Word[] | null = null
+  private drawState: { checker: LetterChecker; boxes?: MarkBoxes } | null = null
+  private strokeWaiter: ((pts: Pt[]) => void) | null = null
+  private strokeNo = 0
+  private demoNo = 0
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
@@ -166,8 +192,17 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 }) {
+  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] }) {
     if (this.view.paused) return
+    if (g.type === 'stroke') {
+      if (this.view.phase !== 'answer' || !this.strokeWaiter || this.view.screen?.screen !== 'draw') return
+      // a stroke stops a hint's hand at once (he shows that he knows)
+      if (this.view.screen.demo?.hint) this.setScreen({ demo: undefined } as Partial<DrawView>)
+      const w = this.strokeWaiter
+      this.strokeWaiter = null
+      w(g.pts)
+      return
+    }
     if (g.type === 'lane') {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
       return
@@ -194,6 +229,12 @@ export class RunController {
     w?.()
   }
   replay() {
+    if (this.view.screen?.screen === 'draw') {
+      this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
+      stopVoice()
+      void sayParts([{ id: `w-${this.view.screen.word.id}` }])
+      return
+    }
     const t = this.currentTarget()
     if (!t) return
     this.track('replay', { screen: this.screenId, target: t.id, phase: this.view.phase })
@@ -210,6 +251,7 @@ export class RunController {
         .then(() => this.sleep(t, 1400)).then(() => this.setScreen({ lit: 2 } as Partial<DoorsView>)).catch(() => {})
       return
     }
+    if (s?.screen === 'draw') { if (this.view.phase === 'answer') this.drawHint(false); return }
     const t = this.currentTarget()
     if (!t || this.view.overlay) return
     void this.playHint(t, false).catch(() => {})
@@ -222,7 +264,7 @@ export class RunController {
     const st = useDuel2Store.getState()
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded)
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
     void this.loop()
   }
   destroy() {
@@ -241,6 +283,7 @@ export class RunController {
     stopVoice()
     this.pickWaiter = null
     this.nextWaiter = null
+    this.strokeWaiter = null
     this.resuming = true
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
@@ -253,6 +296,9 @@ export class RunController {
     this.set({ paused: false })
     void this.loop()
   }
+
+  /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
+  private drawOn() { return !!useDuel2Store.getState().settings.drawing }
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
@@ -285,7 +331,7 @@ export class RunController {
   }
   private currentTarget(): Choice | null {
     const s = this.view.screen
-    if (!s || s.screen === 'crystal' || s.screen === 'doors') return null
+    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw') return null
     return s.target
   }
   private kindFor(screen: ScreenId): Kind {
@@ -312,6 +358,7 @@ export class RunController {
           this.roundInScreen = 0
           this.ladder = null
           this.doorWords = []
+          this.drawPlan = null
           this.visitKind = null
           this.crystalAwarded = false
           this.hearts = heartsOnScreenStart()
@@ -320,12 +367,13 @@ export class RunController {
         if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
         this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
-        const nx = nextScreen(this.stage, from)
+        const nx = nextScreen(this.stage, from, this.drawOn())
         if (nx.newCycle) this.cycle++
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
         this.doorWords = []
+        this.drawPlan = null
         this.visitKind = null
       }
     } catch (e) {
@@ -338,6 +386,11 @@ export class RunController {
     this.set({ hearts: this.hearts.left, overlay: null, needNext: false })
     const kind = (this.visitKind ??= this.kindFor(screen))
     const st = useDuel2Store.getState()
+    if (screen === 'draw') {
+      // its own demo: the hand writes the letter in the slot (runDrawRound)
+      while (this.roundInScreen < VISIT.draw) await this.runDrawRound(t)
+      return
+    }
     const demo = this.demoKey(screen, kind)
     if ((this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes(demo)) && this.roundInScreen === 0) {
       this.demoShown = true
@@ -751,6 +804,228 @@ export class RunController {
     this.token++
     this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best }, needNext: false })
     return 'over'
+  }
+
+  // ---- the drawing screen (spec: 2026-11-07 drawing)
+  private dv() { return this.view.screen as DrawView }
+
+  private buildDraw(): DrawView {
+    const cur = this.view.screen
+    if (this.resuming && cur?.screen === 'draw' && !this.answered) {
+      // after a pause the same word starts again from its beginning
+      this.resuming = false
+      const v: DrawView = { ...cur, strokes: [], mode: 'letter', demo: undefined, lineFx: undefined, glow: undefined }
+      this.set({ screen: v })
+      return v
+    }
+    this.resuming = false
+    this.answered = false
+    const st = useDuel2Store.getState()
+    this.drawPlan ??= drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
+    const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
+    const script = this.opts.force?.script ?? scriptFor(this.stage, st.drawRounds ?? 0)
+    const split = splitWord(word, script)
+    const def = strokesOf(split.letter, script)
+    const marks = marksFor(word, this.stage)
+    const layout = drawLayout({
+      ...split, script, def,
+      marksAbove: marks.some((m) => m.zone === 'above-left' || m.zone === 'above-right' || m.zone === 'vav-above'),
+      marksUnder: marks.some((m) => m.zone === 'under'),
+    })
+    const v: DrawView = { screen: 'draw', word, script, letter: split.letter, layout, marks, strokes: [], mode: 'letter' }
+    this.set({ screen: v })
+    return v
+  }
+
+  private addStroke(pts: Pt[], state: DrawStroke['state']): number {
+    const id = ++this.strokeNo
+    this.setScreen({ strokes: [...this.dv().strokes, { id, pts, state }] } as Partial<DrawView>)
+    return id
+  }
+  private restyle(f: (s: DrawStroke, i: number, all: DrawStroke[]) => DrawStroke['state'] | null) {
+    const all = this.dv().strokes
+    this.setScreen({ strokes: all.map((s, i) => { const k = f(s, i, all); return k ? { ...s, state: k } : s }) } as Partial<DrawView>)
+  }
+  private dropFaded() { this.setScreen({ strokes: this.dv().strokes.filter((s) => s.state !== 'wrong') } as Partial<DrawView>) }
+  private waitStroke(t: number) { return this.guard(t, new Promise<Pt[]>((r) => { this.strokeWaiter = r })) }
+
+  /** The glowing hand draws `strokes` (and the voice may speak meanwhile); returns when both are done. */
+  private async handDraw(t: number, strokes: Pt[][], line?: string) {
+    const id = ++this.demoNo
+    this.setScreen({ demo: { id, strokes } } as Partial<DrawView>)
+    await Promise.all([this.sleep(t, strokeTiming(strokes).total), line ? this.say(t, [{ id: line }]) : Promise.resolve()])
+    if (this.dv().demo?.id === id) this.setScreen({ demo: undefined } as Partial<DrawView>)
+  }
+
+  /** The hint (button, or by itself after a long wait): the hand shows what is left; his next stroke stops it. */
+  private drawHint(auto: boolean) {
+    const s = this.view.screen
+    if (s?.screen !== 'draw' || !this.drawState) return
+    const strokes = s.mode === 'mark' && this.drawState.boxes ? markTargets(s.marks, this.drawState.boxes) : this.drawState.checker.remaining()
+    if (!strokes.length) return
+    this.track('hint', { screen: 'draw', target: s.word.id, auto })
+    const id = ++this.demoNo
+    this.setScreen({ demo: { id, strokes, hint: true } } as Partial<DrawView>)
+    const t = this.token
+    window.setTimeout(() => {
+      const v = this.view.screen
+      if (t === this.token && v?.screen === 'draw' && v.demo?.id === id) this.setScreen({ demo: undefined } as Partial<DrawView>)
+    }, strokeTiming(strokes).total)
+  }
+
+  /** Waits for his next stroke; the instruction and the word after IDLE_MS, the hint after IDLE_HINT_MS (rule). */
+  private async drawWait(t: number): Promise<Pt[]> {
+    const v = this.dv()
+    let waiting = true
+    let spoke = false
+    const live = () => waiting && t === this.token && !this.view.paused && this.view.phase === 'answer'
+    const t1 = window.setTimeout(() => {
+      if (!live()) return
+      spoke = true
+      this.track('idle', { screen: 'draw', target: v.word.id })
+      void sayParts(this.dv().mode === 'mark' ? [{ id: lineAudioId('draw-mark', 1) }] : [{ id: this.variation('q-draw') }, { id: `w-${v.word.id}` }])
+    }, IDLE_MS)
+    const t2 = window.setTimeout(() => { if (live()) { spoke = true; this.drawHint(true) } }, IDLE_HINT_MS)
+    try {
+      const pts = await this.waitStroke(t)
+      if (spoke) stopVoice()
+      return pts
+    } finally {
+      waiting = false
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+  }
+
+  /**
+   * One drawing round: the word; the demo when needed; he writes the letter from memory, each stroke judged when the
+   * finger lifts; then the lines (told, never failed); then the marks; then the word again and a star. No hearts are lost.
+   */
+  private async runDrawRound(t: number) {
+    const v0 = this.buildDraw()
+    const { letter, script, word } = v0
+    const def = strokesOf(letter, script)
+    const st = useDuel2Store.getState()
+    const firstVisit = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw')
+    const checker = new LetterChecker(def)
+    this.drawState = { checker }
+    this.set({ phase: 'question', overlay: null, hintAvailable: true, needNext: false })
+    this.assets = []
+    this.track('draw-start', { word: word.id, letter, script })
+    const started = this.now()
+    await this.say(t, [{ id: `w-${word.id}` }])
+    if (firstVisit) {
+      this.demoShown = true
+      if (!this.opts.sandbox) { st.markDemo('demo-draw'); duel2Telemetry.track('demo', { demo: 'demo-draw' }) }
+      this.set({ phase: 'demo' })
+      await this.handDraw(t, checker.remaining(), lineAudioId('demo-draw', 1))
+    } else if (needsDemo(letter, script, st.tallies, st.recent)) {
+      this.set({ phase: 'demo' })
+      await this.handDraw(t, checker.remaining())
+    }
+    this.set({ phase: 'answer' })
+    this.cueStarted = this.now()
+    const tries: number[] = []
+    let wrongStrokes = 0
+    let helped = false
+    let againSaid = false
+    while (!checker.done) {
+      const pts = await this.drawWait(t)
+      if (pathLength(pts) < TAP_LEN) continue
+      const sid = this.addStroke(pts, 'live')
+      const r = checker.add(pts)
+      this.track('draw-stroke', { letter, script, n: r.index + 1, ok: r.kind !== 'wrong', ...(r.kind === 'partial' ? { partial: true } : {}), ...(r.kind === 'wrong' ? { why: r.why } : {}) })
+      if (r.kind === 'partial') { this.restyle((s) => (s.id === sid ? 'pending' : null)); continue }
+      if (r.kind === 'ok') {
+        // this stroke and the pieces it joined turn gold
+        this.restyle((s, i, all) => (i >= all.length - r.pieces ? 'ok' : s.state === 'pending' ? 'wrong' : null))
+        this.sfx('stroke')
+        continue
+      }
+      this.restyle((s) => (s.id === sid || s.state === 'pending' ? 'wrong' : null))
+      wrongStrokes++
+      tries[r.index] = (tries[r.index] ?? 0) + 1
+      this.set({ phase: 'feedback' })
+      await this.sleep(t, 350)
+      if (tries[r.index] >= DRAW_TRIES) {
+        // no dead end: the hand draws it for him and the round goes on
+        await this.handDraw(t, [checker.expected()])
+        this.dropFaded()
+        this.addStroke(checker.force(), 'helped')
+        helped = true
+      } else {
+        const line = againSaid ? undefined : this.variation('draw-again')
+        againSaid = true
+        await this.handDraw(t, [checker.expected()], line)
+        this.dropFaded()
+      }
+      this.set({ phase: 'answer' })
+    }
+    // the lines: told, never failed (the parent)
+    const ink = bbox(this.dv().strokes.filter((s) => s.state === 'ok' || s.state === 'helped').flatMap((s) => s.pts))
+    this.set({ phase: 'feedback' })
+    const fb = lineFeedback(ink, def)
+    if (fb) {
+      this.setScreen({ lineFx: fb } as Partial<DrawView>)
+      this.track('draw-lines', { letter, kind: fb.kind })
+      await this.sleep(t, SFX_RING_MS)
+      await this.say(t, [{ id: lineAudioId(`line-${fb.kind}`, 1) }])
+      this.setScreen({ lineFx: undefined } as Partial<DrawView>)
+    }
+    let markWrong = false
+    if (this.dv().marks.length) markWrong = await this.drawMarks(t, ink, () => { helped = true })
+    // done
+    this.answered = true
+    this.roundInScreen++
+    this.setScreen({ mode: 'done', glow: undefined, demo: undefined } as Partial<DrawView>)
+    this.sfx('drawn')
+    this.gainStar()
+    const clean = wrongStrokes === 0 && !helped && !markWrong
+    if (!this.opts.sandbox) {
+      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), 'sc:draw'], miss: !clean, newStage: false })
+      useDuel2Store.getState().noteDrawRound()
+    }
+    this.track('draw-done', { letter, script, word: word.id, ms: Math.round(this.now() - started), wrongStrokes, helped })
+    await this.sleep(t, SFX_RING_MS)
+    await this.say(t, [{ id: `w-${word.id}` }])
+    if (clean) { this.streak++; if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak') } else this.streak = 0
+    await this.sleep(t, 500)
+  }
+
+  /** The marks of the first syllable, judged by place and count; the hand shows them after a wrong try. Returns: any wrong. */
+  private async drawMarks(t: number, ink: Box, onHelped: () => void): Promise<boolean> {
+    const v = this.dv()
+    const boxes: MarkBoxes = { letter: ink, vav: v.layout.vav?.box }
+    this.drawState!.boxes = boxes
+    this.setScreen({ mode: 'mark' } as Partial<DrawView>)
+    await this.say(t, [{ id: lineAudioId('draw-mark', 1), onStart: () => this.setScreen({ glow: 'marks' } as Partial<DrawView>) }])
+    this.set({ phase: 'answer' })
+    let wrong = false
+    let tries = 0
+    let mine: Pt[][] = []
+    const markId = v.marks.map((m) => `${m.zone}:${m.shape}`).join('+')
+    for (;;) {
+      const pts = await this.drawWait(t)
+      mine.push(pts)
+      this.addStroke(pts, 'mark')
+      const j = judgeMarks(mine, v.marks, boxes)
+      if (j.state === 'more') continue
+      this.track('draw-mark', { mark: markId, ok: j.state === 'ok' })
+      if (j.state === 'ok') { this.restyle((s) => (s.state === 'mark' ? 'ok' : null)); break }
+      wrong = true
+      tries++
+      mine = []
+      this.restyle((s) => (s.state === 'mark' ? 'wrong' : null))
+      this.set({ phase: 'feedback' })
+      await this.sleep(t, 350)
+      const targets = markTargets(v.marks, boxes)
+      await this.handDraw(t, targets)
+      this.dropFaded()
+      if (tries >= DRAW_TRIES) { for (const p of targets) this.addStroke(p, 'helped'); onHelped(); break }
+      this.set({ phase: 'answer' })
+    }
+    this.setScreen({ glow: undefined } as Partial<DrawView>)
+    return wrong
   }
 
   // ---- the broom flight

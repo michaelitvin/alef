@@ -6,7 +6,9 @@ import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shar
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
 
-export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak'
+export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'stroke' | 'drawn'
+/** effects that have no approved file yet play a near one (the drawing screen: a right stroke, a letter done) */
+const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { stroke: 'catch', drawn: 'zap' }
 export const GAP_MS = 800
 const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.08
@@ -96,7 +98,8 @@ export function stopVoice() {
 }
 
 const lastSfx: Record<string, number> = {}
-export function playSfx(name: Duel2Sfx): Promise<void> {
+export function playSfx(want: Duel2Sfx): Promise<void> {
+  const name = SFX_URLS[want]?.length ? want : (SFX_FALLBACK[want] ?? want)
   const takes = SFX_URLS[name]
   if (!cfg.sfx || !takes?.length) return Promise.resolve()
   const i = ((lastSfx[name] ?? -1) + 1) % takes.length
