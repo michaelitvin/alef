@@ -58,4 +58,31 @@ describe('Glyph', () => {
     expect(a.container.querySelector('text')!.getAttribute('y')).toBe(b.container.querySelector('text')!.getAttribute('y'))
   })
 
+  it('draws its own dagesh in the open middle of בּ כּ פּ (Sigalit hides פּ\'s dagesh in the curl); the shuruk dot stays', () => {
+    const base = (t: string) => [...t].filter((c) => !/[\u0591-\u05C7]/.test(c)).length
+    const m: Measurer = (t, px) => ({ left: base(t) * 0.3 * px, right: base(t) * 0.3 * px, ascent: 0.7 * px, descent: 0, width: base(t) * 0.6 * px })
+    for (const t of ['בָּ', 'כּ', 'פִּ', 'פּוֹ']) {
+      const { container } = render(<svg><Glyph text={t.normalize('NFC')} px={100} x={500} y={400} measurer={m} /></svg>)
+      expect(container.querySelector('text')!.textContent, t).not.toMatch(/\u05BC/)
+      const d = container.querySelector('[data-dagesh]')!
+      expect(d, t).not.toBeNull()
+      const cx = Number(d.getAttribute('cx'))
+      const cy = Number(d.getAttribute('cy'))
+      const r = Number(d.getAttribute('r'))
+      // inside its letter (the rightmost; the letter's box is 30 px each side of its own centre) and above the baseline
+      const letterCentre = 500 + (base(t) - 1) * 30
+      expect(cx, t).toBeGreaterThan(letterCentre - 30)
+      expect(cx, t).toBeLessThan(letterCentre + 30)
+      expect(cy, t).toBeLessThan(400 + 35)
+      expect(cy, t).toBeGreaterThan(400 + 35 - 70)
+      expect(r).toBeGreaterThan(4)
+    }
+    const shuruk = render(<svg><Glyph text={'מוּ'.normalize('NFC')} px={100} x={0} y={0} measurer={m} /></svg>)
+    expect(shuruk.container.querySelector('text')!.textContent).toMatch(/\u05BC/)
+    expect(shuruk.container.querySelector('[data-dagesh]')).toBeNull()
+    // in a word only ב כ פ get the drawn dot: the dagesh of ד stays in the text
+    const word = render(<svg><Glyph text={'כַּדּוּר'.normalize('NFC')} px={100} x={0} y={0} measurer={m} /></svg>)
+    expect(word.container.querySelectorAll('[data-dagesh]').length).toBe(1)
+    expect([...word.container.querySelector('text')!.textContent!].filter((c) => c === '\u05BC').length).toBe(2)
+  })
 })
