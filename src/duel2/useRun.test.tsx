@@ -5,6 +5,7 @@ import { useRun } from './useRun'
 import { useDuel2Store } from './store'
 import { CATCH_AT, wavePos } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
+import { duel2Telemetry } from './telemetry'
 
 function seeded(seed: number) {
   let a = seed >>> 0
@@ -135,6 +136,35 @@ describe('run controller', () => {
       expect(c.view.phase).toBe('answer')
       c.destroy()
     }
+  })
+
+  it('telemetry records his fix after a mistake, the replay button, a pause, and the flight speed (the parent: add what is missing)', async () => {
+    duel2Telemetry.clear()
+    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.replay()
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await until(c, (v) => !!v.fixing)
+    await tick(1200)
+    c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
+    await until(c, (v) => !v.fixing)
+    c.pause()
+    c.resume()
+    c.destroy()
+    const ev = events()
+    expect(ev.find((e) => e.e === 'replay')).toBeTruthy()
+    const fix = ev.find((e) => e.e === 'fix')!
+    expect(fix).toMatchObject({ screen: 'ghosts' })
+    expect(fix.ms as number).toBeGreaterThanOrEqual(1000)
+    expect(ev.find((e) => e.e === 'pause')).toBeTruthy()
+    expect(ev.find((e) => e.e === 'resume')).toBeTruthy()
+    const b = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+    b.start()
+    await until(b, (v) => v.phase === 'answer')
+    b.destroy()
+    expect(events().find((e) => e.e === 'flight')).toMatchObject({ kind: 'syllable' })
   })
 
   it('after a wrong key he drags the right key himself and the door opens', async () => {

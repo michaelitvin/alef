@@ -2,13 +2,14 @@
 // Taps while the explanation still plays are ignored, so a burst of taps says it once.
 import type { ReactNode } from 'react'
 import { sayInfo } from '../audio/duel2Audio'
+import { duel2Telemetry } from '../telemetry'
 
 export type InfoLine = 'info-hearts' | 'info-stars' | 'info-coins' | 'info-crystals' | 'info-best'
 
 export function InfoTap(p: { line: InfoLine; children: ReactNode; className?: string }) {
   return (
     <span data-info={p.line} className={`d2-info${p.className ? ` ${p.className}` : ''}`}
-      onPointerDown={(e) => { e.preventDefault(); sayInfo(`${p.line}-1`) }}>
+      onPointerDown={(e) => { e.preventDefault(); duel2Telemetry.track('info', { what: p.line }); sayInfo(`${p.line}-1`) }}>
       {p.children}
     </span>
   )

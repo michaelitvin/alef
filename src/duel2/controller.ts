@@ -196,6 +196,7 @@ export class RunController {
   replay() {
     const t = this.currentTarget()
     if (!t) return
+    this.track('replay', { screen: this.screenId, target: t.id, phase: this.view.phase })
     stopVoice()
     void sayParts([{ id: this.cueId(t) }])
   }
@@ -242,9 +243,11 @@ export class RunController {
     this.nextWaiter = null
     this.resuming = true
     this.set({ paused: true, overlay: null, needNext: false })
+    this.track('pause', { screen: this.screenId, phase: this.view.phase })
   }
   resume() {
     if (!this.view.paused) return
+    this.track('resume', { ms: this.pausedAt !== null ? Math.round(this.now() - this.pausedAt) : null })
     if (this.pausedAt !== null) this.pausedTotal += this.now() - this.pausedAt
     this.pausedAt = null
     this.set({ paused: false })
@@ -252,6 +255,8 @@ export class RunController {
   }
 
   // ---- helpers
+  /** a telemetry event (never in the gallery) */
+  private track(e: string, data: Record<string, unknown>) { if (!this.opts.sandbox) duel2Telemetry.track(e, data) }
   private guard<T>(t: number, p: Promise<T>): Promise<T> {
     return p.then((v) => { if (t !== this.token) throw new Aborted(); return v })
   }
@@ -482,6 +487,7 @@ export class RunController {
     const t1 = window.setTimeout(() => {
       if (!live()) return
       spoke = true
+      this.track('idle', { screen, target: c?.id ?? null })
       void sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
     }, IDLE_MS)
     const t2 = window.setTimeout(() => {
@@ -607,6 +613,8 @@ export class RunController {
   private async fix(t: number, cue: string) {
     const done = this.guard(t, new Promise<string>((r) => { this.fixWaiter = r }))
     this.set({ fixing: true })
+    const from = this.now()
+    let replays = 0
     let waiting = true
     void done.then(() => { waiting = false }, () => { waiting = false })
     try {
@@ -615,9 +623,11 @@ export class RunController {
       for (;;) {
         const r = await Promise.race([done.then(() => true), this.sleep(t, IDLE_MS).then(() => false)])
         if (r) break
-        if (waiting && !this.view.paused) await Promise.race([this.say(t, [{ id: cue }]), done])
+        if (waiting && !this.view.paused) { replays++; await Promise.race([this.say(t, [{ id: cue }]), done]) }
       }
       stopVoice()
+      // how long he took to do the right move himself, and how often the sound played again meanwhile
+      this.track('fix', { screen: this.screenId, target: cue, ms: Math.round(this.now() - from), replays })
     } finally {
       this.fixWaiter = null
       this.set({ fixing: false })
@@ -767,6 +777,7 @@ export class RunController {
     await this.say(t, [{ id: this.cueId(target) }])
     this.set({ phase: 'answer' })
     const travel = travelMs(useDuel2Store.getState().pace, this.cycle)
+    this.track('flight', { kind, travelMs: Math.round(travel), pace: useDuel2Store.getState().pace })
     let spawned = 0
     let catches = 0
     let newTargetDue = false
