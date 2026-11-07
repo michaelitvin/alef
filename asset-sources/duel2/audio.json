@@ -1103,21 +1103,29 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-coins-1.mp3",
    "where": "A tap on his coins",
-   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל פַּעַם שֶׁאַתָּה עוֹנֶה נָכוֹן עֶשֶׂר פְּעָמִים, אַתָּה מְקַבֵּל מַטְבֵּעַ.",
-   "take": "clips/info-coins-1/v2.mp3",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+   "take": "clips/info-coins-1/v4.mp3",
    "request": {
-    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל פַּעַם שֶׁאַתָּה עוֹנֶה נָכוֹן עֶשֶׂר פְּעָמִים, אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 101
+    "seed": 103
    },
    "earlier_takes": [
     {
      "file": "clips/info-coins-1/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/info-coins-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-coins-1/v3.mp3",
+     "seed": 102
     }
    ]
   },

@@ -35,9 +35,6 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 ## Voice lines: wording
 
-- Explain a reward with what the child does, not with another reward's name. He may not know what the word stands for.
-  Example (book 2): "for every ten stars you get a coin"; the parent: "but what is a star?". Now: "every time you answer
-  right ten times, you get a coin".
 - Use the phrase that people really say, even when it breaks a pattern. Where two phrases are common, use both.
   Example (clock): nobody says "עֶשְׂרִים וְחָמֵשׁ לְשֶׁבַע" or "twenty-five to eight"; people say "שֵׁשׁ שְׁלוֹשִׁים וְחָמֵשׁ" and
   "seven thirty-five". For :40, both "twenty to two" and "one forty" are common, so the game uses both.
