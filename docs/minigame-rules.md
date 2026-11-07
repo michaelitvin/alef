@@ -35,6 +35,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 ## Voice lines: wording
 
+- Explain a reward with what the child does, not with another reward's name. He may not know what the word stands for.
+  Example (book 2): "for every ten stars you get a coin"; the parent: "but what is a star?". Now: "every time you answer
+  right ten times, you get a coin".
 - Use the phrase that people really say, even when it breaks a pattern. Where two phrases are common, use both.
   Example (clock): nobody says "עֶשְׂרִים וְחָמֵשׁ לְשֶׁבַע" or "twenty-five to eight"; people say "שֵׁשׁ שְׁלוֹשִׁים וְחָמֵשׁ" and
   "seven thirty-five". For :40, both "twenty to two" and "one forty" are common, so the game uses both.
@@ -107,6 +110,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 ## Pronunciation
 
+- Some short words get a wrong stress or vowel in this voice in any spelling. Reword around them; do not retake again
+  and again. Known in book 2: עוֹד (an odd stress), קְצָת (read "katsat"), בָּאוֹסֶף (sounded off).
 - Use the newest model that speaks Hebrew well, with the language code "he".
   Example (duel): eleven_v4 with language_code "he". The parent: "v4 generally sounds better than v3".
 - Check the nikkud of each word in a dictionary before you make audio.

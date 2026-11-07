@@ -65,16 +65,16 @@ export const LINES: LineDef[] = [
   line('boss-win', 'The boss is beaten (praise: spoken the first two times only)', [
     'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
   ], 0, 'excited'),
-  line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.'], 0, 'amazed'),
+  line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.'], 0, 'amazed'),
   line('potion-intro', 'The rescue potion, the first time it floats by (the flight goes on)', ['שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.'], 0.5, 'warmly'),
   // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
   line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
-  line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.']),
+  line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל פַּעַם שֶׁאַתָּה עוֹנֶה נָכוֹן עֶשֶׂר פְּעָמִים, אַתָּה מְקַבֵּל מַטְבֵּעַ.']),
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
   line('info-best', 'A tap on his best run', ['זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.']),
-  line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.']),
-  line('info-coin-ring', 'A tap on the ring around the coin (end screen)', ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.']),
+  line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.']),
+  line('info-coin-ring', 'A tap on the ring around the coin (end screen)', ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.']),
   line('demo-broom', 'Demo: first broom flight with syllables (then the sound)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-broom-letter', 'Demo: first broom flight with letters (then the letter name)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),
   line('demo-cauldron', 'Demo: first cauldron (then the sound)', ['תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.']),
@@ -93,9 +93,9 @@ export const LINES: LineDef[] = [
     'בּוֹא נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.', 'נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.', 'תִּסְתַּכֵּל עַל הַיָּד, וְתִכְתֹּב אֶת הַקַּו שׁוּב.',
   ], 0.5, 'encouraging'),
   line('draw-mark', 'Drawing: the letter is done; now its marks (the place glows)', ['וְעַכְשָׁו הַנִּקּוּד.'], 0.5, 'warmly'),
-  line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['קְצָת גָּבוֹהַּ מִדַּי.'], 0.5, 'warmly'),
+  line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.'], 0.5, 'warmly'),
   line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
-  line('line-small', 'Drawing: the letter is much too small (it still counts)', ['קְצָת קָטָן.'], 0.5, 'warmly'),
+  line('line-small', 'Drawing: the letter is much too small (it still counts)', ['הָאוֹת יָצְאָה קְטַנָּה מִדַּי.'], 0.5, 'warmly'),
 ]
 
 export const lineAudioId = (id: string, n: number) => `${id}-${n}`

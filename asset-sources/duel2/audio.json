@@ -414,18 +414,23 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-new-1.mp3",
    "where": "His first win against a kind of boss: it falls into a golden frame for the shelf",
-   "caption": "מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.",
-   "take": "clips/boss-new-1/v1.mp3",
+   "caption": "נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.",
+   "take": "clips/boss-new-1/v2.mp3",
    "request": {
-    "text": "[amazed] מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.",
+    "text": "[amazed] נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/boss-new-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "boss-win-1",
@@ -1052,54 +1057,69 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-bosses-1.mp3",
    "where": "A tap on the boss trophies (cover, end screen)",
-   "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.",
-   "take": "clips/info-bosses-1/v1.mp3",
+   "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.",
+   "take": "clips/info-bosses-1/v2.mp3",
    "request": {
-    "text": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.",
+    "text": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-bosses-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "info-coin-ring-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-coin-ring-1.mp3",
    "where": "A tap on the ring around the coin (end screen)",
-   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.",
-   "take": "clips/info-coin-ring-1/v1.mp3",
+   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.",
+   "take": "clips/info-coin-ring-1/v2.mp3",
    "request": {
-    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.",
+    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-coin-ring-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "info-coins-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-coins-1.mp3",
    "where": "A tap on his coins",
-   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
-   "take": "clips/info-coins-1/v1.mp3",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל פַּעַם שֶׁאַתָּה עוֹנֶה נָכוֹן עֶשֶׂר פְּעָמִים, אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+   "take": "clips/info-coins-1/v2.mp3",
    "request": {
-    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל פַּעַם שֶׁאַתָּה עוֹנֶה נָכוֹן עֶשֶׂר פְּעָמִים, אַתָּה מְקַבֵּל מַטְבֵּעַ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-coins-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "info-crystals-1",
@@ -1237,36 +1257,46 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/line-small-1.mp3",
    "where": "Drawing: the letter is much too small (it still counts)",
-   "caption": "קְצָת קָטָן.",
-   "take": "clips/line-small-1/v1.mp3",
+   "caption": "הָאוֹת יָצְאָה קְטַנָּה מִדַּי.",
+   "take": "clips/line-small-1/v2.mp3",
    "request": {
-    "text": "[warmly] קְצָת קָטָן.",
+    "text": "[warmly] הָאוֹת יָצְאָה קְטַנָּה מִדַּי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/line-small-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "line-tall-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/line-tall-1.mp3",
    "where": "Drawing: the letter pokes above the top line (it still counts)",
-   "caption": "קְצָת גָּבוֹהַּ מִדַּי.",
-   "take": "clips/line-tall-1/v1.mp3",
+   "caption": "הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.",
+   "take": "clips/line-tall-1/v2.mp3",
    "request": {
-    "text": "[warmly] קְצָת גָּבוֹהַּ מִדַּי.",
+    "text": "[warmly] הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/line-tall-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "ln-alef",
