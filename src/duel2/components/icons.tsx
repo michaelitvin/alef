@@ -39,10 +39,13 @@ export const StarIcon = () => (
     <path fill="#ffd34d" stroke="#fff3c4" strokeWidth="1" d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z" />
   </svg>
 )
+/** a thick copper-gold coin with a crescent moon: never a star on it (the parent: coins and stars looked too similar) */
 export const CoinIcon = () => (
   <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden>
-    <circle cx="12" cy="12" r="10.5" fill="#f2b632" stroke="#fff3c4" strokeWidth="1.2" />
-    <circle cx="12" cy="12" r="7.5" fill="none" stroke="#b9801a" strokeWidth="1.2" />
-    <path fill="#fff3c4" d="M12 6.8l1.5 3.2 3.5.4-2.6 2.4.7 3.5L12 14.6l-3.1 1.7.7-3.5L7 10.4l3.5-.4z" />
+    <ellipse cx="12" cy="13.6" rx="10.2" ry="9.4" fill="#8a4a12" />
+    <circle cx="12" cy="11.4" r="10" fill="#e8902a" stroke="#ffd9a0" strokeWidth="1" />
+    <circle cx="12" cy="11.4" r="7.3" fill="none" stroke="#a85a14" strokeWidth="1.3" />
+    <path fill="#fff0d2" d="M14.2 6.3a5.4 5.4 0 1 0 0 10.2a4.2 4.2 0 1 1 0-10.2z" />
+    <path d="M5.2 8.2a7.6 7.6 0 0 1 3.6-3.6" fill="none" stroke="#fff" strokeOpacity="0.75" strokeWidth="1.2" strokeLinecap="round" />
   </svg>
 )

@@ -196,3 +196,6 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-drawtest { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr 340px; background: #f4f0ff; color: #222; font-family: system-ui; }
 .d2-drawtest-stage { position: relative; min-height: 0; }
 .d2-drawtest-side { overflow: auto; padding: 14px; border-left: 1px solid #ccc; }
+
+/* the coin glows orange, the star yellow: they must not look alike (the parent) */
+.d2-star.d2-coin { filter: drop-shadow(0 0 8px #ff8a1e); }
