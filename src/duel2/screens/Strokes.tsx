@@ -37,10 +37,15 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
   return (
     <div data-stroke-card={key} className="d2-stroke-card" style={{ direction: 'ltr', borderColor: mark === 'ok' ? '#3c9a4c' : mark === 'wrong' ? '#c0392b' : '#ccc' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, direction: 'rtl' }}>
-        <span style={{ fontFamily: `${DRAW_FONT[def.script]}, serif`, fontSize: 64, lineHeight: 1, minWidth: 60, textAlign: 'center' }}>{def.letter}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span data-ref-glyph="game" style={{ fontFamily: `${DRAW_FONT[def.script]}, serif`, fontSize: 64, lineHeight: 1, minWidth: 60, textAlign: 'center', padding: '0 16px' }}>{def.letter}</span>
+          {/* the game's handwriting font is slanted; an upright school font beside it (the parent's review) */}
+          {def.script === 'hand' && <span data-ref-glyph="Dana Yad" title="Dana Yad" style={{ fontFamily: "'Dana Yad', serif", fontSize: 52, lineHeight: 1.1, color: '#666' }}>{def.letter}</span>}
+        </div>
         <div style={{ display: 'flex', gap: 6, direction: 'ltr' }}>
           {def.variants.map((v, vi) => (
-            <svg key={vi} data-variant={vi + 1} width={cellW * 0.9} height={H * 0.9} viewBox={`${-0.3 * U} ${top * U} ${cellW} ${H}`}
+            <div key={vi} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <svg data-variant={vi + 1} width={cellW * 0.9} height={H * 0.9} viewBox={`${-0.3 * U} ${top * U} ${cellW} ${H}`}
               onClick={onPlay} style={{ background: '#160a35', borderRadius: 10, cursor: 'pointer' }}>
               <GlyphDefs />
               {[0, 1].map((y) => <line key={y} x1={-0.3 * U} x2={cellW} y1={y * U} y2={y * U} stroke="#fff6d8" strokeOpacity={0.45} strokeWidth={2} />)}
@@ -48,13 +53,16 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
               <StrokeAnim key={playing ? 'p' : 's'} strokes={v.map((s) => s.pts)} map={([x, y]) => [x * U, y * U]} width={7} numbers
                 handScale={0.35} {...(playing ? { ms } : { still: true })} />
             </svg>
+            {def.variants.length > 1 && <span data-variant-label={vi + 1} style={{ fontSize: 12, color: '#555' }}>{vi === 0 ? '1 · taught' : `${vi + 1} · also passes`}</span>}
+            </div>
           ))}
         </div>
       </div>
       <div style={{ fontSize: 13, color: '#555' }}>
-        {def.variants.map((v) => v.length).join(' or ')} stroke{def.variants.some((v) => v.length > 1) ? 's' : ''}
-        {def.variants.length > 1 ? ' (sources differ: either passes)' : ''}
+        {[...new Set(def.variants.map((v) => v.length))].join(' or ')} stroke{def.variants.some((v) => v.length > 1) ? 's' : ''}
+        {def.variants.length > 1 ? ' (any of them passes; the hand teaches the first)' : ''}
         {def.variants.some((v) => v.some((s) => s.either)) ? ' · either direction' : ''}
+        {def.variants.some((v) => v.some((s) => s.end)) ? ` · its end must go ${def.variants[0].find((s) => s.end)?.end}` : ''}
         {def.strict ? ' · no pen-lift joining' : ''}
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
@@ -119,7 +127,7 @@ export function Strokes({ onBack }: { onBack: () => void }) {
       ))}
       <p style={{ color: '#666', fontSize: 13 }}>
         Timing per letter: {Math.round(strokeTiming(strokesOf('א', 'print').variants[0].map((s) => s.pts)).total / 100) / 10} s for print א.
-        Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file.
+        Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file. Handwriting: the game's font (Ktav Yad) and, below it in grey, the upright school font Dana Yad.
       </p>
     </div>
   )

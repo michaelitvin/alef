@@ -84,6 +84,18 @@ describe('duel2 store', () => {
     expect(s.lastBoss).toBeNull()
     expect(s.potionIntroSeen).toBe(false)
   })
+  it('the stroke marks of the letters changed after the review (2026-11-07) are cleared; the other marks stay', async () => {
+    const marks = { 'ד-hand': 'ok', 'ד-print': 'ok', 'ה-print': 'wrong', 'ש-hand': 'wrong', 'ף-hand': 'wrong' }
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { totalStars: 5, strokeMarks: marks }, version: 1 }))
+    await useDuel2Store.persist.rehydrate()
+    const s = useDuel2Store.getState()
+    expect(s.strokeMarks).toEqual({ 'ד-print': 'ok', 'ש-hand': 'wrong' })
+    expect(s.totalStars).toBe(5)
+    // a save already past that point keeps every mark
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { strokeMarks: marks }, version: 2 }))
+    await useDuel2Store.persist.rehydrate()
+    expect(useDuel2Store.getState().strokeMarks).toEqual(marks)
+  })
   it('an old save without the boss fields gets their defaults (never drops his progress)', async () => {
     localStorage.setItem('alef-duel2', JSON.stringify({ state: { totalStars: 42, crystals: 3 }, version: 1 }))
     await useDuel2Store.persist.rehydrate()

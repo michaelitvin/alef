@@ -138,6 +138,11 @@ export function judgeStroke(drawn: Pt[], exp: StrokeDef, f: Frame, first: boolea
     score = rev
     d = [...d].reverse()
   }
+  if (exp.end) {
+    // the last bit of the stroke must go the way the data says (ף ends going down, ץ going up: the parent)
+    const dy = d[d.length - 1][1] - subpath(d, 0.88).slice(-1)[0][1]
+    if ((exp.end === 'down' ? dy : -dy) < 0.06 * f.s) return { ok: false, why: 'shape', score }
+  }
   if (o.byHeight) {
     const hd = bbox(d).bottom - bbox(d).top
     const he = bbox(e).bottom - bbox(e).top

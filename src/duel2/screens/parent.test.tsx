@@ -94,6 +94,12 @@ describe('parent area', () => {
     expect(container.querySelectorAll('[data-stroke-card]').length).toBe(STROKES.length)
     expect(container.querySelectorAll('[data-stroke-card="ם-print"] svg[data-variant]').length).toBe(2)
     expect(container.querySelectorAll('[data-stroke-card="ד-print"] [data-stroke-number]').length).toBe(2)
+    // the alternatives are shown too (the parent checks them), the first is the one the hand teaches
+    expect(container.querySelectorAll('[data-stroke-card="מ-print"] svg[data-variant]').length).toBe(3)
+    expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="1"]')!.textContent).toMatch(/taught/)
+    expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="2"]')!.textContent).toMatch(/also/)
+    // handwriting shows a second, upright school font next to the game's font
+    expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')).not.toBeNull()
     fireEvent.click(container.querySelector('[data-stroke-card="ד-print"] [data-mark-ok]')!)
     expect(useDuel2Store.getState().strokeMarks['ד-print']).toBe('ok')
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 54/)

@@ -37,6 +37,90 @@ describe('stroke data', () => {
     expect(strokesOf('ם', 'print').variants.length).toBe(2)
     expect(strokesOf('ע', 'print').variants.length).toBe(2)
     expect(strokesOf('א', 'hand').variants.length).toBe(2)
-    for (const l of 'סעשץ') expect(strokesOf(l, 'hand').variants[0].some((x) => x.either), l).toBe(true)
+    for (const l of 'סעש') expect(strokesOf(l, 'hand').variants[0].some((x) => x.either), l).toBe(true)
+  })
+  describe("the parent's review (2026-11-07)", () => {
+    const P = (l: string) => strokesOf(l, 'print')
+    const Hd = (l: string) => strokesOf(l, 'hand')
+    const all = (l: string, sc: 'print' | 'hand') => strokesOf(l, sc).variants[0].flatMap((st) => st.pts)
+    const top = (l: string, sc: 'print' | 'hand') => Math.min(...all(l, sc).map((q) => q[1]))
+    const bottom = (l: string, sc: 'print' | 'hand') => Math.max(...all(l, sc).map((q) => q[1]))
+    it('print ה: the roof overhangs its leg only a little on the left', () => {
+      const [roof, leg] = P('ה').variants[0]
+      expect(leg.pts[0][0] - roof.pts[0][0]).toBeLessThanOrEqual(0.15)
+      expect(leg.pts[0][0] - roof.pts[0][0]).toBeGreaterThan(0.05)
+    })
+    it('print ז: the second stroke may be a zigzag (an alternative)', () => {
+      const v = P('ז').variants
+      expect(v.length).toBe(2)
+      const zig = v[1][1].pts
+      // the x changes direction at least twice on the way down
+      let turns = 0
+      for (let i = 2; i < zig.length; i++) if (Math.sign(zig[i][0] - zig[i - 1][0]) !== Math.sign(zig[i - 1][0] - zig[i - 2][0])) turns++
+      expect(turns).toBeGreaterThanOrEqual(2)
+      expect(v[1][0]).toEqual(v[0][0])
+    })
+    it('print מ: alternatives with 3 strokes, and with 2 where the small piece begins the first stroke', () => {
+      const v = P('מ').variants
+      expect(v.map((x) => x.length)).toEqual([2, 3, 2])
+      const small = v[0][1].pts
+      const first = v[2][0].pts
+      expect(first[0]).toEqual(small[0])
+      expect(first[1]).toEqual(small[small.length - 1])
+    })
+    it('print נ: a short head, a long base (not כ)', () => {
+      const p = P('נ').variants[0][0].pts
+      const head = p[1][0] - p[0][0]
+      const base = p[p.length - 2][0] - p[p.length - 1][0]
+      expect(head).toBeLessThan(0.45 * base)
+    })
+    it('print ק: a clear gap between the roof and the leg', () => {
+      const [roof, leg] = P('ק').variants[0]
+      expect(leg.pts[0][1] - roof.pts[0][1]).toBeGreaterThanOrEqual(0.3)
+    })
+    it('print ץ: the left line is one straight line, the wing meets it', () => {
+      const [line] = P('ץ').variants[0]
+      expect(line.pts.length).toBe(2)
+    })
+    it('handwriting ו י ל ן stand nearly upright', () => {
+      const slant = (a: [number, number], b: [number, number]) => Math.abs(b[0] - a[0]) / Math.abs(b[1] - a[1])
+      for (const l of 'וין') { const p = Hd(l).variants[0][0].pts; expect(slant(p[0], p[p.length - 1]), l).toBeLessThan(0.12) }
+      // ל: its stem, from the bottom of the loop up to the top line
+      const lp = Hd('ל').variants[0][0].pts
+      const lo = lp.reduce((a, q) => (q[1] > a[1] ? q : a))
+      const up = lp.filter((q) => q[1] < 0.6 && q[1] > -0.05)
+      expect(slant(up[0], up[up.length - 1])).toBeLessThan(0.15)
+      expect(lo[1]).toBeGreaterThan(0.9)
+    })
+    it('handwriting א: a C and an upright line on the left between the lines', () => {
+      for (const v of Hd('א').variants) {
+        const line = v.find((st) => st.pts.length === 2)!.pts
+        expect(Math.min(line[0][1], line[1][1])).toBeGreaterThan(-0.15)
+        // upright: the parent found the font's slanted line too tilted
+        expect(Math.abs(line[1][0] - line[0][0])).toBeLessThan(0.05)
+      }
+    })
+    it('handwriting ג: the foot goes on past the stem', () => {
+      const p = Hd('ג').variants[0][0].pts
+      expect(p[p.length - 1][0]).toBeGreaterThan(p[0][0] + 0.25)
+    })
+    it('handwriting צ: not taller than the lines (a little over the top at most)', () => {
+      expect(top('צ', 'hand')).toBeGreaterThan(-0.2)
+    })
+    it('handwriting ף and ץ begin like ל, rise above the top line, sit on the baseline; ף ends going down, ץ going up', () => {
+      const lam = Hd('ל').variants[0][0].pts.slice(0, 5)
+      for (const l of 'ףץ') {
+        const d = Hd(l)
+        expect(d.variants.length, l).toBe(1)
+        const p = d.variants[0][0].pts
+        lam.forEach((q, i) => expect(Math.hypot(q[0] - p[i][0], q[1] - p[i][1]), `${l} point ${i}`).toBeLessThan(0.12))
+        expect(top(l, 'hand'), l).toBeLessThan(-0.3)
+        expect(bottom(l, 'hand'), l).toBeLessThan(1.1)
+        expect(d.variants[0][0].either, l).toBeFalsy()
+      }
+      const end = (l: string) => { const p = Hd(l).variants[0][0].pts; return p[p.length - 1][1] - p[p.length - 3][1] }
+      expect(end('ף')).toBeGreaterThan(0.08)
+      expect(end('ץ')).toBeLessThan(-0.08)
+    })
   })
 })
