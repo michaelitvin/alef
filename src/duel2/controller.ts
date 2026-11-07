@@ -22,7 +22,7 @@ import { coinsOf, useDuel2Store } from './store'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
 import { strokesOf, type Pt, type Script } from './data/strokes'
-import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
+import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptFor, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 
@@ -123,6 +123,8 @@ const POPCORN = 0.28
 const DRAW_TRIES = 3
 /** a stroke shorter than this (letter units) is a tap, not a stroke of the letter */
 const TAP_LEN = 0.06
+/** a piece that waits for the rest of its stroke is settled after this pause */
+const SETTLE_MS = 1000
 
 const sylFeatures = (c: Choice, screen: ScreenId) => {
   const it = itemOf(c.itemId)
@@ -847,7 +849,14 @@ export class RunController {
     this.setScreen({ strokes: all.map((s, i) => { const k = f(s, i, all); return k ? { ...s, state: k } : s }) } as Partial<DrawView>)
   }
   private dropFaded() { this.setScreen({ strokes: this.dv().strokes.filter((s) => s.state !== 'wrong') } as Partial<DrawView>) }
-  private waitStroke(t: number) { return this.guard(t, new Promise<Pt[]>((r) => { this.strokeWaiter = r })) }
+  /** his next stroke, or null when `settleMs` passes first (a waiting piece is then settled) */
+  private waitStroke(t: number, settleMs?: number) {
+    return this.guard(t, new Promise<Pt[] | null>((r) => {
+      const w = (pts: Pt[]) => r(pts)
+      this.strokeWaiter = w
+      if (settleMs !== undefined) window.setTimeout(() => { if (this.strokeWaiter === w) { this.strokeWaiter = null; r(null) } }, settleMs)
+    }))
+  }
 
   /** The glowing hand draws `strokes` (and the voice may speak meanwhile); returns when both are done. */
   private async handDraw(t: number, strokes: Pt[][], line?: string) {
@@ -874,7 +883,7 @@ export class RunController {
   }
 
   /** Waits for his next stroke; the instruction and the word after IDLE_MS, the hint after IDLE_HINT_MS (rule). */
-  private async drawWait(t: number): Promise<Pt[]> {
+  private async drawWait(t: number, settleMs?: number): Promise<Pt[] | null> {
     const v = this.dv()
     let waiting = true
     let spoke = false
@@ -887,8 +896,8 @@ export class RunController {
     }, IDLE_MS)
     const t2 = window.setTimeout(() => { if (live()) { spoke = true; this.drawHint(true) } }, IDLE_HINT_MS)
     try {
-      const pts = await this.waitStroke(t)
-      if (spoke) stopVoice()
+      const pts = await this.waitStroke(t, settleMs)
+      if (spoke && pts) stopVoice()
       return pts
     } finally {
       waiting = false
@@ -930,24 +939,32 @@ export class RunController {
     let helped = false
     let againSaid = false
     while (!checker.done) {
-      const pts = await this.drawWait(t)
-      if (pathLength(pts) < TAP_LEN) continue
-      const sid = this.addStroke(pts, 'live')
-      const r = checker.add(pts)
-      this.track('draw-stroke', { letter, script, n: r.index + 1, ok: r.kind !== 'wrong', ...(r.kind === 'partial' ? { partial: true } : {}), ...(r.kind === 'wrong' ? { why: r.why } : {}) })
-      if (r.kind === 'partial') { this.restyle((s) => (s.id === sid ? 'pending' : null)); continue }
-      if (r.kind === 'ok') {
-        // this stroke and the pieces it joined turn gold
-        this.restyle((s, i, all) => (i >= all.length - r.pieces ? 'ok' : s.state === 'pending' ? 'wrong' : null))
-        this.sfx('stroke')
-        continue
+      // a piece waiting for the rest of its stroke is settled after a short pause (it gets its feedback then)
+      const pts = await this.drawWait(t, checker.hasPending ? SETTLE_MS : undefined)
+      let r: Verdict | null
+      if (pts === null) r = checker.settle()
+      else {
+        if (pathLength(pts) < TAP_LEN) continue
+        this.addStroke(pts, 'live')
+        r = checker.add(pts)
       }
-      this.restyle((s) => (s.id === sid || s.state === 'pending' ? 'wrong' : null))
+      if (!r) continue
+      const v = r
+      this.track('draw-stroke', {
+        letter, script, n: v.index + 1, ok: v.kind !== 'wrong', ...(v.kind === 'partial' ? { partial: true } : {}), ...(v.kind === 'wrong' ? { why: v.why } : {}),
+        ...(pts === null ? { settled: true } : {}), ...(v.kind === 'ok' && v.joined ? { joined: true } : {}),
+      })
+      // the strokes this verdict covers; a piece that waited before them was right (settled) or wrong
+      const mine = v.kind === 'ok' ? 'ok' : v.kind === 'partial' ? 'pending' : 'wrong'
+      this.restyle((s, i, all) => (i >= all.length - v.pieces ? mine : s.state === 'pending' ? (v.settled ? 'ok' : 'wrong') : null))
+      if (v.kind === 'partial') continue
+      if (v.kind === 'ok') { this.sfx('stroke'); continue }
+      if (checker.done) { this.dropFaded(); break }
       wrongStrokes++
-      tries[r.index] = (tries[r.index] ?? 0) + 1
+      tries[v.index] = (tries[v.index] ?? 0) + 1
       this.set({ phase: 'feedback' })
       await this.sleep(t, 350)
-      if (tries[r.index] >= DRAW_TRIES) {
+      if (tries[v.index] >= DRAW_TRIES) {
         // no dead end: the hand draws it for him and the round goes on
         await this.handDraw(t, [checker.expected()])
         this.dropFaded()
@@ -1006,6 +1023,7 @@ export class RunController {
     const markId = v.marks.map((m) => `${m.zone}:${m.shape}`).join('+')
     for (;;) {
       const pts = await this.drawWait(t)
+      if (!pts) continue
       mine.push(pts)
       this.addStroke(pts, 'mark')
       const j = judgeMarks(mine, v.marks, boxes)

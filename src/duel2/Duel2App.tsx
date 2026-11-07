@@ -30,8 +30,9 @@ function RotateHint() {
 }
 
 export default function Duel2App() {
-  // the stroke review has its own address in the parent area (spec): #/strokes
-  const [screen, setScreen] = useState<Screen>(() => (typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : 'cover'))
+  // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
+  // through the parent area (behind its hold), never past it
+  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : 'cover'))
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
   const [entry, setEntry] = useState<GalleryEntry | null>(null)

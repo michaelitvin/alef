@@ -969,6 +969,43 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     expect(ev.find((e) => e.e === 'draw-done')).toMatchObject({ wrongStrokes: 1, helped: false })
   })
 
+  it('a lift inside a stroke: both pieces turn gold, no try is counted and the letter goes on', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const all = strokesFor(c)
+    const k = Math.floor(all[0].length / 2)
+    c.gesture({ type: 'stroke', pts: all[0].slice(0, k) })
+    await tick(20)
+    c.gesture({ type: 'stroke', pts: all[0].slice(k) })
+    await tick(20)
+    expect(dv(c).strokes.map((s) => s.state)).toEqual(['ok', 'ok'])
+    for (const s of all.slice(1)) { await answering(c); c.gesture({ type: 'stroke', pts: s }); await tick(20) }
+    await until(c, () => dv(c).mode === 'done')
+    await tick(3000)
+    c.destroy()
+    expect(played.some((x) => x.startsWith('draw-again'))).toBe(false)
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+    expect(ev.find((e) => e.e === 'draw-done')).toMatchObject({ wrongStrokes: 0 })
+  })
+
+  it('a piece that waits for the rest of its stroke is settled after a pause: it turns gold, or it is wrong and the hand shows it', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const [first] = strokesFor(c)
+    const cx = first.reduce((a, q) => a + q[0], 0) / first.length
+    const cy = first.reduce((a, q) => a + q[1], 0) / first.length
+    c.gesture({ type: 'stroke', pts: first.map(([x, y]) => [cx + (x - cx) * 0.45, cy + (y - cy) * 0.45] as Pt) })
+    await tick(20)
+    expect(dv(c).strokes[0].state).toBe('pending')
+    await tick(1300)
+    const st = dv(c).strokes[0]?.state
+    expect(st === 'ok' || st === 'wrong' || dv(c).strokes.length === 0).toBe(true)
+    c.destroy()
+  })
+
   it('in the lap only when the parent turned it on: after the ghosts', async () => {
     useDuel2Store.setState({ lastEnded: 'ghosts', settings: { ...useDuel2Store.getState().settings, drawing: true } })
     const c = make()

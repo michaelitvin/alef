@@ -63,18 +63,25 @@ export function DrawTest({ onBack }: { onBack: () => void }) {
       return
     }
     if (mode !== 'letter' || pathLength(pts) < 0.06) return
-    const v: Verdict = checker.current.add(pts)
-    const text = v.kind === 'ok' ? `stroke ${v.index + 1}: right${v.pieces > 1 ? ` (joined ${v.pieces} pieces)` : ''}`
+    window.clearTimeout(settleTimer.current)
+    apply(checker.current.add(pts), [...strokes, { id, pts, state: 'live' }])
+  }
+  const settleTimer = useRef<number | undefined>(undefined)
+  /** the verdict on his strokes, as the game shows it; a waiting piece is settled after a pause, as in the game */
+  const apply = (v: Verdict, list: DrawStroke[]) => {
+    const text = v.kind === 'ok' ? `stroke ${v.index + 1}: right${v.joined ? ' (joined to the stroke before: a lift inside it)' : v.pieces > 1 ? ` (joined ${v.pieces} pieces)` : ''}`
       : v.kind === 'partial' ? `stroke ${v.index + 1}: a piece, waiting for the rest (pen lift)`
         : `stroke ${v.index + 1}: wrong — ${v.why}`
-    setRows((r) => [...r, { n: r.length + 1, text, ok: v.kind !== 'wrong' }])
-    let next: DrawStroke[] = [...strokes, { id, pts, state: 'live' }]
-    if (v.kind === 'ok') next = next.map((s, i, all) => (i >= all.length - v.pieces ? { ...s, state: 'ok' } : s.state === 'pending' ? { ...s, state: 'wrong' } : s))
-    else if (v.kind === 'partial') next = next.map((s) => (s.id === id ? { ...s, state: 'pending' } : s))
-    else next = next.map((s) => (s.id === id || s.state === 'pending' ? { ...s, state: 'wrong' } : s))
+    setRows((r) => [...r, ...(v.settled ? [{ n: r.length + 1, text: 'the waiting piece was a whole stroke', ok: true }] : []), { n: r.length + 1 + (v.settled ? 1 : 0), text, ok: v.kind !== 'wrong' }])
+    const mine: DrawStroke['state'] = v.kind === 'ok' ? 'ok' : v.kind === 'partial' ? 'pending' : 'wrong'
+    const next = list.map((s, i, all) => (i >= all.length - v.pieces ? { ...s, state: mine } : s.state === 'pending' ? { ...s, state: (v.settled ? 'ok' : 'wrong') as DrawStroke['state'] } : s))
     setStrokes(next)
-    if (v.kind === 'wrong') setDemo({ id, strokes: [checker.current.expected()] })
-    if (v.kind === 'ok' && v.done) {
+    if (v.kind === 'partial') {
+      settleTimer.current = window.setTimeout(() => { const sv = checker.current.settle(); if (sv) apply(sv, next) }, 1000)
+      return
+    }
+    if (v.kind === 'wrong' && !checker.current.done) setDemo({ id: ++idRef.current, strokes: [checker.current.expected()] })
+    if (checker.current.done) {
       const fb = lineFeedback(inkOf(next), def)
       setLineFx(fb ?? undefined)
       setRows((r) => [...r, { n: r.length + 1, text: `letter done · lines: ${fb ? fb.kind : 'in the lines'}`, ok: true }])

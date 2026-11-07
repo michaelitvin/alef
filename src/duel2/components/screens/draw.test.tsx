@@ -46,6 +46,27 @@ describe('drawing screen', () => {
     expect(pts[0][0]).toBeCloseTo(0)
     expect(pts[2][1]).toBeCloseTo(1)
   })
+  it('the slot stops pulsing once his finger is down, and after his first stroke', () => {
+    const { container, rerender } = render(<Draw view={view('camel', 'print')} phase="answer" onStroke={() => {}} />)
+    const pad = container.querySelector('[data-draw-pad]')!
+    fireEvent.pointerDown(pad, { pointerId: 1, clientX: 500, clientY: 400 })
+    expect(container.querySelector('[data-slot]')!.getAttribute('class') ?? '').not.toMatch(/pulse/)
+    fireEvent.pointerUp(pad, { pointerId: 1, clientX: 600, clientY: 400 })
+    rerender(<Draw view={view('camel', 'print', { strokes: [{ id: 1, pts: [[0, 0], [1, 0]], state: 'ok' }] })} phase="answer" onStroke={() => {}} />)
+    expect(container.querySelector('[data-slot]')!.getAttribute('class') ?? '').not.toMatch(/pulse/)
+  })
+  it('a stroke cut off because the hand or the voice began fades out instead of vanishing', () => {
+    const onStroke = vi.fn()
+    const v = view('camel', 'print')
+    const { container, rerender } = render(<Draw view={v} phase="answer" onStroke={onStroke} />)
+    const pad = container.querySelector('[data-draw-pad]')!
+    fireEvent.pointerDown(pad, { pointerId: 1, clientX: 500, clientY: 400 })
+    fireEvent.pointerMove(pad, { pointerId: 1, clientX: 560, clientY: 450 })
+    rerender(<Draw view={v} phase="feedback" onStroke={onStroke} />)
+    fireEvent.pointerUp(container.querySelector('[data-draw-pad]')!, { pointerId: 1, clientX: 600, clientY: 500 })
+    expect(onStroke).not.toHaveBeenCalled()
+    expect(container.querySelector('[data-discarded]')!.getAttribute('class')).toMatch(/fade/)
+  })
   it('no strokes while the hand shows or the voice speaks', () => {
     const onStroke = vi.fn()
     const { container } = render(<Draw view={view('camel', 'print')} phase="feedback" onStroke={onStroke} />)

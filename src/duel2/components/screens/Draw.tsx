@@ -1,7 +1,7 @@
 // 6 · Drawing: the word's picture, and the word on writing lines with its first letter missing — an empty framed slot
 // where he writes the letter from memory (print or handwriting, the script of the word). His strokes are white while he
 // draws, gold when right; a wrong one fades while the glowing hand shows it again. After the letter, its marks.
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import type { DrawView } from '../../controller'
 import type { Pt } from '../../data/strokes'
@@ -42,16 +42,35 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
   const can = p.phase === 'answer'
   const live = useRef<{ id: number; pts: Pt[] } | null>(null)
   const liveEl = useRef<SVGPolylineElement | null>(null)
+  /** his finger is down (the slot stops pulsing: it no longer needs to call him) */
+  const [down, setDown] = useState(false)
+  /** strokes cut off because the hand or the voice began: they fade instead of vanishing */
+  const [discarded, setDiscarded] = useState<{ id: number; pts: Pt[] }[]>([])
+  useEffect(() => {
+    if (!discarded.length) return
+    const timer = window.setTimeout(() => setDiscarded([]), 950)
+    return () => window.clearTimeout(timer)
+  }, [discarded])
+  /** the screen → stage mapping, taken once when the finger goes down (not on every move) */
+  const inv = useRef<DOMMatrix | null>(null)
   const w = Math.max(9, L.u * 0.085)
   const map = (q: Pt) => toStagePt(L, q)
-  const at = (e: React.PointerEvent): Pt => { const q = toStage(e.currentTarget as Element, e.clientX, e.clientY); return [q.x, q.y] }
+  const at = (e: React.PointerEvent): Pt => {
+    const m = inv.current
+    if (m) return [m.a * e.clientX + m.c * e.clientY + m.e, m.b * e.clientX + m.d * e.clientY + m.f]
+    const q = toStage(e.currentTarget as Element, e.clientX, e.clientY)
+    return [q.x, q.y]
+  }
   const show = () => { if (liveEl.current) liveEl.current.setAttribute('points', live.current ? poly(live.current.pts) : '') }
   const end = (e: React.PointerEvent) => {
     const s = live.current
     if (!s || s.id !== e.pointerId) return
     live.current = null
+    inv.current = null
+    setDown(false)
     show()
-    p.onStroke(s.pts.map((q) => toNorm(L, q)))
+    if (can) p.onStroke(s.pts.map((q) => toNorm(L, q)))
+    else setDiscarded((d) => [...d, { id: s.id, pts: s.pts }])
   }
   const ok = v.strokes.filter((s) => s.state === 'ok' || s.state === 'helped')
   const markVav = v.glow === 'marks' && v.marks.some((m) => m.zone.startsWith('vav'))
@@ -82,7 +101,7 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
         <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.below} y2={L.lines.below} strokeWidth={3} strokeOpacity={0.3} strokeDasharray="6 12" />
       </g>
       <rect data-slot x={L.slot.left} y={L.slot.top} width={L.slot.right - L.slot.left} height={L.slot.bottom - L.slot.top} rx={24}
-        className={can && v.mode === 'letter' ? 'd2-slot-pulse' : undefined}
+        className={can && v.mode === 'letter' && !down && !v.strokes.length ? 'd2-slot-pulse' : undefined}
         fill="#ffd34d" fillOpacity={0.06} stroke="#ffd34d" strokeWidth={5} strokeDasharray="22 14" strokeOpacity={v.mode === 'done' ? 0.25 : 0.85} />
       <WordText L={L} glowVav={markVav} />
       <g data-strokes className={v.mode === 'done' ? 'd2-drawn' : v.glow === 'marks' ? 'd2-drawn-soft' : undefined}>
@@ -126,6 +145,10 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
           if (!can || live.current) return
           e.preventDefault()
           ;(e.target as Element).setPointerCapture?.(e.pointerId)
+          const svg = (e.currentTarget as Element).closest('svg') as SVGSVGElement | null
+          const ctm = svg?.getScreenCTM?.()
+          inv.current = ctm && typeof ctm.inverse === 'function' ? ctm.inverse() : null
+          setDown(true)
           live.current = { id: e.pointerId, pts: [at(e)] }
           show()
         }}
@@ -139,7 +162,8 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
           show()
         }}
         onPointerUp={end}
-        onPointerCancel={() => { live.current = null; show() }} />
+        onPointerCancel={() => { live.current = null; inv.current = null; setDown(false); show() }} />
+      {discarded.map((d) => <polyline key={d.id} data-discarded className="d2-stroke-fade" points={poly(d.pts)} fill="none" stroke="#ffffff" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />)}
       <polyline ref={liveEl} data-live points="" fill="none" stroke="#ffffff" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
     </Stage>
   )
