@@ -7,7 +7,11 @@ import type { Choice, Conf } from './logic/rounds'
 import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 
-export interface Duel2Settings { sfx: boolean; music: boolean; volume: number }
+export interface Duel2Settings {
+  sfx: boolean; music: boolean; volume: number
+  /** the drawing screen in the lap: off until the parent has checked the strokes on the review page (spec: drawing) */
+  drawing?: boolean
+}
 export interface Duel2Save {
   stage: StageProgress
   tallies: Record<string, Tally>
@@ -41,6 +45,10 @@ export interface Duel2Save {
   /** the rescue potion was introduced (its first flight is slower, with a line) */
   potionIntroSeen: boolean
   settings: Duel2Settings
+  /** the parent's marks on the stroke review page (`<letter>-<script>`): kept through a progress reset */
+  strokeMarks: Record<string, 'ok' | 'wrong'>
+  /** his drawing rounds so far (print and handwriting alternate) */
+  drawRounds: number
 }
 
 interface Actions {
@@ -60,13 +68,15 @@ interface Actions {
   markDotIntro: (pair: string) => void
   noteHint: (key: string) => void
   setSettings: (p: Partial<Duel2Settings>) => void
+  markStrokes: (key: string, mark: 'ok' | 'wrong' | null) => void
+  noteDrawRound: () => void
   resetProgress: () => void
 }
 
-export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8 }
-const fresh = (): Omit<Duel2Save, 'settings'> => ({
+export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: false }
+const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
-  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {},
+  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
 })
 
@@ -81,6 +91,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
     (set, get) => ({
       ...fresh(),
       settings: DEFAULT_SETTINGS,
+      strokeMarks: {},
       recordAnswer: ({ features, miss, asked, tapped, newStage }) => {
         const s = get()
         const tallies = { ...s.tallies }
@@ -119,7 +130,14 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       markDotIntro: (pair) => set((s) => (s.dotIntrosSeen.includes(pair) ? s : { dotIntrosSeen: [...s.dotIntrosSeen, pair] })),
       noteHint: (key) => set((s) => ({ hintsSeen: { ...s.hintsSeen, [key]: (s.hintsSeen[key] ?? 0) + 1 } })),
       setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
-      resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings })),
+      markStrokes: (key, mark) => set((s) => {
+        const m = { ...(s.strokeMarks ?? {}) }
+        if (mark) m[key] = mark
+        else delete m[key]
+        return { strokeMarks: m }
+      }),
+      noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
+      resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {
       name: 'alef-duel2', version: 1, storage: createJSONStorage(() => localStorage),

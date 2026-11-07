@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { coinsOf, useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, coinsOf, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
@@ -7,6 +7,20 @@ const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice
 
 describe('duel2 store', () => {
   beforeEach(() => useDuel2Store.getState().resetProgress())
+  it('the drawing screen is off until the parent turns it on (an old save without the setting reads as off)', () => {
+    expect(DEFAULT_SETTINGS.drawing).toBe(false)
+    useDuel2Store.setState({ settings: { sfx: true, music: true, volume: 1 } as typeof DEFAULT_SETTINGS })
+    expect(!!useDuel2Store.getState().settings.drawing).toBe(false)
+    useDuel2Store.getState().setSettings({ drawing: true })
+    expect(useDuel2Store.getState().settings.drawing).toBe(true)
+  })
+  it('the stroke review marks are kept, and a reset of his progress keeps them (they are the parent’s)', () => {
+    useDuel2Store.getState().markStrokes('ד-print', 'ok')
+    useDuel2Store.getState().markStrokes('ר-hand', 'wrong')
+    useDuel2Store.getState().markStrokes('ר-hand', null)
+    useDuel2Store.getState().resetProgress()
+    expect(useDuel2Store.getState().strokeMarks).toEqual({ 'ד-print': 'ok' })
+  })
   it('recordAnswer updates each feature and recent', () => {
     useDuel2Store.getState().recordAnswer({ features: ['l:bet', 'v:a'], miss: true, newStage: false })
     const s = useDuel2Store.getState()

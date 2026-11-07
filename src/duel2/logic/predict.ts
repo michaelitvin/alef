@@ -4,7 +4,7 @@
 import { pickNearTarget, predictedMistakeRate, type Rng, type Tally } from '../../shared/adaptive'
 import type { Item, Mark } from './content.ts'
 
-export type ScreenId = 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'doors'
+export type ScreenId = 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'draw' | 'doors'
 export type Target = { item: Item; mark?: Mark } | { wordId: string }
 
 export function features(target: Target, screen: ScreenId): string[] {

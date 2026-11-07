@@ -1,3 +1,5 @@
+/* the handwriting script of the drawing screen: Ktav Yad CLM (Culmus, GNU GPL v2; public/fonts/ktavyad/README.txt) */
+@font-face { font-family: 'Ktav Yad'; src: url('/fonts/ktavyad/KtavYadCLM-BoldItalic.woff2') format('woff2'); font-display: block; }
 html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-root { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent; color: #fff6d8; font-family: Rubik, 'Noto Sans Hebrew', system-ui, sans-serif; }
@@ -176,3 +178,21 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-summary [data-teaser] { box-shadow: 0 0 18px #b48cff88; }
 .d2-play-big { width: clamp(110px, 26vh, 180px); height: clamp(110px, 26vh, 180px); box-shadow: 0 0 0 14px #ffb02e40, 0 0 50px 8px #ff8c28e6; animation: d2-pulse-big 0.9s ease-in-out infinite alternate; }
 .d2-play-big svg { width: 46%; height: 46%; }
+
+/* the drawing screen */
+.d2-slot-pulse { animation: d2-slot 1.1s ease-in-out infinite alternate; }
+@keyframes d2-slot { from { stroke-opacity: 0.45; fill-opacity: 0.03; } to { stroke-opacity: 1; fill-opacity: 0.12; } }
+.d2-stroke-fade { animation: d2-stroke-fade 900ms ease-in forwards; }
+@keyframes d2-stroke-fade { 0% { opacity: 1; } 30% { opacity: 0.9; } 100% { opacity: 0; } }
+.d2-drawn .d2-halo { animation: d2-drawn 800ms ease-out forwards; }
+@keyframes d2-drawn { 0% { stroke-opacity: 0.3; opacity: 0.3; } 40% { stroke-opacity: 0.9; opacity: 0.9; } 100% { stroke-opacity: 0.55; opacity: 0.55; } }
+.d2-drawn-soft .d2-halo { animation: d2-soft 800ms ease-in-out infinite alternate; }
+@keyframes d2-soft { to { stroke-opacity: 0.7; opacity: 0.7; } }
+.d2-vav-glow { animation: d2-vav 800ms ease-in-out infinite alternate; }
+@keyframes d2-vav { to { fill: #ffe680; } }
+.d2-linefx { animation: d2-linefx 1.6s ease-in-out forwards; }
+@keyframes d2-linefx { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0.5; } }
+.d2-stroke-card { background: #fff; border: 3px solid #ccc; border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
+.d2-drawtest { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr 340px; background: #f4f0ff; color: #222; font-family: system-ui; }
+.d2-drawtest-stage { position: relative; min-height: 0; }
+.d2-drawtest-side { overflow: auto; padding: 14px; border-left: 1px solid #ccc; }

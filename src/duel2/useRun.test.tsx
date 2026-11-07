@@ -13,6 +13,9 @@ vi.mock('./audio/duel2Audio', async (orig) => {
   return { ...m, playSfx: (n: string) => { sfxLog.push(n); return Promise.resolve() } }
 })
 import { duel2Telemetry } from './telemetry'
+import type { DrawView } from './controller'
+import { strokesOf, type Pt } from './data/strokes'
+import { bbox, markTargets, resample } from './logic/recognizer'
 
 function seeded(seed: number) {
   let a = seed >>> 0
@@ -42,7 +45,7 @@ function rightId(v: View): string {
   const s = v.screen!
   if (s.screen === 'cauldron') return s.target.mark!
   if (s.screen === 'doors') return s.word.id
-  if (s.screen === 'broom' || s.screen === 'crystal') throw new Error('no pick here')
+  if (s.screen === 'broom' || s.screen === 'crystal' || s.screen === 'draw') throw new Error('no pick here')
   return s.target.id
 }
 function wrongId(v: View): string {
@@ -1213,4 +1216,236 @@ describe('run controller', () => {
     }, 60_000)
   })
 
+})
+
+describe('drawing screen (spec: 2026-11-07 drawing)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    useDuel2Store.getState().resetProgress()
+    useDuel2Store.setState({ demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
+    played = []
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
+  })
+  afterEach(() => {
+    stopVoice()
+    setVoicePlayer(null)
+    vi.useRealTimers()
+  })
+  const dv = (c: RunController) => c.view.screen as DrawView
+  const strokesFor = (c: RunController, tf = (p: Pt): Pt => p) => strokesOf(dv(c).letter, dv(c).script).variants[0].map((s) => resample(s.pts, 30).map(tf))
+  const answering = (c: RunController) => until(c, (v) => v.phase === 'answer' && !dv(c).demo)
+  async function drawLetter(c: RunController, tf?: (p: Pt) => Pt) {
+    for (const s of strokesFor(c, tf)) {
+      await answering(c)
+      c.gesture({ type: 'stroke', pts: s })
+      await tick(20)
+    }
+  }
+  async function drawMarks(c: RunController) {
+    await until(c, (v) => dv(c).mode === 'mark' && v.phase === 'answer')
+    const v = dv(c)
+    const ink = bbox(v.strokes.filter((x) => x.state === 'ok' || x.state === 'helped').flatMap((x) => x.pts))
+    for (const m of markTargets(v.marks, { letter: ink, vav: v.layout.vav?.box })) { c.gesture({ type: 'stroke', pts: m }); await tick(20) }
+  }
+
+  it('a round: the word, the demo (a letter not drawn yet), he draws, each right stroke turns gold, the word again, a star', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await until(c, (v) => v.screen?.screen === 'draw')
+    const id = dv(c).word.id
+    await until(c, () => !!dv(c).demo)
+    expect(played[0]).toBe(`w-${id}`)
+    await answering(c)
+    const hearts = c.view.hearts
+    await drawLetter(c)
+    expect(dv(c).strokes.every((s) => s.state === 'ok')).toBe(true)
+    await until(c, () => dv(c).mode === 'done')
+    expect(c.view.score).toBe(1)
+    await until(c, () => played.filter((x) => x === `w-${id}`).length === 2)
+    expect(c.view.hearts).toBe(hearts)
+    c.destroy()
+  })
+
+  it('a wrong stroke fades, the hand shows that stroke (draw-again once), and he draws it again; no heart is lost', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const hearts = c.view.hearts
+    const [first] = strokesFor(c)
+    c.gesture({ type: 'stroke', pts: [...first].reverse() })
+    await tick(20)
+    expect(dv(c).strokes[0].state).toBe('wrong')
+    expect(c.view.phase).toBe('feedback')
+    await until(c, () => !!dv(c).demo)
+    expect(dv(c).demo!.strokes.length).toBe(1)
+    await until(c, () => played.some((x) => x.startsWith('draw-again')))
+    await answering(c)
+    expect(dv(c).strokes.length).toBe(0)
+    c.gesture({ type: 'stroke', pts: [...first].reverse() })
+    await tick(20)
+    await answering(c)
+    expect(played.filter((x) => x.startsWith('draw-again')).length).toBe(1)
+    expect(c.view.hearts).toBe(hearts)
+    c.destroy()
+  })
+
+  it('after 3 wrong tries of the same stroke the hand draws it for him and the round goes on', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const [first] = strokesFor(c)
+    for (let i = 0; i < 3; i++) {
+      await answering(c)
+      c.gesture({ type: 'stroke', pts: [...first].reverse() })
+      await tick(20)
+    }
+    await until(c, () => dv(c).strokes.some((s) => s.state === 'helped'))
+    await answering(c)
+    const rest = strokesFor(c).slice(1)
+    for (const s of rest) { await answering(c); c.gesture({ type: 'stroke', pts: s }); await tick(20) }
+    await until(c, () => dv(c).mode === 'done')
+    c.destroy()
+  })
+
+  it('a letter above the lines is told (it glows, the voice says so) and still counts', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    await drawLetter(c, ([x, y]) => [x * 1.6, y * 1.6 - 1.1])
+    await until(c, () => !!dv(c).lineFx)
+    expect(dv(c).lineFx!.kind).toBe('tall')
+    await until(c, () => played.includes('line-tall-1'))
+    await until(c, () => dv(c).mode === 'done')
+    expect(c.view.score).toBe(1)
+    c.destroy()
+  })
+
+  it('then the marks: the voice asks, the place glows, he draws them (judged by place and count)', async () => {
+    const c = make({ force: { screen: 'draw', stage: 2, script: 'print' } })
+    c.start()
+    await answering(c)
+    expect(dv(c).marks.length).toBeGreaterThan(0)
+    await drawLetter(c)
+    await until(c, () => dv(c).mode === 'mark')
+    await until(c, () => played.includes('draw-mark-1'))
+    expect(dv(c).glow).toBe('marks')
+    // a dot far above the letter is wrong: it fades and the hand shows the marks
+    c.gesture({ type: 'stroke', pts: [[0.5, -0.9], [0.5, -0.9]] })
+    await until(c, () => !!dv(c).demo)
+    await drawMarks(c)
+    await until(c, () => dv(c).mode === 'done')
+    c.destroy()
+  })
+
+  it('he waits: the instruction and the word after 8 s; the hint (the hand) after 16 s', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    played = []
+    await tick(8200)
+    expect(played[0]).toMatch(/^q-draw-/)
+    await tick(1000)
+    expect(played[1]).toBe(`w-${dv(c).word.id}`)
+    await tick(7300)
+    expect(dv(c).demo).toBeTruthy()
+    // a stroke stops the hint at once
+    c.gesture({ type: 'stroke', pts: strokesFor(c)[0] })
+    await tick(20)
+    expect(dv(c).demo).toBeFalsy()
+    c.destroy()
+  })
+
+  it('handwriting is shown in its own script; the gallery can force it', async () => {
+    const c = make({ force: { screen: 'draw', stage: 3, script: 'hand' } })
+    c.start()
+    await answering(c)
+    expect(dv(c).script).toBe('hand')
+    expect(dv(c).layout.rest.font).toMatch(/Ktav Yad/)
+    c.destroy()
+  })
+
+  it('telemetry: draw-start, draw-stroke (with why), draw-done', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const [first] = strokesFor(c)
+    c.gesture({ type: 'stroke', pts: [...first].reverse() })
+    await tick(20)
+    await drawLetter(c)
+    await until(c, () => dv(c).mode === 'done')
+    await tick(3000)
+    c.destroy()
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+    expect(ev.find((e) => e.e === 'draw-start')).toMatchObject({ script: 'print' })
+    expect(ev.find((e) => e.e === 'draw-stroke' && e.ok === false)).toMatchObject({ why: 'direction', n: 1 })
+    expect(ev.find((e) => e.e === 'draw-done')).toMatchObject({ wrongStrokes: 1, helped: false })
+  })
+
+  it('a lift inside a stroke: both pieces turn gold, no try is counted and the letter goes on', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const all = strokesFor(c)
+    const k = Math.floor(all[0].length / 2)
+    c.gesture({ type: 'stroke', pts: all[0].slice(0, k) })
+    await tick(20)
+    c.gesture({ type: 'stroke', pts: all[0].slice(k) })
+    await tick(20)
+    expect(dv(c).strokes.map((s) => s.state)).toEqual(['ok', 'ok'])
+    for (const s of all.slice(1)) { await answering(c); c.gesture({ type: 'stroke', pts: s }); await tick(20) }
+    await until(c, () => dv(c).mode === 'done')
+    await tick(3000)
+    c.destroy()
+    expect(played.some((x) => x.startsWith('draw-again'))).toBe(false)
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+    expect(ev.find((e) => e.e === 'draw-done')).toMatchObject({ wrongStrokes: 0 })
+  })
+
+  it('a piece that waits for the rest of its stroke is settled after a pause: it turns gold, or it is wrong and the hand shows it', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const [first] = strokesFor(c)
+    const cx = first.reduce((a, q) => a + q[0], 0) / first.length
+    const cy = first.reduce((a, q) => a + q[1], 0) / first.length
+    c.gesture({ type: 'stroke', pts: first.map(([x, y]) => [cx + (x - cx) * 0.45, cy + (y - cy) * 0.45] as Pt) })
+    await tick(20)
+    expect(dv(c).strokes[0].state).toBe('pending')
+    await tick(1300)
+    const st = dv(c).strokes[0]?.state
+    expect(st === 'ok' || st === 'wrong' || dv(c).strokes.length === 0).toBe(true)
+    c.destroy()
+  })
+
+  it('in the lap only when the parent turned it on: after the ghosts', async () => {
+    useDuel2Store.setState({ lastEnded: 'ghosts', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+    const c = make()
+    c.start()
+    await until(c, (v) => !!v.screen)
+    expect(c.view.screen!.screen).toBe('draw')
+    c.destroy()
+    useDuel2Store.setState({ lastEnded: 'ghosts', settings: { ...useDuel2Store.getState().settings, drawing: false } })
+    const d = make()
+    d.start()
+    await until(d, (v) => !!v.screen)
+    expect(d.view.screen!.screen).not.toBe('draw')
+    d.destroy()
+  })
+
+  it('a pause restarts the same word from the start', async () => {
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    const id = dv(c).word.id
+    c.gesture({ type: 'stroke', pts: strokesFor(c)[0] })
+    await tick(20)
+    c.pause()
+    c.resume()
+    await answering(c)
+    expect(dv(c).word.id).toBe(id)
+    expect(dv(c).strokes.length).toBe(0)
+    c.destroy()
+  })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
+import { CYCLE, VISIT, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage', () => {
@@ -10,6 +10,18 @@ describe('run', () => {
     expect(nextScreen(4, 'ladder')).toEqual({ screen: 'ghosts', newCycle: false })
     expect(nextScreen(4, 'doors')).toEqual({ screen: 'broom', newCycle: true })
     expect(nextScreen(1, 'ghosts')).toEqual({ screen: 'broom', newCycle: true })
+  })
+  it('the drawing screen comes after the ghosts, before the doors, only when the parent turned it on', () => {
+    expect(cycleOf(4, true)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'draw', 'doors'])
+    expect(cycleOf(1, true)).toEqual(['broom', 'ghosts', 'draw'])
+    expect(cycleOf(4, false)).not.toContain('draw')
+    expect(nextScreen(4, 'ghosts', true)).toEqual({ screen: 'draw', newCycle: false })
+    expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'doors', newCycle: false })
+    expect(nextScreen(1, 'draw', true)).toEqual({ screen: 'broom', newCycle: true })
+    expect(runStart(4, 'ghosts', true)).toBe('draw')
+    // turned off after a run ended on it: the next run starts at the screen after it
+    expect(runStart(4, 'draw', false)).toBe('doors')
+    expect(VISIT.draw).toBe(3)
   })
   it('next run starts after the screen where the last ended', () => {
     expect(runStart(4, 'ladder')).toBe('ghosts')

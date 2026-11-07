@@ -7,12 +7,14 @@ import { Play } from './screens/Play'
 import { Summary } from './screens/Summary'
 import { Parent } from './screens/Parent'
 import { Gallery, type GalleryEntry } from './screens/Gallery'
+import { Strokes } from './screens/Strokes'
+import { DrawTest } from './screens/DrawTest'
 import { preloadDuel2Assets } from './assets/preload'
 import { configureAudio, holdAudio, setHidden, stopVoice, unlockDuel2Audio } from './audio/duel2Audio'
 import { useDuel2Store } from './store'
 import type { View } from './controller'
 
-type Screen = 'cover' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play'
+type Screen = 'cover' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
 
 /** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
 function RotateHint() {
@@ -28,7 +30,9 @@ function RotateHint() {
 }
 
 export default function Duel2App() {
-  const [screen, setScreen] = useState<Screen>('cover')
+  // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
+  // through the parent area (behind its hold), never past it
+  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : 'cover'))
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
   const [entry, setEntry] = useState<GalleryEntry | null>(null)
@@ -65,7 +69,9 @@ export default function Duel2App() {
   const view = (() => {
   if (screen === 'play') return <Play key={runNo} opts={{}} onOver={(o) => { setOver(o); setScreen('summary') }} />
   if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} />
-  if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} />
+  if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} onStrokes={() => setScreen('strokes')} onDrawTest={() => setScreen('drawtest')} />
+  if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); setScreen('parent') }} />
+  if (screen === 'drawtest') return <DrawTest onBack={() => setScreen('parent')} />
   if (screen === 'gallery') return <Gallery onBack={() => setScreen('parent')} onStart={(e) => { unlockDuel2Audio(); setEntry(e); setRunNo((n) => n + 1); setScreen('gallery-play') }} />
   if (screen === 'gallery-play' && entry) {
     return (
@@ -77,5 +83,5 @@ export default function Duel2App() {
   }
   return <Cover onPlay={play} onParent={() => setScreen('parent')} loading={loading} />
   })()
-  return <>{view}{screen !== 'parent' && screen !== 'gallery' && <RotateHint />}</>
+  return <>{view}{screen !== 'parent' && screen !== 'gallery' && screen !== 'strokes' && <RotateHint />}</>
 }

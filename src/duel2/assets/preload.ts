@@ -5,7 +5,7 @@ import { IMAGES } from './images'
 import { SFX_URLS, VOICE_URLS } from './audioFiles'
 
 export const READY_MS = 8000
-const FONTS: [string, string][] = [["1em 'Sigalit'", 'בָּשִׁ']]
+const FONTS: [string, string][] = [["1em 'Sigalit'", 'בָּשִׁ'], ["1em 'Ktav Yad'", 'אבג']]
 const kept: HTMLImageElement[] = []
 let ready: Promise<void> | null = null
 

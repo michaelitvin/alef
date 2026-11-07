@@ -82,6 +82,20 @@ export const LINES: LineDef[] = [
   line('demo-ghosts-letter', 'Demo: first letter ghosts (then the letter name)', ['תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),
   line('demo-ghosts-syllable', 'Demo: first syllable ghosts (then the sound)', ['תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-doors', 'Demo: first door', ['תִּקְרָא מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרֹר אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.']),
+  // the drawing screen (spec: 2026-11-07 drawing). No "…" endings (the voice moaned): a line that the word follows ends with ":".
+  line('demo-draw', 'Drawing, first visit: after the word, while the hand writes its first letter', [
+    'תִּסְתַּכֵּל אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתֹּב אוֹתָהּ בְּעַצְמְךָ.',
+  ], 0.5, 'warmly'),
+  line('q-draw', 'Drawing, when he waits: then the word', [
+    'תִּכְתֹּב אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:', 'בְּאֵיזוֹ אוֹת מַתְחִילָה הַמִּלָּה:', 'אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל:',
+  ], 0.5, 'warmly'),
+  line('draw-again', 'Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)', [
+    'בּוֹא נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.', 'נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.', 'תִּסְתַּכֵּל עַל הַיָּד, וְתִכְתֹּב אֶת הַקַּו שׁוּב.',
+  ], 0.5, 'encouraging'),
+  line('draw-mark', 'Drawing: the letter is done; now its marks (the place glows)', ['וְעַכְשָׁו הַנִּקּוּד.'], 0.5, 'warmly'),
+  line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['קְצָת גָּבוֹהַּ מִדַּי.'], 0.5, 'warmly'),
+  line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
+  line('line-small', 'Drawing: the letter is much too small (it still counts)', ['קְצָת קָטָן.'], 0.5, 'warmly'),
 ]
 
 export const lineAudioId = (id: string, n: number) => `${id}-${n}`
