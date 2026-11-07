@@ -231,12 +231,9 @@ describe('recognizer: review findings (pen lifts, size from the lines, waiting p
     expect(w.settle()?.kind).toBe('wrong')
     expect(w.settle()).toBeNull()
   })
-  it('handwriting ד: over the top, a small loop at mid-height, then a straight line down; ב: its base back right to left (ETZE)', () => {
+  it('handwriting ד: over the top, a loop at mid-height, then down; a plain arch is ר, not ד', () => {
     expect(allOk(run('ד', 'hand', [dense(strokesOf('ד', 'hand').variants[0][0].pts)]))).toBe(true)
-    // a plain arch is ר, not ד
     expect(allOk(run('ד', 'hand', [dense(strokesOf('ר', 'hand').variants[0][0].pts)]))).toBe(false)
-    // ב with a flat base (no small peak at its end) still passes: the peak is a detail
-    expect(allOk(run('ב', 'hand', [dense([[0.03, 0.3], [0.21, 0.05], [0.48, 0], [0.72, 0.05], [0.88, 0.22], [0.95, 0.47], [0.88, 0.72], [0.78, 0.92], [0.6, 1], [0.12, 1]])]))).toBe(true)
   })
 })
 
@@ -255,6 +252,11 @@ describe("recognizer: the parent's review (alternatives, look-alikes)", () => {
     expect(ok('ז', 'print', [a[0], b[1]])).toBe(true)
     expect(ok('ז', 'print', [b[0], a[1]])).toBe(true)
   })
+  it('the handwriting letters drawn after Dana Yad stay apart from their look-alikes (both ways)', () => {
+    for (const [a, b] of [['ב', 'כ'], ['ד', 'ר'], ['ח', 'ת'], ['ח', 'ה'], ['ם', 'ס'], ['כ', 'ר'], ['ק', 'ר'], ['ט', 'ס']])
+      for (const [asked, drawn] of [[a, b], [b, a]])
+        expect(ok(asked, 'hand', strokesOf(drawn, 'hand').variants[0]), `${drawn} drawn for ${asked}`).toBe(false)
+  })
   it('a stroke marked with its end (handwriting ף down, ץ up) fails when its end goes the other way, also when wobbly', () => {
     for (const l of 'ףץ') {
       const st = strokesOf(l, 'hand').variants[0][0]
@@ -262,7 +264,7 @@ describe("recognizer: the parent's review (alternatives, look-alikes)", () => {
       const p = st.pts
       const n = p.length
       // the same stroke with its last bit mirrored up/down about the point before it
-      const flipped: Pt[] = p.map((q, i) => (i >= n - 2 ? [q[0], 2 * p[n - 3][1] - q[1]] : q))
+      const flipped: Pt[] = p.map((q, i) => (i >= n - 6 ? [q[0], 2 * p[n - 7][1] - q[1]] : q))
       expect(judgeStroke(dense(flipped), st, { s: 1, tx: 0, ty: 0 }, true).ok, l).toBe(false)
       for (const seed of [1, 2, 3]) expect(allOk(run(l, 'hand', [draw(st, { noise: 0.03, seed })])), `${l} ${seed}`).toBe(true)
     }

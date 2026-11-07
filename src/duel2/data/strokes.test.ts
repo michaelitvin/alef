@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LETTERS, STROKES, strokesOf } from './strokes.ts'
+import { HAND_DANA, LETTERS, STROKES, strokesOf } from './strokes.ts'
 
 describe('stroke data', () => {
   it('has every letter (22 + 5 finals) in print and in handwriting', () => {
@@ -104,8 +104,39 @@ describe('stroke data', () => {
       const p = Hd('ג').variants[0][0].pts
       expect(p[p.length - 1][0]).toBeGreaterThan(p[0][0] + 0.25)
     })
-    it('handwriting צ: not taller than the lines (a little over the top at most)', () => {
-      expect(top('צ', 'hand')).toBeGreaterThan(-0.2)
+    it('handwriting ב ד ח ט כ מ ם צ ק ר follow the upright font Dana Yad (the parent, second review)', () => {
+      expect([...HAND_DANA].sort().join('')).toBe([...'בדחטכמםצקר'].sort().join(''))
+      // its forms: ט from the top of its short right arm, round the bottom, up its tall left side
+      const tet = Hd('ט').variants[0][0].pts
+      expect(tet[0][0]).toBeGreaterThan(0.9)
+      expect(tet[tet.length - 1][1]).toBeLessThan(-0.5)
+      // מ from the top-right, down, up the diagonal, down the left stroke
+      const mem = Hd('מ').variants[0][0].pts
+      expect(mem[0][1]).toBeLessThan(0)
+      expect(mem[mem.length - 1][0]).toBeLessThan(0.2)
+      // ם: a loop, then its stem on the left goes down below the baseline
+      expect(bottom('ם', 'hand')).toBeGreaterThan(1.2)
+      // ק: its stem goes well below the baseline; ב ends with a line down from a peak at the bottom-left
+      expect(bottom('ק', 'hand')).toBeGreaterThan(1.5)
+      const bet = Hd('ב').variants[0][0].pts
+      expect(bet[bet.length - 1][1] - Math.min(...bet.slice(-6).map((q) => q[1]))).toBeGreaterThan(0.25)
+    })
+    it('handwriting ג ז ו stand between the top line and the baseline (ETZE, JMU)', () => {
+      for (const l of 'גזו') {
+        expect(top(l, 'hand'), l).toBeGreaterThanOrEqual(-0.06)
+        expect(bottom(l, 'hand'), l).toBeLessThanOrEqual(1.03)
+      }
+    })
+    it('handwriting ף and ץ: the top loop curls back toward the letter (the parent, second review)', () => {
+      for (const l of 'ףץ') {
+        const p = Hd(l).variants[0][0].pts
+        const stem = p.find((q) => q[1] < 0.3 && q[1] > 0)![0]
+        const upper = p.filter((q) => q[1] < 0.3 && p.indexOf(q) > 6)
+        expect(Math.max(...upper.map((q) => q[0])) - stem, l).toBeLessThan(0.36)
+        expect(stem - Math.min(...upper.map((q) => q[0])), l).toBeLessThan(0.36)
+        const end = p[p.length - 1]
+        expect(stem - end[0], l).toBeLessThan(0.33)
+      }
     })
     it('handwriting ף and ץ begin like ל, rise above the top line, sit on the baseline; ף ends going down, ץ going up', () => {
       const lam = Hd('ל').variants[0][0].pts.slice(0, 5)

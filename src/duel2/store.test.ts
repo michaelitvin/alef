@@ -92,7 +92,16 @@ describe('duel2 store', () => {
     expect(s.strokeMarks).toEqual({ 'ד-print': 'ok', 'ש-hand': 'wrong' })
     expect(s.totalStars).toBe(5)
     // a save already past that point keeps every mark
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { strokeMarks: marks }, version: 3 }))
+    await useDuel2Store.persist.rehydrate()
+    expect(useDuel2Store.getState().strokeMarks).toEqual(marks)
+  })
+  it('version 3: the marks of the letters changed after the second review are cleared too; the other marks stay', async () => {
+    const marks = { 'ב-hand': 'ok', 'ג-hand': 'ok', 'ש-hand': 'ok', 'ב-print': 'ok', 'ף-hand': 'wrong' }
     localStorage.setItem('alef-duel2', JSON.stringify({ state: { strokeMarks: marks }, version: 2 }))
+    await useDuel2Store.persist.rehydrate()
+    expect(useDuel2Store.getState().strokeMarks).toEqual({ 'ש-hand': 'ok', 'ב-print': 'ok' })
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { strokeMarks: marks }, version: 3 }))
     await useDuel2Store.persist.rehydrate()
     expect(useDuel2Store.getState().strokeMarks).toEqual(marks)
   })
