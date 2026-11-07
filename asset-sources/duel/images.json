@@ -406,7 +406,7 @@
    "refs": [
     "src/assets/duel/sprites/wizard-cast.webp (on a flat magenta canvas)"
    ],
-   "post": "magenta key, de-spill, crop, fitted into the boy sprite's exact canvas; the same picture as Book 2's s-wizard-cast-girl.webp",
+   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She casts a spell exactly like the reference: one arm stretched forward holding the same wooden staff with the same big glowing swirling magic orb at its tip, happy excited open-mouth smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."
   },
   {
@@ -416,7 +416,7 @@
    "refs": [
     "src/assets/duel/sprites/wizard-dizzy.webp (on a flat magenta canvas)"
    ],
-   "post": "magenta key, de-spill, crop, fitted into the boy sprite's exact canvas; the same picture as Book 2's s-wizard-dizzy-girl.webp",
+   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She is dizzy exactly like the reference: spiral eyes, the same few gold stars circling her hat on a thin ring, arms out to the sides, staggering on one leg. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."
   },
   {
@@ -426,7 +426,7 @@
    "refs": [
     "src/assets/duel/sprites/wizard-idle.webp (on a flat magenta canvas)"
    ],
-   "post": "magenta key, de-spill, crop, fitted into the boy sprite's exact canvas; the same picture as Book 2's s-wizard-idle-girl.webp",
+   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She stands calmly exactly like the reference, front view, holding the same tall wooden staff with the same flame at its tip, gentle smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."
   }
  ],
