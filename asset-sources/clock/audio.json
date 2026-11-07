@@ -390,17 +390,30 @@
    "file": "src/clock/assets/audio/voice/ask-gender-he.mp3",
    "where": "Before the first workday, while boy/girl is not set: the two wizards glow on בֵּן and בַּת",
    "caption": "מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
-   "take": "clips/ask-gender-he/v1.mp3",
+   "take": "clips/ask-gender-he/v4.mp3",
    "request": {
-    "text": "[playful] מי משחק? בן או בת?",
+    "text": "[playful] מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/ask-gender-he/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/ask-gender-he/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/ask-gender-he/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "ask-now-en",
@@ -3528,18 +3541,43 @@
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/day-end-he-f.mp3",
    "where": "End of the workday, on the summary — when a girl plays (for a boy: כָּל הַכָּבוֹד, סִיַּמְתָּ יוֹם עֲבוֹדָה.)",
-   "caption": "כָּל הַכָּבוֹד, סִיַּמְתְּ יוֹם עֲבוֹדָה.",
-   "take": "clips/day-end-he-f/v1.mp3",
+   "caption": "כָּל הַכָּבוֹד, סִיַּמְנוּ יוֹם עֲבוֹדָה.",
+   "take": "clips/day-end-he-f/v7.mp3",
    "request": {
-    "text": "[happy] כל הכבוד, סימת יום עבודה.",
+    "text": "[happy] כל הכבוד, סִיַּמְנוּ יום עבודה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 106
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/day-end-he-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/day-end-he-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/day-end-he-f/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/day-end-he-f/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/day-end-he-f/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/day-end-he-f/v6.mp3",
+     "seed": 105
+    }
+   ]
   },
   {
    "id": "day-end-he",
