@@ -687,6 +687,24 @@
    ]
   },
   {
+   "id": "demo-draw-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-draw-1.mp3",
+   "where": "Drawing, first visit: after the word, while the hand writes its first letter",
+   "caption": "תִּסְתַּכֵּל אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתֹּב אוֹתָהּ בְּעַצְמְךָ.",
+   "take": "clips/demo-draw-1/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּסְתַּכֵּל אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתֹּב אוֹתָהּ בְּעַצְמְךָ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "demo-ghosts-letter-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-ghosts-letter-1.mp3",
@@ -922,6 +940,78 @@
    ]
   },
   {
+   "id": "draw-again-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-again-1.mp3",
+   "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
+   "caption": "בּוֹא נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
+   "take": "clips/draw-again-1/v1.mp3",
+   "request": {
+    "text": "[encouraging] בּוֹא נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "draw-again-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-again-2.mp3",
+   "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
+   "caption": "נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.",
+   "take": "clips/draw-again-2/v1.mp3",
+   "request": {
+    "text": "[encouraging] נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "draw-again-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-again-3.mp3",
+   "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
+   "caption": "תִּסְתַּכֵּל עַל הַיָּד, וְתִכְתֹּב אֶת הַקַּו שׁוּב.",
+   "take": "clips/draw-again-3/v1.mp3",
+   "request": {
+    "text": "[encouraging] תִּסְתַּכֵּל עַל הַיָּד, וְתִכְתֹּב אֶת הַקַּו שׁוּב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "draw-mark-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-mark-1.mp3",
+   "where": "Drawing: the letter is done; now its marks (the place glows)",
+   "caption": "וְעַכְשָׁו הַנִּקּוּד.",
+   "take": "clips/draw-mark-1/v1.mp3",
+   "request": {
+    "text": "[warmly] וְעַכְשָׁו הַנִּקּוּד.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "explain-lead-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/explain-lead-1.mp3",
@@ -1119,6 +1209,60 @@
     "language_code": "he",
     "voice_settings": {
      "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "line-low-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/line-low-1.mp3",
+   "where": "Drawing: the letter sinks below the baseline (it still counts)",
+   "caption": "קְצָת נָמוּךְ.",
+   "take": "clips/line-low-1/v1.mp3",
+   "request": {
+    "text": "[warmly] קְצָת נָמוּךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "line-small-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/line-small-1.mp3",
+   "where": "Drawing: the letter is much too small (it still counts)",
+   "caption": "קְצָת קָטָן.",
+   "take": "clips/line-small-1/v1.mp3",
+   "request": {
+    "text": "[warmly] קְצָת קָטָן.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "line-tall-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/line-tall-1.mp3",
+   "where": "Drawing: the letter pokes above the top line (it still counts)",
+   "caption": "קְצָת גָּבוֹהַּ מִדַּי.",
+   "take": "clips/line-tall-1/v1.mp3",
+   "request": {
+    "text": "[warmly] קְצָת גָּבוֹהַּ מִדַּי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
     },
     "seed": 1
    },
@@ -2044,6 +2188,60 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "q-draw-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-draw-1.mp3",
+   "where": "Drawing, when he waits: then the word",
+   "caption": "תִּכְתֹּב אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
+   "take": "clips/q-draw-1/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּכְתֹּב אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "q-draw-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-draw-2.mp3",
+   "where": "Drawing, when he waits: then the word",
+   "caption": "בְּאֵיזוֹ אוֹת מַתְחִילָה הַמִּלָּה:",
+   "take": "clips/q-draw-2/v1.mp3",
+   "request": {
+    "text": "[warmly] בְּאֵיזוֹ אוֹת מַתְחִילָה הַמִּלָּה:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "q-draw-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-draw-3.mp3",
+   "where": "Drawing, when he waits: then the word",
+   "caption": "אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל:",
+   "take": "clips/q-draw-3/v1.mp3",
+   "request": {
+    "text": "[warmly] אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "q-ghosts-1",
