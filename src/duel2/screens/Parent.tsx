@@ -35,7 +35,7 @@ export function Parent({ onClose, onGallery }: { onClose: () => void; onGallery:
       {/* the way out of the game lives here, behind the hold: on the child's screens a home button took him to the old duel */}
       <a data-alef-menu href={import.meta.env.BASE_URL} style={{ float: 'right', fontSize: 18, marginRight: 16 }}>Alef menu</a>
       <h2>Book 2 — parent</h2>
-      <p>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}. Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}.</p>
+      <p>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}. Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       <p><button onClick={onGallery} style={{ fontSize: 17, padding: '8px 14px' }}>Screens (review each screen)</button></p>
       <h3>By screen</h3>
       {table(rows('sc:'), (k) => k)}
