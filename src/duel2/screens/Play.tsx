@@ -9,6 +9,7 @@ import { Ladder, LADDER_PLATE_X, plateYs } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
+import { Draw } from '../components/screens/Draw'
 import { TopBar } from '../components/TopBar'
 import { ExplainPanel } from '../components/ExplainPanel'
 import { DemoHand } from '../components/DemoHand'
@@ -44,6 +45,8 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
         demo={demoT !== undefined ? { id: s.word.id, t: demoT } : undefined} />
     case 'crystal':
       return <Crystal kind={s.kind} onDone={() => {}} />
+    case 'draw':
+      return <Draw view={s} phase={v.phase} onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} />
   }
 }
 
