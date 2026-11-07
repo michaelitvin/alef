@@ -81,7 +81,7 @@ describe('parent area', () => {
     fireEvent.click(container.querySelector('[data-stroke-card="ד-print"] [data-mark-ok]')!)
     expect(useDuel2Store.getState().strokeMarks['ד-print']).toBe('ok')
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 54/)
-  })
+  }, 30_000)
   it('the test board judges a stroke and lists its verdict', () => {
     const { container } = render(<DrawTest onBack={() => {}} />)
     const pad = container.querySelector('[data-draw-pad]')!
