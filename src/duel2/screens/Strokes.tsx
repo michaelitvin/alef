@@ -35,7 +35,7 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
     duel2Telemetry.track('stroke-mark', { letter: def.letter, script: def.script, mark: next })
   }
   return (
-    <div data-stroke-card={key} className="d2-stroke-card" style={{ borderColor: mark === 'ok' ? '#3c9a4c' : mark === 'wrong' ? '#c0392b' : '#ccc' }}>
+    <div data-stroke-card={key} className="d2-stroke-card" style={{ direction: 'ltr', borderColor: mark === 'ok' ? '#3c9a4c' : mark === 'wrong' ? '#c0392b' : '#ccc' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, direction: 'rtl' }}>
         <span style={{ fontFamily: `${DRAW_FONT[def.script]}, serif`, fontSize: 64, lineHeight: 1, minWidth: 60, textAlign: 'center' }}>{def.letter}</span>
         <div style={{ display: 'flex', gap: 6, direction: 'ltr' }}>

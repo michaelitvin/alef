@@ -80,7 +80,14 @@ export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: numb
             <polyline points={poly(M(subpath(s, drawn[i])))} fill="none" stroke="#fff1a0" strokeWidth={p.width} strokeLinecap="round" strokeLinejoin="round" />
           </g>
       })}
-      {p.numbers && p.strokes.map((s, i) => { const [nx, ny] = p.map(s[0]); return ms >= start[i] - 200 ? (
+      {p.numbers && p.strokes.map((s, i) => {
+        // the number sits just behind the start, against the stroke's first direction (two starts at one corner stay apart)
+        const [ax, ay] = p.map(s[0])
+        const [bx, by] = p.map(s.find((q) => Math.hypot(q[0] - s[0][0], q[1] - s[0][1]) > 0.05) ?? s[0])
+        const d = Math.hypot(bx - ax, by - ay) || 1
+        const nx = ax - ((bx - ax) / d) * p.width * 1.6
+        const ny = ay - ((by - ay) / d) * p.width * 1.6
+        return ms >= start[i] - 200 ? (
         <g key={`n${i}`} data-stroke-number={i + 1}>
           <circle cx={nx} cy={ny} r={p.width * 1.1} fill="#7a3fd0" stroke="#fff6d8" strokeWidth={2} />
           <text x={nx} y={ny + p.width * 0.45} fontSize={p.width * 1.3} textAnchor="middle" fill="#fff6d8" fontFamily="sans-serif">{i + 1}</text>
