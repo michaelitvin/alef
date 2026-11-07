@@ -4,6 +4,10 @@
 import wizardIdle from './sprites/wizard-idle.webp'
 import wizardCast from './sprites/wizard-cast.webp'
 import wizardDizzy from './sprites/wizard-dizzy.webp'
+import wizardIdleGirl from './sprites/wizard-idle-girl.webp'
+import wizardCastGirl from './sprites/wizard-cast-girl.webp'
+import wizardDizzyGirl from './sprites/wizard-dizzy-girl.webp'
+import { useGender } from '../../shared/player'
 import tower from './sprites/tower.webp'
 import fuzzy from './sprites/mon-fuzzy.webp'
 import blob from './sprites/mon-blob.webp'
@@ -17,6 +21,10 @@ import dragon from './sprites/boss-dragon.webp'
 import troll from './sprites/boss-troll.webp'
 
 export const WIZARD = { idle: wizardIdle, cast: wizardCast, dizzy: wizardDizzy }
+/** The girl wizard: the same poses, framing and size as the boy's (spec 2026-11-07 girls). */
+export const WIZARD_GIRL = { idle: wizardIdleGirl, cast: wizardCastGirl, dizzy: wizardDizzyGirl }
+/** The player's wizard: the girl wizard when a girl plays. */
+export const useWizard = () => (useGender() === 'girl' ? WIZARD_GIRL : WIZARD)
 export const TOWER = tower
 
 export type Faces = 'left' | 'right' | 'front'
@@ -43,7 +51,7 @@ export const WORD_PICTURE: Record<string, string> = Object.fromEntries(
 
 /** Start loading every sprite and picture word (called on the start screen) so nothing appears blank. */
 export function preloadDuelImages(): string[] {
-  const srcs = [...Object.values(WIZARD), TOWER, ...Object.values(MONSTERS).map((m) => m.src), ...Object.values(WORD_PICTURE)]
+  const srcs = [...Object.values(WIZARD), ...Object.values(WIZARD_GIRL), TOWER, ...Object.values(MONSTERS).map((m) => m.src), ...Object.values(WORD_PICTURE)]
   for (const src of srcs) new Image().src = src
   return srcs
 }

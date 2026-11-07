@@ -2,7 +2,7 @@
 // He drags the wizard up or down (or taps a lane). The waves move only in the answer phase; the controller resolves a wave
 // when it reaches the wizard.
 import { useEffect, useRef, useState } from 'react'
-import { IMAGES } from '../../assets/images'
+import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
 import { laneAt, wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'
@@ -60,6 +60,7 @@ export function Broom(p: {
   /** a heart flies from the caught potion to the top bar */
   heal?: { id: number; lane: number; at: number }
 }) {
+  const wiz = useWizardArt()
   const clock = p.clock ?? (() => performance.now())
   const [now, setNow] = useState(clock)
   const frozen = useRef<number | null>(null)
@@ -152,10 +153,10 @@ export function Broom(p: {
       </defs>
       {/* the animation on an outer group: a CSS transform would replace the facing transform attribute */}
       <g data-wizard data-lane={p.lane} className={p.finished ? 'd2-fly-off' : 'd2-bob'}><g transform={faceTransform(FACING['s-wizbroom'], 'right', WIZ_X)}>
-        {dizzy && IMAGES['s-wizard-dizzy']
-          ? <image href={IMAGES['s-wizard-dizzy']} className="d2-dizzy" x={WIZ_X - BROOM_WIZARD_H * 0.55} y={y - BROOM_WIZARD_H * 0.75} width={BROOM_WIZARD_H * 1.1} height={BROOM_WIZARD_H * 1.1} />
-          : IMAGES['s-wizbroom']
-          ? <image href={IMAGES['s-wizbroom']} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
+        {dizzy && wiz('s-wizard-dizzy')
+          ? <image href={wiz('s-wizard-dizzy')} className="d2-dizzy" x={WIZ_X - BROOM_WIZARD_H * 0.55} y={y - BROOM_WIZARD_H * 0.75} width={BROOM_WIZARD_H * 1.1} height={BROOM_WIZARD_H * 1.1} />
+          : wiz('s-wizbroom')
+          ? <image href={wiz('s-wizbroom')} x={WIZ_X - wizW / 2} y={y - BROOM_WIZARD_H * 0.6} width={wizW} height={BROOM_WIZARD_H} />
           : <circle cx={WIZ_X} cy={y} r={BROOM_WIZARD_H / 2} fill="#7a5ac8" />}
       </g></g>
     </Stage>

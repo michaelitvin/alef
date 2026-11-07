@@ -1,7 +1,7 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
 // orbs drifting by, a big play button, a parent button that needs a 2 s hold, and a way home to alef.
 import { useEffect, useRef, useState } from 'react'
-import { IMAGES } from '../assets/images'
+import { IMAGES, useWizardArt } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
@@ -15,6 +15,7 @@ const RING_C = 2 * Math.PI * 25
 const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
+  const wiz = useWizardArt()
   const totalStars = useDuel2Store((s) => s.totalStars ?? 0)
   const crystals = useDuel2Store((s) => s.crystals ?? 0)
   const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
@@ -48,7 +49,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
           </g>
         ) })}
         <g className="d2-bob">
-          {IMAGES['s-wizbroom'] && <image href={IMAGES['s-wizbroom']} x={170} y={300} width={380} height={324} />}
+          {wiz('s-wizbroom') && <image href={wiz('s-wizbroom')} x={170} y={300} width={380} height={324} />}
         </g>
       </svg>
       {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}

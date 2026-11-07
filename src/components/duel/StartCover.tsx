@@ -1,12 +1,13 @@
 // Start screen: the wizard and a big ▶. The music toggle is an icon; the parent button (to the stats) is the
 // only text, and it is for the parent.
 import { motion } from 'framer-motion'
-import { WIZARD } from '../../assets/duel/sprites'
+import { useWizard } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 
 export function StartCover({ onPlay, musicOn, onToggleMusic, onParent, onHome }: {
   onPlay: () => void; musicOn: boolean; onToggleMusic: () => void; onParent: () => void; onHome: () => void
 }) {
+  const WIZARD = useWizard()
   return (
     <div className="nd-overlay nd-opaque">
       <button className="nd-home-btn" onClick={onHome} aria-label="home">

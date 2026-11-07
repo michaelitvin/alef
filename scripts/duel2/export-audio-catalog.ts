@@ -8,10 +8,18 @@ const items: unknown[] = []
 const voice = { voice: VOICE.id, model: VOICE.model, lang: VOICE.lang }
 
 for (const l of LINES)
-  l.he.forEach((text, i) => items.push({
-    id: lineAudioId(l.id, i + 1), kind: 'tts', group: 'line', text, spoken: l.tag ? `[${l.tag}] ${text}` : text,
-    where: l.where, context: '', stability: l.stability, takes: 1, ...voice,
-  }))
+  l.he.forEach((text, i) => {
+    items.push({
+      id: lineAudioId(l.id, i + 1), kind: 'tts', group: 'line', text, spoken: l.tag ? `[${l.tag}] ${text}` : text,
+      where: l.where, context: '', stability: l.stability, takes: 1, ...voice,
+    })
+    // the feminine take (spec 2026-11-07 girls): the same settings; the review page shows the masculine text beside it
+    const fe = l.fe?.[i]
+    if (fe) items.push({
+      id: `${lineAudioId(l.id, i + 1)}-f`, kind: 'tts', group: 'line', text: fe, spoken: l.tag ? `[${l.tag}] ${fe}` : fe,
+      where: `${l.where} — when a girl plays`, context: `for a boy: ${text}`, stability: l.stability, takes: 1, ...voice,
+    })
+  })
 
 // One clip per distinct syllable sound; the spelling of the first item with that sound (rule: one voiced burst, stability 1).
 const SPELL: Record<VowelGroup, MarkId> = { a: 'kamatz', e: 'tsere', i: 'chirik', o: 'cholam-male', u: 'shuruk' }

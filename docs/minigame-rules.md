@@ -2,6 +2,7 @@
 
 Use these rules when you design, build or review a child-facing minigame in alef.
 They come from the parent's steering on all minigames. The player is a boy of approximately 7 years. He cannot read yet.
+Other children of his class play too, girls as well: the rules say "he", but each game speaks to a girl in the feminine.
 
 Give each rule a reason or an example. Write the game's name before each example, for example "Example (duel):".
 Put a new rule in the section that agrees with its subject. Keep the rules general, so that they apply to other games.
@@ -70,6 +71,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): "תראה, מפלצת חדשה" came before a monster that he saw before. "מעכשיו צריך גם להקשיב" was not clear, and the next round was a picture round.
 - Do not put a number in a line if the game logic can change that number.
   Example (duel): the boss line said "3 spells". Then the boss got 8 hit points.
+- Speak to each child in his or her gender. Give every line that addresses the child (verbs, pronouns, adjectives, the
+  player's own character) a feminine version, and show a girl a girl character everywhere. Keep one take for a line that
+  does not address the child. Example (all games, 2026-11-07): the parent: "Girls should be happy playing any part of the
+  game"; a girl hears תִּתְפְּסִי and sees the girl wizard on the broom, on the menu card and on the end screen.
 - Record a word alone. Do not put it in a carrier phrase.
   Example (duel): "כְּמוֹ אַרְיֵה" was rejected. "אַרְיֵה." was kept.
 
@@ -109,6 +114,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 - Some short words get a wrong stress or vowel in this voice in any spelling. Reword around them; do not retake again
   and again. Known in book 2: עוֹד (an odd stress), קְצָת (read "katsat"), בָּאוֹסֶף (sounded off), קְטַנָּה.
+- The male voice (Will) reads the feminine past ending ־ְתְּ as the masculine ־תָּ in every nikkud spelling (נִצַּחְתְּ was
+  said "nitsachta"). Spell the spoken text with a final ט ("ניצחט"), or change the words.
+  Check each feminine take with an open transliteration ("write the vowels as you hear them"), not only a transcript
+  without nikkud: the transcript cannot show the gender. Example (book 2, 2026-11-07).
 - Use the newest model that speaks Hebrew well, with the language code "he".
   Example (duel): eleven_v4 with language_code "he". The parent: "v4 generally sounds better than v3".
 - Check the nikkud of each word in a dictionary before you make audio.

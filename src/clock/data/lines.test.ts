@@ -28,3 +28,45 @@ describe('lines', () => {
       }
   })
 })
+
+// spec 2026-11-07 girls
+import { CUSTOMER_ASK_HE_F, CUSTOMER_LINES, hasFeminine, lineById, lineText } from './lines'
+const MASC = /(^|[\s}])(אַתָּה|בָּרוּךְ|תַּקְשִׁיב|וְתִבְחַר|תָּזִיז|תִּלְחַץ|תִּסְתַּכֵּל|תִּסְפֹּר|לָמַדְתָּ|סִיַּמְתָּ|תַּעֲצֹר|תְּסַדֵּר|תּוּכַל|תַּעֲזוֹר|תַּגִּיד|תִּמְצָא|הַשָּׁעָן|שָׁעָן)(?=[\s.,:?]|$)/u
+const re = new RegExp(MASC.source.normalize('NFC'), 'u')
+describe('feminine lines (clock)', () => {
+  it('every Hebrew line that speaks to the child in the masculine has a feminine version with the same cues', () => {
+    for (const l of LINES) {
+      if (re.test(l.he.normalize('NFC'))) expect(l.heF, l.id).toBeTruthy()
+      if (!l.heF) continue
+      expect(l.heF.normalize('NFC')).not.toMatch(re)
+      expect(l.heF).not.toMatch(/!|…|\.\.\.$/)
+      expect(parseLine(l.heF).cues.map((c) => c.cue)).toEqual(parseLine(l.he).cues.map((c) => c.cue))
+    }
+  })
+  it('lineText gives the feminine Hebrew only to a girl, and English to both', () => {
+    const l = lineById('welcome')!
+    expect(lineText(l, 'he', 'girl')).toBe(l.heF)
+    expect(lineText(l, 'he', 'boy')).toBe(l.he)
+    expect(lineText(l, 'he', null)).toBe(l.he)
+    expect(lineText(l, 'en', 'girl')).toBe(l.en)
+  })
+  it('the customer requests that address the child have a feminine version', () => {
+    const ask = CUSTOMER_LINES.he.ask
+    for (const [what, list] of Object.entries(ask)) {
+      list.forEach((t, v) => {
+        const f = CUSTOMER_ASK_HE_F[what as keyof typeof ask]?.[v]
+        if (re.test(t.normalize('NFC'))) expect(f, `${what} ${v}`).toBeTruthy()
+        if (f) expect(f.normalize('NFC')).not.toMatch(re)
+      })
+    }
+  })
+  it('hasFeminine knows which voice ids have a -f take', () => {
+    expect(hasFeminine('welcome-he')).toBe(true)
+    expect(hasFeminine('welcome-en')).toBe(false)
+    expect(hasFeminine('fb-streak-he')).toBe(false)
+    expect(hasFeminine('cust-bear-hello-2')).toBe(true)
+    expect(hasFeminine('cust-bear-hello')).toBe(false)
+    expect(hasFeminine('cust-cat-digitalSet-1')).toBe(true)
+    expect(hasFeminine('cust-cat-thanks')).toBe(false)
+  })
+})

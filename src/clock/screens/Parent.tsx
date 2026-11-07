@@ -1,6 +1,7 @@
 // Parent area (text allowed): languages, caption mixes, sound, stats, telemetry export, reset.
 import { useClockStore, type ClockSettings } from '../store'
 import { clockTelemetry } from '../telemetry'
+import { PlayerSetting } from '../../shared/PlayerSetting'
 import { predictedMistakeRate } from '../../shared/adaptive'
 import { featurePrior } from '../logic/rounds'
 import type { Lang } from '../logic/phrases'
@@ -42,6 +43,8 @@ export function Parent({ onClose }: { onClose: () => void }) {
           <input type="checkbox" aria-label={LANG_LABEL[l]} checked={s.settings.langs.includes(l)} onChange={() => toggleLang(l)} /> {LANG_LABEL[l]}
         </label>
       ))}
+      <h3>Boy or girl</h3>
+      <PlayerSetting onChange={(g) => clockTelemetry.track('player', { gender: g, by: 'parent' })} />
       <h3>Captions</h3>
       <label style={{ display: 'block' }}>
         <input type="checkbox" checked={s.settings.heCursiveMix} onChange={(e) => s.setSettings({ heCursiveMix: e.target.checked })} /> Hebrew: mix print and cursive

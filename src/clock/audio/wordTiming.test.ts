@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { captionTimes, followPlayback, wordIndexAt, wordKey } from './wordTiming'
 
 describe('wordKey', () => {
+  it('a final tet stands for the feminine tav (spoken "למדט" for "לָמַדְתְּ")', () => {
+    expect(wordKey('למדט')).toBe(wordKey('לָמַדְתְּ'))
+  })
   it('ignores nikkud, punctuation, full or defective spelling and final letters', () => {
     expect(wordKey('שְׁתַּיִם')).toBe(wordKey('שתיים'))
     expect(wordKey('לְאַרְבַּע,')).toBe(wordKey('לארבא')) // the spoken arba without the guttural ayin

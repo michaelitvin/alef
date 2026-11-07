@@ -2,7 +2,7 @@
 // buttons that speak name → sound → word; ↻ plays again. No words.
 import { motion } from 'framer-motion'
 import type { DuelMark } from '../../types/duel'
-import { TOWER, WIZARD } from '../../assets/duel/sprites'
+import { TOWER, useWizard } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 import { RuneGlyph } from './RuneGlyph'
 
@@ -10,6 +10,7 @@ export function RunSummary({ wave, score, bestCombo, best, newBest, missed, onSa
   wave: number; score: number; bestCombo: number; best: number; newBest: boolean; missed: DuelMark[]
   onSay: (m: DuelMark) => void; onReplay: () => void; onHome: () => void
 }) {
+  const WIZARD = useWizard()
   return (
     <div className="nd-overlay">
       <button className="nd-home-btn" onClick={onHome} aria-label="home">

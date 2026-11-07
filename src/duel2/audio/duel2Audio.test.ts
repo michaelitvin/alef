@@ -4,12 +4,16 @@ vi.mock('howler', async (orig) => {
   const m = await orig<typeof import('howler')>()
   return { ...m, Howler: Object.assign(m.Howler, { mute }) }
 })
-import { holdAudio, playSfx, say, sayParts, setHidden, setVoicePlayer, stopVoice, voiceIdle } from './duel2Audio'
+import { holdAudio, playSfx, say, sayParts, setHidden, setVoiceExists, setVoicePlayer, stopVoice, voiceIdle } from './duel2Audio'
+import { clearGender, setGender } from '../../shared/player'
+import { duel2Telemetry } from '../telemetry'
 
 describe('duel2Audio', () => {
   afterEach(() => {
     stopVoice()
     setVoicePlayer(null)
+    setVoiceExists(null)
+    clearGender()
     vi.useRealTimers()
   })
   it('sayParts tells whether every part really played (a missing file or a stop is not played)', async () => {
@@ -30,6 +34,27 @@ describe('duel2Audio', () => {
     stopVoice()
     await vi.advanceTimersByTimeAsync(2000)
     expect(r).toBe(false)
+  })
+  it('a girl hears the feminine take of a line that speaks to her; a missing one falls back and is logged', async () => {
+    vi.useFakeTimers()
+    const log: string[] = []
+    setVoicePlayer((id) => { log.push(id); return Promise.resolve(true) })
+    setVoiceExists((id) => id === 'q-door-1-f')
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    setGender('girl', 'child')
+    void say(['q-door-1', 'q-door-2', 'syl-b-a'], 0)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(log).toEqual(['q-door-1-f', 'q-door-2', 'syl-b-a'])
+    expect(track).toHaveBeenCalledWith('voice-fallback', { id: 'q-door-2' })
+    void say(['q-door-2'], 0)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(track.mock.calls.filter((c) => c[0] === 'voice-fallback')).toHaveLength(1) // logged once per id
+    log.length = 0
+    setGender('boy', 'parent')
+    void say(['q-door-1'], 0)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(log).toEqual(['q-door-1'])
+    track.mockRestore()
   })
   it('say resolves for an unknown id', async () => {
     vi.useFakeTimers()

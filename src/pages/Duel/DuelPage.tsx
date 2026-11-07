@@ -1,5 +1,5 @@
 // Nikkud Wizard Duel — #/duel. Spec: docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDuelGame, type BannerVisual } from '../../hooks/useDuelGame'
@@ -13,8 +13,10 @@ import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
 import { Icon } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
 import { ComboBurst } from '../../components/duel/ComboBurst'
-import { preloadDuelImages } from '../../assets/duel/sprites'
-import { preloadDuelAudio } from '../../utils/duel/duelAudio'
+import { WIZARD, WIZARD_GIRL, preloadDuelImages } from '../../assets/duel/sprites'
+import { VOICE_RATE, playLine, preloadDuelAudio, stopAllLines, unlockDuelAudio } from '../../utils/duel/duelAudio'
+import { GenderQuestion } from '../../shared/GenderQuestion'
+import { getGender, setGender } from '../../shared/player'
 import { markById } from '../../utils/duel/marks'
 import { MEGA_MAX, MONSTERS_PER_WAVE } from '../../utils/duel/rules'
 import { duelMusicOn, useProgressStore } from '../../stores/progressStore'
@@ -83,6 +85,13 @@ export default function DuelPage() {
     [state.runMisses],
   )
   const playing = state.phase === 'playing'
+  // boy or girl is not set yet: the play tap asks the child first (spec 2026-11-07 girls)
+  const [asking, setAsking] = useState(false)
+  const play = () => {
+    if (getGender()) { game.start(); return }
+    unlockDuelAudio()
+    setAsking(true)
+  }
 
   return (
     <div className={`nd-root${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-cue={game.cue ?? undefined} data-hidden={game.hidden.length ? game.hidden.join(' ') : undefined}>
@@ -109,8 +118,18 @@ export default function DuelPage() {
         </div>
       </motion.div>
 
-      {state.phase === 'idle' && (
-        <StartCover onPlay={game.start} musicOn={duelMusicOn(settings)} onToggleMusic={() => setDuelMusic(!duelMusicOn(settings))}
+      {asking && (
+        <GenderQuestion boySrc={WIZARD.idle} girlSrc={WIZARD_GIRL.idle} line="line-ask-gender" play={(id) => playLine(id)} stop={stopAllLines}
+          cues={{ boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }}
+          onChoose={(g) => {
+            setGender(g, 'child')
+            track('player', { gender: g, by: 'child' })
+            setAsking(false)
+            game.start()
+          }} />
+      )}
+      {state.phase === 'idle' && !asking && (
+        <StartCover onPlay={play} musicOn={duelMusicOn(settings)} onToggleMusic={() => setDuelMusic(!duelMusicOn(settings))}
           onParent={() => navigate('/progress')} onHome={() => navigate('/')} />
       )}
       {state.paused && playing && <PauseCover onResume={game.resume} onHome={() => navigate('/')} />}

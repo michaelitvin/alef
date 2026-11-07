@@ -8,7 +8,6 @@ import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel
 import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pickEffect } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
 import { LINE_CUES, type LineCue } from '../assets/duel/lineCues'
-import { VOICE_URLS } from '../assets/duel/audioFiles'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
 import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
 import { feedbackPlan, nextBossStart, type FeedbackPlan } from '../utils/duel/flow'
@@ -16,6 +15,7 @@ import { predictedMistakeRate } from '../utils/duel/rounds'
 import { makeFxPicker, type FxStyle } from '../utils/duel/fxStyle'
 import {
   configureDuelAudio, muteDuelAudio, playLine, playMusic, playSfx, stopAllLines, stopMusic, trackForWave, unlockDuelAudio,
+  lineAsset,
 } from '../utils/duel/duelAudio'
 import { EFFECT_PRESETS } from '../components/duel/Explosion'
 import type { IconName } from '../components/duel/Icon'
@@ -89,7 +89,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const store = useProgressStore
   /** Every voice line goes through here so telemetry knows exactly which asset played. */
   const say = useCallback((id: string, cb?: (c: LineCue) => void) => {
-    track('line', { id, url: VOICE_URLS[id] ?? null })
+    track('line', lineAsset(id))
     return playLine(id, cb)
   }, [])
 

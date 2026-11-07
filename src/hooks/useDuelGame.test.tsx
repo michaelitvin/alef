@@ -6,6 +6,7 @@ vi.mock('../utils/duel/duelAudio', () => ({
   unlockDuelAudio: vi.fn(), preloadDuelAudio: vi.fn(), configureDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
   playMusic: vi.fn(), stopMusic: vi.fn(), trackForWave: () => 'calm',
   playSfx: vi.fn(() => Promise.resolve()),
+  lineAsset: (id: string) => ({ id, file: id, url: `u:${id}` }),
   playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
 }))
 import { useDuelGame } from './useDuelGame'

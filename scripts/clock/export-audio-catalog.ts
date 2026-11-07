@@ -3,7 +3,7 @@
 import { HOURS, LEVEL_MINUTES, MINUTES, timeId } from '../../src/clock/logic/time.ts'
 import { LANGS, phrase, stripNikkud } from '../../src/clock/logic/phrases.ts'
 import { CUSTOMERS, NARRATOR_VOICE } from '../../src/clock/logic/workday.ts'
-import { CUSTOMER_LINES, LINES, customerAudioId, lineAudioId, parseLine, type Request } from '../../src/clock/data/lines.ts'
+import { CUSTOMER_ASK_HE_F, CUSTOMER_LINES, LINES, customerAudioId, lineAudioId, parseLine, type Request } from '../../src/clock/data/lines.ts'
 
 const levelOf = (m: number) => Number(Object.keys(LEVEL_MINUTES).find((l) => LEVEL_MINUTES[Number(l)].includes(m)))
 const items: unknown[] = []
@@ -59,17 +59,25 @@ const HE_SPOKEN_WORDS: Record<string, { to: string; prefix?: boolean }> = {
   תמצא: { to: 'תִּמְצָא' },
   סיימת: { to: 'סִיַּמְתָּ' },
 }
+// The feminine lines (spec 2026-11-07 girls): Charlotte reads the bare feminine past as feminine, so the masculine fixes go;
+// שָׁעָנִית gets the stress of שָׁעָן.
+const MASCULINE_ONLY = new Set(['בנית', 'סימת', 'סיימת', 'למדת', 'תמצא'])
+const HE_SPOKEN_WORDS_F: Record<string, { to: string; prefix?: boolean }> = {
+  ...Object.fromEntries(Object.entries(HE_SPOKEN_WORDS).filter(([k]) => !MASCULINE_ONLY.has(k))),
+  השענית: { to: 'הַשָּׁעָנִית' },
+  שענית: { to: 'שָׁעָנִית' },
+}
 const HE_LETTER = '\\u05d0-\\u05ea'
-const applyWordMap = (text: string) =>
+const applyWordMap = (text: string, map = HE_SPOKEN_WORDS) =>
   text.replace(new RegExp(`(?<![${HE_LETTER}])([בלהכמוש]{0,2})([${HE_LETTER}]+)(?![${HE_LETTER}])`, 'g'), (all, pre: string, stem: string) => {
-    const whole = HE_SPOKEN_WORDS[pre + stem]
+    const whole = map[pre + stem]
     if (whole) return whole.to
-    const e = HE_SPOKEN_WORDS[stem]
+    const e = map[stem]
     return pre && e?.prefix ? pre + e.to : all
   })
-const spokenHe = (caption: string) => {
+const spokenHe = (caption: string, map = HE_SPOKEN_WORDS) => {
   // the caption's haser spelling שתים is written with the yod here, as in the style test
-  let t = applyWordMap(stripNikkud(caption).replace(/(^| )שתים(?= |$)/g, '$1שתיים'))
+  let t = applyWordMap(stripNikkud(caption).replace(/(^| )שתים(?= |$)/g, '$1שתיים'), map)
   for (const [from, to] of SPOKEN_OVERRIDES) if (t.endsWith(from)) t = t.slice(0, -from.length) + to
   return t
 }
@@ -102,6 +110,14 @@ for (const l of LINES)
       stability: 0, tag: l.tag && EMOTION_TAGS.has(l.tag) ? l.tag : PLAYFUL, where: l.where,
       context: l.id.startsWith('exp-') ? { type: 'explain', line: l.id, example: l.example } : { type: 'line' },
     })
+    if (lang === 'he' && l.heF) {
+      const f = parseLine(l.heF).spoken
+      items.push({
+        id: `${lineAudioId(l.id, lang)}-f`, group: 'line', lang, text: f, spoken: spokenHe(f, HE_SPOKEN_WORDS_F), voice: NARRATOR_VOICE, model: 'eleven_v4',
+        stability: 0, tag: l.tag && EMOTION_TAGS.has(l.tag) ? l.tag : PLAYFUL, where: `${l.where} — when a girl plays (for a boy: ${spoken})`,
+        context: l.id.startsWith('exp-') ? { type: 'explain', line: l.id, example: l.example } : { type: 'line' },
+      })
+    }
   }
 
 const REQUEST_WHERE: Record<Request, string> = {
@@ -126,6 +142,18 @@ for (const c of CUSTOMERS) {
         : `Customer (${c.id}) comes in: ${REQUEST_WHERE[what]} (one of ${asks[what].length})`,
       context: { type: 'customer', customer: c.id },
     })
+  // the feminine requests (Hebrew customers; spec 2026-11-07 girls)
+  if (c.lang === 'he')
+    for (const [what, list] of Object.entries(CUSTOMER_ASK_HE_F) as [Request, (string | null)[]][])
+      list.forEach((text, v) => {
+        if (!text) return
+        items.push({
+          id: `${customerAudioId(c.id, what, v)}-f`, group: 'customer', lang: c.lang, text, spoken: spokenHe(text, HE_SPOKEN_WORDS_F), voice: c.voice,
+          model: 'eleven_v4', stability: 0, tag: PLAYFUL,
+          where: `Customer (${c.id}) comes in: ${REQUEST_WHERE[what]}, when a girl plays (for a boy: ${asks[what][v]})`,
+          context: { type: 'customer', customer: c.id },
+        })
+      })
 }
 
 process.stdout.write(JSON.stringify({ items }, null, 1))

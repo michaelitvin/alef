@@ -20,6 +20,9 @@ export interface LineDef {
   stability: number
   /** the clock the explanation shows, as a time id */
   example?: string
+  /** the Hebrew line in the feminine, when it speaks to the child (file `<id>-he-f`; spec 2026-11-07 girls). English
+   * addresses both alike. */
+  heF?: string
 }
 
 export const LINES: LineDef[] = [
@@ -103,6 +106,27 @@ export const LINES: LineDef[] = [
     he: 'מָה הַשָּׁעָה עַכְשָׁיו?', en: 'What time is it now?' },
 ]
 
+// The feminine Hebrew of each line that speaks to the child (spec 2026-11-07 girls). The cues stay on the same words.
+const HE_F: Record<string, string> = {
+  welcome: 'בְּרוּכָה הַבָּאָה לַחֲנוּת הַשְּׁעוֹנִים. אַתְּ הַשָּׁעָנִית.',
+  'exp-ex-find': 'תַּקְשִׁיבִי לַשָּׁעָה, וְתִבְחֲרִי אֶת הַשָּׁעוֹן הַנָּכוֹן.',
+  'exp-ex-what': 'מָה הַשָּׁעָה? תַּקְשִׁיבִי לַתְּשׁוּבוֹת, וְתִבְחֲרִי אֶת הַנְּכוֹנָה.',
+  'exp-ex-set': 'תָּזִיזִי אֶת הַמָּחוֹג {finger}עִם הָאֶצְבַּע, וְאַחַר כָּךְ תִּלְחֲצִי {check}עַל הַוִּי.',
+  'exp-seconds': 'הַמָּחוֹג {seconds}הַדַּק וְהַמָּהִיר סוֹפֵר שְׁנִיּוֹת. כְּדֵי לָדַעַת מָה הַשָּׁעָה, תִּסְתַּכְּלִי עַל {short}שְׁנֵי {long}הָאֲחֵרִים.',
+  'exp-fix-hour1': 'תִּסְתַּכְּלִי טוֹב עַל הַמָּחוֹג {short}הַקָּצָר.',
+  'exp-fix-five': 'תִּסְפְּרִי בְּחָמֵשׁ: {fives}חָמֵשׁ, עֶשֶׂר, חֲמֵשׁ־עֶשְׂרֵה, עֶשְׂרִים.',
+  'fb-levelup': 'כָּל הַכָּבוֹד, לָמַדְתְּ מַשֶּׁהוּ חָדָשׁ.',
+  'fb-master': 'וָאוּ, עַכְשָׁיו אַתְּ שָׁעָנִית אֲמִיתִּית.',
+  'bonus-intro': 'תַּעַצְרִי אֶת הַמָּחוֹג עַל הַשְּׁתֵּים־עֶשְׂרֵה.',
+  'day-end': 'כָּל הַכָּבוֹד, סִיַּמְתְּ יוֹם עֲבוֹדָה.',
+  'ask-set': 'תְּסַדְּרִי אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה:',
+  'ask-digitalSet': 'תְּסַדְּרִי אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה אֶת אוֹתָהּ שָׁעָה.',
+}
+for (const l of LINES) if (HE_F[l.id]) l.heF = HE_F[l.id]
+// the boy/girl question (spec 2026-11-07 girls): one take for both, before the welcome while the setting is unset
+LINES.push({ id: 'ask-gender', where: 'Before the first workday, while boy/girl is not set: the two wizards glow on בֵּן and בַּת', stability: 0.5,
+  tag: 'warmly', he: 'מִי מְשַׂחֵק? בֵּן אוֹ בַּת?', en: 'Who is playing? A boy or a girl?' })
+
 const BY_ID = new Map(LINES.map((l) => [l.id, l]))
 export const lineById = (id: string) => BY_ID.get(id)
 
@@ -121,6 +145,8 @@ export function parseLine(text: string): { words: string[]; cues: { word: number
 }
 
 export const lineAudioId = (id: string, lang: Lang) => `${id}-${lang}`
+/** The text of a line as it is said to this player: the feminine Hebrew for a girl. */
+export const lineText = (l: LineDef, lang: Lang, gender: 'boy' | 'girl' | null) => (lang === 'he' && gender === 'girl' && l.heF ? l.heF : l[lang])
 
 /**
  * What a customer asks for as he comes in: it matches the round's task, so the story leads into the question (the parent
@@ -200,8 +226,27 @@ export const CUSTOMER_LINES: Record<Lang, { ask: Record<Request, string[]>; than
     thanks: 'Thank you so much.',
   },
 }
+/** The feminine Hebrew of the customer requests that speak to the child (null: the same for both). Files `<id>-f`. */
+export const CUSTOMER_ASK_HE_F: Partial<Record<Request, (string | null)[]>> = {
+  set: [null, 'תּוּכְלִי לְסַדֵּר לִי אֶת הַשָּׁעוֹן?', null, null, 'תַּעַזְרִי לִי עִם הַשָּׁעוֹן?'],
+  what: [null, null, 'תַּגִּידִי לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?'],
+  digitalPick: [null, 'תִּמְצְאִי לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?'],
+  digitalSet: ['תְּסַדְּרִי לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?', null],
+}
 /** The voice file of a customer line. The set requests keep the ids they had as hellos (cust-bear-hello, -hello-2, ...). */
 export const customerAudioId = (customer: string, what: Request | 'thanks', variant = 0) =>
   what === 'thanks' ? `cust-${customer}-thanks`
     : what === 'set' ? `cust-${customer}-hello${variant > 0 ? `-${variant + 1}` : ''}`
       : `cust-${customer}-${what}-${variant + 1}`
+
+/** Voice ids that have a feminine take `<id>-f`: the Hebrew narrator lines with heF, and the customer requests above (the
+ * customer id is any Hebrew customer). */
+export function hasFeminine(id: string): boolean {
+  const m = /^(.*)-he$/.exec(id)
+  if (m) return !!BY_ID.get(m[1])?.heF
+  const c = /^cust-[a-z]+-(.+)$/.exec(id)
+  if (!c) return false
+  for (const [what, list] of Object.entries(CUSTOMER_ASK_HE_F) as [Request, (string | null)[]][])
+    for (let v = 0; v < list.length; v++) if (list[v] && customerAudioId('x', what, v).slice('cust-x-'.length) === c[1]) return true
+  return false
+}

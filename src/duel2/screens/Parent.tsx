@@ -3,6 +3,7 @@
 import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { ITEMS } from '../logic/content'
+import { PlayerSetting } from '../../shared/PlayerSetting'
 
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
@@ -37,6 +38,8 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
       <h2>Book 2 — parent</h2>
       <p>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}. Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       <p><button onClick={onGallery} style={{ fontSize: 17, padding: '8px 14px' }}>Screens (review each screen)</button></p>
+      <h3>Boy or girl</h3>
+      <PlayerSetting onChange={(g) => duel2Telemetry.track('player', { gender: g, by: 'parent' })} />
       <h3>Drawing letters</h3>
       <p>
         The drawing screen (after the ghosts) teaches stroke order in print and handwriting. Check every letter on the stroke

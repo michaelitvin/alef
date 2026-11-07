@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { HOURS, MINUTES } from '../logic/time'
 import { LANGS, phrase } from '../logic/phrases'
-import { CUSTOMER_LINES, LINES, lineAudioId, customerAudioId, parseLine, type Request } from '../data/lines'
+import { CUSTOMER_ASK_HE_F, CUSTOMER_LINES, LINES, lineAudioId, customerAudioId, parseLine, type Request } from '../data/lines'
 import { captionTimes } from '../audio/wordTiming'
 import { CUSTOMERS } from '../logic/workday'
 import { VOICE_URLS, VOICE_WORDS } from './audioFiles'
@@ -13,6 +13,10 @@ const captions = new Map<string, string[]>([
   ...CUSTOMERS.flatMap((c) => (Object.entries(CUSTOMER_LINES[c.lang].ask) as [Request, string[]][]).flatMap(([what, texts]) =>
     texts.map((t, v) => [customerAudioId(c.id, what, v), t.split(' ')] as [string, string[]]))),
   ...CUSTOMERS.map((c) => [customerAudioId(c.id, 'thanks'), CUSTOMER_LINES[c.lang].thanks.split(' ')] as [string, string[]]),
+  // the feminine takes (spec 2026-11-07 girls): their caption is the feminine text
+  ...LINES.filter((l) => l.heF).map((l) => [`${lineAudioId(l.id, 'he')}-f`, parseLine(l.heF!).words] as [string, string[]]),
+  ...CUSTOMERS.filter((c) => c.lang === 'he').flatMap((c) => (Object.entries(CUSTOMER_ASK_HE_F) as [Request, (string | null)[]][]).flatMap(([what, texts]) =>
+    texts.flatMap((t, v) => (t ? [[`${customerAudioId(c.id, what, v)}-f`, t.split(' ')] as [string, string[]]] : [])))),
 ])
 const known = new Set(captions.keys())
 

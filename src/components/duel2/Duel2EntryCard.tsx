@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { borderRadius, spacing } from '../../styles/theme'
 import wizbroom from '../../duel2/assets/img/s-wizbroom.webp'
+import wizbroomGirl from '../../duel2/assets/img/s-wizbroom-girl.webp'
+import { useGender } from '../../shared/player'
 import orb from '../../duel2/assets/img/s-orb.webp'
 
 const ORBS = [
@@ -11,6 +13,8 @@ const ORBS = [
 ]
 
 export function Duel2EntryCard() {
+  // a girl sees her wizard on the card too (spec 2026-11-07 girls)
+  const girl = useGender() === 'girl'
   return (
     <motion.a
       aria-label="book 2"
@@ -25,7 +29,7 @@ export function Duel2EntryCard() {
         boxShadow: '0 0 24px rgba(120, 140, 255, 0.45)', textDecoration: 'none',
       }}
     >
-      <img data-art="wizbroom" src={wizbroom} alt="" draggable={false} style={{ height: 96, width: 'auto', filter: 'drop-shadow(0 0 12px #b48cff)' }} />
+      <img data-art="wizbroom" src={girl ? wizbroomGirl : wizbroom} alt="" draggable={false} style={{ height: 96, width: 'auto', filter: 'drop-shadow(0 0 12px #b48cff)' }} />
       {ORBS.map((o) => (
         <span key={o.text} data-orb style={{ position: 'relative', width: o.size, height: o.size, transform: `translateY(${o.lift}px)`, flex: 'none' }}>
           <img src={orb} alt="" draggable={false} style={{ width: '100%', height: '100%', display: 'block' }} />

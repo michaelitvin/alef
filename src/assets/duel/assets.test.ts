@@ -67,3 +67,16 @@ describe('image preloading', () => {
     }
   })
 })
+
+// spec 2026-11-07 girls
+import { DUEL_FEMININE } from '../../utils/duel/duelAudio'
+import { WIZARD_GIRL } from './sprites'
+describe('duel girl assets', () => {
+  it('every line with a feminine version ships its -f file; the question and the girl wizard ship', () => {
+    for (const id of DUEL_FEMININE) expect(VOICE_URLS[`${id}-f`], `${id}-f`).toBeTruthy()
+    for (const id of Object.keys(VOICE_URLS)) if (id.endsWith('-f')) expect(DUEL_FEMININE.has(id.slice(0, -2)), id).toBe(true)
+    expect(VOICE_URLS['line-ask-gender']).toBeTruthy()
+    for (const p of ['idle', 'cast', 'dizzy'] as const) expect(WIZARD_GIRL[p]).toMatch(/-girl/)
+    void WIZARD
+  })
+})

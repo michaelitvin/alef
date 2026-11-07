@@ -453,6 +453,39 @@
    ]
   },
   {
+   "file": "src/assets/duel/audio/voice/line-boss-win-f.mp3",
+   "clip": "line-boss-win-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[excited] כָּל הַכָּבוֹד. ניצחט אֶת הַמִּפְלֶצֶת הָעֲנָקִית.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.0,
+    "take_label": "take 1"
+   },
+   "from": "batch26.json v2 take 1",
+   "review_note": null,
+   "history": [
+    {
+     "batch": "batch25.json",
+     "why": "New (girls). For a boy it says: כָּל הַכָּבוֹד! נִצַּחְתָּ אֶת הַמִּפְלֶצֶת הָעֲנָקִית. Pick the take that sounds natural and fully feminine, or reject with a note. The spoken text ends the verb in ט, because the voice read the feminine ending -ְתְּ as masculine (-ta).",
+     "texts": [
+      "[excited] כָּל הַכָּבוֹד. ניצחט אֶת הַמִּפְלֶצֶת הָעֲנָקִית."
+     ]
+    },
+    {
+     "batch": "batch26.json",
+     "why": "New (girls). For a boy it says: כָּל הַכָּבוֹד! נִצַּחְתָּ אֶת הַמִּפְלֶצֶת הָעֲנָקִית. Pick the take that sounds natural and fully feminine, or reject with a note. The spoken text ends the verb in ט, because the voice read the feminine ending -ְתְּ as masculine (-ta).",
+     "texts": [
+      "[excited] כָּל הַכָּבוֹד. ניצחט אֶת הַמִּפְלֶצֶת הָעֲנָקִית."
+     ]
+    }
+   ]
+  },
+  {
    "file": "src/assets/duel/audio/voice/line-boss-win.mp3",
    "clip": "line-boss-win",
    "kind": "tts",
@@ -529,6 +562,24 @@
    ]
   },
   {
+   "file": "src/assets/duel/audio/voice/line-combo-f.mp3",
+   "clip": "line-combo-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[excited] וָאוּ, אַתְּ /baˈʃvunɡ/.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.0,
+    "take_label": "take 1"
+   },
+   "from": "batch25.json v1 take 1",
+   "review_note": null,
+   "history": null
+  },
+  {
    "file": "src/assets/duel/audio/voice/line-combo.mp3",
    "clip": "line-combo",
    "kind": "tts",
@@ -580,6 +631,24 @@
    ]
   },
   {
+   "file": "src/assets/duel/audio/voice/line-how-A-f.mp3",
+   "clip": "line-how-A-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[curious] מָה הַצְּלִיל הָרִאשׁוֹן בַּתְּמוּנָה?... [warmly] בַּחֲרִי אֶת הַנִּקּוּד.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.5,
+    "take_label": "take 1"
+   },
+   "from": "batch25.json v1 take 1",
+   "review_note": null,
+   "history": null
+  },
+  {
    "file": "src/assets/duel/audio/voice/line-how-A.mp3",
    "clip": "line-how-A",
    "kind": "tts",
@@ -627,6 +696,24 @@
    ]
   },
   {
+   "file": "src/assets/duel/audio/voice/line-how-B-f.mp3",
+   "clip": "line-how-B-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[warmly] הַקְשִׁיבִי לַצְּלִיל.... [warmly] וּבַחֲרִי אֶת הַנִּקּוּד.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.5,
+    "take_label": "take 1"
+   },
+   "from": "batch25.json v1 take 1",
+   "review_note": null,
+   "history": null
+  },
+  {
    "file": "src/assets/duel/audio/voice/line-how-B.mp3",
    "clip": "line-how-B",
    "kind": "tts",
@@ -672,6 +759,24 @@
      ]
     }
    ]
+  },
+  {
+   "file": "src/assets/duel/audio/voice/line-how-C-f.mp3",
+   "clip": "line-how-C-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[warmly] הַקְשִׁיבִי לַשֵּׁם.... [warmly] וּמִצְאִי אֶת הַנִּקּוּד.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.5,
+    "take_label": "take 1"
+   },
+   "from": "batch25.json v1 take 1",
+   "review_note": null,
+   "history": null
   },
   {
    "file": "src/assets/duel/audio/voice/line-how-C.mp3",
@@ -755,6 +860,46 @@
      "why": "Your note: \"very robotic; something should space the first line from the second\". Natural stability (0.5) with an emotion tag per sentence; the pause between the sentences is then widened to a fixed 0.9 s in every take.",
      "texts": [
       "[whispers] הַמִּפְלֶצֶת הַזֹּאת שְׁקֵטָה.... [curious] אֵיזֶה נִקּוּד לֹא עוֹשֶׂה צְלִיל?"
+     ]
+    }
+   ]
+  },
+  {
+   "file": "src/assets/duel/audio/voice/line-intro-f.mp3",
+   "clip": "line-intro-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[mysterious] הַמִּפְלָצוֹת בָּאוֹת.... [determined] שִׁמְרִי עַל הַמִּגְדָּל.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.5,
+    "take_label": "take 1"
+   },
+   "from": "batch27.json v3 take 1",
+   "review_note": null,
+   "history": [
+    {
+     "batch": "batch25.json",
+     "why": "New (girls). For a boy it says: הַגֵּן עַל הַמִּגְדָּל. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to שִׁמְרִי עַל הַמִּגְדָּל (\"guard the tower\"): הָגֵנִּי was said as the masculine \"hagen\" in every spelling.",
+     "texts": [
+      "[mysterious] הַמִּפְלָצוֹת בָּאוֹת.... [determined] הָגֵנִּי עַל הַמִּגְדָּל."
+     ]
+    },
+    {
+     "batch": "batch26.json",
+     "why": "New (girls). For a boy it says: הַגֵּן עַל הַמִּגְדָּל. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to שִׁמְרִי עַל הַמִּגְדָּל (\"guard the tower\"): הָגֵנִּי was said as the masculine \"hagen\" in every spelling.",
+     "texts": [
+      "[mysterious] הַמִּפְלָצוֹת בָּאוֹת.... [determined] הָגֵנִי עַל הַמִּגְדָּל."
+     ]
+    },
+    {
+     "batch": "batch27.json",
+     "why": "New (girls). For a boy it says: הַגֵּן עַל הַמִּגְדָּל. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to שִׁמְרִי עַל הַמִּגְדָּל (\"guard the tower\"): הָגֵנִּי was said as the masculine \"hagen\" in every spelling.",
+     "texts": [
+      "[mysterious] הַמִּפְלָצוֹת בָּאוֹת.... [determined] שִׁמְרִי עַל הַמִּגְדָּל."
      ]
     }
    ]
@@ -858,6 +1003,24 @@
    ]
   },
   {
+   "file": "src/assets/duel/audio/voice/line-new-monster-f.mp3",
+   "clip": "line-new-monster-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "[amazed] תִּרְאִי, מִפְלֶצֶת חֲדָשָׁה. [excited] הִיא מַגִּיעָה.",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 1,
+    "stability": 0.0,
+    "take_label": "take 1"
+   },
+   "from": "batch25.json v1 take 1",
+   "review_note": null,
+   "history": null
+  },
+  {
    "file": "src/assets/duel/audio/voice/line-new-monster.mp3",
    "clip": "line-new-monster",
    "kind": "tts",
@@ -903,6 +1066,45 @@
      "texts": [
       "[amazed] תִּרְאֶה, מִפְלֶצֶת חֲדָשָׁה! [excited] הִיא מַגִּיעָה!",
       "[excited] וָאוּ! מִפְלֶצֶת חֲדָשָׁה מַגִּיעָה!"
+     ]
+    }
+   ]
+  },
+  {
+   "file": "src/assets/duel/audio/voice/line-over-f.mp3",
+   "clip": "line-over-f",
+   "kind": "tts",
+   "chosen": "default take (not reviewed)",
+   "request": {
+    "voice": "bIHbv24MWmeRgasZH58o",
+    "text": "אַתְּ קוֹסֶמֶת אֲמִיתִית. נְשַׂחֵק שׁוּב?",
+    "model": "eleven_v4",
+    "lang": "he",
+    "seed": 2,
+    "take_label": "take 1"
+   },
+   "from": "batch27.json v3 take 1",
+   "review_note": null,
+   "history": [
+    {
+     "batch": "batch25.json",
+     "why": "New (girls). For a boy it says: נִלְחַמְתָּ כְּמוֹ קוֹסֵם אֲמִיתִי. נְשַׂחֵק שׁוּב?. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to \"אַתְּ קוֹסֶמֶת אֲמִיתִית\" (\"you are a real wizard\"): נִלְחַמְתְּ was said with a wrong ending.",
+     "texts": [
+      "נלחמט כמו קוסמת אמיתית. נשחק שוב?"
+     ]
+    },
+    {
+     "batch": "batch26.json",
+     "why": "New (girls). For a boy it says: נִלְחַמְתָּ כְּמוֹ קוֹסֵם אֲמִיתִי. נְשַׂחֵק שׁוּב?. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to \"אַתְּ קוֹסֶמֶת אֲמִיתִית\" (\"you are a real wizard\"): נִלְחַמְתְּ was said with a wrong ending.",
+     "texts": [
+      "נלחמט כמו קוסמת אמיתית. נשחק שוב?"
+     ]
+    },
+    {
+     "batch": "batch27.json",
+     "why": "New (girls). For a boy it says: נִלְחַמְתָּ כְּמוֹ קוֹסֵם אֲמִיתִי. נְשַׂחֵק שׁוּב?. Pick the take that sounds natural and fully feminine, or reject with a note. Reworded to \"אַתְּ קוֹסֶמֶת אֲמִיתִית\" (\"you are a real wizard\"): נִלְחַמְתְּ was said with a wrong ending.",
+     "texts": [
+      "אַתְּ קוֹסֶמֶת אֲמִיתִית. נְשַׂחֵק שׁוּב?"
      ]
     }
    ]

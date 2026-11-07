@@ -13,7 +13,7 @@ import { checkFor, planRound } from './logic/rounds'
 import { WORKDAY_LENGTH, dayKey, kindInfo, langForRound, pickCustomer, realTimeFor, type ClockKind, type Customer } from './logic/workday'
 import type { Exercise, RoundPlan } from './logic/types'
 import { CUSTOMER_LINES, REQUEST_ASKS, customerAudioId, lineAudioId, lineById, parseLine, requestFor, type Cue, type Request } from './data/lines'
-import { holdClockAudio, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
+import { spokenLineText, holdClockAudio, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
 import { scriptFor, type CaptionScript } from './components/Caption'
 import { explainLineId } from './components/ExplainPlayer'
 
@@ -93,7 +93,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     const explain = async (id: ExplainId, lang: Lang, trigger: 'intro' | 'fix') => {
       clockTelemetry.track('explain', { id, trigger, lang })
       const line = lineById(explainLineId(id))!
-      const { words, cues } = parseLine(line[lang])
+      const { words, cues } = parseLine(spokenLineText(line, lang))
       let run = 0
       const play = async () => {
         run++

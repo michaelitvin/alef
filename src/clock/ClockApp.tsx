@@ -4,12 +4,26 @@ import { Cover } from './screens/Cover'
 import { Workshop } from './screens/Workshop'
 import { Parent } from './screens/Parent'
 import { useClockStore } from './store'
-import { configureClockAudio, playVoice, setClockHidden, startMusic, stopMusic, unlockClockAudio } from './audio/clockAudio'
+import { configureClockAudio, playVoice, stopVoices, setClockHidden, startMusic, stopMusic, unlockClockAudio } from './audio/clockAudio'
 import { lineAudioId } from './data/lines'
 import { preloadClockAssets } from './assets/preload'
+import { GenderQuestion } from '../shared/GenderQuestion'
+import { getGender, setGender } from '../shared/player'
+import { VOICE_RATE } from '../shared/audioCore'
+import { clockTelemetry } from './telemetry'
+import { VOICE_WORDS } from './assets/audioFiles'
+// the clock has no player character: the question shows the wizards the child knows from the other games
+import { IMAGES } from './assets/images'
+
+/** when the question take says בֵּן / boy and בַּת / girl (real time), from its word timings */
+function askCues(id: string) {
+  const w = VOICE_WORDS[id]
+  const at = (re: RegExp, dflt: number) => { const i = w ? w.w.findIndex((x) => re.test(x)) : -1; return (i >= 0 ? w!.t[i] : dflt) / VOICE_RATE }
+  return { boy: at(/^(בן|boy)/i, 1.2), girl: at(/^(בת|girl)/i, 1.7) }
+}
 
 export default function ClockApp() {
-  const [screen, setScreen] = useState<'cover' | 'work' | 'parent'>('cover')
+  const [screen, setScreen] = useState<'cover' | 'ask' | 'work' | 'parent'>('cover')
   const starting = useRef(false)
   const screenRef = useRef(screen)
   screenRef.current = screen
@@ -55,6 +69,20 @@ export default function ClockApp() {
   const play = () => {
     if (starting.current) return
     unlockClockAudio()
+    // boy or girl is not set yet: ask the child before the welcome (spec 2026-11-07 girls)
+    // (its pictures load first, with the rest of the workshop: a picture must not appear after the screen)
+    if (!getGender()) {
+      starting.current = true
+      setLoading(true)
+      void preloadClockAssets().finally(() => {
+        starting.current = false
+        setLoading(false)
+        if (screenRef.current !== 'cover') return
+        stopMusic()
+        setScreen('ask')
+      })
+      return
+    }
     starting.current = true
     setLoading(true)
     const st = useClockStore.getState()
@@ -66,6 +94,19 @@ export default function ClockApp() {
       setLoading(false)
       if (screenRef.current === 'cover') setScreen('work')
     })
+  }
+  if (screen === 'ask') {
+    const lang = useClockStore.getState().settings.langs[0]
+    return (
+      <GenderQuestion boySrc={IMAGES['wizard-boy']} girlSrc={IMAGES['wizard-girl']} line={lineAudioId('ask-gender', lang)} play={(id) => playVoice(id)} stop={stopVoices}
+        cues={askCues(lineAudioId('ask-gender', lang))}
+        onChoose={(g) => {
+          setGender(g, 'child')
+          clockTelemetry.track('player', { gender: g, by: 'child' })
+          setScreen('cover')
+          play()
+        }} />
+    )
   }
   if (screen === 'work') return <Workshop onExit={() => setScreen('cover')} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} />

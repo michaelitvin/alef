@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { lineById, parseLine, type Cue } from '../data/lines'
+import { spokenLineText } from '../audio/clockAudio'
+import { useGender } from '../../shared/player'
 import type { ExplainId } from '../logic/levels'
 import type { Lang } from '../logic/phrases'
 import { type ClockTime, type HandPose, digital, parseTimeId, poseOf } from '../logic/time'
@@ -30,7 +32,10 @@ export interface ExplainPlayerProps {
 
 export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, onReplay }: ExplainPlayerProps) {
   const line = lineById(explainLineId(id))!
-  const { words } = parseLine(line[lang])
+  // the caption says what the voice says: the feminine line for a girl (spec 2026-11-07 girls)
+  useGender() // re-render when the setting changes
+  const text = spokenLineText(line, lang)
+  const { words } = parseLine(text)
   const t = line.example ? parseTimeId(line.example) : fallback
   const has = (c: Cue) => cues.includes(c)
   const lastCue = cues[cues.length - 1]
@@ -46,7 +51,7 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, on
   if (has('to') && id === 'level-6') pose = poseOf(t)
   if (has('past')) sectors.push({ from: 0, to: 180, color: 'rgba(255, 196, 120, 0.4)' })
   if (has('to')) sectors.push({ from: 180, to: 360, color: 'rgba(120, 170, 255, 0.4)' })
-  const fivesAt = parseLine(line[lang]).cues.find((c) => c.cue === 'fives')?.word
+  const fivesAt = parseLine(text).cues.find((c) => c.cue === 'fives')?.word
   // "each number is five minutes": the count starts from 12 and goes up, so the hand only moves forward
   if (id === 'level-5' && !has('fives')) pose = poseOf({ h: t.h, m: 0 })
   if (has('fives') && fivesAt !== undefined) pose = { ...pose, minute: Math.min(4, Math.max(1, word - fivesAt + 1)) * 30 }
@@ -67,12 +72,12 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, on
           secondsFrom={has('seconds') ? 0 : null}
           overlay={sweep && <Finger angle={sweep.angle} opacity={sweep.opacity} face={faceSize} />} />
         {/* the playtest: both clocks show from the start; the one being named glows and pulses as the voice names it */}
-        {line[lang].includes('{digital}') && (
+        {text.includes('{digital}') && (
           <motion.div animate={has('digital') ? { scale: [1, 1.12, 1] } : { scale: 1 }} transition={has('digital') ? { repeat: Infinity, duration: 1.2 } : {}}>
             <DigitalCard text={digital(t.h, t.m)} glow={has('digital')} />
           </motion.div>
         )}
-        {line[lang].includes('{check}') && (
+        {text.includes('{check}') && (
           <motion.div animate={has('check') ? { scale: [1, 1.15, 1] } : { scale: 1 }} transition={has('check') ? { repeat: Infinity, duration: 1 } : {}}
             style={{ opacity: has('check') ? 1 : 0.6 }}>
             <CheckIcon />

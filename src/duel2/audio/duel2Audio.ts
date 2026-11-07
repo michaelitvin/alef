@@ -5,6 +5,9 @@ import { Howler } from 'howler'
 import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
+import { FEMININE_IDS } from '../data/lines'
+import { getGender, voiceFor } from '../../shared/player'
+import { duel2Telemetry } from '../telemetry'
 
 export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win' | 'stroke' | 'drawn'
 /** new effects play an existing one until the sfx pipeline gives them their own (boss: spec 2026-11-07; drawing: a right stroke, a letter done) */
@@ -52,6 +55,18 @@ let player: Player = playFile
 /** Test seam: replace how one voice id is played (null restores the real player). */
 export function setVoicePlayer(p: Player | null) { player = p ?? playFile }
 
+let exists: (id: string) => boolean = (id) => id in VOICE_URLS
+/** Test seam: which voice files exist (null restores the real files). */
+export function setVoiceExists(f: ((id: string) => boolean) | null) { exists = f ?? ((id) => id in VOICE_URLS) }
+const fellBack = new Set<string>()
+/** The take to play: a girl hears the feminine take (`-f`) of a line that speaks to the child; a missing one falls back to
+ * the masculine take (never silence) and the fallback is logged once per id (spec 2026-11-07 girls). */
+function resolveVoice(id: string): string {
+  const r = voiceFor(id, getGender(), exists, (x) => FEMININE_IDS.has(x))
+  if (r.fallback && !fellBack.has(id)) { fellBack.add(id); duel2Telemetry.track('voice-fallback', { id }) }
+  return r.id
+}
+
 let queue: Promise<unknown> = Promise.resolve()
 let epoch = 0
 const pending = new Set<object>()
@@ -77,9 +92,10 @@ export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = 
         if (epoch !== mine || signal?.cancelled) return false
         currentSignal = signal ?? null
         parts[i].onStart?.()
+        const id = resolveVoice(parts[i].id)
         // test builds keep the order of everything said, for the QA audio log (rule)
-        if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(parts[i].id)
-        if ((await player(parts[i].id)) === false) heard = false
+        if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(id)
+        if ((await player(id)) === false) heard = false
       }
       return heard && epoch === mine && !signal?.cancelled
     } finally {

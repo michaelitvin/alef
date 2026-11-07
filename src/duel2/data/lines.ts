@@ -13,6 +13,9 @@ export interface LineDef {
   tag?: string
   /** 0 Creative (dramatic), 0.5 Natural (instructions), 1 Robust (short sounds) */
   stability: number
+  /** the feminine text of each variation (files `<id>-<n>-f`); null = the variation does not address the child (one take
+   * for both). Spec 2026-11-07 girls. */
+  fe?: (string | null)[]
 }
 
 const line = (id: string, where: string, he: string[], stability = 0.5, tag?: string): LineDef => ({
@@ -96,7 +99,57 @@ export const LINES: LineDef[] = [
   line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.'], 0.5, 'warmly'),
   line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
   line('line-small', 'Drawing: the letter is much too small (it still counts)', ['בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.'], 0.5, 'warmly'),
+  // the boy/girl question (spec 2026-11-07 girls): one take for both, before the first run while the setting is unset
+  line('ask-gender', 'Before the first run, while boy/girl is not set: the two wizards glow on בֵּן and בַּת', ['מִי מְשַׂחֵק? בֵּן אוֹ בַּת?'], 0.5, 'warmly'),
 ]
 
+// The feminine version of each line that speaks to the child (spec 2026-11-07 girls): verbs, pronouns and adjectives in
+// the feminine, the rest the same. Lines that do not address the child (the sound, the narrator about itself: "מָה שֶׁאֲנִי
+// אוֹמֵר") stay single (null). The player's wizard is a girl too: הַקּוֹסֶמֶת. New takes end with ":" or "." (no "…": the
+// voice moaned).
+const FE: Record<string, (string | null)[]> = {
+  'q-cauldron': [null, 'תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:', null],
+  'q-ladder': [null, 'תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:', 'תִּמְצְאִי אֶת:'],
+  'q-ghosts': [null, null, 'תִּמְצְאִי אֶת:'],
+  'q-ghosts-letter': [null, null, 'תִּמְצְאִי אֶת הָאוֹת:'],
+  'q-door': ['מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיאִי אֶת הַמַּפְתֵּחַ הַנָּכוֹן.', 'תִּקְרְאִי אֶת הַמִּלָּה, וְתִבְחֲרִי מַפְתֵּחַ.', null],
+  'target-new': [null, 'עַכְשָׁו תִּתְפְּסִי אֶת:', null],
+  'almost': [null, 'כִּמְעַט. תִּסְתַּכְּלִי עַל הַנְּקֻדָּה.', null],
+  'streak': ['וָואוּ, אַתְּ /baˈʃvunɡ/.', 'אַתְּ תּוֹתָחִית.', 'אַתְּ עָפָה עַל זֶה.'],
+  'ladder-top': ['הִגַּעְתְּ עַד לְמַעְלָה.', 'בָּנִית אֶת כָּל הַסֻּלָּם.', null],
+  'crystal': [null, 'מָצָאת אֶבֶן קְסָמִים.', null],
+  'new-best': [null, 'שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.'],
+  'explain-lead': ['בּוֹאִי נִקְרָא לְאַט.'],
+  'boss-arrive': [
+    'הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:', 'מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:',
+    'אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:',
+  ],
+  // הִבְרַחְתְּ was said "hivrachta" in every spelling: reworded (rule)
+  'boss-win': ['נִצַּחְתְּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתְּ אוֹתָהּ.'],
+  'boss-new': ['נִצַּחְתְּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
+  'potion-intro': ['שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.'],
+  'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.'],
+  'info-stars': ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.'],
+  'info-coins': ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.'],
+  'info-crystals': ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.'],
+  'info-best': ['זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.'],
+  'info-bosses': ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.'],
+  'info-coin-ring': ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.'],
+  'demo-broom': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר.'],
+  'demo-broom-letter': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.'],
+  'demo-cauldron': ['תִּגְרְרִי לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.'],
+  'demo-ladder': ['תִּגְרְרִי לַסֻּלָּם אֶת מָה שֶׁאֲנִי אוֹמֵר, וְהַקּוֹסֶמֶת תְּטַפֵּס.'],
+  'demo-ghosts-letter': ['תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.'],
+  'demo-ghosts-syllable': ['תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.'],
+  'demo-doors': ['תִּקְרְאִי מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרְרִי אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.'],
+  'demo-draw': ['תִּסְתַּכְּלִי אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתְּבִי אוֹתָהּ בְּעַצְמֵךְ.'],
+  'q-draw': ['תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:', null, null],
+  'draw-again': ['בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.', null, 'תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.'],
+  'line-small': ['בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.'],
+}
+for (const l of LINES) if (FE[l.id]) l.fe = FE[l.id].map((t) => (t === null ? null : t.normalize('NFC')))
+
 export const lineAudioId = (id: string, n: number) => `${id}-${n}`
+/** voice ids (`<id>-<n>`) that have a feminine take `<id>-<n>-f` */
+export const FEMININE_IDS: ReadonlySet<string> = new Set(LINES.flatMap((l) => (l.fe ?? []).flatMap((t, i) => (t ? [lineAudioId(l.id, i + 1)] : []))))
 export const lineById = (id: string) => LINES.find((l) => l.id === id)

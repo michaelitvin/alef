@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const { playVoice, setClockHidden, startMusic, stopMusic, preload } = vi.hoisted(() => ({
   playVoice: vi.fn((..._a: unknown[]) => Promise.resolve()),
   setClockHidden: vi.fn(), startMusic: vi.fn(), stopMusic: vi.fn(),
@@ -7,14 +7,43 @@ const { playVoice, setClockHidden, startMusic, stopMusic, preload } = vi.hoisted
 }))
 vi.mock('./assets/preload', () => ({ preloadClockAssets: preload }))
 vi.mock('./audio/clockAudio', () => ({
+  spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
   playVoice, playSfx: () => Promise.resolve(), stopVoices: () => {}, startMusic, stopMusic,
   preloadVoices: () => {}, configureClockAudio: () => {}, unlockClockAudio: () => {}, muteClockAudio: () => {},
   setClockHidden, holdClockAudio: () => {},
 }))
 import ClockApp from './ClockApp'
 import { useClockStore } from './store'
+import { clearGender, getPlayer, setGender } from '../shared/player'
+import { clockTelemetry } from './telemetry'
 
 describe('ClockApp', () => {
+  beforeEach(() => { setGender('boy', 'parent'); playVoice.mockClear() })
+  afterEach(() => clearGender())
+  it('the first play asks boy or girl before the welcome; the welcome then speaks to her', async () => {
+    clearGender()
+    playVoice.mockClear()
+    const track = vi.spyOn(clockTelemetry, 'track')
+    useClockStore.setState({ welcomed: false })
+    const { container } = render(<ClockApp />)
+    let loaded: () => void = () => {}
+    preload.mockImplementationOnce(() => new Promise<void>((r) => { loaded = r }))
+    fireEvent.click(screen.getByRole('button', { name: 'play' }))
+    // the wizard pictures load before the question shows
+    expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
+    await act(async () => { loaded() })
+    const q = container.querySelector('[data-screen="gender-question"]')!
+    expect(q).not.toBeNull()
+    expect(q.querySelector('[data-gender="girl"] img')!.getAttribute('src')).toMatch(/s-wizard-idle-girl/)
+    expect(playVoice.mock.calls[0][0]).toBe('ask-gender-he')
+    await act(async () => { await new Promise((r) => setTimeout(r, 20)) })
+    fireEvent.click(q.querySelector('[data-gender="girl"]')!)
+    await act(async () => { await new Promise((r) => setTimeout(r, 600)) })
+    expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'child' })
+    expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'child' })
+    expect(playVoice.mock.calls.map((c) => c[0])).toContain('welcome-he')
+    track.mockRestore()
+  })
   it('shows the cover with a play button', () => {
     render(<ClockApp />)
     expect(screen.getByRole('button', { name: 'play' })).toBeTruthy()
