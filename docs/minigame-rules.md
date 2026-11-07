@@ -108,7 +108,7 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 ## Pronunciation
 
 - Some short words get a wrong stress or vowel in this voice in any spelling. Reword around them; do not retake again
-  and again. Known in book 2: עוֹד (an odd stress), קְצָת (read "katsat"), בָּאוֹסֶף (sounded off).
+  and again. Known in book 2: עוֹד (an odd stress), קְצָת (read "katsat"), בָּאוֹסֶף (sounded off), קְטַנָּה.
 - Use the newest model that speaks Hebrew well, with the language code "he".
   Example (duel): eleven_v4 with language_code "he". The parent: "v4 generally sounds better than v3".
 - Check the nikkud of each word in a dictionary before you make audio.

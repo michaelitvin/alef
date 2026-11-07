@@ -95,7 +95,7 @@ export const LINES: LineDef[] = [
   line('draw-mark', 'Drawing: the letter is done; now its marks (the place glows)', ['וְעַכְשָׁו הַנִּקּוּד.'], 0.5, 'warmly'),
   line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.'], 0.5, 'warmly'),
   line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
-  line('line-small', 'Drawing: the letter is much too small (it still counts)', ['הָאוֹת יָצְאָה קְטַנָּה מִדַּי.'], 0.5, 'warmly'),
+  line('line-small', 'Drawing: the letter is much too small (it still counts)', ['בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.'], 0.5, 'warmly'),
 ]
 
 export const lineAudioId = (id: string, n: number) => `${id}-${n}`

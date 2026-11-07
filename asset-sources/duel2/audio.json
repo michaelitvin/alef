@@ -1265,21 +1265,29 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/line-small-1.mp3",
    "where": "Drawing: the letter is much too small (it still counts)",
-   "caption": "הָאוֹת יָצְאָה קְטַנָּה מִדַּי.",
-   "take": "clips/line-small-1/v2.mp3",
+   "caption": "בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
+   "take": "clips/line-small-1/v4.mp3",
    "request": {
-    "text": "[warmly] הָאוֹת יָצְאָה קְטַנָּה מִדַּי.",
+    "text": "[warmly] בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 101
+    "seed": 103
    },
    "earlier_takes": [
     {
      "file": "clips/line-small-1/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/line-small-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/line-small-1/v3.mp3",
+     "seed": 102
     }
    ]
   },
