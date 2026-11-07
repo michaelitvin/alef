@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { LETTERS, STROKES, strokesOf, type Pt, type StrokeDef } from '../data/strokes'
-import { LetterChecker, judgeMarks, lineFeedback, markTargets, resample, type Box, type MarkSpec } from './recognizer'
+import { LetterChecker, judgeMarks, lineFeedback, markTargets, resample, type Box, type MarkSpec, type Verdict } from './recognizer'
 
 function rng(seed: number) {
   let a = seed >>> 0
@@ -20,11 +20,15 @@ function draw(st: StrokeDef | Pt[], tf: Tf = {}): Pt[] {
     return [x * k * (tf.sx ?? 1) + (tf.dx ?? 0) + wx * 3, y * k + (tf.dy ?? 0) + wy * 3] as Pt
   })
 }
+/** his strokes one after another; a piece still waiting at the end is settled (the pause after his last stroke) */
 const run = (letter: string, script: 'print' | 'hand', strokes: Pt[][]) => {
   const c = new LetterChecker(strokesOf(letter, script))
-  return strokes.map((s) => c.add(s))
+  const rs: Verdict[] = strokes.map((s) => c.add(s))
+  const sv = c.settle()
+  if (sv) rs.push(sv)
+  return Object.assign(rs, { complete: c.done })
 }
-const allOk = (rs: ReturnType<typeof run>) => rs.every((r) => r.kind === 'ok') && rs[rs.length - 1].done
+const allOk = (rs: ReturnType<typeof run>) => !rs.some((r) => r.kind === 'wrong') && rs.complete
 
 describe('recognizer: letters', () => {
   it('every letter in both scripts passes its own strokes, in every variant', () => {
@@ -39,8 +43,10 @@ describe('recognizer: letters', () => {
     }
   })
   it('size, position and a narrower or wider letter do not matter', () => {
-    for (const tf of [{ scale: 0.5 }, { scale: 1.8 }, { dx: 0.5, dy: 0.3 }, { scale: 0.7, dx: -0.3, dy: 0.4 }, { sx: 0.75 }, { sx: 1.3 }])
+    for (const tf of [{ scale: 0.5 }, { scale: 0.75 }, { scale: 1.3 }, { scale: 1.8 }, { dx: 0.5, dy: 0.3 }, { scale: 0.7, dx: -0.3, dy: 0.4 }, { sx: 0.75 }, { sx: 1.3 }])
       for (const d of STROKES) {
+        // ו י ן are told apart by their height on the lines: a half-size ו is a י, a double one a ן (ר and ך too)
+        if (((tf.scale ?? 1) < 0.7 || (tf.scale ?? 1) > 1.4) && 'וירךן'.includes(d.letter)) continue
         const rs = run(d.letter, d.script, d.variants[0].map((s) => draw(s, tf)))
         expect(allOk(rs), `${d.letter} ${d.script} ${JSON.stringify(tf)}`).toBe(true)
       }
@@ -100,6 +106,10 @@ describe('recognizer: letters', () => {
       const rs = run(asked, 'print', strokesOf(drawn, 'print').variants[0].map((s) => draw(s)))
       expect(allOk(rs), `${asked} drawn as ${drawn}`).toBe(false)
     }
+    for (const [asked, drawn] of [['ד', 'ר'], ['ר', 'ד'], ['ב', 'כ'], ['כ', 'ב'], ['ה', 'ח']] as const) {
+      const rs = run(asked, 'hand', strokesOf(drawn, 'hand').variants[0].map((s) => draw(s)))
+      expect(allOk(rs), `${asked} drawn as ${drawn} (hand)`).toBe(false)
+    }
   })
   it('a tiny scribble is not a stroke', () => {
     expect(run('ו', 'print', [[[0.1, 0.5], [0.11, 0.51], [0.12, 0.5]]])[0].kind).toBe('wrong')
@@ -116,12 +126,114 @@ describe('recognizer: letters', () => {
     const h = strokesOf('ה', 'print').variants[0]
     const c = new LetterChecker(strokesOf('ה', 'print'))
     c.add(draw(h[0], { scale: 0.5, dx: 0.3 }))
+    c.settle()
     const [x, y] = c.expected()[0]
     expect(x).toBeCloseTo(0.28 * 0.5 + 0.3, 1)
     expect(y).toBeCloseTo(0.45 * 0.5, 1)
   })
   it('all letters are checked (data and recognizer agree on the 27 letters)', () => {
     for (const l of LETTERS) expect(() => new LetterChecker(strokesOf(l, 'print'))).not.toThrow()
+  })
+})
+
+describe('recognizer: review findings (pen lifts, size from the lines, waiting pieces)', () => {
+  const dense = (st: Pt[]) => resample(st, Math.max(12, Math.round(Math.hypot(1, 1) * 40)))
+  const scaleAbout = (p: Pt[], k: number): Pt[] => {
+    const cx = p.reduce((a, q) => a + q[0], 0) / p.length
+    const cy = p.reduce((a, q) => a + q[1], 0) / p.length
+    return p.map(([x, y]) => [cx + (x - cx) * k, cy + (y - cy) * k])
+  }
+  it('a pen lift in the middle of any one stroke (a small gap) passes, in every letter of both scripts', () => {
+    const bad: string[] = []
+    for (const d of STROKES) d.variants.forEach((v, vi) => v.forEach((_, si) => {
+      // print ר is one stroke by the parent's rule: a lift at its corner is how ד is written (it must fail)
+      if (d.strict && v[si].pts.length > 2) return
+      const pieces = v.flatMap((st, i) => {
+        const p = dense(st.pts)
+        if (i !== si) return [p]
+        const k = Math.floor(p.length / 2)
+        return [p.slice(0, k), p.slice(k + 1)]
+      })
+      if (!allOk(run(d.letter, d.script, pieces))) bad.push(`${d.letter}${d.script[0]}${vi}s${si + 1}`)
+    }))
+    expect(bad).toEqual([])
+  })
+  it('a lift and a pause inside the first straight stroke: the rest joins it, and the letter keeps its full size', () => {
+    for (const [l, sc] of [['ד', 'print'], ['א', 'print'], ['ז', 'print'], ['ץ', 'print']] as const) {
+      const v = strokesOf(l, sc).variants[0]
+      const c = new LetterChecker(strokesOf(l, sc))
+      const p = dense(v[0].pts)
+      const k = Math.floor(p.length / 2)
+      expect(c.add(p.slice(0, k)).kind, l + sc).toBe('partial')
+      // the pause: what waits is settled (here a half stroke still looks like the stroke)
+      c.settle()
+      const r = c.add(p.slice(k + 1))
+      expect(r.kind, `${l} ${sc} rest`).toBe('ok')
+      for (const st of v.slice(1)) expect(c.add(dense(st.pts)).kind, `${l} ${sc} next`).toBe('ok')
+      expect(c.done).toBe(true)
+    }
+    // and the hand would draw the next stroke where it belongs, not at half size
+    const d = strokesOf('ד', 'print')
+    const c = new LetterChecker(d)
+    const p = dense(d.variants[0][0].pts)
+    c.add(p.slice(0, 20)); c.settle(); c.add(p.slice(21))
+    expect(c.expected()[0][0]).toBeCloseTo(0.82, 1)
+  })
+  it('a first stroke at 0.6× or 1.3× of its size, then the right strokes, passes (size comes from the lines too)', () => {
+    for (const k of [0.6, 0.75, 1.3]) {
+      const bad: string[] = []
+      for (const d of STROKES) {
+        if (d.variants[0].length < 2) continue
+        const rs = run(d.letter, d.script, d.variants[0].map((st, i) => (i === 0 ? scaleAbout(dense(st.pts), k) : dense(st.pts))))
+        if (!allOk(rs)) bad.push(`${d.letter}${d.script[0]}`)
+      }
+      expect(bad, `first stroke ×${k}`).toEqual([])
+    }
+  })
+  it('small hooks at the ends of strokes pass (after the pause they wait for)', () => {
+    const bad: string[] = []
+    for (const d of STROKES) for (const ang of [-2.1, 2.1]) {
+      // handwriting י is a comma of 0.4: hooks of 0.1 at both ends make it another shape
+      if (d.letter === 'י' && d.script === 'hand') continue
+      const strokes = d.variants[0].map((st) => {
+        const p = dense(st.pts)
+        const hook = (a: Pt, b: Pt): Pt => {
+          const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, c = Math.cos(ang), s = Math.sin(ang)
+          return [a[0] + 0.1 * (c * dx - s * dy) / L, a[1] + 0.1 * (s * dx + c * dy) / L]
+        }
+        return [hook(p[0], p[1]), ...p, hook(p[p.length - 1], p[p.length - 2])]
+      })
+      // he pauses a moment after each stroke: a waiting piece is settled before the next
+      const c = new LetterChecker(d)
+      let wrong = false
+      for (const st of strokes) { const r = c.add(st); if (r.kind === 'wrong') wrong = true; if (r.kind === 'partial' && c.settle()?.kind === 'wrong') wrong = true }
+      if (wrong || !c.done) bad.push(`${d.letter}${d.script[0]}${ang > 0 ? '+' : '-'}`)
+    }
+    expect(bad).toEqual([])
+  })
+  it('a later stroke drawn first is wrong order, even when it looks like the start of the first (ב: the base first)', () => {
+    const b = strokesOf('ב', 'print').variants[0]
+    expect(run('ב', 'print', [dense(b[1].pts)])[0]).toMatchObject({ kind: 'wrong', why: 'order' })
+  })
+  it('ו, י and ן are not accepted for each other, nor ך for ר (their height on the lines)', () => {
+    const pairs: [string, string, 'print' | 'hand'][] = [['י', 'ו', 'print'], ['ו', 'י', 'print'], ['ו', 'י', 'hand'], ['י', 'ו', 'hand'], ['ן', 'ו', 'hand'], ['ו', 'ן', 'hand'], ['ן', 'ו', 'print'], ['ו', 'ן', 'print'], ['ך', 'ר', 'print']]
+    for (const [drawn, asked, sc] of pairs)
+      expect(allOk(run(asked, sc, strokesOf(drawn, sc).variants[0].map((st) => dense(st.pts)))), `${drawn} drawn for ${asked} (${sc})`).toBe(false)
+  })
+  it('a waiting piece is settled after the pause: right as a whole stroke, or wrong', () => {
+    const c = new LetterChecker(strokesOf('כ', 'print'))
+    expect(c.add(scaleAbout(dense(strokesOf('כ', 'print').variants[0][0].pts), 0.5)).kind).toBe('partial')
+    expect(c.settle()).toMatchObject({ kind: 'ok', done: true })
+    const w = new LetterChecker(strokesOf('ו', 'print'))
+    expect(w.add(dense(strokesOf('י', 'print').variants[0][0].pts)).kind).toBe('partial')
+    expect(w.settle()?.kind).toBe('wrong')
+    expect(w.settle()).toBeNull()
+  })
+  it('handwriting ד: a small curl at the top right, then a straight line down; handwriting ב: a flat base right to left (research)', () => {
+    expect(allOk(run('ד', 'hand', [dense([[0.1, 0.32], [0.4, 0.08], [0.8, 0.06], [0.98, 0.12], [0.98, 0.3], [0.82, 0.34], [0.72, 0.22], [0.82, 0.14], [0.86, 0.35], [0.85, 0.97]])]))).toBe(true)
+    // a plain arch is ר, not ד
+    expect(allOk(run('ד', 'hand', [dense(strokesOf('ר', 'hand').variants[0][0].pts)]))).toBe(false)
+    expect(allOk(run('ב', 'hand', [dense([[0.09, 0.3], [0.3, 0.1], [0.61, 0.04], [1.05, 0.12], [1.25, 0.5], [1.15, 0.95], [0.6, 0.97], [0.15, 0.97]])]))).toBe(true)
   })
 })
 
@@ -157,6 +269,20 @@ describe('recognizer: marks', () => {
     expect(j(km, [bar(0.5, 1.25)])).toBe('more')
     expect(j(km, [bar(0.5, 1.25), [[0.5, 1.27], [0.5, 1.45]]])).toBe('ok')
     expect(j(km, [[[0.3, 1.25], [0.5, 1.25], [0.5, 1.45]]])).toBe('ok')
+  })
+  it('kamatz: the order inside it is not graded (a tick or a dot first waits for the bar); a long patach under a wide letter passes', () => {
+    const km: MarkSpec[] = [{ zone: 'under', shape: 'T' }]
+    expect(j(km, [[[0.55, 1.32], [0.55, 1.5]]])).toBe('more')
+    expect(j(km, [[[0.55, 1.32], [0.55, 1.5]], [[0.35, 1.3], [0.75, 1.3]]])).toBe('ok')
+    expect(j(km, [[[0.55, 1.32], [0.55, 1.4]]])).toBe('more')
+    expect(j(km, [dot(0.5, 1.4), bar(0.5, 1.28)])).toBe('ok')
+    const wide: Box = { left: 0, right: 1.3, top: 0, bottom: 1 }
+    expect(judgeMarks([[[0.2, 1.3], [1.1, 1.3]]], [{ zone: 'under', shape: 'bar' }], { letter: wide }).state).toBe('ok')
+  })
+  it('segol: the bottom dot need not be exactly in the middle', () => {
+    const sg: MarkSpec[] = [{ zone: 'under', shape: 'dots3-tri' }]
+    expect(j(sg, [dot(0.4, 1.3), dot(0.7, 1.3), dot(0.45, 1.45)])).toBe('ok')
+    expect(j(sg, [dot(0.4, 1.3), dot(0.7, 1.3), dot(0.35, 1.45)])).toBe('ok')
   })
   it('the dagesh goes inside; the ש dot on its side; shuruk left of the vav; cholam male above it', () => {
     expect(j([{ zone: 'inside', shape: 'dot' }], [dot(0.5, 0.5)])).toBe('ok')
