@@ -5,6 +5,13 @@ import { useRun } from './useRun'
 import { useDuel2Store } from './store'
 import { CATCH_AT, wavePos } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
+import { wavePos as wp } from './logic/run'
+
+const { sfxLog } = vi.hoisted(() => ({ sfxLog: [] as string[] }))
+vi.mock('./audio/duel2Audio', async (orig) => {
+  const m = await orig<typeof import('./audio/duel2Audio')>()
+  return { ...m, playSfx: (n: string) => { sfxLog.push(n); return Promise.resolve() } }
+})
 import { duel2Telemetry } from './telemetry'
 
 function seeded(seed: number) {
@@ -908,7 +915,8 @@ describe('run controller', () => {
     }, 60_000)
 
     it('a second win against the same kind is no new trophy (no golden frame, no new line)', async () => {
-      useDuel2Store.setState({ bossesBeaten: ['bat'] })
+      // its announcement was heard before (the trophy alone does not use it up)
+      useDuel2Store.setState({ bossesBeaten: ['bat'], bossNewHeard: ['bat'] })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
       c.start()
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
@@ -1035,6 +1043,172 @@ describe('run controller', () => {
         await tick(50)
       }
       expect(checked).toBeGreaterThan(10)
+      c.destroy()
+    }, 60_000)
+  })
+
+  describe('review fixes: one-time moments, pauses, the win', () => {
+    const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
+    /** voice ids in `missing` have no file: the player says so */
+    const withMissing = (missing: RegExp, ms = 10) => setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(!missing.test(id)), ms)) })
+    const loseHeart = async (c: RunController) => { for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) } }
+
+    it('a missing potion-intro file does not use up the introduction; a heard one is kept only once it has played', async () => {
+      withMissing(/^potion-intro/)
+      useDuel2Store.setState({ potionIntroSeen: false })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
+      await loseHeart(c)
+      await until(c, () => !!bv(c)?.potion)
+      await tick(12_000)
+      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
+      c.destroy()
+      stopVoice()
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 1500)) })
+      const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      d.start()
+      await until(d, (v) => v.phase === 'answer' && (bv(d)?.waves.length ?? 0) > 0)
+      await loseHeart(d)
+      await until(d, () => !!bv(d)?.potion)
+      expect(bv(d)!.potion!.intro).toBe(true)
+      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
+      await until(d, () => useDuel2Store.getState().potionIntroSeen, 12_000)
+      d.destroy()
+    }, 60_000)
+
+    it('a missing boss-new or boss-win file uses up neither the announcement nor the praise count; the trophy is kept', async () => {
+      withMissing(/^boss-(new|win)/)
+      useDuel2Store.setState({ bossesBeaten: [], bossNewHeard: [], praiseHeard: {} })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      expect(bv(c)!.boss!.first).toBe(true)
+      await until(c, () => !!bv(c)?.finished, 30_000)
+      const st = useDuel2Store.getState()
+      expect(st.bossesBeaten).toEqual(['mimic'])
+      expect(st.bossNewHeard ?? []).toEqual([])
+      expect(st.praiseHeard['boss-win'] ?? 0).toBe(0)
+      // the next win against it is still its first announcement
+      for (let i = 0; i < 20_000 && !(bv(c)?.boss?.won && c.view.phase === 'celebrate'); i++) { fly(c); await tick(50) }
+      expect(bv(c)!.boss!.first).toBe(true)
+      c.destroy()
+      // heard: used up
+      stopVoice()
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 10)) })
+      const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      d.start()
+      for (let i = 0; i < 20_000 && !bv(d)?.finished; i++) { fly(d); await tick(50) }
+      expect(useDuel2Store.getState().bossNewHeard).toEqual(['mimic'])
+      expect(useDuel2Store.getState().praiseHeard['boss-win']).toBe(1)
+      d.destroy()
+    }, 120_000)
+
+    it('a pause after a lost heart, before the potion came, still brings the potion after resume', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
+      await loseHeart(c)
+      expect(bv(c)!.potion).toBeUndefined()
+      c.pause()
+      c.resume()
+      // a careful player from now on: no other heart is lost, so only the first loss can bring it
+      for (let i = 0; i < 1200 && !bv(c)?.potion; i++) { fly(c); await tick(50) }
+      expect(c.view.hearts).toBe(2)
+      expect(bv(c)?.potion).toBeDefined()
+      c.destroy()
+    }, 60_000)
+
+    it('a pause right after a hit does not leave the boss in its hit pose', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      for (let i = 0; i < 20_000 && bv(c)?.boss?.pose !== 'hit'; i++) { fly(c); await tick(50) }
+      c.pause()
+      await tick(2000)
+      c.resume()
+      await until(c, (v) => v.phase === 'answer')
+      await tick(1000)
+      expect(bv(c)!.boss!.pose).toBe('fly')
+      c.destroy()
+    }, 60_000)
+
+    it('the winning catch says no streak praise, and the win waits for a mistake effect to settle', async () => {
+      useDuel2Store.setState({ praiseHeard: {} })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      // catches 3 and 8 are streaks 5 and 10: only the first is praised (the 8th is the win)
+      ;(c as unknown as { streak: number }).streak = 2
+      let fxAt = -1
+      let wonAt = -1
+      for (let i = 0; i < 20_000 && wonAt < 0; i++) {
+        const s = bv(c)!
+        if (s.boss!.hitsLeft === 1 && fxAt < 0) {
+          const head = s.waves.find((w) => w.resolved.some((r) => !r))
+          const j = head ? head.choices.findIndex((x) => x.soundId === s.target.soundId) : -1
+          if (head && j >= 0 && wp(head.startMs + head.offsets[j] * s.travelMs, c.broomClock(), s.travelMs) < 0.1) {
+            fxAt = Date.now()
+            ;(c as unknown as { setScreen: (p: object) => void }).setScreen({ fx: { id: 999, kind: 'hit', at: fxAt } })
+          }
+        }
+        if (s.boss!.won && wonAt < 0) wonAt = Date.now()
+        fly(c)
+        await tick(50)
+      }
+      expect(fxAt).toBeGreaterThan(0)
+      expect(wonAt - fxAt).toBeGreaterThanOrEqual(1300)
+      expect(played.filter((id) => id.startsWith('streak-')).length).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('a pause during the win does not play its celebration again', async () => {
+      sfxLog.length = 0
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 800)) })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      await tick(700)
+      c.pause()
+      c.resume()
+      await until(c, () => !!bv(c)?.finished, 30_000)
+      expect(sfxLog.filter((n) => n === 'boss-win').length).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('the potion introduction is said while the potion flies, never after it is gone (the potion waits for a free voice)', async () => {
+      useDuel2Store.setState({ potionIntroSeen: false })
+      let at: { present: boolean; k: number } | null = null
+      let c: RunController
+      setVoicePlayer((id) => {
+        played.push(id)
+        if (id === 'potion-intro-1' && !at) {
+          const p = bv(c)?.potion
+          at = { present: !!p && !p.caught, k: p ? wp(p.startMs, c.broomClock(), p.travelMs) : -9 }
+        }
+        return new Promise((r) => setTimeout(() => r(true), id.startsWith('syl-') ? 12_000 : 300))
+      })
+      c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0, 30_000)
+      await loseHeart(c)
+      for (let i = 0; i < 2000 && !at; i++) { fly(c); await tick(50) }
+      expect(at).not.toBeNull()
+      expect(at!.present).toBe(true)
+      expect(at!.k).toBeGreaterThan(0.7)
+      c!.destroy()
+    }, 60_000)
+
+    it('a new boss never starts with the sound the boss before ended on', async () => {
+      // שָׁ (sh-a) is the only sound near the target mistake rate: every pick it is allowed takes it
+      const hard = { seen: 40, wrong: 30 }
+      useDuel2Store.setState({ tallies: { 'l:shin': { seen: 40, wrong: 4 }, 'v:a': { seen: 40, wrong: 4 }, 'l:sin': hard, 'v:e': hard, 'v:i': hard, 'v:o': hard, 'v:u': hard } })
+      const c = make({ sandbox: true, force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      const last = bv(c)!.target.soundId
+      expect(last).toBe('syl-sh-a')
+      await until(c, () => !!bv(c)?.boss && !bv(c)!.boss!.won, 30_000)
+      expect(bv(c)!.target.soundId).not.toBe(last)
       c.destroy()
     }, 60_000)
   })

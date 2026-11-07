@@ -380,6 +380,24 @@ describe('screens', () => {
       const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="question" clock={() => 0} boss={boss('mimic', { arrived: false })} />)
       expect(container.querySelector('[data-boss].d2-boss-in')).not.toBeNull()
     })
+    it('the potion is clearly the bottle: full opacity, about 1.2x an orb, a soft glow behind it', () => {
+      const p = { id: 1, lane: 1, startMs: 0, travelMs: 5000, intro: true }
+      const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 1000} potion={p} />)
+      const img = container.querySelector('[data-potion] image')!
+      expect(Number(img.getAttribute('width'))).toBeCloseTo(BROOM_ORB * 1.2, 0)
+      expect(img.getAttribute('opacity')).toBeNull()
+      expect(img.closest('[opacity]')).toBeNull()
+      // the glow is behind the bottle
+      const g = container.querySelector('[data-potion]')!
+      const kids = [...g.children]
+      expect(kids.indexOf(g.querySelector('.d2-potion-glow')!)).toBeLessThan(kids.indexOf(img))
+    })
+    it('the flight keeps the potion and the boss poses decoded before they are needed (no late picture)', () => {
+      const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 0} boss={boss('bat')} />)
+      const warm = [...container.querySelectorAll('[data-warm] image')].map((e) => e.getAttribute('href'))
+      expect(warm.some((h) => /s-potion/.test(h!))).toBe(true)
+      for (const pose of ['fly', 'hit', 'down']) expect(warm.some((h) => new RegExp(`boss-bat-${pose}`).test(h!)), pose).toBe(true)
+    })
     it('the potion floats in its lane, glows on its first flight, and a heart flies to the top bar when caught', () => {
       const p = { id: 1, lane: 2, startMs: 0, travelMs: 5000, intro: true }
       const { container, rerender } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 1000} potion={p} />)

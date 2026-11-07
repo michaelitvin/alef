@@ -34,6 +34,8 @@ export interface Duel2Save {
   praiseHeard: Record<string, number>
   /** the flight bosses he has beaten (each kind once): the trophy shelf */
   bossesBeaten: BossKind[]
+  /** the bosses whose "new in your collection" line he has heard (its golden-frame moment is used up) */
+  bossNewHeard: BossKind[]
   /** the kind of the last boss (never the same twice in a row) */
   lastBoss: BossKind | null
   /** the rescue potion was introduced (its first flight is slower, with a line) */
@@ -50,6 +52,7 @@ interface Actions {
   addStars: (n: number) => void
   markBossBeaten: (k: BossKind) => void
   setLastBoss: (k: BossKind) => void
+  markBossNewHeard: (k: BossKind) => void
   markPotionIntro: () => void
   notePraise: (kind: string) => void
   addCrystal: () => void
@@ -64,7 +67,7 @@ export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume:
 const fresh = (): Omit<Duel2Save, 'settings'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {},
-  bossesBeaten: [], lastBoss: null, potionIntroSeen: false,
+  bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -108,6 +111,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       addStars: (n) => set((s) => ({ totalStars: (s.totalStars ?? 0) + n })),
       markBossBeaten: (k) => set((s) => ((s.bossesBeaten ?? []).includes(k) ? s : { bossesBeaten: [...(s.bossesBeaten ?? []), k] })),
       setLastBoss: (k) => set({ lastBoss: k }),
+      markBossNewHeard: (k) => set((s) => ((s.bossNewHeard ?? []).includes(k) ? s : { bossNewHeard: [...(s.bossNewHeard ?? []), k] })),
       markPotionIntro: () => set({ potionIntroSeen: true }),
       addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
       notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),

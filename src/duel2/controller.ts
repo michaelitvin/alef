@@ -17,7 +17,7 @@ import { WORDS, wordLinkFor, type Word } from './data/words'
 import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
-import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
+import { playSfx, sayParts, startMusic, stopMusic, stopVoice, voiceIdle, type Duel2Sfx } from './audio/duel2Audio'
 import { coinsOf, useDuel2Store } from './store'
 import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
@@ -140,6 +140,8 @@ const COIN_POP_MS = 550
 const POTION_INTRO_SLOW = 1.5
 /** the potion comes this many waves after the wave that cost the heart */
 const POTION_AFTER_WAVES = 1
+/** wave slots the introducing potion waits for a free voice before the queued speech is cut */
+const POTION_VOICE_WAIT = 2
 /** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
 const POPCORN = 0.28
 
@@ -196,7 +198,7 @@ export class RunController {
   /** this visit has started: its hearts were filled (a pause keeps them) */
   private visitStarted = false
   /** the boss of this visit: its hits survive a pause (rule: losing them is the "gives up" problem again) */
-  private boss: { kind: BossKind; hitsLeft: number; arrived: boolean; startedAt: number; won?: boolean; first?: boolean; praised?: boolean; coins: number; newSaid?: boolean } | null = null
+  private boss: { kind: BossKind; hitsLeft: number; arrived: boolean; startedAt: number; won?: boolean; first?: boolean; celebrated?: boolean; praised?: boolean; coins: number; newSaid?: boolean } | null = null
   /** the potion has come in this visit (at most once) */
   private potionShown = false
   private bossesWon: BossKind[] = []
@@ -461,7 +463,8 @@ export class RunController {
     // never the same sound two rounds in a row on one screen
     const prev = this.view.screen?.screen === screen ? (this.view.screen as { target?: Choice }).target?.soundId : undefined
     if (screen === 'broom') {
-      const target = this.boss ? bossTarget(c, this.boss.kind) : broomTarget(c, kind)
+      // a new boss never starts with the sound the flight before ended on
+      const target = this.boss ? bossTarget(c, this.boss.kind, prev) : broomTarget(c, kind)
       this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(useDuel2Store.getState().pace), lane: 1, target } })
       return target
     }
@@ -799,9 +802,9 @@ export class RunController {
   }
 
   /** The praise words only the first PRAISE_SPOKEN times of each kind; after that its sound is enough (Michael: "he knows it"). */
-  private praiseLine(kind: 'streak' | 'ladder-top' | 'crystal' | 'boss-win'): string | null {
+  private praiseLine(kind: 'streak' | 'ladder-top' | 'crystal' | 'boss-win', note = true): string | null {
     if ((useDuel2Store.getState().praiseHeard?.[kind] ?? 0) >= PRAISE_SPOKEN) return null
-    if (!this.opts.sandbox) useDuel2Store.getState().notePraise(kind)
+    if (note && !this.opts.sandbox) useDuel2Store.getState().notePraise(kind)
     return this.variation(kind)
   }
 
@@ -884,8 +887,10 @@ export class RunController {
     let nextSpawnAt = -Infinity
     /** no wave sets off before this (a slow potion must never be caught up by orbs) */
     let potionClearAt = -Infinity
+    let potionWaits = 0
     /** the potion comes once this many waves have set off */
-    let potionAfter: number | null = galleryPotion ? 1 : null
+    // a heart lost before a pause (or the gallery's potion entry) still brings the potion
+    let potionAfter: number | null = galleryPotion || (this.hearts.left < HEARTS && !this.potionShown) ? POTION_AFTER_WAVES : null
     /** a boss visit has no wave count: it lasts until the boss is beaten or the hearts run out */
     const more = () => !!this.boss || spawned < VISIT.broom
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
@@ -922,9 +927,11 @@ export class RunController {
       nextSpawnAt = now + travel * WAVE_EVERY
       potionClearAt = now + (pt - travel) + 0.3 * travel
       if (intro) {
-        if (!this.opts.sandbox) useDuel2Store.getState().markPotionIntro()
-        // a new element is explained when it first appears; the flight does not stop for it
-        void this.say(t, [{ id: lineAudioId('potion-intro', 1) }]).catch(() => {})
+        // a new element is explained when it first appears; the flight does not stop for it. The voice is free (the
+        // intro potion waits for that), so the line plays at once; it counts as seen only once it was really heard.
+        void this.say(t, [{ id: lineAudioId('potion-intro', 1) }]).then((heard) => {
+          if (heard && !this.opts.sandbox) useDuel2Store.getState().markPotionIntro()
+        }).catch(() => {})
       }
     }
     const result = await this.guard(t, new Promise<'done' | 'over' | 'won'>((resolve, reject) => {
@@ -953,7 +960,8 @@ export class RunController {
         }
         for (const ev of events) {
           if (ev.hit && ev.hit.soundId === target.soundId) {
-            this.onCatch(target)
+            // the catch that beats the boss has its own celebration: no streak praise on it
+            this.onCatch(target, !!this.boss && this.boss.hitsLeft === 1)
             catches++
             this.roundInScreen++
             if (this.boss && this.bossHit(t, cur.lane) === 'won') { this.stopBroom(); resolve('won'); return }
@@ -986,7 +994,11 @@ export class RunController {
         }
         if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt && now >= potionClearAt) {
           const potionDue = potionAfter !== null && spawned >= potionAfter && !this.potionShown && this.hearts.left < HEARTS && !(this.view.screen as BroomView).potion
-          if (potionDue) spawnPotion(now)
+          // the introducing potion comes only when the voice is free, so its line is never said after it has gone
+          const introNow = this.opts.sandbox ? !!this.opts.force?.potion : !useDuel2Store.getState().potionIntroSeen
+          // (after two wave slots of waiting, what is still queued is cut: the introduction goes first)
+          if (potionDue && introNow && !voiceIdle() && ++potionWaits > POTION_VOICE_WAIT) { stopVoice(); potionWaits = 0 }
+          if (potionDue && (!introNow || voiceIdle())) spawnPotion(now)
           else spawn(now)
         }
         // the visit ends when all its orbs (and the potion) have arrived (Michael: "let me finish")
@@ -996,7 +1008,12 @@ export class RunController {
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
     this.stopBroom()
-    if (result === 'won') return this.bossWin(t)
+    if (result === 'won') {
+      // let a last mistake's feedback finish first, as before the normal finale
+      const wfx = (this.view.screen as BroomView).fx
+      if (wfx && this.now() - wfx.at < FLIGHT_SETTLE_MS) await this.sleep(t, FLIGHT_SETTLE_MS - (this.now() - wfx.at))
+      return this.bossWin(t)
+    }
     // a closure, never a jump from a correction to the next screen (Michael): let a last mistake's feedback finish, then
     // a short finale — a celebration sound and the wizard swooping away
     const fx = (this.view.screen as BroomView).fx
@@ -1018,7 +1035,8 @@ export class RunController {
     if (!b) return undefined
     const prev = this.view.screen?.screen === 'broom' ? this.view.screen.boss : undefined
     return {
-      kind: b.kind, hitsLeft: b.hitsLeft, arrived: b.arrived, pose: b.won ? 'down' : prev?.pose === 'hit' ? 'hit' : 'fly',
+      // the hit pose is a moment only (bossHit sets it): rebuilt views fly
+      kind: b.kind, hitsLeft: b.hitsLeft, arrived: b.arrived, pose: b.won ? 'down' : 'fly',
       ...(prev?.bolt ? { bolt: prev.bolt } : {}), ...(b.won ? { won: true, first: !!b.first } : {}),
     }
   }
@@ -1049,22 +1067,29 @@ export class RunController {
     const st = useDuel2Store.getState()
     if (!b.won) {
       b.won = true
-      b.first = !(st.bossesBeaten ?? []).includes(b.kind)
-      if (!this.opts.sandbox && b.first) st.markBossBeaten(b.kind)
+      // the trophy is kept at once; the "new in your collection" moment only once its line was heard
+      b.first = !(st.bossNewHeard ?? []).includes(b.kind)
+      if (!this.opts.sandbox) st.markBossBeaten(b.kind)
       this.bossesWon.push(b.kind)
       this.track('boss-win', { kind: b.kind, ms: Math.round(this.now() - b.startedAt), first: b.first })
     }
     this.setScreen({ waves: [], reveal: undefined, potion: undefined, boss: this.bossView() } as Partial<BroomView>)
     this.set({ phase: 'celebrate' })
-    stopMusic()
-    this.sfx('boss-win')
-    startMusic('celebrate')
-    await this.sleep(t, SFX_RING_MS)
+    // its sound and music start once (a resume during the win goes on from where it was)
+    if (!b.celebrated) {
+      b.celebrated = true
+      stopMusic()
+      this.sfx('boss-win')
+      startMusic('celebrate')
+      await this.sleep(t, SFX_RING_MS)
+    }
     if (!b.praised) {
       b.praised = true
-      const praise = this.praiseLine('boss-win')
-      if (praise) await this.say(t, [{ id: praise }])
-      else await this.sleep(t, PRAISE_SOUND_MS)
+      const praise = this.praiseLine('boss-win', false)
+      if (praise) {
+        // the praise counts as heard only when it really played (a missing file leaves it for next time)
+        if (await this.say(t, [{ id: praise }]) && !this.opts.sandbox) useDuel2Store.getState().notePraise('boss-win')
+      } else await this.sleep(t, PRAISE_SOUND_MS)
     }
     while (b.coins < BOSS_COINS) {
       b.coins++
@@ -1075,7 +1100,7 @@ export class RunController {
     }
     if (b.first && !b.newSaid) {
       b.newSaid = true
-      await this.say(t, [{ id: lineAudioId('boss-new', 1) }])
+      if (await this.say(t, [{ id: lineAudioId('boss-new', 1) }]) && !this.opts.sandbox) useDuel2Store.getState().markBossNewHeard(b.kind)
     }
     await this.sleep(t, 600)
     stopMusic()
@@ -1110,7 +1135,7 @@ export class RunController {
     }
   }
 
-  private onCatch(target: Choice) {
+  private onCatch(target: Choice, noPraise = false) {
     const st = useDuel2Store.getState()
     this.record('broom', target, target, 'right')
     if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'catch'))
@@ -1121,7 +1146,7 @@ export class RunController {
       this.spokenTargets.add(target.soundId)
       void sayParts([{ id: this.cueId(target) }])
     }
-    if (this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
+    if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
   }
 
   /**

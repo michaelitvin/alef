@@ -63,7 +63,7 @@ export const LINES: LineDef[] = [
     'אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:',
   ], 0, 'excited'),
   line('boss-win', 'The boss is beaten (praise: spoken the first two times only)', [
-    'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
+    'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
   ], 0, 'excited'),
   line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.'], 0, 'amazed'),
   line('potion-intro', 'The rescue potion, the first time it floats by (the flight goes on)', ['שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.'], 0.5, 'warmly'),

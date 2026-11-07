@@ -66,6 +66,8 @@ describe('lines', () => {
     }
     expect(lineById('boss-arrive')!.variations).toBe(3)
     expect(lineById('boss-win')!.variations).toBe(3)
+    // the parent's wording: he chased the monster away
+    expect(lineById('boss-win')!.he[1]).toBe('וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.'.normalize('NFC'))
   })
   it('audio ids', () => {
     expect(lineAudioId('almost', 2)).toBe('almost-2')

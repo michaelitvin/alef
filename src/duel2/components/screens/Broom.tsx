@@ -32,7 +32,8 @@ export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
 const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
-export const POTION_W = 180
+/** clearly a gift: bigger than an orb */
+export const POTION_W = BROOM_ORB * 1.2
 /** how long the heart of a caught potion flies to the top bar */
 const HEAL_MS = 800
 
@@ -115,6 +116,7 @@ export function Broom(p: {
       onPointerUp={release} onPointerCancel={release}
       style={{ touchAction: 'none' }}>
       {LANE_Y.map((ly) => <rect key={ly} data-lane-band x={-1600} y={ly - LANE_H / 2} width={4800} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
+      <Warm boss={p.boss?.kind} />
       {p.boss && <BossSky won={!!p.boss.won} />}
       {p.boss && <Boss boss={p.boss} />}
       {p.waves.map((w) => (
@@ -276,7 +278,8 @@ function PotionArt({ y, intro }: { y: number; intro: boolean }) {
   const h = POTION_W * (412 / 512)
   return (
     <>
-      <circle cx={0} cy={y} r={intro ? 130 : 95} fill="url(#d2-pglow)" className={intro ? 'd2-potion-glow' : undefined} />
+      {/* a soft glow behind the bottle; the bottle itself is always at full opacity */}
+      <circle cx={0} cy={y} r={POTION_W * (intro ? 0.78 : 0.62)} fill="url(#d2-pglow)" className={intro ? 'd2-potion-glow' : 'd2-potion-aura'} />
       {IMAGES['s-potion']
         ? <image href={IMAGES['s-potion']} x={-POTION_W / 2} y={y - h / 2} width={POTION_W} height={h} />
         : <path d={`M0 ${y + 50} C-80 ${y} -50 ${y - 60} 0 ${y - 20} C50 ${y - 60} 80 ${y} 0 ${y + 50}Z`} fill="#ff5a7a" />}
@@ -307,6 +310,19 @@ function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
     <g data-heal pointerEvents="none" transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(2)})`}>
       <path d="M0 9s-7.5-4.6-9.6-9.2C-11.1-3.6-9-7-5.6-7c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C2.1-5.9 3.6-7 5.6-7 9-7 11.1-3.6 9.6-0.2 7.5 4.4 0 9 0 9z"
         fill="#ff5a7a" stroke="#fff6d8" strokeWidth={1.2} style={{ filter: 'drop-shadow(0 0 6px #ff5a7a)' }} />
+    </g>
+  )
+}
+
+/**
+ * The pictures a flight can need suddenly (the potion, the boss's poses), drawn all the time at near-zero opacity so the
+ * browser has them decoded: a picture must never appear after the rest (rule; the potion's first frames were empty).
+ */
+function Warm({ boss }: { boss?: string }) {
+  const ids = ['s-potion', ...(boss ? ['fly', 'hit', 'down'].map((p) => `boss-${boss}-${p}`) : [])].filter((id) => IMAGES[id])
+  return (
+    <g data-warm opacity={0.004} pointerEvents="none" aria-hidden>
+      {ids.map((id) => <image key={id} href={IMAGES[id]} x={WIZ_X - 40} y={LANE_Y[1] - 40} width={id === 's-potion' ? POTION_W : BOSS_BOX.w} height={id === 's-potion' ? POTION_W * (412 / 512) : BOSS_BOX.h} />)}
     </g>
   )
 }
