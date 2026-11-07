@@ -456,17 +456,17 @@
    "file": "src/assets/duel/audio/voice/line-boss-win-f.mp3",
    "clip": "line-boss-win-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[excited] כָּל הַכָּבוֹד. ניצחט אֶת הַמִּפְלֶצֶת הָעֲנָקִית.",
     "model": "eleven_v4",
     "lang": "he",
-    "seed": 1,
+    "seed": 3,
     "stability": 0.0,
-    "take_label": "take 1"
+    "take_label": "take 2"
    },
-   "from": "batch26.json v2 take 1",
+   "from": "batch26.json v2 take 2",
    "review_note": null,
    "history": [
     {
@@ -565,7 +565,7 @@
    "file": "src/assets/duel/audio/voice/line-combo-f.mp3",
    "clip": "line-combo-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[excited] וָאוּ, אַתְּ /baˈʃvunɡ/.",
@@ -634,17 +634,17 @@
    "file": "src/assets/duel/audio/voice/line-how-A-f.mp3",
    "clip": "line-how-A-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[curious] מָה הַצְּלִיל הָרִאשׁוֹן בַּתְּמוּנָה?... [warmly] בַּחֲרִי אֶת הַנִּקּוּד.",
     "model": "eleven_v4",
     "lang": "he",
-    "seed": 1,
+    "seed": 2,
     "stability": 0.5,
-    "take_label": "take 1"
+    "take_label": "take 2"
    },
-   "from": "batch25.json v1 take 1",
+   "from": "batch25.json v1 take 2",
    "review_note": null,
    "history": null
   },
@@ -699,17 +699,17 @@
    "file": "src/assets/duel/audio/voice/line-how-B-f.mp3",
    "clip": "line-how-B-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[warmly] הַקְשִׁיבִי לַצְּלִיל.... [warmly] וּבַחֲרִי אֶת הַנִּקּוּד.",
     "model": "eleven_v4",
     "lang": "he",
-    "seed": 1,
+    "seed": 2,
     "stability": 0.5,
-    "take_label": "take 1"
+    "take_label": "take 2"
    },
-   "from": "batch25.json v1 take 1",
+   "from": "batch25.json v1 take 2",
    "review_note": null,
    "history": null
   },
@@ -764,7 +764,7 @@
    "file": "src/assets/duel/audio/voice/line-how-C-f.mp3",
    "clip": "line-how-C-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[warmly] הַקְשִׁיבִי לַשֵּׁם.... [warmly] וּמִצְאִי אֶת הַנִּקּוּד.",
@@ -868,7 +868,7 @@
    "file": "src/assets/duel/audio/voice/line-intro-f.mp3",
    "clip": "line-intro-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[mysterious] הַמִּפְלָצוֹת בָּאוֹת.... [determined] שִׁמְרִי עַל הַמִּגְדָּל.",
@@ -1006,7 +1006,7 @@
    "file": "src/assets/duel/audio/voice/line-new-monster-f.mp3",
    "clip": "line-new-monster-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "[amazed] תִּרְאִי, מִפְלֶצֶת חֲדָשָׁה. [excited] הִיא מַגִּיעָה.",
@@ -1074,7 +1074,7 @@
    "file": "src/assets/duel/audio/voice/line-over-f.mp3",
    "clip": "line-over-f",
    "kind": "tts",
-   "chosen": "default take (not reviewed)",
+   "chosen": "picked by Michael",
    "request": {
     "voice": "bIHbv24MWmeRgasZH58o",
     "text": "אַתְּ קוֹסֶמֶת אֲמִיתִית. נְשַׂחֵק שׁוּב?",

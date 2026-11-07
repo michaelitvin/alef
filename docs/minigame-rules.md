@@ -114,10 +114,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 
 - Some short words get a wrong stress or vowel in this voice in any spelling. Reword around them; do not retake again
   and again. Known in book 2: עוֹד (an odd stress), קְצָת (read "katsat"), בָּאוֹסֶף (sounded off), קְטַנָּה.
-- The male voice (Will) reads the feminine past ending ־ְתְּ as the masculine ־תָּ in every nikkud spelling (נִצַּחְתְּ was
-  said "nitsachta"). Spell the spoken text with a final ט ("ניצחט"), or change the words.
-  Check each feminine take with an open transliteration ("write the vowels as you hear them"), not only a transcript
-  without nikkud: the transcript cannot show the gender. Example (book 2, 2026-11-07).
+- This voice often puts the wrong stress on feminine future verbs (תִּתְפְּסִי, תִּגְרְרִי, תִּזְרְקִי were said "titPEsi",
+  "tigREri", "tizREki") and says the ־ְתְּ past forms as the masculine ("nitsachta"). Prefer a neutral wording: the first
+  person plural ("נִצַּחְנוּ אֶת הַמִּפְלֶצֶת"), "בּוֹאִי נִתְפֹּס", or a feminine form that the voice says right ("אַתְּ אַלּוּפָה").
+  A plain spelling or a meteg on the last syllable (תִּגְרְרִֽי) can fix a future verb. Keep the final-ט trick ("ניצחט") only
+  when the parent approves the take: he heard it as "Nitshat". Check each feminine take with an open transliteration that
+  marks the stressed syllable in capitals (no expected text given), not only a transcript without nikkud: the transcript
+  shows neither gender nor stress. Example (book 2, 2026-11-07).
 - Use the newest model that speaks Hebrew well, with the language code "he".
   Example (duel): eleven_v4 with language_code "he". The parent: "v4 generally sounds better than v3".
 - Check the nikkud of each word in a dictionary before you make audio.

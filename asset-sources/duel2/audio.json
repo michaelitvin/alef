@@ -397,17 +397,30 @@
    "file": "src/duel2/assets/audio/voice/boss-arrive-1-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
-   "take": "clips/boss-arrive-1-f/v1.mp3",
+   "take": "clips/boss-arrive-1-f/v4.mp3",
    "request": {
-    "text": "[excited] הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "text": "[excited] הנה מפלצת. כדי לנצח אותה, תתפסי את מה שאני אומר:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/boss-arrive-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/boss-arrive-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-arrive-1-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "boss-arrive-1",
@@ -433,17 +446,30 @@
    "file": "src/duel2/assets/audio/voice/boss-arrive-2-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:",
-   "take": "clips/boss-arrive-2-f/v1.mp3",
+   "take": "clips/boss-arrive-2-f/v4.mp3",
    "request": {
-    "text": "[excited] מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:",
+    "text": "[excited] מפלצת בשמיים. בואי ננצח אותה. תתפסי את:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/boss-arrive-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/boss-arrive-2-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-arrive-2-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "boss-arrive-2",
@@ -469,17 +495,30 @@
    "file": "src/duel2/assets/audio/voice/boss-arrive-3-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
-   "take": "clips/boss-arrive-3-f/v1.mp3",
+   "take": "clips/boss-arrive-3-f/v4.mp3",
    "request": {
-    "text": "[excited] אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "text": "[excited] אוי, הגיעה מפלצת. תתפסי את מה שאני אומר:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/boss-arrive-3-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/boss-arrive-3-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-arrive-3-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "boss-arrive-3",
@@ -504,16 +543,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-new-1-f.mp3",
    "where": "His first win against a kind of boss: it falls into a golden frame for the shelf — when a girl plays",
-   "caption": "נִצַּחְתְּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.",
-   "take": "clips/boss-new-1-f/v3.mp3",
+   "caption": "נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.",
+   "take": "clips/boss-new-1-f/v4.mp3",
    "request": {
-    "text": "ניצחט מפלצת חדשה. עכשיו היא על המדף שֶׁלָּךְ.",
+    "text": "[amazed] נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 102
+    "seed": 103
    },
    "earlier_takes": [
     {
@@ -523,6 +562,14 @@
     {
      "file": "clips/boss-new-1-f/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/boss-new-1-f/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/boss-new-1-f/v5.mp3",
+     "seed": 104
     }
    ]
   },
@@ -554,21 +601,29 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-win-1-f.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
-   "caption": "נִצַּחְתְּ אֶת הַמִּפְלֶצֶת.",
-   "take": "clips/boss-win-1-f/v2.mp3",
+   "caption": "נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.",
+   "take": "clips/boss-win-1-f/v4.mp3",
    "request": {
-    "text": "ניצחט את המפלצת.",
+    "text": "[excited] נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 101
+    "seed": 103
    },
    "earlier_takes": [
     {
      "file": "clips/boss-win-1-f/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/boss-win-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-win-1-f/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -644,21 +699,29 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-win-3-f.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
-   "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְתְּ אוֹתָהּ.",
-   "take": "clips/boss-win-3-f/v2.mp3",
+   "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.",
+   "take": "clips/boss-win-3-f/v4.mp3",
    "request": {
-    "text": "איזה כישוף. ניצחט אותה.",
+    "text": "[excited] אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 101
+    "seed": 103
    },
    "earlier_takes": [
     {
      "file": "clips/boss-win-3-f/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/boss-win-3-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-win-3-f/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -1670,18 +1733,43 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-hearts-1-f.mp3",
    "where": "A tap on the hearts — when a girl plays",
-   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
-   "take": "clips/info-hearts-1-f/v1.mp3",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.",
+   "take": "clips/info-hearts-1-f/v7.mp3",
    "request": {
-    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 106
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-hearts-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-hearts-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-hearts-1-f/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/info-hearts-1-f/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/info-hearts-1-f/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/info-hearts-1-f/v6.mp3",
+     "seed": 105
+    }
+   ]
   },
   {
    "id": "info-hearts-1",
@@ -1752,24 +1840,24 @@
    "file": "src/duel2/assets/audio/voice/ladder-top-1-f.mp3",
    "where": "The ladder is built to the top — when a girl plays",
    "caption": "הִגַּעְתְּ עַד לְמַעְלָה.",
-   "take": "clips/ladder-top-1-f/v3.mp3",
+   "take": "clips/ladder-top-1-f/v1.mp3",
    "request": {
-    "text": "הִגַּעַט עַד לְמַעְלָה.",
+    "text": "[excited] הִגַּעְתְּ עַד לְמַעְלָה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 102
+    "seed": 1
    },
    "earlier_takes": [
     {
-     "file": "clips/ladder-top-1-f/v1.mp3",
-     "seed": 1
-    },
-    {
      "file": "clips/ladder-top-1-f/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/ladder-top-1-f/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -2627,17 +2715,30 @@
    "file": "src/duel2/assets/audio/voice/potion-intro-1-f.mp3",
    "where": "The rescue potion, the first time it floats by (the flight goes on) — when a girl plays",
    "caption": "שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.",
-   "take": "clips/potion-intro-1-f/v1.mp3",
+   "take": "clips/potion-intro-1-f/v4.mp3",
    "request": {
-    "text": "[warmly] שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.",
+    "text": "[warmly] שיקוי קסם. אם תתפסי אותו, תקבלי לב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/potion-intro-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/potion-intro-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/potion-intro-1-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "potion-intro-1",
@@ -2794,17 +2895,30 @@
    "file": "src/duel2/assets/audio/voice/q-cauldron-2-f.mp3",
    "where": "Cauldron, when he waits: then the syllable — when a girl plays",
    "caption": "תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
-   "take": "clips/q-cauldron-2-f/v1.mp3",
+   "take": "clips/q-cauldron-2-f/v4.mp3",
    "request": {
-    "text": "[warmly] תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
+    "text": "[warmly] תִּזְרְקִֽי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/q-cauldron-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/q-cauldron-2-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/q-cauldron-2-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "q-cauldron-2",
@@ -3242,17 +3356,30 @@
    "file": "src/duel2/assets/audio/voice/q-ladder-2-f.mp3",
    "where": "Ladder, when he waits: then the syllable — when a girl plays",
    "caption": "תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:",
-   "take": "clips/q-ladder-2-f/v1.mp3",
+   "take": "clips/q-ladder-2-f/v4.mp3",
    "request": {
-    "text": "[warmly] תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:",
+    "text": "[warmly] תִּגְרְרִֽי לַסֻּלָּם אֶת הַשָּׁלָב:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/q-ladder-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/q-ladder-2-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/q-ladder-2-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "q-ladder-2",
@@ -3440,18 +3567,27 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/streak-2-f.mp3",
    "where": "A streak of right answers — when a girl plays",
-   "caption": "אַתְּ תּוֹתָחִית.",
-   "take": "clips/streak-2-f/v1.mp3",
+   "caption": "אַתְּ אַלּוּפָה.",
+   "take": "clips/streak-2-f/v3.mp3",
    "request": {
-    "text": "[excited] אַתְּ תּוֹתָחִית.",
+    "text": "[excited] אַתְּ אַלּוּפָה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/streak-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/streak-2-f/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "streak-2",
@@ -3481,16 +3617,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/streak-3-f.mp3",
    "where": "A streak of right answers — when a girl plays",
-   "caption": "אַתְּ עָפָה עַל זֶה.",
-   "take": "clips/streak-3-f/v4.mp3",
+   "caption": "אֵין עָלַיִךְ.",
+   "take": "clips/streak-3-f/v6.mp3",
    "request": {
-    "text": "אַת עָפָה עַל זֶה.",
+    "text": "[excited] אֵין עָלַיִךְ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 103
+    "seed": 105
    },
    "earlier_takes": [
     {
@@ -3504,6 +3640,14 @@
     {
      "file": "clips/streak-3-f/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/streak-3-f/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/streak-3-f/v5.mp3",
+     "seed": 104
     }
    ]
   },
@@ -6479,17 +6623,30 @@
    "file": "src/duel2/assets/audio/voice/target-new-2-f.mp3",
    "where": "Broom flight: a new sound to catch (then the new sound) — when a girl plays",
    "caption": "עַכְשָׁו תִּתְפְּסִי אֶת:",
-   "take": "clips/target-new-2-f/v1.mp3",
+   "take": "clips/target-new-2-f/v2.mp3",
    "request": {
-    "text": "[playful] עַכְשָׁו תִּתְפְּסִי אֶת:",
+    "text": "[playful] עכשיו תתפסי את:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/target-new-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/target-new-2-f/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/target-new-2-f/v4.mp3",
+     "seed": 103
+    }
+   ]
   },
   {
    "id": "target-new-2",
