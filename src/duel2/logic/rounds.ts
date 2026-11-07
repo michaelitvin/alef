@@ -139,9 +139,25 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
   return pickTarget(rng, cands, (c) => featureOf(c, screen), ctx.tallies, ctx.recent)
 }
 
-/** A wave of 3 for the broom flight: the target, the same letter with another vowel, a look-alike (or his mix-up). */
+/** share of a dotted target's waves that are only the target and its twin (spec 2026-11-07: about a third) */
+export const TWIN_WAVE_SHARE = 1 / 3
+
+/** The target and its twin (בּ/ב, כּ/כ, פּ/פ, שׁ/שׂ, same vowel) once the twin is opened (stage 3), else null. */
+export function dotTwin(stage: Stage, target: Choice): Choice | null {
+  if (target.kind !== 'syllable' || !target.mark || stage < 3) return null
+  const pair = itemOf(target.itemId).pair
+  if (!pair || !isAllowed(pair, target.mark)) return null
+  return { ...syl(pair, markOf(target.mark)), nearMissOf: target.id }
+}
+
+/**
+ * A wave for the broom flight: the target, the same letter with another vowel, a look-alike (or his mix-up). For a dotted
+ * target about a third of its waves are only the target and its twin (two orbs).
+ */
 export function broomWave(ctx: RoundCtx, target: Choice, kind: Kind): Choice[] {
   const { rng, stage } = ctx
+  const twin = dotTwin(stage, target)
+  if (twin && rng() < TWIN_WAVE_SHARE) return shuffle(rng, [target, twin])
   if (kind === 'letter') {
     const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => openedItems(stage).some((i) => i.id === id))
     const out = fill(rng, [target], shuffle(rng, look).map((id) => letterChoice(itemOf(id))), () => letterChoice(pick(rng, openedItems(stage))))

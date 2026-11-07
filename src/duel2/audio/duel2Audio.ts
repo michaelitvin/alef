@@ -6,7 +6,9 @@ import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shar
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
 
-export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak'
+export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win'
+/** new effects play an existing one until the sfx pipeline gives them their own (spec: reuse the existing set) */
+const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { spell: 'zap', potion: 'crystal', 'boss-win': 'streak' }
 export const GAP_MS = 800
 const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.08
@@ -33,38 +35,55 @@ let currentSignal: VoiceSignal | null = null
 /** A speaker's own handle: cancelling it stops only that speaker's parts (an explanation closing must not silence the game). */
 export interface VoiceSignal { cancelled: boolean }
 export const voiceSignal = (): VoiceSignal => ({ cancelled: false })
-function playFile(id: string): Promise<void> {
+/** Plays one voice file; false when it has no file (a missing file never stalls, but it was not heard either). */
+function playFile(id: string): Promise<boolean> {
   const url = VOICE_URLS[id]
-  if (!url) return Promise.resolve()
+  if (!url) return Promise.resolve(false)
   current = url
   duck(true)
-  return playOnce(getHowl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
+  return playOnce(getHowl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).then(() => true).finally(() => {
     if (current === url) current = null
     duck(false)
   })
 }
-type Player = (id: string) => Promise<void>
+/** A player resolves true (or nothing) when the part was heard, false when it had nothing to play. */
+type Player = (id: string) => Promise<void | boolean>
 let player: Player = playFile
 /** Test seam: replace how one voice id is played (null restores the real player). */
 export function setVoicePlayer(p: Player | null) { player = p ?? playFile }
 
-let queue: Promise<void> = Promise.resolve()
+let queue: Promise<unknown> = Promise.resolve()
 let epoch = 0
+const pending = new Set<object>()
+/** nothing is playing or waiting in the voice queue */
+export const voiceIdle = () => pending.size === 0
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
 
-/** Plays the parts in order with `gapMs` between them, after anything already queued. A stopVoice drops what is left. */
-export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = GAP_MS, signal?: VoiceSignal): Promise<void> {
+/**
+ * Plays the parts in order with `gapMs` between them, after anything already queued. A stopVoice drops what is left.
+ * Resolves true only when every part was really heard (a one-time moment is used up only then: a missing file or a stop
+ * leaves it for next time).
+ */
+export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = GAP_MS, signal?: VoiceSignal): Promise<boolean> {
   const mine = epoch
-  const run = async () => {
-    for (let i = 0; i < parts.length; i++) {
-      if (epoch !== mine || signal?.cancelled) return
-      if (i > 0 && gapMs > 0) await wait(gapMs)
-      if (epoch !== mine || signal?.cancelled) return
-      currentSignal = signal ?? null
-      parts[i].onStart?.()
-      // test builds keep the order of everything said, for the QA audio log (rule)
-      if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(parts[i].id)
-      await player(parts[i].id)
+  const token = {}
+  pending.add(token)
+  const run = async (): Promise<boolean> => {
+    let heard = true
+    try {
+      for (let i = 0; i < parts.length; i++) {
+        if (epoch !== mine || signal?.cancelled) return false
+        if (i > 0 && gapMs > 0) await wait(gapMs)
+        if (epoch !== mine || signal?.cancelled) return false
+        currentSignal = signal ?? null
+        parts[i].onStart?.()
+        // test builds keep the order of everything said, for the QA audio log (rule)
+        if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(parts[i].id)
+        if ((await player(parts[i].id)) === false) heard = false
+      }
+      return heard && epoch === mine && !signal?.cancelled
+    } finally {
+      pending.delete(token)
     }
   }
   const p = queue.then(run, run)
@@ -90,6 +109,7 @@ export function cancelVoice(signal: VoiceSignal) {
 /** Stops the voice now and drops the queued parts (a tap on the cue, leaving the screen). */
 export function stopVoice() {
   epoch++
+  pending.clear()
   infoBusy = false
   queue = Promise.resolve()
   if (current) peekHowl(current)?.stop()
@@ -97,7 +117,8 @@ export function stopVoice() {
 
 const lastSfx: Record<string, number> = {}
 export function playSfx(name: Duel2Sfx): Promise<void> {
-  const takes = SFX_URLS[name]
+  const own = SFX_URLS[name]
+  const takes = own?.length ? own : SFX_URLS[SFX_FALLBACK[name] ?? name]
   if (!cfg.sfx || !takes?.length) return Promise.resolve()
   const i = ((lastSfx[name] ?? -1) + 1) % takes.length
   lastSfx[name] = i
@@ -110,12 +131,12 @@ let music: ReturnType<typeof getHowl> | null = null
 let ducks = 0
 const lastTrack: Record<string, number> = {}
 /** Music for the broom flight and the celebrations; each start moves to the next track of that kind. */
-export function startMusic(kind: 'flight' | 'celebrate') {
+export function startMusic(kind: 'flight' | 'celebrate' | 'boss') {
   const tracks = MUSIC_URLS[kind]
   if (!cfg.music || !tracks?.length) return
   const i = ((lastTrack[kind] ?? -1) + 1) % tracks.length
   lastTrack[kind] = i
-  const h = getHowl(tracks[i], kind === 'flight')
+  const h = getHowl(tracks[i], kind !== 'celebrate')
   if (music === h) return
   stopMusic()
   music = h

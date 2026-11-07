@@ -15,6 +15,11 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'doors', label: 'Door corridor — read the word', force: { screen: 'doors', stage: 4, demo: true } },
   { id: 'crystal', label: 'Crystal (the reward)', force: { screen: 'crystal', stage: 4 } },
   { id: 'dot-intro', label: 'Dotted letters — the introduction (ב/בּ, כ/כּ, פ/פּ, שׂ/שׁ)', force: { screen: 'dot', stage: 3, fixed: 'dot' } },
+  { id: 'boss-dot', label: 'Flight boss — the dot thief (בּ/ב, כּ/כ, פּ/פ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'dot' } },
+  { id: 'boss-shin', label: 'Flight boss — the twin-headed bird (שׁ/שׂ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } },
+  { id: 'boss-mimic', label: 'Flight boss — the mimic (look-alike letters: ד/ר, צ/ע, …)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } },
+  { id: 'boss-bat', label: 'Flight boss — the o/u bat (וֹ against וּ)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } },
+  { id: 'potion', label: 'Rescue potion (the flight starts with a heart lost; its first-time look)', force: { screen: 'broom', stage: 2, kind: 'syllable', potion: true } },
 ]
 
 export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: GalleryEntry) => void }) {

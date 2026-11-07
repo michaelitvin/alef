@@ -5,6 +5,13 @@ import { useRun } from './useRun'
 import { useDuel2Store } from './store'
 import { CATCH_AT, wavePos } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
+import { wavePos as wp } from './logic/run'
+
+const { sfxLog } = vi.hoisted(() => ({ sfxLog: [] as string[] }))
+vi.mock('./audio/duel2Audio', async (orig) => {
+  const m = await orig<typeof import('./audio/duel2Audio')>()
+  return { ...m, playSfx: (n: string) => { sfxLog.push(n); return Promise.resolve() } }
+})
 import { duel2Telemetry } from './telemetry'
 
 function seeded(seed: number) {
@@ -57,6 +64,20 @@ async function drain(c: RunController) {
     proceed(c)
     await tick(50)
   }
+}
+/** the lane of the first open orb with the target's sound in the oldest open wave (two-orb waves have their own lanes) */
+function targetLane(s: BroomView): number {
+  const head = s.waves.find((w) => w.resolved.some((r) => !r))
+  if (!head) return -1
+  const j = head.choices.findIndex((x, k) => x.soundId === s.target.soundId && !head.resolved[k])
+  return j < 0 ? -1 : (head.lanes?.[j] ?? j)
+}
+/** a careful player: always in the lane of the target of the oldest open wave */
+function fly(c: RunController) {
+  const s = c.view.screen
+  if (s?.screen !== 'broom' || c.view.phase !== 'answer') return
+  const k = targetLane(s)
+  if (k >= 0) c.gesture({ type: 'lane', lane: k as 0 | 1 | 2 })
 }
 /** steer the broom into the target's lane (or away from it) for the head wave */
 function steer(c: RunController, right: boolean) {
@@ -775,7 +796,8 @@ describe('run controller', () => {
       if (c.view.hearts < hearts) lastLoss = Date.now()
       hearts = c.view.hearts
       if (s.finished && finaleAt < 0) finaleAt = Date.now()
-      if (finaleAt > 0 && c.view.phase === 'question') break
+      // the gallery starts the flight again (its question phase can be shorter than one tick)
+      if (finaleAt > 0 && (c.view.phase === 'question' || !s.finished)) break
       // a careful player who misses the very last target
       const head = s.waves.find((w) => w.resolved.some((r) => !r))
       const k = head ? head.choices.findIndex((x, j) => x.soundId === s.target.soundId && !head.resolved[j]) : -1
@@ -798,6 +820,397 @@ describe('run controller', () => {
     expect(useDuel2Store.getState().totalStars).toBe(10)
     expect(c.view.coinPop).toBe(1)
     c.destroy()
+  })
+
+  it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
+    const c = make({ force: { screen: 'broom', stage: 3, kind: 'syllable' }, rng: seeded(11) })
+    useDuel2Store.setState({ stage: { stage: 3, newAnswers: '' } })
+    c.start()
+    const seen = new Set<number>()
+    let done = 0
+    let hearts = 3
+    let lost = 0
+    for (let i = 0; i < 8000 && done < 2; i++) {
+      const s = c.view.screen as BroomView
+      if (c.view.hearts < hearts) lost++
+      hearts = c.view.hearts
+      const ids = new Set((s?.waves ?? []).map((w) => w.id))
+      for (const id of seen) if (!ids.has(id)) { seen.delete(id); done++ }
+      for (const w of s?.waves ?? []) if (w.choices.length === 2) {
+        expect(w.lanes && new Set(w.lanes).size).toBe(2)
+        seen.add(w.id)
+      }
+      fly(c)
+      await tick(50)
+    }
+    expect(done).toBeGreaterThanOrEqual(2)
+    expect(lost).toBe(0)
+    c.destroy()
+  })
+
+  describe('the flight boss', () => {
+    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
+
+    it('comes on the second broom visit of a run, never on the first', async () => {
+      setVoicePlayer(() => Promise.resolve())
+      useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
+      const c = make()
+      c.start()
+      const visits: (string | null)[] = []
+      let prev: string | undefined
+      for (let i = 0; i < 40_000 && visits.length < 2; i++) {
+        const s = c.view.screen
+        if (s?.screen === 'broom' && prev !== 'broom') visits.push(null)
+        if (s?.screen === 'broom' && s.boss) visits[visits.length - 1] = s.boss.kind
+        prev = s?.screen
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        fly(c)
+        await tick(50)
+      }
+      // let the second visit show its boss
+      for (let i = 0; i < 100 && !bv(c)?.boss; i++) await tick(50)
+      visits[1] = bv(c)?.boss?.kind ?? null
+      expect(visits[0]).toBeNull()
+      expect(['mimic', 'bat']).toContain(visits[1])
+      expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
+      c.destroy()
+    }, 60_000)
+
+    it('arrives, throws two-orb waves that fly slower, and 8 catches beat it: 3 bonus coins, the trophy, telemetry', async () => {
+      duel2Telemetry.clear()
+      useDuel2Store.setState({ totalStars: 0, bossesBeaten: [] })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      await until(c, () => !!bv(c)?.boss)
+      expect(bv(c)!.boss).toMatchObject({ kind: 'mimic', hitsLeft: 8, arrived: false })
+      await until(c, (v) => v.phase === 'answer')
+      const pace0 = useDuel2Store.getState().pace
+      expect(played.some((id) => id.startsWith('boss-arrive-'))).toBe(true)
+      expect(bv(c)!.boss!.arrived).toBe(true)
+      let maxHit = 0
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) {
+        const s = bv(c)!
+        for (const w of s.waves) expect(w.choices.length).toBe(2)
+        if (s.waves.length && maxHit === 0) expect(s.travelMs).toBeCloseTo(5800 * pace0 * 1.3, 0)
+        maxHit = Math.max(maxHit, 8 - (s.boss?.hitsLeft ?? 8))
+        fly(c)
+        await tick(50)
+      }
+      expect(bv(c)!.boss).toMatchObject({ won: true, pose: 'down', first: true, hitsLeft: 0 })
+      await until(c, () => !!bv(c)?.finished, 30_000)
+      // 8 catches are 8 stars, the win 3 coins (30 stars)
+      expect(useDuel2Store.getState().totalStars).toBe(38)
+      expect(c.view.coinPop).toBeGreaterThanOrEqual(3)
+      expect(useDuel2Store.getState().bossesBeaten).toEqual(['mimic'])
+      expect(played.some((id) => id.startsWith('boss-win-'))).toBe(true)
+      expect(played).toContain('boss-new-1')
+      const ev = events()
+      expect(ev.find((e) => e.e === 'boss-start')).toMatchObject({ kind: 'mimic' })
+      expect(ev.filter((e) => e.e === 'boss-hit').length).toBe(8)
+      expect(ev.find((e) => e.e === 'boss-win')).toMatchObject({ kind: 'mimic', first: true })
+      expect(ev.find((e) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
+      c.destroy()
+    }, 60_000)
+
+    it('a second win against the same kind is no new trophy (no golden frame, no new line)', async () => {
+      // its announcement was heard before (the trophy alone does not use it up)
+      useDuel2Store.setState({ bossesBeaten: ['bat'], bossNewHeard: ['bat'] })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      expect(bv(c)!.boss).toMatchObject({ won: true, first: false })
+      await tick(6000)
+      expect(played).not.toContain('boss-new-1')
+      c.destroy()
+    }, 60_000)
+
+    it('a pause keeps the boss hits and his hearts; only the waves start again (no second arrival)', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      for (let i = 0; i < 20_000 && (bv(c)!.boss!.hitsLeft > 6); i++) { fly(c); await tick(50) }
+      // and one mistake
+      for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
+      const left = bv(c)!.boss!.hitsLeft
+      expect(c.view.hearts).toBe(2)
+      c.pause()
+      played = []
+      c.resume()
+      await until(c, (v) => v.phase === 'answer')
+      expect(bv(c)!.boss!.hitsLeft).toBe(left)
+      expect(c.view.hearts).toBe(2)
+      expect(bv(c)!.waves.length).toBe(0)
+      expect(played.some((id) => id.startsWith('boss-arrive-'))).toBe(false)
+      c.destroy()
+    }, 60_000)
+
+    it('the boss can end the run (the parent decided)', async () => {
+      duel2Telemetry.clear()
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      for (let i = 0; i < 20_000 && !c.view.over; i++) {
+        const s = bv(c)
+        // fly into the wrong orb of the head wave every time (and never take the potion)
+        const head = s?.waves.find((w) => w.resolved.some((r) => !r))
+        if (head) {
+          const j = head.choices.findIndex((x) => x.soundId !== s!.target.soundId)
+          c.gesture({ type: 'lane', lane: (head.lanes?.[j] ?? j) as 0 | 1 | 2 })
+        }
+        await tick(50)
+      }
+      expect(c.view.over).not.toBeNull()
+      expect(events().find((e) => e.e === 'boss-lose')).toMatchObject({ kind: 'bat' })
+      c.destroy()
+    }, 60_000)
+  })
+
+  describe('the rescue potion', () => {
+    const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
+    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+
+    it('never comes while he has all his hearts', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      for (let i = 0; i < 1500; i++) { expect(bv(c)?.potion).toBeUndefined(); fly(c); await tick(50) }
+      c.destroy()
+    }, 60_000)
+
+    it('comes after a lost heart, once per visit; caught it gives the heart back (no star, no answer); the first time it is explained', async () => {
+      duel2Telemetry.clear()
+      useDuel2Store.setState({ potionIntroSeen: false })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
+      for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
+      expect(c.view.hearts).toBe(2)
+      let shown = 0
+      let lastId = -1
+      for (let i = 0; i < 4000 && !bv(c)?.potion; i++) { fly(c); await tick(50) }
+      const p = bv(c)!.potion!
+      expect(p.intro).toBe(true)
+      expect(p.travelMs).toBeGreaterThan(bv(c)!.travelMs)
+      expect(useDuel2Store.getState().potionIntroSeen).toBe(true)
+      // the catch itself is no answer: no star and nothing recorded on that tick
+      let score = c.view.score
+      let round = useDuel2Store.getState().roundNo
+      for (let i = 0; i < 4000 && !bv(c)?.potion?.caught; i++) {
+        const s = bv(c)!
+        if (s.potion && s.potion.id !== lastId) { shown++; lastId = s.potion.id }
+        if (s.potion) c.gesture({ type: 'lane', lane: s.potion.lane as 0 | 1 | 2 })
+        score = c.view.score
+        round = useDuel2Store.getState().roundNo
+        await tick(50)
+      }
+      expect(bv(c)!.potion?.caught).toBe(true)
+      expect(c.view.hearts).toBe(3)
+      expect(bv(c)!.heal).toBeDefined()
+      expect(c.view.score).toBe(score)
+      expect(useDuel2Store.getState().roundNo).toBe(round)
+      expect(played).toContain('potion-intro-1')
+      // one potion per visit, even after another lost heart
+      for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
+      for (let i = 0; i < 1500 && !bv(c)?.finished; i++) {
+        const s = bv(c)
+        if (s?.potion && s.potion.id !== lastId) { shown++; lastId = s.potion.id }
+        fly(c)
+        await tick(50)
+      }
+      expect(shown).toBe(1)
+      expect(events().filter((e) => e.e === 'potion-show').length).toBe(1)
+      expect(events().find((e) => e.e === 'potion-catch')).toBeTruthy()
+      c.destroy()
+    }, 60_000)
+
+    it('flies in a lane no orb shares at the same moment', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', potion: true }, sandbox: true })
+      c.start()
+      let checked = 0
+      for (let i = 0; i < 4000 && checked < 40; i++) {
+        const s = bv(c)
+        if (s?.potion && !s.potion.caught && c.view.phase === 'answer') {
+          const now = c.broomClock()
+          const kp = wavePos(s.potion.startMs, now, s.potion.travelMs)
+          for (const w of s.waves) w.choices.forEach((_, j) => {
+            if ((w.lanes?.[j] ?? j) !== s.potion!.lane || w.resolved[j]) return
+            const ko = wavePos(w.startMs + w.offsets[j] * s.travelMs, now, s.travelMs)
+            if (kp > -0.1 && kp < 1) expect(Math.abs(ko - kp), 'an orb on the potion').toBeGreaterThan(0.1)
+          })
+          checked++
+        }
+        await tick(50)
+      }
+      expect(checked).toBeGreaterThan(10)
+      c.destroy()
+    }, 60_000)
+  })
+
+  describe('review fixes: one-time moments, pauses, the win', () => {
+    const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
+    /** voice ids in `missing` have no file: the player says so */
+    const withMissing = (missing: RegExp, ms = 10) => setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(!missing.test(id)), ms)) })
+    const loseHeart = async (c: RunController) => { for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) } }
+
+    it('a missing potion-intro file does not use up the introduction; a heard one is kept only once it has played', async () => {
+      withMissing(/^potion-intro/)
+      useDuel2Store.setState({ potionIntroSeen: false })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
+      await loseHeart(c)
+      await until(c, () => !!bv(c)?.potion)
+      await tick(12_000)
+      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
+      c.destroy()
+      stopVoice()
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 1500)) })
+      const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      d.start()
+      await until(d, (v) => v.phase === 'answer' && (bv(d)?.waves.length ?? 0) > 0)
+      await loseHeart(d)
+      await until(d, () => !!bv(d)?.potion)
+      expect(bv(d)!.potion!.intro).toBe(true)
+      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
+      await until(d, () => useDuel2Store.getState().potionIntroSeen, 12_000)
+      d.destroy()
+    }, 60_000)
+
+    it('a missing boss-new or boss-win file uses up neither the announcement nor the praise count; the trophy is kept', async () => {
+      withMissing(/^boss-(new|win)/)
+      useDuel2Store.setState({ bossesBeaten: [], bossNewHeard: [], praiseHeard: {} })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      expect(bv(c)!.boss!.first).toBe(true)
+      await until(c, () => !!bv(c)?.finished, 30_000)
+      const st = useDuel2Store.getState()
+      expect(st.bossesBeaten).toEqual(['mimic'])
+      expect(st.bossNewHeard ?? []).toEqual([])
+      expect(st.praiseHeard['boss-win'] ?? 0).toBe(0)
+      // the next win against it is still its first announcement
+      for (let i = 0; i < 20_000 && !(bv(c)?.boss?.won && c.view.phase === 'celebrate'); i++) { fly(c); await tick(50) }
+      expect(bv(c)!.boss!.first).toBe(true)
+      c.destroy()
+      // heard: used up
+      stopVoice()
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 10)) })
+      const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      d.start()
+      for (let i = 0; i < 20_000 && !bv(d)?.finished; i++) { fly(d); await tick(50) }
+      expect(useDuel2Store.getState().bossNewHeard).toEqual(['mimic'])
+      expect(useDuel2Store.getState().praiseHeard['boss-win']).toBe(1)
+      d.destroy()
+    }, 120_000)
+
+    it('a pause after a lost heart, before the potion came, still brings the potion after resume', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
+      await loseHeart(c)
+      expect(bv(c)!.potion).toBeUndefined()
+      c.pause()
+      c.resume()
+      // a careful player from now on: no other heart is lost, so only the first loss can bring it
+      for (let i = 0; i < 1200 && !bv(c)?.potion; i++) { fly(c); await tick(50) }
+      expect(c.view.hearts).toBe(2)
+      expect(bv(c)?.potion).toBeDefined()
+      c.destroy()
+    }, 60_000)
+
+    it('a pause right after a hit does not leave the boss in its hit pose', async () => {
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      for (let i = 0; i < 20_000 && bv(c)?.boss?.pose !== 'hit'; i++) { fly(c); await tick(50) }
+      c.pause()
+      await tick(2000)
+      c.resume()
+      await until(c, (v) => v.phase === 'answer')
+      await tick(1000)
+      expect(bv(c)!.boss!.pose).toBe('fly')
+      c.destroy()
+    }, 60_000)
+
+    it('the winning catch says no streak praise, and the win waits for a mistake effect to settle', async () => {
+      useDuel2Store.setState({ praiseHeard: {} })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      // catches 3 and 8 are streaks 5 and 10: only the first is praised (the 8th is the win)
+      ;(c as unknown as { streak: number }).streak = 2
+      let fxAt = -1
+      let wonAt = -1
+      for (let i = 0; i < 20_000 && wonAt < 0; i++) {
+        const s = bv(c)!
+        if (s.boss!.hitsLeft === 1 && fxAt < 0) {
+          const head = s.waves.find((w) => w.resolved.some((r) => !r))
+          const j = head ? head.choices.findIndex((x) => x.soundId === s.target.soundId) : -1
+          if (head && j >= 0 && wp(head.startMs + head.offsets[j] * s.travelMs, c.broomClock(), s.travelMs) < 0.1) {
+            fxAt = Date.now()
+            ;(c as unknown as { setScreen: (p: object) => void }).setScreen({ fx: { id: 999, kind: 'hit', at: fxAt } })
+          }
+        }
+        if (s.boss!.won && wonAt < 0) wonAt = Date.now()
+        fly(c)
+        await tick(50)
+      }
+      expect(fxAt).toBeGreaterThan(0)
+      expect(wonAt - fxAt).toBeGreaterThanOrEqual(1300)
+      expect(played.filter((id) => id.startsWith('streak-')).length).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('a pause during the win does not play its celebration again', async () => {
+      sfxLog.length = 0
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 800)) })
+      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      await tick(700)
+      c.pause()
+      c.resume()
+      await until(c, () => !!bv(c)?.finished, 30_000)
+      expect(sfxLog.filter((n) => n === 'boss-win').length).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('the potion introduction is said while the potion flies, never after it is gone (the potion waits for a free voice)', async () => {
+      useDuel2Store.setState({ potionIntroSeen: false })
+      let at: { present: boolean; k: number } | null = null
+      let c: RunController
+      setVoicePlayer((id) => {
+        played.push(id)
+        if (id === 'potion-intro-1' && !at) {
+          const p = bv(c)?.potion
+          at = { present: !!p && !p.caught, k: p ? wp(p.startMs, c.broomClock(), p.travelMs) : -9 }
+        }
+        return new Promise((r) => setTimeout(() => r(true), id.startsWith('syl-') ? 12_000 : 300))
+      })
+      c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0, 30_000)
+      await loseHeart(c)
+      for (let i = 0; i < 2000 && !at; i++) { fly(c); await tick(50) }
+      expect(at).not.toBeNull()
+      expect(at!.present).toBe(true)
+      expect(at!.k).toBeGreaterThan(0.7)
+      c!.destroy()
+    }, 60_000)
+
+    it('a new boss never starts with the sound the boss before ended on', async () => {
+      // שָׁ (sh-a) is the only sound near the target mistake rate: every pick it is allowed takes it
+      const hard = { seen: 40, wrong: 30 }
+      useDuel2Store.setState({ tallies: { 'l:shin': { seen: 40, wrong: 4 }, 'v:a': { seen: 40, wrong: 4 }, 'l:sin': hard, 'v:e': hard, 'v:i': hard, 'v:o': hard, 'v:u': hard } })
+      const c = make({ sandbox: true, force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } })
+      c.start()
+      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
+      const last = bv(c)!.target.soundId
+      expect(last).toBe('syl-sh-a')
+      await until(c, () => !!bv(c)?.boss && !bv(c)!.boss!.won, 30_000)
+      expect(bv(c)!.target.soundId).not.toBe(last)
+      c.destroy()
+    }, 60_000)
   })
 
 })

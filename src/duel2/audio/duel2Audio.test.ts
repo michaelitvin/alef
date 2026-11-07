@@ -4,13 +4,32 @@ vi.mock('howler', async (orig) => {
   const m = await orig<typeof import('howler')>()
   return { ...m, Howler: Object.assign(m.Howler, { mute }) }
 })
-import { holdAudio, playSfx, say, sayParts, setHidden, setVoicePlayer, stopVoice } from './duel2Audio'
+import { holdAudio, playSfx, say, sayParts, setHidden, setVoicePlayer, stopVoice, voiceIdle } from './duel2Audio'
 
 describe('duel2Audio', () => {
   afterEach(() => {
     stopVoice()
     setVoicePlayer(null)
     vi.useRealTimers()
+  })
+  it('sayParts tells whether every part really played (a missing file or a stop is not played)', async () => {
+    vi.useFakeTimers()
+    let r: boolean | undefined
+    void sayParts([{ id: 'nope-1' }]).then((x) => { r = x })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(r).toBe(false)
+    setVoicePlayer(() => new Promise((res) => setTimeout(() => res(true), 100)))
+    void sayParts([{ id: 'a' }]).then((x) => { r = x })
+    expect(voiceIdle()).toBe(false)
+    await vi.advanceTimersByTimeAsync(150)
+    expect(r).toBe(true)
+    expect(voiceIdle()).toBe(true)
+    r = undefined
+    void sayParts([{ id: 'a' }, { id: 'b' }]).then((x) => { r = x })
+    await vi.advanceTimersByTimeAsync(50)
+    stopVoice()
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(r).toBe(false)
   })
   it('say resolves for an unknown id', async () => {
     vi.useFakeTimers()

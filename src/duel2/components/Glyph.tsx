@@ -29,41 +29,83 @@ export function inkOffset(box: InkBox | null, px: number): { dx: number; dy: num
 
 const SHIN_DOT = '\u05C1'
 const SIN_DOT = '\u05C2'
+const DAGESH = '\u05BC'
 const MARK = /[\u0591-\u05C7]/
+/**
+ * Where our own dagesh goes in ב כ פ: the open middle of the letter, as fractions of the letter's ink box (x from its left
+ * edge, y up from the baseline in ascents). Measured on Sigalit at 200 px (spec 2026-11-07: the font puts פּ's dagesh in the
+ * curl, where it looks like part of the letter).
+ */
+export const DAGESH_AT: Record<string, { x: number; y: number }> = {
+  'ב': { x: 0.4, y: 0.5 },
+  'כ': { x: 0.43, y: 0.5 },
+  'פ': { x: 0.45, y: 0.29 },
+}
+export interface DrawnDot { dx: number; dy: number; r: number; kind: 'shin' | 'dagesh' }
 
 /**
- * Sigalit fuses the shin dot into the top of ש's right arm, so שׁ looked like another letter (ن; the parent: "inconsistent
- * font"). Draw ש without its dot and put our own dot just above the right arm (שׁ) or the left arm (שׂ), clearly apart.
- * Returns the text without the dots and, for each dotted ש, its place: x from the anchor (text centre), y from the baseline.
+ * Dots the game draws itself, apart from the font: (1) Sigalit fuses the shin dot into the top of ש's right arm, so שׁ looked
+ * like another letter (ن; the parent: "inconsistent font"): ש is drawn without its dot and our dot sits just above the right
+ * arm (שׁ) or the left arm (שׂ). (2) The dagesh of בּ כּ פּ goes in the open middle of the letter, bigger than the font's
+ * (on an orb פּ and פ looked the same). The shuruk's dot and any other dagesh stay in the text.
+ * Returns the text without those dots and each dot's place: x from the anchor (text centre), y from the baseline.
  */
-export function shinDots(text: string, px: number, measure: Measurer): { text: string; dots: { dx: number; dy: number; r: number }[] } | null {
-  if (!text.includes(SHIN_DOT) && !text.includes(SIN_DOT)) return null
-  const plain = text.replace(/[\u05C1\u05C2]/g, '')
-  const total = measure(plain, px)
-  const letter = measure('ש', px)
-  if (!total?.width || !letter) return null
-  const dots: { dx: number; dy: number; r: number }[] = []
-  let at = 0 // index in `plain`
+export function drawnDots(text: string, px: number, measure: Measurer): { text: string; dots: DrawnDot[] } | null {
+  const has = text.includes(SHIN_DOT) || text.includes(SIN_DOT) || [...text].some((c, i) => c === DAGESH && dageshBase(text, i) !== null)
+  if (!has) return null
+  // the text without the drawn dots, and for each letter that gets one: its index in that text and the dot's kind
+  let plain = ''
+  const marks: { at: number; base: string; kind: 'right' | 'left' | 'dagesh' }[] = []
   for (let i = 0; i < text.length; i++) {
     const c = text[i]
-    if (c === SHIN_DOT || c === SIN_DOT) continue
-    if (c === 'ש') {
+    if (!MARK.test(c)) {
       let j = i + 1
       let side: 'right' | 'left' | null = null
-      while (j < text.length && MARK.test(text[j])) { if (text[j] === SHIN_DOT) side = 'right'; if (text[j] === SIN_DOT) side = 'left'; j++ }
-      if (side) {
-        const before = measure(plain.slice(0, at), px)?.width ?? 0
-        const withIt = measure(plain.slice(0, at + 1), px)?.width ?? before
-        // right to left from the right edge of the line (the anchor is its centre)
-        const xR = total.width / 2 - before
-        const xL = total.width / 2 - withIt
-        const w = xR - xL
-        dots.push({ dx: side === 'right' ? xL + 0.88 * w : xL + 0.12 * w, dy: -letter.ascent - 0.2 * px, r: 0.065 * px })
+      let dagesh = false
+      while (j < text.length && MARK.test(text[j])) {
+        if (c === 'ש' && text[j] === SHIN_DOT) side = 'right'
+        if (c === 'ש' && text[j] === SIN_DOT) side = 'left'
+        if (text[j] === DAGESH && c in DAGESH_AT) dagesh = true
+        j++
       }
+      if (side) marks.push({ at: plain.length, base: c, kind: side })
+      if (dagesh) marks.push({ at: plain.length, base: c, kind: 'dagesh' })
     }
-    at++
+    const drop = (c === SHIN_DOT || c === SIN_DOT) && dotOnShin(text, i) || (c === DAGESH && dageshBase(text, i) !== null)
+    if (!drop) plain += c
+  }
+  const total = measure(plain, px)
+  if (!total?.width) return null
+  const dots: DrawnDot[] = []
+  for (const m of marks) {
+    const letter = measure(m.base, px)
+    if (!letter) return null
+    const before = measure(plain.slice(0, m.at), px)?.width ?? 0
+    const withIt = measure(plain.slice(0, m.at + 1), px)?.width ?? before
+    // right to left from the right edge of the line (the anchor is its centre)
+    const xR = total.width / 2 - before
+    const xL = total.width / 2 - withIt
+    const w = xR - xL
+    if (m.kind === 'dagesh') {
+      // the letter's ink box, from its own advance centre
+      const centre = (xL + xR) / 2
+      const f = DAGESH_AT[m.base]
+      const inkLeft = centre - letter.left
+      dots.push({ dx: inkLeft + f.x * (letter.left + letter.right), dy: -f.y * letter.ascent, r: 0.06 * px, kind: 'dagesh' })
+    } else dots.push({ dx: m.kind === 'right' ? xL + 0.88 * w : xL + 0.12 * w, dy: -letter.ascent - 0.2 * px, r: 0.065 * px, kind: 'shin' })
   }
   return { text: plain, dots }
+}
+/** the base letter of a dagesh at `i` when it is one we draw (ב כ פ), else null */
+function dageshBase(text: string, i: number): string | null {
+  let j = i - 1
+  while (j >= 0 && MARK.test(text[j])) j--
+  return j >= 0 && text[j] in DAGESH_AT ? text[j] : null
+}
+function dotOnShin(text: string, i: number): boolean {
+  let j = i - 1
+  while (j >= 0 && MARK.test(text[j])) j--
+  return j >= 0 && text[j] === 'ש'
 }
 
 let fontsReady = false
@@ -84,7 +126,7 @@ export function Glyph(p: {
     fontWaiters.add(f)
     return () => { fontWaiters.delete(f) }
   }, [])
-  const shin = useMemo(() => shinDots(p.text, p.px, measure), [measure, p.text, p.px, tick])
+  const shin = useMemo(() => drawnDots(p.text, p.px, measure), [measure, p.text, p.px, tick])
   const { dx } = useMemo(() => inkOffset(measure(p.text, p.px), p.px), [measure, p.text, p.px, tick])
   const { dy } = useMemo(() => inkOffset(measure(p.lineOf ?? p.text, p.px), p.px), [measure, p.text, p.lineOf, p.px, tick])
   const glow = p.glow ?? 'soft'
@@ -117,7 +159,7 @@ export function Glyph(p: {
   return (
     <g data-glyph-group className={p.className}>
       {t}
-      {shin.dots.map((d, i) => <circle key={i} data-shin-dot cx={p.x + dx + d.dx} cy={p.y + dy + d.dy} r={d.r} style={paint} />)}
+      {shin.dots.map((d, i) => <circle key={i} {...(d.kind === 'shin' ? { 'data-shin-dot': '' } : { 'data-dagesh': '' })} cx={p.x + dx + d.dx} cy={p.y + dy + d.dy} r={d.r} style={paint} />)}
     </g>
   )
 }

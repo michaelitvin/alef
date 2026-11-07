@@ -57,12 +57,24 @@ export const LINES: LineDef[] = [
   line('dot-right', 'ש introduction: before the sound of שׁ (both forms have a dot; it differs by its side)', ['נְקֻדָּה מִיָּמִין...'], 0.5, 'warmly'),
   line('dot-left', 'ש introduction: before the sound of שׂ', ['וּנְקֻדָּה מִשְּׂמֹאל...'], 0.5, 'warmly'),
   line('explain-lead', 'Explanation after a mistake: before letter name, vowel name, syllable', ['בּוֹא נִקְרָא לְאַט.'], 0.5, 'warmly'),
+  // the flight boss (spec 2026-11-07): it is on the screen when its line plays; the arrival line leads into the first sound
+  line('boss-arrive', 'Broom flight: a boss swoops in (then the first sound to catch)', [
+    'הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:', 'מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹא נְנַצֵּחַ אוֹתָהּ. תִּתְפֹּס אֶת:',
+    'אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:',
+  ], 0, 'excited'),
+  line('boss-win', 'The boss is beaten (praise: spoken the first two times only)', [
+    'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
+  ], 0, 'excited'),
+  line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.'], 0, 'amazed'),
+  line('potion-intro', 'The rescue potion, the first time it floats by (the flight goes on)', ['שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.'], 0.5, 'warmly'),
   // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
   line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
   line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.']),
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
   line('info-best', 'A tap on his best run', ['זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.']),
+  line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.']),
+  line('info-coin-ring', 'A tap on the ring around the coin (end screen)', ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.']),
   line('demo-broom', 'Demo: first broom flight with syllables (then the sound)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-broom-letter', 'Demo: first broom flight with letters (then the letter name)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),
   line('demo-cauldron', 'Demo: first cauldron (then the sound)', ['תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.']),

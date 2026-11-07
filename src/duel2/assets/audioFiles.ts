@@ -34,3 +34,6 @@ const music = byName(import.meta.glob('./audio/music/*.mp3', { eager: true, quer
 /** music kind (flight, celebrate) → tracks */
 export const MUSIC_URLS: Record<string, string[]> = {}
 for (const [file, url] of Object.entries(music)) (MUSIC_URLS[file.replace(/-\d+$/, '')] ??= []).push(url)
+// the boss keeps the first duel's one boss track: the signature of a special event (rule)
+const duelBoss = import.meta.glob('../../assets/duel/audio/music/music-boss-1.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+MUSIC_URLS.boss = Object.values(duelBoss)

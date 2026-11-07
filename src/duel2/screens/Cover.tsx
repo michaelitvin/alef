@@ -7,6 +7,7 @@ import { Glyph, GlyphDefs } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
+import { BossShelf } from '../components/BossShelf'
 import { coinsOf, useDuel2Store } from '../store'
 
 const HOLD_MS = 2000
@@ -16,6 +17,7 @@ const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
   const totalStars = useDuel2Store((s) => s.totalStars ?? 0)
   const crystals = useDuel2Store((s) => s.crystals ?? 0)
+  const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
   const timer = useRef<number | undefined>(undefined)
   const started = useRef(0)
   const [state, setState] = useState<'idle' | 'holding' | 'hint'>('idle')
@@ -68,6 +70,8 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
           </div></InfoTap>
         )}
       </div>
+      {/* the flight bosses: beaten ones in golden frames, the others dark (they still wait for him) */}
+      <div className="d2-cover-trophies"><BossShelf beaten={beaten} /></div>
       <button aria-label="play" className={`d2-play${loading ? ' loading' : ''}`} onClick={onPlay} data-loading={loading || undefined}>
         <PlayIcon />
         {loading && <svg className="d2-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}

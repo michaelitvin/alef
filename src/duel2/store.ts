@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { pushRecent, type Tally } from '../shared/adaptive'
 import type { ScreenId } from './logic/predict'
 import type { Choice, Conf } from './logic/rounds'
+import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 
 export interface Duel2Settings { sfx: boolean; music: boolean; volume: number }
@@ -31,6 +32,14 @@ export interface Duel2Save {
   totalStars: number
   /** how many times each praise line was spoken: after two it is only its sound */
   praiseHeard: Record<string, number>
+  /** the flight bosses he has beaten (each kind once): the trophy shelf */
+  bossesBeaten: BossKind[]
+  /** the bosses whose "new in your collection" line he has heard (its golden-frame moment is used up) */
+  bossNewHeard: BossKind[]
+  /** the kind of the last boss (never the same twice in a row) */
+  lastBoss: BossKind | null
+  /** the rescue potion was introduced (its first flight is slower, with a line) */
+  potionIntroSeen: boolean
   settings: Duel2Settings
 }
 
@@ -39,6 +48,12 @@ interface Actions {
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
   addStar: () => void
+  /** stars at once (a boss win: 10 per bonus coin) */
+  addStars: (n: number) => void
+  markBossBeaten: (k: BossKind) => void
+  setLastBoss: (k: BossKind) => void
+  markBossNewHeard: (k: BossKind) => void
+  markPotionIntro: () => void
   notePraise: (kind: string) => void
   addCrystal: () => void
   markDemo: (id: string) => void
@@ -52,6 +67,7 @@ export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume:
 const fresh = (): Omit<Duel2Save, 'settings'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {},
+  bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -92,6 +108,11 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       setPace: (pace) => set({ pace }),
       endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), })),
       addStar: () => set((s) => ({ totalStars: (s.totalStars ?? 0) + 1 })),
+      addStars: (n) => set((s) => ({ totalStars: (s.totalStars ?? 0) + n })),
+      markBossBeaten: (k) => set((s) => ((s.bossesBeaten ?? []).includes(k) ? s : { bossesBeaten: [...(s.bossesBeaten ?? []), k] })),
+      setLastBoss: (k) => set({ lastBoss: k }),
+      markBossNewHeard: (k) => set((s) => ((s.bossNewHeard ?? []).includes(k) ? s : { bossNewHeard: [...(s.bossNewHeard ?? []), k] })),
+      markPotionIntro: () => set({ potionIntroSeen: true }),
       addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
       notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),
       markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),
@@ -103,7 +124,8 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
     {
       name: 'alef-duel2', version: 1, storage: createJSONStorage(() => localStorage),
       // Version 1 is the first save shape. When Duel2Save changes, raise `version` and convert older saves here
-      // (never drop his progress: rule). Until then a save passes through unchanged.
+      // (never drop his progress: rule). Until then a save passes through unchanged. Fields added later (the bosses, the
+      // potion) take their defaults from the initial state: persist merges a saved state over it.
       migrate: (state) => state as Duel2Save & Actions,
     },
   ),

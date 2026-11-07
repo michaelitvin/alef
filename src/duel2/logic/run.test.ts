@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT } from './run'
+import { CYCLE, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage', () => {
@@ -34,10 +34,16 @@ describe('run', () => {
     for (let i = 0; i < 3; i++) ({ hearts: h, over } = onAnswer(h, 'wrong'))
     expect(over).toBe(true)
   })
-  it('travel speeds up per cycle with a floor', () => {
-    expect(travelMs(1, 0)).toBe(5200)
-    expect(travelMs(1, 50)).toBeCloseTo(BASE_TRAVEL_MS * 0.6)
-    expect(travelMs(1, 1)).toBeCloseTo(5200 * 0.93)
+  it('the flight follows him: no speed-up per lap, base 5800 ms (spec: a gentler flight)', () => {
+    expect(BASE_TRAVEL_MS).toBe(5800)
+    expect(travelMs(1)).toBe(5800)
+    expect(travelMs(1.2)).toBeCloseTo(5800 * 1.2)
+  })
+  it('a catch speeds the flight up by 1%, a mistake slows it by 12%, inside the pace limits', () => {
+    expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
+    expect(flightPace(1, 'miss')).toBeCloseTo(1.12)
+    expect(flightPace(PACE_MIN, 'catch')).toBe(PACE_MIN)
+    expect(flightPace(PACE_MAX, 'miss')).toBe(PACE_MAX)
   })
   it('wave position runs from the right edge to the wizard', () => {
     expect(waveX(1000, 1000, 5000)).toBe(1)
@@ -75,6 +81,14 @@ describe('run', () => {
     // the wrong orb in lane 2 crossed his front while he was in lane 0: it is gone, not waiting for him
     const r = orbEvents([0.5, 0.5, CATCH_AT - 0.01], [false, false, false], 0, [true, false, false])
     expect(r).toEqual({ resolved: [false, false, true], hit: null, missedTarget: false })
+  })
+
+  it('a two-orb wave: each orb in its own lane (lanes), the target caught in its lane only', () => {
+    // orb 0 in lane 2, orb 1 (the target) in lane 0
+    const k = [0.02, 0.02]
+    expect(orbEvents(k, [false, false], 0, [false, true], [2, 0]).hit).toBe(1)
+    expect(orbEvents(k, [false, false], 2, [false, true], [2, 0]).hit).toBe(0)
+    expect(orbEvents(k, [false, false], 1, [false, true], [2, 0]).hit).toBe(null)
   })
 
 })

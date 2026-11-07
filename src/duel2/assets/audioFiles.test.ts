@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DUEL_WORD, VOICE_URLS } from './audioFiles'
+import { DUEL_WORD, MUSIC_URLS, VOICE_URLS } from './audioFiles'
 
 describe('audio files', () => {
   it('words the duel already has use its approved recordings', () => {
@@ -10,5 +10,9 @@ describe('audio files', () => {
   })
   it('vowel names come from the duel', () => {
     expect(VOICE_URLS['vn-tsere']).toMatch(/wiz-tzeire/)
+  })
+  it('the boss plays the first duel\'s one boss track (the signature of a special event)', () => {
+    expect(MUSIC_URLS.boss).toHaveLength(1)
+    expect(MUSIC_URLS.boss[0]).toMatch(/music-boss-1/)
   })
 })

@@ -38,8 +38,13 @@ export function onAnswer(h: Hearts, a: 'right' | 'wrong' | 'near'): { hearts: He
 }
 
 // broom timing
-export const BASE_TRAVEL_MS = 5200
-export const travelMs = (pace: number, cycle: number) => BASE_TRAVEL_MS * pace * Math.max(0.6, 0.93 ** cycle)
+/** base travel time of an orb (spec 2026-11-07: 5800, was 5200; the per-lap speed-up is gone: the flight follows him) */
+export const BASE_TRAVEL_MS = 5800
+export const travelMs = (pace: number) => BASE_TRAVEL_MS * pace
+/** Book 2's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 12%. */
+export function flightPace(pace: number, r: 'catch' | 'miss'): number {
+  return Math.min(PACE_MAX, Math.max(PACE_MIN, pace * (r === 'catch' ? 0.99 : 1.12)))
+}
 /** 1 at the right edge → 0 at the wizard */
 export const waveX = (startMs: number, nowMs: number, travel: number) => Math.min(1, Math.max(0, 1 - (nowMs - startMs) / travel))
 /** a wave resolves when it is this close to the wizard (0 = at the wizard, 1 = at the right edge) */
@@ -53,22 +58,25 @@ export const PASS_AT = -0.07
  * One tick of a wave (forgiving for a child): the target is caught while it overlaps him in his lane (CATCH_AT to
  * PASS_AT) and missed only once it has passed him; a wrong orb hits only if he is in its lane when it reaches him. `k` = each orb's wavePos, `isTarget` = it carries the target sound.
  */
-export function orbEvents(k: number[], resolved: boolean[], lane: number, isTarget: boolean[]): { resolved: boolean[]; hit: number | null; missedTarget: boolean } {
+export function orbEvents(k: number[], resolved: boolean[], lane: number, isTarget: boolean[], lanes?: number[]): { resolved: boolean[]; hit: number | null; missedTarget: boolean } {
   const r = [...resolved]
   for (let i = 0; i < k.length; i++) {
     if (r[i]) continue
+    // `lanes`: each orb's lane (a two-orb wave); by default an orb's lane is its index
+    const inLane = (lanes?.[i] ?? i) === lane
     if (isTarget[i]) {
       // the target: caught any time it overlaps him in his lane; missed only once it has passed him
-      if (i === lane && k[i] <= CATCH_AT && k[i] >= PASS_AT) { r[i] = true; return { resolved: r, hit: i, missedTarget: false } }
+      if (inLane && k[i] <= CATCH_AT && k[i] >= PASS_AT) { r[i] = true; return { resolved: r, hit: i, missedTarget: false } }
       if (k[i] < PASS_AT) { r[i] = true; return { resolved: r, hit: null, missedTarget: true } }
     } else if (k[i] <= CATCH_AT) {
       // a wrong orb hits only if he is in its lane when it reaches him; moving into one that is already passing is no hit
       r[i] = true
-      if (i === lane) return { resolved: r, hit: i, missedTarget: false }
+      if (inLane) return { resolved: r, hit: i, missedTarget: false }
     }
   }
   return { resolved: r, hit: null, missedTarget: false }
 }
 export const LANES = 3
 export const laneAt = (y01: number): 0 | 1 | 2 => Math.min(2, Math.max(0, Math.floor(y01 * LANES))) as 0 | 1 | 2
-export { nextPace, PACE_MIN, PACE_MAX } from '../../utils/duel/rules'
+import { PACE_MIN, PACE_MAX } from '../../utils/duel/rules'
+export { PACE_MIN, PACE_MAX }
