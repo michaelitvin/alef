@@ -70,9 +70,15 @@ export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: numb
         const tap = s.length < 2 || pathLength(s) < 0.02
         const [cx, cy] = p.map(s[0])
         return tap
-          ? <circle key={i} data-demo-stroke cx={cx} cy={cy} r={p.width * 0.75 * Math.min(1, drawn[i] * 2)} fill="#ffe680" filter="url(#d2-glow)" />
-          : <polyline key={i} data-demo-stroke points={poly(M(subpath(s, drawn[i])))} fill="none" stroke="#ffe680" strokeWidth={p.width}
-            strokeLinecap="round" strokeLinejoin="round" filter="url(#d2-glow)" />
+          ? <g key={i} data-demo-stroke>
+            <circle cx={cx} cy={cy} r={p.width * 1.5 * Math.min(1, drawn[i] * 2)} fill="#ffd34d" opacity={0.3} />
+            <circle cx={cx} cy={cy} r={p.width * 0.75 * Math.min(1, drawn[i] * 2)} fill="#fff1a0" />
+          </g>
+          : <g key={i} data-demo-stroke>
+            {/* a halo under the line: a glow without a blur filter (it repaints every frame; the tablet is old) */}
+            <polyline points={poly(M(subpath(s, drawn[i])))} fill="none" stroke="#ffd34d" strokeOpacity={0.3} strokeWidth={p.width * 2.6} strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points={poly(M(subpath(s, drawn[i])))} fill="none" stroke="#fff1a0" strokeWidth={p.width} strokeLinecap="round" strokeLinejoin="round" />
+          </g>
       })}
       {p.numbers && p.strokes.map((s, i) => { const [nx, ny] = p.map(s[0]); return ms >= start[i] - 200 ? (
         <g key={`n${i}`} data-stroke-number={i + 1}>

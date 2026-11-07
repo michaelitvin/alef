@@ -8,7 +8,9 @@ import type { Pt } from '../../data/strokes'
 import { BOARD, PIC, toNorm, toStagePt, type DrawLayout } from '../../logic/drawLayout'
 import { canvasMeasurer, shinDots } from '../Glyph'
 import { StrokeAnim } from '../StrokeAnim'
-import { pathLength } from '../../logic/recognizer'
+import { bbox, markTargets, pathLength } from '../../logic/recognizer'
+import { strokesOf } from '../../data/strokes'
+import { TEST_HOOKS } from '../../testHooks'
 import { Stage, toStage, type Phase } from './Stage'
 
 const poly = (p: Pt[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
@@ -28,7 +30,7 @@ function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
     <g data-word>
       {L.rest.text && text(shin ? shin.text : L.rest.text, L.rest.cx)}
       {shin?.dots.map((d, i) => <circle key={i} data-glyph cx={L.rest.cx + d.dx} cy={base + d.dy} r={d.r} style={{ ...INK, strokeWidth: 2 }} />)}
-      {L.vav && text('ו', L.vav.cx, { 'data-vav': '', filter: glowVav ? 'url(#d2-glow-hit)' : undefined })}
+      {L.vav && text('ו', L.vav.cx, { 'data-vav': '', className: glowVav ? 'd2-vav-glow' : undefined })}
     </g>
   )
 }
@@ -54,6 +56,14 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
   const ok = v.strokes.filter((s) => s.state === 'ok' || s.state === 'helped')
   const markVav = v.glow === 'marks' && v.marks.some((m) => m.zone.startsWith('vav'))
   const pic = IMAGES[v.word.picture]
+  if (TEST_HOOKS && typeof window !== 'undefined') {
+    // the verify build draws the right strokes and marks with real touches (never in a release build)
+    ;(window as unknown as { __d2draw?: unknown }).__d2draw = {
+      layout: { x0: L.x0, top: L.top, u: L.u }, letter: v.letter, script: v.script, mode: v.mode,
+      expected: strokesOf(v.letter, v.script).variants[0].map((s) => s.pts),
+      marks: () => markTargets(v.marks, { letter: bbox(ok.flatMap((s) => s.pts)), vav: L.vav?.box }),
+    }
+  }
   const lineY = (y: number) => L.top + y * L.u
   return (
     <Stage bg="bg-ground">
@@ -81,10 +91,17 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
           const gold = s.state === 'ok' || s.state === 'helped'
           const color = gold ? '#ffd34d' : s.state === 'wrong' ? '#ff8a7a' : '#ffffff'
           const tap = s.pts.length < 2 || pathLength(s.pts) < 0.05
+          const cls = s.state === 'wrong' ? 'd2-stroke-fade' : undefined
+          // gold strokes glow with a halo under them (no blur filter: cheap on the old tablet)
           return tap
-            ? <circle key={s.id} data-stroke={s.state} cx={pts[0][0]} cy={pts[0][1]} r={w * 0.7} fill={color} className={s.state === 'wrong' ? 'd2-stroke-fade' : undefined} filter={gold ? 'url(#d2-glow)' : undefined} />
-            : <polyline key={s.id} data-stroke={s.state} points={poly(pts)} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round"
-              opacity={s.state === 'pending' ? 0.75 : 1} className={s.state === 'wrong' ? 'd2-stroke-fade' : undefined} filter={gold ? 'url(#d2-glow)' : undefined} />
+            ? <g key={s.id} className={cls}>
+              {gold && <circle className="d2-halo" cx={pts[0][0]} cy={pts[0][1]} r={w * 1.4} fill="#ffd34d" opacity={0.3} />}
+              <circle data-stroke={s.state} cx={pts[0][0]} cy={pts[0][1]} r={w * 0.7} fill={color} />
+            </g>
+            : <g key={s.id} className={cls} opacity={s.state === 'pending' ? 0.75 : 1}>
+              {gold && <polyline className="d2-halo" points={poly(pts)} fill="none" stroke="#ffd34d" strokeOpacity={0.3} strokeWidth={w * 2.6} strokeLinecap="round" strokeLinejoin="round" />}
+              <polyline data-stroke={s.state} points={poly(pts)} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+            </g>
         })}
       </g>
       {v.lineFx && (
@@ -96,13 +113,14 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
             </clipPath>
           )}
           <g clipPath={v.lineFx.outside ? 'url(#d2-outside)' : undefined}>
-            {ok.map((s) => <polyline key={s.id} points={poly(s.pts.map(map))} fill="none" stroke="#ff9a2e" strokeWidth={w * 1.25} strokeLinecap="round" strokeLinejoin="round" filter="url(#d2-glow-hit)" />)}
+            {ok.map((s) => <polyline key={s.id} points={poly(s.pts.map(map))} fill="none" stroke="#ff9a2e" strokeWidth={w * 1.6} strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
         </g>
       )}
       {v.demo && <StrokeAnim key={v.demo.id} strokes={v.demo.strokes} map={map} width={w} handScale={Math.max(0.8, L.u / 260)} />}
-      {/* his finger: the whole board takes strokes (the letter may leave the slot); a tap is a dot (marks) */}
-      <rect data-draw-pad x={BOARD.left} y={BOARD.top - 40} width={BOARD.right - BOARD.left} height={BOARD.bottom - BOARD.top + 55} fill="transparent"
+      {/* his finger: all the stage beside the picture takes strokes (a letter may poke out of the slot, or above the board);
+          a tap is a dot (marks) */}
+      <rect data-draw-pad x={0} y={95} width={PIC.x - PIC.size / 2 - 20} height={805} fill="transparent"
         style={{ cursor: can ? 'crosshair' : 'default' }}
         onPointerDown={(e) => {
           if (!can || live.current) return

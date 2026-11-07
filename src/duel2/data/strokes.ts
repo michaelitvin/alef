@@ -105,7 +105,28 @@ const HAND: LetterDef[] = [
   L('ת', 'hand', 1.6, [[s([0.63, 0.28], [0.86, 0.09], [1.16, 0.04], [1.5, 0.28], [1.5, 0.65], [1.27, 0.99]), s([0.67, 0.32], [0.63, 0.73], [0.48, 0.99], [0.07, 1.01])]]),
 ]
 
-export const STROKES: LetterDef[] = [...PRINT, ...HAND]
+/** Rounds a polyline (Chaikin, twice; the ends stay): handwriting and the round print letters are curves, not corners. */
+function round(pts: Pt[], times = 2): Pt[] {
+  let p = pts
+  for (let k = 0; k < times; k++) {
+    if (p.length < 3) return p
+    const out: Pt[] = [p[0]]
+    for (let i = 0; i < p.length - 1; i++) {
+      const [a, b] = [p[i], p[i + 1]]
+      const q: Pt = [+(0.75 * a[0] + 0.25 * b[0]).toFixed(3), +(0.75 * a[1] + 0.25 * b[1]).toFixed(3)]
+      const r: Pt = [+(0.25 * a[0] + 0.75 * b[0]).toFixed(3), +(0.25 * a[1] + 0.75 * b[1]).toFixed(3)]
+      if (i > 0) out.push(q)
+      if (i < p.length - 2) out.push(r)
+    }
+    out.push(p[p.length - 1])
+    p = out
+  }
+  return p
+}
+const ROUND_PRINT = 'סט'
+const rounded = (d: LetterDef): LetterDef => ({ ...d, variants: d.variants.map((v) => v.map((st) => ({ ...st, pts: round(st.pts) }))) })
+
+export const STROKES: LetterDef[] = [...PRINT.map((d) => (ROUND_PRINT.includes(d.letter) ? rounded(d) : d)), ...HAND.map(rounded)]
 export const LETTERS = 'אבגדהוזחטיכךלמםנןסעפףצץקרשת'
 export const strokesOf = (letter: string, script: Script): LetterDef => {
   const d = STROKES.find((x) => x.letter === letter && x.script === script)

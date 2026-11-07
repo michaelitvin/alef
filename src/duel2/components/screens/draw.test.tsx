@@ -61,7 +61,7 @@ describe('drawing screen', () => {
     })
     const { container } = render(<Draw view={v} phase="feedback" onStroke={() => {}} />)
     expect(container.querySelector('[data-stroke="ok"]')!.getAttribute('stroke')).toBe('#ffd34d')
-    expect(container.querySelector('[data-stroke="wrong"]')!.getAttribute('class')).toMatch(/fade/)
+    expect(container.querySelector('[data-stroke="wrong"]')!.closest('g')!.getAttribute('class')).toMatch(/fade/)
     expect(container.querySelector('[data-demo-hand]')).not.toBeNull()
   })
   it('the line feedback glows the part outside the lines', () => {

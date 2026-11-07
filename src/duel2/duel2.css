@@ -130,10 +130,12 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-slot { from { stroke-opacity: 0.45; fill-opacity: 0.03; } to { stroke-opacity: 1; fill-opacity: 0.12; } }
 .d2-stroke-fade { animation: d2-stroke-fade 900ms ease-in forwards; }
 @keyframes d2-stroke-fade { 0% { opacity: 1; } 30% { opacity: 0.9; } 100% { opacity: 0; } }
-.d2-drawn { animation: d2-drawn 700ms ease-out; filter: drop-shadow(0 0 14px #ffd34d); }
-@keyframes d2-drawn { 0% { filter: drop-shadow(0 0 0 #ffd34d); } 40% { filter: drop-shadow(0 0 28px #fff1a0); } 100% { filter: drop-shadow(0 0 14px #ffd34d); } }
-.d2-drawn-soft { animation: d2-soft 900ms ease-in-out infinite alternate; }
-@keyframes d2-soft { to { filter: drop-shadow(0 0 16px #fff1a0); } }
+.d2-drawn .d2-halo { animation: d2-drawn 800ms ease-out forwards; }
+@keyframes d2-drawn { 0% { stroke-opacity: 0.3; opacity: 0.3; } 40% { stroke-opacity: 0.9; opacity: 0.9; } 100% { stroke-opacity: 0.55; opacity: 0.55; } }
+.d2-drawn-soft .d2-halo { animation: d2-soft 800ms ease-in-out infinite alternate; }
+@keyframes d2-soft { to { stroke-opacity: 0.7; opacity: 0.7; } }
+.d2-vav-glow { animation: d2-vav 800ms ease-in-out infinite alternate; }
+@keyframes d2-vav { to { fill: #ffe680; } }
 .d2-linefx { animation: d2-linefx 1.6s ease-in-out forwards; }
 @keyframes d2-linefx { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0.5; } }
 .d2-stroke-card { background: #fff; border: 3px solid #ccc; border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
