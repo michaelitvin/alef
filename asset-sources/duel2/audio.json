@@ -310,6 +310,24 @@
    "earlier_takes": null
   },
   {
+   "id": "almost-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/almost-2-f.mp3",
+   "where": "Near miss: the other form of a dotted letter (encouraging; he tries again) — when a girl plays",
+   "caption": "כִּמְעַט. תִּסְתַּכְּלִי עַל הַנְּקֻדָּה.",
+   "take": "clips/almost-2-f/v1.mp3",
+   "request": {
+    "text": "[encouraging] כִּמְעַט. תִּסְתַּכְּלִי עַל הַנְּקֻדָּה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "almost-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/almost-2.mp3",
@@ -356,6 +374,42 @@
    ]
   },
   {
+   "id": "ask-gender-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/ask-gender-1.mp3",
+   "where": "Before the first run, while boy/girl is not set: the two wizards glow on בֵּן and בַּת",
+   "caption": "מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
+   "take": "clips/ask-gender-1/v1.mp3",
+   "request": {
+    "text": "[warmly] מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-arrive-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-1-f.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
+   "caption": "הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+   "take": "clips/boss-arrive-1-f/v1.mp3",
+   "request": {
+    "text": "[excited] הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "boss-arrive-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-arrive-1.mp3",
@@ -364,6 +418,24 @@
    "take": "clips/boss-arrive-1/v1.mp3",
    "request": {
     "text": "[excited] הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-arrive-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-2-f.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
+   "caption": "מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:",
+   "take": "clips/boss-arrive-2-f/v1.mp3",
+   "request": {
+    "text": "[excited] מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -392,6 +464,24 @@
    "earlier_takes": null
   },
   {
+   "id": "boss-arrive-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-3-f.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
+   "caption": "אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+   "take": "clips/boss-arrive-3-f/v1.mp3",
+   "request": {
+    "text": "[excited] אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "boss-arrive-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-arrive-3.mp3",
@@ -408,6 +498,33 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "boss-new-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-new-1-f.mp3",
+   "where": "His first win against a kind of boss: it falls into a golden frame for the shelf — when a girl plays",
+   "caption": "נִצַּחְתְּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.",
+   "take": "clips/boss-new-1-f/v3.mp3",
+   "request": {
+    "text": "ניצחט מפלצת חדשה. עכשיו היא על המדף שֶׁלָּךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/boss-new-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/boss-new-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "boss-new-1",
@@ -433,6 +550,29 @@
    ]
   },
   {
+   "id": "boss-win-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-1-f.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
+   "caption": "נִצַּחְתְּ אֶת הַמִּפְלֶצֶת.",
+   "take": "clips/boss-win-1-f/v2.mp3",
+   "request": {
+    "text": "ניצחט את המפלצת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/boss-win-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
    "id": "boss-win-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-win-1.mp3",
@@ -451,6 +591,37 @@
    "earlier_takes": null
   },
   {
+   "id": "boss-win-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-2-f.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
+   "caption": "וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.",
+   "take": "clips/boss-win-2-f/v4.mp3",
+   "request": {
+    "text": "[excited] וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 103
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/boss-win-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/boss-win-2-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/boss-win-2-f/v3.mp3",
+     "seed": 102
+    }
+   ]
+  },
+  {
    "id": "boss-win-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/boss-win-2.mp3",
@@ -467,6 +638,29 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "boss-win-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-3-f.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
+   "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְתְּ אוֹתָהּ.",
+   "take": "clips/boss-win-3-f/v2.mp3",
+   "request": {
+    "text": "איזה כישוף. ניצחט אותה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/boss-win-3-f/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "boss-win-3",
@@ -508,6 +702,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "crystal-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/crystal-2-f.mp3",
+   "where": "The crystal behind the last door — when a girl plays",
+   "caption": "מָצָאת אֶבֶן קְסָמִים.",
+   "take": "clips/crystal-2-f/v1.mp3",
+   "request": {
+    "text": "[amazed] מָצָאת אֶבֶן קְסָמִים.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "crystal-2",
@@ -556,6 +768,24 @@
    ]
   },
   {
+   "id": "demo-broom-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-broom-1-f.mp3",
+   "where": "Demo: first broom flight with syllables (then the sound) — when a girl plays",
+   "caption": "תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-broom-1-f/v1.mp3",
+   "request": {
+    "text": "תגררי את הקוסמת למעלה ולמטה, ותתפסי את מה שאני אומר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "demo-broom-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-broom-1.mp3",
@@ -585,6 +815,24 @@
      "seed": 102
     }
    ]
+  },
+  {
+   "id": "demo-broom-letter-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-broom-letter-1-f.mp3",
+   "where": "Demo: first broom flight with letters (then the letter name) — when a girl plays",
+   "caption": "תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-broom-letter-1-f/v1.mp3",
+   "request": {
+    "text": "תגררי את הקוסמת למעלה ולמטה, ותתפסי את האות שאני אומר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "demo-broom-letter-1",
@@ -618,6 +866,24 @@
    ]
   },
   {
+   "id": "demo-cauldron-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-cauldron-1-f.mp3",
+   "where": "Demo: first cauldron (then the sound) — when a girl plays",
+   "caption": "תִּגְרְרִי לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-cauldron-1-f/v1.mp3",
+   "request": {
+    "text": "תגררי לסיר את הניקוד שחסר לאות, לפי מה שאני אומר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "demo-cauldron-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-cauldron-1.mp3",
@@ -647,6 +913,24 @@
      "seed": 102
     }
    ]
+  },
+  {
+   "id": "demo-doors-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-doors-1-f.mp3",
+   "where": "Demo: first door — when a girl plays",
+   "caption": "תִּקְרְאִי מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרְרִי אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
+   "take": "clips/demo-doors-1-f/v1.mp3",
+   "request": {
+    "text": "תִּקְרְאִי מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרְרִי אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.75
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "demo-doors-1",
@@ -692,6 +976,24 @@
    ]
   },
   {
+   "id": "demo-draw-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-draw-1-f.mp3",
+   "where": "Drawing, first visit: after the word, while the hand writes its first letter — when a girl plays",
+   "caption": "תִּסְתַּכְּלִי אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתְּבִי אוֹתָהּ בְּעַצְמֵךְ.",
+   "take": "clips/demo-draw-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּסְתַּכְּלִי אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתְּבִי אוֹתָהּ בְּעַצְמֵךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "demo-draw-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-draw-1.mp3",
@@ -700,6 +1002,24 @@
    "take": "clips/demo-draw-1/v1.mp3",
    "request": {
     "text": "[warmly] תִּסְתַּכֵּל אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתֹּב אוֹתָהּ בְּעַצְמְךָ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "demo-ghosts-letter-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-ghosts-letter-1-f.mp3",
+   "where": "Demo: first letter ghosts (then the letter name) — when a girl plays",
+   "caption": "תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-ghosts-letter-1-f/v1.mp3",
+   "request": {
+    "text": "תיגעי ברוח הרפאים שמחזיקה את האות שאני אומר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -745,6 +1065,24 @@
    ]
   },
   {
+   "id": "demo-ghosts-syllable-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1-f.mp3",
+   "where": "Demo: first syllable ghosts (then the sound) — when a girl plays",
+   "caption": "תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.",
+   "take": "clips/demo-ghosts-syllable-1-f/v1.mp3",
+   "request": {
+    "text": "תיגעי ברוח הרפאים שמחזיקה את מה שאני אומר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "demo-ghosts-syllable-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1.mp3",
@@ -778,6 +1116,24 @@
      "seed": 103
     }
    ]
+  },
+  {
+   "id": "demo-ladder-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/demo-ladder-1-f.mp3",
+   "where": "Demo: first ladder (then the sound) — when a girl plays",
+   "caption": "תִּגְרְרִי לַסֻּלָּם אֶת מָה שֶׁאֲנִי אוֹמֵר, וְהַקּוֹסֶמֶת תְּטַפֵּס.",
+   "take": "clips/demo-ladder-1-f/v1.mp3",
+   "request": {
+    "text": "תגררי לסולם את מה שאני אומר, והקוסמת תטפס.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "demo-ladder-1",
@@ -945,6 +1301,24 @@
    ]
   },
   {
+   "id": "draw-again-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-again-1-f.mp3",
+   "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only) — when a girl plays",
+   "caption": "בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
+   "take": "clips/draw-again-1-f/v1.mp3",
+   "request": {
+    "text": "[encouraging] בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "draw-again-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/draw-again-1.mp3",
@@ -971,6 +1345,24 @@
    "take": "clips/draw-again-2/v1.mp3",
    "request": {
     "text": "[encouraging] נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "draw-again-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/draw-again-3-f.mp3",
+   "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only) — when a girl plays",
+   "caption": "תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.",
+   "take": "clips/draw-again-3-f/v1.mp3",
+   "request": {
+    "text": "[encouraging] תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1017,6 +1409,24 @@
    "earlier_takes": null
   },
   {
+   "id": "explain-lead-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/explain-lead-1-f.mp3",
+   "where": "Explanation after a mistake: before letter name, vowel name, syllable — when a girl plays",
+   "caption": "בּוֹאִי נִקְרָא לְאַט.",
+   "take": "clips/explain-lead-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] בּוֹאִי נִקְרָא לְאַט.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "explain-lead-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/explain-lead-1.mp3",
@@ -1035,6 +1445,33 @@
    "earlier_takes": null
   },
   {
+   "id": "info-best-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-best-1-f.mp3",
+   "where": "A tap on his best run — when a girl plays",
+   "caption": "זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.",
+   "take": "clips/info-best-1-f/v3.mp3",
+   "request": {
+    "text": "זה השיא שֶׁלָּךְ: הכי הרבה כוכבים שֶׁאָסַפְט במשחק אחד.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/info-best-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-best-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
    "id": "info-best-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-best-1.mp3",
@@ -1051,6 +1488,33 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "info-bosses-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-bosses-1-f.mp3",
+   "where": "A tap on the boss trophies (cover, end screen) — when a girl plays",
+   "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.",
+   "take": "clips/info-bosses-1-f/v3.mp3",
+   "request": {
+    "text": "אלה המפלצות שניצחט. המפלצות החשוכות מחכות לָךְ בשמיים.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/info-bosses-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-bosses-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "info-bosses-1",
@@ -1076,6 +1540,24 @@
    ]
   },
   {
+   "id": "info-coin-ring-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-coin-ring-1-f.mp3",
+   "where": "A tap on the ring around the coin (end screen) — when a girl plays",
+   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.",
+   "take": "clips/info-coin-ring-1-f/v1.mp3",
+   "request": {
+    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "info-coin-ring-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-coin-ring-1.mp3",
@@ -1097,6 +1579,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "info-coins-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-coins-1-f.mp3",
+   "where": "A tap on his coins — when a girl plays",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.",
+   "take": "clips/info-coins-1-f/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "info-coins-1",
@@ -1130,6 +1630,24 @@
    ]
   },
   {
+   "id": "info-crystals-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-crystals-1-f.mp3",
+   "where": "A tap on his crystals — when a girl plays",
+   "caption": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
+   "take": "clips/info-crystals-1-f/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "info-crystals-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-crystals-1.mp3",
@@ -1138,6 +1656,24 @@
    "take": "clips/info-crystals-1/v1.mp3",
    "request": {
     "text": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-hearts-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-hearts-1-f.mp3",
+   "where": "A tap on the hearts — when a girl plays",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
+   "take": "clips/info-hearts-1-f/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1166,6 +1702,33 @@
    "earlier_takes": null
   },
   {
+   "id": "info-stars-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-stars-1-f.mp3",
+   "where": "A tap on the stars of this run — when a girl plays",
+   "caption": "אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.",
+   "take": "clips/info-stars-1-f/v3.mp3",
+   "request": {
+    "text": "אלה הכוכבים שֶׁאָסַפְט במשחק הזה. כל תשובה נכונה נותנת כוכב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/info-stars-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-stars-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
    "id": "info-stars-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-stars-1.mp3",
@@ -1178,6 +1741,24 @@
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "ladder-top-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/ladder-top-1-f.mp3",
+   "where": "The ladder is built to the top — when a girl plays",
+   "caption": "הִגַּעְתְּ עַד לְמַעְלָה.",
+   "take": "clips/ladder-top-1-f/v1.mp3",
+   "request": {
+    "text": "[excited] הִגַּעְתְּ עַד לְמַעְלָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
     },
     "seed": 1
    },
@@ -1200,6 +1781,29 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "ladder-top-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/ladder-top-2-f.mp3",
+   "where": "The ladder is built to the top — when a girl plays",
+   "caption": "בָּנִית אֶת כָּל הַסֻּלָּם.",
+   "take": "clips/ladder-top-2-f/v2.mp3",
+   "request": {
+    "text": "בניט את כל הסולם.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/ladder-top-2-f/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "ladder-top-2",
@@ -1251,6 +1855,24 @@
    "take": "clips/line-low-1/v1.mp3",
    "request": {
     "text": "[warmly] קְצָת נָמוּךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "line-small-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/line-small-1-f.mp3",
+   "where": "Drawing: the letter is much too small (it still counts) — when a girl plays",
+   "caption": "בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
+   "take": "clips/line-small-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1945,6 +2567,24 @@
    "earlier_takes": null
   },
   {
+   "id": "new-best-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/new-best-2-f.mp3",
+   "where": "Summary: a new best run — when a girl plays",
+   "caption": "שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.",
+   "take": "clips/new-best-2-f/v1.mp3",
+   "request": {
+    "text": "[excited] שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "new-best-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/new-best-2.mp3",
@@ -1966,6 +2606,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "potion-intro-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/potion-intro-1-f.mp3",
+   "where": "The rescue potion, the first time it floats by (the flight goes on) — when a girl plays",
+   "caption": "שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.",
+   "take": "clips/potion-intro-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "potion-intro-1",
@@ -2117,6 +2775,24 @@
    ]
   },
   {
+   "id": "q-cauldron-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-cauldron-2-f.mp3",
+   "where": "Cauldron, when he waits: then the syllable — when a girl plays",
+   "caption": "תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
+   "take": "clips/q-cauldron-2-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "q-cauldron-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-cauldron-2.mp3",
@@ -2163,6 +2839,24 @@
    ]
   },
   {
+   "id": "q-door-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-door-1-f.mp3",
+   "where": "Door, when he waits; it never says the word (he reads it) — when a girl plays",
+   "caption": "מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיאִי אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
+   "take": "clips/q-door-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיאִי אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "q-door-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-door-1.mp3",
@@ -2188,6 +2882,24 @@
      "seed": 101
     }
    ]
+  },
+  {
+   "id": "q-door-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-door-2-f.mp3",
+   "where": "Door, when he waits; it never says the word (he reads it) — when a girl plays",
+   "caption": "תִּקְרְאִי אֶת הַמִּלָּה, וְתִבְחֲרִי מַפְתֵּחַ.",
+   "take": "clips/q-door-2-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּקְרְאִי אֶת הַמִּלָּה, וְתִבְחֲרִי מַפְתֵּחַ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "q-door-2",
@@ -2234,6 +2946,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "q-draw-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-draw-1-f.mp3",
+   "where": "Drawing, when he waits: then the word — when a girl plays",
+   "caption": "תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
+   "take": "clips/q-draw-1-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "q-draw-1",
@@ -2344,6 +3074,24 @@
    ]
   },
   {
+   "id": "q-ghosts-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-3-f.mp3",
+   "where": "Ghosts (syllables), when he waits: then the syllable — when a girl plays",
+   "caption": "תִּמְצְאִי אֶת:",
+   "take": "clips/q-ghosts-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תִּמְצְאִי אֶת:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "q-ghosts-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ghosts-3.mp3",
@@ -2416,6 +3164,24 @@
    "earlier_takes": null
   },
   {
+   "id": "q-ghosts-letter-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-3-f.mp3",
+   "where": "Ghosts (letters), when he waits: then the letter name — when a girl plays",
+   "caption": "תִּמְצְאִי אֶת הָאוֹת:",
+   "take": "clips/q-ghosts-letter-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תִּמְצְאִי אֶת הָאוֹת:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "q-ghosts-letter-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ghosts-letter-3.mp3",
@@ -2457,6 +3223,24 @@
    ]
   },
   {
+   "id": "q-ladder-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ladder-2-f.mp3",
+   "where": "Ladder, when he waits: then the syllable — when a girl plays",
+   "caption": "תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:",
+   "take": "clips/q-ladder-2-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "q-ladder-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/q-ladder-2.mp3",
@@ -2490,6 +3274,24 @@
      "seed": 103
     }
    ]
+  },
+  {
+   "id": "q-ladder-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/q-ladder-3-f.mp3",
+   "where": "Ladder, when he waits: then the syllable — when a girl plays",
+   "caption": "תִּמְצְאִי אֶת:",
+   "take": "clips/q-ladder-3-f/v1.mp3",
+   "request": {
+    "text": "[warmly] תִּמְצְאִי אֶת:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "q-ladder-3",
@@ -2584,6 +3386,24 @@
    ]
   },
   {
+   "id": "streak-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/streak-1-f.mp3",
+   "where": "A streak of right answers — when a girl plays",
+   "caption": "וָואוּ, אַתְּ /baˈʃvunɡ/.",
+   "take": "clips/streak-1-f/v1.mp3",
+   "request": {
+    "text": "[excited] וָואוּ, אַתְּ /baˈʃvunɡ/.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "streak-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/streak-1.mp3",
@@ -2592,6 +3412,24 @@
    "take": "clips/streak-1/v1.mp3",
    "request": {
     "text": "[excited] וָואוּ, אַתָּה /baˈʃvunɡ/.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "streak-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/streak-2-f.mp3",
+   "where": "A streak of right answers — when a girl plays",
+   "caption": "אַתְּ תּוֹתָחִית.",
+   "take": "clips/streak-2-f/v1.mp3",
+   "request": {
+    "text": "[excited] אַתְּ תּוֹתָחִית.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -2621,6 +3459,37 @@
     {
      "file": "clips/streak-2/v1.mp3",
      "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "streak-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/streak-3-f.mp3",
+   "where": "A streak of right answers — when a girl plays",
+   "caption": "אַתְּ עָפָה עַל זֶה.",
+   "take": "clips/streak-3-f/v4.mp3",
+   "request": {
+    "text": "אַת עָפָה עַל זֶה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 103
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/streak-3-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/streak-3-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/streak-3-f/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -5589,6 +6458,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "target-new-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/target-new-2-f.mp3",
+   "where": "Broom flight: a new sound to catch (then the new sound) — when a girl plays",
+   "caption": "עַכְשָׁו תִּתְפְּסִי אֶת:",
+   "take": "clips/target-new-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] עַכְשָׁו תִּתְפְּסִי אֶת:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "target-new-2",

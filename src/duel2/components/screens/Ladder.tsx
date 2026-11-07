@@ -1,6 +1,6 @@
 // 3 · Spell ladder: the ladder is built from his right answers. Three plates float by the next empty rung; the one he picks
 // flies into place and the wizard climbs onto it. He drags a plate onto the next rung, or taps it.
-import { IMAGES } from '../../assets/images'
+import { IMAGES, useWizardArt } from '../../assets/images'
 import type { Choice } from '../../logic/rounds'
 import { DragPick } from '../DragPick'
 import { Glyph } from '../Glyph'
@@ -25,6 +25,7 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
   /** the demo drags this plate to the next rung as the hand moves (t from 0 to 1) */
   demo?: { id: string; t: number }
 }) {
+  const wiz = useWizardArt()
   const lh = 790 - RUNG_Y(p.rungs - 1) + 170
   const lw = lh * (216 / 600)
   const fixY = plateYs(p.built.length, p.rungs)
@@ -41,8 +42,8 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
           <Plate w={RUNG_W} x={800} y={RUNG_Y(k)} state="idle"><Glyph text={c.text} px={LADDER_GLYPH_PX} x={800} y={RUNG_Y(k)} /></Plate>
         </g>
       ))}
-      {IMAGES['s-wizard-idle'] && (
-        <image data-wizard href={IMAGES['s-wizard-idle']} x={560 - wizH * 0.4} y={standY - wizH + 40} width={wizH * 0.8} height={wizH} className="d2-climb" />
+      {wiz('s-wizard-idle') && (
+        <image data-wizard href={wiz('s-wizard-idle')} x={560 - wizH * 0.4} y={standY - wizH + 40} width={wizH * 0.8} height={wizH} className="d2-climb" />
       )}
       {p.plates.map((c, i) => {
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'

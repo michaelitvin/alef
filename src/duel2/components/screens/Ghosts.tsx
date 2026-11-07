@@ -1,6 +1,6 @@
 // 4 · Look-alike ghosts: three ghosts float in from the right, each holding a sign with a letter (or a syllable). He taps
 // the one he heard; the wizard zaps it and the others fade.
-import { IMAGES } from '../../assets/images'
+import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
@@ -14,11 +14,12 @@ export const GHOST_GLYPH_PX = 100
 export const GHOST_SLOTS = [{ x: 620, top: 250 }, { x: 980, top: 205 }, { x: 1340, top: 255 }]
 
 export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase: Phase; zapped?: string; reveal?: { right: string; wrong?: string }; correctId?: string }) {
+  const wiz = useWizardArt()
   const can = p.phase === 'answer'
   const wizH = 330
   return (
     <Stage bg="bg-ground">
-      {IMAGES['s-wizard-cast'] && <image data-wizard href={IMAGES['s-wizard-cast']} x={90} y={875 - wizH} width={wizH * (449 / 420)} height={wizH} />}
+      {wiz('s-wizard-cast') && <image data-wizard href={wiz('s-wizard-cast')} x={90} y={875 - wizH} width={wizH * (449 / 420)} height={wizH} />}
       {p.signs.map((c, i) => {
         const s = GHOST_SLOTS[i]
         const cy = s.top + GHOST_H * 0.74

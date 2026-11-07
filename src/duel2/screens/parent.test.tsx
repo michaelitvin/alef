@@ -6,6 +6,8 @@ import { Strokes } from './Strokes'
 import { DrawTest } from './DrawTest'
 import { STROKES } from '../data/strokes'
 import { useDuel2Store } from '../store'
+import { clearGender, getPlayer } from '../../shared/player'
+import { duel2Telemetry } from '../telemetry'
 
 describe('parent area', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -25,6 +27,15 @@ describe('parent area', () => {
     render(<Gallery onBack={() => {}} onStart={onStart} />)
     fireEvent.click(screen.getByText(/Ladder — the dot/))
     expect(onStart.mock.calls[0][0].force).toMatchObject({ screen: 'ladder', fixed: 'dot', stage: 3 })
+  })
+  it('the parent can set boy or girl (shared by all the games), and it is logged', () => {
+    clearGender()
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    fireEvent.click(container.querySelector('[data-player-setting] input[value="girl"]')!)
+    expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'parent' })
+    expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'parent' })
+    clearGender()
   })
   it('export downloads JSON', () => {
     const url = vi.fn(() => 'blob:x')

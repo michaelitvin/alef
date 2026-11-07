@@ -10,11 +10,16 @@ import { Gallery, type GalleryEntry } from './screens/Gallery'
 import { Strokes } from './screens/Strokes'
 import { DrawTest } from './screens/DrawTest'
 import { preloadDuel2Assets } from './assets/preload'
-import { configureAudio, holdAudio, setHidden, stopVoice, unlockDuel2Audio } from './audio/duel2Audio'
+import { configureAudio, holdAudio, say, setHidden, stopVoice, unlockDuel2Audio } from './audio/duel2Audio'
+import { IMAGES } from './assets/images'
+import { GenderQuestion } from '../shared/GenderQuestion'
+import { getGender, setGender } from '../shared/player'
+import { VOICE_RATE } from '../shared/audioCore'
+import { duel2Telemetry } from './telemetry'
 import { useDuel2Store } from './store'
 import type { View } from './controller'
 
-type Screen = 'cover' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
+type Screen = 'cover' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
 
 /** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
 function RotateHint() {
@@ -28,6 +33,10 @@ function RotateHint() {
     </div>
   )
 }
+
+const ASK_LINE = 'ask-gender-1'
+/** when the take says בֵּן and בַּת (s into the trimmed file, at the speech rate) */
+const ASK_CUES = { boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }
 
 export default function Duel2App() {
   // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
@@ -62,11 +71,27 @@ export default function Duel2App() {
     void preloadDuel2Assets().then(() => {
       setLoading(false)
       if (screenRef.current !== 'cover') return
+      // boy or girl is not set yet: ask the child first (spec 2026-11-07 girls)
+      if (!getGender()) { setScreen('ask'); return }
       setRunNo((n) => n + 1)
       setScreen('play')
     })
   }
   const view = (() => {
+  if (screen === 'ask') {
+    return (
+      <div className="d2-root">
+        <GenderQuestion boySrc={IMAGES['s-wizard-idle']} girlSrc={IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle']} line={ASK_LINE}
+          play={(id) => say([id])} cues={ASK_CUES}
+          onChoose={(g) => {
+            setGender(g, 'child')
+            duel2Telemetry.track('player', { gender: g, by: 'child' })
+            setRunNo((n) => n + 1)
+            setScreen('play')
+          }} />
+      </div>
+    )
+  }
   if (screen === 'play') return <Play key={runNo} opts={{}} onOver={(o) => { setOver(o); setScreen('summary') }} />
   if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} onStrokes={() => setScreen('strokes')} onDrawTest={() => setScreen('drawtest')} />

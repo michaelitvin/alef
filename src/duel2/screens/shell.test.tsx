@@ -12,6 +12,8 @@ import { Summary } from './Summary'
 import { useDuel2Store } from '../store'
 import { setVoicePlayer, stopVoice } from '../audio/duel2Audio'
 import Duel2App from '../Duel2App'
+import { clearGender, getPlayer, setGender } from '../../shared/player'
+import { duel2Telemetry } from '../telemetry'
 
 const noText = (root: Element) => {
   const clone = root.cloneNode(true) as Element
@@ -21,7 +23,7 @@ const noText = (root: Element) => {
 }
 
 describe('shell', () => {
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => { vi.useRealTimers(); clearGender() })
   it('cover has no text', () => {
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     expect(noText(container)).toBe('')
@@ -41,11 +43,45 @@ describe('shell', () => {
     expect(onParent).toHaveBeenCalledTimes(1)
   })
   it('play waits for preload', async () => {
+    setGender('boy', 'parent')
     const { container } = render(<Duel2App />)
     fireEvent.click(screen.getByLabelText('play'))
     expect(container.querySelector('[data-screen="cover"]')).not.toBeNull()
     await act(async () => { gate.open(); await gate.p })
     expect(container.querySelector('[data-screen="play"]')).not.toBeNull()
+  })
+  it('the first play asks boy or girl (no text), then the run starts as the child chose', async () => {
+    clearGender()
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const said: string[] = []
+    setVoicePlayer((id) => { said.push(id); return Promise.resolve(true) })
+    const { container } = render(<Duel2App />)
+    fireEvent.click(screen.getByLabelText('play'))
+    await act(async () => { gate.open(); await gate.p })
+    const q = container.querySelector('[data-screen="gender-question"]')!
+    expect(q).not.toBeNull()
+    expect(container.querySelector('[data-screen="play"]')).toBeNull()
+    expect(q.querySelector('[data-gender="girl"] img')!.getAttribute('src')).toMatch(/s-wizard-idle-girl/)
+    expect(q.querySelector('[data-gender="boy"] img')!.getAttribute('src')).not.toMatch(/girl/)
+    await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
+    expect(said).toContain('ask-gender-1')
+    fireEvent.pointerDown(q.querySelector('[data-gender="girl"]')!)
+    await act(async () => { await new Promise((r) => setTimeout(r, 600)) })
+    expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'child' })
+    expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'child' })
+    expect(container.querySelector('[data-screen="play"]')).not.toBeNull()
+    stopVoice()
+    setVoicePlayer(null)
+    track.mockRestore()
+  })
+  it('once set, play starts without the question', async () => {
+    setGender('girl', 'child')
+    const { container } = render(<Duel2App />)
+    fireEvent.click(screen.getByLabelText('play'))
+    await act(async () => { gate.open(); await gate.p })
+    expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
+    expect(container.querySelector('[data-screen="play"]')).not.toBeNull()
+    stopVoice()
   })
   it('pause cover hides the game', () => {
     const onPlay = vi.fn()
