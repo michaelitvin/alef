@@ -5,13 +5,13 @@ import { FACING } from '../assets/facing'
 import { BOSS_KINDS, type BossKind } from '../logic/boss'
 import { InfoTap } from './InfoTap'
 
-export function BossTrophy(p: { kind: BossKind; beaten: boolean; teaser?: boolean; size?: number }) {
+export function BossTrophy(p: { kind: BossKind; beaten: boolean; teaser?: boolean }) {
   const img = IMAGES[`boss-${p.kind}-fly`]
   // on the shelf they all face the same way (left, as they face the wizard in the flight)
   const mirror = FACING[`boss-${p.kind}`] === 'right'
   return (
     <span data-trophy={p.kind} {...(p.beaten ? { 'data-beaten': '' } : {})} {...(p.teaser ? { 'data-teaser': '' } : {})}
-      className={`d2-trophy-slot ${p.beaten ? 'd2-trophy-beaten' : 'd2-trophy-dark'}`} style={{ width: p.size ?? 96, height: p.size ?? 96 }}>
+      className={`d2-trophy-slot ${p.beaten ? 'd2-trophy-beaten' : 'd2-trophy-dark'}`}>
       {img && <img src={img} alt="" draggable={false} style={mirror ? { transform: 'scaleX(-1)' } : undefined} />}
     </span>
   )

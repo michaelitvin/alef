@@ -32,12 +32,14 @@ function CoinRing({ coins, from, to }: { coins: number; from: number; to: number
   return (
     <InfoTap line="info-coin-ring">
       <span data-coin-ring data-from={from} data-to={to} className="d2-coin-ring">
-        <svg viewBox="0 0 140 140" aria-hidden>
-          <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#ffffff22" strokeWidth="12" />
-          <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#ffd34d" strokeWidth="12" strokeLinecap="round"
-            strokeDasharray={RING_C} strokeDashoffset={RING_C * (1 - frac)} transform="rotate(-90 70 70)" className="d2-coin-ring-fill" />
-        </svg>
-        <span className="d2-coin-ring-coin"><CoinIcon /></span>
+        <span className="d2-coin-ring-disc">
+          <svg viewBox="0 0 140 140" aria-hidden>
+            <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#ffffff22" strokeWidth="12" />
+            <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#ffd34d" strokeWidth="12" strokeLinecap="round"
+              strokeDasharray={RING_C} strokeDashoffset={RING_C * (1 - frac)} transform="rotate(-90 70 70)" className="d2-coin-ring-fill" />
+          </svg>
+          <span className="d2-coin-ring-coin"><CoinIcon /></span>
+        </span>
         <span data-num data-coins="" className="d2-coin-ring-num">{coins}</span>
       </span>
     </InfoTap>
@@ -72,8 +74,8 @@ export function Summary({ over, onAgain }: { over: { score: number; crystals: nu
         ))}</InfoTap>}
         {(won.length > 0 || teaser) && (
           <InfoTap line="info-bosses" className="d2-summary-bosses">
-            {won.map((k) => <BossTrophy key={k} kind={k} beaten size={120} />)}
-            {teaser && <BossTrophy kind={teaser} beaten={false} teaser size={96} />}
+            {won.map((k) => <BossTrophy key={k} kind={k} beaten />)}
+            {teaser && <BossTrophy kind={teaser} beaten={false} teaser />}
           </InfoTap>
         )}
       </div>

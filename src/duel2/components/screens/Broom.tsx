@@ -32,7 +32,7 @@ export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
 const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
-export const POTION_W = 150
+export const POTION_W = 180
 /** how long the heart of a caught potion flies to the top bar */
 const HEAL_MS = 800
 
@@ -114,9 +114,9 @@ export function Broom(p: {
       }}
       onPointerUp={release} onPointerCancel={release}
       style={{ touchAction: 'none' }}>
+      {LANE_Y.map((ly) => <rect key={ly} data-lane-band x={-1600} y={ly - LANE_H / 2} width={4800} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
       {p.boss && <BossSky won={!!p.boss.won} />}
       {p.boss && <Boss boss={p.boss} />}
-      {LANE_Y.map((ly) => <rect key={ly} data-lane-band x={-1600} y={ly - LANE_H / 2} width={4800} height={LANE_H} fill="#ffd34d" opacity={0.035} />)}
       {p.waves.map((w) => (
         <g key={w.id} data-wave={w.id}>
           {w.choices.map((c, i) => {
