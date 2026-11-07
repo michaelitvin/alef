@@ -5,7 +5,8 @@ import { IMAGES } from './images'
 import { SFX_URLS, VOICE_URLS } from './audioFiles'
 
 export const READY_MS = 8000
-const FONTS: [string, string][] = [["1em 'Sigalit'", 'בָּשִׁ'], ["1em 'Ktav Yad'", 'אבג']]
+/** Sigalit (print), Dana Yad (the handwriting words), Ktav Yad (shown on the stroke review page) */
+export const FONTS: [string, string][] = [["1em 'Sigalit'", 'בָּשִׁ'], ["1em 'Dana Yad'", 'אבג'], ["1em 'Ktav Yad'", 'אבג']]
 const kept: HTMLImageElement[] = []
 let ready: Promise<void> | null = null
 

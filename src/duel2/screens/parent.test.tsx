@@ -102,7 +102,9 @@ describe('parent area', () => {
     expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')).not.toBeNull()
     // the letters drawn after Dana Yad show it as the main reference (big), the game's font small below
     expect(container.querySelector('[data-stroke-card="ב-hand"] [data-ref-glyph="Dana Yad"]')!.getAttribute('data-main')).toBe('1')
-    expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="game"]')!.getAttribute('data-main')).toBe('1')
+    expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Ktav Yad"]')!.getAttribute('data-main')).toBe('1')
+    // the game writes the words in Dana Yad: that glyph is marked as the game's font
+    expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')!.getAttribute('data-game')).toBe('1')
     fireEvent.click(container.querySelector('[data-stroke-card="ד-print"] [data-mark-ok]')!)
     expect(useDuel2Store.getState().strokeMarks['ד-print']).toBe('ok')
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 54/)

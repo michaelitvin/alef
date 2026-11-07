@@ -92,7 +92,7 @@ describe('drawing screen', () => {
   })
   it('handwriting shows the word in the handwriting font', () => {
     const { container } = render(<Draw view={view('camel', 'hand')} phase="answer" onStroke={() => {}} />)
-    expect((container.querySelector('[data-word] text') as SVGTextElement).style.fontFamily).toMatch(/Ktav Yad/)
+    expect((container.querySelector('[data-word] text') as SVGTextElement).style.fontFamily).toMatch(/Dana Yad/)
   })
   it('the hand follows the pen: along a stroke, then glides to the next one', () => {
     const s = [[[0, 0], [1, 0]], [[0, 1], [1, 1]]] as [number, number][][]

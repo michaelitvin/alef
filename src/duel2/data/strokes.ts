@@ -1,5 +1,5 @@
-// How each letter is written, stroke by stroke, in print (כתב דפוס, the game's print font) and in handwriting (כתב יד,
-// the Ktav Yad font). Loaded by plain Node: erasable TS only, data only.
+// How each letter is written, stroke by stroke, in print (כתב דפוס, the game's print font) and in handwriting (כתב יד;
+// the game writes handwriting words in Dana Yad). Loaded by plain Node: erasable TS only, data only.
 //
 // Coordinates: the letter's normalized box, plain x/y with the origin top-left (x is NOT right to left): y = 0 on the top
 // line, y = 1 on the baseline, x in the same unit. Descenders go below 1, ascenders above 0. Each stroke is a polyline,

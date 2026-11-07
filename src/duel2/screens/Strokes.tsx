@@ -29,10 +29,12 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
   const cellW = (def.w + 0.6) * U
   const H = (bottom - top) * U
   const name = nameOf(def.letter)
-  const game = { font: `${DRAW_FONT[def.script]}, serif`, name: 'game' }
-  const dana = { font: "'Dana Yad', serif", name: 'Dana Yad' }
-  const refs = def.script === 'print' ? [{ ...game, main: true }]
-    : HAND_DANA.includes(def.letter) ? [{ ...dana, main: true }, { ...game, main: false }] : [{ ...game, main: true }, { ...dana, main: false }]
+  // the big glyph is the font the strokes follow; the game writes the words in DRAW_FONT
+  const ref = (f: string, name: string, main: boolean) => ({ font: `${f}, serif`, name, main, game: f === DRAW_FONT[def.script] })
+  const dana = (main: boolean) => ref("'Dana Yad'", 'Dana Yad', main)
+  const ktav = (main: boolean) => ref("'Ktav Yad'", 'Ktav Yad', main)
+  const refs = def.script === 'print' ? [ref(DRAW_FONT.print, 'Sigalit', true)]
+    : HAND_DANA.includes(def.letter) ? [dana(true), ktav(false)] : [ktav(true), dana(false)]
   const setMark = (m: 'ok' | 'wrong') => {
     const next = mark === m ? null : m
     markStrokes(key, next)
@@ -44,8 +46,8 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* the game's handwriting font is slanted; an upright school font beside it (the parent's review). The letters
               drawn after it show it big (the main reference), the game's font small and grey */}
-          {refs.map(({ font, name, main }) => (
-            <span key={name} data-ref-glyph={name} data-main={main ? '1' : '0'} title={name}
+          {refs.map(({ font, name, main, game }) => (
+            <span key={name} data-ref-glyph={name} data-main={main ? '1' : '0'} data-game={game ? '1' : '0'} title={game ? `${name} (the game's font)` : name}
               style={{ fontFamily: font, fontSize: main ? 64 : 44, lineHeight: main ? 1 : 1.2, minWidth: 60, textAlign: 'center', padding: '0 16px', color: main ? '#222' : '#777' }}>{def.letter}</span>
           ))}
         </div>
@@ -134,7 +136,7 @@ export function Strokes({ onBack }: { onBack: () => void }) {
       ))}
       <p style={{ color: '#666', fontSize: 13 }}>
         Timing per letter: {Math.round(strokeTiming(strokesOf('א', 'print').variants[0].map((s) => s.pts)).total / 100) / 10} s for print א.
-        Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file. Handwriting: the game's font (Ktav Yad) and the upright school font Dana Yad; the big one is the reference the strokes follow.
+        Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file. Handwriting: the big glyph is the font the strokes follow (Dana Yad or Ktav Yad); the game writes the words in Dana Yad.
       </p>
     </div>
   )

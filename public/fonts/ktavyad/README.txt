@@ -10,4 +10,5 @@ Files:
   (each Type 1 glyph drawn into a Type 2 charstring; advance widths from the .afm; glyph names mapped
   to Unicode by the Adobe Glyph List). No outline was changed.
 
-Used by Book 2's drawing screen for the handwriting (ktav yad) script. The font has no nikkud marks.
+Shown on Book 2's stroke review page as a handwriting reference (the drawing screen itself writes its
+handwriting words in Dana Yad). The font has no nikkud marks.
