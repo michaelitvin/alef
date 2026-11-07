@@ -9,4 +9,8 @@ export const LINE_CUES: Record<string, { at: number; cue: LineCue }[]> = {
   'line-how-C': [{ at: 0.71, cue: 'listen' }, { at: 2.53, cue: 'pad' }], // לשם, הניקוד
   'line-how-silent': [{ at: 0.09, cue: 'monster' }, { at: 2.83, cue: 'pad' }], // המפלצת, ניקוד
   'line-intro': [{ at: 2.7, cue: 'tower' }], // המגדל
+  'line-how-A-f': [{ at: 1.14, cue: 'picture' }, { at: 2.85, cue: 'pad' }], // בתמונה, הניקוד
+  'line-how-B-f': [{ at: 0.68, cue: 'listen' }, { at: 2.45, cue: 'pad' }], // לצליל, הניקוד
+  'line-how-C-f': [{ at: 0.78, cue: 'listen' }, { at: 2.28, cue: 'pad' }], // לשם, הניקוד
+  'line-intro-f': [{ at: 2.8, cue: 'tower' }], // המגדל
 }

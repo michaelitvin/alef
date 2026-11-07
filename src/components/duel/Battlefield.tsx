@@ -4,7 +4,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import type { Outcome, Round } from '../../types/duel'
-import { TOWER, WIZARD } from '../../assets/duel/sprites'
+import { TOWER, useWizard } from '../../assets/duel/sprites'
 import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
@@ -48,6 +48,7 @@ interface Props {
 }
 
 export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, onReplay = () => {} }: Props) {
+  const WIZARD = useWizard()
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)

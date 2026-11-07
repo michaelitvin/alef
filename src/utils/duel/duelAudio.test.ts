@@ -29,12 +29,12 @@ class FakeHowl {
   load() { return this }
 }
 vi.mock('howler', () => ({ Howl: FakeHowl, Howler: { mute: vi.fn(), volume: vi.fn(), ctx: { state: 'running', resume: vi.fn() } } }))
-vi.mock('../../assets/duel/lineCues', () => ({ LINE_CUES: { 'line-mega': [{ at: 1.15, cue: 'lightning' }], nope: [{ at: 0.5, cue: 'pad' }] } }))
+vi.mock('../../assets/duel/lineCues', () => ({ LINE_CUES: { 'line-mega': [{ at: 1.15, cue: 'lightning' }], nope: [{ at: 0.5, cue: 'pad' }], 'line-intro': [{ at: 2, cue: 'tower' }], 'line-intro-f': [{ at: 3, cue: 'tower' }] } }))
 vi.mock('../../assets/duel/audioFiles', () => ({
   SFX_URLS: { arrival1: 'a1', arrival2: 'a2', arrival3: 'a3', cast: 'c', boom1: 'b1', boom2: 'b2', ouch: 'o', mega: 'm', sparkle: 's' },
   MUSIC_URLS: { calm: 'mc', mid: 'mm', fast: 'mf', boss1: 'mb1', boss2: 'mb2', victory: 'mv' },
   MUSIC_SETS: { calm: ['mc', 'mc2', 'mc3'], mid: ['mm', 'mm2'], fast: ['mf'], boss: ['mb1', 'mb2', 'mb3'], victory: ['mv'] },
-  VOICE_URLS: { 'wiz-kamatz': 'wk', 'line-mega': 'lm' },
+  VOICE_URLS: { 'wiz-kamatz': 'wk', 'line-mega': 'lm', 'line-intro': 'li', 'line-intro-f': 'lif', 'line-over': 'lo' },
 }))
 
 const byUrl = (u: string) => instances.find((i) => i.src[0] === u)!
@@ -46,6 +46,30 @@ beforeEach(() => {
 })
 
 describe('duelAudio', () => {
+  it('a girl hears the feminine take (with its own cues); a missing one falls back to the masculine take and is logged', async () => {
+    const player = await import('../../shared/player')
+    const tel = await import('./telemetry')
+    const track = vi.spyOn(tel, 'track')
+    player.setGender('girl', 'child')
+    const audio = await import('./duelAudio')
+    const cues: string[] = []
+    void audio.playLine('line-intro', (c) => cues.push(c))
+    expect(byUrl('lif')).toBeTruthy()
+    expect(instances.find((i) => i.src[0] === 'li')).toBeUndefined()
+    await vi.advanceTimersByTimeAsync(2000 / audio.VOICE_RATE + 10)
+    expect(cues).toEqual([])
+    await vi.advanceTimersByTimeAsync(1000 / audio.VOICE_RATE)
+    expect(cues).toEqual(['tower'])
+    void audio.playLine('line-over')
+    expect(byUrl('lo')).toBeTruthy()
+    expect(track).toHaveBeenCalledWith('voice-fallback', { id: 'line-over' })
+    void audio.playLine('wiz-kamatz')
+    expect(byUrl('wk')).toBeTruthy()
+    player.clearGender()
+    void audio.playLine('line-intro')
+    expect(byUrl('li')).toBeTruthy()
+    track.mockRestore()
+  })
   it('playLine resolves when the line ends', async () => {
     const audio = await import('./duelAudio')
     const p = audio.playLine('wiz-kamatz')

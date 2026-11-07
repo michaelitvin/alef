@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { DuelStatsCard } from '../../components/duel/DuelStatsCard'
+import { PlayerSetting } from '../../shared/PlayerSetting'
+import { track } from '../../utils/duel/telemetry'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { Header } from '../../components/navigation/Navigation'
@@ -270,6 +272,10 @@ export function ProgressPage() {
 
         {/* Nikkud Wizard Duel — parent stats */}
         <DuelStatsCard />
+        {/* boy or girl, shared by all the games (spec 2026-11-07 girls) */}
+        <section data-duel-player dir="ltr" style={{ backgroundColor: colors.surface, borderRadius: borderRadius.xl, padding: spacing[4], boxShadow: shadows.md, marginTop: spacing[4] }}>
+          <PlayerSetting onChange={(g) => track('player', { gender: g, by: 'parent' })} />
+        </section>
 
         {/* Achievements */}
         <motion.section

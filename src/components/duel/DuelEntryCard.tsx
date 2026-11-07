@@ -3,10 +3,11 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { borderRadius, spacing } from '../../styles/theme'
-import { WIZARD } from '../../assets/duel/sprites'
+import { useWizard } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 
 export function DuelEntryCard({ compact = false }: { compact?: boolean }) {
+  const WIZARD = useWizard()
   const navigate = useNavigate()
   return (
     <motion.button

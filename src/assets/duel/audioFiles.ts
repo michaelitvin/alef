@@ -49,3 +49,6 @@ export const MUSIC_SETS = {
 export const VOICE_URLS: Record<string, string> = byName(
   import.meta.glob('./audio/voice/*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>,
 )
+// the boy/girl question (spec 2026-11-07 girls): Book 2's take, in the same voice (rule: reuse a recording across games)
+for (const url of Object.values(import.meta.glob('../../duel2/assets/audio/voice/ask-gender-1.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>))
+  VOICE_URLS['line-ask-gender'] = url

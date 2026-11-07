@@ -9,6 +9,8 @@ import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shar
 export { VOICE_RATE } from '../../shared/audioCore'
 import { MUSIC_SETS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
+import { getGender, voiceFor, FEMININE_SUFFIX } from '../../shared/player'
+import { track } from './telemetry'
 
 export type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
 export type MusicTrack = 'calm' | 'mid' | 'fast' | 'boss' | 'victory'
@@ -56,12 +58,27 @@ export function playSfx(name: SfxName, power = 1): Promise<void> {
   return playOnce(h, 1, SFX_TIMEOUT_MS)
 }
 
+/** The lines that speak to the child: each has a feminine take `<id>-f` for a girl (spec 2026-11-07 girls). The rest
+ * (the learning sounds, the narrator's announcements) stay single. */
+export const DUEL_FEMININE: ReadonlySet<string> = new Set([
+  'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-new-monster', 'line-combo', 'line-over', 'line-boss-win',
+])
+const fellBack = new Set<string>()
+/** The file to play for `id`: the feminine take when a girl plays; a missing one falls back to the masculine take
+ * (never silence) and is logged once. */
+export function duelVoiceId(id: string): string {
+  const r = voiceFor(id, getGender(), (x) => x in VOICE_URLS, (x) => DUEL_FEMININE.has(x))
+  if (r.fallback && !fellBack.has(id)) { fellBack.add(id); track('voice-fallback', { id }) }
+  return r.id
+}
+
 /**
  * Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line.
  * `onCue` hears each LINE_CUES word as it is spoken; any not yet heard fire when the line ends
  * (early, failed or missing), so what a line promises — "tap the lightning" — always shows up.
  */
-export function playLine(id: string, onCue?: (cue: LineCue) => void): Promise<void> {
+export function playLine(lineId: string, onCue?: (cue: LineCue) => void): Promise<void> {
+  const id = duelVoiceId(lineId)
   const cues = onCue ? (LINE_CUES[id] ?? []) : []
   const fired = new Set<number>()
   const fire = (i: number) => {
@@ -75,7 +92,7 @@ export function playLine(id: string, onCue?: (cue: LineCue) => void): Promise<vo
     fireRest()
     return Promise.resolve()
   }
-  const dramatic = DRAMATIC.has(id)
+  const dramatic = DRAMATIC.has(id.endsWith(FEMININE_SUFFIX) ? id.slice(0, -FEMININE_SUFFIX.length) : id)
   duck(true)
   if (dramatic) hush(true)
   const timers = cues.map((c, i) => window.setTimeout(() => fire(i), (c.at / VOICE_RATE) * 1000))
