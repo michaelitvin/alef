@@ -356,6 +356,132 @@
    ]
   },
   {
+   "id": "boss-arrive-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-1.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch)",
+   "caption": "הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+   "take": "clips/boss-arrive-1/v1.mp3",
+   "request": {
+    "text": "[excited] הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-arrive-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-2.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch)",
+   "caption": "מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹא נְנַצֵּחַ אוֹתָהּ. תִּתְפֹּס אֶת:",
+   "take": "clips/boss-arrive-2/v1.mp3",
+   "request": {
+    "text": "[excited] מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹא נְנַצֵּחַ אוֹתָהּ. תִּתְפֹּס אֶת:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-arrive-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-arrive-3.mp3",
+   "where": "Broom flight: a boss swoops in (then the first sound to catch)",
+   "caption": "אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+   "take": "clips/boss-arrive-3/v1.mp3",
+   "request": {
+    "text": "[excited] אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-new-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-new-1.mp3",
+   "where": "His first win against a kind of boss: it falls into a golden frame for the shelf",
+   "caption": "מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.",
+   "take": "clips/boss-new-1/v1.mp3",
+   "request": {
+    "text": "[amazed] מִפְלֶצֶת חֲדָשָׁה בָּאוֹסֶף שֶׁלְּךָ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-win-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-1.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only)",
+   "caption": "נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.",
+   "take": "clips/boss-win-1/v1.mp3",
+   "request": {
+    "text": "[excited] נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-win-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-2.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only)",
+   "caption": "וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.",
+   "take": "clips/boss-win-2/v1.mp3",
+   "request": {
+    "text": "[excited] וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "boss-win-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/boss-win-3.mp3",
+   "where": "The boss is beaten (praise: spoken the first two times only)",
+   "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.",
+   "take": "clips/boss-win-3/v1.mp3",
+   "request": {
+    "text": "[excited] אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "crystal-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/crystal-1.mp3",
@@ -822,6 +948,42 @@
    "take": "clips/info-best-1/v1.mp3",
    "request": {
     "text": "זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-bosses-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-bosses-1.mp3",
+   "where": "A tap on the boss trophies (cover, end screen)",
+   "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.",
+   "take": "clips/info-bosses-1/v1.mp3",
+   "request": {
+    "text": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת בַּצֵּל עוֹד מְחַכּוֹת לְךָ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "info-coin-ring-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-coin-ring-1.mp3",
+   "where": "A tap on the ring around the coin (end screen)",
+   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.",
+   "take": "clips/info-coin-ring-1/v1.mp3",
+   "request": {
+    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל עוֹד מַטְבֵּעַ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1614,6 +1776,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "potion-intro-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/potion-intro-1.mp3",
+   "where": "The rescue potion, the first time it floats by (the flight goes on)",
+   "caption": "שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.",
+   "take": "clips/potion-intro-1/v1.mp3",
+   "request": {
+    "text": "[warmly] שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "q-broom-1",
