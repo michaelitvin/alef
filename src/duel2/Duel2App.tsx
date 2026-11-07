@@ -82,7 +82,7 @@ export default function Duel2App() {
     return (
       <div className="d2-root">
         <GenderQuestion boySrc={IMAGES['s-wizard-idle']} girlSrc={IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle']} line={ASK_LINE}
-          play={(id) => say([id])} cues={ASK_CUES}
+          play={(id) => say([id])} stop={stopVoice} cues={ASK_CUES}
           onChoose={(g) => {
             setGender(g, 'child')
             duel2Telemetry.track('player', { gender: g, by: 'child' })

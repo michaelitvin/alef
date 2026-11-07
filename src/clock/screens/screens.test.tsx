@@ -2,6 +2,7 @@ import { act, fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 const { playVoice } = vi.hoisted(() => ({ playVoice: vi.fn(() => Promise.resolve()) }))
 vi.mock('../audio/clockAudio', () => ({
+  spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
   playVoice, playSfx: () => Promise.resolve(), stopVoices: () => {}, startMusic: () => {}, stopMusic: () => {},
   preloadVoices: () => {}, configureClockAudio: () => {}, unlockClockAudio: () => {}, muteClockAudio: () => {},
 }))

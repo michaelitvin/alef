@@ -72,6 +72,12 @@ export function duelVoiceId(id: string): string {
   return r.id
 }
 
+/** What telemetry records for a line: the id asked for, and the file that really plays (the -f take for a girl). */
+export function lineAsset(id: string): { id: string; file: string; url: string | null } {
+  const file = duelVoiceId(id)
+  return { id, file, url: VOICE_URLS[file] ?? null }
+}
+
 /**
  * Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line.
  * `onCue` hears each LINE_CUES word as it is spoken; any not yet heard fire when the line ends

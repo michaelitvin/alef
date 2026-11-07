@@ -46,6 +46,9 @@ describe('duel2Audio', () => {
     await vi.advanceTimersByTimeAsync(50)
     expect(log).toEqual(['q-door-1-f', 'q-door-2', 'syl-b-a'])
     expect(track).toHaveBeenCalledWith('voice-fallback', { id: 'q-door-2' })
+    void say(['q-door-2'], 0)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(track.mock.calls.filter((c) => c[0] === 'voice-fallback')).toHaveLength(1) // logged once per id
     log.length = 0
     setGender('boy', 'parent')
     void say(['q-door-1'], 0)

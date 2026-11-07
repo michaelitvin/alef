@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { Gender } from './player'
 
 export const ASK_AGAIN_MS = 8000
+/** asks at most this many times in all (the first time and the re-asks), then waits quietly */
+export const MAX_ASKS = 3
 const CSS = `
 .gq-root{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;gap:6vmin;direction:rtl;
   background:radial-gradient(ellipse at 50% 35%,#3a2386 0%,#1b0f3c 70%);touch-action:manipulation;user-select:none}
@@ -28,49 +30,59 @@ export interface GenderQuestionProps {
   line: string
   /** plays a voice id; resolves when it ends (or at once when the file is missing) */
   play: (id: string) => Promise<unknown>
+  /** stops the voice (the screen closes, or the child chose during a re-ask) */
+  stop?: () => void
   /** when (s, real time from the start) the voice says בֵּן and בַּת */
   cues: { boy: number; girl: number }
   onChoose: (g: Gender) => void
 }
 
-export function GenderQuestion({ boySrc, girlSrc, line, play, cues, onChoose }: GenderQuestionProps) {
+export function GenderQuestion({ boySrc, girlSrc, line, play, stop, cues, onChoose }: GenderQuestionProps) {
   const [glow, setGlow] = useState<Gender | null>(null)
+  /** taps count once the child has heard the question one time (then also during the re-asks) */
   const [open, setOpen] = useState(false)
   const [chosen, setChosen] = useState<Gender | null>(null)
-  const alive = useRef(true)
   const done = useRef(false)
-  const ask = useRef<() => void>(() => {})
-  ask.current = () => {
-    if (!alive.current || done.current) return
-    setOpen(false)
-    const timers = [
-      window.setTimeout(() => alive.current && !done.current && setGlow('boy'), cues.boy * 1000),
-      window.setTimeout(() => alive.current && !done.current && setGlow('girl'), cues.girl * 1000),
-    ]
-    void play(line).catch(() => {}).finally(() => {
-      timers.forEach((t) => window.clearTimeout(t))
-      if (!alive.current || done.current) return
-      setGlow(null)
-      setOpen(true)
-      wait.current = window.setTimeout(() => ask.current(), ASK_AGAIN_MS)
-    })
-  }
-  const wait = useRef<number | undefined>(undefined)
+  const props = useRef({ play, stop, onChoose, cues, line })
+  props.current = { play, stop, onChoose, cues, line }
+  const timers = useRef<number[]>([])
   useEffect(() => {
-    alive.current = true
-    ask.current()
-    return () => { alive.current = false; window.clearTimeout(wait.current) }
+    // everything this mount starts belongs to it: a StrictMode remount (or leaving) stops the voice and its timers
+    let alive = true
+    const later = (f: () => void, ms: number) => { timers.current.push(window.setTimeout(() => { if (alive && !done.current) f() }, ms)) }
+    const ask = (n: number) => {
+      const { cues: c, line: id } = props.current
+      later(() => setGlow('boy'), c.boy * 1000)
+      later(() => setGlow('girl'), c.girl * 1000)
+      void props.current.play(id).catch(() => {}).finally(() => {
+        if (!alive || done.current) return
+        setGlow(null)
+        setOpen(true)
+        if (n < MAX_ASKS) later(() => ask(n + 1), ASK_AGAIN_MS)
+      })
+    }
+    ask(1)
+    return () => {
+      alive = false
+      timers.current.forEach((t) => window.clearTimeout(t))
+      timers.current = []
+      // after a choice the voice is already stopped, and the next screen may be speaking: leave it alone
+      if (!done.current) props.current.stop?.()
+    }
   }, [])
   const pick = (g: Gender) => {
     if (!open || done.current) return
     done.current = true
-    window.clearTimeout(wait.current)
+    timers.current.forEach((t) => window.clearTimeout(t))
+    props.current.stop?.()
+    setGlow(null)
     setChosen(g)
-    window.setTimeout(() => { if (alive.current) onChoose(g) }, 450)
+    timers.current.push(window.setTimeout(() => props.current.onChoose(g), 450))
   }
+  // a choice is a click (finger down and up on the picture): a long press cannot leave its release for the next screen
   const btn = (g: Gender, src: string) => (
     <button type="button" className="gq-pick" data-gender={g} aria-label={g} data-glow={glow === g || undefined}
-      data-chosen={chosen ? chosen === g : undefined} onPointerDown={() => pick(g)}>
+      data-chosen={chosen ? chosen === g : undefined} onClick={() => pick(g)}>
       <img src={src} alt="" draggable={false} />
     </button>
   )

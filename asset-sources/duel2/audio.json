@@ -1752,17 +1752,26 @@
    "file": "src/duel2/assets/audio/voice/ladder-top-1-f.mp3",
    "where": "The ladder is built to the top — when a girl plays",
    "caption": "הִגַּעְתְּ עַד לְמַעְלָה.",
-   "take": "clips/ladder-top-1-f/v1.mp3",
+   "take": "clips/ladder-top-1-f/v3.mp3",
    "request": {
-    "text": "[excited] הִגַּעְתְּ עַד לְמַעְלָה.",
+    "text": "הִגַּעַט עַד לְמַעְלָה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/ladder-top-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/ladder-top-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "ladder-top-1",
@@ -2572,17 +2581,22 @@
    "file": "src/duel2/assets/audio/voice/new-best-2-f.mp3",
    "where": "Summary: a new best run — when a girl plays",
    "caption": "שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.",
-   "take": "clips/new-best-2-f/v1.mp3",
+   "take": "clips/new-best-2-f/v2.mp3",
    "request": {
-    "text": "[excited] שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.",
+    "text": "שברט את השיא שֶׁלָּךְ.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/new-best-2-f/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "new-best-2",

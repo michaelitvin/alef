@@ -18,6 +18,7 @@ const visibleCaptions = () =>
     .filter((e) => !e.closest('[style*="visibility: hidden"]'))
     .map((e) => [...e.querySelectorAll('span')].map((x) => x.textContent).join(' '))
 vi.mock('../audio/clockAudio', () => ({
+  spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
   playVoice: (id: string, caption: string[] = [], onWord?: (i: number) => void) => {
     log.push(`v:${id}`)
     // the voice is heard a moment after the call (the file loads); React has rendered the state set before the call by then

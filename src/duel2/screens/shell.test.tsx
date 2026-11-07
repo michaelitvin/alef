@@ -65,7 +65,7 @@ describe('shell', () => {
     expect(q.querySelector('[data-gender="boy"] img')!.getAttribute('src')).not.toMatch(/girl/)
     await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
     expect(said).toContain('ask-gender-1')
-    fireEvent.pointerDown(q.querySelector('[data-gender="girl"]')!)
+    fireEvent.click(q.querySelector('[data-gender="girl"]')!)
     await act(async () => { await new Promise((r) => setTimeout(r, 600)) })
     expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'child' })
     expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'child' })

@@ -65,7 +65,12 @@ describe('duelAudio', () => {
     expect(track).toHaveBeenCalledWith('voice-fallback', { id: 'line-over' })
     void audio.playLine('wiz-kamatz')
     expect(byUrl('wk')).toBeTruthy()
+    expect(audio.lineAsset('line-intro')).toEqual({ id: 'line-intro', file: 'line-intro-f', url: 'lif' })
+    expect(track.mock.calls.filter((c) => c[0] === 'voice-fallback')).toHaveLength(1) // once, though line-over came twice
+    void audio.playLine('line-over')
+    expect(track.mock.calls.filter((c) => c[0] === 'voice-fallback')).toHaveLength(1)
     player.clearGender()
+    expect(audio.lineAsset('line-intro')).toEqual({ id: 'line-intro', file: 'line-intro', url: 'li' })
     void audio.playLine('line-intro')
     expect(byUrl('li')).toBeTruthy()
     track.mockRestore()

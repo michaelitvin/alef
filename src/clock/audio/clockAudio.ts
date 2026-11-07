@@ -6,7 +6,8 @@ import { MUSIC_URLS, SFX_URLS, VOICE_URLS, VOICE_WORDS } from '../assets/audioFi
 import type { ClockSfx } from '../logic/workday'
 import { captionTimes, followPlayback } from './wordTiming'
 import { getGender, voiceFor } from '../../shared/player'
-import { hasFeminine } from '../data/lines'
+import { hasFeminine, lineAudioId, type LineDef } from '../data/lines'
+import type { Lang } from '../logic/phrases'
 import { CUSTOMERS } from '../logic/workday'
 import { clockTelemetry } from '../telemetry'
 
@@ -80,6 +81,12 @@ export function captionTimesFor(id: string, caption: string[]): number[] {
  * position (rule), so load latency and the speech rate cannot put it out of step. Every word fires by the end, even if
  * the file is missing.
  */
+/** The caption of a line: the feminine text only when the feminine file is the one that plays (a missing file falls back
+ * to the masculine take, and the caption must say what the voice says). */
+export function spokenLineText(l: LineDef, lang: Lang): string {
+  return lang === 'he' && l.heF && clockVoiceId(lineAudioId(l.id, lang)).endsWith('-f') ? l.heF : l[lang]
+}
+
 export function playVoice(lineId: string, caption: string[] = [], onWord?: (i: number) => void): Promise<void> {
   const id = clockVoiceId(lineId)
   const times = captionTimesFor(id, caption)

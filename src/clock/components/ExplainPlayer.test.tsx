@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ExplainPlayer } from './ExplainPlayer'
 import { clearGender, setGender } from '../../shared/player'
+import { setClockVoiceExists } from '../audio/clockAudio'
 
 describe('ExplainPlayer', () => {
   it('a girl reads the feminine caption (the same words the voice says)', () => {
@@ -11,6 +12,16 @@ describe('ExplainPlayer', () => {
     clearGender()
     const b = render(<ExplainPlayer id="ex-find" lang="he" script="print" word={0} cues={[]} fallback={{ h: 3, m: 0 }} size={400} />)
     expect(b.container.querySelector('[data-caption]')!.textContent).not.toContain('תַּקְשִׁיבִי'.normalize('NFC'))
+  })
+  it('a girl whose feminine file is missing hears the masculine take, so the caption is masculine too', () => {
+    setGender('girl', 'child')
+    setClockVoiceExists((id) => !id.endsWith('-f'))
+    const g = render(<ExplainPlayer id="ex-find" lang="he" script="print" word={0} cues={[]} fallback={{ h: 3, m: 0 }} size={400} />)
+    const cap = g.container.querySelector('[data-caption]')!.textContent!
+    expect(cap).toContain('תַּקְשִׁיב'.normalize('NFC'))
+    expect(cap).not.toContain('תַּקְשִׁיבִי'.normalize('NFC'))
+    setClockVoiceExists(null)
+    clearGender()
   })
   it('glows the short hand on its cue and shows the caption', () => {
     const { container } = render(<ExplainPlayer id="hands" lang="en" script="small" word={4} cues={['short']} fallback={{ h: 3, m: 0 }} size={400} />)

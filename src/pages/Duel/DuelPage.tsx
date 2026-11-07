@@ -14,7 +14,7 @@ import { Icon } from '../../components/duel/Icon'
 import { MonsterImg } from '../../components/duel/Explosion'
 import { ComboBurst } from '../../components/duel/ComboBurst'
 import { WIZARD, WIZARD_GIRL, preloadDuelImages } from '../../assets/duel/sprites'
-import { VOICE_RATE, playLine, preloadDuelAudio, unlockDuelAudio } from '../../utils/duel/duelAudio'
+import { VOICE_RATE, playLine, preloadDuelAudio, stopAllLines, unlockDuelAudio } from '../../utils/duel/duelAudio'
 import { GenderQuestion } from '../../shared/GenderQuestion'
 import { getGender, setGender } from '../../shared/player'
 import { markById } from '../../utils/duel/marks'
@@ -119,7 +119,7 @@ export default function DuelPage() {
       </motion.div>
 
       {asking && (
-        <GenderQuestion boySrc={WIZARD.idle} girlSrc={WIZARD_GIRL.idle} line="line-ask-gender" play={(id) => playLine(id)}
+        <GenderQuestion boySrc={WIZARD.idle} girlSrc={WIZARD_GIRL.idle} line="line-ask-gender" play={(id) => playLine(id)} stop={stopAllLines}
           cues={{ boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }}
           onChoose={(g) => {
             setGender(g, 'child')

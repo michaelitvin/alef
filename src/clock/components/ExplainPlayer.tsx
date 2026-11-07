@@ -2,7 +2,8 @@
 // spoken, so the thing named glows or moves at that moment.
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { lineById, lineText, parseLine, type Cue } from '../data/lines'
+import { lineById, parseLine, type Cue } from '../data/lines'
+import { spokenLineText } from '../audio/clockAudio'
 import { useGender } from '../../shared/player'
 import type { ExplainId } from '../logic/levels'
 import type { Lang } from '../logic/phrases'
@@ -32,7 +33,8 @@ export interface ExplainPlayerProps {
 export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, onReplay }: ExplainPlayerProps) {
   const line = lineById(explainLineId(id))!
   // the caption says what the voice says: the feminine line for a girl (spec 2026-11-07 girls)
-  const text = lineText(line, lang, useGender())
+  useGender() // re-render when the setting changes
+  const text = spokenLineText(line, lang)
   const { words } = parseLine(text)
   const t = line.example ? parseTimeId(line.example) : fallback
   const has = (c: Cue) => cues.includes(c)

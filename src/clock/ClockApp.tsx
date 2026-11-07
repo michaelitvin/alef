@@ -4,7 +4,7 @@ import { Cover } from './screens/Cover'
 import { Workshop } from './screens/Workshop'
 import { Parent } from './screens/Parent'
 import { useClockStore } from './store'
-import { configureClockAudio, playVoice, setClockHidden, startMusic, stopMusic, unlockClockAudio } from './audio/clockAudio'
+import { configureClockAudio, playVoice, stopVoices, setClockHidden, startMusic, stopMusic, unlockClockAudio } from './audio/clockAudio'
 import { lineAudioId } from './data/lines'
 import { preloadClockAssets } from './assets/preload'
 import { GenderQuestion } from '../shared/GenderQuestion'
@@ -13,8 +13,7 @@ import { VOICE_RATE } from '../shared/audioCore'
 import { clockTelemetry } from './telemetry'
 import { VOICE_WORDS } from './assets/audioFiles'
 // the clock has no player character: the question shows the wizards the child knows from the other games
-import boyWizard from '../duel2/assets/img/s-wizard-idle.webp'
-import girlWizard from '../duel2/assets/img/s-wizard-idle-girl.webp'
+import { IMAGES } from './assets/images'
 
 /** when the question take says בֵּן / boy and בַּת / girl (real time), from its word timings */
 function askCues(id: string) {
@@ -71,7 +70,19 @@ export default function ClockApp() {
     if (starting.current) return
     unlockClockAudio()
     // boy or girl is not set yet: ask the child before the welcome (spec 2026-11-07 girls)
-    if (!getGender()) { stopMusic(); setScreen('ask'); return }
+    // (its pictures load first, with the rest of the workshop: a picture must not appear after the screen)
+    if (!getGender()) {
+      starting.current = true
+      setLoading(true)
+      void preloadClockAssets().finally(() => {
+        starting.current = false
+        setLoading(false)
+        if (screenRef.current !== 'cover') return
+        stopMusic()
+        setScreen('ask')
+      })
+      return
+    }
     starting.current = true
     setLoading(true)
     const st = useClockStore.getState()
@@ -87,7 +98,7 @@ export default function ClockApp() {
   if (screen === 'ask') {
     const lang = useClockStore.getState().settings.langs[0]
     return (
-      <GenderQuestion boySrc={boyWizard} girlSrc={girlWizard} line={lineAudioId('ask-gender', lang)} play={(id) => playVoice(id)}
+      <GenderQuestion boySrc={IMAGES['wizard-boy']} girlSrc={IMAGES['wizard-girl']} line={lineAudioId('ask-gender', lang)} play={(id) => playVoice(id)} stop={stopVoices}
         cues={askCues(lineAudioId('ask-gender', lang))}
         onChoose={(g) => {
           setGender(g, 'child')
