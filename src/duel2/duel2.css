@@ -136,3 +136,7 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-soft { to { filter: drop-shadow(0 0 16px #fff1a0); } }
 .d2-linefx { animation: d2-linefx 1.6s ease-in-out forwards; }
 @keyframes d2-linefx { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0.5; } }
+.d2-stroke-card { background: #fff; border: 3px solid #ccc; border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
+.d2-drawtest { position: fixed; inset: 0; display: grid; grid-template-columns: 1fr 340px; background: #f4f0ff; color: #222; font-family: system-ui; }
+.d2-drawtest-stage { position: relative; min-height: 0; }
+.d2-drawtest-side { overflow: auto; padding: 14px; border-left: 1px solid #ccc; }

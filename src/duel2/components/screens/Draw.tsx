@@ -33,7 +33,8 @@ function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
   )
 }
 
-export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) => void }) {
+/** `bare`: no picture (the parent's test board) */
+export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) => void; bare?: boolean }) {
   const v = p.view
   const L = v.layout
   const can = p.phase === 'answer'
@@ -56,11 +57,11 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
   const lineY = (y: number) => L.top + y * L.u
   return (
     <Stage bg="bg-ground">
-      <g data-picture>
+      {!p.bare && <g data-picture>
         <rect x={PIC.x - PIC.size / 2 - 14} y={PIC.y - PIC.size / 2 - 14} width={PIC.size + 28} height={PIC.size + 28} rx={36} fill="#fff6d8" opacity={0.92} stroke="#ffd34d" strokeWidth={6} />
         {pic ? <image href={pic} x={PIC.x - PIC.size / 2} y={PIC.y - PIC.size / 2} width={PIC.size} height={PIC.size} />
           : <circle cx={PIC.x} cy={PIC.y} r={PIC.size / 3} fill="#c9b6ff" />}
-      </g>
+      </g>}
       <rect data-draw-board x={BOARD.left} y={BOARD.top} width={BOARD.right - BOARD.left} height={BOARD.bottom - BOARD.top} rx={30}
         fill="#160a35" fillOpacity={0.86} stroke="#ffd34d" strokeOpacity={0.55} strokeWidth={5} />
       {/* the writing lines: top, middle (faint), baseline, and the line below for descenders */}

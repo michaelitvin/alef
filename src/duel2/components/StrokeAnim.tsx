@@ -37,10 +37,13 @@ export function penAt(strokes: Pt[][], ms: number): { drawn: number[]; tip: Pt; 
   return { drawn, tip, pressing }
 }
 
-export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: number; loop?: boolean; numbers?: boolean; handScale?: number }) {
-  const [ms, setMs] = useState(0)
+/** `ms`: an outside clock (the review page drives many at once); `still`: drawn in full, no hand */
+export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: number; loop?: boolean; numbers?: boolean; handScale?: number; ms?: number; still?: boolean }) {
+  const [own, setMs] = useState(0)
   const { total } = strokeTiming(p.strokes)
+  const outside = p.ms !== undefined || !!p.still
   useEffect(() => {
+    if (outside) return
     let raf = 0
     let t0 = performance.now()
     const step = (now: number) => {
@@ -54,6 +57,7 @@ export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: numb
     // one run per mount (the parent keys it by the demo)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  const ms = p.still ? total - DEMO_FADE_MS - 1 : p.ms !== undefined ? p.ms % (total + 700) : own
   const { drawn, tip: tipN, pressing } = penAt(p.strokes, ms)
   const tip = p.map(tipN)
   const M = (q: Pt[]) => q.map(p.map)
@@ -76,7 +80,7 @@ export function StrokeAnim(p: { strokes: Pt[][]; map: (q: Pt) => Pt; width: numb
           <text x={nx} y={ny + p.width * 0.45} fontSize={p.width * 1.3} textAnchor="middle" fill="#fff6d8" fontFamily="sans-serif">{i + 1}</text>
         </g>
       ) : null })}
-      {fade > 0 && <HandShape x={tip[0]} y={tip[1]} scale={p.handScale ?? 1} press={pressing} />}
+      {fade > 0 && !p.still && <HandShape x={tip[0]} y={tip[1]} scale={p.handScale ?? 1} press={pressing} />}
     </g>
   )
 }

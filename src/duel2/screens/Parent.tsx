@@ -7,7 +7,7 @@ import { ITEMS } from '../logic/content'
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
-export function Parent({ onClose, onGallery }: { onClose: () => void; onGallery: () => void }) {
+export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose: () => void; onGallery: () => void; onStrokes?: () => void; onDrawTest?: () => void }) {
   const s = useDuel2Store()
   const setSettings = (p: Partial<Duel2Settings>) => { s.setSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
   const download = () => {
@@ -37,6 +37,16 @@ export function Parent({ onClose, onGallery }: { onClose: () => void; onGallery:
       <h2>Book 2 — parent</h2>
       <p>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}. Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}.</p>
       <p><button onClick={onGallery} style={{ fontSize: 17, padding: '8px 14px' }}>Screens (review each screen)</button></p>
+      <h3>Drawing letters</h3>
+      <p>
+        The drawing screen (after the ghosts) teaches stroke order in print and handwriting. Check every letter on the stroke
+        review first ({Object.keys(s.strokeMarks ?? {}).length} of 54 checked), then turn it on.
+      </p>
+      <p>
+        <label><input type="checkbox" data-setting-drawing checked={!!s.settings.drawing} onChange={(e) => setSettings({ drawing: e.target.checked })} /> Drawing screen in the game</label>{' '}
+        <button onClick={onStrokes}>Stroke review</button>{' '}
+        <button onClick={onDrawTest}>Drawing test board</button>
+      </p>
       <h3>By screen</h3>
       {table(rows('sc:'), (k) => k)}
       <h3>By letter (hardest first)</h3>
