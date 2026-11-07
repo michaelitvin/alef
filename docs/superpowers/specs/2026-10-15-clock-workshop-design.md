@@ -218,7 +218,7 @@ After a repeat explanation, that explanation waits at least 10 rounds before it 
 
 ## Review page
 
-- Host-local, like the duel's: pipeline in `<scratch>/clock/`, a small review server, a web route with its own realm and username. The repo never names the host, route or password.
+- Host-local, like the duel's: pipeline in `<scratch>/clock/`, a small review server, a web server route with its own realm and username. The repo never names the host, route or password.
 - Built with the frontend-design skill. Large buttons. **Play all:** plays the items of a section in a row with no click; Michael clicks only to stop, replay or reject (with an optional note).
 - Each item shows its context: the SVG clock at that time for a phrase, the customer picture for a customer line, the clock kind for its sound. Each item says where it plays in the game.
 - Default view: a sample of each pattern plus every flagged take. A "full review" view lists everything.

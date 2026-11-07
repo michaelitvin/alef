@@ -16,7 +16,7 @@
 - Tests: `npx vitest run <path>`; full suite `npm test`. Type check: `npx tsc --noEmit -p .`. Build: `npm run build`. (`npm run lint` has no eslint installed; do not use it.)
 - No written text on child screens except read-along captions (`[data-caption]`), digital time cards (`[data-digital]`, digits only) and the digits on clock faces and counters. Parent area may use text.
 - No emoji anywhere. All icons are inline SVG.
-- The repo is public: never commit host names, web routes, ports of host services, passwords or API keys. Host-local files live in `<scratch>/clock/`, `~/.config/systemd/user/` and `the web server config`.
+- The repo is public: never commit host names, web server routes, ports of host services, passwords or API keys. Host-local files live in `<scratch>/clock/`, `the host service config` and `the web server config`.
 - Alef code must not import from `src/clock/` (the only link is the Home card's URL).
 - Clock logic files that the export script loads with plain Node (`time.ts`, `phrases.ts`, `workday.ts`, `src/clock/data/lines.ts`) import each other with explicit `.ts` extensions and use only erasable TypeScript syntax (no enums, no namespaces, no parameter properties).
 - Angles are degrees clockwise from 12 o'clock. Hand colors: hour `#c0392b`, minute `#1f5fa8`, seconds `#e67e22`.

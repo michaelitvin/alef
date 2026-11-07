@@ -2007,7 +2007,7 @@ describe('DuelStatsCard', () => {
 cd <repo> && npx vite build --mode verify --base=<playtest base> --outDir <scratch>/nikkud-duel/play --emptyOutDir
 ```
 
-- [ ] **Step 2: Write `verify-duel.mjs`** (puppeteer-core via the warm headless Chromium at `<local port>`; see `<scratch>/cdp/nd-*.js` for the patterns). It must, for both the 390×780 portrait and 1024×600 landscape viewports:
+- [ ] **Step 2: Write `verify-duel.mjs`** (puppeteer-core via a warm headless Chromium at `a local CDP port`; see `<scratch>/cdp/nd-*.js` for the patterns). It must, for both the 390×780 portrait and 1024×600 landscape viewports:
   1. Open `…/play/#/duel?walk=120000` and click `button[aria-label="play"]`.
   2. **No-text scan** on the start screen, then for 6 rounds: wait for `.nd-rune:not([disabled])`, scan, click `[data-correct="1"]`, wait 900 ms, scan. The scan removes `.nd-parent-btn` from a clone of `.nd-root` and fails if `/[A-Za-zא-ת]/` matches its `textContent`.
   3. One deliberate miss (`[data-correct="0"]`), then check that one heart icon turned empty.
