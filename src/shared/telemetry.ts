@@ -2,7 +2,12 @@
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 export interface TelemetryEvent { t: number; s: string; run: number; e: string; [field: string]: unknown }
 
-export function createTelemetry(key: string, maxChars = 1_000_000) {
+/** What an exported log says about itself: a parent can hand the file to an AI coding tool, which then finds the code and
+ * the design documents that explain each event. */
+export interface TelemetryAbout { game: string; docs: string[]; code?: string[] }
+const REPO = 'https://github.com/michaelitvin/alef'
+
+export function createTelemetry(key: string, maxChars = 1_000_000, about?: TelemetryAbout) {
   const FLUSH_MS = 1000
   const session = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
   let run = 0
@@ -59,7 +64,16 @@ export function createTelemetry(key: string, maxChars = 1_000_000) {
     count: () => all().length,
     exportJson: () => {
       flush()
-      return JSON.stringify({ v: 1, exportedAt: new Date().toISOString(), events: all() }, null, 1)
+      const note = about && {
+        game: about.game,
+        repo: REPO,
+        docs: [...about.docs, 'docs/minigame-rules.md'],
+        code: about.code ?? [],
+        howToAnalyse: `Clone ${REPO}, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the `
+          + 'docs above (the telemetry section of each design says what every event means) and the code that sends the events, '
+          + 'then analyse the child\'s progress: accuracy per screen and over time, his real mix-ups, where runs end, and what to change.',
+      }
+      return JSON.stringify({ v: 1, exportedAt: new Date().toISOString(), ...(note ? { about: note } : {}), events: all() }, null, 1)
     },
     clear: () => {
       events = []

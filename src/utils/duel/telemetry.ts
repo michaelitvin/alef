@@ -4,7 +4,11 @@ export type { TelemetryEvent } from '../../shared/telemetry'
 
 /** ≈2 MB of the origin's ~5 MB localStorage (UTF-16); the progress save needs far less. */
 export const TELEMETRY_MAX_CHARS = 1_000_000
-const t = createTelemetry('alef-duel-telemetry', TELEMETRY_MAX_CHARS)
+const t = createTelemetry('alef-duel-telemetry', TELEMETRY_MAX_CHARS, {
+  game: 'Nikkud Wizard Duel (vowel marks)',
+  docs: ['docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md'],
+  code: ['src/utils/duel/telemetry.ts', 'src/hooks/useDuelGame.ts'],
+})
 export const track = t.track
 export const flushTelemetry = t.flush
 export const setTelemetryRun = t.setRun
