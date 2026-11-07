@@ -56,3 +56,21 @@ Gendering the narrator or the monsters. English lines of the clock game (English
 
 The question screen's layout and animation (within the rules: a demo-like hand is not needed for two big pictures),
 the feminine wording, how each game's audio lookup picks the version, the review-page changes.
+
+## Builder decisions (2026-11-07, during the build)
+
+- The setting: `alef-player` `{ gender, by, at }`; the parent's control has a third option, "not set", so the next start
+  asks the child again. Each game's parent area shows the same control (the nikkud duel: on the progress page).
+- The question: the boy stands on the right (named first; the child reads right to left); each picture glows as the
+  voice names it; a tap waits until the question ends (it is an instruction); it asks again after 8 s. The clock game
+  shows the wizards of the other games (it has no player character). The nikkud duel plays Book 2's take of the question
+  (the same voice); the clock records its own (Charlotte), in Hebrew and in English (for a device set to English only).
+- Wording that changed in the feminine because the voice said the masculine in every spelling (rule: change the words):
+  Book 2 boss-win-2 "וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ" (for הִבְרַחְתְּ); the duel's intro "שִׁמְרִי עַל הַמִּגְדָּל" (for
+  הָגֵנִּי) and game over "אַתְּ קוֹסֶמֶת אֲמִיתִית" (for נִלְחַמְתְּ). Other feminine past verbs keep their text and are
+  spoken with a final ט (נִצַּחְתְּ → "ניצחט"); the spoken text differs, the caption does not.
+- The duel's "new monster" line in the feminine has no "!" (rule), unlike the approved masculine take.
+- The girl pictures are the boy's four poses redrawn (the boy sprite is the reference), keyed like the boy, and fitted into
+  the boy's exact canvas, so no screen changed its layout. The nikkud duel uses the same three pictures as Book 2.
+- Telemetry: `player {gender, by: child|parent}` when it is chosen; `voice-fallback {id}` once per id when a feminine
+  file is missing.
