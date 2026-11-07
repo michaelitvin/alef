@@ -295,6 +295,24 @@
    "earlier_takes": null
   },
   {
+   "id": "ask-digitalSet-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/ask-digitalSet-he-f.mp3",
+   "where": "Digital to clock: the question, every round — when a girl plays (for a boy: תְּסַדֵּר אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה אֶת אוֹתָהּ שָׁעָה.)",
+   "caption": "תְּסַדְּרִי אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה אֶת אוֹתָהּ שָׁעָה.",
+   "take": "clips/ask-digitalSet-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי את השעון שֶׁיַּרְאֶה את אותה שעה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "ask-digitalSet-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/ask-digitalSet-he.mp3",
@@ -339,6 +357,42 @@
    "take": "clips/ask-find-he/v1.mp3",
    "request": {
     "text": "[playful] איזה שעון מראה...",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "ask-gender-en",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/ask-gender-en.mp3",
+   "where": "Before the first workday, while boy/girl is not set: the two wizards glow on בֵּן and בַּת",
+   "caption": "Who is playing? A boy or a girl?",
+   "take": "clips/ask-gender-en/v1.mp3",
+   "request": {
+    "text": "[playful] Who is playing? A boy or a girl?",
+    "model_id": "eleven_v4",
+    "language_code": "en",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "ask-gender-he",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/ask-gender-he.mp3",
+   "where": "Before the first workday, while boy/girl is not set: the two wizards glow on בֵּן and בַּת",
+   "caption": "מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
+   "take": "clips/ask-gender-he/v1.mp3",
+   "request": {
+    "text": "[playful] מי משחק? בן או בת?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -405,6 +459,24 @@
     "text": "[playful] Set the clock to...",
     "model_id": "eleven_v4",
     "language_code": "en",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "ask-set-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/ask-set-he-f.mp3",
+   "where": "Set the clock: before the time is read, every round — when a girl plays (for a boy: תְּסַדֵּר אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה...)",
+   "caption": "תְּסַדְּרִי אֶת הַשָּׁעוֹן שֶׁיַּרְאֶה:",
+   "take": "clips/ask-set-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי את השעון שֶׁיַּרְאֶה:",
+    "model_id": "eleven_v4",
+    "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
@@ -490,6 +562,24 @@
    ]
   },
   {
+   "id": "bonus-intro-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/bonus-intro-he-f.mp3",
+   "where": "Bonus game, first time only — when a girl plays (for a boy: תַּעֲצֹר אֶת הַמָּחוֹג עַל הַשְּׁתֵּים־עֶשְׂרֵה.)",
+   "caption": "תַּעַצְרִי אֶת הַמָּחוֹג עַל הַשְּׁתֵּים־עֶשְׂרֵה.",
+   "take": "clips/bonus-intro-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תעצרי את המחוג על השתים־עשרה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "bonus-intro-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/bonus-intro-he.mp3",
@@ -540,6 +630,24 @@
    ]
   },
   {
+   "id": "cust-bear-digitalPick-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-bear-digitalPick-2-f.mp3",
+   "where": "Customer (bear) comes in: a Clock to digital round (he wants a digital clock that matches), when a girl plays (for a boy: תִּמְצָא לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תִּמְצְאִי לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-bear-digitalPick-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תמצאי לי שעון דיגיטלי שמראה כמו השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-bear-digitalPick-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-bear-digitalPick-2.mp3",
@@ -561,6 +669,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "cust-bear-digitalSet-1-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-bear-digitalSet-1-f.mp3",
+   "where": "Customer (bear) comes in: a Digital to clock round (his digital clock is right, the other is wrong), when a girl plays (for a boy: תְּסַדֵּר לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?)",
+   "caption": "תְּסַדְּרִי לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?",
+   "take": "clips/cust-bear-digitalSet-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי לי את השעון כמו השעון הדיגיטלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-bear-digitalSet-1",
@@ -635,6 +761,24 @@
    "earlier_takes": null
   },
   {
+   "id": "cust-bear-hello-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-bear-hello-2-f.mp3",
+   "where": "Customer (bear) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תּוּכַל לְסַדֵּר לִי אֶת הַשָּׁעוֹן?)",
+   "caption": "תּוּכְלִי לְסַדֵּר לִי אֶת הַשָּׁעוֹן?",
+   "take": "clips/cust-bear-hello-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תוכלי לסדר לי את השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-bear-hello-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-bear-hello-2.mp3",
@@ -699,6 +843,29 @@
     {
      "file": "clips/cust-bear-hello-4/v2.mp3",
      "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "cust-bear-hello-5-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-bear-hello-5-f.mp3",
+   "where": "Customer (bear) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תַּעֲזוֹר לִי עִם הַשָּׁעוֹן?)",
+   "caption": "תַּעַזְרִי לִי עִם הַשָּׁעוֹן?",
+   "take": "clips/cust-bear-hello-5-f/v2.mp3",
+   "request": {
+    "text": "[playful] תַּעַזְרִי לי עם השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/cust-bear-hello-5-f/v1.mp3",
+     "seed": 1
     }
    ]
   },
@@ -821,6 +988,24 @@
    "earlier_takes": null
   },
   {
+   "id": "cust-bear-what-3-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-bear-what-3-f.mp3",
+   "where": "Customer (bear) comes in: a What time is it round (he asks the time on his clock), when a girl plays (for a boy: תַּגִּיד לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תַּגִּידִי לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-bear-what-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תגידי לי, מה השעה בשעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-bear-what-3",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-bear-what-3.mp3",
@@ -866,6 +1051,24 @@
    ]
   },
   {
+   "id": "cust-cat-digitalPick-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-cat-digitalPick-2-f.mp3",
+   "where": "Customer (cat) comes in: a Clock to digital round (he wants a digital clock that matches), when a girl plays (for a boy: תִּמְצָא לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תִּמְצְאִי לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-cat-digitalPick-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תמצאי לי שעון דיגיטלי שמראה כמו השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-cat-digitalPick-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-cat-digitalPick-2.mp3",
@@ -887,6 +1090,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "cust-cat-digitalSet-1-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-cat-digitalSet-1-f.mp3",
+   "where": "Customer (cat) comes in: a Digital to clock round (his digital clock is right, the other is wrong), when a girl plays (for a boy: תְּסַדֵּר לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?)",
+   "caption": "תְּסַדְּרִי לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?",
+   "take": "clips/cust-cat-digitalSet-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי לי את השעון כמו השעון הדיגיטלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-cat-digitalSet-1",
@@ -961,6 +1182,24 @@
    "earlier_takes": null
   },
   {
+   "id": "cust-cat-hello-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-cat-hello-2-f.mp3",
+   "where": "Customer (cat) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תּוּכַל לְסַדֵּר לִי אֶת הַשָּׁעוֹן?)",
+   "caption": "תּוּכְלִי לְסַדֵּר לִי אֶת הַשָּׁעוֹן?",
+   "take": "clips/cust-cat-hello-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תוכלי לסדר לי את השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-cat-hello-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-cat-hello-2.mp3",
@@ -1025,6 +1264,29 @@
     {
      "file": "clips/cust-cat-hello-4/v2.mp3",
      "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "cust-cat-hello-5-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-cat-hello-5-f.mp3",
+   "where": "Customer (cat) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תַּעֲזוֹר לִי עִם הַשָּׁעוֹן?)",
+   "caption": "תַּעַזְרִי לִי עִם הַשָּׁעוֹן?",
+   "take": "clips/cust-cat-hello-5-f/v2.mp3",
+   "request": {
+    "text": "[playful] תַּעַזְרִי לי עם השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/cust-cat-hello-5-f/v1.mp3",
+     "seed": 1
     }
    ]
   },
@@ -1137,6 +1399,24 @@
    "take": "clips/cust-cat-what-2/v1.mp3",
    "request": {
     "text": "[playful] שכחתי את המשקפיים. מה השעה בשעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "cust-cat-what-3-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-cat-what-3-f.mp3",
+   "where": "Customer (cat) comes in: a What time is it round (he asks the time on his clock), when a girl plays (for a boy: תַּגִּיד לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תַּגִּידִי לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-cat-what-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תגידי לי, מה השעה בשעון שלי?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1495,6 +1775,24 @@
    ]
   },
   {
+   "id": "cust-hedgehog-digitalPick-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-hedgehog-digitalPick-2-f.mp3",
+   "where": "Customer (hedgehog) comes in: a Clock to digital round (he wants a digital clock that matches), when a girl plays (for a boy: תִּמְצָא לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תִּמְצְאִי לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-hedgehog-digitalPick-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תמצאי לי שעון דיגיטלי שמראה כמו השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-hedgehog-digitalPick-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-hedgehog-digitalPick-2.mp3",
@@ -1524,6 +1822,24 @@
      "seed": 102
     }
    ]
+  },
+  {
+   "id": "cust-hedgehog-digitalSet-1-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-hedgehog-digitalSet-1-f.mp3",
+   "where": "Customer (hedgehog) comes in: a Digital to clock round (his digital clock is right, the other is wrong), when a girl plays (for a boy: תְּסַדֵּר לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?)",
+   "caption": "תְּסַדְּרִי לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?",
+   "take": "clips/cust-hedgehog-digitalSet-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי לי את השעון כמו השעון הדיגיטלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-hedgehog-digitalSet-1",
@@ -1588,6 +1904,24 @@
    "take": "clips/cust-hedgehog-find-2/v1.mp3",
    "request": {
     "text": "[playful] שלום! איפה השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "cust-hedgehog-hello-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-hedgehog-hello-2-f.mp3",
+   "where": "Customer (hedgehog) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תּוּכַל לְסַדֵּר לִי אֶת הַשָּׁעוֹן?)",
+   "caption": "תּוּכְלִי לְסַדֵּר לִי אֶת הַשָּׁעוֹן?",
+   "take": "clips/cust-hedgehog-hello-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תוכלי לסדר לי את השעון?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1664,6 +1998,24 @@
      "seed": 101
     }
    ]
+  },
+  {
+   "id": "cust-hedgehog-hello-5-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-hedgehog-hello-5-f.mp3",
+   "where": "Customer (hedgehog) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תַּעֲזוֹר לִי עִם הַשָּׁעוֹן?)",
+   "caption": "תַּעַזְרִי לִי עִם הַשָּׁעוֹן?",
+   "take": "clips/cust-hedgehog-hello-5-f/v1.mp3",
+   "request": {
+    "text": "[playful] תעזרי לי עם השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-hedgehog-hello-5",
@@ -1774,6 +2126,24 @@
    "take": "clips/cust-hedgehog-what-2/v1.mp3",
    "request": {
     "text": "[playful] שכחתי את המשקפיים. מה השעה בשעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "cust-hedgehog-what-3-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-hedgehog-what-3-f.mp3",
+   "where": "Customer (hedgehog) comes in: a What time is it round (he asks the time on his clock), when a girl plays (for a boy: תַּגִּיד לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תַּגִּידִי לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-hedgehog-what-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תגידי לי, מה השעה בשעון שלי?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -2742,6 +3112,24 @@
    ]
   },
   {
+   "id": "cust-turtle-digitalPick-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-turtle-digitalPick-2-f.mp3",
+   "where": "Customer (turtle) comes in: a Clock to digital round (he wants a digital clock that matches), when a girl plays (for a boy: תִּמְצָא לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תִּמְצְאִי לִי שָׁעוֹן דִּיגִיטָלִי שֶׁמַּרְאֶה כְּמוֹ הַשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-turtle-digitalPick-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תמצאי לי שעון דיגיטלי שמראה כמו השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-turtle-digitalPick-2",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-turtle-digitalPick-2.mp3",
@@ -2763,6 +3151,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "cust-turtle-digitalSet-1-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-turtle-digitalSet-1-f.mp3",
+   "where": "Customer (turtle) comes in: a Digital to clock round (his digital clock is right, the other is wrong), when a girl plays (for a boy: תְּסַדֵּר לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?)",
+   "caption": "תְּסַדְּרִי לִי אֶת הַשָּׁעוֹן כְּמוֹ הַשָּׁעוֹן הַדִּיגִיטָלִי?",
+   "take": "clips/cust-turtle-digitalSet-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסדרי לי את השעון כמו השעון הדיגיטלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-turtle-digitalSet-1",
@@ -2827,6 +3233,24 @@
    "take": "clips/cust-turtle-find-2/v1.mp3",
    "request": {
     "text": "[playful] שלום! איפה השעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "cust-turtle-hello-2-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-turtle-hello-2-f.mp3",
+   "where": "Customer (turtle) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תּוּכַל לְסַדֵּר לִי אֶת הַשָּׁעוֹן?)",
+   "caption": "תּוּכְלִי לְסַדֵּר לִי אֶת הַשָּׁעוֹן?",
+   "take": "clips/cust-turtle-hello-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] תוכלי לסדר לי את השעון?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -2903,6 +3327,24 @@
      "seed": 101
     }
    ]
+  },
+  {
+   "id": "cust-turtle-hello-5-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-turtle-hello-5-f.mp3",
+   "where": "Customer (turtle) comes in: a Set the clock round (his clock is wrong), when a girl plays (for a boy: תַּעֲזוֹר לִי עִם הַשָּׁעוֹן?)",
+   "caption": "תַּעַזְרִי לִי עִם הַשָּׁעוֹן?",
+   "take": "clips/cust-turtle-hello-5-f/v1.mp3",
+   "request": {
+    "text": "[playful] תעזרי לי עם השעון?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "cust-turtle-hello-5",
@@ -3023,6 +3465,24 @@
    "earlier_takes": null
   },
   {
+   "id": "cust-turtle-what-3-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/cust-turtle-what-3-f.mp3",
+   "where": "Customer (turtle) comes in: a What time is it round (he asks the time on his clock), when a girl plays (for a boy: תַּגִּיד לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?)",
+   "caption": "תַּגִּידִי לִי, מָה הַשָּׁעָה בַּשָּׁעוֹן שֶׁלִּי?",
+   "take": "clips/cust-turtle-what-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] תגידי לי, מה השעה בשעון שלי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "cust-turtle-what-3",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/cust-turtle-what-3.mp3",
@@ -3062,6 +3522,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "day-end-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/day-end-he-f.mp3",
+   "where": "End of the workday, on the summary — when a girl plays (for a boy: כָּל הַכָּבוֹד, סִיַּמְתָּ יוֹם עֲבוֹדָה.)",
+   "caption": "כָּל הַכָּבוֹד, סִיַּמְתְּ יוֹם עֲבוֹדָה.",
+   "take": "clips/day-end-he-f/v1.mp3",
+   "request": {
+    "text": "[happy] כל הכבוד, סימת יום עבודה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "day-end-he",
@@ -3160,6 +3638,24 @@
    ]
   },
   {
+   "id": "exp-ex-find-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-ex-find-he-f.mp3",
+   "where": "Explanation: first Find the clock round — when a girl plays (for a boy: תַּקְשִׁיב לַשָּׁעָה, וְתִבְחַר אֶת הַשָּׁעוֹן הַנָּכוֹן.)",
+   "caption": "תַּקְשִׁיבִי לַשָּׁעָה, וְתִבְחֲרִי אֶת הַשָּׁעוֹן הַנָּכוֹן.",
+   "take": "clips/exp-ex-find-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תקשיבי לשעה, ותבחרי את השעון הנכון.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "exp-ex-find-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/exp-ex-find-he.mp3",
@@ -3210,6 +3706,24 @@
    ]
   },
   {
+   "id": "exp-ex-set-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-ex-set-he-f.mp3",
+   "where": "Explanation: first Set the clock round (animated finger) — when a girl plays (for a boy: תָּזִיז אֶת הַמָּחוֹג עִם הָאֶצְבַּע, וְאַחַר כָּךְ תִּלְחַץ עַל הַוִּי.)",
+   "caption": "תָּזִיזִי אֶת הַמָּחוֹג עִם הָאֶצְבַּע, וְאַחַר כָּךְ תִּלְחֲצִי עַל הַוִּי.",
+   "take": "clips/exp-ex-set-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תזיזי את המחוג עם האצבע, ואחר כך תלחצי על הוי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "exp-ex-set-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/exp-ex-set-he.mp3",
@@ -3254,6 +3768,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "exp-ex-what-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-ex-what-he-f.mp3",
+   "where": "Explanation: first What time is it round — when a girl plays (for a boy: מָה הַשָּׁעָה? תַּקְשִׁיב לַתְּשׁוּבוֹת, וְתִבְחַר אֶת הַנְּכוֹנָה.)",
+   "caption": "מָה הַשָּׁעָה? תַּקְשִׁיבִי לַתְּשׁוּבוֹת, וְתִבְחֲרִי אֶת הַנְּכוֹנָה.",
+   "take": "clips/exp-ex-what-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] מה השעה? תקשיבי לתשובות, ותבחרי את הנכונה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "exp-ex-what-he",
@@ -3310,6 +3842,29 @@
     {
      "file": "clips/exp-fix-five-en/v4.mp3",
      "seed": 103
+    }
+   ]
+  },
+  {
+   "id": "exp-fix-five-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-fix-five-he-f.mp3",
+   "where": "After repeated mistakes: five minutes off — when a girl plays (for a boy: תִּסְפֹּר בְּחָמֵשׁ: חָמֵשׁ, עֶשֶׂר, חֲמֵשׁ־עֶשְׂרֵה, עֶשְׂרִים.)",
+   "caption": "תִּסְפְּרִי בְּחָמֵשׁ: חָמֵשׁ, עֶשֶׂר, חֲמֵשׁ־עֶשְׂרֵה, עֶשְׂרִים.",
+   "take": "clips/exp-fix-five-he-f/v2.mp3",
+   "request": {
+    "text": "[playful] תִּסְפְּרִי בחמש: חמש, עשר, חמש־עשרה, עשרים.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/exp-fix-five-he-f/v1.mp3",
+     "seed": 1
     }
    ]
   },
@@ -3374,6 +3929,24 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "exp-fix-hour1-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-fix-hour1-he-f.mp3",
+   "where": "After repeated mistakes: the hour off by one — when a girl plays (for a boy: תִּסְתַּכֵּל טוֹב עַל הַמָּחוֹג הַקָּצָר.)",
+   "caption": "תִּסְתַּכְּלִי טוֹב עַל הַמָּחוֹג הַקָּצָר.",
+   "take": "clips/exp-fix-hour1-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] תסתכלי טוב על המחוג הקצר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "exp-fix-hour1-he",
@@ -4000,6 +4573,24 @@
    ]
   },
   {
+   "id": "exp-seconds-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-seconds-he-f.mp3",
+   "where": "Explanation: first seconds hand, and after mistakes with it — when a girl plays (for a boy: הַמָּחוֹג הַדַּק וְהַמָּהִיר סוֹפֵר שְׁנִיּוֹת. כְּדֵי לָדַעַת מָה הַשָּׁעָה, תִּסְתַּכֵּל עַל שְׁנֵי הָאֲחֵרִים.)",
+   "caption": "הַמָּחוֹג הַדַּק וְהַמָּהִיר סוֹפֵר שְׁנִיּוֹת. כְּדֵי לָדַעַת מָה הַשָּׁעָה, תִּסְתַּכְּלִי עַל שְׁנֵי הָאֲחֵרִים.",
+   "take": "clips/exp-seconds-he-f/v1.mp3",
+   "request": {
+    "text": "[playful] המחוג הדק והמהיר סוֹפֵר שניות. כדי לדעת מה השעה, תסתכלי על שני האחרים.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "exp-seconds-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/exp-seconds-he.mp3",
@@ -4246,6 +4837,33 @@
    ]
   },
   {
+   "id": "fb-levelup-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/fb-levelup-he-f.mp3",
+   "where": "Level passed: a cheer, with a burst and a fanfare — when a girl plays (for a boy: כָּל הַכָּבוֹד, לָמַדְתָּ מַשֶּׁהוּ חָדָשׁ.)",
+   "caption": "כָּל הַכָּבוֹד, לָמַדְתְּ מַשֶּׁהוּ חָדָשׁ.",
+   "take": "clips/fb-levelup-he-f/v3.mp3",
+   "request": {
+    "text": "[excited] כל הכבוד, למדט משהו חדש.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/fb-levelup-he-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/fb-levelup-he-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
    "id": "fb-levelup-he",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/fb-levelup-he.mp3",
@@ -4297,6 +4915,29 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "fb-master-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/fb-master-he-f.mp3",
+   "where": "Level 7 reached, the last level: after the new clock — when a girl plays (for a boy: וָאוּ, עַכְשָׁיו אַתָּה שָׁעָן אֲמִיתִּי.)",
+   "caption": "וָאוּ, עַכְשָׁיו אַתְּ שָׁעָנִית אֲמִיתִּית.",
+   "take": "clips/fb-master-he-f/v2.mp3",
+   "request": {
+    "text": "[excited] וואו, עכשיו אַתְּ שָׁעָנִית אמיתית.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/fb-master-he-f/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "fb-master-he",
@@ -10978,6 +11619,29 @@
     {
      "file": "clips/welcome-en/v2.mp3",
      "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "welcome-he-f",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/welcome-he-f.mp3",
+   "where": "First launch, on the workshop door — when a girl plays (for a boy: בָּרוּךְ הַבָּא לַחֲנוּת הַשְּׁעוֹנִים. אַתָּה הַשָּׁעָן.)",
+   "caption": "בְּרוּכָה הַבָּאָה לַחֲנוּת הַשְּׁעוֹנִים. אַתְּ הַשָּׁעָנִית.",
+   "take": "clips/welcome-he-f/v2.mp3",
+   "request": {
+    "text": "[playful] ברוכה הבאה לחנות השעונים. אַתְּ הַשָּׁעָנִית.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/welcome-he-f/v1.mp3",
+     "seed": 1
     }
    ]
   },

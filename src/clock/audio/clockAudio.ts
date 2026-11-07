@@ -5,6 +5,24 @@ import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shar
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS, VOICE_WORDS } from '../assets/audioFiles'
 import type { ClockSfx } from '../logic/workday'
 import { captionTimes, followPlayback } from './wordTiming'
+import { getGender, voiceFor } from '../../shared/player'
+import { hasFeminine } from '../data/lines'
+import { CUSTOMERS } from '../logic/workday'
+import { clockTelemetry } from '../telemetry'
+
+const HE_CUSTOMERS = new Set(CUSTOMERS.filter((c) => c.lang === 'he').map((c) => c.id))
+let exists: (id: string) => boolean = (id) => id in VOICE_URLS
+/** Test seam: which voice files exist (null restores the real files). */
+export function setClockVoiceExists(f: ((id: string) => boolean) | null) { exists = f ?? ((id) => id in VOICE_URLS) }
+const fellBack = new Set<string>()
+/** The file to play: the feminine Hebrew take (`-f`) for a girl, for a line or a Hebrew customer's request that speaks to
+ * the child (spec 2026-11-07 girls). A missing one falls back to the masculine take (never silence), logged once. */
+export function clockVoiceId(id: string): string {
+  const gendered = (x: string) => hasFeminine(x) && (!x.startsWith('cust-') || HE_CUSTOMERS.has(x.split('-')[1]))
+  const r = voiceFor(id, getGender(), exists, gendered)
+  if (r.fallback && !fellBack.has(id)) { fellBack.add(id); clockTelemetry.track('voice-fallback', { id }) }
+  return r.id
+}
 
 const MUSIC_VOL = 0.3
 const DUCK_VOL = 0.08
@@ -62,7 +80,8 @@ export function captionTimesFor(id: string, caption: string[]): number[] {
  * position (rule), so load latency and the speech rate cannot put it out of step. Every word fires by the end, even if
  * the file is missing.
  */
-export function playVoice(id: string, caption: string[] = [], onWord?: (i: number) => void): Promise<void> {
+export function playVoice(lineId: string, caption: string[] = [], onWord?: (i: number) => void): Promise<void> {
+  const id = clockVoiceId(lineId)
   const times = captionTimesFor(id, caption)
   const report = (i: number) => onWord?.(i)
   const url = VOICE_URLS[id]

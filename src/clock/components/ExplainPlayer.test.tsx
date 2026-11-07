@@ -1,8 +1,17 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ExplainPlayer } from './ExplainPlayer'
+import { clearGender, setGender } from '../../shared/player'
 
 describe('ExplainPlayer', () => {
+  it('a girl reads the feminine caption (the same words the voice says)', () => {
+    setGender('girl', 'child')
+    const g = render(<ExplainPlayer id="ex-find" lang="he" script="print" word={0} cues={[]} fallback={{ h: 3, m: 0 }} size={400} />)
+    expect(g.container.querySelector('[data-caption]')!.textContent).toContain('תַּקְשִׁיבִי'.normalize('NFC'))
+    clearGender()
+    const b = render(<ExplainPlayer id="ex-find" lang="he" script="print" word={0} cues={[]} fallback={{ h: 3, m: 0 }} size={400} />)
+    expect(b.container.querySelector('[data-caption]')!.textContent).not.toContain('תַּקְשִׁיבִי'.normalize('NFC'))
+  })
   it('glows the short hand on its cue and shows the caption', () => {
     const { container } = render(<ExplainPlayer id="hands" lang="en" script="small" word={4} cues={['short']} fallback={{ h: 3, m: 0 }} size={400} />)
     expect(container.querySelector('[data-hand="hour"]')!.getAttribute('data-glow')).toBe('on')

@@ -12,7 +12,8 @@ export interface SpokenTiming {
 const POINTS = /[֑-ׇ]/g // nikkud, cantillation, maqaf, meteg
 /**
  * A spelling-blind key for a word: no nikkud, no punctuation, no vav or yod (full and defective spelling), lower case;
- * ayin counts as alef (the spoken "ארבא" stands for the caption's "אַרְבַּע", said without the guttural ayin).
+ * ayin counts as alef (the spoken "ארבא" stands for the caption's "אַרְבַּע", said without the guttural ayin); a final tet counts
+ * as tav (the spoken "למדט" stands for the caption's feminine "לָמַדְתְּ", which the voice read as the masculine).
  * "שְׁתַּיִם" and "שתיים" both give "שתמ"; "o'clock" gives "oclock".
  */
 export function wordKey(w: string): string {
@@ -23,6 +24,7 @@ export function wordKey(w: string): string {
     .replace(/[^a-zא-ת]/g, '')
     .replace(/[וי]/g, '')
     .replace(/ע/g, 'א')
+    .replace(/ט$/, 'ת')
     .replace(/[ךםןףץ]/g, (c) => FINALS[c])
 }
 const FINALS: Record<string, string> = { ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' }
