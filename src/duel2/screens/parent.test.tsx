@@ -5,6 +5,7 @@ import { Parent } from './Parent'
 import { Strokes } from './Strokes'
 import { DrawTest } from './DrawTest'
 import { STROKES } from '../data/strokes'
+import { WORDS } from '../data/words'
 import { useDuel2Store } from '../store'
 import { clearGender, getPlayer } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
@@ -108,6 +109,17 @@ describe('parent area', () => {
     fireEvent.click(container.querySelector('[data-stroke-card="ד-print"] [data-mark-ok]')!)
     expect(useDuel2Store.getState().strokeMarks['ד-print']).toBe('ok')
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 54/)
+  }, 30_000)
+  it('the stroke review has a Words section: every game word in print and handwriting on the lines, its first letter also from the taught strokes', () => {
+    const { container } = render(<Strokes onBack={() => {}} />)
+    fireEvent.click(screen.getByText('Words'))
+    const cards = container.querySelectorAll('[data-word-card]')
+    expect(cards.length).toBe(WORDS.length)
+    for (const c of cards) for (const sc of ['print', 'hand']) {
+      expect(c.querySelector(`[data-word-font="${sc}"] text`), sc).not.toBeNull()
+      expect(c.querySelector(`[data-word-taught="${sc}"] [data-taught-letter] polyline`), sc).not.toBeNull()
+    }
+    expect((container.querySelector('[data-word-card="camel"] [data-word-font="hand"] text') as SVGTextElement).style.fontFamily).toMatch(/Dana Yad/)
   }, 30_000)
   it('the test board judges a stroke and lists its verdict', () => {
     const { container } = render(<DrawTest onBack={() => {}} />)

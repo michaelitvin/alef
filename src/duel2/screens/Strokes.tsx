@@ -11,6 +11,8 @@ import { DRAW_FONT, strokeTiming } from '../logic/drawLayout'
 import { ITEMS } from '../logic/content'
 import { say } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
+import { WORDS } from '../data/words'
+import { StrokeWords } from './StrokeWords'
 import { duel2Telemetry } from '../telemetry'
 
 const SCRIPT_NAME: Record<Script, string> = { print: 'Print (כתב דפוס)', hand: 'Handwriting (כתב יד)' }
@@ -85,7 +87,7 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
 }
 
 export function Strokes({ onBack }: { onBack: () => void }) {
-  const [script, setScript] = useState<Script | 'both'>('print')
+  const [script, setScript] = useState<Script | 'both' | 'words'>('print')
   const [playing, setPlaying] = useState<string | 'all' | null>(null)
   const [ms, setMs] = useState(0)
   const marks = useDuel2Store((s) => s.strokeMarks ?? {})
@@ -102,7 +104,7 @@ export function Strokes({ onBack }: { onBack: () => void }) {
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
   }, [playing])
-  const scripts: Script[] = script === 'both' ? ['print', 'hand'] : [script]
+  const scripts: Script[] = script === 'words' ? [] : script === 'both' ? ['print', 'hand'] : [script]
   const done = Object.keys(marks).length
   const wrong = Object.values(marks).filter((m) => m === 'wrong').length
   return (
@@ -116,11 +118,12 @@ export function Strokes({ onBack }: { onBack: () => void }) {
       </p>
       <p data-reviewed>Checked: {done} of {STROKES.length}{wrong ? ` · marked wrong: ${wrong}` : ''}</p>
       <p>
-        {(['print', 'hand', 'both'] as const).map((s) => (
-          <button key={s} onClick={() => setScript(s)} style={{ fontWeight: script === s ? 700 : 400, marginRight: 6 }}>{s === 'both' ? 'Both' : SCRIPT_NAME[s]}</button>
+        {(['print', 'hand', 'both', 'words'] as const).map((s) => (
+          <button key={s} onClick={() => setScript(s)} style={{ fontWeight: script === s ? 700 : 400, marginRight: 6 }}>{s === 'both' ? 'Both' : s === 'words' ? 'Words' : SCRIPT_NAME[s]}</button>
         ))}
         <button onClick={() => setPlaying(playing === 'all' ? null : 'all')} style={{ marginLeft: 16 }}>{playing === 'all' ? 'Stop all' : 'Animate all'}</button>
       </p>
+      {script === 'words' && <StrokeWords words={WORDS} />}
       {scripts.map((sc) => (
         <section key={sc}>
           <h3>{SCRIPT_NAME[sc]}</h3>

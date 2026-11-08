@@ -45,28 +45,38 @@ describe('stroke data', () => {
     const all = (l: string, sc: 'print' | 'hand') => strokesOf(l, sc).variants[0].flatMap((st) => st.pts)
     const top = (l: string, sc: 'print' | 'hand') => Math.min(...all(l, sc).map((q) => q[1]))
     const bottom = (l: string, sc: 'print' | 'hand') => Math.max(...all(l, sc).map((q) => q[1]))
-    it('print ה: the roof overhangs its leg only a little on the left', () => {
+    it('print ה: the roof (almost) does not overhang its leg (the parent, third review)', () => {
       const [roof, leg] = P('ה').variants[0]
-      expect(leg.pts[0][0] - roof.pts[0][0]).toBeLessThanOrEqual(0.15)
-      expect(leg.pts[0][0] - roof.pts[0][0]).toBeGreaterThan(0.05)
+      expect(Math.abs(leg.pts[0][0] - roof.pts[0][0])).toBeLessThanOrEqual(0.03)
     })
-    it('print ז: the second stroke may be a zigzag (an alternative)', () => {
+    it('print ז: the zigzag stem breaks once, at the middle line: down to the left, then down to the right', () => {
       const v = P('ז').variants
       expect(v.length).toBe(2)
-      const zig = v[1][1].pts
-      // the x changes direction at least twice on the way down
-      let turns = 0
-      for (let i = 2; i < zig.length; i++) if (Math.sign(zig[i][0] - zig[i - 1][0]) !== Math.sign(zig[i - 1][0] - zig[i - 2][0])) turns++
-      expect(turns).toBeGreaterThanOrEqual(2)
       expect(v[1][0]).toEqual(v[0][0])
+      const zig = v[1][1].pts
+      expect(zig.length).toBe(3)
+      const [a, b, c] = zig
+      expect(b[0]).toBeLessThan(a[0])
+      expect(c[0]).toBeGreaterThan(b[0])
+      expect(b[1]).toBeGreaterThan(0.4)
+      expect(b[1]).toBeLessThan(0.6)
+      expect(c[1]).toBeGreaterThan(0.95)
     })
-    it('print מ: alternatives with 3 strokes, and with 2 where the small piece begins the first stroke', () => {
+    it('print מ: the 2-stroke alternative is the small piece, then the first stroke backwards; the 3-stroke one is split as Rubik builds it', () => {
       const v = P('מ').variants
       expect(v.map((x) => x.length)).toEqual([2, 3, 2])
-      const small = v[0][1].pts
-      const first = v[2][0].pts
-      expect(first[0]).toEqual(small[0])
-      expect(first[1]).toEqual(small[small.length - 1])
+      expect(v[2][0].pts).toEqual(v[0][1].pts)
+      expect(v[2][1].pts).toEqual([...v[0][0].pts].reverse())
+      // Rubik: the roof and the right side (like ר), the slanted left leg, then the base back from the right
+      const [roof, leg, base] = v[1].map((st) => st.pts)
+      expect(roof[0][1]).toBeLessThan(0.2)
+      expect(roof[roof.length - 1][1]).toBeGreaterThan(0.9)
+      expect(roof[roof.length - 1][0]).toBeGreaterThan(1)
+      expect(leg[0][1]).toBeLessThan(0.2)
+      expect(leg[1][0]).toBeLessThan(leg[0][0])
+      expect(leg[1][1]).toBeGreaterThan(0.9)
+      expect(base[0][0]).toBeGreaterThan(base[1][0])
+      expect(Math.abs(base[0][1] - base[1][1])).toBeLessThan(0.05)
     })
     it('print נ: a short head, a long base (not כ)', () => {
       const p = P('נ').variants[0][0].pts
@@ -112,14 +122,21 @@ describe('stroke data', () => {
       expect(tet[tet.length - 1][1]).toBeLessThan(-0.5)
       // מ from the top-right, down, up the diagonal, down the left stroke
       const mem = Hd('מ').variants[0][0].pts
-      expect(mem[0][1]).toBeLessThan(0)
+      expect(mem[0][0]).toBeGreaterThan(1)
       expect(mem[mem.length - 1][0]).toBeLessThan(0.2)
-      // ם: a loop, then its stem on the left goes down below the baseline
-      expect(bottom('ם', 'hand')).toBeGreaterThan(1.2)
+      // ם: a loop, then its stem on the left goes down to the baseline
+      expect(bottom('ם', 'hand')).toBeGreaterThan(0.95)
       // ק: its stem goes well below the baseline; ב ends with a line down from a peak at the bottom-left
       expect(bottom('ק', 'hand')).toBeGreaterThan(1.5)
       const bet = Hd('ב').variants[0][0].pts
       expect(bet[bet.length - 1][1] - Math.min(...bet.slice(-6).map((q) => q[1]))).toBeGreaterThan(0.25)
+    })
+    it('handwriting ם ר כ ד ח sit within the lines, and מ starts on the top line (the parent, third review)', () => {
+      for (const l of 'םרכדח') {
+        expect(top(l, 'hand'), l).toBeGreaterThanOrEqual(-0.05)
+        expect(bottom(l, 'hand'), l).toBeLessThanOrEqual(1.03)
+      }
+      expect(Hd('מ').variants[0][0].pts[0][1]).toBeGreaterThanOrEqual(-0.05)
     })
     it('handwriting ג ז ו stand between the top line and the baseline (ETZE, JMU)', () => {
       for (const l of 'גזו') {

@@ -139,11 +139,17 @@ export function judgeStroke(drawn: Pt[], exp: StrokeDef, f: Frame, first: boolea
     d = [...d].reverse()
   }
   if (exp.end) {
-    // the last bit of the stroke must go the way the data says (ף ends going down, ץ going up: the parent)
-    const dy = d[d.length - 1][1] - subpath(d, 0.88).slice(-1)[0][1]
-    if ((exp.end === 'down' ? dy : -dy) < 0.06 * f.s) return { ok: false, why: 'shape', score }
+    // the last bit of the stroke must go the way the data says (ף ends going down, ץ going up: the parent; ב down from its
+    // peak, כ flat to the left)
+    const [ex, ey] = d[d.length - 1]
+    const [px, py] = subpath(d, 0.88).slice(-1)[0]
+    const dx = ex - px
+    const dy = ey - py
+    const goes = exp.end === 'left' ? -dx >= 0.06 * f.s && -dx > Math.abs(dy) : (exp.end === 'down' ? dy : -dy) >= 0.06 * f.s
+    if (!goes) return { ok: false, why: 'shape', score }
   }
-  if (o.byHeight) {
+  // a stroke marked `height` is checked the same way (ה's short leg is not ח's)
+  if (o.byHeight || exp.height) {
     const hd = bbox(d).bottom - bbox(d).top
     const he = bbox(e).bottom - bbox(e).top
     if (hd > 1.4 * he) return { ok: false, why: 'shape', score }
@@ -198,7 +204,7 @@ export class LetterChecker {
     const path = t.pending.length ? [...pend, ...piece] : piece
     let j = judgeStroke(path, exp, t.frame, first, { byHeight: this.byHeight(t) })
     // his letter's size so far came from few strokes: try it nearer the size of the lines too
-    if (!j.ok && (j.why === 'start' || j.why === 'direction') && t.pairs.length) {
+    if (!j.ok && (j.why === 'start' || j.why === 'direction' || (j.why === 'shape' && exp.height)) && t.pairs.length) {
       const j2 = judgeStroke(path, exp, fit(t.pairs, true), first, { byHeight: this.byHeight(t) })
       if (j2.ok) j = j2
     }

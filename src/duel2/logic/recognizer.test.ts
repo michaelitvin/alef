@@ -69,10 +69,10 @@ describe('recognizer: letters', () => {
     const a = strokesOf('א', 'print').variants[0]
     expect(run('א', 'print', [draw(a[0]), draw(a[2])])[1]).toMatchObject({ kind: 'wrong', why: 'order', index: 1 })
   })
-  it('a part in the wrong place is a wrong start (ה with its leg on the roof is not ה)', () => {
+  it('a part in the wrong place is wrong (ה with its leg up to the roof is not ה; a leg out at the right is a wrong start)', () => {
     const h = strokesOf('ה', 'print').variants[0]
-    const r = run('ה', 'print', [draw(h[0]), draw([[0.28, 0.1], [0.28, 1]])])
-    expect(r[1]).toMatchObject({ kind: 'wrong', why: 'start' })
+    expect(run('ה', 'print', [draw(h[0]), draw([[0.16, 0.1], [0.16, 1]])])[1].kind).toBe('wrong')
+    expect(run('ה', 'print', [draw(h[0]), draw([[1.3, 0.45], [1.3, 1]])])[1]).toMatchObject({ kind: 'wrong', why: 'start' })
   })
   it('ד drawn as ר and ר drawn as ד are wrong (the parent: they differ by stroke count and the corner)', () => {
     const resh = strokesOf('ר', 'print').variants[0]
@@ -256,6 +256,19 @@ describe("recognizer: the parent's review (alternatives, look-alikes)", () => {
     for (const [a, b] of [['ב', 'כ'], ['ד', 'ר'], ['ח', 'ת'], ['ח', 'ה'], ['ם', 'ס'], ['כ', 'ר'], ['ק', 'ר'], ['ט', 'ס']])
       for (const [asked, drawn] of [[a, b], [b, a]])
         expect(ok(asked, 'hand', strokesOf(drawn, 'hand').variants[0]), `${drawn} drawn for ${asked}`).toBe(false)
+  })
+  it('ה and ח differ by the height of the leg (a gap under the roof), in both scripts', () => {
+    for (const sc of ['print', 'hand'] as const) {
+      const he = strokesOf('ה', sc).variants[0]
+      const het = strokesOf('ח', sc).variants[0]
+      expect(ok('ה', sc, [he[0], het[1]]), `ה with ח's leg (${sc})`).toBe(false)
+      expect(ok('ח', sc, [het[0], he[1]]), `ח with ה's leg (${sc})`).toBe(false)
+      expect(he[1].height && het[1].height, sc).toBe(true)
+    }
+  })
+  it('print מ in any of its forms is not ם, nor ם a מ', () => {
+    for (const v of strokesOf('מ', 'print').variants) expect(ok('ם', 'print', v)).toBe(false)
+    for (const v of strokesOf('ם', 'print').variants) expect(ok('מ', 'print', v)).toBe(false)
   })
   it('a stroke marked with its end (handwriting ף down, ץ up) fails when its end goes the other way, also when wobbly', () => {
     for (const l of 'ףץ') {
