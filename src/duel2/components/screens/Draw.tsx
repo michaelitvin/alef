@@ -17,7 +17,7 @@ const poly = (p: Pt[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).j
 const INK = { fill: '#fff6d8', stroke: '#1b0f3c', paintOrder: 'stroke' as const, strokeLinejoin: 'round' as const }
 
 /** The word without its first letter, in the word's script, on the baseline (marks drawn by the game for ש: rule). */
-function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
+export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
   const base = L.lines.base
   const font = L.rest.font
   const px = L.rest.px

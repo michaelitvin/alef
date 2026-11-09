@@ -1,4 +1,5 @@
-/* the handwriting script of the drawing screen: Ktav Yad CLM (Culmus, GNU GPL v2; public/fonts/ktavyad/README.txt) */
+/* Ktav Yad CLM (Culmus, GNU GPL v2; public/fonts/ktavyad/README.txt): a second handwriting reference on the stroke review
+   page. The drawing screen writes its handwriting words in Dana Yad (src/styles/fonts.css). */
 @font-face { font-family: 'Ktav Yad'; src: url('/fonts/ktavyad/KtavYadCLM-BoldItalic.woff2') format('woff2'); font-display: block; }
 html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-root { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none;

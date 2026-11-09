@@ -74,6 +74,13 @@ interface Actions {
 }
 
 export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: false }
+/** the review marks to clear in version 2: the letters whose strokes changed after the parent's review (2026-11-07) */
+/** version 3: the letters changed after the second review */
+export const STROKES_CHANGED_V3 = [...'בדחטכמםצקרגזוץף'].map((l) => `${l}-hand`)
+/** version 4: the letters changed after the third review */
+export const STROKES_CHANGED_V4 = [...'הזמ'].map((l) => `${l}-print`).concat([...'םרכדחמ'].map((l) => `${l}-hand`))
+export const STROKES_CHANGED_V2 = [...'הזמנץק'].map((l) => `${l}-print`).concat([...'אבגדוילןצץףר'].map((l) => `${l}-hand`))
+
 const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {}, drawRounds: 0,
@@ -140,11 +147,21 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {
-      name: 'alef-duel2', version: 1, storage: createJSONStorage(() => localStorage),
-      // Version 1 is the first save shape. When Duel2Save changes, raise `version` and convert older saves here
-      // (never drop his progress: rule). Until then a save passes through unchanged. Fields added later (the bosses, the
-      // potion) take their defaults from the initial state: persist merges a saved state over it.
-      migrate: (state) => state as Duel2Save & Actions,
+      name: 'alef-duel2', version: 4, storage: createJSONStorage(() => localStorage),
+      // Raise `version` when a save must be converted, and convert older saves here (never drop his progress: rule).
+      // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
+      // state over it. Version 2: the stroke data of some letters changed after the parent's review, so their review
+      // marks are cleared (they show as unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the third review.
+      migrate: (state, version) => {
+        const s = (state ?? {}) as Partial<Duel2Save>
+        if (version < 4 && s.strokeMarks) {
+          const m = { ...s.strokeMarks }
+          const cleared = [...(version < 2 ? STROKES_CHANGED_V2 : []), ...(version < 3 ? STROKES_CHANGED_V3 : []), ...STROKES_CHANGED_V4]
+          for (const k of cleared) delete m[k]
+          return { ...s, strokeMarks: m } as Duel2Save & Actions
+        }
+        return s as Duel2Save & Actions
+      },
     },
   ),
 )

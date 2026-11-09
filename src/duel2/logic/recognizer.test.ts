@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { LETTERS, STROKES, strokesOf, type Pt, type StrokeDef } from '../data/strokes'
-import { LetterChecker, judgeMarks, lineFeedback, markTargets, resample, type Box, type MarkSpec, type Verdict } from './recognizer'
+import { LetterChecker, judgeMarks, judgeStroke, lineFeedback, markTargets, resample, type Box, type MarkSpec, type Verdict } from './recognizer'
 
 function rng(seed: number) {
   let a = seed >>> 0
@@ -69,10 +69,10 @@ describe('recognizer: letters', () => {
     const a = strokesOf('א', 'print').variants[0]
     expect(run('א', 'print', [draw(a[0]), draw(a[2])])[1]).toMatchObject({ kind: 'wrong', why: 'order', index: 1 })
   })
-  it('a part in the wrong place is a wrong start (ה with its leg on the roof is not ה)', () => {
+  it('a part in the wrong place is wrong (ה with its leg up to the roof is not ה; a leg out at the right is a wrong start)', () => {
     const h = strokesOf('ה', 'print').variants[0]
-    const r = run('ה', 'print', [draw(h[0]), draw([[0.28, 0.1], [0.28, 1]])])
-    expect(r[1]).toMatchObject({ kind: 'wrong', why: 'start' })
+    expect(run('ה', 'print', [draw(h[0]), draw([[0.16, 0.1], [0.16, 1]])])[1].kind).toBe('wrong')
+    expect(run('ה', 'print', [draw(h[0]), draw([[1.3, 0.45], [1.3, 1]])])[1]).toMatchObject({ kind: 'wrong', why: 'start' })
   })
   it('ד drawn as ר and ר drawn as ד are wrong (the parent: they differ by stroke count and the corner)', () => {
     const resh = strokesOf('ר', 'print').variants[0]
@@ -128,8 +128,8 @@ describe('recognizer: letters', () => {
     c.add(draw(h[0], { scale: 0.5, dx: 0.3 }))
     c.settle()
     const [x, y] = c.expected()[0]
-    expect(x).toBeCloseTo(0.28 * 0.5 + 0.3, 1)
-    expect(y).toBeCloseTo(0.45 * 0.5, 1)
+    expect(x).toBeCloseTo(h[1].pts[0][0] * 0.5 + 0.3, 1)
+    expect(y).toBeCloseTo(h[1].pts[0][1] * 0.5, 1)
   })
   it('all letters are checked (data and recognizer agree on the 27 letters)', () => {
     for (const l of LETTERS) expect(() => new LetterChecker(strokesOf(l, 'print'))).not.toThrow()
@@ -148,6 +148,8 @@ describe('recognizer: review findings (pen lifts, size from the lines, waiting p
     for (const d of STROKES) d.variants.forEach((v, vi) => v.forEach((_, si) => {
       // print ר is one stroke by the parent's rule: a lift at its corner is how ד is written (it must fail)
       if (d.strict && v[si].pts.length > 2) return
+      // the first half of ז's zigzag stem is already a whole straight stem (the other variant): the letter is done there
+      if (d.letter === 'ז' && d.script === 'print' && vi === 1 && si === 1) return
       const pieces = v.flatMap((st, i) => {
         const p = dense(st.pts)
         if (i !== si) return [p]
@@ -229,11 +231,63 @@ describe('recognizer: review findings (pen lifts, size from the lines, waiting p
     expect(w.settle()?.kind).toBe('wrong')
     expect(w.settle()).toBeNull()
   })
-  it('handwriting ד: a small curl at the top right, then a straight line down; handwriting ב: a flat base right to left (research)', () => {
-    expect(allOk(run('ד', 'hand', [dense([[0.1, 0.32], [0.4, 0.08], [0.8, 0.06], [0.98, 0.12], [0.98, 0.3], [0.82, 0.34], [0.72, 0.22], [0.82, 0.14], [0.86, 0.35], [0.85, 0.97]])]))).toBe(true)
-    // a plain arch is ר, not ד
+  it('handwriting ד: over the top, a loop at mid-height, then down; a plain arch is ר, not ד', () => {
+    expect(allOk(run('ד', 'hand', [dense(strokesOf('ד', 'hand').variants[0][0].pts)]))).toBe(true)
     expect(allOk(run('ד', 'hand', [dense(strokesOf('ר', 'hand').variants[0][0].pts)]))).toBe(false)
-    expect(allOk(run('ב', 'hand', [dense([[0.09, 0.3], [0.3, 0.1], [0.61, 0.04], [1.05, 0.12], [1.25, 0.5], [1.15, 0.95], [0.6, 0.97], [0.15, 0.97]])]))).toBe(true)
+  })
+})
+
+describe("recognizer: the parent's review (alternatives, look-alikes)", () => {
+  const dense = (st: Pt[]) => resample(st, 40)
+  const ok = (l: string, sc: 'print' | 'hand', v: StrokeDef[]) => allOk(run(l, sc, v.map((st) => dense(st.pts))))
+  it('every alternative passes: ז with a zigzag, מ in 3 strokes, מ with the small piece first', () => {
+    for (const [l, n] of [['ז', 2], ['מ', 3]] as const) {
+      const v = strokesOf(l, 'print').variants
+      expect(v.length).toBe(n)
+      v.forEach((x, i) => expect(ok(l, 'print', x), `${l} v${i + 1}`).toBe(true))
+    }
+  })
+  it('the zigzag and the straight stem of ז both pass after the same head', () => {
+    const [a, b] = strokesOf('ז', 'print').variants
+    expect(ok('ז', 'print', [a[0], b[1]])).toBe(true)
+    expect(ok('ז', 'print', [b[0], a[1]])).toBe(true)
+  })
+  it('the handwriting letters drawn after Dana Yad stay apart from their look-alikes (both ways)', () => {
+    for (const [a, b] of [['ב', 'כ'], ['ד', 'ר'], ['ח', 'ת'], ['ח', 'ה'], ['ם', 'ס'], ['כ', 'ר'], ['ק', 'ר'], ['ט', 'ס']])
+      for (const [asked, drawn] of [[a, b], [b, a]])
+        expect(ok(asked, 'hand', strokesOf(drawn, 'hand').variants[0]), `${drawn} drawn for ${asked}`).toBe(false)
+  })
+  it('ה and ח differ by the height of the leg (a gap under the roof), in both scripts', () => {
+    for (const sc of ['print', 'hand'] as const) {
+      const he = strokesOf('ה', sc).variants[0]
+      const het = strokesOf('ח', sc).variants[0]
+      expect(ok('ה', sc, [he[0], het[1]]), `ה with ח's leg (${sc})`).toBe(false)
+      expect(ok('ח', sc, [het[0], he[1]]), `ח with ה's leg (${sc})`).toBe(false)
+      expect(he[1].height && het[1].height, sc).toBe(true)
+    }
+  })
+  it('print מ in any of its forms is not ם, nor ם a מ', () => {
+    for (const v of strokesOf('מ', 'print').variants) expect(ok('ם', 'print', v)).toBe(false)
+    for (const v of strokesOf('ם', 'print').variants) expect(ok('מ', 'print', v)).toBe(false)
+  })
+  it('a stroke marked with its end (handwriting ף down, ץ up) fails when its end goes the other way, also when wobbly', () => {
+    for (const l of 'ףץ') {
+      const st = strokesOf(l, 'hand').variants[0][0]
+      expect(st.end, l).toBe(l === 'ף' ? 'down' : 'up')
+      const p = st.pts
+      const n = p.length
+      // the same stroke with its last bit mirrored up/down about the point before it
+      const flipped: Pt[] = p.map((q, i) => (i >= n - 6 ? [q[0], 2 * p[n - 7][1] - q[1]] : q))
+      expect(judgeStroke(dense(flipped), st, { s: 1, tx: 0, ty: 0 }, true).ok, l).toBe(false)
+      for (const seed of [1, 2, 3]) expect(allOk(run(l, 'hand', [draw(st, { noise: 0.03, seed })])), `${l} ${seed}`).toBe(true)
+    }
+  })
+  it('look-alikes are told apart: נ and כ, ד and ר, ץ and ף (both scripts, both ways)', () => {
+    const pairs: [string, string][] = [['נ', 'כ'], ['ד', 'ר'], ['ץ', 'ף']]
+    for (const sc of ['print', 'hand'] as const) for (const [a, b] of pairs) for (const [asked, drawn] of [[a, b], [b, a]]) {
+      for (const v of strokesOf(drawn, sc).variants)
+        expect(ok(asked, sc, v), `${drawn} drawn for ${asked} (${sc})`).toBe(false)
+    }
   })
 })
 

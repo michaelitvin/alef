@@ -5,7 +5,8 @@
 import type { LetterDef, Pt, Script } from '../data/strokes'
 import { pathLength } from './recognizer'
 
-export const DRAW_FONT: Record<Script, string> = { print: 'Sigalit', hand: "'Ktav Yad'" }
+/** the scripts' fonts: handwriting words are written in the upright school font Dana Yad (the parent chose its forms) */
+export const DRAW_FONT: Record<Script, string> = { print: 'Sigalit', hand: "'Dana Yad'" }
 /** the board (dark slate) and the picture beside it; kept clear of the top bar at phone size */
 export const BOARD = { left: 40, right: 1250, top: 175, bottom: 885 }
 export const PIC = { x: 1425, y: 470, size: 290 }
@@ -28,7 +29,7 @@ export const canvasTextMeasure: TextMeasure = (text, font, px) => {
   return { width: m.width, ascent: m.actualBoundingBoxAscent, descent: m.actualBoundingBoxDescent }
 }
 /** the height of ב (top line to baseline) per pixel of font size, when nothing can be measured (tests) */
-const FALLBACK = { print: { ratio: 0.6 }, hand: { ratio: 0.36 } }
+const FALLBACK = { print: { ratio: 0.6 }, hand: { ratio: 0.39 } }
 
 export interface DrawLayout {
   script: Script

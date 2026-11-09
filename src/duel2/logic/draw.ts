@@ -21,7 +21,7 @@ const clusters = (t: string) => {
   }
   return out
 }
-const bare = (t: string) => t.replace(/[֑-ׇ]/g, '')
+export const bare = (t: string) => t.replace(/[֑-ׇ]/g, '')
 
 /** The slot's letter, a bare vav when the first vowel sits on it (he draws its dot), and the rest of the word. */
 export function splitWord(w: Word, script: Script): { letter: string; vav: boolean; rest: string } {

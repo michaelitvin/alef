@@ -1360,7 +1360,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.start()
     await answering(c)
     expect(dv(c).script).toBe('hand')
-    expect(dv(c).layout.rest.font).toMatch(/Ktav Yad/)
+    expect(dv(c).layout.rest.font).toMatch(/Dana Yad/)
     c.destroy()
   })
 

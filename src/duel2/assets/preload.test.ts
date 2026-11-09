@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { READY_MS, preloadDuel2Assets } from './preload'
+import { DRAW_FONT } from '../logic/drawLayout'
+import { FONTS, READY_MS, preloadDuel2Assets } from './preload'
 
 describe('preloadDuel2Assets', () => {
   it('waits for fonts and images, at most READY_MS', async () => {
@@ -12,5 +13,9 @@ describe('preloadDuel2Assets', () => {
     expect(done).toBe(true)
     expect(preloadDuel2Assets()).toBe(p)
     vi.useRealTimers()
+  })
+  it('loads the fonts of both drawing scripts before the first screen (the words in handwriting are Dana Yad)', () => {
+    for (const f of Object.values(DRAW_FONT)) expect(FONTS.some(([spec]) => spec.includes(f.replace(/'/g, ''))), f).toBe(true)
+    expect(DRAW_FONT.hand).toMatch(/Dana Yad/)
   })
 })
