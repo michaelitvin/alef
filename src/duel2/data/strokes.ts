@@ -108,7 +108,8 @@ const HAND: LetterDef[] = [
   // within the lines (ETZE, JMU), the font's shape otherwise, its foot going on past the top (the parent)
   L('ג', 'hand', 1.05, [[s([0.56, -0.03], [0.7, 0.18], [1, 0.32], [0.75, 0.38], [0.35, 0.56], [0.1, 0.79], [0.22, 0.97], [0.6, 1], [1, 0.99])]]),
   // Dana Yad, as ETZE: over the top, in to a loop at mid-height, then down (the loop tells it from ר) — between the lines (third review)
-  L('ד', 'hand', 1, [[s([0.05, 0.17], [0.2, 0.05], [0.5, 0.0], [0.8, 0.05], [0.95, 0.17], [0.94, 0.36], [0.8, 0.51], [0.6, 0.48], [0.4, 0.48], [0.3, 0.59], [0.4, 0.64], [0.6, 0.61], [0.75, 0.52], [0.88, 0.61], [0.94, 0.78], [0.9, 0.92], [0.7, 1.0])]]),
+  // the loop goes like Dana Yad's: down-left along its bottom, up round the left end, right along its top (the parent)
+  L('ד', 'hand', 1, [[s([0.05, 0.17], [0.2, 0.05], [0.5, 0.0], [0.8, 0.05], [0.95, 0.17], [0.94, 0.36], [0.8, 0.5], [0.6, 0.6], [0.4, 0.64], [0.3, 0.6], [0.35, 0.52], [0.5, 0.48], [0.65, 0.5], [0.8, 0.56], [0.9, 0.66], [0.94, 0.78], [0.9, 0.92], [0.7, 1.0])]]),
   L('ה', 'hand', 1.3, [[s([0.1, 0.3], [0.54, 0.08], [0.98, 0.12], [1.25, 0.52], [1.03, 0.96]), h([0.32, 0.6], [0.5, 0.74], [0.37, 0.96])]]),
   // within the lines (ETZE, JMU), upright
   L('ו', 'hand', 0.3, [[s([0.17, 0], [0.12, 1])]]),
