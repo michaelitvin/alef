@@ -50,6 +50,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): "הַמָּחוֹג הָאָרוֹךְ", not "הָאָרֹךְ".
 - Make sure each line is correct in its context, and that its feeling agrees with the moment.
   Example (duel): "המגדל נפל. כל הכבוד" praised the child for a loss. The first "כִּמְעַט" sounded disappointed; it must encourage.
+- Make each number agree in gender with the noun that it counts. Check every line with a number and a noun.
+  Example (merchant): מַטְבֵּעַ is masculine, so the line is "עֲשָׂרָה מַטְבְּעוֹת", not "עֶשֶׂר מַטְבְּעוֹת".
 - Do not use game or technical words. Say what happens.
   Example (duel): "wave" and "combo" were removed. "עוד מפלצות בדרך" replaced the wave line.
 - Use the full name of a thing when its short name has another meaning. Example (book 2): רוּחַ alone is "wind"; the
