@@ -1,5 +1,5 @@
-// A heart flies to the hearts in the top bar: the potion caught on the broom, and the heart that comes back at the end of a
-// pass (over any screen). One part for both (rule: the game's own parts).
+// A heart flies to the hearts in the top bar, over any screen: the heart that comes back at the end of a pass (and the
+// merchant's potion later). One part for every heart that comes back (rule: the game's own parts).
 import { useEffect, useState } from 'react'
 
 /** how long the heart flies to the top bar */

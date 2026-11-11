@@ -1087,115 +1087,31 @@ describe('run controller', () => {
     }, 60_000)
   })
 
-  describe('the rescue potion', () => {
-    const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
-    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
-
-    it('never comes while he has all his hearts', async () => {
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      c.start()
-      for (let i = 0; i < 1500; i++) { expect(bv(c)?.potion).toBeUndefined(); fly(c); await tick(50) }
-      c.destroy()
-    }, 60_000)
-
-    it('comes after a lost heart, once per visit; caught it gives the heart back (no star, no answer); the first time it is explained', async () => {
-      duel2Telemetry.clear()
-      useDuel2Store.setState({ potionIntroSeen: false })
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      c.start()
-      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
-      for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
-      expect(c.view.hearts).toBe(2)
-      let shown = 0
-      let lastId = -1
-      for (let i = 0; i < 4000 && !bv(c)?.potion; i++) { fly(c); await tick(50) }
-      const p = bv(c)!.potion!
-      expect(p.intro).toBe(true)
-      expect(p.travelMs).toBeGreaterThan(bv(c)!.travelMs)
-      expect(useDuel2Store.getState().potionIntroSeen).toBe(true)
-      // the catch itself is no answer: no star and nothing recorded on that tick
-      let score = c.view.score
-      let round = useDuel2Store.getState().roundNo
-      for (let i = 0; i < 4000 && !bv(c)?.potion?.caught; i++) {
-        const s = bv(c)!
-        if (s.potion && s.potion.id !== lastId) { shown++; lastId = s.potion.id }
-        if (s.potion) c.gesture({ type: 'lane', lane: s.potion.lane as 0 | 1 | 2 })
-        score = c.view.score
-        round = useDuel2Store.getState().roundNo
-        await tick(50)
-      }
-      expect(bv(c)!.potion?.caught).toBe(true)
-      expect(c.view.hearts).toBe(3)
-      expect(bv(c)!.heal).toBeDefined()
-      expect(c.view.score).toBe(score)
-      expect(useDuel2Store.getState().roundNo).toBe(round)
-      expect(played).toContain('potion-intro-1')
-      // one potion per visit, even after another lost heart
-      for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
-      for (let i = 0; i < 1500 && !bv(c)?.finished; i++) {
-        const s = bv(c)
-        if (s?.potion && s.potion.id !== lastId) { shown++; lastId = s.potion.id }
-        fly(c)
-        await tick(50)
-      }
-      expect(shown).toBe(1)
-      expect(events().filter((e) => e.e === 'potion-show').length).toBe(1)
-      expect(events().find((e) => e.e === 'potion-catch')).toBeTruthy()
-      c.destroy()
-    }, 60_000)
-
-    it('flies in a lane no orb shares at the same moment', async () => {
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', potion: true }, sandbox: true })
-      c.start()
-      let checked = 0
-      for (let i = 0; i < 4000 && checked < 40; i++) {
-        const s = bv(c)
-        if (s?.potion && !s.potion.caught && c.view.phase === 'answer') {
-          const now = c.broomClock()
-          const kp = wavePos(s.potion.startMs, now, s.potion.travelMs)
-          for (const w of s.waves) w.choices.forEach((_, j) => {
-            if ((w.lanes?.[j] ?? j) !== s.potion!.lane || w.resolved[j]) return
-            const ko = wavePos(w.startMs + w.offsets[j] * s.travelMs, now, s.travelMs)
-            if (kp > -0.1 && kp < 1) expect(Math.abs(ko - kp), 'an orb on the potion').toBeGreaterThan(0.1)
-          })
-          checked++
-        }
-        await tick(50)
-      }
-      expect(checked).toBeGreaterThan(10)
-      c.destroy()
-    }, 60_000)
-  })
+  it('no potion flies in after a lost heart (a heart comes back only from the merchant or a pass)', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && ((c.view.screen as BroomView).waves.length ?? 0) > 0)
+    for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
+    expect(c.view.hearts).toBe(2)
+    // to the end of the flight (the gallery then starts it again with full hearts)
+    for (let i = 0; i < 4000 && !(c.view.screen as BroomView).finished; i++) {
+      const s = c.view.screen as BroomView & { potion?: unknown }
+      expect(s.screen === 'broom' ? s.potion : undefined).toBeUndefined()
+      expect(c.view.hearts).toBeLessThanOrEqual(2)
+      fly(c)
+      await tick(50)
+    }
+    expect((c.view.screen as BroomView).finished).toBe(true)
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+    expect(ev.some((e) => e.e === 'potion-show')).toBe(false)
+    c.destroy()
+  }, 60_000)
 
   describe('review fixes: one-time moments, pauses, the win', () => {
     const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
     /** voice ids in `missing` have no file: the player says so */
     const withMissing = (missing: RegExp, ms = 10) => setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(!missing.test(id)), ms)) })
-    const loseHeart = async (c: RunController) => { for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) } }
-
-    it('a missing potion-intro file does not use up the introduction; a heard one is kept only once it has played', async () => {
-      withMissing(/^potion-intro/)
-      useDuel2Store.setState({ potionIntroSeen: false })
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      c.start()
-      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
-      await loseHeart(c)
-      await until(c, () => !!bv(c)?.potion)
-      await tick(12_000)
-      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
-      c.destroy()
-      stopVoice()
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 1500)) })
-      const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      d.start()
-      await until(d, (v) => v.phase === 'answer' && (bv(d)?.waves.length ?? 0) > 0)
-      await loseHeart(d)
-      await until(d, () => !!bv(d)?.potion)
-      expect(bv(d)!.potion!.intro).toBe(true)
-      expect(useDuel2Store.getState().potionIntroSeen).toBe(false)
-      await until(d, () => useDuel2Store.getState().potionIntroSeen, 12_000)
-      d.destroy()
-    }, 60_000)
 
     it('a missing boss-new or boss-win file uses up neither the announcement nor the praise count; the trophy is kept', async () => {
       withMissing(/^boss-(new|win)/)
@@ -1223,21 +1139,6 @@ describe('run controller', () => {
       expect(useDuel2Store.getState().praiseHeard['boss-win']).toBe(1)
       d.destroy()
     }, 120_000)
-
-    it('a pause after a lost heart, before the potion came, still brings the potion after resume', async () => {
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      c.start()
-      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0)
-      await loseHeart(c)
-      expect(bv(c)!.potion).toBeUndefined()
-      c.pause()
-      c.resume()
-      // a careful player from now on: no other heart is lost, so only the first loss can bring it
-      for (let i = 0; i < 1200 && !bv(c)?.potion; i++) { fly(c); await tick(50) }
-      expect(c.view.hearts).toBe(2)
-      expect(bv(c)?.potion).toBeDefined()
-      c.destroy()
-    }, 60_000)
 
     it('a pause right after a hit does not leave the boss in its hit pose', async () => {
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
@@ -1293,29 +1194,6 @@ describe('run controller', () => {
       await until(c, () => !!bv(c)?.finished, 30_000)
       expect(sfxLog.filter((n) => n === 'boss-win').length).toBe(1)
       c.destroy()
-    }, 60_000)
-
-    it('the potion introduction is said while the potion flies, never after it is gone (the potion waits for a free voice)', async () => {
-      useDuel2Store.setState({ potionIntroSeen: false })
-      let at: { present: boolean; k: number } | null = null
-      let c: RunController
-      setVoicePlayer((id) => {
-        played.push(id)
-        if (id === 'potion-intro-1' && !at) {
-          const p = bv(c)?.potion
-          at = { present: !!p && !p.caught, k: p ? wp(p.startMs, c.broomClock(), p.travelMs) : -9 }
-        }
-        return new Promise((r) => setTimeout(() => r(true), id.startsWith('syl-') ? 12_000 : 300))
-      })
-      c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
-      c.start()
-      await until(c, (v) => v.phase === 'answer' && (bv(c)?.waves.length ?? 0) > 0, 30_000)
-      await loseHeart(c)
-      for (let i = 0; i < 2000 && !at; i++) { fly(c); await tick(50) }
-      expect(at).not.toBeNull()
-      expect(at!.present).toBe(true)
-      expect(at!.k).toBeGreaterThan(0.7)
-      c!.destroy()
     }, 60_000)
 
     it('a new boss never starts with the sound the boss before ended on', async () => {

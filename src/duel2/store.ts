@@ -43,7 +43,7 @@ export interface Duel2Save {
   bossNewHeard: BossKind[]
   /** the kind of the last boss (never the same twice in a row) */
   lastBoss: BossKind | null
-  /** the rescue potion was introduced (its first flight is slower, with a line) */
+  /** the old flying potion was introduced (it no longer flies: kept so old saves read the same) */
   potionIntroSeen: boolean
   settings: Duel2Settings
   /** the parent's marks on the stroke review page (`<letter>-<script>`): kept through a progress reset */

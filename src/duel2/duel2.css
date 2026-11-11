@@ -151,12 +151,6 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-trophy-fly { animation: d2-trophy-fly 3.2s cubic-bezier(0.5, 0, 0.6, 1) 1.2s both; transform-origin: 1290px 480px; transform-box: view-box; }
 /* it flies to the trophy shelf, which sits at the bottom left of the cover */
 @keyframes d2-trophy-fly { 0% { transform: scale(0.3); opacity: 0; } 20% { transform: scale(1.05); opacity: 1; } 60% { transform: scale(1); opacity: 1; } 100% { transform: translate(-1140px, 380px) scale(0.2); opacity: 0; } }
-/* the rescue potion: glows on its first flight; caught, it pops */
-.d2-potion-glow { animation: d2-potion-glow 0.7s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
-@keyframes d2-potion-glow { from { transform: scale(0.9); opacity: 0.75; } to { transform: scale(1.15); opacity: 1; } }
-.d2-potion-aura { opacity: 0.8; }
-.d2-potion-pop { animation: d2-potion-pop 0.6s ease-out forwards; transform-box: fill-box; transform-origin: center; }
-@keyframes d2-potion-pop { 0% { opacity: 1; } 100% { opacity: 0; } }
 /* the bosses he keeps: a golden frame for a beaten one, a dark silhouette for one that still waits */
 .d2-cover-trophies { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); left: 28px; z-index: 6; }
 .d2-boss-shelf { display: flex; gap: 12px; align-items: center; direction: ltr; padding: 10px 14px; border-radius: 26px;

@@ -10,14 +10,14 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
 import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
-import { playSfx, sayParts, startMusic, stopMusic, stopVoice, voiceIdle, type Duel2Sfx } from './audio/duel2Audio'
+import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
 import { coinsOf, useDuel2Store } from './store'
 import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
@@ -50,15 +50,10 @@ export interface BossView {
   /** his first win against this kind: the boss falls into a golden frame that flies to the trophy shelf */
   first?: boolean
 }
-/** The rescue potion: it floats across one lane like an orb; never an answer. */
-export interface PotionView { id: number; lane: number; startMs: number; travelMs: number; intro: boolean; caught?: boolean }
 export interface BroomView {
   screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean
   /** a boss visit (every second broom visit of a run) */
   boss?: BossView
-  potion?: PotionView
-  /** a heart flies from the caught potion to the top bar (from its lane, at this broom-clock time) */
-  heal?: { id: number; lane: number; at: number }
   /** the last hit or miss during the flight (the flight does not stop): drives the flash, the shake and the dizzy wizard */
   fx?: { id: number; kind: 'hit' | 'miss'; at: number }
   /** the flight is over: its finale (the wizard swoops away) */
@@ -123,8 +118,6 @@ export interface RunOpts {
     screen: ScreenId | 'crystal' | 'dot'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
-    /** the gallery: a flight that starts with a heart lost, so the potion comes after the first wave */
-    potion?: boolean
   }
   rng?: Rng
   now?: () => number
@@ -157,12 +150,6 @@ const BOSS_ARRIVE_MS = 1300
 const BOSS_HIT_MS = 600
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
-/** the potion's first flight is slower (a new element: rule) */
-const POTION_INTRO_SLOW = 1.5
-/** the potion comes this many waves after the wave that cost the heart */
-const POTION_AFTER_WAVES = 1
-/** wave slots the introducing potion waits for a free voice before the queued speech is cut */
-const POTION_VOICE_WAIT = 2
 /** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
 const POPCORN = 0.28
 /** drawing: wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
@@ -231,8 +218,6 @@ export class RunController {
   private visitStarted = false
   /** the boss of this visit: its hits survive a pause (rule: losing them is the "gives up" problem again) */
   private boss: { kind: BossKind; hitsLeft: number; arrived: boolean; startedAt: number; won?: boolean; first?: boolean; celebrated?: boolean; praised?: boolean; coins: number; newSaid?: boolean } | null = null
-  /** the potion has come in this visit (at most once) */
-  private potionShown = false
   private bossesWon: BossKind[] = []
   private startStars = 0
   private drawPlan: Word[] | null = null
@@ -352,9 +337,6 @@ export class RunController {
     this.nextWaiter = null
     this.strokeWaiter = null
     this.resuming = true
-    // a potion still on its way is lost with the waves; it may come again
-    const pv = this.view.screen?.screen === 'broom' ? this.view.screen.potion : undefined
-    if (pv && !pv.caught) this.potionShown = false
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
   }
@@ -477,7 +459,6 @@ export class RunController {
     this.visitBoss = undefined
     this.visitStarted = false
     this.boss = null
-    this.potionShown = false
   }
 
   /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
@@ -537,7 +518,7 @@ export class RunController {
     if (this.resuming && cur && cur.screen === screen && !this.answered) {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
-      this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [], potion: undefined } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
+      this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
       return cur.screen === 'doors' ? cur.word : (cur as BroomView).target
     }
     this.resuming = false
@@ -1180,13 +1161,10 @@ export class RunController {
       this.boss = { kind: this.visitBoss, hitsLeft: BOSS_HITS, arrived: false, startedAt: this.now(), coins: 0 }
       this.track('boss-start', { kind: this.visitBoss })
     }
-    // the gallery's potion entry: he has lost a heart already, so the potion comes after the first wave
-    const galleryPotion = !!this.opts.force?.potion && !this.potionShown
-    if (galleryPotion) { this.hearts = { ...this.hearts, left: HEARTS - 1 }; this.set({ hearts: this.hearts.left }) }
     let target = this.buildRound('broom', kind) as Choice
     this.spokenTargets.clear()
     this.stopBroom()
-    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false, potion: undefined, boss: this.bossView() } as Partial<BroomView>)
+    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false, boss: this.bossView() } as Partial<BroomView>)
     if (this.boss?.won) return this.bossWin(t)
     startMusic(this.boss ? 'boss' : 'flight')
     this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
@@ -1210,12 +1188,6 @@ export class RunController {
     let announcing = false
     let holdSpawn = false
     let nextSpawnAt = -Infinity
-    /** no wave sets off before this (a slow potion must never be caught up by orbs) */
-    let potionClearAt = -Infinity
-    let potionWaits = 0
-    /** the potion comes once this many waves have set off */
-    // a heart lost before a pause (or the gallery's potion entry) still brings the potion
-    let potionAfter: number | null = galleryPotion || (this.hearts.left < HEARTS && !this.potionShown) ? POTION_AFTER_WAVES : null
     /** the hearts ran out: the orbs on the screen finish (nothing counts any more), then the run ends */
     let dying = false
     /** a boss visit has no wave count: it lasts until the boss is beaten or the hearts run out */
@@ -1242,25 +1214,6 @@ export class RunController {
       spawned++
       nextSpawnAt = now + travel * WAVE_EVERY
     }
-    const spawnPotion = (now: number) => {
-      const intro = this.opts.sandbox ? !!this.opts.force?.potion : !useDuel2Store.getState().potionIntroSeen
-      const pt = travel * (intro ? POTION_INTRO_SLOW : 1)
-      const lane = Math.floor(this.rng() * 3) % 3
-      this.potionShown = true
-      potionAfter = null
-      this.setScreen({ potion: { id: ++this.fxId, lane, startMs: now, travelMs: pt, intro } } as Partial<BroomView>)
-      this.track('potion-show', { intro, boss: this.boss?.kind ?? null })
-      // the next wave keeps away from it: it starts after the potion's own slot, and late enough never to catch it up
-      nextSpawnAt = now + travel * WAVE_EVERY
-      potionClearAt = now + (pt - travel) + 0.3 * travel
-      if (intro) {
-        // a new element is explained when it first appears; the flight does not stop for it. The voice is free (the
-        // intro potion waits for that), so the line plays at once; it counts as seen only once it was really heard.
-        void this.say(t, [{ id: lineAudioId('potion-intro', 1) }]).then((heard) => {
-          if (heard && !this.opts.sandbox) useDuel2Store.getState().markPotionIntro()
-        }).catch(() => {})
-      }
-    }
     const result = await this.guard(t, new Promise<'done' | 'over' | 'won'>((resolve, reject) => {
       this.broomTimer = window.setInterval(() => {
         if (t !== this.token) { this.stopBroom(); reject(new Aborted()); return }
@@ -1278,13 +1231,6 @@ export class RunController {
           return { ...w, resolved: e.resolved, spent: hitWrong || e.missedTarget }
         }).filter((w) => w.resolved.some((r) => !r))
         this.setScreen({ waves } as Partial<BroomView>)
-        // the potion: caught in its lane like an orb, missed when it has passed him (it costs nothing)
-        const pv = cur.potion
-        if (pv && !pv.caught && !dying) {
-          const k = wavePos(pv.startMs, now, pv.travelMs)
-          if (pv.lane === cur.lane && k <= CATCH_AT && k >= PASS_AT) this.onPotion(t, pv)
-          else if (k < PASS_AT) { this.track('potion-miss', {}); this.setScreen({ potion: undefined } as Partial<BroomView>) }
-        }
         for (const ev of events) {
           if (ev.hit && ev.hit.soundId === target.soundId) {
             // the catch that beats the boss has its own celebration: no streak praise on it
@@ -1302,8 +1248,6 @@ export class RunController {
               this.setScreen({ waves: (this.view.screen as BroomView).waves.map((w) => ({ ...w, spent: true })) } as Partial<BroomView>)
               break
             }
-            // a lost heart: the rescue potion comes a wave or so later (once per visit)
-            if (this.hearts.left < HEARTS && !this.potionShown && potionAfter === null) potionAfter = spawned + POTION_AFTER_WAVES
           }
         }
         // a new sound: once no orb with the old sound is flying (other leftovers finish harmlessly), say it while he
@@ -1325,18 +1269,9 @@ export class RunController {
           void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target), onStart: go }])
             .catch(() => {}).finally(() => { announcing = false; if (holdSpawn) go() })
         }
-        if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt && now >= potionClearAt) {
-          const potionDue = potionAfter !== null && spawned >= potionAfter && !this.potionShown && this.hearts.left < HEARTS && !(this.view.screen as BroomView).potion
-          // the introducing potion comes only when the voice is free, so its line is never said after it has gone
-          const introNow = this.opts.sandbox ? !!this.opts.force?.potion : !useDuel2Store.getState().potionIntroSeen
-          // (after two wave slots of waiting, what is still queued is cut: the introduction goes first)
-          if (potionDue && introNow && !voiceIdle() && ++potionWaits > POTION_VOICE_WAIT) { stopVoice(); potionWaits = 0 }
-          if (potionDue && (!introNow || voiceIdle())) spawnPotion(now)
-          else spawn(now)
-        }
-        // the visit ends when all its orbs (and the potion) have arrived (Michael: "let me finish")
-        const potionFlying = !!(this.view.screen as BroomView).potion && !(this.view.screen as BroomView).potion!.caught
-        if (!this.boss && spawned >= VISIT.broom && !newTargetDue && !open(waves) && !potionFlying) { this.stopBroom(); resolve('done') }
+        if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt) spawn(now)
+        // the visit ends when all its orbs have arrived (Michael: "let me finish")
+        if (!this.boss && spawned >= VISIT.broom && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
       }, 50)
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
@@ -1356,7 +1291,7 @@ export class RunController {
 
   /** the wizard swoops away with a celebration sound */
   private async finale(t: number) {
-    this.setScreen({ finished: true, reveal: undefined, potion: undefined } as Partial<BroomView>)
+    this.setScreen({ finished: true, reveal: undefined } as Partial<BroomView>)
     this.set({ phase: 'celebrate' })
     this.sfx('streak')
     await this.sleep(t, FINALE_MS)
@@ -1406,7 +1341,7 @@ export class RunController {
       this.bossesWon.push(b.kind)
       this.track('boss-win', { kind: b.kind, ms: Math.round(this.now() - b.startedAt), first: b.first })
     }
-    this.setScreen({ waves: [], reveal: undefined, potion: undefined, boss: this.bossView() } as Partial<BroomView>)
+    this.setScreen({ waves: [], reveal: undefined, boss: this.bossView() } as Partial<BroomView>)
     this.set({ phase: 'celebrate' })
     // its sound and music start once (a resume during the win goes on from where it was)
     if (!b.celebrated) {
@@ -1438,20 +1373,6 @@ export class RunController {
     await this.sleep(t, 600)
     stopMusic()
     await this.finale(t)
-  }
-
-  /** The potion caught: a gentle sound, and a heart flies from the bottle to the top bar. Never an answer. */
-  private onPotion(t: number, pv: PotionView) {
-    this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
-    const heal = { id: ++this.fxId, lane: pv.lane, at: this.broomClock() }
-    this.setScreen({ potion: { ...pv, caught: true }, heal } as Partial<BroomView>)
-    this.set({ hearts: this.hearts.left })
-    this.sfx('potion')
-    this.track('potion-catch', { hearts: this.hearts.left })
-    window.setTimeout(() => {
-      const s = this.view.screen
-      if (t === this.token && s?.screen === 'broom' && s.potion?.id === pv.id) this.setScreen({ potion: undefined } as Partial<BroomView>)
-    }, 900)
   }
 
   /** A point: this run's score, and a star on his kept total; every COIN_EVERY-th star is a coin, with a sound. */

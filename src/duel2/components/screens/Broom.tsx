@@ -9,8 +9,7 @@ import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
-import type { BossView, PotionView } from '../../controller'
-import { HEAL_MS, Heal } from '../HealFly'
+import type { BossView } from '../../controller'
 
 export const LANE_Y = [250, 470, 690]
 export const LANE_H = 220
@@ -33,8 +32,6 @@ export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
 const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
-/** clearly a gift: bigger than an orb */
-export const POTION_W = BROOM_ORB * 1.2
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
 export interface BroomWave {
@@ -55,9 +52,6 @@ export function Broom(p: {
   finished?: boolean
   /** a boss visit: the boss on the right, its health bar, the bolts, the win */
   boss?: BossView
-  potion?: PotionView
-  /** a heart flies from the caught potion to the top bar */
-  heal?: { id: number; lane: number; at: number }
 }) {
   const wiz = useWizardArt()
   const clock = p.clock ?? (() => performance.now())
@@ -141,9 +135,6 @@ export function Broom(p: {
           })}
         </g>
       ))}
-      {p.potion && !p.potion.caught && <Potion potion={p.potion} t={t} />}
-      {p.potion?.caught && <g data-potion data-lane={p.potion.lane} className="d2-potion-pop" transform={`translate(${orbX(0).toFixed(1)} 0)`}><PotionArt y={LANE_Y[p.potion.lane]} intro={false} /></g>}
-      {p.heal && t - p.heal.at < HEAL_MS && <Heal key={p.heal.id} from={{ x: WIZ_X + 60, y: LANE_Y[p.heal.lane] }} k={Math.max(0, (t - p.heal.at) / HEAL_MS)} />}
       {p.boss?.bolt && !p.boss.won && <Bolt key={p.boss.bolt.id} from={{ x: WIZ_X + 70, y: LANE_Y[p.boss.bolt.lane] }} />}
       {p.boss?.won && <BossWin boss={p.boss} />}
       <defs>
@@ -173,7 +164,6 @@ function BossDefs() {
       <radialGradient id="d2-bossglow"><stop offset="0" stopColor="#b48cff" stopOpacity="0.35" /><stop offset="1" stopColor="#b48cff" stopOpacity="0" /></radialGradient>
       <radialGradient id="d2-burst"><stop offset="0" stopColor="#fff" stopOpacity="0.95" /><stop offset="0.4" stopColor="#ffd34d" stopOpacity="0.6" /><stop offset="1" stopColor="#ffd34d" stopOpacity="0" /></radialGradient>
       <radialGradient id="d2-bigburst"><stop offset="0" stopColor="#fff" stopOpacity="0.9" /><stop offset="0.25" stopColor="#fff3c4" stopOpacity="0.6" /><stop offset="1" stopColor="#ffd34d" stopOpacity="0" /></radialGradient>
-      <radialGradient id="d2-pglow"><stop offset="0" stopColor="#ff8fb0" stopOpacity="0.75" /><stop offset="1" stopColor="#ff5a7a" stopOpacity="0" /></radialGradient>
       <filter id="d2-soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
     </>
   )
@@ -274,40 +264,15 @@ function BossWin({ boss }: { boss: BossView }) {
   )
 }
 
-function PotionArt({ y, intro }: { y: number; intro: boolean }) {
-  const h = POTION_W * (412 / 512)
-  return (
-    <>
-      {/* a soft glow behind the bottle; the bottle itself is always at full opacity */}
-      <circle cx={0} cy={y} r={POTION_W * (intro ? 0.78 : 0.62)} fill="url(#d2-pglow)" className={intro ? 'd2-potion-glow' : 'd2-potion-aura'} />
-      {IMAGES['s-potion']
-        ? <image href={IMAGES['s-potion']} x={-POTION_W / 2} y={y - h / 2} width={POTION_W} height={h} />
-        : <path d={`M0 ${y + 50} C-80 ${y} -50 ${y - 60} 0 ${y - 20} C50 ${y - 60} 80 ${y} 0 ${y + 50}Z`} fill="#ff5a7a" />}
-    </>
-  )
-}
-
-/** The rescue potion floats across its lane like an orb, with a trail of pink sparkles. */
-function Potion({ potion, t }: { potion: PotionView; t: number }) {
-  const x = orbX(wavePos(potion.startMs, t, potion.travelMs))
-  const y = LANE_Y[potion.lane]
-  return (
-    <g data-potion data-lane={potion.lane} transform={`translate(${x.toFixed(1)} 0)`} pointerEvents="none">
-      {[0, 1, 2, 3].map((i) => <path key={i} d={sparkle(70 + i * 55, y + (i % 2 ? 18 : -14), 14 - i * 2.5)} fill="#ffb3c8" opacity={1 - i * 0.2} />)}
-      <PotionArt y={y} intro={potion.intro} />
-    </g>
-  )
-}
-
 /**
- * The pictures a flight can need suddenly (the potion, the boss's poses), drawn all the time at near-zero opacity so the
- * browser has them decoded: a picture must never appear after the rest (rule; the potion's first frames were empty).
+ * The pictures a flight can need suddenly (the boss's poses), drawn all the time at near-zero opacity so the browser has
+ * them decoded: a picture must never appear after the rest (rule; the old potion's first frames were empty).
  */
 function Warm({ boss }: { boss?: string }) {
-  const ids = ['s-potion', ...(boss ? ['fly', 'hit', 'down'].map((p) => `boss-${boss}-${p}`) : [])].filter((id) => IMAGES[id])
+  const ids = (boss ? ['fly', 'hit', 'down'].map((p) => `boss-${boss}-${p}`) : []).filter((id) => IMAGES[id])
   return (
     <g data-warm opacity={0.004} pointerEvents="none" aria-hidden>
-      {ids.map((id) => <image key={id} href={IMAGES[id]} x={WIZ_X - 40} y={LANE_Y[1] - 40} width={id === 's-potion' ? POTION_W : BOSS_BOX.w} height={id === 's-potion' ? POTION_W * (412 / 512) : BOSS_BOX.h} />)}
+      {ids.map((id) => <image key={id} href={IMAGES[id]} x={WIZ_X - 40} y={LANE_Y[1] - 40} width={BOSS_BOX.w} height={BOSS_BOX.h} />)}
     </g>
   )
 }

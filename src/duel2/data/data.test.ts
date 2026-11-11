@@ -58,14 +58,16 @@ describe('lines', () => {
         for (const w of words) expect(tokens.includes(w), `${l.id}: ${w}`).toBe(false)
       }
   })
-  it('the boss and potion lines exist (text only: the parent pipeline records them), none ends with "…"', () => {
-    for (const id of ['boss-arrive', 'boss-win', 'boss-new', 'potion-intro', 'info-bosses', 'info-coin-ring']) {
+  it('the boss lines exist (text only: the parent pipeline records them), none ends with "…"', () => {
+    for (const id of ['boss-arrive', 'boss-win', 'boss-new', 'info-bosses', 'info-coin-ring']) {
       const l = lineById(id)!
       expect(l, id).toBeDefined()
       for (const t of l.he) expect(/(\.\.\.|…)$/.test(t), `${id}: ${t}`).toBe(false)
     }
     expect(lineById('boss-arrive')!.variations).toBe(3)
     expect(lineById('boss-win')!.variations).toBe(3)
+    // no flying potion any more (spec: one duel)
+    expect(lineById('potion-intro')).toBeUndefined()
     // the parent's wording: he chased the monster away
     expect(lineById('boss-win')!.he[1]).toBe('וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.'.normalize('NFC'))
   })

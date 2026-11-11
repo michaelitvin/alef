@@ -30,7 +30,7 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
   const test = TEST_HOOKS && v.phase === 'answer'
   switch (s.screen) {
     case 'broom':
-      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} boss={s.boss} potion={s.potion} heal={s.heal} clock={run.clock}
+      return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} boss={s.boss} clock={run.clock}
         correctId={TEST_HOOKS ? s.target.id : undefined} />
     case 'cauldron':
       return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}

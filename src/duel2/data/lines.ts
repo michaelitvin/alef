@@ -69,7 +69,6 @@ export const LINES: LineDef[] = [
     'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
   ], 0, 'excited'),
   line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.'], 0, 'amazed'),
-  line('potion-intro', 'The rescue potion, the first time it floats by (the flight goes on)', ['שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.'], 0.5, 'warmly'),
   // one duel (spec 2026-11-11): the hearts last the run; at the end of each pass one comes back, in its own moment
   line('pass-heart', 'The end of a pass (one trip through all his screens): one heart comes back, with a sound', [
     'לֵב אֶחָד חוֹזֵר אֵלֶיךָ.', 'הִנֵּה לֵב בִּשְׁבִילְךָ.', 'גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.',
@@ -132,7 +131,6 @@ const FE: Record<string, (string | null)[]> = {
   // the voice says ־ְתְּ as the masculine, and the parent rejected the ט respelling ("Nitshat"): first person plural
   'boss-win': ['נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.'],
   'boss-new': ['נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
-  'potion-intro': ['שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.'],
   'pass-heart': ['לֵב אֶחָד חוֹזֵר אֵלַיִךְ.', 'הִנֵּה לֵב בִּשְׁבִילֵךְ.', null],
   // the parent: a weird gap inside "מָסָךְ חָדָשׁ" (every take had it): the words in another order
   'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.'],
