@@ -70,6 +70,10 @@ export const LINES: LineDef[] = [
   ], 0, 'excited'),
   line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.'], 0, 'amazed'),
   line('potion-intro', 'The rescue potion, the first time it floats by (the flight goes on)', ['שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.'], 0.5, 'warmly'),
+  // one duel (spec 2026-11-11): the hearts last the run; at the end of each pass one comes back, in its own moment
+  line('pass-heart', 'The end of a pass (one trip through all his screens): one heart comes back, with a sound', [
+    'לֵב אֶחָד חוֹזֵר אֵלֶיךָ.', 'הִנֵּה לֵב בִּשְׁבִילְךָ.', 'גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.',
+  ], 0.5, 'warmly'),
   // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
   line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
@@ -129,6 +133,7 @@ const FE: Record<string, (string | null)[]> = {
   'boss-win': ['נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.'],
   'boss-new': ['נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
   'potion-intro': ['שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.'],
+  'pass-heart': ['לֵב אֶחָד חוֹזֵר אֵלַיִךְ.', 'הִנֵּה לֵב בִּשְׁבִילֵךְ.', null],
   // the parent: a weird gap inside "מָסָךְ חָדָשׁ" (every take had it): the words in another order
   'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.'],
   'info-stars': ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.'],

@@ -1,6 +1,6 @@
 // The run controller (spec: Run, Screens). One async flow per screen: question → cue → answer → feedback, with mistakes
 // that wait for next, explanations, hints, demos, the dotted-letter introduction, the word link, celebrations, the hearts
-// (refilled on every screen) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
+// (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
 import type { Rng } from '../shared/adaptive'
 import { item as itemOf, mark as markOf, syllable, type MarkId, type Stage } from './logic/content'
@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, runStart, travelMs,
+  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -111,6 +111,10 @@ export interface View {
   score: number
   /** counts the coins he earned this run (a coin pops in the top bar) */
   coinPop?: number
+  /** a heart flies to the top bar (the end of a pass; over any screen); `at` = the controller's clock */
+  heal?: { id: number; at: number }
+  /** the hearts given back at the ends of passes in this run */
+  passHeart?: number
 }
 
 export interface RunOpts {
@@ -212,6 +216,11 @@ export class RunController {
   private ending = false
   /** the crystal of this cycle was given (a pause during it must not give it twice) */
   private crystalAwarded = false
+  /** a pass has ended: its heart moment is due before the next screen */
+  private passDue = false
+  /** the heart of this pass end was given (a pause during its moment must not give it twice) */
+  private passHeartGiven = false
+  private passHearts = 0
   private demoShown = false
   private assets: string[] = []
   /** broom visits in this run: every second one is a boss visit */
@@ -318,6 +327,8 @@ export class RunController {
     this.running = true
     const st = useDuel2Store.getState()
     this.startStars = st.totalStars ?? 0
+    // the hearts last the whole run (spec: one duel, Part 1)
+    this.hearts = heartsAtRunStart()
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
     this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
@@ -410,6 +421,7 @@ export class RunController {
     const t = this.token
     try {
       for (;;) {
+        if (this.passDue) await this.runPassHeart(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
         if (this.opts.force) {
@@ -428,6 +440,7 @@ export class RunController {
         this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
         const nx = nextScreen(this.stage, from, this.drawOn())
+        if (nx.newCycle) this.passDue = true
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
@@ -439,6 +452,25 @@ export class RunController {
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
     }
+  }
+
+  /** The end of a pass: one heart comes back (up to HEARTS), in its own moment with a sound. Once, even across a pause. */
+  private async runPassHeart(t: number) {
+    if (!this.passHeartGiven) {
+      this.passHeartGiven = true
+      const r = passEndHeart(this.hearts)
+      if (!r.gained) { this.passDue = false; this.passHeartGiven = false; return }
+      this.hearts = r.hearts
+      this.passHearts++
+      this.set({ hearts: this.hearts.left, passHeart: this.passHearts, heal: { id: ++this.fxId, at: this.now() } })
+      this.track('pass-heart', { hearts: this.hearts.left })
+    }
+    this.set({ phase: 'celebrate', overlay: null, needNext: false, hintAvailable: false })
+    this.sfx('potion')
+    await this.sleep(t, SFX_RING_MS)
+    await this.say(t, [{ id: this.variation('pass-heart') }])
+    this.passDue = false
+    this.passHeartGiven = false
   }
 
   private newVisit() {
@@ -463,8 +495,8 @@ export class RunController {
   }
 
   private async runScreen(t: number, screen: ScreenId) {
-    // hearts refill when a visit starts; a pause keeps them (also during a boss)
-    if (!this.visitStarted) { this.visitStarted = true; this.hearts = heartsAtRunStart() }
+    // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
+    if (!this.visitStarted) { this.visitStarted = true; if (this.opts.force) this.hearts = heartsAtRunStart() }
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
     // a boss throws syllables
     if (this.visitBoss) this.visitKind = 'syllable'
@@ -1184,6 +1216,8 @@ export class RunController {
     /** the potion comes once this many waves have set off */
     // a heart lost before a pause (or the gallery's potion entry) still brings the potion
     let potionAfter: number | null = galleryPotion || (this.hearts.left < HEARTS && !this.potionShown) ? POTION_AFTER_WAVES : null
+    /** the hearts ran out: the orbs on the screen finish (nothing counts any more), then the run ends */
+    let dying = false
     /** a boss visit has no wave count: it lasts until the boss is beaten or the hearts run out */
     const more = () => !!this.boss || spawned < VISIT.broom
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
@@ -1238,7 +1272,7 @@ export class RunController {
           const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
           const hitWrong = e.hit !== null && w.choices[e.hit].soundId !== target.soundId
           // one wave is one question: after a mistake its other orbs fly on harmlessly (no second heart for the same wave)
-          if (w.spent) return { ...w, resolved: e.resolved }
+          if (w.spent || dying) return { ...w, resolved: e.resolved }
           if (e.hit !== null) events.push({ hit: w.choices[e.hit], wave: w })
           else if (e.missedTarget) events.push({ hit: null, wave: w })
           return { ...w, resolved: e.resolved, spent: hitWrong || e.missedTarget }
@@ -1246,7 +1280,7 @@ export class RunController {
         this.setScreen({ waves } as Partial<BroomView>)
         // the potion: caught in its lane like an orb, missed when it has passed him (it costs nothing)
         const pv = cur.potion
-        if (pv && !pv.caught) {
+        if (pv && !pv.caught && !dying) {
           const k = wavePos(pv.startMs, now, pv.travelMs)
           if (pv.lane === cur.lane && k <= CATCH_AT && k >= PASS_AT) this.onPotion(t, pv)
           else if (k < PASS_AT) { this.track('potion-miss', {}); this.setScreen({ potion: undefined } as Partial<BroomView>) }
@@ -1262,9 +1296,11 @@ export class RunController {
           } else {
             if (this.onFlightMistake(t, target, ev.hit, ev.wave) === 'over') {
               if (this.boss) this.track('boss-lose', { kind: this.boss.kind, left: this.boss.hitsLeft })
-              this.stopBroom()
-              resolve('over')
-              return
+              // the answers already on the screen finish (rule), then the run ends; a pause can no longer cancel it
+              dying = true
+              this.ending = true
+              this.setScreen({ waves: (this.view.screen as BroomView).waves.map((w) => ({ ...w, spent: true })) } as Partial<BroomView>)
+              break
             }
             // a lost heart: the rescue potion comes a wave or so later (once per visit)
             if (this.hearts.left < HEARTS && !this.potionShown && potionAfter === null) potionAfter = spawned + POTION_AFTER_WAVES
@@ -1273,6 +1309,10 @@ export class RunController {
         // a new sound: once no orb with the old sound is flying (other leftovers finish harmlessly), say it while he
         // flies; the next orbs set off when the sound itself is said (Michael: with "and now" they were already close by
         // the sound) and not later (no long waits)
+        if (dying) {
+          if (!(this.view.screen as BroomView).waves.length) { this.stopBroom(); resolve('over') }
+          return
+        }
         const oldLeft = waves.some((w) => !w.spent && w.choices.some((c, j) => c.soundId === target.soundId && !w.resolved[j]))
         if (newTargetDue && !announcing && !oldLeft) {
           announcing = true

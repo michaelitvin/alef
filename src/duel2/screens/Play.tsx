@@ -16,6 +16,7 @@ import { DemoHand } from '../components/DemoHand'
 import { DotOverlay, ExplainOverlay, HintCard, WordLink } from './Overlays'
 import { PauseCover } from './PauseCover'
 import { MistakeFx } from '../components/MistakeFx'
+import { HealFly } from '../components/HealFly'
 import { holdAudio } from '../audio/duel2Audio'
 import { coinsOf, useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
@@ -116,6 +117,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
+      {v.heal && <HealFly key={v.heal.id} />}
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
   )

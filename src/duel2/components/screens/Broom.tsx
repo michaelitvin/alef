@@ -10,6 +10,7 @@ import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
 import type { BossView, PotionView } from '../../controller'
+import { HEAL_MS, Heal } from '../HealFly'
 
 export const LANE_Y = [250, 470, 690]
 export const LANE_H = 220
@@ -34,8 +35,6 @@ export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
 /** clearly a gift: bigger than an orb */
 export const POTION_W = BROOM_ORB * 1.2
-/** how long the heart of a caught potion flies to the top bar */
-const HEAL_MS = 800
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
 export interface BroomWave {
@@ -296,21 +295,6 @@ function Potion({ potion, t }: { potion: PotionView; t: number }) {
     <g data-potion data-lane={potion.lane} transform={`translate(${x.toFixed(1)} 0)`} pointerEvents="none">
       {[0, 1, 2, 3].map((i) => <path key={i} d={sparkle(70 + i * 55, y + (i % 2 ? 18 : -14), 14 - i * 2.5)} fill="#ffb3c8" opacity={1 - i * 0.2} />)}
       <PotionArt y={y} intro={potion.intro} />
-    </g>
-  )
-}
-
-/** A heart flies from the caught potion to the hearts in the top bar. */
-function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
-  const to = { x: 1500, y: 40 }
-  const e = 1 - (1 - k) * (1 - k)
-  const x = from.x + (to.x - from.x) * e
-  const y = from.y + (to.y - from.y) * e - Math.sin(Math.PI * e) * 120
-  const s = 2.6 - e * 1.2
-  return (
-    <g data-heal pointerEvents="none" transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(2)})`}>
-      <path d="M0 9s-7.5-4.6-9.6-9.2C-11.1-3.6-9-7-5.6-7c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C2.1-5.9 3.6-7 5.6-7 9-7 11.1-3.6 9.6-0.2 7.5 4.4 0 9 0 9z"
-        fill="#ff5a7a" stroke="#fff6d8" strokeWidth={1.2} style={{ filter: 'drop-shadow(0 0 6px #ff5a7a)' }} />
     </g>
   )
 }
