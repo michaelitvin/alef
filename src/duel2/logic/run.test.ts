@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, VISIT, cycleOf, heartsOnScreenStart, laneAt, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
+import { CYCLE, HEARTS, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage', () => {
@@ -11,17 +11,18 @@ describe('run', () => {
     expect(nextScreen(4, 'doors')).toEqual({ screen: 'broom', newCycle: true })
     expect(nextScreen(1, 'ghosts')).toEqual({ screen: 'broom', newCycle: true })
   })
-  it('the drawing screen comes after the ghosts, before the doors, only when the parent turned it on', () => {
-    expect(cycleOf(4, true)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'draw', 'doors'])
-    expect(cycleOf(1, true)).toEqual(['broom', 'ghosts', 'draw'])
-    expect(cycleOf(4, false)).not.toContain('draw')
-    expect(nextScreen(4, 'ghosts', true)).toEqual({ screen: 'draw', newCycle: false })
-    expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'doors', newCycle: false })
-    expect(nextScreen(1, 'draw', true)).toEqual({ screen: 'broom', newCycle: true })
-    expect(runStart(4, 'ghosts', true)).toBe('draw')
-    // turned off after a run ended on it: the next run starts at the screen after it
-    expect(runStart(4, 'draw', false)).toBe('doors')
-    expect(VISIT.draw).toBe(3)
+  it('drawing comes after the doors: print, then handwriting, from stage 1, only when on', () => {
+    expect(cycleOf(4, true)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand'])
+    expect(cycleOf(1, true)).toEqual(['broom', 'ghosts', 'draw', 'draw-hand'])
+    expect(cycleOf(4, false)).toEqual(CYCLE)
+    expect(nextScreen(4, 'doors', true)).toEqual({ screen: 'draw', newCycle: false })
+    expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'draw-hand', newCycle: false })
+    expect(nextScreen(4, 'draw-hand', true)).toEqual({ screen: 'broom', newCycle: true })
+    expect(VISIT['draw-hand']).toBe(3)
+  })
+  it('an old save that ended on the drawing screen starts the next run at a valid screen', () => {
+    expect(runStart(4, 'draw', true)).toBe('draw-hand')
+    expect(runStart(4, 'draw', false)).toBe('broom')
   })
   it('next run starts after the screen where the last ended', () => {
     expect(runStart(4, 'ladder')).toBe('ghosts')
@@ -29,8 +30,9 @@ describe('run', () => {
     expect(runStart(1, 'cauldron')).toBe('broom')
     expect(runStart(4, null)).toBe('broom')
   })
-  it('hearts refill per screen and a near miss is forgiven once per round', () => {
-    let h = heartsOnScreenStart()
+  it('hearts last the whole run; a near miss is forgiven once per round', () => {
+    let h = heartsAtRunStart()
+    expect(h.left).toBe(HEARTS)
     let r = onAnswer(h, 'near')
     expect(r.forgiven).toBe(true)
     expect(r.hearts.left).toBe(3)
@@ -41,7 +43,7 @@ describe('run', () => {
     expect(onAnswer(h, 'near').forgiven).toBe(true)
   })
   it('three wrong answers end the run', () => {
-    let h = heartsOnScreenStart()
+    let h = heartsAtRunStart()
     let over = false
     for (let i = 0; i < 3; i++) ({ hearts: h, over } = onAnswer(h, 'wrong'))
     expect(over).toBe(true)
@@ -51,9 +53,18 @@ describe('run', () => {
     expect(travelMs(1)).toBe(5800)
     expect(travelMs(1.2)).toBeCloseTo(5800 * 1.2)
   })
-  it('a catch speeds the flight up by 1%, a mistake slows it by 12%, inside the pace limits', () => {
+  it('the end of a pass gives one heart back, never more than HEARTS', () => {
+    expect(passEndHeart({ left: 1, nearMissUsed: false })).toEqual({ hearts: { left: 2, nearMissUsed: false }, gained: true })
+    expect(passEndHeart({ left: HEARTS, nearMissUsed: false }).gained).toBe(false)
+    expect(passEndHeart({ left: HEARTS, nearMissUsed: false }).hearts.left).toBe(HEARTS)
+  })
+  it('the streak multiplies the coins: x1 for 0-4, x2 for 5-9, x3 from 10', () => {
+    expect([1, 4, 5, 9, 10, 30].map(multiplierOf)).toEqual([1, 1, 2, 2, 3, 3])
+    expect(coinsFor(7)).toBe(2)
+  })
+  it('a mistake slows the flight a little (x1.04), a catch speeds it up 1%, inside the pace limits', () => {
     expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
-    expect(flightPace(1, 'miss')).toBeCloseTo(1.12)
+    expect(flightPace(1, 'miss')).toBeCloseTo(1.04)
     expect(flightPace(PACE_MIN, 'catch')).toBe(PACE_MIN)
     expect(flightPace(PACE_MAX, 'miss')).toBe(PACE_MAX)
   })

@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsOnScreenStart, newRound, flightPace, nextScreen, onAnswer, runStart, travelMs,
+  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -181,7 +181,7 @@ export class RunController {
   private now: () => number
   private pausedAt: number | null = null
   private pausedTotal = 0
-  private hearts: Hearts = heartsOnScreenStart()
+  private hearts: Hearts = heartsAtRunStart()
   private screenId: ScreenId | 'crystal' = 'broom'
   private stage: Stage
   private roundInScreen = 0
@@ -420,7 +420,7 @@ export class RunController {
           this.drawPlan = null
           this.visitKind = null
           this.crystalAwarded = false
-          this.hearts = heartsOnScreenStart()
+          this.hearts = heartsAtRunStart()
           this.newVisit()
           continue
         }
@@ -464,16 +464,16 @@ export class RunController {
 
   private async runScreen(t: number, screen: ScreenId) {
     // hearts refill when a visit starts; a pause keeps them (also during a boss)
-    if (!this.visitStarted) { this.visitStarted = true; this.hearts = heartsOnScreenStart() }
+    if (!this.visitStarted) { this.visitStarted = true; this.hearts = heartsAtRunStart() }
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
     // a boss throws syllables
     if (this.visitBoss) this.visitKind = 'syllable'
     this.set({ hearts: this.hearts.left, overlay: null, needNext: false })
     const kind = (this.visitKind ??= this.kindFor(screen))
     const st = useDuel2Store.getState()
-    if (screen === 'draw') {
+    if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
-      while (this.roundInScreen < VISIT.draw) await this.runDrawRound(t)
+      while (this.roundInScreen < VISIT[screen]) await this.runDrawRound(t)
       return
     }
     const demo = this.demoKey(screen, kind)

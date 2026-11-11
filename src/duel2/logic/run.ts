@@ -1,20 +1,22 @@
-// The run (spec: Run): the screens in a fixed cycle; hearts refill when a new screen starts and the next run starts at the
-// screen after the one where the last ended (Michael, 2026-10-19); the broom flight's timing.
+// The run (spec: Run; one duel, Part 1): the screens in a fixed cycle; the hearts last the whole run, and one comes back
+// at the end of each pass (one trip through the cycle); the next run starts at the screen after the one where the last
+// ended (Michael, 2026-10-19); the streak multiplier of the coins; the broom flight's timing.
 import type { Stage } from './content.ts'
 import type { ScreenId } from './predict'
 import { screensOfStage } from './stages'
 
 export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
-/** the drawing screen goes after the ghosts, before the doors, when the parent has turned it on (spec: drawing) */
-const ORDER: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'draw', 'doors']
-/** waves / rounds / rungs / rounds / words / doors per visit (spec: visit lengths, tune in playtest) */
-export const VISIT: Record<ScreenId, number> = { broom: 10, cauldron: 4, ladder: 5, ghosts: 4, draw: 3, doors: 3 }
+/** the two drawing screens (print, then handwriting) go after the doors, when drawing is on (spec: one duel, Part 5) */
+const ORDER: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand']
+const DRAWING: ScreenId[] = ['draw', 'draw-hand']
+/** waves / rounds / rungs / rounds / doors / words / words per visit (spec: visit lengths, tune in playtest) */
+export const VISIT: Record<ScreenId, number> = { broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3, draw: 3, 'draw-hand': 3 }
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3
 
 export const cycleOf = (stage: Stage, draw = false): ScreenId[] =>
-  ORDER.filter((s) => (s === 'draw' ? draw : screensOfStage(stage).includes(s)))
+  ORDER.filter((s) => (DRAWING.includes(s) ? draw : screensOfStage(stage).includes(s)))
 
 /** The screen after `current` (which need not be in the cycle, e.g. drawing turned off since). */
 export function nextScreen(stage: Stage, current: ScreenId, draw = false): { screen: ScreenId; newCycle: boolean } {
@@ -26,13 +28,24 @@ export function nextScreen(stage: Stage, current: ScreenId, draw = false): { scr
 
 export function runStart(stage: Stage, lastEnded: ScreenId | null, draw = false): ScreenId {
   const c = cycleOf(stage, draw)
-  // a screen of another stage starts the cycle over; the drawing screen turned off goes on after its place
-  if (!lastEnded || (!c.includes(lastEnded) && lastEnded !== 'draw')) return c[0]
+  // a screen that is not in the cycle (another stage's, or drawing turned off) starts the cycle over
+  if (!lastEnded || !c.includes(lastEnded)) return c[0]
   return nextScreen(stage, lastEnded, draw).screen
 }
 
 export interface Hearts { left: number; nearMissUsed: boolean }
-export const heartsOnScreenStart = (): Hearts => ({ left: HEARTS, nearMissUsed: false })
+/** the hearts of a run: they do not refill when a new screen starts (spec: one duel, Part 1) */
+export const heartsAtRunStart = (): Hearts => ({ left: HEARTS, nearMissUsed: false })
+/** the end of a pass: one heart comes back, never more than HEARTS */
+export function passEndHeart(h: Hearts): { hearts: Hearts; gained: boolean } {
+  if (h.left >= HEARTS) return { hearts: h, gained: false }
+  return { hearts: { ...h, left: h.left + 1 }, gained: true }
+}
+
+/** the streak multiplier: x1 for a streak of 0-4, x2 for 5-9, x3 for 10 or more */
+export const multiplierOf = (streak: number): 1 | 2 | 3 => (streak >= 10 ? 3 : streak >= 5 ? 2 : 1)
+/** the coins of a right answer; `streak` counts this answer */
+export const coinsFor = (streak: number): number => multiplierOf(streak)
 export const newRound = (h: Hearts): Hearts => ({ ...h, nearMissUsed: false })
 
 export function onAnswer(h: Hearts, a: 'right' | 'wrong' | 'near'): { hearts: Hearts; forgiven: boolean; over: boolean } {
@@ -46,9 +59,9 @@ export function onAnswer(h: Hearts, a: 'right' | 'wrong' | 'near'): { hearts: He
 /** base travel time of an orb (spec 2026-11-07: 5800, was 5200; the per-lap speed-up is gone: the flight follows him) */
 export const BASE_TRAVEL_MS = 5800
 export const travelMs = (pace: number) => BASE_TRAVEL_MS * pace
-/** Book 2's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 12%. */
+/** Book 2's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 4% (was 12%). */
 export function flightPace(pace: number, r: 'catch' | 'miss'): number {
-  return Math.min(PACE_MAX, Math.max(PACE_MIN, pace * (r === 'catch' ? 0.99 : 1.12)))
+  return Math.min(PACE_MAX, Math.max(PACE_MIN, pace * (r === 'catch' ? 0.99 : 1.04)))
 }
 /** 1 at the right edge → 0 at the wizard */
 export const waveX = (startMs: number, nowMs: number, travel: number) => Math.min(1, Math.max(0, 1 - (nowMs - startMs) / travel))

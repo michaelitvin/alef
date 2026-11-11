@@ -1419,14 +1419,14 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.destroy()
   })
 
-  it('in the lap only when the parent turned it on: after the ghosts', async () => {
-    useDuel2Store.setState({ lastEnded: 'ghosts', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+  it('in the lap only when drawing is on: after the doors', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', settings: { ...useDuel2Store.getState().settings, drawing: true } })
     const c = make()
     c.start()
     await until(c, (v) => !!v.screen)
     expect(c.view.screen!.screen).toBe('draw')
     c.destroy()
-    useDuel2Store.setState({ lastEnded: 'ghosts', settings: { ...useDuel2Store.getState().settings, drawing: false } })
+    useDuel2Store.setState({ lastEnded: 'doors', settings: { ...useDuel2Store.getState().settings, drawing: false } })
     const d = make()
     d.start()
     await until(d, (v) => !!v.screen)
