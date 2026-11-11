@@ -2,7 +2,7 @@ import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RunController, type BroomView, type View } from './controller'
 import { useRun } from './useRun'
-import { useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, useDuel2Store } from './store'
 import { CATCH_AT, wavePos } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
 import { wavePos as wp } from './logic/run'
@@ -96,7 +96,8 @@ describe('run controller', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
+    // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
+    useDuel2Store.setState({ settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
     played = []
     setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })

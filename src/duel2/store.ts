@@ -9,7 +9,7 @@ import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stag
 
 export interface Duel2Settings {
   sfx: boolean; music: boolean; volume: number
-  /** the drawing screen in the lap: off until the parent has checked the strokes on the review page (spec: drawing) */
+  /** the two drawing screens in the lap: on by default since the parent reviewed the strokes (spec: one duel, Part 5) */
   drawing?: boolean
 }
 export interface Duel2Save {
@@ -31,9 +31,10 @@ export interface Duel2Save {
   runs: number
   bestRun: number
   crystals: number
-  /** all the stars (right answers) of all his runs: shown on the cover */
-  /** every star of every run, kept at once (a coin for each COIN_EVERY) */
+  /** every star (right answer) of every run, kept at once: shown on the cover; it only grows */
   totalStars: number
+  /** his coin balance: spending money, earned per right answer (times the streak multiplier) and spent at the merchant */
+  coins: number
   /** how many times each praise line was spoken: after two it is only its sound */
   praiseHeard: Record<string, number>
   /** the flight bosses he has beaten (each kind once): the trophy shelf */
@@ -56,8 +57,11 @@ interface Actions {
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
   addStar: () => void
-  /** stars at once (a boss win: 10 per bonus coin) */
+  /** stars at once */
   addStars: (n: number) => void
+  addCoins: (n: number) => void
+  /** false, and no change, when he has fewer than `n` */
+  spendCoins: (n: number) => boolean
   markBossBeaten: (k: BossKind) => void
   setLastBoss: (k: BossKind) => void
   markBossNewHeard: (k: BossKind) => void
@@ -73,7 +77,7 @@ interface Actions {
   resetProgress: () => void
 }
 
-export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: false }
+export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: true }
 /** the review marks to clear in version 2: the letters whose strokes changed after the parent's review (2026-11-07) */
 /** version 3: the letters changed after the second review */
 export const STROKES_CHANGED_V3 = [...'בדחטכמםצקרגזוץף'].map((l) => `${l}-hand`)
@@ -83,13 +87,32 @@ export const STROKES_CHANGED_V2 = [...'הזמנץק'].map((l) => `${l}-print`).c
 
 const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
-  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, praiseHeard: {}, drawRounds: 0,
+  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
 })
 
+/**
+ * Converts an older save, step by step (each step runs for every save older than it; no early return). Version 2: the
+ * stroke data of some letters changed after the parent's review, so their review marks are cleared (they show as
+ * unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the
+ * third review. Version 5 (one duel): his coins (one for each 10 stars) become a balance, and drawing turns on for every
+ * save (saves carry an explicit `drawing: false`; the parent can turn it off again).
+ */
+export function migrateSave(state: unknown, version: number): Partial<Duel2Save> & { settings: Duel2Settings } {
+  let s = { ...((state ?? {}) as Partial<Duel2Save>) }
+  if (version < 4 && s.strokeMarks) {
+    const m = { ...s.strokeMarks }
+    const cleared = [...(version < 2 ? STROKES_CHANGED_V2 : []), ...(version < 3 ? STROKES_CHANGED_V3 : []), ...STROKES_CHANGED_V4]
+    for (const k of cleared) delete m[k]
+    s = { ...s, strokeMarks: m }
+  }
+  if (version < 5) s = { ...s, coins: coinsOf(s.totalStars ?? 0), settings: { ...DEFAULT_SETTINGS, ...s.settings, drawing: true } }
+  return s as Partial<Duel2Save> & { settings: Duel2Settings }
+}
+
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
 
-/** a gold coin for every this many stars, across all his plays: points that grow only now and then (Michael) */
+/** the old rule, a coin for every this many stars: kept only for the version-5 migration (his coins become a balance) */
 export const COIN_EVERY = 10
 export const coinsOf = (stars: number) => Math.floor((stars ?? 0) / COIN_EVERY)
 
@@ -127,6 +150,12 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), })),
       addStar: () => set((s) => ({ totalStars: (s.totalStars ?? 0) + 1 })),
       addStars: (n) => set((s) => ({ totalStars: (s.totalStars ?? 0) + n })),
+      addCoins: (n) => set((s) => ({ coins: (s.coins ?? 0) + n })),
+      spendCoins: (n) => {
+        if (n > (get().coins ?? 0)) return false
+        set((s) => ({ coins: (s.coins ?? 0) - n }))
+        return true
+      },
       markBossBeaten: (k) => set((s) => ((s.bossesBeaten ?? []).includes(k) ? s : { bossesBeaten: [...(s.bossesBeaten ?? []), k] })),
       setLastBoss: (k) => set({ lastBoss: k }),
       markBossNewHeard: (k) => set((s) => ((s.bossNewHeard ?? []).includes(k) ? s : { bossNewHeard: [...(s.bossNewHeard ?? []), k] })),
@@ -147,21 +176,11 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {
-      name: 'alef-duel2', version: 4, storage: createJSONStorage(() => localStorage),
-      // Raise `version` when a save must be converted, and convert older saves here (never drop his progress: rule).
+      name: 'alef-duel2', version: 5, storage: createJSONStorage(() => localStorage),
+      // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
       // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
-      // state over it. Version 2: the stroke data of some letters changed after the parent's review, so their review
-      // marks are cleared (they show as unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the third review.
-      migrate: (state, version) => {
-        const s = (state ?? {}) as Partial<Duel2Save>
-        if (version < 4 && s.strokeMarks) {
-          const m = { ...s.strokeMarks }
-          const cleared = [...(version < 2 ? STROKES_CHANGED_V2 : []), ...(version < 3 ? STROKES_CHANGED_V3 : []), ...STROKES_CHANGED_V4]
-          for (const k of cleared) delete m[k]
-          return { ...s, strokeMarks: m } as Duel2Save & Actions
-        }
-        return s as Duel2Save & Actions
-      },
+      // state over it.
+      migrate: (state, version) => migrateSave(state, version) as Duel2Save & Actions,
     },
   ),
 )

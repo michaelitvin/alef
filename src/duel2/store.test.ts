@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { DEFAULT_SETTINGS, coinsOf, useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, coinsOf, migrateSave, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
@@ -7,12 +7,48 @@ const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice
 
 describe('duel2 store', () => {
   beforeEach(() => useDuel2Store.getState().resetProgress())
-  it('the drawing screen is off until the parent turns it on (an old save without the setting reads as off)', () => {
-    expect(DEFAULT_SETTINGS.drawing).toBe(false)
-    useDuel2Store.setState({ settings: { sfx: true, music: true, volume: 1 } as typeof DEFAULT_SETTINGS })
-    expect(!!useDuel2Store.getState().settings.drawing).toBe(false)
+  it('drawing is on for a new player', () => { expect(DEFAULT_SETTINGS.drawing).toBe(true) })
+  it('the parent can still turn drawing off', () => {
+    useDuel2Store.getState().setSettings({ drawing: false })
+    expect(useDuel2Store.getState().settings.drawing).toBe(false)
     useDuel2Store.getState().setSettings({ drawing: true })
-    expect(useDuel2Store.getState().settings.drawing).toBe(true)
+  })
+  it('a version-4 save keeps everything, gets his old coins as a balance, and drawing turns on by itself', () => {
+    const v4 = { stage: { stage: 3, newAnswers: '' }, totalStars: 137, crystals: 2, bossesBeaten: ['bat'],
+      settings: { sfx: true, music: false, volume: 0.5, drawing: false }, strokeMarks: { 'ד-print': 'ok' } }
+    const out = migrateSave(v4, 4)
+    expect(out.coins).toBe(13)
+    expect(out.settings.drawing).toBe(true)
+    expect(out.settings.music).toBe(false)
+    expect(out.totalStars).toBe(137)
+    expect(out.crystals).toBe(2)
+    expect(out.stage).toEqual({ stage: 3, newAnswers: '' })
+    expect(out.bossesBeaten).toEqual(['bat'])
+    expect(out.strokeMarks).toEqual({ 'ד-print': 'ok' })
+  })
+  it('a version-4 save opened by the new build: rehydrated, his coins and drawing on', async () => {
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { totalStars: 42, crystals: 3, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 }))
+    await useDuel2Store.persist.rehydrate()
+    const s = useDuel2Store.getState()
+    expect(s.coins).toBe(4)
+    expect(s.totalStars).toBe(42)
+    expect(s.settings.drawing).toBe(true)
+  })
+  it('an older save runs every step: the stroke marks are cleared and the coins moved over', () => {
+    const out = migrateSave({ totalStars: 25, strokeMarks: { 'ה-print': 'ok', 'ש-hand': 'ok' } }, 3)
+    expect(out.strokeMarks).toEqual({ 'ש-hand': 'ok' })
+    expect(out.coins).toBe(2)
+    expect(out.settings.drawing).toBe(true)
+  })
+  it('coins go up and down; he cannot spend more than he has', () => {
+    const s = useDuel2Store.getState()
+    s.addCoins(5)
+    expect(s.spendCoins(7)).toBe(false)
+    expect(useDuel2Store.getState().coins).toBe(5)
+    expect(useDuel2Store.getState().spendCoins(3)).toBe(true)
+    expect(useDuel2Store.getState().coins).toBe(2)
+    useDuel2Store.getState().resetProgress()
+    expect(useDuel2Store.getState().coins).toBe(0)
   })
   it('the stroke review marks are kept, and a reset of his progress keeps them (they are the parent’s)', () => {
     useDuel2Store.getState().markStrokes('ד-print', 'ok')
