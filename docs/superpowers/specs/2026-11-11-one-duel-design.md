@@ -24,8 +24,8 @@ Four requests from the parent, in one project because they touch the same run, r
    the new duel game."
 
 Why he can't lose today (from the code): hearts refill when each screen starts (`heartsOnScreenStart`), the first
-near-miss in a round is forgiven, a rescue potion flies in after every lost heart, and every mistake slows the flight
-12 % (`flightPace`).
+near-miss in a round is forgiven, a rescue potion flies in on the broom after a lost heart (at most once per broom
+visit), and every mistake slows the flight 12 % (`flightPace`).
 
 ## Goals, non-goals, anti-goals
 
@@ -79,8 +79,8 @@ My calls:
   (a coin for every 10 points) that the parent asked for. The stars stay the count that is kept between plays and only
   grows; the coins become spending money. Update that rule's example when this is built.
 - **The slowdown:** a mistake slows the flight ×1.04 (today ×1.12). A catch still speeds it ×0.99.
-- **The near-miss forgiveness stays.** It is a fair rule ("almost right"), not a safety net. Only the four nets above
-  change.
+- **The near-miss forgiveness stays.** It is a fair rule ("almost right"), not a safety net. Of today's four nets, only the
+  other three change.
 - **The defeat scene:** the wizard falls off his broom (the existing dizzy sprite) and the boss or a monster gloats.
   Then a big play button for "again?", in the explanation's go-on style. The next run starts after the screen where
   this one ended, as today (`lastEnded`).
@@ -124,7 +124,8 @@ Shopping is too rare to *teach* arithmetic. It is a place to practise what he kn
   over a row. A tap or a drag takes the top coin of a pile.
 - **The piles are all his savings** (the parent decided). The top bar shows the exact total. A pile is drawn up to a
   height cap (my call: 6 coins). A taller pile is drawn at the cap and means "at least this many" (the parent). Taking
-  coins from a capped pile lowers it only when fewer than the cap are left.
+  coins from a capped pile lowers it only when fewer than the cap are left, so every coin of his savings can be
+  given.
 - The game decides which coins his balance is made of, so that **the exact price can always be made** (the parent:
   "the game has to make sure that the wizard has the right change to make the price"). It re-makes the composition
   before each visit, never during one. My call on how
@@ -180,7 +181,9 @@ Then it is his turn, with the same price (rule: the demo's round is the first ro
   - **Too much:** the tag flashes. The coins stay. **The first time only,** the pointing hand taps the merchant's hand
     and the last coin flies back to its pile (the parent liked showing it "just when it's needed").
   - Wrong tries cost nothing, and he can try any number of times.
-- **The hint:** the wand, or by itself after two wrong tries in a row. The coins in the merchant's hand go back, and
+- **The hint:** the wand. After two wrong tries in a row, the wand glows (it does not open by itself: rule, a hint
+  comes by itself only after a long wait). The hint shows the answer, which is acceptable because he asked for it;
+  the parent's objection to outlines was that they showed the answer without being asked. The coins in the merchant's hand go back, and
   the top coins of the piles that make the price glow green. He still gives them himself.
 - **He taps the potion with nothing in the merchant's hand:** the merchant's hand glows.
 
@@ -190,27 +193,33 @@ The merchant speaks; only the hint is the narrator's. The parent wrote or change
 
 | When | Line |
 |---|---|
-| Opening (the parent's line) | שָׁלוֹם, קוֹסֵם [קוֹסֶמֶת]! יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה [תִּרְצִי] לִקְנוֹת אֶחָד? |
+| Opening (the parent's line) | שָׁלוֹם קוֹסֵם [קוֹסֶמֶת]. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה [תִּרְצִי] לִקְנוֹת אֶחָד? |
 | No answer for 20 s | נוּ, תִּרְצֶה [תִּרְצִי] לִקְנוֹת אֶחָד? |
-| ✗ (no thanks) | בְּסֵדֶר! לְהִתְרָאוֹת, קוֹסֵם [קוֹסֶמֶת]! |
+| ✗ (no thanks) | בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם [קוֹסֶמֶת]. |
 | D1 (first visit) | זֶה הַמְּחִיר. |
 | D2 (the parent's wording) | תֵּן [תְּנִי] לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר. |
 | D3 | וְאָז גַּע [גְּעִי] בַּשִּׁקּוּי. |
 | D4 | לֹא צָרִיךְ? גַּע [גְּעִי] כָּאן. |
-| Exact | בְּדִיּוּק! הִנֵּה הַשִּׁקּוּי. |
-| Not enough | חָסֵר עוֹד קְצָת! |
-| Too much | זֶה יוֹתֵר מִדַּי! |
+| Exact | בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי. |
+| Not enough | זֶה לֹא מַסְפִּיק. |
+| Too much | זֶה יוֹתֵר מִדַּי. |
 | Too much, first time, with the undo demo | קַח [קְחִי] מַטְבֵּעַ בַּחֲזָרָה. |
 | Hint, narrator | אוּלַי אֵלֶּה? |
-| Potion tapped with an empty hand | קֹדֶם מַטְבְּעוֹת! |
+| Potion tapped with an empty hand | קֹדֶם מַטְבְּעוֹת. |
 
 - **No numbers are spoken.** Every count is shown. (This solves recording every number.)
+- **No "!" in the text** (rule: it makes the voice shout); the playful tone comes from the voice settings. The opening
+  line has no comma after שָׁלוֹם (the clock's "שָׁלוֹם, שָׁעָן!" was read as two words). "Not enough" avoids עוֹד and
+  קְצָת, which this voice says wrongly (rule). The parent's wording is kept otherwise.
+- The girl forms (תִּרְצִי, תְּנִי, גְּעִי, קְחִי) are the kind the rules say the voice mis-stresses: check them on the
+  merchant's voice before mass recording, and reword to a neutral form where they fail.
 - Each line that repeats gets a few variations (rule).
 - My call: the merchant has his own voice, playful and warm, different from the narrator.
 
 ### Edge cases (my calls)
 
-- If the game is paused or closed during a visit, the coins in the merchant's hand go back and the visit is lost.
+- A pause during a visit (the tablet locks) keeps the visit as it is, coins in the merchant's hand included (rule:
+  continue with the same question). Only closing the game ends the visit; then the coins go back.
 - The merchant's art: the gnome (the raccoon was rejected because it looked like a boss). The mock has three poses:
   selling (open hand and raised hand), embarrassed, and insulted. The insulted pose is not used now.
 
@@ -240,18 +249,21 @@ My calls:
   gets a shorter visit (about half), and a screen he has excelled at for a long time is skipped in every other cycle.
   It is never removed, so it comes back as review. Checkpoints stay between screens.
 - **Migration of the first duel:**
-  - Its right answers (correct + mega, summed over `byMark`) are added to the shared stars.
+  - Its right answers (`correct`, summed over `byMark`) are added to the shared stars. `mega` results are not counted:
+    a lightning kill is not reading (rule: count special results separately).
   - Coins: his starting balance is the coins he has today (`coinsOf`), plus the first duel's right answers counted
     the same way (one coin for each 10).
   - Its adaptive data (`byMark`, `recent`, `confusions`, `pace`) seeds the first-duel screen's adaptive state.
   - Its stats stay in the parent report as history.
 - **Book 2's own save is kept as is.** The first duel's data moves into it once, and the old data stays where it is
   (read-only).
-- **Station stars on the path** are a 0–3 rating of his recent accuracy on that minigame's content (from the adaptive
-  tallies, which exist for every player), not a count. So existing players see their progress at once.
+- **Station ratings on the path** are a 0–3 rating of his recent accuracy on that minigame's content, from the adaptive
+  tallies, which exist for every player, so existing players see their progress at once. They are drawn as three small
+  dots that fill, not stars, so they are not confused with the star count.
 - **The way in:** the duel card opens Book 2's cover, as today (its big play button, his totals and the boss shelf;
   the parent area is reached from there). A station on the path opens that minigame directly, through a link parameter.
-  After a path session's summary, he goes back to the home screen.
+  After a path session's summary, the game goes back to the home screen by itself (no button: rule, no way out on a
+  child screen).
 - **A session from the path:** one visit to that minigame (about 10 questions, or one boss), then the summary screen.
   No hearts at stake and no merchant. Stars and coins are still earned.
 
@@ -266,8 +278,10 @@ All of this was mocked and the parent approved the mock ("LGTM").
   בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד."
 - **The first station's picture is the tower** (the parent: a monster bubble didn't represent the first duel).
 - **The path:** a dotted, zigzag, horizontally scrolling path of stations. Open stations come first and locked ones are
-  greyed out with a lock. Each station shows its stars (see Part 3). The wizard stands at the newest open station. A station starts a
-  single-minigame session. **Captions say only what is learned, never the minigame's name** (the parent):
+  greyed out with a lock (this overrides the rule "make a new minigame available from the start": the parent decided
+  that minigames open over time). Each station shows its rating (see Part 3). The wizard stands at the newest open station. A station starts a
+  single-minigame session. **Captions say only what is learned, never the minigame's name** (the parent). They are for
+  the parent: smaller and fainter than the station picture.
 
   | Station | Picture | Caption |
   |---|---|---|
@@ -286,7 +300,8 @@ All of this was mocked and the parent approved the mock ("LGTM").
   three small clock faces (3:00, 3:30, 3:15) and a brass play button. It has its own line: "**מה לומדים:** לקרוא שעון
   מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית."
 - **A separator, then "פעילויות נוספות":** the six old levels (letters, nikkud, syllables, words, sentences, stories)
-  as one row of small round icons, with a lock on locked ones. My call, accepted with the mock: a shelf, not a
+  as one row of small round icons, with a lock on locked ones. The icons and the lock are redrawn as SVG (today they
+  are emoji; rule: no emoji). My call, accepted with the mock: a shelf, not a
   collapsed section, because he can't read a "more" bar.
 - **Fits a phone held upright** (the parent tested on a Galaxy S24) and sideways: the cards shrink, the path scrolls
   only sideways, and no vertical overflow.
@@ -309,6 +324,39 @@ The parent approved (2026-11-11):
   he knows long before he reads words at the doors' level, and writing a letter's strokes helps him tell look-alike
   letters apart.
 - **On by default,** now that the parent has reviewed the strokes. The parent setting stays, to turn it off.
+
+## Details settled after the review (my calls)
+
+- **Earlier specs superseded:** the flight-boss spec's "hearts refill at the start of the screen" and "potion at most once
+  per broom visit"; its bonus coins stored as 30 stars (a boss now adds 3 coins to the balance); the end screen's coin
+  ring ("how close the next coin is") and `info-coin-ring` are removed, since coins no longer come from stars.
+- **Score and best:** the run's score is the stars of the run; "best" is the most stars in a run, as today. The first
+  duel's points (combo, `bestScore`, `bestWave`) are retired; they stay in the parent report as history.
+- **The end of a run:** the defeat scene, then Book 2's summary as today (the run's stars, his best, crystals, trophy,
+  the next-boss teaser, without the coin ring), with the big play button for "again?". The first duel's own game-over
+  screen (`RunSummary`) is not used in the run.
+- **The hearts run out in the middle of a screen:** the answers already on the screen finish (rule), then the run ends.
+- **The streak multiplier is shown:** a small ×2 / ×3 badge next to the star count in the top bar. It rises with a sound
+  and a short voice line, in its own moment. It resets when a heart is lost (a forgiven near miss does not reset it). It
+  carries across screens, the merchant and bosses. In path sessions it works the same way.
+- **Path sessions:** no hearts in the top bar, and mistakes cost nothing but the streak. Stars and coins are earned as
+  usual (coins come only from reading, so this is fine).
+- **The merchant's timing:** "every other checkpoint" counts checkpoints since his last visit, and a declined visit counts
+  as a visit. "Always before a boss" means: when the conditions hold (fewer than 3 hearts, enough coins), the checkpoint
+  before a boss always has him. A screen that is skipped (a minigame he excels at) has no checkpoint of its own.
+- **Prices:** the first price is about six right answers' coins without the multiplier. Each purchase ×1.5, rounded.
+  Prices are capped at the number range's top (10, 100 or 1000).
+- **Existing players and stage 0:** a player with a Book 2 save at stage 1 or above has stage 0 passed. The first duel
+  opens for him as a station at once. Nothing he has goes back.
+- **Drawing for the existing child:** a one-time save migration turns `settings.drawing` on (saves carry an explicit
+  `false` today, so changing the default alone would not reach him). The parent can turn it off again.
+- **The first duel's screen in a run:** one visit is two waves (10 monsters). Its boss comes every few cycles, in the
+  run's boss rhythm. Its HUD (`DuelHud`: hearts, score, מגה meter) is replaced by Book 2's top bar.
+- **The home screen and girls:** the card picture and the path's wizard follow the saved player (`shared/player`).
+  Before the question has been asked, the boy is shown. The girl versions are needed for both.
+- **The ✗ during the first-visit demo:** hidden while the demo plays; the demo counts as seen when it ends.
+- **Info lines to re-record** (they state rules that change): `info-hearts` (hearts no longer come back on each
+  screen), `info-coins` (coins no longer come from ten stars), and `potion-intro` (no flying potion). Boy and girl forms.
 
 ## Parent area
 
