@@ -319,6 +319,18 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
 - Do not use a clock for slow tasks, such as drawing.
+- Build a new screen from the game's own parts: its top bar, buttons, choice cards, coin, demo hand and colours. Do not
+  draw a new version of a part that the game already has.
+  Example (merchant): new coins, yes/no buttons and a new pointing hand each looked foreign; the parent rejected them one
+  by one until each was the game's own.
+- Let the action itself be the answer. Do not add a button to confirm or to say yes.
+  Example (merchant): a handshake "deal" button and a yes card were removed; giving coins is the yes, a tap on the potion
+  buys it, and one ✗ card is the only "no".
+- Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
+- Explain a move at the moment that the child first needs it, not in the opening demo.
+  Example (merchant): how to take a coin back is shown the first time that he gives too much.
+- Do not count for the child what the task asks him to count. Count only after he decides, as feedback.
+  Example (merchant): a running total on the plate did his adding for him; now the merchant counts after he taps the potion.
 - When the screen shows a place where a choice goes (a pot, a ladder rung, a door), let the child drag the choice there.
   Accept a tap too. Make the drop zone large, and let a choice that is dropped elsewhere fly back.
   Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.

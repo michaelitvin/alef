@@ -57,6 +57,9 @@ near-miss in a round is forgiven, a rescue potion flies in after every lost hear
 
 ## Part 1 — Stakes
 
+The stakes are for the whole adventure, in every minigame (the parent: "I don't think he meant a specific minigame, but
+all games, he just can't lose"). This includes the first duel's screen once it is in the run.
+
 The parent decided:
 - **3 hearts for the whole run.** They do not refill when a new screen starts. (Replaces `heartsOnScreenStart` per
   screen and the 2026-10-19 decision "hearts refill per screen".)
@@ -72,6 +75,9 @@ My calls:
 - **Earning:** one coin for each right answer, times the streak multiplier. ×1 for a streak of 0–4, ×2 for 5–9, ×3 for
   10 or more. Today's "a coin for each 10 stars" (`COIN_EVERY`) is too slow to pay prices that he must count. Stars stay
   as the record of right answers. Coins become a balance that goes up and down.
+  This changes the rule "give rewards at several paces" in `docs/minigame-rules.md`, where coins were the slow count
+  (a coin for every 10 points) that the parent asked for. The stars stay the count that is kept between plays and only
+  grows; the coins become spending money. Update that rule's example when this is built.
 - **The slowdown:** a mistake slows the flight ×1.04 (today ×1.12). A catch still speeds it ×0.99.
 - **The near-miss forgiveness stays.** It is a fair rule ("almost right"), not a safety net. Only the four nets above
   change.
@@ -110,6 +116,9 @@ Shopping is too rare to *teach* arithmetic. It is a place to practise what he kn
 - up to 1000: also 100, 200, 500.
 
 ### His coins (the parent picked piles)
+
+- **The game's own coins, never shekels and never paper notes** (the parent: "keep the current currency"). He makes up
+  a payment from coins of different values, the way the parent asked ("can the kid compose the bills?").
 
 - His coins lie on the ground in front of the wizard, as **one pile for each kind of coin**. The parent picked piles
   over a row. A tap or a drag takes the top coin of a pile.
@@ -251,10 +260,11 @@ My calls:
 All of this was mocked and the parent approved the mock ("LGTM").
 - **Right to left throughout** (the parent: "Hebrew is RTL, and the mock should adhere"): pictures on the right, play
   buttons on the left pointing left, the path starts on the right.
-- **The duel card** (a new picture: the tower with the wizard flying out of it on his broom; the parent picked take 3
-  of four) has three nikkud orbs and a big vector play button in its own column. The card starts the full adventure.
+- **The duel card** (a new, dedicated picture that replaces the old card's two wizards: the tower, for the first duel,
+  with the wizard flying out of it on his broom, for Book 2; the parent picked take 3 of four) has three nikkud orbs and a big vector play button in its own column. The card starts the full adventure.
 - **Under the card, a line for the parent:** "**מה לומדים:** לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין
   בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד."
+- **The first station's picture is the tower** (the parent: a monster bubble didn't represent the first duel).
 - **The path:** a dotted, zigzag, horizontally scrolling path of stations. Open stations come first and locked ones are
   greyed out with a lock. Each station shows its stars (see Part 3). The wizard stands at the newest open station. A station starts a
   single-minigame session. **Captions say only what is learned, never the minigame's name** (the parent):
@@ -316,6 +326,8 @@ Record each shipped asset's request in `asset-sources/` (CLAUDE.md).
     and reviewed).
   - The duel card picture (take 3 chosen).
   - **The girl version of the card picture** (owed; the card budget left is about $0.90).
+  - Spent so far, in the art ledger: the card, 4 images (~$0.60 of a $1.50 budget); the merchant mock, 4 images
+    (~$0.60 of a $1 budget). Agree a budget with the parent before the final merchant art.
 - **Voice:** the merchant's lines above, in boy and girl forms with variations, in a voice of their own, plus the two
   narrator lines. Review on the audio review page, as for the other games.
 - **Sounds:** a coin clink, a counting chime, and the tag's flash.
@@ -330,6 +342,15 @@ Record each shipped asset's request in `asset-sources/` (CLAUDE.md).
 
 ## Later (open, the parent parked them)
 
-- **Change and checking change:** paying with a bigger coin, getting change back, and later checking it (the merchant
-  sometimes gives too little). Fully mocked and parked as "too complicated, for later".
-- **Haggling:** dropped.
+- **Change and checking change** (parked: "too complicated, let's keep it open, for later"). What was decided before it
+  was parked, so it can be picked up again:
+  - He may pay with bigger coins and get change (the parent's example: 2 × 20 + 50 = 90 for a price of 87).
+  - The merchant sometimes gives too little (about 1 time in 3). The child must find out when that happened, or he
+    learns nothing.
+  - Caught: the merchant is ashamed and gives back the coin. Missed: the narrator shows it afterwards, and the coin is
+    lost. A false accusation: the merchant counts in front of him, is insulted and leaves, the deal is off, and the coins
+    come back (the parent: "a bit offended isn't good enough").
+  - Rejected on the way: empty outlines for the missing coins ("it just tells the answer"), and a running total of the
+    change.
+- **Haggling** (dropped as unclear: its rules are invisible to the child). It was: a counter-offer for a reasonable
+  offer, then "my last price"; an insultingly low offer → the merchant is insulted and the deal is off.
