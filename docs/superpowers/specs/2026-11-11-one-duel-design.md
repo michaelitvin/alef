@@ -63,6 +63,11 @@ all games, he just can't lose"). This includes the first duel's screen once it i
 The parent decided:
 - **3 hearts for the whole run.** They do not refill when a new screen starts. (Replaces `heartsOnScreenStart` per
   screen and the 2026-10-19 decision "hearts refill per screen".)
+- **A heart back at the end of each pass** (the parent chose this, 2026-11-11; "maybe increase to 5 hearts later").
+  A pass is one trip through all his open minigames in their fixed order; the run then starts the order again. At the
+  end of a pass, one heart comes back, up to 3, in its own moment with a sound. Reason: at his 1-in-5 mistake rate,
+  3 hearts last about 15 answers, and a pass with everything open is about 40; without it nearly every run would end on
+  the second or third screen. Keep the heart count a single constant, so 5 is a one-line change after a playtest.
 - **No free potion.** The rescue potion that flies in after a lost heart is gone. The only way to get a heart back is
   to buy the potion from the merchant (Part 2).
 - **A streak multiplier.** Right answers in a row multiply what he earns (×2, then ×3). A mistake resets it.
@@ -348,8 +353,9 @@ The parent approved (2026-11-11):
   Prices are capped at the number range's top (10, 100 or 1000).
 - **Existing players and stage 0:** a player with a Book 2 save at stage 1 or above has stage 0 passed. The first duel
   opens for him as a station at once. Nothing he has goes back.
-- **Drawing for the existing child:** a one-time save migration turns `settings.drawing` on (saves carry an explicit
-  `false` today, so changing the default alone would not reach him). The parent can turn it off again.
+- **Drawing for the existing child turns on by itself** (the parent: no manual change). Saves carry an explicit
+  `settings.drawing: false` today, so changing the default alone would not reach him: a one-time save migration sets it
+  to `true` for every existing save. The parent can turn it off again in the settings.
 - **The first duel's screen in a run:** one visit is two waves (10 monsters). Its boss comes every few cycles, in the
   run's boss rhythm. Its HUD (`DuelHud`: hearts, score, מגה meter) is replaced by Book 2's top bar.
 - **The home screen and girls:** the card picture and the path's wizard follow the saved player (`shared/player`).

@@ -326,6 +326,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Let the action itself be the answer. Do not add a button to confirm or to say yes.
   Example (merchant): a handshake "deal" button and a yes card were removed; giving coins is the yes, a tap on the potion
   buys it, and one ✗ card is the only "no".
+- Point the play triangle in the direction of the motion that the child sees. A path that goes right to left takes a
+  triangle that points left; a scene where the wizard flies to the right takes a triangle that points right. With no
+  motion, follow the reading direction (right to left).
+  Example: the home screen's path runs right to left, so its play buttons point left; inside Book 2 the wizard flies to
+  the right, so its play and next buttons point right.
 - Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
 - Explain a move at the moment that the child first needs it, not in the opening demo.
   Example (merchant): how to take a coin back is shown the first time that he gives too much.
