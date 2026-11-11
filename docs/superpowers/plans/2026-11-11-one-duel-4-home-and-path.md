@@ -77,8 +77,10 @@ built first. The approved home mock is host-local; this plan carries its layout 
   (`'tower'`, `towerAnswer`).
 - Produces:
   - `RunOpts.session?: { screen: ScreenId }` (declared by Plan 2, whose checkpoint already skips it; this task makes it run).
-  - `SESSION_LENGTH: Record<ScreenId, number>` = broom 10 (waves), tower 2 (waves), cauldron 10, ladder 10, ghosts 10,
-    doors 6, draw 6, draw-hand 6 (rounds).
+  - `SESSION_LENGTH: Record<ScreenId, number>` = broom 10 (waves), tower 2 (waves), cauldron 10, ladder 5 (a ladder is
+    capped at 5 rungs), ghosts 10, doors 6, draw 6, draw-hand 6 (rounds). In a session, `this.visitLen` (Plan 3's one
+    length per visit, read by the round loop, `ladderPlan`/rungs and the doors' word count) is `SESSION_LENGTH[screen]`,
+    and the doors put no `behind` crystal on the last door.
   - In a session: one visit of that screen with `SESSION_LENGTH` rounds, then `over` with `View.over.session = true`.
     Hearts are not shown (`View.hearts` stays 3, `TopBar` gets `hearts={undefined}`) and never drop: a wrong answer
     still records, marks the fix, resets the streak. No pass heart, no merchant, no crystal; `lastEnded` and `bestRun` are
@@ -92,7 +94,8 @@ it('a ghosts session is ten rounds, then over with session: true', async () => {
 it('mistakes in a session cost no heart, only the streak', async () => { /* view.hearts stays 3; view.mult back to 1 */ })
 it('a session earns stars and coins but changes neither lastEnded nor bestRun', async () => { /* … */ })
 it('no merchant, no pass heart and no crystal in a session', async () => { /* doors session → no crystal screen */ })
-it('every second broom session is a boss fight', async () => { /* broomSessions 1 → view.screen.boss set */ })
+it('every second broom session is a boss fight', async () => { /* stage ≥ 2 (a boss kind is open); broomSessions 1 → view.screen.boss set */ })
+it('a ladder session has 5 rungs and a doors session has no crystal behind its last door', async () => { /* … */ })
 ```
 
 - [ ] **Step 2: Run** them — Expected: FAIL.
@@ -111,19 +114,27 @@ it('every second broom session is a boss fight', async () => { /* broomSessions 
 - Produces:
   - `stationFromUrl(search: string, open: ScreenId[]): ScreenId | null` (exported from `Duel2App.tsx` or a small
     `src/duel2/station.ts`): the `station` parameter when it is one of the open screens, else `null`.
-  - With a valid station, `Duel2App` skips the cover: the gender question if unset, then `Play` with
-    `{ session: { screen } }`. An invalid or locked station → the cover (Review Focus 3).
+  - With a valid station, `Duel2App` shows **one tap target**: the cover's big play button, with the station's picture
+    in it (or beside it) instead of the usual cover art. Its pointer-down unlocks the audio (`unlockDuel2Audio`) and
+    awaits `preloadDuel2Assets()` (as the cover's play does), then the gender question if unset, then `Play` with
+    `{ session: { screen } }`. Browsers allow sound only after a tap, so the session never starts without one. An
+    invalid or locked station → the normal cover (Review Focus 3).
+  - Navigation home is injected: `Duel2App({ goHome = defaultGoHome }: { goHome?: () => void })`, where the module's
+    `defaultGoHome()` does `location.assign(import.meta.env.BASE_URL)`. The session summary calls `goHome`.
   - The session summary: the session's stars, his coins, no best, no play button, no boss teaser; its `run-end` line
-    plays, then `HOME_AFTER_MS = 2500` later `location.assign(import.meta.env.BASE_URL)` — once, also after a pause
-    (a `visibilitychange` back to visible restarts the wait, never doubles it).
+    plays, then `HOME_AFTER_MS = 2500` later `goHome()` — once, also after a pause (a `visibilitychange` back to visible
+    restarts the wait, never doubles it).
 
 - [ ] **Step 1: Write the failing tests**
 
 ```ts
-it('?station=ghosts opens a ghosts session without the cover', () => { /* stage 1, bookOpen → [data-screen="play"] */ })
+it('?station=ghosts shows one play button; its tap waits for preload, then the ghosts session starts', async () => {
+  // in the style of shell.test 'play waits for preload': a gated preload; pointerDown on [data-station-play] →
+  // still no [data-screen="play"]; open the gate → [data-screen="play"], session screen 'ghosts'
+})
 it('a locked or unknown station opens the cover', () => { /* stage 1, ?station=doors → [data-screen="cover"]; ?station=x → cover */ })
-it('the session summary has no play button and goes home by itself, once', async () => { /* fake timers; location.assign spied once */ })
-it('a lock during the session summary still goes home once', async () => { /* hide/show → one assign */ })
+it('the session summary has no play button and goes home by itself, once', async () => { /* fake timers; render <Duel2App goHome={spy}/>; spy called once */ })
+it('a lock during the session summary still goes home once', async () => { /* hide/show → spy called once */ })
 ```
 
 - [ ] **Step 2: Run** them — Expected: FAIL.
@@ -170,15 +181,18 @@ it('level icons and the lock are SVG, never emoji', () => { /* no text node matc
 - Test: `src/components/home/home.test.tsx`
 
 **Interfaces:**
-- Consumes: `useDuel2Store` (read only; `persist.rehydrate()` on mount and on `visibilitychange` → visible and `pageshow`),
-  `useProgressStore` (`duel.recent`), Plan 3's `cycleOf`, `screenRecent`, `rating`; `useGender`/`wizardArt`; duel2 images
+- Consumes: the Book 2 save **read only**: `readDuel2Save(): Partial<Duel2Save> | null` (in `stations.ts`) parses
+  `localStorage['alef-duel2']` (`.state`) directly — the home never creates or writes the Book 2 store; it re-reads on
+  mount, on `visibilitychange` → visible and on `pageshow`. `useProgressStore` (`duel.recent`), Plan 3's `cycleOf`,
+  `screenRecent`, `rating`, `towerMastered`, `DUEL_MARKS`; `useGender`/`wizardArt`; duel2 images
   (`s-orb`, `s-ghost`, `s-cauldron`, `s-ladder`, `s-door`, `s-wizard-cast`/`-girl`), the duel's `tower.webp`.
 - Produces:
   - `STATIONS: { id: ScreenId; learn: string; pic: 'img' | 'orb' | 'glyph' | 'hand' }[]` in the path order and captions
     of *Global Constraints*.
   - `stationState(save, duelRecent): { id: ScreenId; open: boolean; rating: 0 | 1 | 2 | 3 }[]` — open = in
-    `cycleOf(stage, drawing, bookOpen)` (the tower always); a missing save reads as a fresh one (stage 1, bookOpen false,
-    drawing true). Open stations first, then locked, each group in path order.
+    `cycleOf(stage, drawing, open)` with `open = save.bookOpen || towerMastered(duelRecent, DUEL_MARKS ids)` (so a
+    first-duel-only player who has mastered the tower sees Book 2 open before he first opens Book 2); the tower always
+    open; a missing save reads as a fresh one (stage 1, bookOpen false, drawing true). Open stations first, then locked, each group in path order.
   - `DuelCard({ onPlay })` — the mock's `.cardt`: grid `minmax(0,1.25fr) minmax(0,1fr) auto`, gap 6 px, padding
     `8px 10px 8px 12px`, `direction: rtl`, border `2px solid #ffd34db3`, radius 22 px, background
     `radial-gradient(ellipse at 70% 20%, #a050ff73, transparent 60%), linear-gradient(135deg, #3b1d6e, #1a1240)`, glow
@@ -200,7 +214,9 @@ it('a brand-new player: the tower open, the rest locked, no ratings', () => { /*
 it('stage 2 with drawing: open stations first in path order, then the locked doors', () => { /* order of [data-station] */ })
 it('ratings come from his recent answers', () => { /* recent['sc:ghosts']='oxo' → data-rating 2 */ })
 it('the wizard stands at the newest open station', () => { /* … */ })
-it('coming back to the page re-reads the Book 2 save', () => { /* change localStorage, dispatch visibilitychange → new state shown (Review Focus 2) */ })
+it('coming back to the page re-reads the Book 2 save', () => { /* change localStorage['alef-duel2'], dispatch visibilitychange → new state shown (Review Focus 2) */ })
+it('the home never writes the Book 2 save', () => { /* render the home with no save → localStorage['alef-duel2'] still absent */ })
+it('a first-duel-only player who mastered the tower sees Book 2’s first stations open', () => { /* no Book 2 save, duel recent mastered → broom open */ })
 it('captions say what is learned, never the minigame’s name', () => { /* no caption contains מעוף/רוחות/קדרה/סולם/דלתות/דו־קרב */ })
 it('a station links to its session; the card to the cover', () => { /* hrefs */ })
 ```
@@ -214,7 +230,8 @@ it('a station links to its session; the card to the cover', () => { /* hrefs */ 
 - Create: `src/components/home/ClockCard.tsx`, `src/components/home/LevelShelf.tsx`
 - Modify: `src/pages/Home/HomePage.tsx` (header and settings button stay; then `DuelCard`, `StationPath`, `Separator`,
   `ClockCard`, `Separator`, `LevelShelf`; the stats link stays at the bottom; remove `DuelEntryCard`, `ClockEntryCard`,
-  `Duel2EntryCard` and the big level cards), `src/components/home/home.css`
+  `Duel2EntryCard` and the big level cards), `src/pages/Nikkud/NikkudPage.tsx` (remove its `<DuelEntryCard compact />`:
+  one game, reached from the home card), `src/components/home/home.css`
 - Test: `src/components/home/home.test.tsx`, `src/pages/Home/HomePage.test.tsx` (new)
 
 **Interfaces:**
@@ -238,11 +255,14 @@ it('a station links to its session; the card to the cover', () => { /* hrefs */ 
 ```ts
 it('the home page: duel card, path, separator, clock card, separator, shelf — and none of the old cards', () => { /* order of data-home-part */ })
 it('the shelf opens an unlocked level and ignores a locked one', () => { /* navigate spy */ })
-it('the path never scrolls vertically', () => { /* computed style overflow-y hidden on [data-path] (Review Focus 5, jsdom part) */ })
+it('the path never scrolls vertically', () => { /* [data-path] carries the class 'home-path' whose rule sets overflow-y: hidden (assert the class; jsdom does not apply CSS files). The real check — scrollHeight === clientHeight at 360×780 — is in Task 6's headless QA (Review Focus 5) */ })
 ```
 
-- [ ] **Step 2: Run** — FAIL. **Step 3: Implement.** **Step 4: Run** `npm test` — PASS (update or remove tests of the
-  removed entry cards; keep the components' files only if another page still uses them).
+- [ ] **Step 2: Run** — FAIL. **Step 3: Implement.** **Step 4: Run** `npm test` — PASS. Update or remove the tests of
+  the removed cards: `src/components/duel/girl.test.tsx` (its `DuelEntryCard` case), the `Duel2EntryCard`
+  case in `src/duel2/components/screens/girl.test.tsx`, `src/components/duel2/Duel2EntryCard.test.tsx` and
+  `src/components/duel/DuelEntryCard.test.tsx` (delete with the components when nothing else uses them; the clock's
+  `ClockEntryCard` likewise).
 - [ ] **Step 5: Commit** `git commit -m "Home: the clock card, the shelf of older activities, and the new home layout"`
 
 ### Task 6: The final check

@@ -156,7 +156,10 @@ it('drawing is on for a new player', () => { expect(DEFAULT_SETTINGS.drawing).to
   Replace the old test "the drawing screen is off until the parent turns it on".
 - [ ] **Step 2: Run** `npx vitest run src/duel2/store.test.ts` — Expected: FAIL.
 - [ ] **Step 3: Implement.** Extract the migrate function as an exported `migrateSave(state: unknown, version: number)`
-  and pass it to `persist`. Update the version comment.
+  and pass it to `persist`. It applies its steps in sequence with no early return (the `< 4` stroke-mark step, then the
+  `< 5` step, and later plans append theirs), and the `< 5` step sets
+  `settings = { ...DEFAULT_SETTINGS, ...s.settings, drawing: true }`. Every save field this plan adds (`coins`) is also
+  added to `fresh()` and so to `resetProgress`. Update the version comment.
 - [ ] **Step 4: Run** the store tests — Expected: PASS.
 - [ ] **Step 5: Commit** `git commit -m "Book 2 save: a coin balance; version 5 moves his coins over and turns drawing on"`
 
@@ -169,7 +172,9 @@ it('drawing is on for a new player', () => { expect(DEFAULT_SETTINGS.drawing).to
 
 **Interfaces:**
 - Consumes: `heartsAtRunStart`, `passEndHeart`, `nextScreen(...).newCycle` (Task 1).
-- Produces: `View.passHeart?: number` (an fx id that changes when a pass heart is given; the top bar animates on it);
+- Produces: `View.heal?: { id: number; at: number }` — a generic fx: a heart flies to the top bar (moved out of the
+  broom's `BroomView.heal`, drawn by `Play.tsx` over any screen; the merchant, Plan 2, uses it too). The pass heart sets
+  it; `View.passHeart?: number` counts pass hearts given (tests and telemetry);
   telemetry event `'pass-heart'` `{ hearts }`; voice line id `pass-heart` (3 variations, e.g.
   "לֵב אֶחָד חוֹזֵר אֵלֶיךָ." — no "!"; girl: "אֵלַיִךְ").
 
@@ -186,7 +191,8 @@ it('the end of a pass gives one heart back, once, with its line', async () => {
 it('a lock during the pass heart gives it only once', async () => { /* hide/show the page during it; hearts === 3, not more, and one pass-heart telemetry event */ })
 it('the gallery still refills a forced screen and never gives a pass heart', async () => { /* opts.force cauldron; lose a heart; restart; hearts 3; no 'pass-heart' event */ })
 it('when the hearts run out in the flight, the orbs on the screen finish and no new wave starts', async () => {
-  // fly into wrong orbs until hearts 0; from then on waves.length never grows; view.over is set only after waves are empty
+  // fly into wrong orbs until hearts 0; from then on waves.length never grows, no star or coin is added (score and
+  // store coins frozen even if he steers into a target), and view.over is set only after waves are empty
 })
 ```
 
@@ -197,8 +203,8 @@ it('when the hearts run out in the flight, the orbs on the screen finish and no 
   - Pass heart: in `loop`, when `nextScreen(...).newCycle` is true and not `opts.force`, call
     `passEndHeart`; if `gained`, set hearts and `passHeart`, play `sfx('potion')` and the `pass-heart` line, track the
     event. Guard it with a flag like `crystalAwarded` so a pause cannot give it twice.
-  - The end mid-flight: on the flight's `'over'`, stop spawning and resolve the flight only when no wave is left on the
-    screen (`waves.length === 0`), then `endRun`.
+  - The end mid-flight: on the flight's `'over'`, mark every wave on the screen spent (no catch or hit counts any
+    more), stop spawning, ignore further orb events, resolve the flight when `waves.length === 0`, then `endRun`.
 - [ ] **Step 4: Run** `npx vitest run src/duel2` — Expected: PASS (fix older tests that assumed refills, keeping their intent).
 - [ ] **Step 5: Commit** `git commit -m "Book 2 run: hearts last the run, a heart comes back at the end of each pass, the flight finishes its orbs"`
 
@@ -211,8 +217,9 @@ it('when the hearts run out in the flight, the orbs on the screen finish and no 
 - Test: `src/duel2/useRun.test.tsx` (delete `describe('the rescue potion')` and the potion-intro tests)
 
 **Interfaces:**
-- Produces: nothing. Keep `IMAGES['s-potion']` and `sfx('potion')` (the merchant, Plan 2, uses them). Keep the save
-  field `potionIntroSeen` (old saves have it; harmless).
+- Produces: nothing. Remove only the potion's flight (spawn, catch, `PotionView`); keep the heal animation, now the
+  generic `View.heal` from Task 3. Keep `IMAGES['s-potion']` and `sfx('potion')` (the merchant, Plan 2, uses them).
+  Keep the save field `potionIntroSeen` (old saves have it; harmless).
 
 - [ ] **Step 1: Write the failing test**
 
@@ -246,8 +253,10 @@ it('no potion flies in after a lost heart', async () => {
   - `TopBar` prop `mult?: 1 | 2 | 3`: a small badge "×2"/"×3" (digits, `data-num`) beside the star count, hidden at 1.
     It pops when it rises.
   - Voice line `mult-up` (2 variations, e.g. "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל עַכְשָׁו." for ×2 and
-    "…פִּי שָׁלוֹשׁ…" for ×3; check number words against the gender rule). It replaces the `streak` praise at streaks 5 and
-    10 (its own moment: rule), and the `streak` praise stays at 15, 20, …
+    "…פִּי שְׁלוֹשָׁה…" for ×3; check number words against the gender rule). It replaces the `streak` praise at streaks 5 and
+    10 (its own moment: rule), and the `streak` praise stays at 15, 20, … `mult-up` is always spoken (not counted by
+    `PRAISE_SPOKEN`); on the broom it is said over the flight, as the streak praise is. The ×3 line uses
+    "פִּי שְׁלוֹשָׁה".
   - `info-coins` new text: "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת מַטְבֵּעַ, וְאֶפְשָׁר לִקְנוֹת בָּהֶם שִׁקּוּי."
     (girl: שֶׁלָּךְ). Re-recording: see *Handoff*.
 
@@ -264,8 +273,11 @@ it('the top bar shows ×2 and ×3, and nothing at ×1', () => { /* render TopBar
 ```
 
 - [ ] **Step 2: Run** them — Expected: FAIL.
-- [ ] **Step 3: Implement.** `gainStar` keeps the run score and `addStar`; it adds `coinsFor(this.streak)` coins (after
-  `this.streak++`, so the fifth answer pays 2) and pops the coin each time. Play and Cover read `s.coins`. Rewrite the
+- [ ] **Step 3: Implement.** `gainStar` keeps the run score and `addStar`; it adds `coinsFor(this.streak)` coins and
+  pops the coin each time. Move `this.streak++` **before** `this.gainStar()` at all four call sites, so the fifth answer
+  pays 2: `evaluate` (calm screens), `evaluateDoor` (doors), the broom's catch (`onCatch`), and the drawing round's
+  success in `runDrawRound` (where `streak++` today happens only on a clean drawing, after `gainStar()`). The drawing screen no longer resets the
+  streak on an unclean drawing: the multiplier resets only when a heart is lost. Play and Cover read `s.coins`. Rewrite the
   rules-file example: coins are spending money now; the stars are the slow count kept between plays.
 - [ ] **Step 4: Run** `npx vitest run src/duel2` — Expected: PASS.
 - [ ] **Step 5: Commit** `git commit -m "Book 2 coins: a coin for each right answer, ×2 and ×3 for a streak, shown in the top bar"`
@@ -289,8 +301,10 @@ it('the top bar shows ×2 and ×3, and nothing at ×1', () => { /* render TopBar
 
 ```ts
 it('the run ends with the defeat scene, then the summary', async () => {
-  // three wrong answers: view.defeat becomes true before view.over; played contains 'defeat-*' before 'run-end-*'
+  // controller test: three wrong answers → view.defeat becomes true while view.over is still null; played contains a
+  // 'defeat-*' line before view.over is set
 })
+// shell.test (the app with the summary): after the run ends, 'defeat-*' is played before the summary's 'run-end-*'
 it('a lock during the defeat scene still shows the summary', async () => { /* like 'a lock while the run ends' */ })
 it('the summary shows his coin balance and no ring', () => { /* render Summary; no [data-coin-ring]; [data-coins] shows store coins */ })
 ```
@@ -313,8 +327,11 @@ it('the summary shows his coin balance and no ring', () => { /* render Summary; 
 
 **Interfaces:**
 - Consumes: `ScreenId` `'draw-hand'`, `VISIT['draw-hand']` (Task 1).
-- Produces: `scriptOf(screen)`: `'draw'` → `'print'`, `'draw-hand'` → `'hand'`. Each screen has its own demo key
-  (`demo-draw` stays for print; the handwriting screen uses its existing per-letter demos).
+- Produces: `scriptOf(screen)`: `'draw'` → `'print'`, `'draw-hand'` → `'hand'`. `DrawView.screen` stays `'draw'` for
+  both drawing screens (the view and `Draw` component are shared); only `screenId`, the cycle and `ScreenId` know
+  `'draw-hand'`. `runScreen(t, 'draw' | 'draw-hand')` passes `scriptOf(screen)` to `buildDraw(script)`; answers record
+  the feature `sc:${this.screenId}`. Each screen has its own demo key (`demo-draw` stays for print; the handwriting
+  screen uses its existing per-letter demos).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -323,6 +340,10 @@ it('the print screen draws in print and the handwriting screen in handwriting, a
   // stage 1, drawing on: after the ghosts come 'draw' (every round script 'print') then 'draw-hand' (every round 'hand')
 })
 it('scriptOf', () => { expect(scriptOf('draw')).toBe('print'); expect(scriptOf('draw-hand')).toBe('hand') })
+it('strokes are accepted on the handwriting screen, and a pause resumes it in handwriting', async () => {
+  // on 'draw-hand' (view.screen.screen === 'draw', script 'hand') a right stroke set completes the round; hide/show the
+  // page mid-round → the same word, still script 'hand'; the tally gets 'sc:draw-hand'
+})
 ```
 
 - [ ] **Step 2: Run** them — Expected: FAIL.

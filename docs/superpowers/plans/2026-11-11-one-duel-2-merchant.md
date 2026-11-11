@@ -149,8 +149,11 @@ it('counting and the verdict', () => {
     hint; clamp.
   - `noteMerchant(e: 'visit' | 'purchase' | 'decline' | 'short' | 'over' | 'hint'): void`, `setMerchantFlag(k: 'demoSeen' | 'undoShown'): void`,
     `merchantPaid(exactNoHint: boolean): void` (updates `level`).
-  - persist `version: 6`; `migrateSave` for `version < 6`: `settings.range = 100` if missing, `merchant` defaults if missing.
-    `resetProgress` resets `merchant` (keeps `settings`).
+  - `Duel2Save.checkpointsSinceVisit: number` — checkpoints since his last visit, **across runs** (fresh: a large
+    number, e.g. `999`, meaning "never visited"; JSON cannot store `Infinity`). Saved, not per run.
+  - persist `version: 6`; `migrateSave` appends a `< 6` step (in sequence, after Plan 1's): `settings.range = 100` if
+    missing, `merchant` and `checkpointsSinceVisit` defaults if missing. Both new fields are in `fresh()`, so
+    `resetProgress` resets them (it keeps `settings`, including `range`).
   - Parent page: a "Number range for shopping" radio (up to 10 / 100 / 1000) and a "Money" section: purchases, declines,
     tries that were not enough, too much, hints, the current level.
 
@@ -177,8 +180,9 @@ it('the parent page sets the number range and shows the money section', () => {
 ### Task 3: The merchant's art and screen
 
 **Files:**
-- Create: `src/duel2/assets/img/merchant-sell.webp`, `merchant-shy.webp`, `merchant-insulted.webp` (copied from the
-  host-local mock art; the `IMAGES` glob picks them up), `src/duel2/components/ValueCoin.tsx`,
+- Create: `src/duel2/assets/img/merchant-sell.webp`, `merchant-shy.webp`, `merchant-insulted.webp` — copied from the
+  source path that the session prompt gives (the merchant mock art; the `IMAGES` glob picks them up). If the prompt
+  gives no path, draw an SVG placeholder gnome in `Merchant.tsx` instead and leave the copy to the Handoff. `src/duel2/components/ValueCoin.tsx`,
   `src/duel2/components/screens/Merchant.tsx`
 - Modify: `src/duel2/components/icons.tsx` (export the `CoinIcon` paths for reuse if needed), `src/duel2/duel2.css`
   (the ✗ card: the `.gq-pick` look — `radial-gradient(ellipse at 50% 60%,#ffffff22,#ffffff08 70%)`, border
@@ -233,9 +237,12 @@ it('taps: a pile gives its top coin, the hand undoes, the potion buys, the ✗ d
 - Produces:
   - `View.merchant?: { phase: 'arrive' | 'pay' | 'count' | 'leave' | 'sold'; price: number; coins: number[] (his, composed); given: number[]; counted?: number; verdict?: 'exact' | 'short' | 'over'; glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; hint?: number[] }; demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number } }`.
   - Gestures `{ type: 'coin'; value: number }`, `{ type: 'hand' }`, `{ type: 'potion' }`, `{ type: 'decline' }`.
-  - Run state: `purchasesThisRun`, `checkpointsSinceVisit` (start `Infinity`), `wrongInRow`.
+  - Run state: `purchasesThisRun`, `wrongInRow` (per run); `checkpointsSinceVisit` lives in the save (Task 2).
   - The checkpoint: after a screen ends and after Plan 1's pass heart, before the next screen; skipped under `opts.force`
-    and when `opts.session` is set. This task declares `RunOpts.session?: { screen: ScreenId }` (unused until Plan 4,
+    and when `opts.session` is set. There is no checkpoint before the crystal (doors → crystal is one step); the
+    checkpoint comes after the crystal, before the next screen. The boss: at the checkpoint, after `newVisit()` for the
+    next screen, call `decideBoss()` once when the next screen is the broom and store it in `this.visitBoss` (so
+    `runScreen` does not decide again); `bossNext = !!this.visitBoss`. This task declares `RunOpts.session?: { screen: ScreenId }` (unused until Plan 4,
     which runs path sessions); the adventure is `!this.opts.force && !this.opts.session`.
   - Line ids (merchant voice): `m-hello` (3 var.), `m-again` (2), `m-bye` (2), `m-price`, `m-give`, `m-tap`, `m-decline`,
     `m-exact` (3), `m-short` (3), `m-over` (3), `m-undo`, `m-empty` (2), and narrator `m-hint` (2). Texts and girl forms
@@ -263,7 +270,7 @@ it('in the gallery the merchant never comes', async () => { /* opts.force */ })
 - [ ] **Step 2: Run** them — Expected: FAIL.
 - [ ] **Step 3: Implement.** The composition is made once at arrival (`composeCoins(coins, price, range, merchant.level, rng)`).
   On `exact`: `spendCoins(price)`, hearts +1 (max `HEARTS`), the potion flies to the wizard and a heart to the top bar
-  (reuse Plan 1's heal effect), `merchantPaid`, `purchasesThisRun++`. Every visit (bought or declined) resets
+  (Plan 1's generic `View.heal` fx), `merchantPaid`, `purchasesThisRun++`. Every visit (bought or declined) resets
   `checkpointsSinceVisit` to 0; other checkpoints add 1. Pause: the visit waits on gestures through the existing
   pause mechanism and its state lives in `view.merchant`, so resume continues it.
 - [ ] **Step 4: Run** `npx vitest run src/duel2` — Expected: PASS.
