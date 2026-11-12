@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { DuelEntryCard } from '../../components/duel/DuelEntryCard'
 import { colors, typography, spacing } from '../../styles/theme'
 import { JourneyPath, type JourneyNode } from '../../components/navigation/JourneyPath'
 import { Header } from '../../components/navigation/Navigation'
@@ -103,9 +102,6 @@ export function NikkudPage() {
           padding: spacing[4],
         }}
       >
-        {/* Nikkud Wizard Duel — shown whether or not the level is locked */}
-        <DuelEntryCard compact />
-
         {!levelUnlocked ? (
           // Level locked message
           <div
