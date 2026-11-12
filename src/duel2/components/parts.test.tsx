@@ -6,6 +6,9 @@ import { MarkAlone } from './MarkAlone'
 import { ExplainPanel } from './ExplainPanel'
 import { mark } from '../logic/content'
 import { sayParts, setVoicePlayer, stopVoice } from '../audio/duel2Audio'
+import { Merchant } from './screens/Merchant'
+import { PriceTag, ValueCoin } from './ValueCoin'
+import type { MerchantView } from '../controller'
 
 describe('parts', () => {
   afterEach(() => {
@@ -137,5 +140,79 @@ describe('parts', () => {
     fireEvent.pointerDown(container.querySelector('[data-info="info-coins"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
     expect(played).toEqual(['info-hearts-1', 'info-stars-1', 'info-coins-1'])
+  })
+})
+
+describe('the merchant screen (spec: one duel, Part 2)', () => {
+  const base: MerchantView = { phase: 'pay', price: 7, coins: [1, 2, 2, 5, 10], given: [] }
+  const noText = (root: Element) => {
+    const clone = root.cloneNode(true) as Element
+    clone.querySelectorAll('[data-glyph],[data-num]').forEach((e) => e.remove())
+    return clone.textContent?.replace(/\s+/g, '') ?? ''
+  }
+  const noop = () => {}
+  const draw = (v: MerchantView, cb: { onCoin?: (n: number) => void; onHand?: () => void; onPotion?: () => void; onDecline?: () => void } = {}) =>
+    render(<Merchant v={v} onCoin={cb.onCoin ?? noop} onHand={cb.onHand ?? noop} onPotion={cb.onPotion ?? noop} onDecline={cb.onDecline ?? noop} />)
+
+  it('ValueCoin stamps the value and grows with it', () => {
+    const { container } = render(<svg><ValueCoin value={1} /><ValueCoin value={10} /></svg>)
+    const coins = [...container.querySelectorAll('[data-value-coin]')]
+    expect(coins.map((c) => c.querySelector('[data-num]')!.textContent)).toEqual(['1', '10'])
+    expect(Number(coins[0].getAttribute('width'))).toBeLessThan(Number(coins[1].getAttribute('width')))
+  })
+  it('the price tag shows the coin and the price as digits', () => {
+    const { container } = render(<svg><PriceTag price={14} /></svg>)
+    expect(container.querySelector('[data-price]')!.textContent).toBe('14')
+    expect(noText(container)).toBe('')
+  })
+  it('a pile of 9 coins draws 6, and the coins in his hand leave their piles', () => {
+    const { container, rerender } = draw({ ...base, coins: [2, 2, 2, 2, 2, 2, 2, 2, 2, 5] })
+    expect(container.querySelectorAll('[data-pile="2"] [data-value-coin]').length).toBe(6)
+    rerender(<Merchant v={{ ...base, coins: [1, 2, 2, 5, 10], given: [5, 2] }} onCoin={noop} onHand={noop} onPotion={noop} onDecline={noop} />)
+    expect(container.querySelector('[data-pile="5"]')).toBeNull()
+    expect(container.querySelectorAll('[data-pile="2"] [data-value-coin]').length).toBe(1)
+    expect(container.querySelectorAll('[data-merchant-hand] [data-value-coin]').length).toBe(2)
+  })
+  it('the merchant screen has no text other than digits, and no total while he chooses', () => {
+    const { container } = draw({ ...base, given: [5, 1] })
+    expect(noText(container)).toBe('')
+    expect(container.querySelector('[data-count]')).toBeNull()
+    // the count shows only while the merchant counts
+    const counting = draw({ ...base, phase: 'count', given: [5, 1], counted: 2 })
+    expect(counting.container.querySelector('[data-count]')!.textContent).toBe('6')
+  })
+  it('taps: a pile gives its top coin, the hand undoes, the potion buys, the ✗ declines', () => {
+    const onCoin = vi.fn(); const onHand = vi.fn(); const onPotion = vi.fn(); const onDecline = vi.fn()
+    const { container } = draw({ ...base, given: [10] }, { onCoin, onHand, onPotion, onDecline })
+    const pile = container.querySelector('[data-pile="5"] [data-pile-top]')!
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 10, clientY: 10 })
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: 10, clientY: 10 })
+    expect(onCoin).toHaveBeenCalledWith(5)
+    fireEvent.pointerDown(container.querySelector('[data-merchant-hand]')!)
+    expect(onHand).toHaveBeenCalledTimes(1)
+    fireEvent.pointerDown(container.querySelector('[data-potion]')!)
+    expect(onPotion).toHaveBeenCalledTimes(1)
+    fireEvent.pointerDown(container.querySelector('[data-decline]')!)
+    expect(onDecline).toHaveBeenCalledTimes(1)
+  })
+  it('a coin dragged to his open hand is given; dropped elsewhere it flies back', () => {
+    const onCoin = vi.fn()
+    const { container } = draw(base, { onCoin })
+    const pile = container.querySelector('[data-pile="10"] [data-pile-top]')!
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: 700, clientY: 500 })
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: 700, clientY: 500 })
+    expect(onCoin).not.toHaveBeenCalled()
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: 1290, clientY: 580 })
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: 1290, clientY: 580 })
+    expect(onCoin).toHaveBeenCalledWith(10)
+  })
+  it('the hint makes the top coins of the right piles glow green; the ✗ card glows when it is pointed out', () => {
+    const { container } = draw({ ...base, glow: { hint: [5, 2], decline: true } })
+    expect(container.querySelectorAll('[data-pile="5"] [data-state="hint"]').length).toBe(1)
+    expect(container.querySelectorAll('[data-pile="2"] [data-state="hint"]').length).toBe(1)
+    expect(container.querySelectorAll('[data-pile="10"] [data-state="hint"]').length).toBe(0)
+    expect(container.querySelector('[data-decline]')!.getAttribute('data-glow')).toBe('true')
   })
 })

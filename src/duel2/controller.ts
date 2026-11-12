@@ -83,6 +83,24 @@ export interface DrawView {
 }
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView
 
+/** A merchant's visit at a checkpoint (spec: one duel, Part 2): drawn over the stage by `Merchant`. */
+export interface MerchantView {
+  phase: 'arrive' | 'pay' | 'count' | 'leave' | 'sold'
+  price: number
+  /** all his savings for this visit, as composed at arrival (the coins in the merchant's hand included) */
+  coins: number[]
+  /** the coins in the merchant's hand, in giving order */
+  given: number[]
+  /** while the merchant counts: how many of the given coins he has counted (the bubble shows their running total) */
+  counted?: number
+  verdict?: 'exact' | 'short' | 'over'
+  /** the tag lights after counting (both numbers seen together), and flashes when the payment was not right */
+  tag?: 'lit' | 'flash'
+  glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean; hint?: number[] }
+  /** the demo hand shows this step; `t` changes on every new demo move */
+  demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number }
+}
+
 export type Overlay =
   | { kind: 'demo'; line: string; demo: string }
   | { kind: 'explain'; parts: { id: string; highlight: Highlight }[]; target: Choice }
