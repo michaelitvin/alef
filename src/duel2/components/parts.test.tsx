@@ -6,8 +6,9 @@ import { MarkAlone } from './MarkAlone'
 import { ExplainPanel } from './ExplainPanel'
 import { mark } from '../logic/content'
 import { sayParts, setVoicePlayer, stopVoice } from '../audio/duel2Audio'
-import { Merchant } from './screens/Merchant'
-import { PriceTag, ValueCoin } from './ValueCoin'
+import { HAND, Merchant, pileLayout } from './screens/Merchant'
+import { stageBox } from '../layout'
+import { COIN_FACE, PriceTag, ValueCoin } from './ValueCoin'
 import type { MerchantView } from '../controller'
 
 describe('parts', () => {
@@ -223,9 +224,63 @@ describe('the merchant screen (spec: one duel, Part 2)', () => {
     fireEvent.pointerUp(pile, { pointerId: 1, clientX: 700, clientY: 500 })
     expect(onCoin).not.toHaveBeenCalled()
     fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
-    fireEvent.pointerMove(pile, { pointerId: 1, clientX: 1290, clientY: 580 })
-    fireEvent.pointerUp(pile, { pointerId: 1, clientX: 1290, clientY: 580 })
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: HAND.x - 90, clientY: HAND.y + 110 })
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: HAND.x - 90, clientY: HAND.y + 110 })
     expect(onCoin).toHaveBeenCalledWith(10)
+  })
+  it('while a coin is dragged his hand glows as the place to drop it, brighter over it, and stops when it is let go (the parent)', () => {
+    const { container } = draw(base)
+    const hand = () => container.querySelector('[data-merchant-hand]')!.getAttribute('data-drop-glow')
+    const pile = container.querySelector('[data-pile="10"] [data-pile-top]')!
+    expect(hand()).toBeNull()
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
+    expect(hand()).toBe('drag')
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: 600, clientY: 600 })
+    expect(hand()).toBe('drag')
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: HAND.x, clientY: HAND.y })
+    expect(hand()).toBe('over')
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: 600, clientY: 600 })
+    expect(hand()).toBe('drag')
+    // dropped elsewhere: it flies back, and the glow ends
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: 600, clientY: 600 })
+    expect(hand()).toBeNull()
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
+    fireEvent.pointerMove(pile, { pointerId: 1, clientX: HAND.x, clientY: HAND.y })
+    fireEvent.pointerUp(pile, { pointerId: 1, clientX: HAND.x, clientY: HAND.y })
+    expect(hand()).toBeNull()
+    fireEvent.pointerDown(pile, { pointerId: 1, clientX: 300, clientY: 800 })
+    fireEvent.pointerCancel(pile, { pointerId: 1 })
+    expect(hand()).toBeNull()
+  })
+  it('the top coin of each pile glows softly only while he can pick it (the parent)', () => {
+    const tops = (c: Element) => [...c.querySelectorAll('[data-pile-top] [data-value-coin]')].map((e) => e.getAttribute('data-state'))
+    expect(tops(draw(base).container)).toEqual(['can', 'can', 'can', 'can'])
+    // only the top coin: the coins under it do not glow
+    expect(draw({ ...base, coins: [2, 2, 2] }).container.querySelectorAll('[data-state="can"]').length).toBe(1)
+    // the hint's green wins over the soft glow
+    expect(tops(draw({ ...base, glow: { hint: [5, 2] } }).container)).toEqual(['can', 'hint', 'hint', 'can'])
+    for (const v of [{ ...base, phase: 'arrive' as const }, { ...base, phase: 'arrive' as const, demo: { step: 'give' as const, t: 1 } },
+      { ...base, phase: 'count' as const, given: [1], counted: 1 }, { ...base, phase: 'leave' as const }]) {
+      expect(draw(v).container.querySelectorAll('[data-state="can"]').length).toBe(0)
+    }
+  })
+  it('the coins are big enough to pick on a phone on its side, bigger values bigger, and their tap areas never overlap', () => {
+    const phone = stageBox(780, 360).scale
+    for (const coins of [[1, 2, 5, 10, 20, 50], [1, 1, 2, 5]]) {
+      const ps = pileLayout(coins)
+      for (const p of ps) expect(p.size * COIN_FACE * phone).toBeGreaterThanOrEqual(56)
+      for (let i = 1; i < ps.length; i++) {
+        expect(ps[i].size).toBeGreaterThan(ps[i - 1].size)
+        expect(ps[i].area.x).toBeGreaterThanOrEqual(ps[i - 1].area.x + ps[i - 1].area.w - 0.001)
+      }
+      expect(ps[ps.length - 1].area.x + ps[ps.length - 1].area.w).toBeLessThanOrEqual(1600)
+      // the tap area is at least as big as the coin, even for the 1
+      for (const p of ps) { expect(p.area.w).toBeGreaterThan(p.size); expect(p.area.h).toBeGreaterThan(p.size) }
+    }
+    // the range up to 1000: nine piles still fit on the stage, in order of size
+    const nine = pileLayout([1, 2, 5, 10, 20, 50, 100, 200, 500])
+    expect(nine[8].area.x + nine[8].area.w).toBeLessThanOrEqual(1600)
+    for (let i = 1; i < 9; i++) expect(nine[i].size).toBeGreaterThan(nine[i - 1].size)
   })
   it('the demo dims everything but its step’s target and shows the game’s pointing hand there', () => {
     const { container } = draw({ ...base, phase: 'arrive', demo: { step: 'price', t: 1 }, glow: { tag: true } })

@@ -307,6 +307,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Put floating buttons in the top bar, not over the content area. Before you add a button, check at phone size that it
   covers nothing.
   Example (clock): the hint button under the gear counter covered the question; now it is in the top bar beside the gears.
+  Keep the content area below the top bar: start the game area under the bar, and do not let content go up into it.
+  Example (book 2): on a phone on its side the ladder's top plates went under the coins and the stars; now the stage
+  starts below the bar on every screen.
 - Do not put a way out of the game (home, back to the menu) on a child screen. Put it in the parent area.
   Example (book 2): a home button next to "play again" took the child to the old duel twice; he did not know what he pressed.
 - Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
@@ -341,6 +344,16 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - When the screen shows a place where a choice goes (a pot, a ladder rung, a door), let the child drag the choice there.
   Accept a tap too. Make the drop zone large, and let a choice that is dropped elsewhere fly back.
   Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.
+- While the child drags a choice, make its drop place glow. Make it glow more when the choice is over it.
+  Reason: the child does not always know where to drop the choice.
+  Example (merchant): the parent: "it's not clear where the coins should be dropped"; now the merchant's open hand glows
+  while a coin is dragged.
+- Make the choices that the child can pick glow softly while he can pick them. Do not let them glow while he cannot pick
+  them (an instruction, a demo, feedback). Make this glow gentler than a hint's glow, so that he can see the difference.
+  Example (merchant): the parent: "coins should glow too when you can pick them".
+- Make each choice large enough for a finger on a phone on its side: at least about 56 CSS px, with space between
+  choices so that a finger does not hit the next one.
+  Example (merchant): the coins were about 21 px on the parent's phone, and he could not pick the correct one.
 - Show a gesture with a demo that does the gesture: a hand that the child recognizes as a hand, and the object moves with it.
   Example (clock): the demo finger was a blob that moved in an arc beside the clock. Now a pointing hand pulls the long
   hand round, and the short hand moves with it.

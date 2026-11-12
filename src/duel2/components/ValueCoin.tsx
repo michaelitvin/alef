@@ -3,6 +3,9 @@
 // bigger value is a bigger coin (spec: one duel, Part 2). Digits carry data-num for the no-text checks.
 import { COIN_CRESCENT, CoinBody, CoinIcon, CoinShine } from './icons'
 
+/** the part of a coin's box that the drawn coin fills (its rim and shadow, measured in the browser) */
+export const COIN_FACE = 0.84
+
 /** the coin's size in stage units, by its value */
 export function coinSize(value: number): number {
   if (value >= 100) return 92
@@ -11,10 +14,10 @@ export function coinSize(value: number): number {
 
 /**
  * One coin with its value, centred at (x, y). `state`: 'gone' (faded), 'lit' (the merchant counts it), 'hint' (the hint's
- * green glow).
+ * green glow), 'can' (a soft gold glow: he can pick it now).
  */
 export function ValueCoin({ value, size, state, x = 0, y = 0, attrs }: {
-  value: number; size?: number; state?: 'gone' | 'lit' | 'hint'; x?: number; y?: number; attrs?: Record<string, string>
+  value: number; size?: number; state?: 'gone' | 'lit' | 'hint' | 'can'; x?: number; y?: number; attrs?: Record<string, string>
 }) {
   const s = size ?? coinSize(value)
   const digits = String(value).length

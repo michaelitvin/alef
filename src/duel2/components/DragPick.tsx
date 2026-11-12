@@ -15,6 +15,8 @@ export function DragPick(p: {
   /** demo: how far (0–1) the choice has moved from its place toward `to` (dx, dy in stage units) */
   demo?: { t: number; dx: number; dy: number }
   attrs?: Record<string, string>
+  /** the drag: the finger's stage point while the choice is held (from finger-down), null when it is let go or cancelled */
+  onDrag?: (q: { x: number; y: number } | null) => void
 }) {
   const [d, setD] = useState<{ id: number; sx: number; sy: number; dx: number; dy: number; moved: boolean } | null>(null)
   const at = (e: React.PointerEvent) => toStage(e.currentTarget as Element, e.clientX, e.clientY)
@@ -27,6 +29,7 @@ export function DragPick(p: {
         ;(e.target as Element).setPointerCapture?.(e.pointerId)
         const q = at(e)
         setD({ id: e.pointerId, sx: q.x, sy: q.y, dx: 0, dy: 0, moved: false })
+        p.onDrag?.(q)
       }}
       onPointerMove={(e) => {
         if (!d || d.id !== e.pointerId) return
@@ -34,15 +37,17 @@ export function DragPick(p: {
         const dx = q.x - d.sx
         const dy = q.y - d.sy
         setD({ ...d, dx, dy, moved: d.moved || Math.hypot(dx, dy) > MOVE_PX })
+        p.onDrag?.(q)
       }}
       onPointerUp={(e) => {
         if (!d || d.id !== e.pointerId) return
         const q = at(e)
         const moved = d.moved || Math.hypot(q.x - d.sx, q.y - d.sy) > MOVE_PX
         setD(null)
+        p.onDrag?.(null)
         if (!moved || p.inZone(q)) p.onPick()
       }}
-      onPointerCancel={() => setD(null)}>
+      onPointerCancel={() => { setD(null); p.onDrag?.(null) }}>
       {p.children}
     </g>
   )
