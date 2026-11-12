@@ -1532,6 +1532,54 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     d.destroy()
   })
 
+  it('the print screen draws in print and the handwriting screen in handwriting, at any stage', async () => {
+    setVoicePlayer(() => Promise.resolve())
+    useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+    const c = make()
+    c.start()
+    const seen: { screen: string; script: string }[] = []
+    for (let guard = 0; guard < 6000 && c.view.screen?.screen !== 'broom'; guard++) {
+      const s = c.view.screen
+      if (s?.screen === 'draw' && c.view.phase === 'answer' && !s.demo && s.mode === 'letter' && s.strokes.length === 0) {
+        const id = (c as unknown as { screenId: string }).screenId
+        seen.push({ screen: id, script: s.script })
+        await drawLetter(c)
+        if (dv(c).marks.length) await drawMarks(c)
+        await until(c, () => dv(c).mode === 'done' || c.view.screen?.screen !== 'draw')
+        continue
+      }
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && s && s.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
+      await tick(50)
+    }
+    expect(seen.map((x) => x.screen)).toEqual(['draw', 'draw', 'draw', 'draw-hand', 'draw-hand', 'draw-hand'])
+    expect(seen.map((x) => x.script)).toEqual(['print', 'print', 'print', 'hand', 'hand', 'hand'])
+    expect(c.view.screen?.screen).toBe('broom')
+    c.destroy()
+  }, 60_000)
+
+  it('strokes are accepted on the handwriting screen, and a pause resumes it in handwriting', async () => {
+    const c = make({ force: { screen: 'draw-hand', stage: 1 } })
+    c.start()
+    await answering(c)
+    expect(dv(c).screen).toBe('draw')
+    expect(dv(c).script).toBe('hand')
+    const id = dv(c).word.id
+    c.gesture({ type: 'stroke', pts: strokesFor(c)[0] })
+    await tick(20)
+    c.pause()
+    c.resume()
+    await answering(c)
+    expect(dv(c).word.id).toBe(id)
+    expect(dv(c).script).toBe('hand')
+    await drawLetter(c)
+    if (dv(c).marks.length) await drawMarks(c)
+    await until(c, () => dv(c).mode === 'done')
+    expect(useDuel2Store.getState().tallies['sc:draw-hand']?.seen).toBe(1)
+    expect(useDuel2Store.getState().tallies['sc:draw']).toBeUndefined()
+    c.destroy()
+  })
+
   it('a pause restarts the same word from the start', async () => {
     const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
     c.start()

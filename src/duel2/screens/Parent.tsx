@@ -42,11 +42,11 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
       <PlayerSetting onChange={(g) => duel2Telemetry.track('player', { gender: g, by: 'parent' })} />
       <h3>Drawing letters</h3>
       <p>
-        The drawing screen (after the ghosts) teaches stroke order in print and handwriting. Check every letter on the stroke
-        review first ({Object.keys(s.strokeMarks ?? {}).length} of 54 checked), then turn it on.
+        Two drawing screens, after the doors: one in print, one in handwriting. They teach stroke order. Drawing is on by
+        default; the stroke review shows which letters you checked ({Object.keys(s.strokeMarks ?? {}).length} of 54 checked).
       </p>
       <p>
-        <label><input type="checkbox" data-setting-drawing checked={!!s.settings.drawing} onChange={(e) => setSettings({ drawing: e.target.checked })} /> Drawing screen in the game</label>{' '}
+        <label><input type="checkbox" data-setting-drawing checked={!!s.settings.drawing} onChange={(e) => setSettings({ drawing: e.target.checked })} /> Drawing screens in the game</label>{' '}
         <button onClick={onStrokes}>Stroke review</button>{' '}
         <button onClick={onDrawTest}>Drawing test board</button>
       </p>

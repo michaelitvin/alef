@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
-import { drawFeature, drawWords, marksFor, needsDemo, scriptFor, splitWord } from './draw'
+import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './draw'
 
 const word = (id: string) => WORDS.find((w) => w.id === id)!
 function seeded(seed: number) {
@@ -27,9 +27,9 @@ describe('drawing rounds', () => {
     expect(count({ tallies: {}, recent: {}, confusions: { dalet: { resh: 6 } } })).toBeGreaterThan(plain * 1.4)
     expect(count({ tallies: { [drawFeature('ד', 'print')]: { seen: 4, wrong: 3 } }, recent: { [drawFeature('ד', 'print')]: 'xxo' }, confusions: {} })).toBeGreaterThan(plain * 1.4)
   })
-  it('print only before stage 3; then print and handwriting alternate', () => {
-    expect([0, 1, 2, 3].map((n) => scriptFor(2, n))).toEqual(['print', 'print', 'print', 'print'])
-    expect([0, 1, 2, 3].map((n) => scriptFor(3, n))).toEqual(['print', 'hand', 'print', 'hand'])
+  it('scriptOf: the print screen draws in print, the handwriting screen in handwriting', () => {
+    expect(scriptOf('draw')).toBe('print')
+    expect(scriptOf('draw-hand')).toBe('hand')
   })
   it('splits the word: the slot letter, a bare vav when the vowel sits on it, the rest', () => {
     expect(splitWord(word('camel'), 'print')).toEqual({ letter: 'ג', vav: false, rest: 'מָל'.normalize('NFC') })

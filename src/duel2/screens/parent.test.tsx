@@ -72,7 +72,7 @@ describe('parent area', () => {
   })
 
 
-  it('the drawing screen setting is off by default and turns on here', () => {
+  it('the parent can turn the drawing screens off and on here', () => {
     useDuel2Store.getState().setSettings({ drawing: false })
     const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
     const box = container.querySelector('input[data-setting-drawing]') as HTMLInputElement

@@ -58,8 +58,8 @@ export function marksFor(w: Word, stage: Stage): MarkSpec[] {
   return out
 }
 
-/** Print below stage 3; from stage 3 print and handwriting alternate (n = his drawing rounds so far). */
-export const scriptFor = (stage: Stage, n: number): Script => (stage < 3 || n % 2 === 0 ? 'print' : 'hand')
+/** Print and handwriting are two drawing minigames (spec: one duel, Part 5): the screen decides the script. */
+export const scriptOf = (screen: 'draw' | 'draw-hand'): Script => (screen === 'draw-hand' ? 'hand' : 'print')
 
 export interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; avoid?: string }
 

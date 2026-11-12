@@ -24,7 +24,7 @@ import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
-import { drawFeature, drawWords, marksFor, needsDemo, scriptFor, splitWord } from './logic/draw'
+import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
@@ -492,7 +492,7 @@ export class RunController {
     const st = useDuel2Store.getState()
     if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
-      while (this.roundInScreen < VISIT[screen]) await this.runDrawRound(t)
+      while (this.roundInScreen < VISIT[screen]) await this.runDrawRound(t, screen)
       return
     }
     const demo = this.demoKey(screen, kind)
@@ -928,7 +928,8 @@ export class RunController {
   // ---- the drawing screen (spec: 2026-11-07 drawing)
   private dv() { return this.view.screen as DrawView }
 
-  private buildDraw(): DrawView {
+  /** a drawing round: the script comes from the screen (print or handwriting); DrawView.screen is 'draw' for both */
+  private buildDraw(script: Script): DrawView {
     const cur = this.view.screen
     if (this.resuming && cur?.screen === 'draw' && !this.answered) {
       // after a pause the same word starts again from its beginning
@@ -942,7 +943,6 @@ export class RunController {
     const st = useDuel2Store.getState()
     this.drawPlan ??= drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
     const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
-    const script = this.opts.force?.script ?? scriptFor(this.stage, st.drawRounds ?? 0)
     const split = splitWord(word, script)
     const def = strokesOf(split.letter, script)
     const marks = marksFor(word, this.stage)
@@ -1027,13 +1027,14 @@ export class RunController {
    * One drawing round: the word; the demo when needed; he writes the letter from memory, each stroke judged when the
    * finger lifts; then the lines (told, never failed); then the marks; then the word again and a star. No hearts are lost.
    */
-  private async runDrawRound(t: number) {
+  private async runDrawRound(t: number, screen: 'draw' | 'draw-hand') {
     this.syncMult()
-    const v0 = this.buildDraw()
+    const v0 = this.buildDraw(this.opts.force?.script ?? scriptOf(screen))
     const { letter, script, word } = v0
     const def = strokesOf(letter, script)
     const st = useDuel2Store.getState()
-    const firstVisit = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw')
+    // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo)
+    const firstVisit = screen === 'draw' && (this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw'))
     const checker = new LetterChecker(def)
     this.drawState = { checker }
     this.set({ phase: 'question', overlay: null, hintAvailable: true, needNext: false })
@@ -1119,7 +1120,7 @@ export class RunController {
     this.gainStar()
     const clean = wrongStrokes === 0 && !helped && !markWrong
     if (!this.opts.sandbox) {
-      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), 'sc:draw'], miss: !clean, newStage: false })
+      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), `sc:${screen}`], miss: !clean, newStage: false })
       useDuel2Store.getState().noteDrawRound()
     }
     this.track('draw-done', { letter, script, word: word.id, ms: Math.round(this.now() - started), wrongStrokes, helped })

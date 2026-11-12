@@ -48,7 +48,7 @@ export interface Duel2Save {
   settings: Duel2Settings
   /** the parent's marks on the stroke review page (`<letter>-<script>`): kept through a progress reset */
   strokeMarks: Record<string, 'ok' | 'wrong'>
-  /** his drawing rounds so far (print and handwriting alternate) */
+  /** his drawing rounds so far (telemetry only: the screen now decides print or handwriting) */
   drawRounds: number
 }
 
