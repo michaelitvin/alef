@@ -23,6 +23,7 @@ import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
+import { layoutVars } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
@@ -96,7 +97,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   // (the tower has its own speaker on the duel's board)
   const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
+      style={layoutVars()}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {

@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 
 /** how long the heart flies to the top bar */
 export const HEAL_MS = 800
-/** the hearts in the top bar (stage units) */
-const TO = { x: 1500, y: 40 }
+/** the hearts in the top bar (stage units): the bar is above the stage (layout.ts), so the heart flies past its top edge */
+const TO = { x: 1500, y: -80 }
 
 /** The heart at `k` (0 = at `from`, 1 = at the top bar). */
 export function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
@@ -37,7 +37,7 @@ export function HealFly({ from = { x: 800, y: 470 } }: { from?: { x: number; y: 
   }, [])
   if (k >= 1) return null
   return (
-    <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }} data-heal-fly>
+    <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" overflow="visible" style={{ pointerEvents: 'none' }} data-heal-fly>
       <Heal from={from} k={k} />
     </svg>
   )

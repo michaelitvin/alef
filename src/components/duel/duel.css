@@ -391,13 +391,17 @@
 @keyframes nd-spin { to { transform: rotate(360deg); } }
 
 /* Book 2's run: the tower is drawn over its stage, under its top bar (spec: one duel, Part 3) */
-.nd-root.nd-embedded { position: absolute; inset: 0; z-index: 1; padding-top: 76px; box-sizing: border-box; }
+.nd-root.nd-embedded { position: absolute; inset: 0; z-index: 1; }
+/* the field starts below Book 2's top bar (src/duel2/layout.ts); the sky still fills the screen behind the bar */
+.nd-embedded .nd-screen { padding-top: var(--d2-content-top, 78px); box-sizing: border-box; }
 /* a phone on its side in Book 2's run: smaller runes and monsters, so the field keeps its room under the top bar */
 @media (max-height: 500px) {
   .nd-embedded.nd-landscape .nd-rune { height: 62px; }
   .nd-embedded.nd-landscape .nd-word-btn { height: 52px; }
   .nd-embedded.nd-landscape .nd-pad-area { padding: 4px 16px 8px; }
   .nd-embedded.nd-landscape .nd-sprite { height: 72px; }
-  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 110px; }
-  .nd-root.nd-embedded { padding-top: 64px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 84px; }
+  /* the boss's clue bubble must stay below the top bar: its hearts in one row, the bubble's gap smaller */
+  .nd-embedded.nd-landscape .nd-boss-hp { display: flex; flex-wrap: nowrap; }
+  .nd-embedded.nd-landscape .nd-boss .nd-clue { margin-bottom: 4px; }
 }
