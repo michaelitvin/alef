@@ -15,6 +15,9 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-topbar-mid { position: absolute; left: 50%; transform: translateX(-50%); }
 .d2-hearts { gap: 6px; }
 .d2-heart { width: 40px; height: 40px; filter: drop-shadow(0 0 6px #ff5a7a88); }
+/* a heart came back at the end of a pass: the hearts flash as the flying heart lands (HealFly, 0.8 s) */
+.d2-heart[data-flash] { animation: d2-heart-flash 0.25s ease-in-out 0.6s 4 alternate; }
+@keyframes d2-heart-flash { to { transform: scale(1.35); filter: brightness(1.6) drop-shadow(0 0 14px #ffd6e0); } }
 .d2-btn { width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255, 211, 77, 0.75); background: #28145ad9;
   display: grid; place-items: center; padding: 0; cursor: pointer; box-shadow: 0 0 12px #b48cff80; touch-action: manipulation; }
 .d2-btn:active { transform: scale(0.92); }

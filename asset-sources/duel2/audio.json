@@ -1869,40 +1869,31 @@
    ]
   },
   {
-   "id": "info-mult-1-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-mult-1-f.mp3",
-   "where": "A tap on the ×2 or ×3 beside the coins (the streak multiplier) — when a girl plays",
-   "caption": "כְּשֶׁאַתְּ עוֹנָה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.",
-   "take": "clips/info-mult-1-f/v1.mp3",
-   "request": {
-    "text": "כְּשֶׁאַתְּ עוֹנָה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
    "id": "info-mult-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-mult-1.mp3",
    "where": "A tap on the ×2 or ×3 beside the coins (the streak multiplier)",
-   "caption": "כְּשֶׁאַתָּה עוֹנֶה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.",
-   "take": "clips/info-mult-1/v1.mp3",
+   "caption": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
+   "take": "clips/info-mult-1/v2.mp3",
    "request": {
-    "text": "כְּשֶׁאַתָּה עוֹנֶה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.",
+    "text": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-mult-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-mult-1/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "info-stars-1-f",
@@ -2825,7 +2816,7 @@
    "file": "src/duel2/assets/audio/voice/m-bye-1-f.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away — when a girl plays",
    "caption": "בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.",
-   "take": "clips/m-bye-1-f/v1.mp3",
+   "take": "clips/m-bye-1-f/v2.mp3",
    "request": {
     "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.",
     "model_id": "eleven_v4",
@@ -2833,9 +2824,18 @@
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-bye-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-bye-1-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "m-bye-1",
@@ -2843,7 +2843,7 @@
    "file": "src/duel2/assets/audio/voice/m-bye-1.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
    "caption": "בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.",
-   "take": "clips/m-bye-1/v1.mp3",
+   "take": "clips/m-bye-1/v3.mp3",
    "request": {
     "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.",
     "model_id": "eleven_v4",
@@ -2851,9 +2851,18 @@
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-bye-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-bye-1/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "m-bye-2",
@@ -3005,40 +3014,39 @@
    "earlier_takes": null
   },
   {
-   "id": "m-exact-3-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-exact-3-f.mp3",
-   "where": "Merchant: he counted the exact price; the potion flies to the wizard — when a girl plays",
-   "caption": "מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלָּךְ.",
-   "take": "clips/m-exact-3-f/v1.mp3",
-   "request": {
-    "text": "[playful] מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלָּךְ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
    "id": "m-exact-3",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-exact-3.mp3",
    "where": "Merchant: he counted the exact price; the potion flies to the wizard",
-   "caption": "מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלְּךָ.",
-   "take": "clips/m-exact-3/v1.mp3",
+   "caption": "מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.",
+   "take": "clips/m-exact-3/v5.mp3",
    "request": {
-    "text": "[playful] מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלְּךָ.",
+    "text": "[playful] מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 104
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-exact-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-exact-3/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/m-exact-3/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/m-exact-3/v4.mp3",
+     "seed": 103
+    }
+   ]
   },
   {
    "id": "m-give-1-f",
@@ -3118,7 +3126,7 @@
    "file": "src/duel2/assets/audio/voice/m-hello-2-f.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
    "caption": "מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?",
-   "take": "clips/m-hello-2-f/v1.mp3",
+   "take": "clips/m-hello-2-f/v3.mp3",
    "request": {
     "text": "[playful] מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?",
     "model_id": "eleven_v4",
@@ -3126,9 +3134,18 @@
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-hello-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-hello-2-f/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "m-hello-2",
@@ -3261,18 +3278,27 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-over-3.mp3",
    "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
-   "caption": "וָואוּ, זֶה יוֹתֵר מִדַּי כֶּסֶף.",
-   "take": "clips/m-over-3/v1.mp3",
+   "caption": "יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.",
+   "take": "clips/m-over-3/v3.mp3",
    "request": {
-    "text": "[playful] וָואוּ, זֶה יוֹתֵר מִדַּי כֶּסֶף.",
+    "text": "[playful] יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-over-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-over-3/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "m-price-1",
@@ -3333,18 +3359,27 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-short-3.mp3",
    "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
-   "caption": "חָסֵר לִי כֶּסֶף.",
-   "take": "clips/m-short-3/v1.mp3",
+   "caption": "צָרִיךְ יוֹתֵר מַטְבְּעוֹת.",
+   "take": "clips/m-short-3/v3.mp3",
    "request": {
-    "text": "[playful] חָסֵר לִי כֶּסֶף.",
+    "text": "[playful] צָרִיךְ יוֹתֵר מַטְבְּעוֹת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-short-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-short-3/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "m-tap-1-f",
@@ -3392,18 +3427,27 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-undo-1-f.mp3",
    "where": "Merchant: too much, the first time only: the hand taps his hand and the last coin flies back — when a girl plays",
-   "caption": "קְחִי מַטְבֵּעַ בַּחֲזָרָה.",
-   "take": "clips/m-undo-1-f/v1.mp3",
+   "caption": "אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.",
+   "take": "clips/m-undo-1-f/v2.mp3",
    "request": {
-    "text": "[playful] קְחִי מַטְבֵּעַ בַּחֲזָרָה.",
+    "text": "[playful] אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-undo-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-undo-1-f/v3.mp3",
+     "seed": 102
+    }
+   ]
   },
   {
    "id": "m-undo-1",
@@ -3424,76 +3468,58 @@
    "earlier_takes": null
   },
   {
-   "id": "mult-up-1-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/mult-up-1-f.mp3",
-   "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom) — when a girl plays",
-   "caption": "הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים כָּפוּל עַכְשָׁו.",
-   "take": "clips/mult-up-1-f/v1.mp3",
-   "request": {
-    "text": "[excited] הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים כָּפוּל עַכְשָׁו.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
    "id": "mult-up-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/mult-up-1.mp3",
    "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
-   "caption": "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל עַכְשָׁו.",
-   "take": "clips/mult-up-1/v1.mp3",
+   "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.",
+   "take": "clips/mult-up-1/v3.mp3",
    "request": {
-    "text": "[excited] הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל עַכְשָׁו.",
+    "text": "[excited] עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
-  },
-  {
-   "id": "mult-up-2-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/mult-up-2-f.mp3",
-   "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom) — when a girl plays",
-   "caption": "הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.",
-   "take": "clips/mult-up-2-f/v1.mp3",
-   "request": {
-    "text": "[excited] הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0
+   "earlier_takes": [
+    {
+     "file": "clips/mult-up-1/v1.mp3",
+     "seed": 1
     },
-    "seed": 1
-   },
-   "earlier_takes": null
+    {
+     "file": "clips/mult-up-1/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "mult-up-2",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/mult-up-2.mp3",
    "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
-   "caption": "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.",
-   "take": "clips/mult-up-2/v1.mp3",
+   "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.",
+   "take": "clips/mult-up-2/v3.mp3",
    "request": {
-    "text": "[excited] הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.",
+    "text": "[excited] עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0
     },
-    "seed": 1
+    "seed": 102
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/mult-up-2/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/mult-up-2/v2.mp3",
+     "seed": 101
+    }
+   ]
   },
   {
    "id": "new-best-1",
@@ -3558,96 +3584,6 @@
      "seed": 1
     }
    ]
-  },
-  {
-   "id": "pass-heart-1-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/pass-heart-1-f.mp3",
-   "where": "The end of a pass (one trip through all his screens): one heart comes back, with a sound — when a girl plays",
-   "caption": "לֵב אֶחָד חוֹזֵר אֵלַיִךְ.",
-   "take": "clips/pass-heart-1-f/v1.mp3",
-   "request": {
-    "text": "[warmly] לֵב אֶחָד חוֹזֵר אֵלַיִךְ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "pass-heart-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/pass-heart-1.mp3",
-   "where": "The end of a pass (one trip through all his screens): one heart comes back, with a sound",
-   "caption": "לֵב אֶחָד חוֹזֵר אֵלֶיךָ.",
-   "take": "clips/pass-heart-1/v1.mp3",
-   "request": {
-    "text": "[warmly] לֵב אֶחָד חוֹזֵר אֵלֶיךָ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "pass-heart-2-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/pass-heart-2-f.mp3",
-   "where": "The end of a pass (one trip through all his screens): one heart comes back, with a sound — when a girl plays",
-   "caption": "הִנֵּה לֵב בִּשְׁבִילֵךְ.",
-   "take": "clips/pass-heart-2-f/v1.mp3",
-   "request": {
-    "text": "[warmly] הִנֵּה לֵב בִּשְׁבִילֵךְ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "pass-heart-2",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/pass-heart-2.mp3",
-   "where": "The end of a pass (one trip through all his screens): one heart comes back, with a sound",
-   "caption": "הִנֵּה לֵב בִּשְׁבִילְךָ.",
-   "take": "clips/pass-heart-2/v1.mp3",
-   "request": {
-    "text": "[warmly] הִנֵּה לֵב בִּשְׁבִילְךָ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "pass-heart-3",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/pass-heart-3.mp3",
-   "where": "The end of a pass (one trip through all his screens): one heart comes back, with a sound",
-   "caption": "גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.",
-   "take": "clips/pass-heart-3/v1.mp3",
-   "request": {
-    "text": "[warmly] גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
   },
   {
    "id": "q-broom-1",

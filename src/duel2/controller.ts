@@ -143,6 +143,8 @@ export interface View {
   heal?: { id: number; at: number; from?: { x: number; y: number } }
   /** the hearts given back at the ends of passes in this run */
   passHeart?: number
+  /** a new value flashes the top bar's hearts (a pass heart); it only grows, across runs too (TopBar) */
+  heartFlash?: number
   /** the hearts ran out: the short defeat scene plays (the dizzy wizard spins and falls), then `over` */
   defeat?: boolean
   /** the merchant's visit at a checkpoint (drawn instead of the screen) */
@@ -197,6 +199,8 @@ const WIZARD_AT = { x: 260, y: 520 }
 /** no pick for this long: the instruction and the sound play once */
 /** an effect rings this long before the voice goes on (fluent, but not cut) */
 const SFX_RING_MS = 400
+/** the pass hearts' flashes so far, in every run (View.heartFlash) */
+let heartFlashes = 0
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
@@ -275,10 +279,8 @@ export class RunController {
   private ending = false
   /** the crystal of this cycle was given (a pause during it must not give it twice) */
   private crystalAwarded = false
-  /** a pass has ended: its heart moment is due before the next screen */
+  /** a pass has ended: its heart is due before the next screen */
   private passDue = false
-  /** the heart of this pass end was given (a pause during its moment must not give it twice) */
-  private passHeartGiven = false
   private passHearts = 0
   /** this pass went through every screen of the cycle: the run started at the cycle's first screen, or a pass ended
    * since (spec: "a pass is one trip through all his open minigames"; a run resumed near the end gets no heart there) */
@@ -522,7 +524,7 @@ export class RunController {
     try {
       if (this.opts.force?.screen === 'merchant') return await this.galleryMerchant(t)
       for (;;) {
-        if (this.passDue) await this.runPassHeart(t)
+        if (this.passDue) this.runPassHeart()
         if (this.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
@@ -608,23 +610,20 @@ export class RunController {
     return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
   }
 
-  /** The end of a pass: one heart comes back (up to HEARTS), in its own moment with a sound. Once, even across a pause. */
-  private async runPassHeart(t: number) {
-    if (!this.passHeartGiven) {
-      this.passHeartGiven = true
-      const r = passEndHeart(this.hearts)
-      if (!r.gained) { this.passDue = false; this.passHeartGiven = false; return }
-      this.hearts = r.hearts
-      this.passHearts++
-      this.set({ hearts: this.hearts.left, passHeart: this.passHearts, heal: { id: ++this.fxId, at: this.now() } })
-      this.track('pass-heart', { hearts: this.hearts.left })
-    }
-    this.set({ phase: 'celebrate', overlay: null, needNext: false, hintAvailable: false })
-    this.sfx('potion')
-    await this.sleep(t, SFX_RING_MS)
-    await this.say(t, [{ id: this.variation('pass-heart') }])
+  /**
+   * The end of a pass: one heart comes back (up to HEARTS) at once, with a sound: it flies to the top bar and the hearts
+   * there flash (`heartFlash`). No line and no pause: the game goes on (the parent, 2026-11-12: "no need to say it at all.
+   * just give the heart back and flash it promptly").
+   */
+  private runPassHeart() {
     this.passDue = false
-    this.passHeartGiven = false
+    const r = passEndHeart(this.hearts)
+    if (!r.gained) return
+    this.hearts = r.hearts
+    this.passHearts++
+    this.set({ hearts: this.hearts.left, passHeart: this.passHearts, heal: { id: ++this.fxId, at: this.now() }, heartFlash: ++heartFlashes })
+    this.track('pass-heart', { hearts: this.hearts.left })
+    this.sfx('potion')
   }
 
   // ---- the merchant (spec: one duel, Part 2)

@@ -124,7 +124,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}
       {o?.kind === 'word' && <WordLink word={o.word} />}
       {(!o || o.kind === 'hint' || o.kind === 'word') && (
-        <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult}
+        <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow}
           onNext={v.needNext ? run.onNext : undefined} />

@@ -336,7 +336,7 @@ describe('run controller', () => {
     /** stage 4 (no stage passes during the test), drawing off: broom → cauldron → ladder → ghosts → doors, then the crystal */
     const fromStartOfCycle = () => useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
 
-    it('gives one heart back, once, with its line', async () => {
+    it('gives one heart back, once, at once: no line, no pause, the top bar’s hearts flash (the parent)', async () => {
       duel2Telemetry.clear()
       fromStartOfCycle()
       const c = make()
@@ -347,14 +347,14 @@ describe('run controller', () => {
       expect(c.view.hearts).toBe(3)
       expect(c.view.passHeart).toBe(1)
       expect(c.view.heal).toBeDefined()
-      expect(played.some((id) => id.startsWith('pass-heart-'))).toBe(true)
+      expect(c.view.heartFlash).toBeGreaterThan(0)
+      expect(played.some((id) => id.startsWith('pass-heart'))).toBe(false)
       expect(events().filter((e) => e.e === 'pass-heart')).toEqual([expect.objectContaining({ hearts: 3 })])
       c.destroy()
     }, 60_000)
 
-    it('a lock during the pass heart gives it only once', async () => {
+    it('a lock just after the pass heart does not give it again', async () => {
       duel2Telemetry.clear()
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('pass-heart') ? 1000 : 10)) })
       fromStartOfCycle()
       const c = make()
       c.start()
@@ -364,7 +364,7 @@ describe('run controller', () => {
       await loseHeart(c)
       let locked = false
       await toNextCycle(c, () => {
-        if (!locked && played.some((id) => id.startsWith('pass-heart-'))) { locked = true; c.pause(); c.resume() }
+        if (!locked && c.view.passHeart === 1) { locked = true; c.pause(); c.resume() }
       })
       expect(locked).toBe(true)
       expect(c.view.hearts).toBe(2)
@@ -401,7 +401,7 @@ describe('run controller', () => {
       await toNextCycle(c)
       expect(c.view.hearts).toBe(3)
       expect(c.view.passHeart ?? 0).toBe(0)
-      expect(played.some((id) => id.startsWith('pass-heart-'))).toBe(false)
+      expect(played.some((id) => id.startsWith('pass-heart'))).toBe(false)
       c.destroy()
     }, 60_000)
 

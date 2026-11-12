@@ -20,6 +20,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Reason: English phonics conflict with Hebrew vowels. Example (duel): the child heard "U" as "uh" (= kamatz).
 - Do not say what the screen already shows.
   Example (duel): do not say "לחץ על הברק". Make the lightning appear with an animation that attracts attention.
+  Example (book 2): a heart that comes back at the end of a pass has no line ("לֵב אֶחָד חוֹזֵר אֵלֶיךָ" was removed). The heart
+  flies to the top bar at once and the hearts there flash; the game does not stop for it.
 - When the voice names an object, make the object appear at that moment. If it is already on the screen, make it glow.
   Example (duel): in "הגן על ה**מגדל**", the tower rises on "מגדל". The clue bubble appears on "בתמונה". The marks appear on "הניקוד".
 - Make each round say what to do: a short question before the content (for example "What time does the clock show?"
@@ -50,6 +52,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): "הַמָּחוֹג הָאָרוֹךְ", not "הָאָרֹךְ".
 - Make sure each line is correct in its context, and that its feeling agrees with the moment.
   Example (duel): "המגדל נפל. כל הכבוד" praised the child for a loss. The first "כִּמְעַט" sounded disappointed; it must encourage.
+  Example (book 2): "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל" was wrong: the coins are not worth more, he gets more coins. The line is
+  now "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת".
 - Make each number agree in gender with the noun that it counts. Check every line with a number and a noun.
   Example (a merchant draft): מַטְבֵּעַ is masculine, so "עֲשָׂרָה מַטְבְּעוֹת", not "עֶשֶׂר מַטְבְּעוֹת".
 - Do not use game or technical words. Say what happens.

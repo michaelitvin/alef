@@ -2,11 +2,26 @@
 // the hint on the left, next in the middle after a mistake or an explanation, the run's points beside the hearts (the child
 // asked where to see his points), and the streak multiplier of the coins (×2, ×3) beside them. Every button answers on
 // finger-down.
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
+
+/** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (duel2.css) */
+const FLASH_MS = 1700
+/** the newest flash that began: the bar remounts (after an explanation) and must not flash the same heart again */
+let flashed = 0
+function useFlash(n?: number) {
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    if (!n || n <= flashed) return
+    flashed = n
+    setOn(true)
+    setTimeout(() => setOn(false), FLASH_MS)
+  }, [n])
+  return on
+}
 
 function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?: boolean; glow?: boolean }) {
   return (
@@ -22,7 +37,10 @@ export function TopBar(p: {
   hearts?: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void
   /** the wand glows (the merchant: two wrong payments in a row); it never opens the hint by itself */
   hintGlow?: boolean
+  /** a new (higher) value flashes the hearts: a heart came back at the end of a pass (no line says it: the parent) */
+  heartFlash?: number
 }) {
+  const flash = useFlash(p.heartFlash)
   return (
     <div className="d2-topbar">
       <div className="d2-topbar-side">
@@ -38,7 +56,9 @@ export function TopBar(p: {
         {p.mult !== undefined && p.mult > 1 && <InfoTap line="info-mult"><span key={p.mult} data-num data-mult={p.mult} className="d2-mult">×{p.mult}</span></InfoTap>}
         {p.hearts !== undefined && (
           <InfoTap line="info-hearts" className="d2-hearts-row">
-            {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}
+            {Array.from({ length: p.hearts }, (_, i) => (
+              <span key={i} data-heart data-flash={flash ? 'true' : undefined} className="d2-heart"><HeartIcon /></span>
+            ))}
           </InfoTap>
         )}
       </div>

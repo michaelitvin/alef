@@ -76,14 +76,13 @@ export const LINES: LineDef[] = [
     'נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.',
   ], 0, 'excited'),
   line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.'], 0, 'amazed'),
-  // one duel (spec 2026-11-11): the hearts last the run; at the end of each pass one comes back, in its own moment
-  // the streak multiplier rises (its own moment, always spoken): take 1 at x2 (streak 5), take 2 at x3 (streak 10)
+  // one duel (spec 2026-11-11): the hearts last the run; at the end of each pass one comes back with no line (it flies to
+  // the top bar and the hearts flash; the parent 2026-11-12: "no need to say it at all")
+  // the streak multiplier rises (its own moment, always spoken): take 1 at x2 (streak 5), take 2 at x3 (streak 10). He gets
+  // more coins for each right answer; the coins are not worth more (the parent 2026-11-12). It does not address the child.
   line('mult-up', 'The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)', [
-    'הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל עַכְשָׁו.', 'הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.',
+    'עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.', 'עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.',
   ], 0, 'excited'),
-  line('pass-heart', 'The end of a pass (one trip through all his screens): one heart comes back, with a sound', [
-    'לֵב אֶחָד חוֹזֵר אֵלֶיךָ.', 'הִנֵּה לֵב בִּשְׁבִילְךָ.', 'גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.',
-  ], 0.5, 'warmly'),
   // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
   line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
@@ -91,7 +90,8 @@ export const LINES: LineDef[] = [
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
   line('info-best', 'A tap on his best run', ['זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.']),
   line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.']),
-  line('info-mult', 'A tap on the ×2 or ×3 beside the coins (the streak multiplier)', ['כְּשֶׁאַתָּה עוֹנֶה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.']),
+  // two short sentences that do not address the child (the parent 2026-11-12: the long one broke in the wrong places)
+  line('info-mult', 'A tap on the ×2 or ×3 beside the coins (the streak multiplier)', ['תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.']),
   line('demo-broom', 'Demo: first broom flight with syllables (then the sound)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-broom-letter', 'Demo: first broom flight with letters (then the letter name)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),
   line('demo-cauldron', 'Demo: first cauldron (then the sound)', ['תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.']),
@@ -126,12 +126,15 @@ export const LINES: LineDef[] = [
   mline('m-give', 'Merchant, first visit demo D2 (the parent\'s wording): the hand drags a coin into his hand', ['תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.']),
   mline('m-tap', 'Merchant, first visit demo D3: the hand taps the potion', ['וְאָז גַּע בַּשִּׁקּוּי.']),
   mline('m-decline', 'Merchant, first visit demo D4: the ✗ card glows', ['לֹא צָרִיךְ? גַּע כָּאן.']),
+  // take 3 does not address the child: the parent wanted the accent on שֶׁלְּךָ / שֶׁלָּךְ (2026-11-12) and two retakes did not
+  // put it there
   mline('m-exact', 'Merchant: he counted the exact price; the potion flies to the wizard', [
-    'בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.', 'בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.', 'מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלְּךָ.',
+    'בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.', 'בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.', 'מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.',
   ]),
-  // "not enough" avoids עוֹד and קְצָת (this voice says them wrongly: rule)
-  mline('m-short', 'Merchant: he counted less than the price (the tag flashes; the coins stay)', ['זֶה לֹא מַסְפִּיק.', 'זֶה פָּחוֹת מֵהַמְּחִיר.', 'חָסֵר לִי כֶּסֶף.']),
-  mline('m-over', 'Merchant: he counted more than the price (the tag flashes; the coins stay)', ['זֶה יוֹתֵר מִדַּי.', 'זֶה יוֹתֵר מֵהַמְּחִיר.', 'וָואוּ, זֶה יוֹתֵר מִדַּי כֶּסֶף.']),
+  // "not enough" avoids עוֹד and קְצָת (this voice says them wrongly: rule). Plain words, no "wow" (the parent 2026-11-12:
+  // "חָסֵר לִי כֶּסֶף" was weird wording; "why wow?")
+  mline('m-short', 'Merchant: he counted less than the price (the tag flashes; the coins stay)', ['זֶה לֹא מַסְפִּיק.', 'זֶה פָּחוֹת מֵהַמְּחִיר.', 'צָרִיךְ יוֹתֵר מַטְבְּעוֹת.']),
+  mline('m-over', 'Merchant: he counted more than the price (the tag flashes; the coins stay)', ['זֶה יוֹתֵר מִדַּי.', 'זֶה יוֹתֵר מֵהַמְּחִיר.', 'יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.']),
   mline('m-undo', 'Merchant: too much, the first time only: the hand taps his hand and the last coin flies back', ['קַח מַטְבֵּעַ בַּחֲזָרָה.']),
   mline('m-empty', 'Merchant: the potion tapped with nothing in his hand (his hand glows)', ['קֹדֶם מַטְבְּעוֹת.', 'קֹדֶם תֵּן לִי מַטְבְּעוֹת.']),
   line('m-hint', 'Merchant visit, the hint (narrator): his coins go back and the coins that make the price glow green', ['אוּלַי אֵלֶּה?', 'אוּלַי הַמַּטְבְּעוֹת הָאֵלֶּה?'], 0.5, 'warmly'),
@@ -164,8 +167,6 @@ const FE: Record<string, (string | null)[]> = {
   // the voice says ־ְתְּ as the masculine, and the parent rejected the ט respelling ("Nitshat"): first person plural
   'boss-win': ['נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.'],
   'boss-new': ['נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
-  'mult-up': ['הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים כָּפוּל עַכְשָׁו.', 'הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.'],
-  'pass-heart': ['לֵב אֶחָד חוֹזֵר אֵלַיִךְ.', 'הִנֵּה לֵב בִּשְׁבִילֵךְ.', null],
   // one duel: the hearts last the run and one comes back at the end of each pass (re-record both takes)
   'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.'],
   'info-stars': ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.'],
@@ -173,7 +174,6 @@ const FE: Record<string, (string | null)[]> = {
   'info-crystals': ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.'],
   'info-best': ['זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.'],
   'info-bosses': ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.'],
-  'info-mult': ['כְּשֶׁאַתְּ עוֹנָה נָכוֹן הַרְבֵּה פְּעָמִים בִּרְצִיפוּת, כָּל תְּשׁוּבָה נוֹתֶנֶת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, זֶה מַתְחִיל מֵהַהַתְחָלָה.'],
   'demo-broom': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר.'],
   'demo-broom-letter': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.'],
   'demo-cauldron': ['תִּגְרְרִי לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.'],
@@ -196,8 +196,8 @@ const FE: Record<string, (string | null)[]> = {
   'm-give': ['תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'],
   'm-tap': ['וְאָז גְּעִי בַּשִּׁקּוּי.'],
   'm-decline': ['לֹא צָרִיךְ? גְּעִי כָּאן.'],
-  'm-exact': [null, null, 'מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלָּךְ.'],
-  'm-undo': ['קְחִי מַטְבֵּעַ בַּחֲזָרָה.'],
+  // the voice said קְחִי "kechi" (the parent 2026-11-12): a neutral wording for a girl
+  'm-undo': ['אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.'],
   'm-empty': [null, 'קֹדֶם תְּנִי לִי מַטְבְּעוֹת.'],
 }
 for (const l of LINES) if (FE[l.id]) l.fe = FE[l.id].map((t) => (t === null ? null : t.normalize('NFC')))

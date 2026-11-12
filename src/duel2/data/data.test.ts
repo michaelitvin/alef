@@ -121,6 +121,19 @@ describe('lines lead into the sound', () => {
 
 })
 
+describe('one duel lines: the parent’s review 2026-11-12', () => {
+  it('no pass-heart line: the heart comes back with no words', () => {
+    expect(lineById('pass-heart')).toBeUndefined()
+  })
+  it('the multiplier says he gets more coins (the coins are not worth more), in words that suit a boy and a girl', () => {
+    const n = (t: string) => t.normalize('NFC')
+    expect(lineById('mult-up')!.he).toEqual([n('עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.'), n('עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.')])
+    expect(lineById('mult-up')!.fe).toBeUndefined()
+    expect(lineById('info-mult')!.he[0]).toBe(n('תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.'))
+    expect(lineById('info-mult')!.fe).toBeUndefined()
+  })
+})
+
 describe('merchant lines (spec: one duel, Part 2)', () => {
   const want: Record<string, number> = {
     'm-hello': 3, 'm-again': 2, 'm-bye': 2, 'm-price': 1, 'm-give': 1, 'm-tap': 1, 'm-decline': 1, 'm-exact': 3, 'm-short': 3,
@@ -165,5 +178,10 @@ describe('merchant lines (spec: one duel, Part 2)', () => {
   })
   it('"not enough" avoids עוֹד and קְצָת (this voice says them wrongly)', () => {
     for (const t of lineById('m-short')!.he) expect(/עוֹד|קְצָת/.test(t), t).toBe(false)
+  })
+  it('the parent’s review 2026-11-12: no wow; a neutral undo for a girl; take 3 of exact does not need שֶׁלְּךָ', () => {
+    for (const t of lineById('m-over')!.he) expect(/וָואוּ/.test(t), t).toBe(false)
+    expect(lineById('m-undo')!.fe![0]).toBe('אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.'.normalize('NFC'))
+    expect(lineById('m-exact')!.fe).toBeUndefined()
   })
 })

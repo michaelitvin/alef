@@ -110,6 +110,19 @@ describe('parts', () => {
     const { container } = render(<TopBar hearts={3} score={7} />)
     expect(container.querySelector('[data-score]')!.textContent).toBe('7')
   })
+  it('a heart back at the end of a pass flashes the hearts (no line says it), once: not again when the bar comes back', () => {
+    const one = render(<TopBar hearts={2} />)
+    expect(one.container.querySelectorAll('[data-heart][data-flash]').length).toBe(0)
+    one.rerender(<TopBar hearts={3} heartFlash={1} />)
+    expect(one.container.querySelectorAll('[data-heart][data-flash]').length).toBe(3)
+    one.unmount()
+    // the bar is hidden during an explanation and comes back: the same heart does not flash again
+    const two = render(<TopBar hearts={3} heartFlash={1} />)
+    expect(two.container.querySelectorAll('[data-heart][data-flash]').length).toBe(0)
+    two.rerender(<TopBar hearts={3} heartFlash={2} />)
+    expect(two.container.querySelectorAll('[data-heart][data-flash]').length).toBe(3)
+    two.unmount()
+  })
 
   it('a session from the path shows no hearts in the top bar (none are at stake)', () => {
     const { container } = render(<TopBar hearts={undefined} score={4} coins={2} />)
