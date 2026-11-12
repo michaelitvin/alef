@@ -3,11 +3,12 @@
 import type { ScreenId } from './predict'
 
 /**
- * The tower is mastered when every mark has at least `minAnswers` recent answers with at least `rate` right. Baseline:
- * with the duel's 1-in-5 target mistake rate a mark sits near 80 %, so a typical new player opens Book 2 after roughly
- * 3–6 sessions on the tower (tune in playtest).
+ * The tower is mastered when every mark has at least `minAnswers` recent answers and, over all marks' recent answers
+ * together, at least `rate` are right. A per-mark bar was far too strict: the duel's picker aims each round at one mistake
+ * in five, so some mark always sits near 80 %, and a simulated 80 %-right player needed thousands of answers. With this
+ * rule he needs about 95 (mastery.test), about ten tower visits of two waves (tune in playtest).
  */
-export const TOWER_MASTER = { minAnswers: 5, rate: 0.8 }
+export const TOWER_MASTER = { minAnswers: 3, rate: 0.75 }
 /** a visit is about half when the last this many answers (at least this many) have no mistake */
 export const SHORT_AFTER = 8
 /** a screen is skipped in every other cycle when the last this many answers (at least this many) are all right */
@@ -16,10 +17,8 @@ export const SKIP_AFTER = 12
 const share = (r: string) => (r.length ? [...r].filter((c) => c === 'o').length / r.length : 0)
 
 export function towerMastered(recent: Record<string, string>, markIds: string[]): boolean {
-  return markIds.length > 0 && markIds.every((id) => {
-    const r = recent[id] ?? ''
-    return r.length >= TOWER_MASTER.minAnswers && share(r) >= TOWER_MASTER.rate
-  })
+  if (!markIds.length || !markIds.every((id) => (recent[id] ?? '').length >= TOWER_MASTER.minAnswers)) return false
+  return share(markIds.map((id) => recent[id]).join('')) >= TOWER_MASTER.rate
 }
 
 /** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Book 2's `sc:` feature */

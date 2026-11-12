@@ -247,8 +247,9 @@ My calls:
 - **When a minigame opens:** Book 2's stage machine stays as it is (`stages.ts`, `screensOfStage`, the content mix).
   It still decides which Book 2 screens are open and what content they use. A new **stage 0** comes before it, in which
   only the first duel's screen is open. Stage 0 passes when the first duel's marks are mastered by its own adaptive
-  measure (my starting point: about 80 % right over recent answers on every mark). Then stage 1 opens broom and ghosts,
-  as today. Inside a screen, the content still moves up by stage.
+  measure (my starting point: every nikkud mark has at least 3 recent answers, and at least 75 % of all the marks' recent
+  answers together are right; a player who is right 80 % of the time gets there in about 95 answers, about ten tower
+  visits). Then stage 1 opens broom and ghosts, as today. Inside a screen, the content still moves up by stage.
 - **The order of a run stays a fixed cycle** (`ORDER`, `nextScreen`, `lastEnded`), with the first duel's screen first.
   "Fewer of the minigames he excels at" means a shorter visit, not a random order. A screen with no recent mistakes
   gets a shorter visit (about half), and a screen he has excelled at for a long time is skipped in every other cycle.

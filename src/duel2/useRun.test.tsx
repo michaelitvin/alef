@@ -1388,8 +1388,8 @@ describe('run controller', () => {
     it('the tower is never skipped, and a one-screen cycle is never skipped; a mastered tower gets one wave', async () => {
       useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
       const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, O12]))
-      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: { ...recent, kamatz: 'xxxxx' } } })
-      // stage 0 (the tower is not mastered yet: one mark is below 80 %)
+      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: { ...recent, kamatz: 'oo' } } })
+      // stage 0 (the tower is not mastered yet: one mark has fewer than 3 recent answers)
       useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null, cycleNo: 1 })
       towerAuto = false
       const c = make()
