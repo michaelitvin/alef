@@ -103,6 +103,18 @@ export function orbEvents(k: number[], resolved: boolean[], lane: number, isTarg
   }
   return { resolved: r, hit: null, missedTarget: false }
 }
+export type WaveEvent = { kind: 'catch' | 'hit'; orb: number } | { kind: 'miss' }
+/**
+ * One tick of a wave as one question: it costs at most one heart. Its first event (the catch of its target, a hit by a
+ * wrong orb, or its target flying past) spends it; the rest of a spent wave flies on harmlessly (no hit, no heart, no
+ * mistake) until it has gone by.
+ */
+export function waveTick(k: number[], w: { resolved: boolean[]; spent?: boolean }, lane: number, isTarget: boolean[], lanes?: number[]): { resolved: boolean[]; spent: boolean; event: WaveEvent | null } {
+  const e = orbEvents(k, w.resolved, lane, isTarget, lanes)
+  if (w.spent) return { resolved: e.resolved, spent: true, event: null }
+  const event: WaveEvent | null = e.hit !== null ? { kind: isTarget[e.hit] ? 'catch' : 'hit', orb: e.hit } : e.missedTarget ? { kind: 'miss' } : null
+  return { resolved: e.resolved, spent: event !== null, event }
+}
 export const LANES = 3
 export const laneAt = (y01: number): 0 | 1 | 2 => Math.min(2, Math.max(0, Math.floor(y01 * LANES))) as 0 | 1 | 2
 import { PACE_MIN, PACE_MAX } from '../../utils/duel/rules'

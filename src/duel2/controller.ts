@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, orbEvents, wavePos, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, waveTick, wavePos, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -1837,13 +1837,10 @@ export class RunController {
         const events: { hit: Choice | null; wave: BroomWave }[] = []
         const waves = cur.waves.map((w) => {
           const k = w.choices.map((_, i) => wavePos(w.startMs + w.offsets[i] * travel, now, travel))
-          const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
-          const hitWrong = e.hit !== null && w.choices[e.hit].soundId !== target.soundId
-          // one wave is one question: after a mistake its other orbs fly on harmlessly (no second heart for the same wave)
-          if (w.spent || dying) return { ...w, resolved: e.resolved }
-          if (e.hit !== null) events.push({ hit: w.choices[e.hit], wave: w })
-          else if (e.missedTarget) events.push({ hit: null, wave: w })
-          return { ...w, resolved: e.resolved, spent: hitWrong || e.missedTarget }
+          // one wave is one question: after its catch or a mistake its other orbs fly on harmlessly (at most one heart)
+          const e = waveTick(k, { resolved: w.resolved, spent: w.spent || dying }, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
+          if (e.event) events.push({ hit: e.event.kind === 'miss' ? null : w.choices[e.event.orb], wave: w })
+          return { ...w, resolved: e.resolved, ...(e.spent ? { spent: true } : {}) }
         }).filter((w) => w.resolved.some((r) => !r))
         this.setScreen({ waves } as Partial<BroomView>)
         for (const ev of events) {

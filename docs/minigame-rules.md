@@ -413,7 +413,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   play only its sound. Example (book 2): the parent: "you don't need to tell him again that he went all the way to the top".
 - Let a sound effect ring a moment (about 0.4 s) before the voice goes on. Example (book 2): fluent rounds cut the effects.
 - In an action game (book 2: the broom flight), do not stop at a mistake. Flash, take a heart, mark the right answer for a
-  moment, play its sound again, and go on. One wave of choices costs at most one heart. Start a new target only when the
+  moment, play its sound again, and go on. One wave of choices costs at most one heart: after its
+  target is caught or a mistake happens, its other orbs fly past harmlessly. Start a new target only when the
   screen is empty, and announce it while the game goes on. Example (book 2): the parent: "make it more fluent, like an
   arcade game"; the old flight stopped at each mistake and new target, and the orbs on the screen vanished.
 - Keep the flow. Do not repeat the same feedback many times in one encounter.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, HEARTS, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
+import { CYCLE, HEARTS, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, waveTick, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage: the tower first', () => {
@@ -121,6 +121,36 @@ describe('run', () => {
     expect(orbEvents(k, [false, false], 0, [false, true], [2, 0]).hit).toBe(1)
     expect(orbEvents(k, [false, false], 2, [false, true], [2, 0]).hit).toBe(0)
     expect(orbEvents(k, [false, false], 1, [false, true], [2, 0]).hit).toBe(null)
+  })
+
+  describe('waveTick: a wave costs at most one heart', () => {
+    const isT = [false, true, false]
+    it('the catch of the target spends the wave: a wrong orb of it that comes after is harmless', () => {
+      const a = waveTick([0.5, CATCH_AT - 0.01, 0.5], { resolved: [false, false, false] }, 1, isT)
+      expect(a.event).toEqual({ kind: 'catch', orb: 1 })
+      expect(a.spent).toBe(true)
+      // he moves into lane 2 as its wrong orb reaches him: no hit
+      const b = waveTick([0.5, -0.2, CATCH_AT - 0.01], { resolved: a.resolved, spent: a.spent }, 2, isT)
+      expect(b.event).toBe(null)
+      expect(b.resolved[2]).toBe(true)
+    })
+    it('a hit spends the wave: its target flying past is not a second mistake', () => {
+      const a = waveTick([CATCH_AT - 0.01, 0.5, 0.5], { resolved: [false, false, false] }, 0, isT)
+      expect(a.event).toEqual({ kind: 'hit', orb: 0 })
+      expect(a.spent).toBe(true)
+      const b = waveTick([-0.5, PASS_AT - 0.01, 0.5], { resolved: a.resolved, spent: true }, 0, isT)
+      expect(b.event).toBe(null)
+      expect(b.resolved[1]).toBe(true)
+    })
+    it('a target flying past is a miss and spends the wave', () => {
+      const a = waveTick([0.5, PASS_AT - 0.01, 0.5], { resolved: [false, false, false] }, 0, isT)
+      expect(a.event).toEqual({ kind: 'miss' })
+      expect(a.spent).toBe(true)
+    })
+    it('no event: the wave stays open', () => {
+      const a = waveTick([0.5, 0.5, 0.5], { resolved: [false, false, false] }, 0, isT)
+      expect(a).toEqual({ resolved: [false, false, false], spent: false, event: null })
+    })
   })
 
 })

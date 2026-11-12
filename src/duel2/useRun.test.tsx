@@ -951,6 +951,38 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  it('once he caught a wave\'s target, the rest of that wave flies past harmlessly (no heart, no mistake)', async () => {
+    const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' }, rng: seeded(7) })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+    let tested = 0
+    for (let i = 0; i < 6000 && tested < 3 && !c.view.over; i++) {
+      const s = c.view.screen as BroomView
+      if (s?.screen === 'broom' && c.view.phase === 'answer') {
+        // a wave whose target he caught (resolved, not passed) while a wrong orb of it is still on its way
+        const caught = s.waves.find((w) => w.choices.some((x, j) => x.soundId === s.target.soundId && w.resolved[j]) && w.choices.some((x, j) => x.soundId !== s.target.soundId && !w.resolved[j]))
+        if (caught) {
+          const j = caught.choices.findIndex((x, k) => x.soundId !== s.target.soundId && !caught.resolved[k])
+          const hearts = c.view.hearts
+          const wrong = useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0
+          // sit in that wrong orb's lane until the wave has gone by
+          for (let n = 0; n < 200 && (c.view.screen as BroomView).waves.some((w) => w.id === caught.id); n++) {
+            c.gesture({ type: 'lane', lane: (caught.lanes?.[j] ?? j) as 0 | 1 | 2 })
+            await tick(50)
+          }
+          expect(c.view.hearts).toBe(hearts)
+          expect(useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0).toBe(wrong)
+          tested++
+          continue
+        }
+        fly(c)
+      }
+      await tick(50)
+    }
+    expect(tested).toBeGreaterThan(0)
+    c.destroy()
+  })
+
   it('the last door has the crystal behind it, the others a door', async () => {
     const c = make({ force: { screen: 'doors', stage: 4 } })
     c.start()
