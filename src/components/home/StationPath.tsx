@@ -2,6 +2,7 @@
 // zigzag trail, right to left, scrolling sideways only. Open stations first; locked ones greyed out with a lock (they do
 // nothing). Three small dots under each disc fill with his recent accuracy there (not stars). The wizard stands at the
 // newest open reading station. Each open station opens one short session of its minigame. Captions are for the parent.
+import { useLayoutEffect, useRef } from 'react'
 import wizBoy from '../../duel2/assets/img/s-wizard-cast.webp'
 import wizGirl from '../../duel2/assets/img/s-wizard-cast-girl.webp'
 import { useGender, wizardArt } from '../../shared/player'
@@ -53,8 +54,21 @@ export function StationPath() {
   // minigames, and only comes last on the path because writing follows reading: it is never the newest)
   const reading = stations.filter((s) => s.open && s.id !== 'draw' && s.id !== 'draw-hand')
   const newest = stations.indexOf(reading[reading.length - 1])
+  // the wizard's station comes into view: on a phone the RTL path can start with it off-screen. At once on the first
+  // load, smoothly when he moves on later. A relative scroll, so the RTL scroll origin does not matter.
+  const path = useRef<HTMLDivElement>(null)
+  const scrolled = useRef(false)
+  useLayoutEffect(() => {
+    const el = path.current
+    const at = el?.querySelector<HTMLElement>('[data-wizard]')?.closest<HTMLElement>('[data-station]')
+    if (!el || !at || !el.scrollBy) return
+    const p = el.getBoundingClientRect()
+    const r = at.getBoundingClientRect()
+    el.scrollBy({ left: r.left + r.width / 2 - (p.left + p.width / 2), behavior: scrolled.current ? 'smooth' : 'auto' })
+    scrolled.current = true
+  }, [newest])
   return (
-    <div className="home-path" data-path data-home-part="path">
+    <div className="home-path" data-path data-home-part="path" ref={path}>
       <Trail n={stations.length} />
       {stations.map((s, i) => <StationItem key={s.id} s={s} i={i} wizard={i === newest ? wizard : undefined} />)}
     </div>

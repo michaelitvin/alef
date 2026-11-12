@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DuelCard } from './DuelCard'
 import { StationPath } from './StationPath'
 import { useProgressStore } from '../../stores/progressStore'
@@ -95,6 +95,30 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     setGender('girl', 'parent')
     const g = render(<StationPath />)
     expect(g.container.querySelector('[data-wizard]')!.getAttribute('src')).toMatch(/girl/)
+  })
+
+  it('on load the path scrolls (at once, not smoothly) so the wizard\'s station is in view (RTL: it can start off-screen on a phone)', () => {
+    save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
+    // the path is 360px wide; the wizard's station (the ladder) lies off its left edge
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const r = this.hasAttribute('data-path') ? { left: 0, width: 360 } : this.querySelector('[data-wizard]') ? { left: -300, width: 84 } : { left: 100, width: 84 }
+      return { ...r, right: r.left + r.width, top: 0, bottom: 100, height: 100, x: r.left, y: 0, toJSON: () => ({}) } as DOMRect
+    })
+    const by = vi.fn()
+    const proto = HTMLElement.prototype as unknown as { scrollBy?: unknown }
+    const had = proto.scrollBy
+    proto.scrollBy = by
+    try {
+      const { container } = render(<StationPath />)
+      expect(st(container, 'ladder').querySelector('[data-wizard]')).not.toBeNull()
+      expect(by).toHaveBeenCalledTimes(1)
+      // the station's centre (-258) to the path's centre (180), at once
+      expect(by).toHaveBeenCalledWith({ left: -258 - 180, behavior: 'auto' })
+      expect(by.mock.contexts[0]).toBe(container.querySelector('[data-path]'))
+    } finally {
+      proto.scrollBy = had
+      rect.mockRestore()
+    }
   })
 
   it('the wizard stands at the newest reading station, not at drawing (which opens with stage 1 and comes last on the path)', () => {
