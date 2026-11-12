@@ -8,6 +8,7 @@ import { StationPath } from '../../components/home/StationPath'
 import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
 import { LevelShelf } from '../../components/home/LevelShelf'
+import { GearIcon, StarIcon, TargetIcon, ChartIcon } from '../../components/home/HomeIcons'
 import '../../components/home/home.css'
 
 /**
@@ -39,6 +40,8 @@ export function HomePage() {
     >
       {/* Settings Button */}
       <motion.button
+        data-home-settings
+        aria-label="settings"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -63,7 +66,7 @@ export function HomePage() {
         whileHover={{ scale: 1.1, backgroundColor: colors.neutral[200] }}
         whileTap={{ scale: 0.95 }}
       >
-        ⚙️
+        <GearIcon />
       </motion.button>
 
       {/* Header */}
@@ -119,6 +122,7 @@ export function HomePage() {
         }}
       >
         <motion.button
+          data-home-stats
           onClick={() => navigate('/progress')}
           style={{
             background: 'none',
@@ -139,11 +143,11 @@ export function HomePage() {
           >
             {stats.totalAttempts > 0 ? (
               <>
-                ⭐ {stats.lettersLearned} אותיות נלמדו | 🎯{' '}
+                <StarIcon /> {stats.lettersLearned} אותיות נלמדו | <TargetIcon />{' '}
                 {Math.round(stats.accuracy * 100)}% דיוק
               </>
             ) : (
-              '📊 צפה בהתקדמות'
+              <><ChartIcon /> צפה בהתקדמות</>
             )}
           </p>
           <p

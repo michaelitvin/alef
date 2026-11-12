@@ -71,4 +71,29 @@ describe('the home page (spec: one duel, Part 4)', () => {
     const main = c.querySelector('[data-home]')!
     expect(main.textContent ?? '').not.toMatch(/\p{Extended_Pictographic}/u)
   })
+
+  it('the whole rendered home (settings button and stats link too) has no emoji, before and after the first attempts', () => {
+    for (const stats of [{}, { totalAttempts: 12, lettersLearned: 3, accuracy: 0.75 }]) {
+      useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, stats: { ...INITIAL_PROGRESS_STATE.stats, ...stats } })
+      const { container, unmount } = render(<MemoryRouter><HomePage /></MemoryRouter>)
+      expect(container.innerHTML).not.toMatch(/\p{Extended_Pictographic}/u)
+      unmount()
+    }
+  })
+
+  it('the settings button and the stats link draw SVG icons, keep their actions, and the stats link keeps its text', () => {
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, stats: { ...INITIAL_PROGRESS_STATE.stats, totalAttempts: 12, lettersLearned: 3, accuracy: 0.75 } })
+    const c = page()
+    const settings = c.querySelector('[data-home-settings]')!
+    expect(settings.querySelector('svg')).not.toBeNull()
+    fireEvent.click(settings)
+    expect(navigate).toHaveBeenLastCalledWith('/settings')
+    const stats = c.querySelector('[data-home-stats]')!
+    expect(stats.querySelectorAll('svg').length).toBe(2)
+    expect(stats.textContent).toContain('3 אותיות נלמדו')
+    expect(stats.textContent).toContain('75% דיוק')
+    expect(stats.textContent).toContain('לחץ לצפייה בהישגים')
+    fireEvent.click(stats)
+    expect(navigate).toHaveBeenLastCalledWith('/progress')
+  })
 })
