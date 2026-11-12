@@ -43,7 +43,7 @@ export function MonsterImg({ id }: { id: string }) {
   return <img className="nd-sprite" src={m.src} style={m.faces === 'right' ? { transform: 'scaleX(-1)' } : undefined} alt="" draggable={false} />
 }
 
-export function Explosion({ round, outcome, x, geo, fx = DEFAULT_FX }: { round: Round; outcome: Outcome; x: number; geo: Geo; fx?: FxStyle }) {
+export function Explosion({ round, outcome, x, geo, fx = DEFAULT_FX, points = true }: { round: Round; outcome: Outcome; x: number; geo: Geo; fx?: FxStyle; points?: boolean }) {
   const colours = PALETTES[fx.palette]
   const juice = EFFECT_PRESETS[outcome.effect]
   const delay = 0.26 + juice.hitstopMs / 1000
@@ -116,9 +116,11 @@ export function Explosion({ round, outcome, x, geo, fx = DEFAULT_FX }: { round: 
             )}
           </motion.span>
         )}
-        <motion.span className="nd-plus" initial={{ y: 0, opacity: 0 }} animate={{ y: -90, opacity: [0, 1, 0] }} transition={{ delay: delay + 0.1, duration: 1 }}>
-          {outcome.mega ? <Icon name="bolt" size={24} /> : null}+{outcome.points}
-        </motion.span>
+        {points && (
+          <motion.span className="nd-plus" initial={{ y: 0, opacity: 0 }} animate={{ y: -90, opacity: [0, 1, 0] }} transition={{ delay: delay + 0.1, duration: 1 }}>
+            {outcome.mega ? <Icon name="bolt" size={24} /> : null}+{outcome.points}
+          </motion.span>
+        )}
       </div>
     </>
   )

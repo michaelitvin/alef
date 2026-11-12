@@ -44,10 +44,12 @@ interface Props {
   fx?: FxStyle | null
   /** show the result banner (off for a boss hit that does not finish it) */
   resultBanner?: boolean
+  /** a hit shows its +points (Book 2's run: no, the first duel's points are retired there) */
+  points?: boolean
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, onReplay = () => {} }: Props) {
   const WIZARD = useWizard()
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
@@ -133,7 +135,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
           remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
-      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} />}
+      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} points={points} />}
       {round && outcome && resultBanner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (
