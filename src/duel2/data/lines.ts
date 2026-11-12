@@ -16,6 +16,8 @@ export interface LineDef {
   /** the feminine text of each variation (files `<id>-<n>-f`); null = the variation does not address the child (one take
    * for both). Spec 2026-11-07 girls. */
   fe?: (string | null)[]
+  /** who says it: the merchant has his own voice (spec: one duel, Part 2); unset = the wizard narrator */
+  voice?: 'merchant'
 }
 
 const line = (id: string, where: string, he: string[], stability = 0.5, tag?: string): LineDef => ({
@@ -23,6 +25,8 @@ const line = (id: string, where: string, he: string[], stability = 0.5, tag?: st
 })
 
 export const VOICE = { id: 'bIHbv24MWmeRgasZH58o', model: 'eleven_v4', lang: 'he' } as const
+/** a merchant's line: his own voice (chosen in the host pipeline: warm, playful, unlike the narrator) */
+const mline = (id: string, where: string, he: string[], stability = 0.5, tag = 'playful'): LineDef => ({ ...line(id, where, he, stability, tag), voice: 'merchant' })
 
 // Rewritten 2026-10-20 (Michael: "much of the instructions sound unnatural and out of place"): each line is what an adult
 // says to the child at that moment, checked in its sequence and by a native reviewer. A line that a sound follows ends
@@ -108,6 +112,28 @@ export const LINES: LineDef[] = [
   line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.'], 0.5, 'warmly'),
   line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
   line('line-small', 'Drawing: the letter is much too small (it still counts)', ['בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.'], 0.5, 'warmly'),
+  // the merchant (spec: one duel, Part 2). His own voice; no numbers spoken (every count is shown); no "!"; the parent
+  // wrote the opening line and the D2 line. Variations beyond the spec's table are mine, to be checked by the parent.
+  mline('m-hello', 'Merchant: he walks in at a checkpoint (the opening; the first take is the parent\'s line)', [
+    'שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?',
+    'מָה נִשְׁמָע קוֹסֵם? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצֶה אֶחָד?',
+    'הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?',
+  ]),
+  mline('m-again', 'Merchant: nothing tapped for 20 s after he came (once per visit)', ['נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?', 'אָז מָה? קוֹנִים שִׁקּוּי?']),
+  mline('m-bye', 'Merchant: the ✗ (no thanks); his coins go back and he walks away', ['בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.', 'אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.']),
+  mline('m-price', 'Merchant, first visit demo D1: the price tag glows', ['זֶה הַמְּחִיר.']),
+  mline('m-give', 'Merchant, first visit demo D2 (the parent\'s wording): the hand drags a coin into his hand', ['תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.']),
+  mline('m-tap', 'Merchant, first visit demo D3: the hand taps the potion', ['וְאָז גַּע בַּשִּׁקּוּי.']),
+  mline('m-decline', 'Merchant, first visit demo D4: the ✗ card glows', ['לֹא צָרִיךְ? גַּע כָּאן.']),
+  mline('m-exact', 'Merchant: he counted the exact price; the potion flies to the wizard', [
+    'בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.', 'בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.', 'מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלְּךָ.',
+  ]),
+  // "not enough" avoids עוֹד and קְצָת (this voice says them wrongly: rule)
+  mline('m-short', 'Merchant: he counted less than the price (the tag flashes; the coins stay)', ['זֶה לֹא מַסְפִּיק.', 'זֶה פָּחוֹת מֵהַמְּחִיר.', 'חָסֵר לִי כֶּסֶף.']),
+  mline('m-over', 'Merchant: he counted more than the price (the tag flashes; the coins stay)', ['זֶה יוֹתֵר מִדַּי.', 'זֶה יוֹתֵר מֵהַמְּחִיר.', 'וָואוּ, זֶה יוֹתֵר מִדַּי כֶּסֶף.']),
+  mline('m-undo', 'Merchant: too much, the first time only: the hand taps his hand and the last coin flies back', ['קַח מַטְבֵּעַ בַּחֲזָרָה.']),
+  mline('m-empty', 'Merchant: the potion tapped with nothing in his hand (his hand glows)', ['קֹדֶם מַטְבְּעוֹת.', 'קֹדֶם תֵּן לִי מַטְבְּעוֹת.']),
+  line('m-hint', 'Merchant visit, the hint (narrator): his coins go back and the coins that make the price glow green', ['אוּלַי אֵלֶּה?', 'אוּלַי הַמַּטְבְּעוֹת הָאֵלֶּה?'], 0.5, 'warmly'),
   // the boy/girl question (spec 2026-11-07 girls): one take for both, before the first run while the setting is unset
   line('ask-gender', 'Before the first run, while boy/girl is not set: the two wizards glow on בֵּן and בַּת', ['מִי מְשַׂחֵק? בֵּן אוֹ בַּת?'], 0.5, 'warmly'),
 ]
@@ -157,6 +183,20 @@ const FE: Record<string, (string | null)[]> = {
   'q-draw': ['תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:', null, null],
   'draw-again': ['בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.', null, 'תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.'],
   'line-small': ['בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.'],
+  // the merchant: check the feminine forms by ear on his voice before mass recording (spec), reword where they fail
+  'm-hello': [
+    'שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?',
+    'מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?',
+    'הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?',
+  ],
+  'm-again': ['נוּ, תִּרְצִי לִקְנוֹת אֶחָד?', null],
+  'm-bye': ['בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.', null],
+  'm-give': ['תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'],
+  'm-tap': ['וְאָז גְּעִי בַּשִּׁקּוּי.'],
+  'm-decline': ['לֹא צָרִיךְ? גְּעִי כָּאן.'],
+  'm-exact': [null, null, 'מְצֻיָּן, זֶה בְּדִיּוּק. הַשִּׁקּוּי שֶׁלָּךְ.'],
+  'm-undo': ['קְחִי מַטְבֵּעַ בַּחֲזָרָה.'],
+  'm-empty': [null, 'קֹדֶם תְּנִי לִי מַטְבְּעוֹת.'],
 }
 for (const l of LINES) if (FE[l.id]) l.fe = FE[l.id].map((t) => (t === null ? null : t.normalize('NFC')))
 

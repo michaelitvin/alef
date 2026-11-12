@@ -64,7 +64,7 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
             : <ellipse cx={gnomeX + gnomeW / 2} cy={GNOME.bottom - GNOME.h / 2} rx={gnomeW / 2.4} ry={GNOME.h / 2.2} fill="#3c7a3a" />}
         </g>
       </g>
-      {v.phase !== 'sold' && (
+      {!v.bought && (
         <g data-potion className={`d2-press${glow.potion || (pay && v.given.length > 0) ? ' d2-pulse' : ''}`}
           onPointerDown={(e) => { e.preventDefault(); onPotion() }} style={{ cursor: 'pointer' }}>
           <circle cx={POTION.x} cy={POTION.y} r={POTION.w * 0.62} fill="transparent" />
@@ -73,11 +73,15 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
             : <circle cx={POTION.x} cy={POTION.y} r={50} fill="#ff5a7a" />}
         </g>
       )}
-      {v.phase !== 'sold' && <PriceTag price={v.price} x={TAG.x} y={TAG.y} flash={v.tag === 'flash'} lit={v.tag === 'lit'} glow={glow.tag} />}
+      {v.bought && v.phase === 'sold' && IMAGES['s-potion'] && (
+        // the potion flies to the wizard
+        <g className="d2-potion-fly"><image href={IMAGES['s-potion']} x={POTION.x - POTION.w / 2} y={POTION.y - POTION.w * (412 / 512) / 2} width={POTION.w} height={POTION.w * (412 / 512)} /></g>
+      )}
+      {!v.bought && <PriceTag price={v.price} x={TAG.x} y={TAG.y} flash={v.tag === 'flash'} lit={v.tag === 'lit'} glow={glow.tag} />}
       <g data-merchant-hand className="d2-press" onPointerDown={(e) => { e.preventDefault(); onHand() }} style={{ cursor: 'pointer' }}>
         <circle cx={HAND.x} cy={HAND.y} r={HAND.r} fill={glow.hand ? '#fff6a044' : 'transparent'}
           stroke={glow.hand ? '#fff6a0' : 'none'} strokeWidth={6} className={glow.hand ? 'd2-glow' : undefined} />
-        {v.given.map((g, i) => (
+        {!v.bought && v.given.map((g, i) => (
           <ValueCoin key={i} value={g} x={HAND.x + (i - (v.given.length - 1) / 2) * handSpacing} y={HAND.y + 14}
             state={v.phase === 'count' && i < (v.counted ?? 0) ? 'lit' : undefined} />
         ))}

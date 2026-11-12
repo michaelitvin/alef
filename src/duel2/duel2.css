@@ -225,3 +225,5 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-gnome-arrive { animation: d2-gnome-in 1.2s ease-out both; }
 .d2-gnome-leave { transform: translateX(420px); opacity: 0; }
 @keyframes d2-gnome-in { from { transform: translateX(420px); opacity: 0; } to { transform: none; opacity: 1; } }
+.d2-potion-fly { animation: d2-potion-fly 0.9s ease-in forwards; }
+@keyframes d2-potion-fly { to { transform: translate(-800px, 140px) scale(0.5); opacity: 0; } }

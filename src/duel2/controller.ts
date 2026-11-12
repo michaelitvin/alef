@@ -26,6 +26,8 @@ import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
+import { composeCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
+import { NEVER_VISITED } from './store'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
@@ -94,6 +96,8 @@ export interface MerchantView {
   /** while the merchant counts: how many of the given coins he has counted (the bubble shows their running total) */
   counted?: number
   verdict?: 'exact' | 'short' | 'over'
+  /** he bought the potion: it flew to the wizard and the coins went into the merchant's pouch */
+  bought?: boolean
   /** the tag lights after counting (both numbers seen together), and flashes when the payment was not right */
   tag?: 'lit' | 'flash'
   glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean; hint?: number[] }
@@ -126,13 +130,18 @@ export interface View {
   coinPop?: number
   /** the streak multiplier of the coins, shown in the top bar (spec: one duel) */
   mult: 1 | 2 | 3
-  /** a heart flies to the top bar (the end of a pass; over any screen); `at` = the controller's clock */
-  heal?: { id: number; at: number }
+  /** a heart flies to the top bar (the end of a pass, the merchant's potion; over any screen); `at` = the controller's
+   * clock; `from` = where it rises (stage units; the middle by default) */
+  heal?: { id: number; at: number; from?: { x: number; y: number } }
   /** the hearts given back at the ends of passes in this run */
   passHeart?: number
   /** the hearts ran out: the short defeat scene plays (the dizzy wizard spins and falls), then `over` */
   defeat?: boolean
+  /** the merchant's visit at a checkpoint (drawn instead of the screen) */
+  merchant?: MerchantView
 }
+/** the gestures of a merchant's visit */
+export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
 
 export interface RunOpts {
   sandbox?: boolean
@@ -141,11 +150,23 @@ export interface RunOpts {
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
   }
+  /** a single minigame from the path (Plan 4): no merchant */
+  session?: { screen: ScreenId }
   rng?: Rng
   now?: () => number
 }
 
 class Aborted extends Error {}
+/** the ✗ ended the visit (it can come at any moment of a visit) */
+class Declined extends Error {}
+/** the merchant walks in this long before his opening line */
+const MERCHANT_ARRIVE_MS = 1200
+/** he counts one coin each this long */
+const COUNT_STEP_MS = 600
+/** he walks away this long */
+const MERCHANT_LEAVE_MS = 1200
+/** where the potion's heart rises: the wizard (Merchant.tsx WIZARD) */
+const WIZARD_AT = { x: 260, y: 520 }
 /** no pick for this long: the instruction and the sound play once */
 /** an effect rings this long before the voice goes on (fluent, but not cut) */
 const SFX_RING_MS = 400
@@ -252,6 +273,17 @@ export class RunController {
   private strokeWaiter: ((pts: Pt[]) => void) | null = null
   private strokeNo = 0
   private demoNo = 0
+  /** a screen has ended: the checkpoint (maybe the merchant) comes before the next one */
+  private checkpointDue = false
+  /** the merchant's visit in progress: it survives a pause (coins in his hand included) */
+  private visit: {
+    price: number; coins: number[]; given: number[]; said: boolean; bought: boolean; declined: boolean; byeSaid: boolean
+    wrongTries: number; hinted: boolean; lastLine: string | null; decline: Promise<void>; declineNow: () => void
+  } | null = null
+  private mWaiter: ((g: MerchantGesture) => void) | null = null
+  private purchasesThisRun = 0
+  /** wrong payments in a row (the wand glows after two) */
+  private wrongInRow = 0
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
@@ -268,8 +300,9 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] }) {
+  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture) {
     if (this.view.paused) return
+    if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantGesture(g); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWaiter || this.view.screen?.screen !== 'draw') return
       // a stroke stops a hint's hand at once (he shows that he knows)
@@ -305,6 +338,11 @@ export class RunController {
     w?.()
   }
   replay() {
+    if (this.view.merchant) {
+      // the speaker says the merchant's last line again
+      if (this.visit?.lastLine) { stopVoice(); void sayParts([{ id: this.visit.lastLine }]) }
+      return
+    }
     if (this.view.screen?.screen === 'draw') {
       this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
       stopVoice()
@@ -354,6 +392,7 @@ export class RunController {
     stopVoice()
     stopMusic()
     // the run is already ending (its run-end was sent): closing now is no abandon
+    if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
     if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
   }
   pause() {
@@ -365,6 +404,7 @@ export class RunController {
     this.pickWaiter = null
     this.nextWaiter = null
     this.strokeWaiter = null
+    this.mWaiter = null
     this.resuming = true
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
@@ -433,6 +473,7 @@ export class RunController {
     try {
       for (;;) {
         if (this.passDue) await this.runPassHeart(t)
+        if (this.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
         if (this.opts.force) {
@@ -459,6 +500,8 @@ export class RunController {
         this.drawPlan = null
         this.visitKind = null
         this.newVisit()
+        // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart
+        this.checkpointDue = true
       }
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
@@ -482,6 +525,206 @@ export class RunController {
     await this.say(t, [{ id: this.variation('pass-heart') }])
     this.passDue = false
     this.passHeartGiven = false
+  }
+
+  // ---- the merchant (spec: one duel, Part 2)
+  /**
+   * A checkpoint between two screens: the merchant comes when the rules say so (merchantDue). Decided once; a visit in
+   * progress goes on after a pause as it was.
+   */
+  private async runCheckpoint(t: number) {
+    if (!this.visit) {
+      const adventure = !this.opts.force && !this.opts.session
+      if (!adventure) { this.checkpointDue = false; return }
+      // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss
+      if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
+      const st = useDuel2Store.getState()
+      const range = st.settings.range ?? 100
+      const price = priceAt(this.purchasesThisRun, range)
+      const since = st.checkpointsSinceVisit ?? NEVER_VISITED
+      const due = merchantDue({
+        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since, bossNext: !!this.visitBoss,
+      })
+      if (!this.opts.sandbox) st.noteCheckpoint(due)
+      if (!due) { this.checkpointDue = false; return }
+      // the composition is made once, at his arrival (never during a visit)
+      const coins = composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng)
+      let declineNow = () => {}
+      const decline = new Promise<void>((r) => { declineNow = r })
+      this.visit = { price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow }
+      if (!this.opts.sandbox) st.noteMerchant('visit')
+      this.track('merchant-arrive', { price, coins: st.coins ?? 0, hearts: this.hearts.left, composition: coins })
+    }
+    await this.runVisit(t)
+    this.visit = null
+    this.checkpointDue = false
+    // the next screen starts fresh (a pause during the visit is not a pause of that screen)
+    this.resuming = false
+  }
+
+  private mv(p: Partial<MerchantView>) { if (this.view.merchant) this.set({ merchant: { ...this.view.merchant, ...p } }) }
+  /** a merchant's line: a variation, kept for the speaker button */
+  private mLine(id: string) {
+    const v = this.variation(id)
+    if (this.visit) this.visit.lastLine = v
+    return v
+  }
+  /** say or wait during a visit; the ✗ cuts it at any moment */
+  private async vsay(t: number, parts: { id: string; onStart?: () => void }[]) {
+    await Promise.race([this.say(t, parts), this.visit!.decline])
+    if (this.visit!.declined) throw new Declined()
+  }
+  private async vsleep(t: number, ms: number) {
+    await Promise.race([this.sleep(t, ms), this.visit!.decline])
+    if (this.visit!.declined) throw new Declined()
+  }
+  /** his next gesture of the visit (the ✗ ends the wait) */
+  private async waitMerchant(t: number): Promise<MerchantGesture> {
+    const g = await Promise.race([this.guard(t, new Promise<MerchantGesture>((r) => { this.mWaiter = r })), this.visit!.decline.then(() => null)])
+    this.mWaiter = null
+    if (!g || this.visit!.declined) throw new Declined()
+    return g
+  }
+
+  private merchantGesture(g: MerchantGesture) {
+    const v = this.visit
+    const mv = this.view.merchant
+    if (!v || !mv || v.bought || v.declined) return
+    if (g.type === 'decline') {
+      // the ✗, at any moment of the visit (it is hidden while the first-visit demo plays)
+      if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && mv.demo.step !== 'decline')) return
+      v.declined = true
+      this.track('merchant-decline', { phase: mv.phase })
+      if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('decline')
+      stopVoice()
+      v.declineNow()
+      return
+    }
+    if (mv.phase !== 'pay') return
+    if (g.type === 'coin') {
+      // the top coin of that pile jumps into his hand (a coin he no longer has cannot be given)
+      const left = [...v.coins]
+      for (const x of v.given) left.splice(left.indexOf(x), 1)
+      if (!left.includes(g.value)) return
+      v.given.push(g.value)
+      this.sfx('coin')
+      this.mv({ given: [...v.given], glow: undefined })
+      return
+    }
+    if (g.type === 'hand') {
+      // undo: the last coin given goes back to its pile
+      if (!v.given.length) return
+      v.given.pop()
+      this.track('merchant-undo', {})
+      this.sfx('coin')
+      this.mv({ given: [...v.given] })
+      return
+    }
+    // the potion: the merchant counts (the visit's flow goes on)
+    const w = this.mWaiter
+    this.mWaiter = null
+    w?.(g)
+  }
+
+  /** The visit: he walks in and offers the potion; the child pays from his piles, or declines with the ✗. */
+  private async runVisit(t: number) {
+    const v = this.visit!
+    try {
+      if (!v.bought && !v.declined) {
+        if (!v.said) {
+          this.set({ merchant: { phase: 'arrive', price: v.price, coins: v.coins, given: v.given, glow: { piles: true } }, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false })
+          await this.vsleep(t, MERCHANT_ARRIVE_MS)
+          await this.vsay(t, [{ id: this.mLine('m-hello') }])
+          v.said = true
+          this.mv({ glow: undefined })
+        } else {
+          // after a pause: the visit as it was, the coins in his hand included
+          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
+        }
+        await this.payLoop(t)
+      }
+    } catch (e) {
+      if (!(e instanceof Declined)) throw e
+    }
+    await this.visitEnd(t)
+  }
+
+  /** He gives coins and takes them back (merchantGesture), and taps the potion; the merchant counts. Returns when he bought it. */
+  private async payLoop(t: number) {
+    const v = this.visit!
+    for (;;) {
+      // a glow (his empty hand, the hint) stays until he gives a coin
+      this.mv({ phase: 'pay', counted: undefined, verdict: undefined, tag: undefined, given: [...v.given] })
+      this.set({ phase: 'answer' })
+      // coins and undo are handled as they come (merchantGesture); the potion goes on here
+      await this.waitMerchant(t)
+      if (!v.given.length) {
+        this.mv({ glow: { hand: true } })
+        this.set({ phase: 'feedback' })
+        await this.vsay(t, [{ id: this.mLine('m-empty') }])
+        continue
+      }
+      if (await this.count(t) === 'exact') return this.buy(t)
+    }
+  }
+
+  /** The merchant counts the coins in his hand one by one (a chime each, the running total in a bubble), then the tag. */
+  private async count(t: number): Promise<'exact' | 'short' | 'over'> {
+    const v = this.visit!
+    const given = [...v.given]
+    const sum = given.reduce((a, b) => a + b, 0)
+    this.set({ phase: 'feedback' })
+    this.mv({ phase: 'count', counted: 0, glow: undefined })
+    for (let i = 0; i < given.length; i++) {
+      await this.vsleep(t, COUNT_STEP_MS)
+      this.mv({ counted: i + 1 })
+      this.sfx('count')
+    }
+    const vd = payVerdict(sum, v.price)
+    this.mv({ verdict: vd, tag: vd === 'exact' ? 'lit' : 'flash' })
+    this.track('merchant-offer', { sum, price: v.price, verdict: vd, coins: given })
+    await this.vsleep(t, COUNT_STEP_MS)
+    if (vd === 'exact') return vd
+    // wrong tries cost nothing; the coins stay in his hand
+    v.wrongTries++
+    this.wrongInRow++
+    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant(vd)
+    await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
+    return vd
+  }
+
+  /** The exact price: the coins are spent, the potion flies to the wizard and a heart to the top bar. */
+  private async buy(t: number) {
+    const v = this.visit!
+    v.bought = true
+    const st = useDuel2Store.getState()
+    if (!this.opts.sandbox) {
+      st.spendCoins(v.price)
+      st.noteMerchant('purchase')
+      st.merchantPaid(v.wrongTries === 0 && !v.hinted, v.hinted)
+    }
+    this.purchasesThisRun++
+    this.wrongInRow = 0
+    this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
+    this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
+    this.mv({ phase: 'sold', glow: undefined, bought: true })
+    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT } })
+    this.sfx('potion')
+    await this.sleep(t, SFX_RING_MS)
+    await this.say(t, [{ id: this.mLine('m-exact') }])
+  }
+
+  /** He walks away (after the ✗: his coins go back to their piles and he says goodbye). */
+  private async visitEnd(t: number) {
+    const v = this.visit!
+    this.set({ phase: 'feedback', hintAvailable: false })
+    if (v.declined) {
+      v.given = []
+      this.mv({ phase: 'leave', given: [], glow: undefined, demo: undefined, tag: undefined, counted: undefined, verdict: undefined })
+      if (!v.byeSaid) { v.byeSaid = true; await this.say(t, [{ id: this.mLine('m-bye') }]) }
+    } else this.mv({ phase: 'leave', glow: undefined })
+    await this.sleep(t, MERCHANT_LEAVE_MS)
+    this.set({ merchant: undefined })
   }
 
   private newVisit() {

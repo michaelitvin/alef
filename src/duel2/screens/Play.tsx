@@ -10,6 +10,7 @@ import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
 import { Draw } from '../components/screens/Draw'
+import { Merchant } from '../components/screens/Merchant'
 import { TopBar } from '../components/TopBar'
 import { ExplainPanel } from '../components/ExplainPanel'
 import { DemoHand } from '../components/DemoHand'
@@ -87,9 +88,10 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
     const timer = window.setTimeout(() => setShake((x) => (x === id ? null : x)), 450)
     return () => window.clearTimeout(timer)
   }, [bfx?.id, bfx?.kind])
-  const canReplay = v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
+  // during a merchant's visit the speaker says his last line again
+  const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
@@ -106,6 +108,9 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
             )
           }}
         </ExplainPanel>
+      ) : v.merchant ? (
+        <Merchant v={v.merchant} onCoin={(value) => run.onGesture({ type: 'coin', value })} onHand={() => run.onGesture({ type: 'hand' })}
+          onPotion={() => run.onGesture({ type: 'potion' })} onDecline={() => run.onGesture({ type: 'decline' })} />
       ) : <ScreenFor run={run} v={v} />}
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
@@ -119,7 +124,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
-      {v.heal && <HealFly key={v.heal.id} />}
+      {v.heal && <HealFly key={v.heal.id} from={v.heal.from} />}
       {/* the hearts ran out: the dizzy wizard spins and falls, then the summary (no offer, no "continue?") */}
       {/* the defeat scene's picture is decoded before it is needed (rule: no late pictures); the broom draws it anyway */}
       {!v.defeat && wiz('s-wizard-dizzy') && <div data-warm className="d2-warm" aria-hidden><img src={wiz('s-wizard-dizzy')} alt="" draggable={false} /></div>}
