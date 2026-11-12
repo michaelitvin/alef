@@ -224,9 +224,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   "extremely ugly"; the camera now moves into the doorway's light, and the next door comes out of that light.
 - Check how the font draws each dotted letter. Sigalit fuses the shin dot into ש's right arm (שׁ looked like ن); the
   game draws its own dot above the arm.
-- Give rewards at several paces: points for each answer (the run), a slower count that is kept between plays and grows
-  only now and then (book 2: a coin for every 10 points), and a rare prize (a crystal per lap). Example (book 2): the
-  parent asked for "points that are cumulative, kept between plays and only increase from time to time".
+- Give rewards at several paces: points for each answer (the run), a count that is kept between plays and only grows
+  (book 2: all his stars), and a rare prize (a crystal per lap). Example (book 2): the parent asked for "points that are
+  cumulative, kept between plays and only increase from time to time". Spending money is a different thing: it goes up
+  and down. Example (one duel): coins were a coin for every 10 stars; now each right answer pays coins (more for a
+  streak), and he spends them at the merchant, so the stars are the count that only grows.
 - Let the child see what he collects. Example (book 2): the crystals were a moment only; the parent: "if he hoards them,
   he should see them" — the start screen now shows them by kind.
 - Show a passage (a door, a portal) from the inside: the next room through the opening, and a camera that flies through

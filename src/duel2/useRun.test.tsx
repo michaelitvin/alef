@@ -929,17 +929,82 @@ describe('run controller', () => {
     c.destroy()
   })
 
-  it('a right answer adds a star to his total at once; every 10th earns a coin with a pop', async () => {
-    useDuel2Store.setState({ totalStars: 9 })
-    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
-    c.start()
-    await until(c, (v) => v.phase === 'answer')
-    expect(c.view.coinPop ?? 0).toBe(0)
-    c.gesture({ type: 'pick', id: rightId(c.view) })
-    await until(c, (v) => v.phase === 'feedback')
-    expect(useDuel2Store.getState().totalStars).toBe(10)
-    expect(c.view.coinPop).toBe(1)
-    c.destroy()
+  describe('coins and the streak multiplier', () => {
+    /** answers right on a calm screen until `n` right answers are recorded (the gallery starts the screen again) */
+    async function rightAnswers(c: RunController, n: number) {
+      for (let k = 0; k < n; k++) {
+        await until(c, (v) => v.phase === 'answer' && !v.needNext && !v.fixing)
+        const before = useDuel2Store.getState().roundNo
+        c.gesture({ type: 'pick', id: rightId(c.view) })
+        await until(c, () => useDuel2Store.getState().roundNo > before)
+      }
+    }
+
+    it('each right answer pays coins by the streak: 1 each for the first four, 2 from the fifth, and a star', async () => {
+      useDuel2Store.setState({ totalStars: 9 })
+      const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      expect(c.view.mult).toBe(1)
+      await rightAnswers(c, 4)
+      expect(useDuel2Store.getState().coins).toBe(4)
+      expect(c.view.mult).toBe(1)
+      await rightAnswers(c, 2)
+      expect(useDuel2Store.getState().coins).toBe(1 + 1 + 1 + 1 + 2 + 2)
+      expect(useDuel2Store.getState().totalStars).toBe(15)
+      await until(c, (v) => v.mult === 2 && played.includes('mult-up-1'))
+      expect(played.some((id) => id.startsWith('streak-'))).toBe(false)
+      expect(c.view.coinPop).toBe(6)
+      c.destroy()
+    })
+
+    it('x3 from the tenth right answer, with its own line; the streak praise stays at 15', async () => {
+      const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
+      c.start()
+      await rightAnswers(c, 10)
+      await until(c, (v) => v.mult === 3 && played.includes('mult-up-2'))
+      expect(useDuel2Store.getState().coins).toBe(4 + 5 * 2 + 3)
+      await rightAnswers(c, 5)
+      await until(c, () => played.some((id) => id.startsWith('streak-')))
+      c.destroy()
+    })
+
+    it('a forgiven near miss keeps the multiplier; a lost heart resets it', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 3, fixed: 'dot' } })
+      c.start()
+      await rightAnswers(c, 5)
+      await until(c, (v) => v.mult === 2 && v.phase === 'answer' && !v.needNext)
+      const s = c.view.screen as Extract<View['screen'], { screen: 'ladder' }>
+      const near = s.plates.find((x) => x.nearMissOf === s.target.id)!
+      c.gesture({ type: 'pick', id: near.id })
+      await until(c, () => played.some((id) => id.startsWith('almost-')))
+      expect(c.view.mult).toBe(2)
+      expect(c.view.hearts).toBe(3)
+      await until(c, (v) => v.phase === 'answer')
+      c.gesture({ type: 'pick', id: near.id })
+      await until(c, (v) => v.phase === 'mistake')
+      expect(c.view.hearts).toBe(2)
+      expect(c.view.mult).toBe(1)
+      c.destroy()
+    })
+
+    it('the multiplier carries to the next screen', async () => {
+      useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', demosSeen: allDemos })
+      const c = make()
+      c.start()
+      ;(c as unknown as { streak: number }).streak = 2
+      for (let guard = 0; guard < 2000 && c.view.screen?.screen !== 'broom'; guard++) {
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
+        await tick(50)
+      }
+      expect(c.view.screen?.screen).toBe('broom')
+      expect(c.view.mult).toBe(2)
+      const coins = useDuel2Store.getState().coins
+      for (let i = 0; i < 4000 && useDuel2Store.getState().coins === coins; i++) { fly(c); await tick(50) }
+      expect(useDuel2Store.getState().coins - coins).toBe(2)
+      c.destroy()
+    })
   })
 
   it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
@@ -1020,8 +1085,9 @@ describe('run controller', () => {
       }
       expect(bv(c)!.boss).toMatchObject({ won: true, pose: 'down', first: true, hitsLeft: 0 })
       await until(c, () => !!bv(c)?.finished, 30_000)
-      // 8 catches are 8 stars, the win 3 coins (30 stars)
-      expect(useDuel2Store.getState().totalStars).toBe(38)
+      // 8 catches are 8 stars and 1+1+1+1+2+2+2+2 coins; the win adds 3 coins, not 30 stars
+      expect(useDuel2Store.getState().totalStars).toBe(8)
+      expect(useDuel2Store.getState().coins).toBe(12 + 3)
       expect(c.view.coinPop).toBeGreaterThanOrEqual(3)
       expect(useDuel2Store.getState().bossesBeaten).toEqual(['mimic'])
       expect(played.some((id) => id.startsWith('boss-win-'))).toBe(true)
@@ -1158,7 +1224,7 @@ describe('run controller', () => {
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       c.start()
       await until(c, (v) => v.phase === 'answer')
-      // catches 3 and 8 are streaks 5 and 10: only the first is praised (the 8th is the win)
+      // catches 3 and 8 are streaks 5 and 10: the first raises the multiplier with its line, the 8th is the win (no line)
       ;(c as unknown as { streak: number }).streak = 2
       let fxAt = -1
       let wonAt = -1
@@ -1178,7 +1244,8 @@ describe('run controller', () => {
       }
       expect(fxAt).toBeGreaterThan(0)
       expect(wonAt - fxAt).toBeGreaterThanOrEqual(1300)
-      expect(played.filter((id) => id.startsWith('streak-')).length).toBe(1)
+      expect(played.filter((id) => id.startsWith('streak-')).length).toBe(0)
+      expect(played.filter((id) => id.startsWith('mult-up-'))).toEqual(['mult-up-1'])
       c.destroy()
     }, 60_000)
 

@@ -192,5 +192,10 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-drawtest-stage { position: relative; min-height: 0; }
 .d2-drawtest-side { overflow: auto; padding: 14px; border-left: 1px solid #ccc; }
 
+/* the streak multiplier beside the stars: a small gold badge that pops when it rises */
+.d2-mult { display: inline-block; margin-inline-end: 10px; padding: 0 10px; border-radius: 999px; background: #3a1f78cc;
+  border: 2px solid #ffd34d; color: #ffe9a0; font: 800 26px system-ui, sans-serif; direction: ltr; text-shadow: 0 0 6px #ffd34d88;
+  animation: d2-mult-pop 0.5s ease-out; }
+@keyframes d2-mult-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1); } }
 /* the coin glows orange, the star yellow: they must not look alike (the parent) */
 .d2-star.d2-coin { filter: drop-shadow(0 0 8px #ff8a1e); }

@@ -8,7 +8,7 @@ import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossShelf } from '../components/BossShelf'
-import { coinsOf, useDuel2Store } from '../store'
+import { useDuel2Store } from '../store'
 
 const HOLD_MS = 2000
 const RING_C = 2 * Math.PI * 25
@@ -16,7 +16,7 @@ const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
   const wiz = useWizardArt()
-  const totalStars = useDuel2Store((s) => s.totalStars ?? 0)
+  const coins = useDuel2Store((s) => s.coins ?? 0)
   const crystals = useDuel2Store((s) => s.crystals ?? 0)
   const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
   const timer = useRef<number | undefined>(undefined)
@@ -54,7 +54,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
       </svg>
       {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
       <div className="d2-cover-stars">
-        <InfoTap line="info-coins"><CoinCount n={coinsOf(totalStars)} size="big" /></InfoTap>
+        <InfoTap line="info-coins"><CoinCount n={coins} size="big" /></InfoTap>
         {/* his crystals, by kind (the nth crystal won is kind n % 4, as the crystal screen shows it) */}
         {crystals > 0 && (
           <InfoTap line="info-crystals"><div data-crystal-shelf className="d2-crystal-shelf">

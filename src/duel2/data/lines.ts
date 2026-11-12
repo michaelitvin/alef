@@ -70,13 +70,17 @@ export const LINES: LineDef[] = [
   ], 0, 'excited'),
   line('boss-new', 'His first win against a kind of boss: it falls into a golden frame for the shelf', ['נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.'], 0, 'amazed'),
   // one duel (spec 2026-11-11): the hearts last the run; at the end of each pass one comes back, in its own moment
+  // the streak multiplier rises (its own moment, always spoken): take 1 at x2 (streak 5), take 2 at x3 (streak 10)
+  line('mult-up', 'The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)', [
+    'הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל עַכְשָׁו.', 'הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.',
+  ], 0, 'excited'),
   line('pass-heart', 'The end of a pass (one trip through all his screens): one heart comes back, with a sound', [
     'לֵב אֶחָד חוֹזֵר אֵלֶיךָ.', 'הִנֵּה לֵב בִּשְׁבִילְךָ.', 'גָּמַרְנוּ סִבּוּב, וְלֵב אֶחָד חוֹזֵר.',
   ], 0.5, 'warmly'),
   // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
   line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
-  line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.']),
+  line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת מַטְבֵּעַ, וְאֶפְשָׁר לִקְנוֹת בָּהֶם שִׁקּוּי.']),
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
   line('info-best', 'A tap on his best run', ['זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.']),
   line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.']),
@@ -131,11 +135,12 @@ const FE: Record<string, (string | null)[]> = {
   // the voice says ־ְתְּ as the masculine, and the parent rejected the ט respelling ("Nitshat"): first person plural
   'boss-win': ['נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.'],
   'boss-new': ['נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
+  'mult-up': ['הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים כָּפוּל עַכְשָׁו.', 'הַמַּטְבְּעוֹת שֶׁלָּךְ שָׁוִים פִּי שְׁלוֹשָׁה עַכְשָׁו.'],
   'pass-heart': ['לֵב אֶחָד חוֹזֵר אֵלַיִךְ.', 'הִנֵּה לֵב בִּשְׁבִילֵךְ.', null],
   // the parent: a weird gap inside "מָסָךְ חָדָשׁ" (every take had it): the words in another order
   'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.'],
   'info-stars': ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.'],
-  'info-coins': ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.'],
+  'info-coins': ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת מַטְבֵּעַ, וְאֶפְשָׁר לִקְנוֹת בָּהֶם שִׁקּוּי.'],
   'info-crystals': ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.'],
   'info-best': ['זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.'],
   'info-bosses': ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.'],

@@ -112,6 +112,18 @@ describe('parts', () => {
     expect(container.querySelector('[data-coins]')!.textContent).toBe('12')
   })
 
+  it('the top bar shows x2 and x3 beside the stars, and nothing at x1', () => {
+    const one = render(<TopBar hearts={3} score={4} coins={2} mult={1} />)
+    expect(one.container.querySelector('[data-mult]')).toBeNull()
+    for (const m of [2, 3] as const) {
+      const { container } = render(<TopBar hearts={3} score={4} coins={2} mult={m} />)
+      const b = container.querySelector('[data-mult]')!
+      expect(b.getAttribute('data-mult')).toBe(String(m))
+      expect(b.hasAttribute('data-num')).toBe(true)
+      expect(b.textContent).toBe(`×${m}`)
+    }
+  })
+
   it('a tap on the hearts, the stars or the coins says what they are, once per tap burst (the parent)', async () => {
     vi.useFakeTimers()
     const played: string[] = []

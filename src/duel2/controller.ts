@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -18,7 +18,7 @@ import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
 import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
-import { coinsOf, useDuel2Store } from './store'
+import { useDuel2Store } from './store'
 import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
@@ -106,6 +106,8 @@ export interface View {
   score: number
   /** counts the coins he earned this run (a coin pops in the top bar) */
   coinPop?: number
+  /** the streak multiplier of the coins, shown in the top bar (spec: one duel) */
+  mult: 1 | 2 | 3
   /** a heart flies to the top bar (the end of a pass; over any screen); `at` = the controller's clock */
   heal?: { id: number; at: number }
   /** the hearts given back at the ends of passes in this run */
@@ -165,7 +167,7 @@ const sylFeatures = (c: Choice, screen: ScreenId) => {
 }
 
 export class RunController {
-  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0 }
+  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
   private listeners = new Set<() => void>()
   private token = 0
   private rng: Rng
@@ -594,6 +596,7 @@ export class RunController {
   /** One round on a calm screen. Returns 'over' when the hearts ran out. */
   private async runRound(t: number, screen: ScreenId, kind: Kind): Promise<'next' | 'over'> {
     this.hearts = newRound(this.hearts)
+    this.syncMult()
     const target = this.buildRound(screen, kind)
     const intro = this.needsDotIntro(target)
     if (intro) await this.dotIntro(t, intro)
@@ -719,8 +722,9 @@ export class RunController {
     if (right) {
       this.record(screen, c, tapped, 'right')
       this.roundInScreen++
-      this.gainStar()
+      // the streak counts this answer before its coins (the fifth right answer pays 2)
       this.streak++
+      this.gainStar()
       this.set({ phase: 'feedback' })
       const confident = predict(sylFeatures(c, screen), useDuel2Store.getState().tallies, useDuel2Store.getState().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
@@ -730,7 +734,7 @@ export class RunController {
       await this.sleep(t, SFX_RING_MS)
       await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       await this.maybeWordLink(t, c)
-      if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
+      await this.streakMoment(t)
       await this.sleep(t, 300)
       return 'next'
     }
@@ -742,7 +746,7 @@ export class RunController {
     }
     // a mistake
     this.hearts = outcome.hearts
-    this.streak = 0
+    this.resetStreak()
     this.record(screen, c, tapped, 'wrong')
     this.roundInScreen++
     this.sfx('hit')
@@ -794,21 +798,22 @@ export class RunController {
     if (right) {
       this.record('doors', word, tapped, 'right')
       this.roundInScreen++
-      this.gainStar()
       this.streak++
+      this.gainStar()
       this.set({ phase: 'feedback' })
       this.sfx('key')
       this.setScreen({ opening: true } as Partial<DoorsView>)
       this.sfx('door')
       await this.sleep(t, SFX_RING_MS)
       await this.say(t, [{ id: `w-${word.id}` }])
+      await this.streakMoment(t)
       // through the doorway to the next door (or the crystal): the round goes on where the flight ends
       this.setScreen({ zooming: true } as Partial<DoorsView>)
       await this.sleep(t, ZOOM_MS + 60)
       return 'next'
     }
     this.hearts = outcome.hearts
-    this.streak = 0
+    this.resetStreak()
     this.record('doors', word, tapped, 'wrong')
     this.sfx('hit')
     this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
@@ -1009,6 +1014,7 @@ export class RunController {
    * finger lifts; then the lines (told, never failed); then the marks; then the word again and a star. No hearts are lost.
    */
   private async runDrawRound(t: number) {
+    this.syncMult()
     const v0 = this.buildDraw()
     const { letter, script, word } = v0
     const def = strokesOf(letter, script)
@@ -1094,6 +1100,8 @@ export class RunController {
     this.roundInScreen++
     this.setScreen({ mode: 'done', glow: undefined, demo: undefined } as Partial<DrawView>)
     this.sfx('drawn')
+    // every finished drawing counts in the streak: only a lost heart resets it (none is lost here)
+    this.streak++
     this.gainStar()
     const clean = wrongStrokes === 0 && !helped && !markWrong
     if (!this.opts.sandbox) {
@@ -1103,7 +1111,7 @@ export class RunController {
     this.track('draw-done', { letter, script, word: word.id, ms: Math.round(this.now() - started), wrongStrokes, helped })
     await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: `w-${word.id}` }])
-    if (clean) { this.streak++; if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak') } else this.streak = 0
+    await this.streakMoment(t)
     await this.sleep(t, 500)
   }
 
@@ -1157,6 +1165,7 @@ export class RunController {
    */
   private async runBroom(t: number, kind: Kind) {
     this.hearts = newRound(this.hearts)
+    this.syncMult()
     if (this.visitBoss && !this.boss) {
       this.boss = { kind: this.visitBoss, hitsLeft: BOSS_HITS, arrived: false, startedAt: this.now(), coins: 0 }
       this.track('boss-start', { kind: this.visitBoss })
@@ -1327,7 +1336,7 @@ export class RunController {
 
   /**
    * The win: the defeated pose, a burst of light, a celebration sound, the congratulation line (praise rule), 3 bonus
-   * coins one by one, and on his first win against this kind the golden frame and its line. Re-entrant after a pause:
+   * coins one by one (added to his balance), and on his first win against this kind the golden frame and its line. Re-entrant after a pause:
    * each part happens once.
    */
   private async bossWin(t: number) {
@@ -1361,7 +1370,7 @@ export class RunController {
     }
     while (b.coins < BOSS_COINS) {
       b.coins++
-      if (!this.opts.sandbox) useDuel2Store.getState().addStars(10)
+      if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
       this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
       this.sfx('lock')
       await this.sleep(t, COIN_POP_MS)
@@ -1375,32 +1384,66 @@ export class RunController {
     await this.finale(t)
   }
 
-  /** A point: this run's score, and a star on his kept total; every COIN_EVERY-th star is a coin, with a sound. */
+  /**
+   * A right answer: this run's score, a star on his kept total, and coins for his balance — one times the streak
+   * multiplier (`this.streak` already counts this answer). The coin in the top bar pops (its number changes).
+   */
   private gainStar() {
     this.score++
-    this.set({ score: this.score })
+    this.set({ score: this.score, coinPop: (this.view.coinPop ?? 0) + 1 })
     if (this.opts.sandbox) return
     const st = useDuel2Store.getState()
-    const before = coinsOf(st.totalStars)
     st.addStar()
-    if (coinsOf(useDuel2Store.getState().totalStars) > before) {
-      this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
-      this.sfx('lock')
-    }
+    st.addCoins(coinsFor(this.streak))
   }
+
+  /** A heart was lost: the streak and its multiplier start again (a forgiven near miss does not come here). */
+  private resetStreak() {
+    this.streak = 0
+    this.syncMult()
+  }
+  /** the top bar's badge follows the streak (also after a pause cut its moment short) */
+  private syncMult() {
+    const m = multiplierOf(this.streak)
+    if (m !== this.view.mult) this.set({ mult: m })
+  }
+  /**
+   * After a right answer (the streak counts it): at 5 and 10 the multiplier rises in its own moment, with a sound and its
+   * line (always spoken); at 15, 20, … the streak praise (spoken the first PRAISE_SPOKEN times).
+   */
+  private async streakMoment(t: number) {
+    const m = multiplierOf(this.streak)
+    if (m > this.view.mult) {
+      this.set({ phase: 'celebrate', mult: m })
+      this.sfx('streak')
+      this.track('mult', { mult: m, streak: this.streak })
+      await this.sleep(t, SFX_RING_MS)
+      await this.say(t, [{ id: this.multLine(m) }])
+      return
+    }
+    this.syncMult()
+    if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
+  }
+  private multLine(m: 1 | 2 | 3) { return lineAudioId('mult-up', m === 2 ? 1 : 2) }
 
   private onCatch(target: Choice, noPraise = false) {
     const st = useDuel2Store.getState()
     this.record('broom', target, target, 'right')
     if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'catch'))
-    this.gainStar()
     this.streak++
+    this.gainStar()
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
       this.spokenTargets.add(target.soundId)
       void sayParts([{ id: this.cueId(target) }])
     }
-    if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
+    // the multiplier rises over the flight (its sound and line; no line on the catch that beats the boss)
+    const m = multiplierOf(this.streak)
+    if (m > this.view.mult) {
+      this.set({ mult: m })
+      this.track('mult', { mult: m, streak: this.streak })
+      if (!noPraise) { this.sfx('streak'); void sayParts([{ id: this.multLine(m) }]) }
+    } else if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
   }
 
   /**
@@ -1417,7 +1460,7 @@ export class RunController {
       void sayParts([{ id: this.variation('almost') }])
       return 'on'
     }
-    this.streak = 0
+    this.resetStreak()
     this.record('broom', target, hit, 'wrong')
     if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
