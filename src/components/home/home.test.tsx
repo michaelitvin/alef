@@ -97,6 +97,17 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(g.container.querySelector('[data-wizard]')!.getAttribute('src')).toMatch(/girl/)
   })
 
+  it('the wizard stands at the newest reading station, not at drawing (which opens with stage 1 and comes last on the path)', () => {
+    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    const a = render(<StationPath />)
+    expect(st(a.container, 'ghosts').querySelector('[data-wizard]')).not.toBeNull()
+    a.unmount()
+    save({ stage: { stage: 4, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    const b = render(<StationPath />)
+    expect(b.container.querySelectorAll('[data-wizard]').length).toBe(1)
+    expect(st(b.container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
+  })
+
   it('coming back to the page re-reads the Book 2 save', () => {
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')

@@ -1,7 +1,7 @@
 // The path under the duel card (spec: one duel, Part 4; the approved mock): the duel's minigames as stations on a dotted
 // zigzag trail, right to left, scrolling sideways only. Open stations first; locked ones greyed out with a lock (they do
 // nothing). Three small dots under each disc fill with his recent accuracy there (not stars). The wizard stands at the
-// newest open station. Each open station opens one short session of its minigame. Captions are for the parent.
+// newest open reading station. Each open station opens one short session of its minigame. Captions are for the parent.
 import wizBoy from '../../duel2/assets/img/s-wizard-cast.webp'
 import wizGirl from '../../duel2/assets/img/s-wizard-cast-girl.webp'
 import { useGender, wizardArt } from '../../shared/player'
@@ -49,7 +49,10 @@ export function StationPath() {
   const stations = useStations()
   const gender = useGender()
   const wizard = wizardArt(WIZ, 's-wizard-cast', gender)
-  const newest = stations.filter((s) => s.open).length - 1
+  // the newest open station: the last open reading station (drawing opens with stage 1, together with the first Book 2
+  // minigames, and only comes last on the path because writing follows reading: it is never the newest)
+  const reading = stations.filter((s) => s.open && s.id !== 'draw' && s.id !== 'draw-hand')
+  const newest = stations.indexOf(reading[reading.length - 1])
   return (
     <div className="home-path" data-path data-home-part="path">
       <Trail n={stations.length} />
