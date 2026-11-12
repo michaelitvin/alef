@@ -1,13 +1,14 @@
 # Space Cat — a flying sums game, adapted from Space Cat Math
 
-Status: draft for the parent's approval. Read [docs/minigame-rules.md](../../minigame-rules.md) before building: every
+Status: approved by the parent (2026-11-12). A review pass on his behalf ran the same day and fixed the points that a
+builder could not settle; it also fits the design to the home screen of *one duel*, which merges first. Read [docs/minigame-rules.md](../../minigame-rules.md) before building: every
 rule there applies. The section *Rule review* below says how this design meets each group of rules and where the
 parent decided an exception.
 
 ## Why
 
 - A friend's father (Igor, Ray's dad) made *Space Cat Math* for his child: a cat in a rocket flies to the planet that
-  carries the answer of a sum. The parent liked it and has the author's permission to adapt it into alef.
+  carries the answer of a sum. The parent liked it and has the author's permission to adapt it into alef, in this public repository.
 - alef has only reading and clock games. Sums are a new subject, and an arcade game breaks the monotony of the duel.
 - The original cannot be used as it is: its menus are text, the child chooses his own subject and speed, the sums are
   random and climb to 100 in ten levels, it is portrait only, and a home button sits on the play screen.
@@ -49,23 +50,22 @@ With the author's permission, we reuse:
 
 **Credit (the parent's decision):** the cover screen shows a small line in a lower corner: `Credit: Igor, Ray's dad`.
 It is the one piece of text on a child screen. The child does not need it to play. The no-text scan has an allow-list
-with this one string. *My call:* the line is in English, as the parent wrote it; the README and
-`asset-sources/spacecat/README.md` carry the same credit and say that the pictures, the tune and the mechanic come from
+with this one string. *My call:* the line is in English, as the parent wrote it; `asset-sources/spacecat/README.md` (the repository
+has no root README) carries the same credit and says that the pictures, the tune and the mechanic come from
 Space Cat Math by permission of its author. Each ported source file says so in its header comment.
-
-**Before the build starts (the parent):** confirm with Igor that his permission covers a public repository, because his
-pictures and his tune will be published there.
 
 ## The play screen
 
 One canvas, as in the original, wrapped by React. Logical size 1600×900 in the wide layout, 540×960 in the portrait
 layout. The layout follows the other games' rule: a tablet in landscape gets the wide layout; a phone gets the portrait
-layout, also when it lies on its side (builder: use the same test as Book 2 for "phone"). The
+layout, also when it lies on its side. *My call:* a screen whose shorter side is less than 600 CSS px is a phone; a
+screen that is wider than it is high and not a phone gets the wide layout; every other screen gets the portrait layout. The
 background fills the whole screen on any shape; the game area keeps its size inside it.
 
 **Top bar.** Left: 7 progress dots for the level. Right: a star with the points of the run, and 3 hearts. All drawn as
 shapes, not emoji. During flight the top bar does not take taps: a touch there steers like a touch anywhere. The hearts
-and the points speak on a tap where the game stands still: on the cover, on *level done* and on the end screen (see *Voice*). No home button, no pause
+and the points speak on a tap where the game stands still: the points and his best on the cover, on *level done* and on
+the end screen, the hearts on *level done*, and a locked ship on the cover's shelf (see *Voice*). No home button, no pause
 button, no speaker.
 
 **The sum box**, top centre, the strongest element after the planets. Digits and the signs + − × ÷ =. The place of the
@@ -117,7 +117,8 @@ row; they still arrive together.
 ### Levels, hearts and the end of a run
 
 - 7 right answers finish a level. The *level done* screen shows the thumbs-up cat, the three hearts filling again, the
-  points, and a play triangle. If a ship is new, it flies in at this moment.
+  points, and a play triangle. If a ship is new, it flies in and takes the thumbs-up cat's place (rule: each character
+  one time on a screen). The order of the sounds: the fanfare, then the level line, then the new ship's sound and its line.
 - Levels do not set the difficulty (see *Finding his level*). They are progress only, and they go on without an end.
 - A run ends when the hearts run out. At 1 mistake in 5 a level needs about 9 answers and about 1.75 mistakes; about
   3 levels in 4 are finished, so a usual run has 3 to 4 levels (about 30 answers, 3 to 4 minutes).
@@ -130,25 +131,32 @@ row; they still arrive together.
 - All his points so far and his best run, on the cover.
 - Ships as the rare prize. Ship 2 unlocks the first time he reaches level 4 in a run (he finished level 3), ship 3 the first time he
   reaches level 7, as in the original: about 4 runs in 10 reach ship 2 and about 1 in 6 reach ship 3. They stay unlocked. The cover has a shelf with the three ships; a locked ship is a dark outline.
-  *My call:* a tap on an unlocked ship on the shelf makes it his ship.
+  *My call:* a tap on an unlocked ship on the shelf makes it his ship. A tap on a locked ship says how he gets it.
 
 ## The cover
 
-The space background with turning planets, the current ship (large), a play triangle, all his points with the star,
-his best, the ship shelf, the credit line, and the parent button (a 2 s hold, as in Book 2). No way home here; it is
+The space background with turning planets, the ship shelf with his current ship large in its middle (it is not shown a
+second time), a play triangle, all his points with the star, his best, the credit line (inset from the rounded screen
+corner, rule: keep things away from the corners), and the parent button (a 2 s hold, as in Book 2). No way home here; it is
 in the parent area. The fonts and pictures load before the cover shows.
+
+**The play triangle** points left on every screen of this game. Reason (rule): the ship moves up, not to a side, so
+the triangle follows the reading direction. *My call.*
 
 ## The first time
 
 - The first round of the first run starts with the demo. The planets stand still, alef's own pointing hand drags the
   ship under the right planet and back while the instruction line plays, and when the words end the planets start to
-  move: he plays that same round, with the same sum and the same planets, and it counts as a usual round. No button.
-  *My call:* this round is `1 + 1`.
+  move: he plays that same round, with the same sum and the same planets, and it counts as a usual round of the run
+  (points, a progress dot, a heart). Its answer does not go into the tallies, because the hand showed it (see
+  *Tracking*). No button.
+  *My call:* this round is `1 + 1`. While the line plays, his touches do nothing (rule: no answers during an instruction).
 - **Zoom** is not in the demo. The first time he is parked under the right planet and waits, the planets stop, the
   hand shows a flick up and the zoom line plays; then the planets go on. This is shown at most two times. (The planets
-  stop so that no round-end sound can fall on the voice.)
+  stop so that no round-end sound can fall on the voice.) The tip is a hint: a flick during it stops the line, and the
+  zoom counts.
 - **The missing number** is a new element. The first two times a ring is not at the end, the ring pulses and the line
-  "which number is missing?" plays before the planets start to move.
+  "which number is missing?" plays before the planets start to move. His touches wait until the line ends.
 
 ## Finding his level
 
@@ -166,7 +174,8 @@ keeps a tally (seen, wrong, time-out), its recent results, its usual answer time
 4. missing number, plus and minus within 10
 5. plus and minus to 20 with no crossing of ten (12 + 5, 18 − 3)
 6. plus and minus to 20 with crossing of ten (8 + 5, 13 − 6)
-7. *(off until the parent turns it on)* times, tables to 5
+7. *(off until the parent turns it on)* times, tables to 5. A switch makes a rung reachable; it still opens by the
+   usual rule, after the rung below it
 8. *(off)* times, tables to 10
 9. *(off)* divide, from the tables that are open
 
@@ -181,7 +190,10 @@ Results are never negative. A plus 0 or minus 0 fact is rare (at most 1 round in
 
 **Choosing the next sum.** The candidates are all items of the open rungs. The game picks the one whose predicted
 mistake rate is nearest to 1 in 5, never the same fact as the round before. A time-out counts as half a mistake for
-this prediction, because slow steering is not the same as not knowing.
+this prediction, because slow steering is not the same as not knowing. The shared module is not changed for this: the
+game keeps its own recent string (`o` right, `x` wrong, `t` time-out) and takes the mean of two shared predictions, one
+with every time-out as a mistake and one with every time-out as right. The shared formula is linear in the mistakes, so
+the mean is exactly "a time-out is half a mistake".
 
 **Opening a rung.** The next rung opens when, of his last 12 answers on items of the top open rung, at most 2 were
 mistakes (a time-out is half a mistake). It does not wait until he has seen every item of the rung. **Fast start:** until he makes his first mistake on a rung, 4 right answers in a row open
@@ -196,7 +208,8 @@ the three. The right answer is in a lane other than the ship's lane in 9 rounds 
 shows the change.
 
 - It starts at 8 s. Its range is 4 s to 10 s.
-- The aim is about 1.6 × his usual time to get under the right planet (the median of his last 12 right answers).
+- The aim is about 1.6 × his usual time to get under the right planet (the median of his last 12 right answers). A round
+  in which the right planet starts in his lane does not count for this. With fewer than 5 such answers, the time stays.
 - It moves at most 5% per round. A time-out makes it 10% slower at once.
 - Only one thing gets harder at a time: in a round after a new rung opened, and for the next 6 rounds, the time does
   not get shorter.
@@ -214,12 +227,14 @@ the role "the game's narrator"; this game has no speaking character.
 | The demo round | צָרִיךְ לָטוּס אֶל כּוֹכַב הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה. | only in the demo |
 | First zoom chance | אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר. | at most two times |
 | First missing number | אֵיזֶה מִסְפָּר חָסֵר? | the first two times |
-| Level done | כָּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב. (3 variations) | the first two times, then only the fanfare |
+| Level done | כָּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב. / יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב. | the first two times, then only the fanfare; it plays only two times, so 2 variations are enough |
 | New ship | חֲלָלִית חֲדָשָׁה. | each of the two ships |
 | Hearts run out | נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב. | the first two times |
-| New best | שִׂיא חָדָשׁ. | each time; it is rare |
+| New best | שִׂיא חָדָשׁ. | each time; it is rare. Book 2's approved take `new-best-1` (the same narrator, no gender) is reused: no new take |
 | Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. טָעוּת לוֹקַחַת לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים. | once for a burst of taps |
-| Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן עוֹד אַחַת. | once for a burst of taps |
+| Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר. | once for a burst of taps; no עוֹד (its stress is wrong in this voice) |
+| Tap on his best | זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת. | once for a burst of taps |
+| Tap on a locked ship | אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים בְּטִיסָה אֲרֻכָּה. | once for a burst of taps |
 
 **One symbol, one meaning.** The points icon is a star, and the answers ride on planets. The voice therefore says
 "כּוֹכַב הַלֶּכֶת" for a planet and "נְקֻדּוֹת" for the points, never plain "כּוֹכָב" for either. *My call*; the parent
@@ -227,14 +242,14 @@ can ask for another points icon.
 
 Voice lines play through `src/shared/audioCore.ts` at the shared voice rate. Two audio events never overlap or touch:
 a voice line waits for the effect before it (about 0.4 s), and a round's arrival sound waits for a voice line of the
-screen before it. No voice line plays while planets move.
+screen before it. No voice line plays while planets move. The tune gets quieter under every voice line (rule).
 
 ## Music and sound effects
 
 - Each event has its own sound, all made by WebAudio code. The original has three: right, wrong (a boom with a siren)
   and the level fanfare; they are ported. Six are new and are coded in the same style: new sum, right with zoom,
-  time-out, heart lost, new ship, end of run. *My call:* the parent hears the six new ones on a small sound page (a
-  button for each) before the first playtest build, and they change on his notes.
+  time-out, heart lost, new ship, end of run. *My call:* the parent hears the six new ones on a small sound page in the
+  parent area (a button for each) before the first playtest build, and they change on his notes.
 - The original's tune plays on the cover, on *level done* and on the end screen.
 - During flight the tune is off. A parent setting turns it on. (The rule for calm games does not bind an action game,
   but the parent chose off as the default.)
@@ -258,7 +273,7 @@ Behind the 2 s hold on the cover, built like Book 2's parent screen. Text is all
 
 - Each round: the item, the four numbers by lane, the ship's lane at the start, the lane and number he ended on, the
   result (right, wrong, time-out), zoom or arrival, the time to his last lane change and to the end, the arrival time
-  in force, the rung, the level and the run.
+  in force, the rung, the level, the run and the ship in use.
 - A demo round and a round cut by a pause are recorded as such and do not count in the tallies.
 - Run start and end, level done, ship unlocked, rung opened, pause, and abandon (he leaves in the middle of a run).
 - An analysis script in `asset-sources/spacecat/` or `scripts/`, on the pattern of the other games.
@@ -280,14 +295,23 @@ src/spacecat/
   store.ts   Zustand + persist: tallies, open rungs, points, best, ships, tips heard, settings
   telemetry.ts
   assets/    the 9 original pictures, voice files
-src/components/spacecat/SpaceCatEntryCard.tsx   the card on the alef menu
+src/components/home/SpaceCatCard.tsx            the card on the home screen (one duel's layout)
 asset-sources/spacecat/        origin record of the pictures and the tune, voice requests, hub card request
 ```
 
-- The game is open from the start; the alef menu gets a card for it. The card is the one new picture: a generated
-  image in the style of the other menu cards that shows the cat ship. Image budget: this one card, at most 4 attempts.
-- Voice budget: the 9 lines above with their variations (about 12 takes before retakes). The parent confirms the limit
-  when the plan is written.
+- The game is open from the start; the home screen gets a card for it. *One duel* (merged first) rebuilds the home
+  screen: the duel card and its path, a separator, the clock card, a separator, and the shelf of older activities. The
+  Space Cat card goes after the clock card, with its own separator before it. *My call:* it is built like the clock card,
+  from the game's own parts (rule: build from the game's own parts; non-goal: no art in alef's painted style): the space
+  background, the current cat ship, three small planets with digits, and the home's play button pointing left. Under it,
+  the line for the parent: "**מה לומדים:** חיבור וחיסור עד 10, מספר חסר בתרגיל, ואחר כך חיבור וחיסור עד 20. המשחק
+  מתאים את עצמו לילד, גם במהירות."
+- Image budget (the parent approved): a generated card picture, plan 4 attempts, ceiling 8. With the card from the
+  game's own parts, it is used only if the parent asks for a painted picture after he sees the card.
+- Voice budget (the parent approved): plan about 12 takes, ceiling about 24. The lines above are 11 items with their
+  variations (the new-best line is reused). The first round makes one take of each item; a second take is made only for
+  an item that fails the automatic checks or that the parent rejects. This is a stated exception to "2 or more takes for
+  each item", for the budget.
 - The round content sits behind one interface (`makeRound` → the box content, four planet labels, the right lane, the
   feedback content), so a reading galaxy can come later without a change to the canvas.
 
@@ -316,9 +340,11 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
   heart-shaped). A time-out and a wrong hit look different (the true cause). A wrong answer is dramatic. Planets do not
   move as one stiff row. Icons are drawn shapes. The cover shows the game's world. Nothing looks like a nikkud mark,
   because the game shows no Hebrew glyphs on child screens.
-- **Art generation.** The options mock was built from parts and opened on a phone; the budget is one card.
+- **Art generation.** The options mock was built from parts and opened on a phone. The home card is built from parts
+  too; the image budget is kept for the case that the parent wants a painted card.
 - **Interaction.** No way out and no floating button on child screens. Points are shown in the run, at the end and on
-  the cover. Hearts and points speak on a tap. The action is the answer: no confirm button. A place for the answer (the
+  the cover. Hearts, points, his best and a locked ship speak on a tap. The play triangle points left. The screens are
+  built from the original's parts and alef's demo hand. The action is the answer: no confirm button. A place for the answer (the
   ring) is shown; the answer goes there by flight, not by a drag of a number, because the flight is the game. The demo
   uses a real hand, its round flows into play, and the zoom is explained when he first needs it. Landscape tablet first;
   a phone keeps the portrait layout.
@@ -341,12 +367,15 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
 The parent decided: sums now and reading later; the wide landscape layout; drag with flick, and a tap also works; the
 original's art and coded sound; points stay in this game; no narrated numbers; the credit line on the cover; one
 adaptive ladder at 1 mistake in 5; all twelve rule changes listed in the chat of 2026-11-12 (among them: no timer bar,
-lane glide, our pointing hand, zoom taught later, lines that do not address the child).
+lane glide, our pointing hand, zoom taught later, lines that do not address the child). Igor's permission covers this
+public repository. The budgets: image plan 4, ceiling 8; voice plan about 12 takes, ceiling about 24.
 
 My calls, for the parent to check: the credit line in English; the ladder's rungs and its numbers; a time-out counts as
 half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it; the speed numbers; `1 + 1` as the demo; a tap on the shelf chooses the ship; levels without an end;
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
-the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip.
+the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
+the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
+its line; the current ship shown once on the cover; one first take per voice item.
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field
 names, the constants' tuning inside the limits above.
