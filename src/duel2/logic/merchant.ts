@@ -25,7 +25,8 @@ export const priceAt = (purchasesThisRun: number, range: NumberRange): number =>
 /**
  * Does the merchant come at this checkpoint? Only in the adventure, with fewer than 3 hearts and enough coins. On the
  * last heart: at every checkpoint. With 2 hearts: always before a boss, otherwise every other checkpoint (`sinceVisit`
- * counts the checkpoints since his last visit, a declined visit included; Infinity before the first).
+ * counts the checkpoints since his last visit, this one included, so 1 is the checkpoint right after it; a declined visit
+ * counts as a visit; Infinity before the first).
  */
 export function merchantDue(c: { adventure: boolean; hearts: number; coins: number; price: number; sinceVisit: number; bossNext: boolean }): boolean {
   if (!c.adventure || c.hearts >= 3 || c.coins < c.price) return false

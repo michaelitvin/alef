@@ -296,7 +296,7 @@ export class RunController {
   private demoMove = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
   private purchasesThisRun = 0
-  /** wrong payments in a row (the wand glows after two) */
+  /** wrong payments in a row in this visit (the wand glows after two) */
   private wrongInRow = 0
 
   constructor(private opts: RunOpts = {}) {
@@ -557,9 +557,11 @@ export class RunController {
       const st = useDuel2Store.getState()
       const range = st.settings.range ?? 100
       const price = priceAt(this.purchasesThisRun, range)
+      // the checkpoints since his last visit, this one included (the save counts the ones passed without him): with 2
+      // hearts he comes at every other checkpoint
       const since = st.checkpointsSinceVisit ?? NEVER_VISITED
       const due = merchantDue({
-        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since, bossNext: !!this.visitBoss,
+        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1, bossNext: !!this.visitBoss,
       })
       if (!this.opts.sandbox) st.noteCheckpoint(due)
       if (!due) { this.checkpointDue = false; return }
@@ -579,6 +581,8 @@ export class RunController {
   private newMerchantVisit(price: number, coins: number[]) {
     let declineNow = () => {}
     const decline = new Promise<void>((r) => { declineNow = r })
+    // "two wrong tries in a row" are counted within one visit (the wand's glow ends with the visit too)
+    this.wrongInRow = 0
     this.visit = {
       price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
       demoDone: false, idleSaid: false, lastTouch: this.now(),
@@ -607,13 +611,13 @@ export class RunController {
     if (this.visit) this.visit.lastLine = v
     return v
   }
-  /** say or wait during a visit; the ✗ cuts it at any moment */
+  /** say or wait during a visit; the ✗ cuts it at any moment (only in the loop that is current: a pause replaces it) */
   private async vsay(t: number, parts: { id: string; onStart?: () => void }[]) {
-    await Promise.race([this.say(t, parts), this.visit!.decline])
+    await this.guard(t, Promise.race([this.say(t, parts), this.visit!.decline]))
     if (this.visit!.declined) throw new Declined()
   }
   private async vsleep(t: number, ms: number) {
-    await Promise.race([this.sleep(t, ms), this.visit!.decline])
+    await this.guard(t, Promise.race([this.sleep(t, ms), this.visit!.decline]))
     if (this.visit!.declined) throw new Declined()
   }
   /** his next gesture of the visit (the ✗ ends the wait) */
@@ -634,7 +638,8 @@ export class RunController {
     }
     if (!v.idleSaid) arm(MERCHANT_IDLE_MS - (this.now() - v.lastTouch))
     try {
-      const g = await Promise.race([this.guard(t, new Promise<MerchantGesture>((r) => { this.mWaiter = r })), v.decline.then(() => null)])
+      // a wait that a pause left behind ends as aborted, never as a decline (the loop after the pause ends the visit)
+      const g = await this.guard(t, Promise.race([new Promise<MerchantGesture>((r) => { this.mWaiter = r }), v.decline.then(() => null)]))
       if (!g || v.declined) throw new Declined()
       return g
     } finally {
@@ -697,7 +702,8 @@ export class RunController {
     if (!v || !mv || v.bought || v.declined) return
     if (g.type === 'decline') {
       // the ✗, at any moment of the visit (it is hidden while the first-visit demo plays)
-      if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && mv.demo.step !== 'decline')) return
+      // (the undo's hand shows while the ✗ is on the screen: it works then too)
+    if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
       v.declined = true
       this.track('merchant-decline', { phase: mv.phase })
       if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('decline')

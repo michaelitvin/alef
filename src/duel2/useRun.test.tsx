@@ -1291,6 +1291,83 @@ describe('run controller', () => {
       c.destroy()
     }, 60_000)
 
+    it('with 2 hearts he comes every other checkpoint: one checkpoint without him since his last visit is enough', async () => {
+      // his last visit was one checkpoint ago (that checkpoint passed without him): this one is his
+      useDuel2Store.setState({ checkpointsSinceVisit: 1 })
+      const c = await cauldronThen(1)
+      expect(c.view.hearts).toBe(2)
+      await playTo(c, (v) => !!v.merchant || v.screen?.screen === 'ladder')
+      expect(c.view.merchant).toBeDefined()
+      c.destroy()
+    }, 60_000)
+
+    it('with 2 hearts he does not come at the checkpoint right after his visit', async () => {
+      useDuel2Store.setState({ checkpointsSinceVisit: 0 })
+      const c = await cauldronThen(1)
+      let came = false
+      for (let i = 0; i < 4000 && c.view.screen?.screen !== 'ladder'; i++) {
+        if (c.view.merchant) came = true
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && c.view.screen?.screen === 'cauldron') c.gesture({ type: 'pick', id: rightId(c.view) })
+        await tick(50)
+      }
+      expect(came).toBe(false)
+      expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('a wrong try in an earlier visit does not count toward the wand glow in the next one', async () => {
+      const c = await cauldronThen(2)
+      await toMerchant(c)
+      const small = Math.min(...mv(c).coins)
+      give(c, [small])
+      c.gesture({ type: 'potion' })
+      await until(c, (v) => v.merchant?.verdict === 'short')
+      await until(c, arrived)
+      expect(c.view.hintGlow).toBeFalsy()
+      c.gesture({ type: 'decline' })
+      await until(c, (v) => !v.merchant)
+      // on his last heart he comes again at the next checkpoint
+      await toMerchant(c)
+      give(c, [Math.min(...mv(c).coins)])
+      c.gesture({ type: 'potion' })
+      await until(c, (v) => v.merchant?.verdict === 'short')
+      await until(c, arrived)
+      expect(c.view.hintGlow).toBeFalsy()
+      c.destroy()
+    }, 60_000)
+
+    it('the ✗ works while the hand shows the undo (it is on the screen then)', async () => {
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
+      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true } })
+      const c = await cauldronThen(2)
+      await toMerchant(c)
+      give(c, [...mv(c).coins])
+      c.gesture({ type: 'potion' })
+      await until(c, (v) => v.merchant?.demo?.step === 'undo')
+      c.gesture({ type: 'decline' })
+      await until(c, (v) => v.merchant?.phase === 'leave')
+      expect(mv(c).given).toEqual([])
+      c.destroy()
+    }, 60_000)
+
+    it('after a lock, the ✗ still lets him say goodbye in full before the run goes on', async () => {
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-bye') ? 3000 : 10)) })
+      const c = await cauldronThen(2)
+      await toMerchant(c)
+      c.pause()
+      c.resume()
+      await until(c, arrived)
+      c.gesture({ type: 'decline' })
+      await until(c, () => played.some((id) => id.startsWith('m-bye-')))
+      // the goodbye takes 3 s: the merchant is still there after 2 s (the visit that the lock interrupted is over)
+      await tick(2000)
+      expect(c.view.merchant?.phase).toBe('leave')
+      expect(played.filter((id) => id.startsWith('m-bye-')).length).toBe(1)
+      await until(c, (v) => !v.merchant && v.screen?.screen === 'ladder')
+      c.destroy()
+    }, 60_000)
+
     it('with too few coins he never comes', async () => {
       const c = await cauldronThen(2, 0)
       // two right answers on the cauldron: 2 coins, less than the price
@@ -1511,6 +1588,8 @@ describe('run controller', () => {
           c.gesture({ type: 'potion' })
           await until(c, (v) => v.merchant?.verdict === 'short')
           await until(c, arrived)
+          // one wrong try is not enough
+          if (k === 0) expect(c.view.hintGlow).toBeFalsy()
         }
         expect(c.view.hintGlow).toBe(true)
         expect(c.view.hintAvailable).toBe(true)

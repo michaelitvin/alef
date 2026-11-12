@@ -147,6 +147,8 @@ describe('the merchant screen (spec: one duel, Part 2)', () => {
   const base: MerchantView = { phase: 'pay', price: 7, coins: [1, 2, 2, 5, 10], given: [] }
   const noText = (root: Element) => {
     const clone = root.cloneNode(true) as Element
+    // what is exempt from the check must itself be digits only
+    clone.querySelectorAll('[data-num]').forEach((e) => expect(e.textContent).toMatch(/^\d+$/))
     clone.querySelectorAll('[data-glyph],[data-num]').forEach((e) => e.remove())
     return clone.textContent?.replace(/\s+/g, '') ?? ''
   }
