@@ -1803,16 +1803,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-hearts-1-f.mp3",
    "where": "A tap on the hearts — when a girl plays",
-   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.",
-   "take": "clips/info-hearts-1-f/v8.mp3",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
+   "take": "clips/info-hearts-1-f/v10.mp3",
    "request": {
-    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.",
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 107
+    "seed": 109
    },
    "earlier_takes": [
     {
@@ -1842,6 +1842,14 @@
     {
      "file": "clips/info-hearts-1-f/v7.mp3",
      "seed": 106
+    },
+    {
+     "file": "clips/info-hearts-1-f/v8.mp3",
+     "seed": 107
+    },
+    {
+     "file": "clips/info-hearts-1-f/v9.mp3",
+     "seed": 108
     }
    ]
   },
@@ -1850,21 +1858,29 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-hearts-1.mp3",
    "where": "A tap on the hearts",
-   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.",
-   "take": "clips/info-hearts-1/v2.mp3",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
+   "take": "clips/info-hearts-1/v4.mp3",
    "request": {
-    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.",
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 101
+    "seed": 103
    },
    "earlier_takes": [
     {
      "file": "clips/info-hearts-1/v1.mp3",
      "seed": 1
+    },
+    {
+     "file": "clips/info-hearts-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-hearts-1/v3.mp3",
+     "seed": 102
     }
    ]
   },
@@ -1874,15 +1890,15 @@
    "file": "src/duel2/assets/audio/voice/info-mult-1.mp3",
    "where": "A tap on the ×2 or ×3 beside the coins (the streak multiplier)",
    "caption": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
-   "take": "clips/info-mult-1/v2.mp3",
+   "take": "clips/info-mult-1/v6.mp3",
    "request": {
-    "text": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
+    "text": "[warmly] תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
-     "stability": 0.5
+     "stability": 0.3
     },
-    "seed": 101
+    "seed": 105
    },
    "earlier_takes": [
     {
@@ -1892,6 +1908,22 @@
     {
      "file": "clips/info-mult-1/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/info-mult-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-mult-1/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/info-mult-1/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/info-mult-1/v7.mp3",
+     "seed": 106
     }
    ]
   },
@@ -2815,16 +2847,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-bye-1-f.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away — when a girl plays",
-   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.",
-   "take": "clips/m-bye-1-f/v2.mp3",
+   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.",
+   "take": "clips/m-bye-1-f/v5.mp3",
    "request": {
-    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.",
+    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 101
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -2834,6 +2866,14 @@
     {
      "file": "clips/m-bye-1-f/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/m-bye-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/m-bye-1-f/v4.mp3",
+     "seed": 103
     }
    ]
   },
@@ -2842,16 +2882,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-bye-1.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
-   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.",
-   "take": "clips/m-bye-1/v3.mp3",
+   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.",
+   "take": "clips/m-bye-1/v5.mp3",
    "request": {
-    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.",
+    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 102
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -2861,6 +2901,14 @@
     {
      "file": "clips/m-bye-1/v2.mp3",
      "seed": 101
+    },
+    {
+     "file": "clips/m-bye-1/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/m-bye-1/v4.mp3",
+     "seed": 103
     }
    ]
   },

@@ -72,7 +72,11 @@ describe('lines', () => {
     expect(lineById('info-coin-ring')).toBeUndefined()
     expect(lineById('defeat')!.variations).toBe(2)
     // the info lines say the new rules: hearts come back at the end of a pass, coins come from right answers
-    expect(lineById('info-hearts')!.he[0]).toMatch(/סִבּוּב/.source.normalize('NFC'))
+    // spelled as it is said ("sivuv", the parent); the pause cannot fall inside "וּבְסוֹף כָּל"
+    for (const t of [lineById('info-hearts')!.he[0], lineById('info-hearts')!.fe![0]!]) {
+      expect(t).toMatch(/וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב/.source.normalize('NFC'))
+      expect(t).not.toMatch(/סִבּוּב/.source.normalize('NFC'))
+    }
     expect(lineById('info-hearts')!.he[0]).not.toMatch(/מָסָךְ/.source.normalize('NFC'))
     expect(lineById('info-coins')!.he[0]).not.toMatch(/כּוֹכָבִים/.source.normalize('NFC'))
     // no number that the game logic can change (rule): a right answer pays more with a streak
@@ -151,7 +155,8 @@ describe('merchant lines (spec: one duel, Part 2)', () => {
     expect(he('m-hello')).toBe(n('שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?'))
     expect(lineById('m-hello')!.fe![0]).toBe(n('שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?'))
     expect(he('m-again')).toBe(n('נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?'))
-    expect(he('m-bye')).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.'))
+    expect(he('m-bye')).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.'))
+    expect(lineById('m-bye')!.fe![0]).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.'))
     expect(he('m-price')).toBe(n('זֶה הַמְּחִיר.'))
     expect(he('m-give')).toBe(n('תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'))
     expect(he('m-tap')).toBe(n('וְאָז גַּע בַּשִּׁקּוּי.'))

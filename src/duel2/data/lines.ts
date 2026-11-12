@@ -83,8 +83,9 @@ export const LINES: LineDef[] = [
   line('mult-up', 'The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)', [
     'עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.', 'עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.',
   ], 0, 'excited'),
-  // a tap on what he collects says what it is (the parent); one take each: it answers his own tap
-  line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.']),
+  // a tap on what he collects says what it is (the parent); one take each: it answers his own tap. info-hearts: the pause
+  // fell inside "וּבְסוֹף כָּל" and סִבּוּב was said "sibuv" (the parent 2026-11-12): reordered, spelled as said ("sivuv")
+  line('info-hearts', 'A tap on the hearts', ['אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.']),
   line('info-stars', 'A tap on the stars of this run', ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.']),
   line('info-coins', 'A tap on his coins', ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.']),
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
@@ -121,7 +122,8 @@ export const LINES: LineDef[] = [
     'הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?',
   ]),
   mline('m-again', 'Merchant: nothing tapped for 20 s after he came (once per visit)', ['נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?', 'אָז מָה? קוֹנִים שִׁקּוּי?']),
-  mline('m-bye', 'Merchant: the ✗ (no thanks); his coins go back and he walks away', ['בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.', 'אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.']),
+  // no comma before קוֹסֵם: no pause there (the parent 2026-11-12)
+  mline('m-bye', 'Merchant: the ✗ (no thanks); his coins go back and he walks away', ['בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.', 'אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.']),
   mline('m-price', 'Merchant, first visit demo D1: the price tag glows', ['זֶה הַמְּחִיר.']),
   mline('m-give', 'Merchant, first visit demo D2 (the parent\'s wording): the hand drags a coin into his hand', ['תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.']),
   mline('m-tap', 'Merchant, first visit demo D3: the hand taps the potion', ['וְאָז גַּע בַּשִּׁקּוּי.']),
@@ -168,7 +170,7 @@ const FE: Record<string, (string | null)[]> = {
   'boss-win': ['נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.', 'וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.', 'אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.'],
   'boss-new': ['נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.'],
   // one duel: the hearts last the run and one comes back at the end of each pass (re-record both takes)
-  'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְסוֹף כָּל סִבּוּב חוֹזֵר לֵב.'],
+  'info-hearts': ['אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.'],
   'info-stars': ['אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.'],
   'info-coins': ['אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.'],
   'info-crystals': ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.'],
@@ -192,7 +194,7 @@ const FE: Record<string, (string | null)[]> = {
     'הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?',
   ],
   'm-again': ['נוּ, תִּרְצִי לִקְנוֹת אֶחָד?', null],
-  'm-bye': ['בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֶמֶת.', null],
+  'm-bye': ['בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.', null],
   'm-give': ['תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'],
   'm-tap': ['וְאָז גְּעִי בַּשִּׁקּוּי.'],
   'm-decline': ['לֹא צָרִיךְ? גְּעִי כָּאן.'],
