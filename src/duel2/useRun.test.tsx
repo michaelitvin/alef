@@ -292,75 +292,103 @@ describe('run controller', () => {
 
   describe('the end of a pass', () => {
     const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
-    /** stage 1, drawing off: the cycle is broom → ghosts; the run starts on the ghosts. He loses one heart there, then answers right. */
-    async function ghostsWithALostHeart(c: RunController) {
-      await until(c, (v) => v.screen?.screen === 'ghosts' && v.phase === 'answer')
+    /** plays on (right answers, a careful flight, the fix and next when asked) until `pred` holds */
+    async function playTo(c: RunController, pred: (v: View) => boolean, onTick?: () => void) {
+      for (let guard = 0; guard < 8000 && !pred(c.view); guard++) {
+        onTick?.()
+        const s = c.view.screen
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        fly(c)
+        await tick(50)
+      }
+      expect(pred(c.view)).toBe(true)
+    }
+    /** on a calm screen: a wrong pick, then he does the fix */
+    async function loseHeart(c: RunController) {
+      const before = c.view.hearts
+      await playTo(c, (v) => v.phase === 'answer' && !!v.screen && !['crystal', 'broom'].includes(v.screen.screen))
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => !!v.fixing)
       await drain(c)
-      expect(c.view.hearts).toBe(2)
+      expect(c.view.hearts).toBe(before - 1)
     }
-    async function finishGhosts(c: RunController, onTick?: () => void) {
-      for (let guard = 0; guard < 2000 && c.view.screen?.screen !== 'broom'; guard++) {
-        onTick?.()
-        if (c.view.needNext || c.view.fixing) proceed(c)
-        else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
-        await tick(50)
-      }
+    /** to the crystal, then to the broom of the next cycle (the pass heart, if any, comes between) */
+    async function toNextCycle(c: RunController, onTick?: () => void) {
+      await playTo(c, (v) => v.screen?.screen === 'crystal', onTick)
+      await playTo(c, (v) => v.screen?.screen === 'broom', onTick)
     }
+    /** stage 4 (no stage passes during the test), drawing off: broom → cauldron → ladder → ghosts → doors, then the crystal */
+    const fromStartOfCycle = () => useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
 
     it('gives one heart back, once, with its line', async () => {
       duel2Telemetry.clear()
-      useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom' })
+      fromStartOfCycle()
       const c = make()
       c.start()
-      await ghostsWithALostHeart(c)
-      await finishGhosts(c)
-      expect(c.view.screen?.screen).toBe('broom')
+      await playTo(c, (v) => v.screen?.screen === 'cauldron')
+      await loseHeart(c)
+      await toNextCycle(c)
       expect(c.view.hearts).toBe(3)
       expect(c.view.passHeart).toBe(1)
       expect(c.view.heal).toBeDefined()
       expect(played.some((id) => id.startsWith('pass-heart-'))).toBe(true)
       expect(events().filter((e) => e.e === 'pass-heart')).toEqual([expect.objectContaining({ hearts: 3 })])
       c.destroy()
-    })
+    }, 60_000)
 
     it('a lock during the pass heart gives it only once', async () => {
       duel2Telemetry.clear()
       setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('pass-heart') ? 1000 : 10)) })
-      useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom' })
+      fromStartOfCycle()
       const c = make()
       c.start()
       // two hearts lost, so a second heart would show (with one lost, the cap of 3 would hide it)
-      await ghostsWithALostHeart(c)
-      await until(c, (v) => v.screen?.screen === 'ghosts' && v.phase === 'answer')
-      c.gesture({ type: 'pick', id: wrongId(c.view) })
-      await until(c, (v) => !!v.fixing)
-      await drain(c)
-      expect(c.view.hearts).toBe(1)
+      await playTo(c, (v) => v.screen?.screen === 'cauldron')
+      await loseHeart(c)
+      await loseHeart(c)
       let locked = false
-      await finishGhosts(c, () => {
+      await toNextCycle(c, () => {
         if (!locked && played.some((id) => id.startsWith('pass-heart-'))) { locked = true; c.pause(); c.resume() }
       })
       expect(locked).toBe(true)
-      await until(c, (v) => v.screen?.screen === 'broom')
       expect(c.view.hearts).toBe(2)
       expect(c.view.passHeart).toBe(1)
       expect(events().filter((e) => e.e === 'pass-heart').length).toBe(1)
       c.destroy()
-    })
+    }, 60_000)
+
+    it('a run that starts near the end of a cycle gets no heart there: a pass is a trip through every screen', async () => {
+      duel2Telemetry.clear()
+      // the last run ended on the ghosts: this one starts on the doors, the last screen of the cycle
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
+      const c = make()
+      c.start()
+      await playTo(c, (v) => v.screen?.screen === 'doors')
+      await loseHeart(c)
+      await toNextCycle(c)
+      expect(c.view.hearts).toBe(2)
+      expect(c.view.passHeart ?? 0).toBe(0)
+      expect(events().some((e) => e.e === 'pass-heart')).toBe(false)
+      // the next trip through the whole cycle is a pass: it gives the heart
+      await toNextCycle(c)
+      expect(c.view.hearts).toBe(3)
+      expect(c.view.passHeart).toBe(1)
+      c.destroy()
+    }, 60_000)
 
     it('no heart when all three are there', async () => {
       duel2Telemetry.clear()
-      useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom' })
+      fromStartOfCycle()
       const c = make()
       c.start()
-      await finishGhosts(c)
+      await playTo(c, (v) => v.screen?.screen === 'cauldron')
+      await toNextCycle(c)
       expect(c.view.hearts).toBe(3)
       expect(c.view.passHeart ?? 0).toBe(0)
       expect(played.some((id) => id.startsWith('pass-heart-'))).toBe(false)
       c.destroy()
-    })
+    }, 60_000)
 
     it('the gallery still refills a forced screen and never gives a pass heart', async () => {
       duel2Telemetry.clear()
@@ -586,6 +614,27 @@ describe('run controller', () => {
     await until(c, (v) => v.over !== null)
     expect(sfxLog.filter((n) => n === 'hit').length).toBeGreaterThanOrEqual(4)
     c.destroy()
+  })
+
+  it('closing the game while the run ends sends no abandon (the run-end was sent)', async () => {
+    duel2Telemetry.clear()
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    const c = make()
+    c.start()
+    for (let k = 0; k < 3; k++) {
+      await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+      if (k === 0) c.gesture({ type: 'pick', id: rightId(c.view) })
+      else c.gesture({ type: 'pick', id: wrongId(c.view) })
+      await until(c, (v) => v.needNext || !!v.fixing || v.phase === 'feedback')
+      await drain(c)
+    }
+    await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+    c.gesture({ type: 'pick', id: wrongId(c.view) })
+    await until(c, (v) => !!v.defeat)
+    c.destroy()
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+    expect(ev.some((e) => e.e === 'run-end')).toBe(true)
+    expect(ev.some((e) => e.e === 'abandon')).toBe(false)
   })
 
   it('a lock during the defeat scene still shows the summary', async () => {

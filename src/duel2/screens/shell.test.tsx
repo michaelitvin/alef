@@ -81,6 +81,8 @@ describe('shell', () => {
     await act(async () => { gate.open(); await gate.p })
     expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
     expect(container.querySelector('[data-screen="play"]')).not.toBeNull()
+    // the defeat scene's picture is there before it is needed (rule: no late pictures), in her own version
+    expect(container.querySelector('[data-warm] img')?.getAttribute('src')).toMatch(/s-wizard-dizzy-girl/)
     stopVoice()
   })
   it('pause cover hides the game', () => {

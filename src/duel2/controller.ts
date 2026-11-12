@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, orbEvents, wavePos, VISIT, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -171,7 +171,7 @@ const sylFeatures = (c: Choice, screen: ScreenId) => {
 }
 
 export class RunController {
-  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
+  view: View = { phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
   private listeners = new Set<() => void>()
   private token = 0
   private rng: Rng
@@ -214,6 +214,9 @@ export class RunController {
   /** the heart of this pass end was given (a pause during its moment must not give it twice) */
   private passHeartGiven = false
   private passHearts = 0
+  /** this pass went through every screen of the cycle: the run started at the cycle's first screen, or a pass ended
+   * since (spec: "a pass is one trip through all his open minigames"; a run resumed near the end gets no heart there) */
+  private passFull = false
   private demoShown = false
   private assets: string[] = []
   /** broom visits in this run: every second one is a boss visit */
@@ -323,6 +326,7 @@ export class RunController {
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
     this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
+    this.passFull = !f && this.screenId === cycleOf(this.stage, this.drawOn())[0]
     void this.loop()
   }
   destroy() {
@@ -331,7 +335,8 @@ export class RunController {
     this.stopBroom()
     stopVoice()
     stopMusic()
-    if (!this.view.over && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
+    // the run is already ending (its run-end was sent): closing now is no abandon
+    if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
   }
   pause() {
     if (this.view.paused || this.view.over || this.ending) return
@@ -428,7 +433,7 @@ export class RunController {
         this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
         const nx = nextScreen(this.stage, from, this.drawOn())
-        if (nx.newCycle) this.passDue = true
+        if (nx.newCycle) { this.passDue = this.passFull; this.passFull = true }
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null

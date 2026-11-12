@@ -75,6 +75,9 @@ describe('lines', () => {
     expect(lineById('info-hearts')!.he[0]).toMatch(/סִבּוּב/.source.normalize('NFC'))
     expect(lineById('info-hearts')!.he[0]).not.toMatch(/מָסָךְ/.source.normalize('NFC'))
     expect(lineById('info-coins')!.he[0]).not.toMatch(/כּוֹכָבִים/.source.normalize('NFC'))
+    // no number that the game logic can change (rule): a right answer pays more with a streak
+    expect(lineById('info-coins')!.he[0]).toBe('אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.'.normalize('NFC'))
+    expect(lineById('info-coins')!.fe![0]).toBe('אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.'.normalize('NFC'))
     // the parent's wording: he chased the monster away
     expect(lineById('boss-win')!.he[1]).toBe('וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.'.normalize('NFC'))
   })

@@ -121,6 +121,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
       {v.heal && <HealFly key={v.heal.id} />}
       {/* the hearts ran out: the dizzy wizard spins and falls, then the summary (no offer, no "continue?") */}
+      {/* the defeat scene's picture is decoded before it is needed (rule: no late pictures); the broom draws it anyway */}
+      {!v.defeat && wiz('s-wizard-dizzy') && <div data-warm className="d2-warm" aria-hidden><img src={wiz('s-wizard-dizzy')} alt="" draggable={false} /></div>}
       {v.defeat && <div data-defeat className="d2-defeat">{wiz('s-wizard-dizzy') && <img src={wiz('s-wizard-dizzy')} alt="" draggable={false} />}</div>}
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>

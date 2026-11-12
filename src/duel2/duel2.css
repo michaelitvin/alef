@@ -166,6 +166,8 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-summary { gap: clamp(10px, 3vh, 28px); }
 /* the defeat scene: the dizzy wizard spins and falls (one duel) */
 .d2-defeat { position: absolute; inset: 0; z-index: 14; pointer-events: none; display: grid; place-items: center; background: #0b0620aa; animation: d2-fade-in 0.3s ease-out; }
+.d2-warm { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0.01; pointer-events: none; }
+.d2-warm img { width: 1px; height: 1px; }
 .d2-defeat img { width: clamp(140px, 34vh, 300px); animation: d2-defeat-fall 1.8s ease-in forwards; }
 @keyframes d2-defeat-fall { 0% { transform: translateY(-20vh) rotate(0deg); } 60% { transform: translateY(0) rotate(540deg); } 100% { transform: translateY(30vh) rotate(720deg); opacity: 0.85; } }
 @keyframes d2-fade-in { from { opacity: 0; } }
