@@ -4,12 +4,16 @@ import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { ITEMS } from '../logic/content'
 import { PlayerSetting } from '../../shared/PlayerSetting'
+import { useProgressStore } from '../../stores/progressStore'
+import { DUEL_MARKS } from '../../utils/duel/marks'
 
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
 export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose: () => void; onGallery: () => void; onStrokes?: () => void; onDrawTest?: () => void }) {
   const s = useDuel2Store()
+  // the first duel's own save: shown as history (read only)
+  const duel = useProgressStore((p) => p.duel)
   const setSettings = (p: Partial<Duel2Settings>) => { s.setSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
   const download = () => {
     const blob = new Blob([duel2Telemetry.exportJson()], { type: 'application/json' })
@@ -36,7 +40,7 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
       {/* the way out of the game lives here, behind the hold: on the child's screens a home button took him to the old duel */}
       <a data-alef-menu href={import.meta.env.BASE_URL} style={{ float: 'right', fontSize: 18, marginRight: 16 }}>Alef menu</a>
       <h2>Book 2 — parent</h2>
-      <p>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}. Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
+      <p data-stage-line>{s.bookOpen === false ? 'Stage 0: the tower (the first duel) alone; Book 2’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       <p><button onClick={onGallery} style={{ fontSize: 17, padding: '8px 14px' }}>Screens (review each screen)</button></p>
       <h3>Boy or girl</h3>
       <PlayerSetting onChange={(g) => duel2Telemetry.track('player', { gender: g, by: 'parent' })} />
@@ -83,6 +87,21 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
       <h3>Top mix-ups (asked → tapped)</h3>
       <ul>{conf(s.confusions.letters).map((x) => <li key={`l${x.a}${x.b}`}>{name(x.a)} → {name(x.b)}: {x.n}</li>)}</ul>
       <ul>{conf(s.confusions.vowels).map((x) => <li key={`v${x.a}${x.b}`}>vowel {x.a} → {x.b}: {x.n}</li>)}</ul>
+      <h3>First duel (history)</h3>
+      <p>
+        The first duel is now the tower, the first minigame of the run; its points and its own records stopped there. Its
+        right answers were added to his stars and coins once. Sessions: <span data-duel-sessions>{duel?.sessions ?? 0}</span>.
+        Best score: <span data-duel-best>{duel?.bestScore ?? 0}</span>. Best wave: <span data-duel-wave>{duel?.bestWave ?? 0}</span>.
+      </p>
+      <table data-duel-marks style={{ borderCollapse: 'collapse' }}>
+        <thead><tr><th style={{ textAlign: 'left' }}>Mark</th><th>Right</th><th>Wrong</th><th>Too slow</th><th>Lightning</th></tr></thead>
+        <tbody>
+          {DUEL_MARKS.filter((m) => duel?.byMark?.[m.id]).map((m) => {
+            const t = duel!.byMark[m.id]
+            return <tr key={m.id} data-duel-mark={m.id}><td>{m.name}</td><td>{t.correct ?? 0}</td><td>{t.wrong ?? 0}</td><td>{t.timeout ?? 0}</td><td>{t.mega ?? 0}</td></tr>
+          })}
+        </tbody>
+      </table>
       <h3>Flight speed</h3>
       <p>
         The broom flight adapts to him and is saved on this device only: <span data-pace>{s.pace.toFixed(2)}</span>× the normal

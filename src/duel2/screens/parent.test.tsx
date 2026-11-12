@@ -10,6 +10,8 @@ import { useDuel2Store } from '../store'
 import { flightPace } from '../logic/run'
 import { clearGender, getPlayer } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
+import { useProgressStore } from '../../stores/progressStore'
+import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
 describe('parent area', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -45,6 +47,26 @@ describe('parent area', () => {
     expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'parent' })
     expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'parent' })
     clearGender()
+  })
+  it('the first duel’s history: sessions, best score, best wave, and a row per mark', () => {
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel, sessions: 7, bestScore: 4321, bestWave: 9,
+      byMark: { kamatz: { seen: 30, correct: 20, wrong: 4, timeout: 2, twin: 1, mega: 4 } } } })
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('[data-duel-best]')!.textContent).toBe('4321')
+    expect(container.querySelector('[data-duel-wave]')!.textContent).toBe('9')
+    expect(container.querySelector('[data-duel-sessions]')!.textContent).toBe('7')
+    const row = container.querySelector('[data-duel-mark="kamatz"]')!
+    expect([...row.querySelectorAll('td')].slice(1).map((td) => td.textContent)).toEqual(['20', '4', '2', '4'])
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+  })
+  it('the stage line says stage 0 (the tower) before Book 2 opens', () => {
+    useDuel2Store.setState({ bookOpen: false })
+    const { container, unmount } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 0: the tower/)
+    unmount()
+    useDuel2Store.setState({ bookOpen: true })
+    const r = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
   it('export downloads JSON', () => {
     const url = vi.fn(() => 'blob:x')
