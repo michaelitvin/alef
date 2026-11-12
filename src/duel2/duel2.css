@@ -235,6 +235,8 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-station-row { position: relative; z-index: 2; display: flex; direction: rtl; align-items: center; gap: clamp(24px, 6vw, 72px); }
 .d2-station-disc { width: clamp(150px, 34vh, 230px); height: clamp(150px, 34vh, 230px); border-radius: 50%; background: #fff; border: 5px solid #c9a24a;
   display: grid; place-items: center; box-shadow: 0 0 40px #b48cff99; }
+/* the play button stands in the row beside the picture (the main cover centres its play button over the art) */
+.d2-station .d2-play { position: relative; left: auto; top: auto; transform: none; }
 .d2-station .home-glyph { font-family: Sigalit, 'Noto Sans Hebrew', serif; color: #3b1d6e; line-height: 1; }
 .d2-station .home-glyph-hand { font-family: 'Dana Yad', Sigalit, serif; }
 .d2-station .home-orb { position: relative; display: block; }
