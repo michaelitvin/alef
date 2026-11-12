@@ -1286,6 +1286,129 @@ describe('run controller', () => {
     }, 60_000)
   })
 
+  describe('shorter visits and skips for mastered minigames (spec: one duel, Part 3)', () => {
+    const O8 = 'o'.repeat(8)
+    const O12 = 'o'.repeat(12)
+    const sid = (c: RunController) => (c as unknown as { screenId: string }).screenId
+    /** right answers on the calm screens; counts each screen's rounds (one per right pick) */
+    async function playCounting(c: RunController, until_: (v: View) => boolean, counts: Record<string, number> = {}) {
+      for (let guard = 0; guard < 8000 && !until_(c.view); guard++) {
+        const s = c.view.screen
+        autoTower(c)
+        if (c.view.merchant) c.gesture({ type: 'decline' })
+        else if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) {
+          counts[s.screen] = (counts[s.screen] ?? 0) + 1
+          c.gesture({ type: 'pick', id: rightId(c.view) })
+        }
+        fly(c)
+        await tick(50)
+      }
+      expect(until_(c.view)).toBe(true)
+      return counts
+    }
+
+    it('a screen with no recent mistakes gets about half a visit', async () => {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:ghosts': O8 } })
+      const c = make()
+      c.start()
+      const n = await playCounting(c, (v) => v.screen?.screen === 'doors')
+      expect(n.ghosts).toBe(2)
+      c.destroy()
+    }, 60_000)
+
+    it('a long-mastered screen is skipped every other cycle, never removed', async () => {
+      for (const [cycleNo, seen] of [[1, false], [2, true]] as const) {
+        useDuel2Store.getState().resetProgress()
+        useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ghosts': O12 }, cycleNo })
+        const c = make()
+        c.start()
+        const n = await playCounting(c, (v) => v.screen?.screen === 'doors')
+        expect(!!n.ghosts).toBe(seen)
+        // a visit after the skip is still a short one (no recent mistakes)
+        if (seen) expect(n.ghosts).toBe(2)
+        c.destroy()
+      }
+    }, 60_000)
+
+    it('a skipped screen has no checkpoint: the merchant comes at the next real one', async () => {
+      duel2Telemetry.clear()
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ghosts': O12 }, cycleNo: 1, coins: 50,
+        merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+      const c = make()
+      c.start()
+      ;(c as unknown as { hearts: { left: number; nearMissUsed: boolean } }).hearts = { left: 1, nearMissUsed: false }
+      await playCounting(c, (v) => v.screen?.screen === 'ladder')
+      // the ladder ends: one checkpoint, and the screen after it is the doors (the ghosts are skipped this cycle)
+      const before = useDuel2Store.getState().merchant.visits
+      for (let guard = 0; guard < 4000 && !c.view.merchant; guard++) {
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ladder') c.gesture({ type: 'pick', id: rightId(c.view) })
+        await tick(50)
+      }
+      expect(c.view.merchant).toBeDefined()
+      expect(sid(c)).toBe('doors')
+      expect(useDuel2Store.getState().merchant.visits).toBe(before + 1)
+      const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string }[]
+      expect(ev.filter((e) => e.e === 'skip').map((e) => e.screen)).toEqual(['ghosts'])
+      c.destroy()
+    }, 60_000)
+
+    it('a short ladder has as many rungs as its visit; short doors put the crystal behind the last of them', async () => {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ladder': O8, 'sc:doors': O8 } })
+      const c = make()
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'ladder')
+      expect((c.view.screen as { rungs: number }).rungs).toBe(3)
+      const n = await playCounting(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer')
+      expect(n.ladder).toBe(3)
+      expect((c.view.screen as { behind?: unknown }).behind).toBeUndefined()
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await until(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer' && !!(v.screen as { behind?: unknown }).behind)
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await until(c, (v) => v.screen?.screen === 'crystal')
+      c.destroy()
+    }, 60_000)
+
+    it('when the doors are skipped the crystal still comes at the end of the cycle', async () => {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0 })
+      const c = make()
+      c.start()
+      const order: string[] = []
+      await playCounting(c, (v) => {
+        const k = v.screen?.screen
+        if (k && order[order.length - 1] !== k) order.push(k)
+        return k === 'tower'
+      })
+      expect(order).toEqual(['ghosts', 'crystal', 'tower'])
+      expect(useDuel2Store.getState().crystals).toBe(1)
+      c.destroy()
+    }, 60_000)
+
+    it('the tower is never skipped, and a one-screen cycle is never skipped; a mastered tower gets one wave', async () => {
+      useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+      const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, O12]))
+      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: { ...recent, kamatz: 'xxxxx' } } })
+      // stage 0 (the tower is not mastered yet: one mark is below 80 %)
+      useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null, cycleNo: 1 })
+      towerAuto = false
+      const c = make()
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'tower')
+      c.towerDone(2)
+      await until(c, (v) => v.screen?.screen === 'tower' && (v.screen as { wave: number }).wave === 3)
+      c.destroy()
+      // every recent tower answer right: a shorter visit (one wave), still never skipped
+      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(DUEL_MARKS.map((m) => [m.id, O12])) } })
+      useDuel2Store.setState({ bookOpen: true, lastEnded: 'ghosts', cycleNo: 1 })
+      const d = make()
+      d.start()
+      await until(d, (v) => v.screen?.screen === 'tower')
+      expect((d.view.screen as { waves: number }).waves).toBe(1)
+      d.destroy()
+    }, 60_000)
+  })
+
   it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
     const c = make({ force: { screen: 'broom', stage: 3, kind: 'syllable' }, rng: seeded(11) })
     useDuel2Store.setState({ stage: { stage: 3, newAnswers: '' } })

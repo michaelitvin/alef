@@ -88,6 +88,8 @@ export interface Duel2Save {
   bookOpen: boolean
   /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
   firstDuelImported: boolean
+  /** the cycles of the run so far, across runs: a long-mastered screen is skipped in every other one */
+  cycleNo: number
 }
 
 interface Actions {
@@ -124,6 +126,8 @@ interface Actions {
   setTowerWave: (wave: number) => void
   /** stage 0 has passed: Book 2's minigames open */
   openBook: () => void
+  /** a new cycle of the run starts */
+  nextCycle: () => void
   /**
    * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
    * tenth of them coins; Book 2 opens if his marks are already mastered. The first duel's own save is only read.
@@ -145,7 +149,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0, bookOpen: false, firstDuelImported: false,
+  towerWave: 1, towerVisits: 0, bookOpen: false, firstDuelImported: false, cycleNo: 0,
 })
 
 /**
@@ -259,6 +263,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
       setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
       openBook: () => set({ bookOpen: true }),
+      nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
       importFirstDuel: (duel) => set((s) => {
         if (s.firstDuelImported) return s
         const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)

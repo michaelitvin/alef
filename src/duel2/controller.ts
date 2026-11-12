@@ -28,7 +28,7 @@ import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
 import { NEVER_VISITED } from './store'
-import { towerMastered } from './logic/mastery'
+import { SHORT_AFTER, screenRecent, skipInCycle, towerMastered, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { useProgressStore } from '../stores/progressStore'
 
@@ -307,6 +307,12 @@ export class RunController {
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
   private towerNo = 0
   private towerWaiter: ((lastWave: number) => void) | null = null
+  /** this visit's length (rounds, waves, rungs, doors or words), decided when it starts */
+  private visitLen = 0
+  /** the doors were skipped in this cycle: their crystal comes at the cycle's end */
+  private crystalOwed = false
+  /** the next screen after a crystal that came at the cycle's end */
+  private afterCrystal: { screen: ScreenId; newCycle: boolean } | null = null
   private purchasesThisRun = 0
   /** wrong payments in a row in this visit (the wand glows after two) */
   private wrongInRow = 0
@@ -519,11 +525,22 @@ export class RunController {
           continue
         }
         if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
+        const nx = this.screenId === 'crystal' ? (this.afterCrystal ?? this.nextOf('doors')) : this.nextOf(this.screenId)
+        this.afterCrystal = null
+        if (this.screenId !== 'crystal' && nx.newCycle && this.crystalOwed) {
+          // the doors were skipped in this cycle: their crystal still comes, at the cycle's end (then the pass heart)
+          this.crystalOwed = false
+          this.afterCrystal = nx
+          this.screenId = 'crystal'
+          continue
+        }
         this.crystalAwarded = false
-        const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
-        const nx = nextScreen(this.stage, from, this.drawOn(), this.bookOpen())
         // stage 0 (the tower alone) has no pass heart
-        if (nx.newCycle) { this.passDue = this.passFull && this.bookOpen(); this.passFull = true }
+        if (nx.newCycle) {
+          this.passDue = this.passFull && this.bookOpen()
+          this.passFull = true
+          if (!this.opts.sandbox) useDuel2Store.getState().nextCycle()
+        }
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
@@ -537,6 +554,41 @@ export class RunController {
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
     }
+  }
+
+  /**
+   * The screen after `from` in the cycle, passing over the screens he has long mastered in this cycle (every other cycle;
+   * never the tower, never the only screen): a skipped screen has no visit and no checkpoint of its own.
+   */
+  private nextOf(from: ScreenId): { screen: ScreenId; newCycle: boolean } {
+    const open = this.bookOpen()
+    let nx = nextScreen(this.stage, from, this.drawOn(), open)
+    const len = cycleOf(this.stage, this.drawOn(), open).length
+    const st = useDuel2Store.getState()
+    const duelRecent = useProgressStore.getState().duel?.recent ?? {}
+    for (let k = 0; k < len && !this.opts.session; k++) {
+      // a new cycle starts at the tower, which is never skipped
+      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, st.recent, duelRecent), st.cycleNo ?? 0, len)) break
+      if (nx.screen === 'doors') this.crystalOwed = true
+      this.track('skip', { screen: nx.screen, cycle: st.cycleNo ?? 0 })
+      const n2 = nextScreen(this.stage, nx.screen, this.drawOn(), open)
+      nx = { screen: n2.screen, newCycle: n2.newCycle }
+    }
+    return nx
+  }
+
+  /**
+   * The length of a visit, decided when it starts: about half for a screen with no recent mistakes (at least 2 rounds;
+   * the tower at least 1 wave). The gallery plays the full visit.
+   */
+  private lenFor(screen: ScreenId): number {
+    const full = VISIT[screen]
+    if (this.opts.force) return full
+    const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
+    // the tower's recent answers are every mark's, side by side (not in time order): none of them may be a mistake
+    const scale = screen === 'tower' ? (r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1) : visitScale(r)
+    if (scale === 1) return full
+    return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
   }
 
   /** The end of a pass: one heart comes back (up to HEARTS), in its own moment with a sound. Once, even across a pause. */
@@ -907,7 +959,7 @@ export class RunController {
       const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
       const wave = boss ? Math.ceil(from / 5) * 5 : from
       if (!this.opts.sandbox) st.noteTowerVisit()
-      this.tower = { wave, waves: VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
+      this.tower = { wave, waves: this.visitLen || VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
       this.track('tower-start', { wave, boss, waves: this.tower.waves })
     }
     const tw = this.tower
@@ -986,9 +1038,9 @@ export class RunController {
   }
 
   private async runScreen(t: number, screen: ScreenId) {
-    if (screen === 'tower') return this.runTower(t)
     // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
-    if (!this.visitStarted) { this.visitStarted = true; if (this.opts.force) this.hearts = heartsAtRunStart() }
+    if (!this.visitStarted) { this.visitStarted = true; this.visitLen = this.lenFor(screen); if (this.opts.force) this.hearts = heartsAtRunStart() }
+    if (screen === 'tower') return this.runTower(t)
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
     // a boss throws syllables
     if (this.visitBoss) this.visitKind = 'syllable'
@@ -997,7 +1049,7 @@ export class RunController {
     const st = useDuel2Store.getState()
     if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
-      while (this.roundInScreen < VISIT[screen]) await this.runDrawRound(t, screen)
+      while (this.roundInScreen < this.visitLen) await this.runDrawRound(t, screen)
       return
     }
     const demo = this.demoKey(screen, kind)
@@ -1012,7 +1064,7 @@ export class RunController {
       this.set({ overlay: null })
     }
     if (screen === 'broom') return this.runBroom(t, kind)
-    while (this.roundInScreen < VISIT[screen]) {
+    while (this.roundInScreen < this.visitLen) {
       const done = await this.runRound(t, screen, kind)
       if (done === 'over') throw new Aborted()
     }
@@ -1054,9 +1106,9 @@ export class RunController {
       return target
     }
     if (screen === 'ladder') {
-      if (!this.ladder) this.ladder = { ...ladderPlan(c, VISIT.ladder, this.opts.force?.fixed), built: [] }
+      if (!this.ladder) this.ladder = { ...ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
       const step = this.ladder.steps[this.ladder.built.length]
-      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: VISIT.ladder, target: step.target } })
+      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target } })
       return step.target
     }
     if (screen === 'ghosts') {
@@ -1068,13 +1120,13 @@ export class RunController {
     if (!this.doorWords.length) {
       const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(this.stage, 3)))
       const scored = pool.map((w) => ({ w, p: predict([`w:${w.id}`], useDuel2Store.getState().tallies, useDuel2Store.getState().recent) }))
-      this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, VISIT.doors).map((x) => x.w)
+      this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, this.visitLen).map((x) => x.w)
     }
     const word = this.doorWords[this.roundInScreen % this.doorWords.length]
     const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => this.rng() - 0.5).slice(0, 2)
     const keys = [word, ...others].sort(() => this.rng() - 0.5)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
-    const behind = this.roundInScreen === VISIT.doors - 1
+    const behind = this.roundInScreen === this.visitLen - 1
       ? { crystal: useDuel2Store.getState().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
     this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
     return word
@@ -1720,7 +1772,7 @@ export class RunController {
     /** the hearts ran out: the orbs on the screen finish (nothing counts any more), then the run ends */
     let dying = false
     /** a boss visit has no wave count: it lasts until the boss is beaten or the hearts run out */
-    const more = () => !!this.boss || spawned < VISIT.broom
+    const more = () => !!this.boss || spawned < this.visitLen
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
     const spawn = (now: number) => {
       const choices = this.boss ? bossWave(this.ctx(), this.boss.kind, target) : broomWave(this.ctx(), target, kind)
@@ -1800,7 +1852,7 @@ export class RunController {
         }
         if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt) spawn(now)
         // the visit ends when all its orbs have arrived (Michael: "let me finish")
-        if (!this.boss && spawned >= VISIT.broom && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
+        if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
       }, 50)
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
