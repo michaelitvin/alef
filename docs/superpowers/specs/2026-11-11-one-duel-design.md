@@ -68,6 +68,9 @@ The parent decided:
   end of a pass, one heart comes back, up to 3, in its own moment with a sound. Reason: at his 1-in-5 mistake rate,
   3 hearts last about 15 answers, and a pass with everything open is about 40; without it nearly every run would end on
   the second or third screen. Keep the heart count a single constant, so 5 is a one-line change after a playtest.
+- **No heart back on stage 0** (the parent, 2026-11-12). A beginner whose only open minigame is the tower (stage 0,
+  Part 3) does not get a heart back at the end of a pass. The parent: "the beginner starts over and doesn't lose much
+  progress".
 - **No free potion.** The rescue potion that flies in after a lost heart is gone. The only way to get a heart back is
   to buy the potion from the merchant (Part 2).
 - **A streak multiplier.** Right answers in a row multiply what he earns (×2, then ×3). A mistake resets it.
@@ -312,6 +315,9 @@ All of this was mocked and the parent approved the mock ("LGTM").
 - **Fits a phone held upright** (the parent tested on a Galaxy S24) and sideways: the cards shrink, the path scrolls
   only sideways, and no vertical overflow.
 - The settings button stays where it is.
+- **The settings and stats buttons are redrawn as SVG** (the parent, 2026-11-12; rule: no emoji). The settings button
+  is a drawn gear, and the stats link under the shelf has a drawn star, target and bar chart beside its text. They are
+  in the shelf icons' ink, gold and cream, with the same size, place and actions as before.
 - The old separate duel card and Book 2 card are replaced by the one duel card.
 
 ## Part 5 — Drawing in the game
