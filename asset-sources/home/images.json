@@ -1,0 +1,15 @@
+{
+  "note": "One entry per image in src/assets/home/: the Gemini request of the chosen take (cut out from a flat green, cropped, WebP).",
+  "images": [
+    {
+      "name": "card",
+      "file": "src/assets/home/card.webp",
+      "take": "3 of 4 (the parent picked take 3)",
+      "prompt": "Single game sprite for a game's title card. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Use the wizard tower from the reference image (same stone tower, same roof, same colors) standing on the LEFT side of the image, and the kid wizard on the wooden broom from the reference image (same character, same blue hat with gold band, same blue robe, same broom) flying OUT of the tower's top window towards the RIGHT, rising slightly, cape flowing behind him, smiling and excited. A soft magical glow and a short glowing swoosh trail behind the broom, from the window to the wizard. Wide composition: the tower takes about the left third, the wizard is in the middle, the right third is EMPTY (the game puts other things there). Exactly this ONE group (tower + wizard), complete (nothing cut off), with empty margin around it. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no sky, no ground, no shadow, no scenery, no other objects, no stars, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
+      "reference": "the first duel's tower sprite and Book 2's wizard on his broom (host-local copies of src/assets/duel/sprites/tower.webp and src/duel2/assets/img/s-wizbroom.webp)",
+      "model": "gemini-3-pro-image",
+      "used": "the duel card on the home screen, mirrored so that the picture reads right to left",
+      "girl_version": "owed: the same request with the girl wizard as the reference; falls back to this picture"
+    }
+  ]
+}

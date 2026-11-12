@@ -1,0 +1,92 @@
+/* The home screen (spec: one duel, Part 4; values from the approved mock). Right to left throughout: pictures on the
+   right, play buttons on the left pointing left, the path starts on the right. */
+.home-reading, .home-clock-sec { direction: rtl; }
+
+/* the duel card */
+.home-card { --k: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto; align-items: center; gap: 6px;
+  padding: 8px 10px 8px 12px; direction: rtl; border: 2px solid #ffd34db3; border-radius: 22px; overflow: hidden; text-decoration: none;
+  background: radial-gradient(ellipse at 70% 20%, #a050ff73, transparent 60%), linear-gradient(135deg, #3b1d6e, #1a1240);
+  box-shadow: 0 0 24px #8c5aff73; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.home-card-art { width: 100%; height: auto; max-height: 120px; object-fit: contain; object-position: left center; transform: scaleX(-1);
+  filter: drop-shadow(0 0 12px #b48cff); display: block; }
+.home-orbs { display: flex; gap: calc(6px * var(--k)); align-items: center; justify-content: center; min-width: 0; }
+.home-card-orb { position: relative; flex: none; }
+.home-card-orb img { width: 100%; height: 100%; display: block; }
+.home-card-orb span { position: absolute; inset: 0; display: grid; place-items: center; font-family: Sigalit, 'Noto Sans Hebrew', serif;
+  color: #fff6d8; text-shadow: 0 0 4px #1b0f3c; line-height: 1; }
+.home-pcol { height: 100%; display: grid; place-items: center; padding-right: 8px; border-right: 2px solid #ffd34d33;
+  background: radial-gradient(circle, #ffd34d22, transparent 70%); }
+.home-play { height: auto; display: block; }
+.home-learn { direction: rtl; font-size: 12.5px; color: #4a3b20; margin: 6px 4px 0; line-height: 1.35; text-align: right; }
+.home-learn b { color: #3b1d6e; }
+
+/* the path of the duel's minigames: scrolls sideways only */
+.home-path { position: relative; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 40px 6px 16px; direction: rtl;
+  scrollbar-width: thin; }
+.home-trail { position: absolute; right: 0; top: 0; transform: scaleX(-1); height: 100%; pointer-events: none; }
+.home-st { position: relative; flex: none; width: 84px; text-align: center; text-decoration: none; color: inherit; display: block;
+  -webkit-tap-highlight-color: transparent; }
+.home-st.up { transform: translateY(-14px); }
+.home-st.down { transform: translateY(10px); }
+.home-disc { width: 72px; height: 72px; margin: 0 auto; border-radius: 50%; background: #fff; border: 3px solid #c9a24a; display: grid;
+  place-items: center; box-shadow: 0 2px 6px #0003; position: relative; z-index: 1; }
+.home-disc img { max-width: 54px; max-height: 54px; }
+.home-st.locked .home-disc { border-style: dashed; }
+.home-st.locked .home-disc > :not(.home-lock) { filter: grayscale(1); opacity: .45; }
+.home-st.locked .home-disc { background: #ffffff73; }
+.home-st .home-lock { position: absolute; right: -4px; bottom: -4px; width: 20px; height: 22px; }
+.home-cap { direction: rtl; font-size: 11px; color: #5a4a2a; margin-top: 4px; line-height: 1.2; }
+.home-dots { display: flex; justify-content: center; gap: 3px; height: 8px; margin-top: 3px; }
+.home-dots i { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid #c08a00; box-sizing: border-box; }
+.home-dots i.on { background: #e0a800; border-color: #c08a00; }
+.home-wizhere { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); height: 46px; z-index: 2;
+  filter: drop-shadow(0 2px 3px #0005); pointer-events: none; }
+.home-glyph { font-family: Sigalit, 'Noto Sans Hebrew', serif; color: #3b1d6e; line-height: 1; }
+.home-glyph-hand { font-family: 'Dana Yad', Sigalit, serif; }
+.home-orb { position: relative; display: block; }
+.home-orb img { width: 100%; height: 100%; display: block; }
+.home-orb span { position: absolute; inset: 0; display: grid; place-items: center; font-family: Sigalit, serif; color: #fff6d8;
+  text-shadow: 0 0 4px #1b0f3c; line-height: 1; }
+
+/* separators: a thin gold line with a star */
+.home-sep { display: flex; align-items: center; gap: 10px; margin: 18px 8px 4px; }
+.home-sep span { flex: 1; height: 2px; background: linear-gradient(90deg, transparent, #c9a24a, transparent); }
+
+/* the clock card: the same layout, from the clock game's own art */
+.home-clk { --k: 1; margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto; align-items: center;
+  gap: 6px; padding: 8px 10px 8px 12px; direction: rtl; border: 2px solid #e0b26a; border-radius: 22px; overflow: hidden;
+  text-decoration: none; box-shadow: 0 0 22px #e0b26a80; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background-position: center; background-size: cover; }
+.home-cart { position: relative; height: calc(124px * var(--k)); display: flex; align-items: flex-end; justify-content: center; direction: ltr; }
+.home-cuck { position: relative; height: 100%; aspect-ratio: 566 / 768; z-index: 1; }
+.home-cuck > img { height: 100%; display: block; filter: drop-shadow(0 3px 6px #0008); }
+.home-cface { position: absolute; left: 29.7%; top: 32.9%; width: 40.6%; aspect-ratio: 1; }
+.home-cface svg { width: 100%; height: 100%; display: block; }
+.home-cuck > img.home-bird { position: absolute; height: 26%; left: 60%; top: -2%; transform: scaleX(-1) rotate(-8deg);
+  filter: drop-shadow(0 2px 3px #0007); }
+.home-bear { height: 72%; margin-left: -14%; filter: drop-shadow(0 3px 6px #0008); z-index: 2; order: 2; }
+.home-faces { display: flex; gap: calc(6px * var(--k)); align-items: center; justify-content: center; min-width: 0; }
+.home-mf svg { height: auto; display: block; filter: drop-shadow(0 2px 5px #0009); }
+.home-clk .home-pcol { border-right-color: #e0b26a44; background: radial-gradient(circle, #ffcf7a22, transparent 70%); }
+
+/* the shelf of the older activities */
+.home-shelfh { direction: rtl; font-size: 12px; color: #7a6a4a; margin: 14px 4px 4px; text-align: right; }
+.home-shelf { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 4px; padding: 8px 10px; border-radius: 14px;
+  background: #e8dcc2; direction: rtl; }
+.home-si { text-align: center; flex: 1; min-width: 0; background: none; border: 0; padding: 0; font: inherit; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; }
+.home-si:disabled { cursor: default; }
+.home-sd { width: min(44px, 11vw); height: min(44px, 11vw); margin: 0 auto; border-radius: 50%; background: #fff; border: 2px solid #c9b88a;
+  display: grid; place-items: center; position: relative; }
+.home-level-glyph { font-family: Sigalit, 'Noto Sans Hebrew', serif; font-size: min(22px, 5.5vw); color: #3b1d6e; line-height: 1; }
+.home-level-pic { display: grid; place-items: center; width: 70%; height: 70%; }
+.home-level-svg { width: 100%; height: 100%; }
+.home-si.locked .home-sd > :not(.home-lock) { opacity: .45; filter: grayscale(1); }
+.home-si.locked .home-sd { background: #ffffff99; }
+.home-si .home-lock { position: absolute; right: -6px; bottom: -6px; width: 15px; height: 16px; }
+.home-sl { font-size: 10px; color: #7a6a4a; margin-top: 2px; }
+
+/* phone: the cards shrink */
+@media (max-width: 480px) {
+  .home-card, .home-clk { --k: .7; padding: 6px 8px; }
+}
