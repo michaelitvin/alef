@@ -26,7 +26,7 @@ import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
-import { composeCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
+import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
 import { NEVER_VISITED } from './store'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
@@ -139,6 +139,8 @@ export interface View {
   defeat?: boolean
   /** the merchant's visit at a checkpoint (drawn instead of the screen) */
   merchant?: MerchantView
+  /** the wand glows: two wrong payments in a row (it does not open the hint by itself) */
+  hintGlow?: boolean
 }
 /** the gestures of a merchant's visit */
 export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
@@ -165,6 +167,12 @@ const MERCHANT_ARRIVE_MS = 1200
 const COUNT_STEP_MS = 600
 /** he walks away this long */
 const MERCHANT_LEAVE_MS = 1200
+/** no tap for this long while he pays: the merchant asks once more (once per visit; there is no time limit) */
+const MERCHANT_IDLE_MS = 20000
+/** the demo hand's drag of a coin into the merchant's hand (Merchant.tsx draws it) */
+export const MERCHANT_DEMO_DRAG_MS = 1800
+/** the demo hand moves to the merchant's hand before the coin flies back */
+const UNDO_TAP_MS = 700
 /** where the potion's heart rises: the wizard (Merchant.tsx WIZARD) */
 const WIZARD_AT = { x: 260, y: 520 }
 /** no pick for this long: the instruction and the sound play once */
@@ -279,7 +287,10 @@ export class RunController {
   private visit: {
     price: number; coins: number[]; given: number[]; said: boolean; bought: boolean; declined: boolean; byeSaid: boolean
     wrongTries: number; hinted: boolean; lastLine: string | null; decline: Promise<void>; declineNow: () => void
+    /** the first-visit demo has played to its end in this visit; the idle line was said; his last tap (controller clock) */
+    demoDone: boolean; idleSaid: boolean; lastTouch: number
   } | null = null
+  private demoMove = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
   private purchasesThisRun = 0
   /** wrong payments in a row (the wand glows after two) */
@@ -356,6 +367,7 @@ export class RunController {
     void sayParts([{ id: this.cueId(t) }])
   }
   hint() {
+    if (this.view.merchant) { this.merchantHint(); return }
     const s = this.view.screen
     if (s?.screen === 'doors' && this.view.phase === 'answer') {
       // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it)
@@ -551,7 +563,10 @@ export class RunController {
       const coins = composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng)
       let declineNow = () => {}
       const decline = new Promise<void>((r) => { declineNow = r })
-      this.visit = { price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow }
+      this.visit = {
+        price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
+        demoDone: false, idleSaid: false, lastTouch: this.now(),
+      }
       if (!this.opts.sandbox) st.noteMerchant('visit')
       this.track('merchant-arrive', { price, coins: st.coins ?? 0, hearts: this.hearts.left, composition: coins })
     }
@@ -580,10 +595,77 @@ export class RunController {
   }
   /** his next gesture of the visit (the ✗ ends the wait) */
   private async waitMerchant(t: number): Promise<MerchantGesture> {
-    const g = await Promise.race([this.guard(t, new Promise<MerchantGesture>((r) => { this.mWaiter = r })), this.visit!.decline.then(() => null)])
-    this.mWaiter = null
-    if (!g || this.visit!.declined) throw new Declined()
-    return g
+    const v = this.visit!
+    v.lastTouch = Math.max(v.lastTouch, this.now())
+    // no tap for MERCHANT_IDLE_MS: he asks once more, once per visit (coins given meanwhile count as taps)
+    let timer: number | undefined
+    const arm = (ms: number) => {
+      timer = window.setTimeout(() => {
+        if (t !== this.token || this.view.paused || this.view.merchant?.phase !== 'pay' || v.idleSaid) return
+        const idle = this.now() - v.lastTouch
+        if (idle < MERCHANT_IDLE_MS) { arm(MERCHANT_IDLE_MS - idle); return }
+        v.idleSaid = true
+        this.track('merchant-idle', {})
+        void sayParts([{ id: this.mLine('m-again') }])
+      }, ms)
+    }
+    if (!v.idleSaid) arm(MERCHANT_IDLE_MS - (this.now() - v.lastTouch))
+    try {
+      const g = await Promise.race([this.guard(t, new Promise<MerchantGesture>((r) => { this.mWaiter = r })), v.decline.then(() => null)])
+      if (!g || v.declined) throw new Declined()
+      return g
+    } finally {
+      this.mWaiter = null
+      window.clearTimeout(timer)
+    }
+  }
+
+  /** the first-visit demo: on his first visit ever (the gallery: when it asks for the demo) */
+  private merchantDemoDue() {
+    if (this.opts.force) return !!this.opts.force.demo
+    return !useDuel2Store.getState().merchant?.demoSeen
+  }
+
+  /**
+   * The first visit: everything else dims and the game's pointing hand shows each step while he says it — the price tag,
+   * a coin dragged into his hand (and back), the potion, the ✗. Then it is his turn, with the same price and piles. The
+   * ✗ is hidden until its step; the demo counts as seen only when it ends (a pause shows it again).
+   */
+  private async merchantDemo(t: number) {
+    const step = (at: NonNullable<MerchantView['demo']>['step'], glow: MerchantView['glow']) =>
+      this.mv({ phase: 'arrive', demo: { step: at, t: ++this.demoMove }, glow })
+    this.set({ phase: 'demo', hintAvailable: false })
+    this.track('merchant-demo', {})
+    step('price', { tag: true })
+    await this.vsay(t, [{ id: this.mLine('m-price') }])
+    step('give', undefined)
+    await Promise.all([this.vsleep(t, MERCHANT_DEMO_DRAG_MS), this.vsay(t, [{ id: this.mLine('m-give') }])])
+    step('potion', { potion: true })
+    await this.vsay(t, [{ id: this.mLine('m-tap') }])
+    step('decline', { decline: true })
+    await this.vsay(t, [{ id: this.mLine('m-decline') }])
+    this.mv({ demo: undefined, glow: undefined })
+    if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('demoSeen')
+  }
+
+  /**
+   * The wand during a visit: the coins in the merchant's hand go back, and the top coins of the piles that make the price
+   * glow green (he still gives them himself). It shows the answer, which is fine: he asked for it.
+   */
+  private merchantHint() {
+    const v = this.visit
+    const mv = this.view.merchant
+    if (!v || !mv || mv.phase !== 'pay' || v.bought || v.declined) return
+    v.lastTouch = this.now()
+    v.given = []
+    v.hinted = true
+    this.wrongInRow = 0
+    this.mv({ given: [], glow: { hint: hintCoins(v.coins, v.price) } })
+    this.set({ hintGlow: false })
+    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('hint')
+    this.track('merchant-hint', { auto: false })
+    stopVoice()
+    void sayParts([{ id: this.variation('m-hint') }])
   }
 
   private merchantGesture(g: MerchantGesture) {
@@ -601,6 +683,7 @@ export class RunController {
       return
     }
     if (mv.phase !== 'pay') return
+    v.lastTouch = this.now()
     if (g.type === 'coin') {
       // the top coin of that pile jumps into his hand (a coin he no longer has cannot be given)
       const left = [...v.coins]
@@ -608,7 +691,11 @@ export class RunController {
       if (!left.includes(g.value)) return
       v.given.push(g.value)
       this.sfx('coin')
-      this.mv({ given: [...v.given], glow: undefined })
+      // the hint's coins keep glowing until he has given each of them himself
+      const hint = [...(mv.glow?.hint ?? [])]
+      const k = hint.indexOf(g.value)
+      if (k >= 0) hint.splice(k, 1)
+      this.mv({ given: [...v.given], glow: hint.length ? { hint } : undefined })
       return
     }
     if (g.type === 'hand') {
@@ -641,6 +728,8 @@ export class RunController {
           // after a pause: the visit as it was, the coins in his hand included
           this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
         }
+        if (!v.demoDone && this.merchantDemoDue()) await this.merchantDemo(t)
+        v.demoDone = true
         await this.payLoop(t)
       }
     } catch (e) {
@@ -654,8 +743,8 @@ export class RunController {
     const v = this.visit!
     for (;;) {
       // a glow (his empty hand, the hint) stays until he gives a coin
-      this.mv({ phase: 'pay', counted: undefined, verdict: undefined, tag: undefined, given: [...v.given] })
-      this.set({ phase: 'answer' })
+      this.mv({ phase: 'pay', counted: undefined, verdict: undefined, tag: undefined, demo: undefined, given: [...v.given] })
+      this.set({ phase: 'answer', hintAvailable: true })
       // coins and undo are handled as they come (merchantGesture); the potion goes on here
       await this.waitMerchant(t)
       if (!v.given.length) {
@@ -689,9 +778,27 @@ export class RunController {
     v.wrongTries++
     this.wrongInRow++
     if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant(vd)
+    // two wrong tries in a row: the wand glows (it does not open by itself)
+    if (this.wrongInRow >= 2) this.set({ hintGlow: true })
     await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
+    if (vd === 'over' && !this.undoShown()) {
+      // the first time ever he gives too much: the hand taps the merchant's hand and the last coin flies back (rule:
+      // explain a move when he first needs it)
+      this.mv({ demo: { step: 'undo', t: ++this.demoMove } })
+      await this.vsleep(t, UNDO_TAP_MS)
+      v.given.pop()
+      this.sfx('coin')
+      this.mv({ given: [...v.given] })
+      await this.vsay(t, [{ id: this.mLine('m-undo') }])
+      this.mv({ demo: undefined })
+      if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('undoShown')
+      else this.sandboxUndoShown = true
+    }
     return vd
   }
+
+  private sandboxUndoShown = false
+  private undoShown() { return this.opts.sandbox ? this.sandboxUndoShown : !!useDuel2Store.getState().merchant?.undoShown }
 
   /** The exact price: the coins are spent, the potion flies to the wizard and a heart to the top bar. */
   private async buy(t: number) {
@@ -705,6 +812,7 @@ export class RunController {
     }
     this.purchasesThisRun++
     this.wrongInRow = 0
+    this.set({ hintGlow: false })
     this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
     this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
     this.mv({ phase: 'sold', glow: undefined, bought: true })
@@ -717,7 +825,7 @@ export class RunController {
   /** He walks away (after the ✗: his coins go back to their piles and he says goodbye). */
   private async visitEnd(t: number) {
     const v = this.visit!
-    this.set({ phase: 'feedback', hintAvailable: false })
+    this.set({ phase: 'feedback', hintAvailable: false, hintGlow: false })
     if (v.declined) {
       v.given = []
       this.mv({ phase: 'leave', given: [], glow: undefined, demo: undefined, tag: undefined, counted: undefined, verdict: undefined })

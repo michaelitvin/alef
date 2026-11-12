@@ -227,3 +227,7 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-gnome-in { from { transform: translateX(420px); opacity: 0; } to { transform: none; opacity: 1; } }
 .d2-potion-fly { animation: d2-potion-fly 0.9s ease-in forwards; }
 @keyframes d2-potion-fly { to { transform: translate(-800px, 140px) scale(0.5); opacity: 0; } }
+.d2-btn[data-glow="true"] { border-color: #ffd34d; box-shadow: 0 0 22px #ffd34d, 0 0 8px #fff6a0; animation: d2-merchant-pulse 1.1s ease-in-out infinite; }
+[data-dim] { transition: opacity .3s; }
+.d2-tap { animation: d2-tap 0.9s ease-in-out infinite; }
+@keyframes d2-tap { 50% { transform: translate(-4px, 8px); } }

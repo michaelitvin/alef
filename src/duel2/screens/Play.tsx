@@ -119,7 +119,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {(!o || o.kind === 'hint' || o.kind === 'word') && (
         <TopBar hearts={v.hearts} score={v.score} coins={coins} mult={v.mult}
           onReplay={canReplay ? run.onReplay : undefined}
-          onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined}
+          onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow}
           onNext={v.needNext ? run.onNext : undefined} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />

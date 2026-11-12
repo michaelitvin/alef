@@ -208,6 +208,21 @@ describe('the merchant screen (spec: one duel, Part 2)', () => {
     fireEvent.pointerUp(pile, { pointerId: 1, clientX: 1290, clientY: 580 })
     expect(onCoin).toHaveBeenCalledWith(10)
   })
+  it('the demo dims everything but its step’s target and shows the game’s pointing hand there', () => {
+    const { container } = draw({ ...base, phase: 'arrive', demo: { step: 'price', t: 1 }, glow: { tag: true } })
+    expect(container.querySelector('[data-demo-hand]')).not.toBeNull()
+    expect(container.querySelector('[data-tag-part]')!.getAttribute('data-dim')).toBeNull()
+    expect(container.querySelector('[data-potion]')!.getAttribute('data-dim')).toBe('1')
+    // the ✗ is hidden until the demo points it out
+    expect(container.querySelector('[data-decline]')).toBeNull()
+    const d4 = draw({ ...base, phase: 'arrive', demo: { step: 'decline', t: 4 }, glow: { decline: true } })
+    expect(d4.container.querySelector('[data-decline]')).not.toBeNull()
+    expect(d4.container.querySelector('[data-piles]')!.getAttribute('data-dim')).toBe('1')
+  })
+  it('the wand glows when the top bar is asked to', () => {
+    const { container } = render(<TopBar hearts={2} onHint={() => {}} hintGlow />)
+    expect(container.querySelector('[aria-label="hint"]')!.getAttribute('data-glow')).toBe('true')
+  })
   it('the hint makes the top coins of the right piles glow green; the ✗ card glows when it is pointed out', () => {
     const { container } = draw({ ...base, glow: { hint: [5, 2], decline: true } })
     expect(container.querySelectorAll('[data-pile="5"] [data-state="hint"]').length).toBe(1)

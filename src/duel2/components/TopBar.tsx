@@ -8,21 +8,25 @@ import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
 
-function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?: boolean }) {
+function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?: boolean; glow?: boolean }) {
   return (
-    <button type="button" aria-label={p.label} className={`d2-btn${p.big ? ' d2-btn-next' : ''}`}
+    <button type="button" aria-label={p.label} className={`d2-btn${p.big ? ' d2-btn-next' : ''}`} data-glow={p.glow ? 'true' : undefined}
       onPointerDown={(e) => { e.preventDefault(); p.onPress() }}>
       {p.children}
     </button>
   )
 }
 
-export function TopBar(p: { hearts: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void }) {
+export function TopBar(p: {
+  hearts: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void
+  /** the wand glows (the merchant: two wrong payments in a row); it never opens the hint by itself */
+  hintGlow?: boolean
+}) {
   return (
     <div className="d2-topbar">
       <div className="d2-topbar-side">
         {p.onReplay && <Btn label="replay" onPress={p.onReplay}><SpeakerIcon /></Btn>}
-        {p.onHint && <Btn label="hint" onPress={p.onHint}><HintIcon /></Btn>}
+        {p.onHint && <Btn label="hint" onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
       </div>
       <div className="d2-topbar-mid">{p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>}</div>
       <div className="d2-topbar-side d2-hearts">
