@@ -92,6 +92,8 @@ export interface Duel2Save {
   firstDuelImported: boolean
   /** the cycles of the run so far, across runs: a long-mastered screen is skipped in every other one */
   cycleNo: number
+  /** broom sessions from the path so far: every second one is a boss fight (the run's boss rhythm) */
+  broomSessions: number
 }
 
 interface Actions {
@@ -134,6 +136,8 @@ interface Actions {
   openBook: () => void
   /** a new cycle of the run starts */
   nextCycle: () => void
+  /** a broom session from the path starts */
+  noteBroomSession: () => void
   /**
    * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
    * tenth of them coins; Book 2 opens if his marks are already mastered. The first duel's own save is only read.
@@ -155,7 +159,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, firstDuelImported: false, cycleNo: 0,
+  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, firstDuelImported: false, cycleNo: 0, broomSessions: 0,
 })
 
 /**
@@ -272,6 +276,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
       openBook: () => set({ bookOpen: true }),
       nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
+      noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
       importFirstDuel: (duel) => set((s) => {
         if (s.firstDuelImported) return s
         const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)

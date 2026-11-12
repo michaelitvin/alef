@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, orbEvents, wavePos, VISIT, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, orbEvents, wavePos, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -130,7 +130,8 @@ export interface View {
   fixing?: boolean
   hintAvailable: boolean
   paused: boolean
-  over: { score: number; crystals: number; best: boolean; bosses?: BossKind[]; startStars?: number } | null
+  /** `session`: a session from the path ended (one visit, nothing at stake): its summary goes home by itself */
+  over: { score: number; crystals: number; best: boolean; bosses?: BossKind[]; startStars?: number; session?: boolean } | null
   /** the points of this run (right answers) */
   score: number
   /** counts the coins he earned this run (a coin pops in the top bar) */
@@ -164,7 +165,11 @@ export interface RunOpts {
     /** the gallery: the tower's boss visit */
     towerBoss?: boolean
   }
-  /** a single minigame from the path (Plan 4): no merchant */
+  /**
+   * A session from the home screen's path (spec: one duel, Part 3): one visit of this screen (SESSION_LENGTH), then the
+   * summary. No hearts at stake (a mistake costs only the streak), no merchant, no pass heart, no crystal; the run's
+   * lastEnded and best are not changed. Stars and coins are earned as usual.
+   */
   session?: { screen: ScreenId }
   rng?: Rng
   now?: () => number
@@ -413,10 +418,12 @@ export class RunController {
     this.startStars = st.totalStars ?? 0
     // the hearts last the whole run (spec: one duel, Part 1)
     this.hearts = heartsAtRunStart()
-    if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
+    const session = this.opts.session?.screen
+    if (!this.opts.sandbox) duel2Telemetry.track(session ? 'session-start' : 'run-start', { stage: this.stage, ...(session ? { screen: session } : {}) })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn(), this.bookOpen())
-    this.passFull = !f && this.screenId === cycleOf(this.stage, this.drawOn(), this.bookOpen())[0]
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen)
+      : session ?? runStart(this.stage, st.lastEnded, this.drawOn(), this.bookOpen())
+    this.passFull = !f && !session && this.screenId === cycleOf(this.stage, this.drawOn(), this.bookOpen())[0]
     void this.loop()
   }
   destroy() {
@@ -515,6 +522,8 @@ export class RunController {
         if (this.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
+        // a session from the path is one visit
+        if (this.opts.session) return await this.endSession()
         if (this.opts.force) {
           // the gallery plays one screen, then starts it again
           this.roundInScreen = 0
@@ -585,6 +594,7 @@ export class RunController {
    * the tower at least 1 wave). The gallery plays the full visit.
    */
   private lenFor(screen: ScreenId): number {
+    if (this.opts.session) return SESSION_LENGTH[screen]
     const full = VISIT[screen]
     if (this.opts.force) return full
     const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
@@ -1012,7 +1022,7 @@ export class RunController {
       if (m > this.view.mult) { this.set({ mult: m }); this.track('mult', { mult: m, streak: this.streak }) }
       return 'on'
     }
-    const outcome = onAnswer(this.hearts, 'wrong')
+    const outcome = this.answerOutcome('wrong')
     this.hearts = outcome.hearts
     this.resetStreak()
     this.set({ hearts: this.hearts.left })
@@ -1034,9 +1044,16 @@ export class RunController {
   /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
   private decideBoss(): BossKind | null {
     if (this.opts.force) return this.opts.force.boss ?? null
-    this.broomVisits++
-    if (!isBossVisit(this.broomVisits)) return null
     const st = useDuel2Store.getState()
+    if (this.opts.session) {
+      // every second broom session is a boss fight (the run's rhythm: every second broom visit)
+      const n = st.broomSessions ?? 0
+      if (!this.opts.sandbox) st.noteBroomSession()
+      if (n % 2 !== 1) return null
+    } else {
+      this.broomVisits++
+      if (!isBossVisit(this.broomVisits)) return null
+    }
     const kind = chooseBoss({
       stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
       beaten: st.bossesBeaten ?? [], last: st.lastBoss ?? null, rng: this.rng,
@@ -1134,7 +1151,7 @@ export class RunController {
     const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => this.rng() - 0.5).slice(0, 2)
     const keys = [word, ...others].sort(() => this.rng() - 0.5)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
-    const behind = this.roundInScreen === this.visitLen - 1
+    const behind = this.roundInScreen === this.visitLen - 1 && !this.opts.session
       ? { crystal: useDuel2Store.getState().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
     this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
     return word
@@ -1287,7 +1304,7 @@ export class RunController {
     if (!tapped) return 'near'
     const right = tapped.id === c.id || tapped.soundId === c.soundId
     const near = !right && tapped.nearMissOf === c.id
-    const outcome = onAnswer(this.hearts, right ? 'right' : near ? 'near' : 'wrong')
+    const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
     if (right) {
       this.record(screen, c, tapped, 'right')
       this.roundInScreen++
@@ -1362,7 +1379,7 @@ export class RunController {
 
   private async evaluateDoor(t: number, word: Word, picked: string): Promise<'next' | 'over'> {
     const right = picked === word.id
-    const outcome = onAnswer(this.hearts, right ? 'right' : 'wrong')
+    const outcome = this.answerOutcome(right ? 'right' : 'wrong')
     const tapped = WORDS.find((w) => w.id === picked) ?? null
     if (right) {
       this.record('doors', word, tapped, 'right')
@@ -1986,6 +2003,26 @@ export class RunController {
     st.addCoins(coinsFor(this.streak))
   }
 
+  /** The hearts after an answer: in a session from the path no heart is at stake (a mistake costs only the streak). */
+  private answerOutcome(a: 'right' | 'wrong' | 'near') {
+    const o = onAnswer(this.hearts, a)
+    if (!this.opts.session || a === 'right' || o.forgiven) return o
+    return { hearts: { ...this.hearts, nearMissUsed: o.hearts.nearMissUsed }, forgiven: false, over: false }
+  }
+
+  /**
+   * The end of a session from the path: no defeat scene, no run records (lastEnded, best and runs stay); the summary
+   * shows its stars and goes home by itself. A pause can no longer cancel it.
+   */
+  private async endSession(): Promise<void> {
+    this.ending = true
+    this.stopBroom()
+    stopMusic()
+    this.track('session-end', { screen: this.screenId, score: this.score })
+    this.token++
+    this.set({ over: { score: this.score, crystals: 0, best: false, bosses: [...this.bossesWon], startStars: this.startStars, session: true }, needNext: false, overlay: null, hintAvailable: false })
+  }
+
   /** A heart was lost: the streak and its multiplier start again (a forgiven near miss does not come here). */
   private resetStreak() {
     this.streak = 0
@@ -2042,7 +2079,7 @@ export class RunController {
   private onFlightMistake(t: number, target: Choice, hit: Choice | null, wave: BroomWave): 'on' | 'over' {
     const st = useDuel2Store.getState()
     const near = !!hit && hit.nearMissOf === target.id
-    const outcome = onAnswer(this.hearts, near ? 'near' : 'wrong')
+    const outcome = this.answerOutcome(near ? 'near' : 'wrong')
     this.hearts = outcome.hearts
     if (outcome.forgiven) {
       this.record('broom', target, hit, 'near')

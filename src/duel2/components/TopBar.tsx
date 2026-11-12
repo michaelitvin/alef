@@ -18,7 +18,8 @@ function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?:
 }
 
 export function TopBar(p: {
-  hearts: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void
+  /** none in a session from the path (no hearts at stake) */
+  hearts?: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void
   /** the wand glows (the merchant: two wrong payments in a row); it never opens the hint by itself */
   hintGlow?: boolean
 }) {
@@ -34,9 +35,11 @@ export function TopBar(p: {
         {p.score !== undefined && <InfoTap line="info-stars"><StarCount n={p.score} attr="data-score" /></InfoTap>}
         {/* the streak multiplier of the coins (digits only); it pops when it rises (a new key) */}
         {p.mult !== undefined && p.mult > 1 && <span key={p.mult} data-num data-mult={p.mult} className="d2-mult">×{p.mult}</span>}
-        <InfoTap line="info-hearts" className="d2-hearts-row">
-          {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}
-        </InfoTap>
+        {p.hearts !== undefined && (
+          <InfoTap line="info-hearts" className="d2-hearts-row">
+            {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}
+          </InfoTap>
+        )}
       </div>
     </div>
   )

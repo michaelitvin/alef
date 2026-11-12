@@ -13,6 +13,9 @@ const DRAWING: ScreenId[] = ['draw', 'draw-hand']
 /** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words per visit (spec: visit
  * lengths, tune in playtest) */
 export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3, draw: 3, 'draw-hand': 3 }
+/** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
+ * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
+export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6 }
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3

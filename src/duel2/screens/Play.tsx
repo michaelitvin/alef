@@ -96,7 +96,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   // (the tower has its own speaker on the duel's board)
   const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
-    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
+    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
@@ -122,7 +122,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}
       {o?.kind === 'word' && <WordLink word={o.word} />}
       {(!o || o.kind === 'hint' || o.kind === 'word') && (
-        <TopBar hearts={v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult}
+        <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow}
           onNext={v.needNext ? run.onNext : undefined} />

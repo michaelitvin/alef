@@ -2542,3 +2542,156 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.destroy()
   })
 })
+
+describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    towerAuto = true
+    useDuel2Store.getState().resetProgress()
+    useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
+    played = []
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
+  })
+  afterEach(() => {
+    stopVoice()
+    setVoicePlayer(null)
+    vi.useRealTimers()
+  })
+  /** right answers (or wrong ones while `wrong()` says so) on the calm screens; counts the rounds */
+  async function play(c: RunController, wrong: () => boolean = () => false) {
+    const seen: string[] = []
+    for (let guard = 0; guard < 8000 && !c.view.over; guard++) {
+      const s = c.view.screen
+      autoTower(c)
+      if (s && seen[seen.length - 1] !== s.screen) seen.push(s.screen)
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: wrong() ? wrongId(c.view) : rightId(c.view) })
+      fly(c)
+      await tick(50)
+    }
+    return seen
+  }
+
+  it('a ghosts session is ten rounds, then over with session: true', async () => {
+    const c = make({ session: { screen: 'ghosts' } })
+    c.start()
+    let rounds = 0
+    for (let guard = 0; guard < 8000 && !c.view.over; guard++) {
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ghosts') { rounds++; c.gesture({ type: 'pick', id: rightId(c.view) }) }
+      await tick(50)
+    }
+    expect(rounds).toBe(10)
+    expect(c.view.over).toMatchObject({ session: true, score: 10, crystals: 0, best: false })
+    expect(c.view.defeat).toBeFalsy()
+    c.destroy()
+  }, 60_000)
+
+  it('mistakes in a session cost no heart, only the streak', async () => {
+    const c = make({ session: { screen: 'ghosts' } })
+    c.start()
+    let n = 0
+    for (let guard = 0; guard < 8000 && n < 6; guard++) {
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ghosts') { n++; c.gesture({ type: 'pick', id: n === 6 ? wrongId(c.view) : rightId(c.view) }) }
+      await tick(50)
+    }
+    await until(c, (v) => v.phase === 'mistake' || !!v.fixing)
+    expect(c.view.hearts).toBe(3)
+    expect(c.view.mult).toBe(1)
+    // three more mistakes: still three hearts, the session goes on
+    const seen = await play(c, () => true)
+    expect(seen).toEqual(['ghosts'])
+    expect(c.view.over).toMatchObject({ session: true })
+    expect(c.view.hearts).toBe(3)
+    expect(c.view.defeat).toBeFalsy()
+    // the mistakes were recorded (the adaptive data)
+    expect(useDuel2Store.getState().recent['sc:ghosts']).toContain('x')
+    c.destroy()
+  }, 60_000)
+
+  it('a session earns stars and coins but changes neither lastEnded nor bestRun', async () => {
+    useDuel2Store.setState({ lastEnded: 'ladder', bestRun: 4, totalStars: 0, coins: 0, runs: 2 })
+    const c = make({ session: { screen: 'cauldron' } })
+    c.start()
+    await play(c)
+    expect(c.view.over).toMatchObject({ session: true, score: 10, best: false })
+    expect(useDuel2Store.getState()).toMatchObject({ lastEnded: 'ladder', bestRun: 4, totalStars: 10, runs: 2 })
+    expect(useDuel2Store.getState().coins).toBeGreaterThanOrEqual(10)
+    c.destroy()
+  }, 60_000)
+
+  it('no merchant, no pass heart and no crystal in a session', async () => {
+    useDuel2Store.setState({ coins: 500, crystals: 0, checkpointsSinceVisit: NEVER_VISITED, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+    const c = make({ session: { screen: 'doors' } })
+    c.start()
+    let k = 0
+    const seen: string[] = []
+    for (let guard = 0; guard < 8000 && !c.view.over; guard++) {
+      const s = c.view.screen
+      expect(c.view.merchant).toBeUndefined()
+      if (s && seen[seen.length - 1] !== s.screen) seen.push(s.screen)
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && s?.screen === 'doors') { k++; c.gesture({ type: 'pick', id: k % 2 ? wrongId(c.view) : rightId(c.view) }) }
+      await tick(50)
+    }
+    expect(seen).toEqual(['doors'])
+    expect(useDuel2Store.getState().crystals).toBe(0)
+    expect(c.view.passHeart ?? 0).toBe(0)
+    expect(c.view.heal).toBeUndefined()
+    expect(useDuel2Store.getState().merchant.visits).toBe(0)
+    c.destroy()
+  }, 60_000)
+
+  it('every second broom session is a boss fight', async () => {
+    useDuel2Store.setState({ broomSessions: 0 })
+    const a = make({ session: { screen: 'broom' } })
+    a.start()
+    await until(a, (v) => v.screen?.screen === 'broom')
+    expect((a.view.screen as BroomView).boss).toBeUndefined()
+    a.destroy()
+    expect(useDuel2Store.getState().broomSessions).toBe(1)
+    const b = make({ session: { screen: 'broom' } })
+    b.start()
+    await until(b, (v) => v.screen?.screen === 'broom')
+    expect((b.view.screen as BroomView).boss).toBeDefined()
+    // the boss lasts until it is beaten (no hearts to lose)
+    await play(b)
+    expect(b.view.over).toMatchObject({ session: true })
+    expect(b.view.over!.bosses!.length).toBe(1)
+    b.destroy()
+    expect(useDuel2Store.getState().broomSessions).toBe(2)
+  }, 120_000)
+
+  it('a ladder session has 5 rungs and a doors session has no crystal behind its last door', async () => {
+    const c = make({ session: { screen: 'ladder' } })
+    c.start()
+    await until(c, (v) => v.screen?.screen === 'ladder')
+    expect((c.view.screen as { rungs: number }).rungs).toBe(5)
+    c.destroy()
+    const d = make({ session: { screen: 'doors' } })
+    d.start()
+    let doors = 0
+    for (let guard = 0; guard < 8000 && !d.view.over; guard++) {
+      const s = d.view.screen
+      if (s?.screen === 'doors') expect(s.behind).toBeUndefined()
+      if (d.view.needNext || d.view.fixing) proceed(d)
+      else if (d.view.phase === 'answer' && s?.screen === 'doors') { doors++; d.gesture({ type: 'pick', id: rightId(d.view) }) }
+      await tick(50)
+    }
+    expect(doors).toBe(6)
+    d.destroy()
+  }, 60_000)
+
+  it('a tower session is two waves, then over; its mistakes cost no heart', async () => {
+    const c = make({ session: { screen: 'tower' } })
+    c.start()
+    await until(c, (v) => v.screen?.screen === 'tower')
+    expect(c.view.screen).toMatchObject({ waves: 2 })
+    for (let k = 0; k < 4; k++) expect(c.towerAnswer('wrong', 'kamatz')).toBe('on')
+    expect(c.view.hearts).toBe(3)
+    await until(c, (v) => v.over !== null)
+    expect(c.view.over).toMatchObject({ session: true })
+    c.destroy()
+  }, 60_000)
+})

@@ -110,6 +110,12 @@ describe('parts', () => {
     expect(container.querySelector('[data-score]')!.textContent).toBe('7')
   })
 
+  it('a session from the path shows no hearts in the top bar (none are at stake)', () => {
+    const { container } = render(<TopBar hearts={undefined} score={4} coins={2} />)
+    expect(container.querySelectorAll('[data-heart]').length).toBe(0)
+    expect(container.querySelector('[data-score]')!.textContent).toBe('4')
+  })
+
   it('the top bar shows his coins beside the run points', () => {
     const { container } = render(<TopBar hearts={3} score={4} coins={12} />)
     expect(container.querySelector('[data-coins]')!.textContent).toBe('12')
