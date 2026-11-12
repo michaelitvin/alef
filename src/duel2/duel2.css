@@ -169,6 +169,8 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-warm { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0.01; pointer-events: none; }
 .d2-warm img { width: 1px; height: 1px; }
 .d2-defeat img { width: clamp(140px, 34vh, 300px); animation: d2-defeat-fall 1.8s ease-in forwards; }
+/* the falling wizard is the only one on the screen: the screen's own wizard (any screen, the tower's board too) hides */
+.d2-root[data-defeat] [data-wizard], .d2-root[data-defeat] .nd-wizard { visibility: hidden; }
 @keyframes d2-defeat-fall { 0% { transform: translateY(-20vh) rotate(0deg); } 60% { transform: translateY(0) rotate(540deg); } 100% { transform: translateY(30vh) rotate(720deg); opacity: 0.85; } }
 @keyframes d2-fade-in { from { opacity: 0; } }
 .d2-summary [data-teaser] { box-shadow: 0 0 18px #b48cff88; }
