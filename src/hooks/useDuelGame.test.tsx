@@ -535,6 +535,32 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(done).toEqual([5])
   })
 
+  it('owed monsters (a boss visit jumped their waves) are introduced at the start of a wave, and never appear before', async () => {
+    const intro: string[] = []
+    const { e, done } = emb({ wave: 9, waves: 2, owed: ['ghost', 'bat'], onIntroduced: (id) => { intro.push(id) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const seen: { wave: number; monster: string }[] = []
+    await flushLines()
+    for (let k = 0; k < 40 && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); await act(async () => { await vi.advanceTimersByTimeAsync(3000) }); continue }
+      seen.push({ wave: result.current.state.wave, monster: r.monster })
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+    expect(seen.length).toBe(10)
+    expect(intro).toEqual(['ghost', 'bat'])
+    expect(lines().filter((l) => l === 'line-new-monster').length).toBe(2)
+    // the first monster of each wave is the one just introduced; bat never comes before its introduction
+    expect(seen[0].monster).toBe('ghost')
+    expect(seen[5].monster).toBe('bat')
+    expect(seen.slice(0, 5).some((x) => x.monster === 'bat')).toBe(false)
+  })
+
   it('a boss visit is the boss alone: its defeat ends the visit', async () => {
     const { e, answers, done } = emb({ wave: 5, boss: true })
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))

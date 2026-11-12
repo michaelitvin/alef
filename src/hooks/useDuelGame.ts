@@ -5,7 +5,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import type { Choice, DuelMark, Next, PictureWord, Rng, Round } from '../types/duel'
 import { duelReducer, initialDuelState } from '../utils/duel/reducer'
 import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
-import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pickEffect } from '../utils/duel/rules'
+import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from '../utils/duel/rules'
 import { wordsFor } from '../utils/duel/words'
 import { LINE_CUES, type LineCue } from '../assets/duel/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
@@ -50,6 +50,12 @@ export interface DuelEmbedded {
   audio?: { sfx: boolean; volume: number }
   /** the gallery: nothing is recorded */
   dry?: boolean
+  /**
+   * monsters whose introduction a boss visit skipped (rules.skippedMonsters): each is introduced at the start of a wave
+   * that has no new monster of its own, and never appears before that; `onIntroduced` is told once its line was said
+   */
+  owed?: string[]
+  onIntroduced?: (id: string) => void
 }
 
 export interface UseDuelGameOpts {
@@ -98,6 +104,12 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const roundToken = useRef(0) // bumps on every begin(): stale per-round continuations stop
   const nextId = useRef(1)
   const introDue = useRef(false)
+  /** the last wave whose start was handled (an owed monster's introduction comes at a wave's start) */
+  const waveStart = useRef(-1)
+  /** owed monsters introduced in this visit */
+  const introduced = useRef(new Set<string>())
+  /** the owed monster introduced at this wave's start: the wave's first monster */
+  const owedNow = useRef<{ wave: number; id: string } | null>(null)
   const spawnedAt = useRef(0)
   const walkStartedAt = useRef(0)
   const answeredRound = useRef(-1) // guards double taps between renders
@@ -212,18 +224,35 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         emb.current?.onSeen(TOWER_INTRO)
         if (held()) return void (pendingSpawn.current = next)
       }
-      if (next.announce) {
+      // embedded: a monster whose introduction a boss visit skipped is introduced at the start of a wave with no new
+      // monster of its own
+      const pendingOwed = () => (emb.current?.owed ?? []).filter((id) => !introduced.current.has(id))
+      let owed: string | null = null
+      if (emb.current && !next.boss && waveStart.current !== next.wave && !newMonsterAt(next.wave)) {
+        owed = pendingOwed().find((id) => unlockedMonsters(next.wave).includes(id)) ?? null
+      }
+      const announce = owed ? 'new-monster' : next.announce
+      if (announce) {
         const visual: BannerVisual =
-          next.announce === 'boss' ? { sprite: bossFor(next.wave) }
-          : next.announce === 'new-monster' ? { sprite: newMonsterAt(next.wave) ?? 'fuzzy' }
+          announce === 'boss' ? { sprite: bossFor(next.wave) }
+          : announce === 'new-monster' ? { sprite: owed ?? newMonsterAt(next.wave) ?? 'fuzzy' }
           : { icons: ['swords'] }
         setBanner(visual)
-        track('announce', { kind: next.announce, wave: next.wave })
-        await say(`line-${next.announce}`)
+        track('announce', { kind: announce, wave: next.wave, ...(owed ? { owed } : {}) })
+        await say(`line-${announce}`)
         setBanner(null)
-        await delay(LINE_GAP_MS)
+        // a pause during the line says it again after the resume (as for any announcement)
         if (held()) return void (pendingSpawn.current = next)
+        waveStart.current = next.wave
+        if (owed) {
+          introduced.current.add(owed)
+          owedNow.current = { wave: next.wave, id: owed }
+          emb.current?.onIntroduced?.(owed)
+        }
+        await delay(LINE_GAP_MS)
+        if (held()) return void (pendingSpawn.current = owed ? { ...next, announce: null } : next)
       }
+      waveStart.current = next.wave
 
       const s = stateRef.current
       const { byMark, confusions, recent } = store.getState().duel
@@ -232,6 +261,18 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
         bossStart: next.boss ? bossStart.current : undefined,
       })
+      if (!r.boss && emb.current) {
+        const now = owedNow.current
+        if (now && now.wave === next.wave) {
+          // right after its "new monster!" comes that monster
+          r.monster = now.id
+          owedNow.current = null
+        } else if (pendingOwed().includes(r.monster)) {
+          // an owed monster never appears before its introduction
+          const others = unlockedMonsters(next.wave).filter((id) => !pendingOwed().includes(id))
+          r.monster = others[Math.floor(rng() * others.length) % Math.max(1, others.length)] ?? r.monster
+        }
+      }
       // adaptive pace, applied silently between monsters (a ?walk= override in test builds wins)
       r.walkMs = walkOverride ?? Math.round(r.walkMs * (store.getState().duel.pace ?? 1))
 
@@ -396,6 +437,9 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     pendingSpawn.current = null
     resumeAdvance.current = false
     introDue.current = !e || !e.seen.includes(TOWER_INTRO)
+    waveStart.current = -1
+    introduced.current = new Set()
+    owedNow.current = null
     megaAnnounced.current = false
     megaQueued.current = false
     bossStart.current = 0

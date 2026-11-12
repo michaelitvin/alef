@@ -1168,6 +1168,20 @@ describe('run controller', () => {
       c.destroy()
     })
 
+    it('a boss visit that jumps waves owes the skipped waves’ new monsters (introduced when they first appear)', async () => {
+      const c = atTower({ towerVisits: 2, towerWave: 3, towerOwed: [] })
+      await until(c, (v) => v.screen?.screen === 'tower')
+      expect(tv(c)).toMatchObject({ boss: true, wave: 5 })
+      expect(useDuel2Store.getState().towerOwed).toEqual(['ghost', 'bat'])
+      c.destroy()
+      // a boss visit with no jump owes nothing new
+      useDuel2Store.setState({ towerOwed: [] })
+      const d = atTower({ towerVisits: 2, towerWave: 5 })
+      await until(d, (v) => v.screen?.screen === 'tower')
+      expect(useDuel2Store.getState().towerOwed).toEqual([])
+      d.destroy()
+    })
+
     it('the last heart on the tower ends the run after that answer, with Book 2’s summary', async () => {
       const c = atTower()
       await until(c, (v) => v.screen?.screen === 'tower')
@@ -1383,6 +1397,33 @@ describe('run controller', () => {
       expect(order).toEqual(['ghosts', 'crystal', 'tower'])
       expect(useDuel2Store.getState().crystals).toBe(1)
       c.destroy()
+    }, 60_000)
+
+    it('closing the game before the cycle ends still gives the crystal of the skipped doors, once', async () => {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0,
+        settings: { ...DEFAULT_SETTINGS, drawing: true } })
+      const c = make()
+      c.start()
+      await playCounting(c, (v) => v.screen?.screen === 'draw')
+      expect(useDuel2Store.getState().crystals).toBe(0)
+      c.destroy()
+      c.destroy()
+      expect(useDuel2Store.getState().crystals).toBe(1)
+    }, 60_000)
+
+    it('a run that ends before the cycle’s end gives the owed crystal at its end, once', async () => {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', crystals: 0 })
+      const c = make()
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+      const priv = c as unknown as { hearts: { left: number; nearMissUsed: boolean }; crystalOwed: boolean }
+      priv.hearts = { left: 1, nearMissUsed: true }
+      priv.crystalOwed = true
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      await until(c, (v) => v.over !== null)
+      expect(c.view.over).toMatchObject({ crystals: 1 })
+      c.destroy()
+      expect(useDuel2Store.getState().crystals).toBe(1)
     }, 60_000)
 
     it('the tower is never skipped, and a one-screen cycle is never skipped; a mastered tower gets one wave', async () => {

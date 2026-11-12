@@ -84,6 +84,8 @@ export interface Duel2Save {
   /** the first duel's tower in the run: the wave its next visit starts at, and its visits so far (every third a boss) */
   towerWave: number
   towerVisits: number
+  /** monsters whose "new monster" introduction a tower boss visit jumped over: each is introduced when it first appears */
+  towerOwed: string[]
   /** Book 2's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Book 2 save) */
   bookOpen: boolean
   /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
@@ -124,6 +126,10 @@ interface Actions {
   noteTowerVisit: () => void
   /** the wave the next tower visit starts at */
   setTowerWave: (wave: number) => void
+  /** a boss visit jumped over these monsters' introductions */
+  oweMonsters: (ids: string[]) => void
+  /** an owed monster was introduced */
+  monsterIntroduced: (id: string) => void
   /** stage 0 has passed: Book 2's minigames open */
   openBook: () => void
   /** a new cycle of the run starts */
@@ -149,7 +155,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0, bookOpen: false, firstDuelImported: false, cycleNo: 0,
+  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, firstDuelImported: false, cycleNo: 0,
 })
 
 /**
@@ -262,6 +268,8 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
       noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
       setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
+      oweMonsters: (ids) => set((s) => ({ towerOwed: [...new Set([...(s.towerOwed ?? []), ...ids])] })),
+      monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
       openBook: () => set({ bookOpen: true }),
       nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
       importFirstDuel: (duel) => set((s) => {

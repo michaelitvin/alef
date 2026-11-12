@@ -30,6 +30,8 @@ export function Tower({ view, paused, dry, onAnswer, onDone }: TowerProps) {
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: useDuel2Store.getState().demosSeen,
       onSeen: (key) => { if (!dry) useDuel2Store.getState().markDemo(key) },
+      owed: dry ? [] : useDuel2Store.getState().towerOwed ?? [],
+      onIntroduced: (id) => { if (!dry) useDuel2Store.getState().monsterIntroduced(id) },
       onAnswer, onDone, audio: { sfx: settings.sfx, volume: settings.volume }, dry,
     },
   })

@@ -30,6 +30,7 @@ import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } 
 import { NEVER_VISITED } from './store'
 import { SHORT_AFTER, screenRecent, skipInCycle, towerMastered, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
+import { skippedMonsters } from '../utils/duel/rules'
 import { useProgressStore } from '../stores/progressStore'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
@@ -424,6 +425,8 @@ export class RunController {
     this.stopBroom()
     stopVoice()
     stopMusic()
+    // closing the game before the cycle's end: the crystal the skipped doors owe him is still his
+    if (!this.view.over && !this.ending) this.payOwedCrystal()
     // the run is already ending (its run-end was sent): closing now is no abandon
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
     if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
@@ -958,7 +961,12 @@ export class RunController {
       const boss = this.towerBossNext()
       const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
       const wave = boss ? Math.ceil(from / 5) * 5 : from
-      if (!this.opts.sandbox) st.noteTowerVisit()
+      if (!this.opts.sandbox) {
+        st.noteTowerVisit()
+        // the boss's wave jumps over the waves from `from`: the new monsters of those waves are introduced later, the
+        // first time each of them appears
+        if (boss && wave > from) st.oweMonsters(skippedMonsters(from, wave))
+      }
       this.tower = { wave, waves: this.visitLen || VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
       this.track('tower-start', { wave, boss, waves: this.tower.waves })
     }
@@ -1442,6 +1450,14 @@ export class RunController {
     return this.variation(kind)
   }
 
+  /** The doors were skipped and the run ends before the cycle's end: their crystal is given now, once (no screen). */
+  private payOwedCrystal() {
+    if (!this.crystalOwed) return
+    this.crystalOwed = false
+    this.crystalsThisRun++
+    if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind: useDuel2Store.getState().crystals, owed: true }) }
+  }
+
   private async runCrystal(t: number) {
     if (!this.crystalAwarded) {
       this.crystalAwarded = true
@@ -1464,6 +1480,7 @@ export class RunController {
     stopMusic()
     const st = useDuel2Store.getState()
     const best = this.score > st.bestRun
+    this.payOwedCrystal()
     if (!this.opts.sandbox) {
       st.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
       duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
