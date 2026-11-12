@@ -11,6 +11,7 @@ import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
 import { Draw } from '../components/screens/Draw'
 import { Merchant } from '../components/screens/Merchant'
+import { Tower } from '../components/screens/Tower'
 import { TopBar } from '../components/TopBar'
 import { ExplainPanel } from '../components/ExplainPanel'
 import { DemoHand } from '../components/DemoHand'
@@ -25,7 +26,7 @@ import { useWizardArt } from '../assets/images'
 
 type Run = ReturnType<typeof useRun>
 
-function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
+function ScreenFor({ run, v, demoT, dry }: { run: Run; v: View; demoT?: number; dry?: boolean }) {
   const s = v.screen
   if (!s) return null
   const pick = (id: string) => run.onGesture({ type: 'pick', id })
@@ -50,6 +51,9 @@ function ScreenFor({ run, v, demoT }: { run: Run; v: View; demoT?: number }) {
       return <Crystal kind={s.kind} onDone={() => {}} />
     case 'draw':
       return <Draw view={s} phase={v.phase} onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} />
+    case 'tower':
+      // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
+      return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} />
   }
 }
 
@@ -89,7 +93,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
     return () => window.clearTimeout(timer)
   }, [bfx?.id, bfx?.kind])
   // during a merchant's visit the speaker says his last line again
-  const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && (v.phase === 'answer' || v.phase === 'mistake')
+  // (the tower has its own speaker on the duel's board)
+  const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={v.hearts} aria-hidden={v.paused || undefined}>
       {o?.kind === 'demo' ? (
@@ -111,7 +116,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       ) : v.merchant ? (
         <Merchant v={v.merchant} onCoin={(value) => run.onGesture({ type: 'coin', value })} onHand={() => run.onGesture({ type: 'hand' })}
           onPotion={() => run.onGesture({ type: 'potion' })} onDecline={() => run.onGesture({ type: 'decline' })} />
-      ) : <ScreenFor run={run} v={v} />}
+      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} />}
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}

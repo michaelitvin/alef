@@ -16,13 +16,17 @@ describe('parent area', () => {
   it('gallery lists every screen and stage', () => {
     const { container } = render(<Gallery onBack={() => {}} onStart={() => {}} />)
     const ids = [...container.querySelectorAll('[data-entry]')].map((e) => e.getAttribute('data-entry'))
-    expect(ids).toEqual(['broom-letter', 'broom-syllable', 'cauldron', 'ladder-vowel', 'ladder-letter', 'ladder-dot', 'ghosts-letter', 'ghosts-syllable', 'draw-print', 'draw-hand', 'doors', 'crystal', 'dot-intro', 'boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat', 'merchant'])
+    expect(ids).toEqual(['tower', 'tower-boss', 'broom-letter', 'broom-syllable', 'cauldron', 'ladder-vowel', 'ladder-letter', 'ladder-dot', 'ghosts-letter', 'ghosts-syllable', 'draw-print', 'draw-hand', 'doors', 'crystal', 'dot-intro', 'boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat', 'merchant'])
     expect(GALLERY.every((e) => e.force.demo !== false)).toBe(true)
   })
   it('the gallery has one entry per boss kind (at a stage that opens it) and one for the potion', () => {
     expect(GALLERY.find((e) => e.id === 'boss-dot')!.force).toMatchObject({ screen: 'broom', boss: 'dot', stage: 3, kind: 'syllable' })
     expect(GALLERY.find((e) => e.id === 'boss-mimic')!.force).toMatchObject({ screen: 'broom', boss: 'mimic', stage: 2 })
     expect(GALLERY.find((e) => e.id === 'potion')).toBeUndefined()
+  })
+  it('the gallery has the tower: two waves, and its boss', () => {
+    expect(GALLERY.find((e) => e.id === 'tower')!.force).toMatchObject({ screen: 'tower' })
+    expect(GALLERY.find((e) => e.id === 'tower-boss')!.force).toMatchObject({ screen: 'tower', towerBoss: true })
   })
   it('the gallery has the merchant, with his demo', () => {
     expect(GALLERY.find((e) => e.id === 'merchant')!.force).toMatchObject({ screen: 'merchant', demo: true })

@@ -78,6 +78,9 @@ export interface Duel2Save {
   merchant: MerchantSave
   /** checkpoints since the merchant's last visit, across runs (a declined visit counts as a visit) */
   checkpointsSinceVisit: number
+  /** the first duel's tower in the run: the wave its next visit starts at, and its visits so far (every third a boss) */
+  towerWave: number
+  towerVisits: number
 }
 
 interface Actions {
@@ -108,6 +111,10 @@ interface Actions {
   merchantPaid: (exactNoHint: boolean, hinted?: boolean) => void
   /** a checkpoint passed: with his visit (back to 0) or without (one more) */
   noteCheckpoint: (visited: boolean) => void
+  /** a tower visit starts (its boss rhythm counts visits) */
+  noteTowerVisit: () => void
+  /** the wave the next tower visit starts at */
+  setTowerWave: (wave: number) => void
   resetProgress: () => void
 }
 
@@ -124,6 +131,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
+  towerWave: 1, towerVisits: 0,
 })
 
 /**
@@ -231,6 +239,8 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
         return { merchant: { ...m, level, cleanRow, hintRow } }
       }),
       noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
+      noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
+      setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {

@@ -389,3 +389,6 @@
 .nd-proj-rainbow { width: 60px; height: 14px; margin-left: -30px; border-radius: 8px; background: linear-gradient(90deg, #ff5a5a, #ffd34d, #7dff9a, #8fd8ff, #b48cff); filter: drop-shadow(0 0 8px #fff); }
 .nd-proj-bubble { border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, rgba(143, 216, 255, 0.5) 40%, rgba(180, 140, 255, 0.25) 70%); border: 2px solid rgba(255, 255, 255, 0.8); }
 @keyframes nd-spin { to { transform: rotate(360deg); } }
+
+/* Book 2's run: the tower is drawn over its stage, under its top bar (spec: one duel, Part 3) */
+.nd-root.nd-embedded { position: absolute; inset: 0; z-index: 1; padding-top: 76px; box-sizing: border-box; }

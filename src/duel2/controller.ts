@@ -83,7 +83,10 @@ export interface DrawView {
   /** what the voice names glows: the marks' places */
   glow?: 'marks'
 }
-export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView
+/** The first duel's tower (spec: one duel, Part 3): drawn by `Tower` (the duel's own board), which reports each answer
+ * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
+export interface TowerView { screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number }
+export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
 
 /** A merchant's visit at a checkpoint (spec: one duel, Part 2): drawn over the stage by `Merchant`. */
 export interface MerchantView {
@@ -154,6 +157,8 @@ export interface RunOpts {
     screen: ScreenId | 'crystal' | 'dot' | 'merchant'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
+    /** the gallery: the tower's boss visit */
+    towerBoss?: boolean
   }
   /** a single minigame from the path (Plan 4): no merchant */
   session?: { screen: ScreenId }
@@ -295,6 +300,10 @@ export class RunController {
   } | null = null
   private demoMove = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
+  /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
+  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number } | null = null
+  private towerNo = 0
+  private towerWaiter: ((lastWave: number) => void) | null = null
   private purchasesThisRun = 0
   /** wrong payments in a row in this visit (the wand glows after two) */
   private wrongInRow = 0
@@ -467,7 +476,7 @@ export class RunController {
   }
   private currentTarget(): Choice | null {
     const s = this.view.screen
-    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw') return null
+    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw' || s.screen === 'tower') return null
     return s.target
   }
   private kindFor(screen: ScreenId): Kind {
@@ -561,7 +570,8 @@ export class RunController {
       // hearts he comes at every other checkpoint
       const since = st.checkpointsSinceVisit ?? NEVER_VISITED
       const due = merchantDue({
-        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1, bossNext: !!this.visitBoss,
+        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
+        bossNext: this.screenId === 'tower' ? this.towerBossNext() : !!this.visitBoss,
       })
       if (!this.opts.sandbox) st.noteCheckpoint(due)
       if (!due) { this.checkpointDue = false; return }
@@ -869,6 +879,83 @@ export class RunController {
     this.visitBoss = undefined
     this.visitStarted = false
     this.boss = null
+    this.tower = null
+  }
+
+  // ---- the first duel's tower (spec: one duel, Part 3)
+  /** every third tower visit is a boss visit (the run's boss rhythm); the gallery forces it */
+  private towerBossNext(): boolean {
+    if (this.opts.force) return !!this.opts.force.towerBoss
+    return (useDuel2Store.getState().towerVisits ?? 0) % 3 === 2
+  }
+
+  /**
+   * A tower visit: the duel's board plays two waves from where his last visit ended (a boss visit: the boss alone, at the
+   * next multiple of 5). Its answers come in through towerAnswer; the visit ends with towerDone. A pause keeps the visit.
+   */
+  private async runTower(t: number) {
+    const st = useDuel2Store.getState()
+    if (!this.tower) {
+      const boss = this.towerBossNext()
+      const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
+      const wave = boss ? Math.ceil(from / 5) * 5 : from
+      if (!this.opts.sandbox) st.noteTowerVisit()
+      this.tower = { wave, waves: VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
+      this.track('tower-start', { wave, boss, waves: this.tower.waves })
+    }
+    const tw = this.tower
+    this.syncMult()
+    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
+    this.resuming = false
+    const last = tw.done ?? await this.guard(t, new Promise<number>((r) => { this.towerWaiter = r }))
+    this.towerWaiter = null
+    // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
+    if (this.ending) { await this.endRun(); throw new Aborted() }
+    if (!this.opts.sandbox) st.setTowerWave(last + 1)
+    this.track('tower-end', { wave: tw.wave, last, boss: tw.boss })
+    if (tw.boss) {
+      // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
+      this.set({ phase: 'celebrate' })
+      while (tw.coins < BOSS_COINS) {
+        tw.coins++
+        if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
+        this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
+        this.sfx('lock')
+        await this.sleep(t, COIN_POP_MS)
+      }
+    }
+  }
+
+  /** An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. */
+  towerAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
+    if (this.ending) return 'over'
+    if (this.view.screen?.screen !== 'tower') return 'on'
+    this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+    if (r === 'right') {
+      this.streak++
+      this.gainStar()
+      // the badge follows the streak; the duel's own streak line celebrates on the board (no second voice over it)
+      const m = multiplierOf(this.streak)
+      if (m > this.view.mult) { this.set({ mult: m }); this.track('mult', { mult: m, streak: this.streak }) }
+      return 'on'
+    }
+    const outcome = onAnswer(this.hearts, 'wrong')
+    this.hearts = outcome.hearts
+    this.resetStreak()
+    this.set({ hearts: this.hearts.left })
+    if (!outcome.over) return 'on'
+    // the answer on the screen finishes (the duel's feedback), then towerDone ends the run; a pause no longer cancels it
+    this.ending = true
+    return 'over'
+  }
+
+  /** The tower's visit is over (its waves, its boss, or the hearts ran out and the last answer finished). */
+  towerDone(lastWave: number) {
+    if (!this.tower || this.tower.done !== null) return
+    this.tower.done = lastWave
+    const w = this.towerWaiter
+    this.towerWaiter = null
+    w?.(lastWave)
   }
 
   /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
@@ -886,6 +973,7 @@ export class RunController {
   }
 
   private async runScreen(t: number, screen: ScreenId) {
+    if (screen === 'tower') return this.runTower(t)
     // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
     if (!this.visitStarted) { this.visitStarted = true; if (this.opts.force) this.hearts = heartsAtRunStart() }
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
@@ -1302,10 +1390,10 @@ export class RunController {
   }
 
   /**
-   * Ends the run: says the right answer, then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
+   * Ends the run: says the right answer (none after the tower: the duel said it), then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
    * playful, never praise for a loss), then the summary. A pause can no longer cancel it (it is already saved).
    */
-  private async endRun(cue: string): Promise<'over'> {
+  private async endRun(cue?: string): Promise<'over'> {
     this.ending = true
     this.stopBroom()
     stopMusic()
@@ -1315,7 +1403,7 @@ export class RunController {
       st.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
       duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
     }
-    await sayParts([{ id: cue }])
+    if (cue) await sayParts([{ id: cue }])
     this.set({ defeat: true, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false, fixing: false })
     this.sfx('hit')
     this.track('defeat', { screen: this.screenId })

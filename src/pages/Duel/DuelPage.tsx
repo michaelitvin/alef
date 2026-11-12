@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useDuelGame, type BannerVisual } from '../../hooks/useDuelGame'
+import { useDuelGame } from '../../hooks/useDuelGame'
+import { Banner, Starfield } from '../../components/duel/Starfield'
 import { Battlefield, useLandscape } from '../../components/duel/Battlefield'
 import { SpellPad } from '../../components/duel/SpellPad'
 import { DuelHud } from '../../components/duel/DuelHud'
@@ -11,7 +12,6 @@ import { PauseCover } from '../../components/duel/PauseCover'
 import { RunSummary } from '../../components/duel/RunSummary'
 import { RuneGlowDefs } from '../../components/duel/RuneGlyph'
 import { Icon } from '../../components/duel/Icon'
-import { MonsterImg } from '../../components/duel/Explosion'
 import { ComboBurst } from '../../components/duel/ComboBurst'
 import { WIZARD, WIZARD_GIRL, preloadDuelImages } from '../../assets/duel/sprites'
 import { VOICE_RATE, playLine, preloadDuelAudio, stopAllLines, unlockDuelAudio } from '../../utils/duel/duelAudio'
@@ -25,31 +25,6 @@ import '../../components/duel/duel.css'
 
 export const TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
 
-
-function Starfield() {
-  const stars = useMemo(
-    () => Array.from({ length: 70 }, (_, i) => ({ i, x: Math.random() * 100, y: Math.random() * 62, s: Math.random() * 2.2 + 0.8, d: Math.random() * 3 })),
-    [],
-  )
-  return (
-    <div className="nd-sky">
-      {stars.map((s) => (
-        <span key={s.i} className="nd-star" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.s, height: s.s, animationDelay: `${s.d}s` }} />
-      ))}
-    </div>
-  )
-}
-
-function Banner({ v }: { v: BannerVisual }) {
-  if ('sprite' in v) return <span className="nd-banner-monster"><MonsterImg id={v.sprite} /></span>
-  return (
-    <span>
-      {v.icons.map((n, i) => (
-        <Icon key={i} name={n} size={v.icons.length > 1 && i !== 1 ? 60 : 110} />
-      ))}
-    </span>
-  )
-}
 
 export default function DuelPage() {
   const [params] = useSearchParams()

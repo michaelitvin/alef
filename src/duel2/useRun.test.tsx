@@ -38,15 +38,21 @@ function make(opts: ConstructorParameters<typeof RunController>[0] = {}) {
   return new RunController({ rng: seeded(3), now: () => Date.now(), ...opts })
 }
 const tick = (ms = 100) => act(async () => { await vi.advanceTimersByTimeAsync(ms) })
+/** the tower's board (the first duel's hook) is not mounted here: most tests let its visit end at once */
+let towerAuto = true
+function autoTower(c: RunController) {
+  const s = c.view.screen
+  if (towerAuto && s?.screen === 'tower' && !c.view.paused) c.towerDone(s.wave + s.waves - 1)
+}
 async function until(c: RunController, pred: (v: View) => boolean, max = 60_000) {
-  for (let t = 0; t < max && !pred(c.view); t += 50) await tick(50)
+  for (let t = 0; t < max && !pred(c.view); t += 50) { autoTower(c); await tick(50) }
   if (!pred(c.view)) throw new Error(`condition not met; phase=${c.view.phase} screen=${c.view.screen?.screen}`)
 }
 function rightId(v: View): string {
   const s = v.screen!
   if (s.screen === 'cauldron') return s.target.mark!
   if (s.screen === 'doors') return s.word.id
-  if (s.screen === 'broom' || s.screen === 'crystal' || s.screen === 'draw') throw new Error('no pick here')
+  if (s.screen === 'broom' || s.screen === 'crystal' || s.screen === 'draw' || s.screen === 'tower') throw new Error('no pick here')
   return s.target.id
 }
 function wrongId(v: View): string {
@@ -59,6 +65,7 @@ function wrongId(v: View): string {
 }
 /** after a mistake he does the right move himself (the marked answer); an explanation still has next */
 function proceed(c: RunController) {
+  autoTower(c)
   if (c.view.fixing) c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
   else if (c.view.needNext) c.next()
 }
@@ -96,6 +103,7 @@ function steer(c: RunController, right: boolean) {
 describe('run controller', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    towerAuto = true
     useDuel2Store.getState().resetProgress()
     // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
     useDuel2Store.setState({ settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
@@ -299,9 +307,10 @@ describe('run controller', () => {
         onTick?.()
         const s = c.view.screen
         // the merchant may come at a checkpoint: no thanks
+        autoTower(c)
         if (c.view.merchant) c.gesture({ type: 'decline' })
         else if (c.view.needNext || c.view.fixing) proceed(c)
-        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
         fly(c)
         await tick(50)
       }
@@ -310,7 +319,7 @@ describe('run controller', () => {
     /** on a calm screen: a wrong pick, then he does the fix */
     async function loseHeart(c: RunController) {
       const before = c.view.hearts
-      await playTo(c, (v) => v.phase === 'answer' && !!v.screen && !['crystal', 'broom'].includes(v.screen.screen))
+      await playTo(c, (v) => v.phase === 'answer' && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => !!v.fixing)
       await drain(c)
@@ -473,7 +482,7 @@ describe('run controller', () => {
     for (let guard = 0; guard < 400 && c.view.screen?.screen !== 'crystal'; guard++) {
       await tick(50)
       if (c.view.needNext || c.view.fixing) proceed(c)
-      else if (c.view.phase === 'answer' && c.view.screen && !['crystal', 'broom'].includes(c.view.screen.screen as string)) c.gesture({ type: 'pick', id: rightId(c.view) })
+      else if (c.view.phase === 'answer' && c.view.screen && !['crystal', 'broom', 'tower'].includes(c.view.screen.screen as string)) c.gesture({ type: 'pick', id: rightId(c.view) })
     }
     expect(c.view.screen?.screen).toBe('crystal')
     await until(c, (v) => v.screen?.screen === 'broom')
@@ -1088,6 +1097,7 @@ describe('run controller', () => {
       c.start()
       ;(c as unknown as { streak: number }).streak = 2
       for (let guard = 0; guard < 2000 && c.view.screen?.screen !== 'broom'; guard++) {
+        autoTower(c)
         if (c.view.needNext || c.view.fixing) proceed(c)
         else if (c.view.phase === 'answer' && c.view.screen?.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
@@ -1099,6 +1109,117 @@ describe('run controller', () => {
       expect(useDuel2Store.getState().coins - coins).toBe(2)
       c.destroy()
     })
+  })
+
+  describe('the first duel’s tower in the run (spec: one duel, Part 3)', () => {
+    beforeEach(() => { towerAuto = false })
+    const tv = (c: RunController) => c.view.screen as Extract<View['screen'], { screen: 'tower' }>
+    /** stage 4, the last run ended on the doors: this one starts with the tower */
+    function atTower(extra: Partial<ReturnType<typeof useDuel2Store.getState>> = {}) {
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', ...extra })
+      const c = make()
+      c.start()
+      return c
+    }
+
+    it('the tower comes first in the cycle: its answers move the shared hearts, stars and coins', async () => {
+      const c = atTower({ coins: 0, totalStars: 0 })
+      await until(c, (v) => v.screen?.screen === 'tower')
+      expect(tv(c)).toMatchObject({ wave: 1, waves: 2, boss: false })
+      expect(c.view.hintAvailable).toBe(false)
+      expect(c.towerAnswer('right', 'kamatz')).toBe('on')
+      expect(c.view.score).toBe(1)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 1, coins: 1 })
+      for (let k = 0; k < 4; k++) c.towerAnswer('right', 'kamatz')
+      // the fifth right answer in a row: ×2
+      expect(c.view.mult).toBe(2)
+      expect(useDuel2Store.getState().coins).toBe(1 + 1 + 1 + 1 + 2)
+      expect(c.towerAnswer('wrong', 'segol')).toBe('on')
+      expect(c.view.hearts).toBe(2)
+      expect(c.view.mult).toBe(1)
+      // the tower's adaptive data stays in the first duel's save: Book 2's tallies are not touched
+      expect(useDuel2Store.getState().tallies).toEqual({})
+      c.destroy()
+    })
+
+    it('the tower visit is two waves, then the next screen; the next visit goes on from the wave after', async () => {
+      const c = atTower()
+      await until(c, (v) => v.screen?.screen === 'tower')
+      c.towerDone(2)
+      await until(c, (v) => v.screen?.screen === 'broom')
+      expect(useDuel2Store.getState()).toMatchObject({ towerWave: 3, towerVisits: 1 })
+      c.destroy()
+      const d = atTower()
+      await until(d, (v) => v.screen?.screen === 'tower')
+      expect(tv(d)).toMatchObject({ wave: 3, boss: false })
+      d.destroy()
+    })
+
+    it('every third tower visit is a boss, at the next multiple of 5; its defeat adds 3 coins; no trophy', async () => {
+      const c = atTower({ towerVisits: 2, towerWave: 7, coins: 0, bossesBeaten: [] })
+      await until(c, (v) => v.screen?.screen === 'tower')
+      expect(tv(c)).toMatchObject({ boss: true, wave: 10 })
+      c.towerDone(10)
+      await until(c, (v) => v.screen?.screen === 'broom')
+      expect(useDuel2Store.getState()).toMatchObject({ coins: 3, towerWave: 11, towerVisits: 3, bossesBeaten: [] })
+      c.destroy()
+    })
+
+    it('the last heart on the tower ends the run after that answer, with Book 2’s summary', async () => {
+      const c = atTower()
+      await until(c, (v) => v.screen?.screen === 'tower')
+      c.towerAnswer('right', 'kamatz')
+      c.towerAnswer('wrong', 'kamatz')
+      c.towerAnswer('wrong', 'kamatz')
+      expect(c.towerAnswer('wrong', 'kamatz')).toBe('over')
+      expect(c.view.hearts).toBe(0)
+      // the duel's feedback of that answer is still playing: no defeat yet, and a lock cannot cancel the end
+      await tick(2000)
+      expect(c.view.defeat).toBeFalsy()
+      c.pause()
+      expect(c.view.paused).toBe(false)
+      const n = played.length
+      c.towerDone(1)
+      await until(c, (v) => v.over !== null)
+      expect(c.view.defeat).toBe(true)
+      expect(c.view.over).toMatchObject({ score: 1 })
+      // no right answer is said again (the duel said the mark): only the defeat line
+      expect(played.slice(n).every((id) => id.startsWith('defeat'))).toBe(true)
+      expect(useDuel2Store.getState().lastEnded).toBe('tower')
+      c.destroy()
+    })
+
+    it('a lock during the tower: Book 2’s pause holds, and resume goes on with the same visit', async () => {
+      const c = atTower()
+      await until(c, (v) => v.screen?.screen === 'tower')
+      const visit = tv(c).visit
+      c.towerAnswer('right', 'kamatz')
+      c.pause()
+      expect(c.view.paused).toBe(true)
+      await tick(5000)
+      c.resume()
+      await until(c, (v) => !v.paused && v.screen?.screen === 'tower')
+      expect(tv(c).visit).toBe(visit)
+      expect(useDuel2Store.getState().towerVisits).toBe(1)
+      c.towerDone(2)
+      await until(c, (v) => v.screen?.screen === 'broom')
+      expect(useDuel2Store.getState().towerWave).toBe(3)
+      c.destroy()
+    })
+
+    it('the merchant comes before a tower boss when the hearts are low', async () => {
+      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true }, checkpointsSinceVisit: 0 })
+      const c = atTower({ lastEnded: 'ghosts', towerVisits: 2, coins: 50 })
+      ;(c as unknown as { hearts: { left: number; nearMissUsed: boolean } }).hearts = { left: 2, nearMissUsed: false }
+      // the doors first, then the crystal; the checkpoint before the tower's boss has him
+      for (let guard = 0; guard < 4000 && !c.view.merchant && c.view.screen?.screen !== 'tower'; guard++) {
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && c.view.screen?.screen === 'doors') c.gesture({ type: 'pick', id: rightId(c.view) })
+        await tick(50)
+      }
+      expect(c.view.merchant).toBeDefined()
+      c.destroy()
+    }, 60_000)
   })
 
   it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
@@ -1139,16 +1260,17 @@ describe('run controller', () => {
     async function playTo(c: RunController, pred: (v: View) => boolean) {
       for (let guard = 0; guard < 8000 && !pred(c.view); guard++) {
         const s = c.view.screen
+        autoTower(c)
         if (c.view.merchant) c.gesture({ type: 'decline' })
         else if (c.view.needNext || c.view.fixing) proceed(c)
-        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
         fly(c)
         await tick(50)
       }
       expect(pred(c.view)).toBe(true)
     }
     async function loseHeart(c: RunController) {
-      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom'].includes(v.screen.screen))
+      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
       const before = c.view.hearts
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => !!v.fixing || v.over !== null || !!v.defeat)
@@ -1456,7 +1578,7 @@ describe('run controller', () => {
       // he loses the run (two hearts left): the coins stay spent
       expect(c.view.hearts).toBe(2)
       await loseHeart(c)
-      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom'].includes(v.screen.screen))
+      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => v.over !== null)
       expect(coins()).toBeGreaterThanOrEqual(spent)
@@ -1679,8 +1801,9 @@ describe('run controller', () => {
         if (s?.screen === 'broom' && prev !== 'broom') visits.push(null)
         if (s?.screen === 'broom' && s.boss) visits[visits.length - 1] = s.boss.kind
         prev = s?.screen
+        autoTower(c)
         if (c.view.needNext || c.view.fixing) proceed(c)
-        else if (c.view.phase === 'answer' && s && !['crystal', 'broom'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
         fly(c)
         await tick(50)
       }
@@ -1913,6 +2036,7 @@ describe('run controller', () => {
 describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    towerAuto = true
     useDuel2Store.getState().resetProgress()
     useDuel2Store.setState({ demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
     played = []
@@ -2142,6 +2266,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
         await until(c, () => dv(c).mode === 'done' || c.view.screen?.screen !== 'draw')
         continue
       }
+      autoTower(c)
       if (c.view.needNext || c.view.fixing) proceed(c)
       else if (c.view.phase === 'answer' && s && s.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
       await tick(50)

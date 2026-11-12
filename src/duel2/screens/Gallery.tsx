@@ -4,6 +4,8 @@ import type { RunOpts } from '../controller'
 
 export interface GalleryEntry { id: string; label: string; force: NonNullable<RunOpts['force']> }
 export const GALLERY: GalleryEntry[] = [
+  { id: 'tower', label: 'Tower — two waves (the first duel, in the run)', force: { screen: 'tower', stage: 1 } },
+  { id: 'tower-boss', label: 'Tower — boss', force: { screen: 'tower', stage: 1, towerBoss: true } },
   { id: 'broom-letter', label: 'Broom flight — letters (hear a letter name)', force: { screen: 'broom', stage: 1, kind: 'letter', demo: true } },
   { id: 'broom-syllable', label: 'Broom flight — syllables', force: { screen: 'broom', stage: 2, kind: 'syllable', demo: true } },
   { id: 'cauldron', label: 'Cauldron — put the vowel on the letter', force: { screen: 'cauldron', stage: 2, demo: true } },
