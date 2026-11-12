@@ -3,6 +3,7 @@
 import type { ScreenId } from '../../duel2/logic/predict'
 import { useEffect, useState } from 'react'
 import type { Duel2Save } from '../../duel2/store'
+import { SAVE_VERSION, migrateSave } from '../../duel2/saveFormat'
 import { openScreens } from '../../duel2/station'
 import { rating, screenRecent } from '../../duel2/logic/mastery'
 import { useProgressStore } from '../../stores/progressStore'
@@ -31,20 +32,27 @@ export const STATIONS: Station[] = [
 const DUEL2_KEY = 'alef-duel2'
 const PROGRESS_KEY = 'alef-progress'
 
-const readState = (key: string): Record<string, unknown> | null => {
+const readSaved = (key: string): { state: Record<string, unknown>; version: number } | null => {
   try {
     const raw = localStorage.getItem(key)
     if (!raw) return null
-    const s = (JSON.parse(raw) as { state?: unknown })?.state
-    return s && typeof s === 'object' ? (s as Record<string, unknown>) : null
+    const p = JSON.parse(raw) as { state?: unknown; version?: unknown }
+    const s = p?.state
+    return s && typeof s === 'object' ? { state: s as Record<string, unknown>, version: typeof p.version === 'number' ? p.version : 0 } : null
   } catch {
     return null
   }
 }
+const readState = (key: string) => readSaved(key)?.state ?? null
 
-/** Book 2's save, read only (null when he has none, or it cannot be read) */
+/**
+ * Book 2's save, read only (null when he has none, or it cannot be read). An older save is converted here as Book 2 will
+ * convert it on its next start (its stations open, drawing on), without writing it.
+ */
 export function readDuel2Save(): Partial<Duel2Save> | null {
-  return readState(DUEL2_KEY) as Partial<Duel2Save> | null
+  const saved = readSaved(DUEL2_KEY)
+  if (!saved) return null
+  return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<Duel2Save>
 }
 
 /** the first duel's recent answers per mark: the saved ones (Book 2's tower writes them on its own page), else the store's */

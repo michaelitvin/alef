@@ -109,6 +109,16 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(st(container, 'doors').getAttribute('data-open')).toBe('true')
   })
 
+  it('an existing player whose Book 2 save is older (version 4): his stations are open and drawing is on, as Book 2 will show them', () => {
+    const raw = JSON.stringify({ state: { stage: { stage: 2, newAnswers: '' }, totalStars: 40, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 })
+    localStorage.setItem('alef-duel2', raw)
+    const { container } = render(<StationPath />)
+    for (const id of ['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand']) expect(st(container, id).getAttribute('data-open')).toBe('true')
+    expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
+    // read only: the save is converted by Book 2 itself
+    expect(localStorage.getItem('alef-duel2')).toBe(raw)
+  })
+
   it('the home never writes the Book 2 save', () => {
     render(<><DuelCard /><StationPath /></>)
     act(() => { document.dispatchEvent(new Event('visibilitychange')) })
