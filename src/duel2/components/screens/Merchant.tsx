@@ -54,7 +54,7 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
   const hintLeft = new Map<number, number>()
   for (const h of glow.hint ?? []) hintLeft.set(h, (hintLeft.get(h) ?? 0) + 1)
   // the ✗ is hidden while the first-visit demo plays, until the demo points it out (spec)
-  const showDecline = !v.demo || v.demo.step === 'decline' || v.demo.step === 'undo'
+  const showDecline = (!v.demo || v.demo.step === 'decline' || v.demo.step === 'undo') && v.phase !== 'leave' && v.phase !== 'sold'
   const handSpacing = Math.min(48, 300 / Math.max(1, v.given.length))
   // the demo: everything but the step's target dims, and the game's pointing hand shows it (rule: a hand he knows)
   const step = v.demo?.step

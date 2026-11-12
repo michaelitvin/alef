@@ -1395,6 +1395,26 @@ describe('run controller', () => {
       c2.destroy()
     }, 60_000)
 
+    it('the gallery’s merchant: 1 heart and 40 coins, his demo, a purchase that writes nothing; then the gallery', async () => {
+      useDuel2Store.setState({ coins: 7, merchant: { ...FRESH_MERCHANT } })
+      const c = make({ force: { screen: 'merchant', stage: 2, demo: true }, sandbox: true })
+      c.start()
+      await until(c, (v) => !!v.merchant)
+      expect(c.view.hearts).toBe(1)
+      expect(c.view.coins).toBe(40)
+      expect(mv(c).coins.reduce((a, b) => a + b, 0)).toBe(40)
+      await until(c, arrived)
+      expect(played.some((id) => id.startsWith('m-decline-'))).toBe(true)
+      give(c, hintCoins(mv(c).coins, mv(c).price))
+      c.gesture({ type: 'potion' })
+      await until(c, (v) => v.over !== null)
+      expect(c.view.hearts).toBe(2)
+      expect(c.view.coins).toBe(34)
+      expect(useDuel2Store.getState().coins).toBe(7)
+      expect(useDuel2Store.getState().merchant).toEqual(FRESH_MERCHANT)
+      c.destroy()
+    }, 60_000)
+
     it('in the gallery the merchant never comes', async () => {
       useDuel2Store.setState({ coins: 100 })
       const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' }, sandbox: true })

@@ -21,6 +21,7 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'boss-shin', label: 'Flight boss — the twin-headed bird (שׁ/שׂ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } },
   { id: 'boss-mimic', label: 'Flight boss — the mimic (look-alike letters: ד/ר, צ/ע, …)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } },
   { id: 'boss-bat', label: 'Flight boss — the o/u bat (וֹ against וּ)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } },
+  { id: 'merchant', label: 'Merchant — buy a heart with exact coins (1 heart, 40 coins; his first-visit demo)', force: { screen: 'merchant', stage: 2, demo: true } },
 ]
 
 export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: GalleryEntry) => void }) {

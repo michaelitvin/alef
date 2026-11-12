@@ -120,3 +120,50 @@ describe('lines lead into the sound', () => {
 })
 
 })
+
+describe('merchant lines (spec: one duel, Part 2)', () => {
+  const want: Record<string, number> = {
+    'm-hello': 3, 'm-again': 2, 'm-bye': 2, 'm-price': 1, 'm-give': 1, 'm-tap': 1, 'm-decline': 1, 'm-exact': 3, 'm-short': 3,
+    'm-over': 3, 'm-undo': 1, 'm-empty': 2, 'm-hint': 2,
+  }
+  it('every line exists with its variations; the merchant speaks in his own voice, the hint is the narrator', () => {
+    for (const [id, n] of Object.entries(want)) {
+      expect(lineById(id)?.variations, id).toBe(n)
+      expect(lineById(id)!.voice, id).toBe(id === 'm-hint' ? undefined : 'merchant')
+    }
+  })
+  it('the spec’s texts: the parent’s opening line and the table’s lines', () => {
+    const he = (id: string, k = 0) => lineById(id)!.he[k]
+    const n = (t: string) => t.normalize('NFC')
+    expect(he('m-hello')).toBe(n('שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?'))
+    expect(lineById('m-hello')!.fe![0]).toBe(n('שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?'))
+    expect(he('m-again')).toBe(n('נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?'))
+    expect(he('m-bye')).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת, קוֹסֵם.'))
+    expect(he('m-price')).toBe(n('זֶה הַמְּחִיר.'))
+    expect(he('m-give')).toBe(n('תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'))
+    expect(he('m-tap')).toBe(n('וְאָז גַּע בַּשִּׁקּוּי.'))
+    expect(he('m-decline')).toBe(n('לֹא צָרִיךְ? גַּע כָּאן.'))
+    expect(he('m-exact')).toBe(n('בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.'))
+    expect(he('m-short')).toBe(n('זֶה לֹא מַסְפִּיק.'))
+    expect(he('m-over')).toBe(n('זֶה יוֹתֵר מִדַּי.'))
+    expect(he('m-undo')).toBe(n('קַח מַטְבֵּעַ בַּחֲזָרָה.'))
+    expect(he('m-hint')).toBe(n('אוּלַי אֵלֶּה?'))
+    expect(he('m-empty')).toBe(n('קֹדֶם מַטְבְּעוֹת.'))
+  })
+  it('a girl form for every line that addresses the child; no "!", no digits (no numbers are spoken)', () => {
+    // masculine words that address the child: the verbs, "you", the wizard
+    const addresses = /(קוֹסֵם|תִּרְצֶה|תֵּן|גַּע|קַח|שֶׁלְּךָ|רוֹצֶה)/
+    for (const id of Object.keys(want)) {
+      const l = lineById(id)!
+      l.he.forEach((t, i) => {
+        expect(t.includes('!'), `${id}: ${t}`).toBe(false)
+        expect(/[0-9]/.test(t), `${id}: ${t}`).toBe(false)
+        if (addresses.test(t.normalize('NFC'))) expect(l.fe?.[i], `${id} ${i + 1} needs a girl form`).toBeTruthy()
+        if (l.fe?.[i]) expect(l.fe[i]!.includes('!')).toBe(false)
+      })
+    }
+  })
+  it('"not enough" avoids עוֹד and קְצָת (this voice says them wrongly)', () => {
+    for (const t of lineById('m-short')!.he) expect(/עוֹד|קְצָת/.test(t), t).toBe(false)
+  })
+})

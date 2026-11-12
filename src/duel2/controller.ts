@@ -141,6 +141,8 @@ export interface View {
   merchant?: MerchantView
   /** the wand glows: two wrong payments in a row (it does not open the hint by itself) */
   hintGlow?: boolean
+  /** the coins the top bar shows instead of his balance (the gallery's merchant visit) */
+  coins?: number
 }
 /** the gestures of a merchant's visit */
 export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
@@ -148,7 +150,8 @@ export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' }
 export interface RunOpts {
   sandbox?: boolean
   force?: {
-    screen: ScreenId | 'crystal' | 'dot'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
+    /** 'merchant': the gallery's merchant visit (1 heart, 40 coins); the visit ends the gallery screen */
+    screen: ScreenId | 'crystal' | 'dot' | 'merchant'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
   }
@@ -393,7 +396,7 @@ export class RunController {
     this.hearts = heartsAtRunStart()
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
     this.passFull = !f && this.screenId === cycleOf(this.stage, this.drawOn())[0]
     void this.loop()
   }
@@ -483,6 +486,7 @@ export class RunController {
   private async loop() {
     const t = this.token
     try {
+      if (this.opts.force?.screen === 'merchant') return await this.galleryMerchant(t)
       for (;;) {
         if (this.passDue) await this.runPassHeart(t)
         if (this.checkpointDue) await this.runCheckpoint(t)
@@ -560,13 +564,8 @@ export class RunController {
       if (!this.opts.sandbox) st.noteCheckpoint(due)
       if (!due) { this.checkpointDue = false; return }
       // the composition is made once, at his arrival (never during a visit)
-      const coins = composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng)
-      let declineNow = () => {}
-      const decline = new Promise<void>((r) => { declineNow = r })
-      this.visit = {
-        price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
-        demoDone: false, idleSaid: false, lastTouch: this.now(),
-      }
+      this.newMerchantVisit(price, composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng))
+      const coins = this.visit!.coins
       if (!this.opts.sandbox) st.noteMerchant('visit')
       this.track('merchant-arrive', { price, coins: st.coins ?? 0, hearts: this.hearts.left, composition: coins })
     }
@@ -575,6 +574,30 @@ export class RunController {
     this.checkpointDue = false
     // the next screen starts fresh (a pause during the visit is not a pause of that screen)
     this.resuming = false
+  }
+
+  private newMerchantVisit(price: number, coins: number[]) {
+    let declineNow = () => {}
+    const decline = new Promise<void>((r) => { declineNow = r })
+    this.visit = {
+      price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
+      demoDone: false, idleSaid: false, lastTouch: this.now(),
+    }
+  }
+
+  /** The gallery's merchant (the parent reviews him): a visit with 1 heart and 40 coins, its demo first; then the gallery. */
+  private async galleryMerchant(t: number) {
+    const GALLERY_COINS = 40
+    if (!this.visit) {
+      this.hearts = { left: 1, nearMissUsed: false }
+      const range = useDuel2Store.getState().settings.range ?? 100
+      const price = priceAt(0, range)
+      this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, useDuel2Store.getState().merchant?.level ?? 0, this.rng))
+    }
+    this.set({ hearts: this.hearts.left, coins: GALLERY_COINS - (this.visit!.bought ? this.visit!.price : 0) })
+    await this.runVisit(t)
+    this.visit = null
+    this.set({ over: { score: 0, crystals: 0, best: false } })
   }
 
   private mv(p: Partial<MerchantView>) { if (this.view.merchant) this.set({ merchant: { ...this.view.merchant, ...p } }) }
@@ -816,7 +839,7 @@ export class RunController {
     this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
     this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
     this.mv({ phase: 'sold', glow: undefined, bought: true })
-    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT } })
+    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, ...(this.view.coins !== undefined ? { coins: this.view.coins - v.price } : {}) })
     this.sfx('potion')
     await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: this.mLine('m-exact') }])
