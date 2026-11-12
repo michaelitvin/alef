@@ -754,8 +754,9 @@ export class RunController {
           v.said = true
           this.mv({ glow: undefined })
         } else {
-          // after a pause: the visit as it was, the coins in his hand included
-          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
+          // after a pause: the visit as it was, the coins in his hand included, and the hint's green coins still glowing
+          const hint = this.view.merchant?.glow?.hint
+          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given, ...(hint?.length ? { glow: { hint } } : {}) }, overlay: null, needNext: false, hintAvailable: false })
         }
         if (!v.demoDone && this.merchantDemoDue()) await this.merchantDemo(t)
         v.demoDone = true

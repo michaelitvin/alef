@@ -2,33 +2,42 @@ import { describe, expect, it } from 'vitest'
 import { CYCLE, HEARTS, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
-  it('cycle per stage', () => {
-    expect(cycleOf(1)).toEqual(['broom', 'ghosts'])
-    expect(cycleOf(4)).toEqual(CYCLE)
+  it('cycle per stage: the tower first', () => {
+    expect(cycleOf(1)).toEqual(['tower', 'broom', 'ghosts'])
+    expect(cycleOf(4)).toEqual(['tower', ...CYCLE])
   })
   it('next screen wraps and marks a new cycle', () => {
     expect(nextScreen(4, 'ladder')).toEqual({ screen: 'ghosts', newCycle: false })
-    expect(nextScreen(4, 'doors')).toEqual({ screen: 'broom', newCycle: true })
-    expect(nextScreen(1, 'ghosts')).toEqual({ screen: 'broom', newCycle: true })
+    expect(nextScreen(4, 'doors')).toEqual({ screen: 'tower', newCycle: true })
+    expect(nextScreen(4, 'tower')).toEqual({ screen: 'broom', newCycle: false })
+    expect(nextScreen(1, 'ghosts')).toEqual({ screen: 'tower', newCycle: true })
   })
   it('drawing comes after the doors: print, then handwriting, from stage 1, only when on', () => {
-    expect(cycleOf(4, true)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand'])
-    expect(cycleOf(1, true)).toEqual(['broom', 'ghosts', 'draw', 'draw-hand'])
-    expect(cycleOf(4, false)).toEqual(CYCLE)
+    expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand'])
+    expect(cycleOf(1, true)).toEqual(['tower', 'broom', 'ghosts', 'draw', 'draw-hand'])
+    expect(cycleOf(4, false)).toEqual(['tower', ...CYCLE])
     expect(nextScreen(4, 'doors', true)).toEqual({ screen: 'draw', newCycle: false })
     expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'draw-hand', newCycle: false })
-    expect(nextScreen(4, 'draw-hand', true)).toEqual({ screen: 'broom', newCycle: true })
+    expect(nextScreen(4, 'draw-hand', true)).toEqual({ screen: 'tower', newCycle: true })
     expect(VISIT['draw-hand']).toBe(3)
+  })
+  it('stage 0: only the tower; then the tower comes first', () => {
+    expect(cycleOf(1, true, false)).toEqual(['tower'])
+    expect(cycleOf(1, true, true)).toEqual(['tower', 'broom', 'ghosts', 'draw', 'draw-hand'])
+    expect(nextScreen(1, 'tower', false, false)).toEqual({ screen: 'tower', newCycle: true })
+    expect(runStart(3, 'ladder', true, false)).toBe('tower')
+    expect(VISIT.tower).toBe(2)
   })
   it('an old save that ended on the drawing screen starts the next run at a valid screen', () => {
     expect(runStart(4, 'draw', true)).toBe('draw-hand')
-    expect(runStart(4, 'draw', false)).toBe('broom')
+    expect(runStart(4, 'draw', false)).toBe('tower')
   })
   it('next run starts after the screen where the last ended', () => {
     expect(runStart(4, 'ladder')).toBe('ghosts')
-    expect(runStart(4, 'doors')).toBe('broom')
-    expect(runStart(1, 'cauldron')).toBe('broom')
-    expect(runStart(4, null)).toBe('broom')
+    expect(runStart(4, 'doors')).toBe('tower')
+    expect(runStart(4, 'tower')).toBe('broom')
+    expect(runStart(1, 'cauldron')).toBe('tower')
+    expect(runStart(4, null)).toBe('tower')
   })
   it('hearts last the whole run; a near miss is forgiven once per round', () => {
     let h = heartsAtRunStart()

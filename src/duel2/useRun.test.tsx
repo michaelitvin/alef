@@ -1623,6 +1623,19 @@ describe('run controller', () => {
         c.destroy()
       }, 60_000)
 
+      it('a lock after the hint keeps the hint’s coins glowing green (and the wand’s glow)', async () => {
+        const c = await cauldronThen(2)
+        await toMerchant(c)
+        c.hint()
+        const h = mv(c).glow!.hint!
+        expect(h.length).toBeGreaterThan(0)
+        c.pause()
+        c.resume()
+        await until(c, arrived)
+        expect(mv(c).glow?.hint).toEqual(h)
+        c.destroy()
+      }, 60_000)
+
       it('he waits 20 s: the merchant asks once more, only once', async () => {
         const c = await cauldronThen(2)
         await toMerchant(c)
