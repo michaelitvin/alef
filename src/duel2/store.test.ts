@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
+import type { DuelStats, Tally } from '../types/duel'
+import { DUEL_MARKS } from '../utils/duel/marks'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
   ({ kind: 'syllable', id: `${itemId}-${mark}`, text: '', soundId: '', itemId, group, mark })
@@ -224,5 +226,61 @@ describe('duel2 store', () => {
     expect(s.totalStars).toBe(42)
     expect(s.bossesBeaten).toEqual([])
     expect(s.potionIntroSeen).toBe(false)
+  })
+
+  describe('the first duel moves into the run (spec: one duel, Part 3)', () => {
+    const t = (correct: number, mega = 0): Tally => ({ seen: correct + mega, correct, wrong: 0, timeout: 0, twin: 0, mega })
+    const duel = (over: Partial<DuelStats> = {}): DuelStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
+
+    it('a new player starts at stage 0 (the tower alone), and nothing is imported yet', () => {
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: false, firstDuelImported: false, towerWave: 1, towerVisits: 0 })
+    })
+    it('an existing Book 2 save keeps Book 2 open and gets the tower in front', () => {
+      const out = migrateSave({ stage: { stage: 2, newAnswers: '' }, coins: 30, totalStars: 300 }, 6)
+      expect(out.bookOpen).toBe(true)
+      expect(out.coins).toBe(30)
+      expect(out.totalStars).toBe(300)
+      expect(out.stage).toEqual({ stage: 2, newAnswers: '' })
+    })
+    it('a stored save with no stage field still opens Book 2', () => {
+      expect(migrateSave({ coins: 3 }, 6).bookOpen).toBe(true)
+      expect(migrateSave({}, 4).bookOpen).toBe(true)
+    })
+    it('the first duel is imported once: correct answers become stars and a tenth of them coins; mega not counted', () => {
+      useDuel2Store.setState({ totalStars: 10, coins: 5 })
+      const d = duel({ byMark: { kamatz: t(25, 9), chirik: t(7) } })
+      const copy = JSON.parse(JSON.stringify(d))
+      useDuel2Store.getState().importFirstDuel(d)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 42, coins: 8, firstDuelImported: true })
+      // a second start (a reload) adds nothing
+      useDuel2Store.getState().importFirstDuel(d)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 42, coins: 8 })
+      // the first duel's own save is only read
+      expect(d).toEqual(copy)
+    })
+    it('a first duel player who never played Book 2 keeps stage 0 unless his marks are mastered', () => {
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
+      expect(useDuel2Store.getState().bookOpen).toBe(false)
+    })
+    it('a first-duel player who mastered his marks starts with Book 2 open', () => {
+      const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(40) }, recent }))
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: true, totalStars: 40, coins: 4 })
+    })
+    it('no first duel at all: nothing added, the import is done', () => {
+      useDuel2Store.getState().importFirstDuel(undefined)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 0, coins: 0, firstDuelImported: true, bookOpen: false })
+    })
+    it('a Book 2 player keeps Book 2 open after the import, even with no first duel', () => {
+      useDuel2Store.setState({ bookOpen: true })
+      useDuel2Store.getState().importFirstDuel(duel())
+      expect(useDuel2Store.getState().bookOpen).toBe(true)
+    })
+    it('the parent’s reset starts stage 0 again and lets the import run again', () => {
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(20) } }))
+      useDuel2Store.setState({ bookOpen: true, towerWave: 9 })
+      useDuel2Store.getState().resetProgress()
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: false, firstDuelImported: false, towerWave: 1, totalStars: 0 })
+    })
   })
 })

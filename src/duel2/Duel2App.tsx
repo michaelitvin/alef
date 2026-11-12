@@ -17,6 +17,7 @@ import { getGender, setGender } from '../shared/player'
 import { VOICE_RATE } from '../shared/audioCore'
 import { duel2Telemetry } from './telemetry'
 import { useDuel2Store } from './store'
+import { useProgressStore } from '../stores/progressStore'
 import type { View } from './controller'
 
 type Screen = 'cover' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
@@ -49,6 +50,8 @@ export default function Duel2App() {
   const screenRef = useRef(screen)
   screenRef.current = screen
   useEffect(() => { void preloadDuel2Assets() }, [])
+  // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe)
+  useEffect(() => { useDuel2Store.getState().importFirstDuel(useProgressStore.getState().duel) }, [])
   const settings = useDuel2Store((s) => s.settings)
   useEffect(() => configureAudio(settings), [settings])
   // switching apps silences everything; the play screen also pauses (useRun) and its cover holds the sound (rule)

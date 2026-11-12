@@ -7,6 +7,9 @@ import type { Choice, Conf } from './logic/rounds'
 import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 import type { NumberRange } from './logic/merchant'
+import { towerMastered } from './logic/mastery'
+import { DUEL_MARKS } from '../utils/duel/marks'
+import type { DuelStats } from '../types/duel'
 
 export interface Duel2Settings {
   sfx: boolean; music: boolean; volume: number
@@ -81,6 +84,10 @@ export interface Duel2Save {
   /** the first duel's tower in the run: the wave its next visit starts at, and its visits so far (every third a boss) */
   towerWave: number
   towerVisits: number
+  /** Book 2's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Book 2 save) */
+  bookOpen: boolean
+  /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
+  firstDuelImported: boolean
 }
 
 interface Actions {
@@ -115,6 +122,13 @@ interface Actions {
   noteTowerVisit: () => void
   /** the wave the next tower visit starts at */
   setTowerWave: (wave: number) => void
+  /** stage 0 has passed: Book 2's minigames open */
+  openBook: () => void
+  /**
+   * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
+   * tenth of them coins; Book 2 opens if his marks are already mastered. The first duel's own save is only read.
+   */
+  importFirstDuel: (duel: DuelStats | null | undefined) => void
   resetProgress: () => void
 }
 
@@ -131,7 +145,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0,
+  towerWave: 1, towerVisits: 0, bookOpen: false, firstDuelImported: false,
 })
 
 /**
@@ -140,7 +154,8 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
  * unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the
  * third review. Version 5 (one duel): his coins (one for each 10 stars) become a balance, and drawing turns on for every
  * save (saves carry an explicit `drawing: false`; the parent can turn it off again). Version 6 (the merchant): the
- * shopping range (100) and the merchant's counters, where missing.
+ * shopping range (100) and the merchant's counters, where missing. Version 7 (the first duel in the run): every stored
+ * save keeps Book 2 open; the first duel's progress is imported once, at the next start (importFirstDuel).
  */
 export function migrateSave(state: unknown, version: number): Partial<Duel2Save> & { settings: Duel2Settings } {
   let s = { ...((state ?? {}) as Partial<Duel2Save>) }
@@ -157,6 +172,8 @@ export function migrateSave(state: unknown, version: number): Partial<Duel2Save>
       merchant: { ...FRESH_MERCHANT, ...s.merchant }, checkpointsSinceVisit: s.checkpointsSinceVisit ?? NEVER_VISITED,
     }
   }
+  // a Book 2 save is at stage 1 or above: stage 0 has passed, nothing of Book 2 closes (a missing stage reads as 1)
+  if (version < 7) s = { ...s, bookOpen: (s.stage?.stage ?? 1) >= 1 }
   return s as Partial<Duel2Save> & { settings: Duel2Settings }
 }
 
@@ -241,10 +258,20 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
       noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
       setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
+      openBook: () => set({ bookOpen: true }),
+      importFirstDuel: (duel) => set((s) => {
+        if (s.firstDuelImported) return s
+        const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
+        const mastered = towerMastered(duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))
+        return {
+          totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
+          bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,
+        }
+      }),
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {
-      name: 'alef-duel2', version: 6, storage: createJSONStorage(() => localStorage),
+      name: 'alef-duel2', version: 7, storage: createJSONStorage(() => localStorage),
       // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
       // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
       // state over it.

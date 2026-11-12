@@ -28,6 +28,9 @@ import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
 import { NEVER_VISITED } from './store'
+import { towerMastered } from './logic/mastery'
+import { DUEL_MARKS } from '../utils/duel/marks'
+import { useProgressStore } from '../stores/progressStore'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
@@ -301,7 +304,7 @@ export class RunController {
   private demoMove = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
-  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number } | null = null
+  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
   private towerNo = 0
   private towerWaiter: ((lastWave: number) => void) | null = null
   private purchasesThisRun = 0
@@ -405,8 +408,8 @@ export class RunController {
     this.hearts = heartsAtRunStart()
     if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
-    this.passFull = !f && this.screenId === cycleOf(this.stage, this.drawOn())[0]
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn(), this.bookOpen())
+    this.passFull = !f && this.screenId === cycleOf(this.stage, this.drawOn(), this.bookOpen())[0]
     void this.loop()
   }
   destroy() {
@@ -444,6 +447,8 @@ export class RunController {
 
   /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
   private drawOn() { return !!useDuel2Store.getState().settings.drawing }
+  /** Book 2's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
+  private bookOpen() { return !!this.opts.force || useDuel2Store.getState().bookOpen !== false }
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
@@ -516,8 +521,9 @@ export class RunController {
         if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
         this.crystalAwarded = false
         const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
-        const nx = nextScreen(this.stage, from, this.drawOn())
-        if (nx.newCycle) { this.passDue = this.passFull; this.passFull = true }
+        const nx = nextScreen(this.stage, from, this.drawOn(), this.bookOpen())
+        // stage 0 (the tower alone) has no pass heart
+        if (nx.newCycle) { this.passDue = this.passFull && this.bookOpen(); this.passFull = true }
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
@@ -560,7 +566,8 @@ export class RunController {
   private async runCheckpoint(t: number) {
     if (!this.visit) {
       const adventure = !this.opts.force && !this.opts.session
-      if (!adventure) { this.checkpointDue = false; return }
+      // no merchant at stage 0 (the tower alone)
+      if (!adventure || !this.bookOpen()) { this.checkpointDue = false; return }
       // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss
       if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
       const st = useDuel2Store.getState()
@@ -912,7 +919,7 @@ export class RunController {
     // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
     if (this.ending) { await this.endRun(); throw new Aborted() }
     if (!this.opts.sandbox) st.setTowerWave(last + 1)
-    this.track('tower-end', { wave: tw.wave, last, boss: tw.boss })
+    if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
     if (tw.boss) {
       // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
       this.set({ phase: 'celebrate' })
@@ -923,6 +930,12 @@ export class RunController {
         this.sfx('lock')
         await this.sleep(t, COIN_POP_MS)
       }
+    }
+    // stage 0 passes when his marks are mastered by the duel's own measure: Book 2's minigames open (once)
+    if (!this.opts.sandbox && !this.bookOpen() && towerMastered(useProgressStore.getState().duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))) {
+      useDuel2Store.getState().openBook()
+      this.track('book-open', { stars: useDuel2Store.getState().totalStars, towerWave: last + 1 })
+      await this.celebrate(t, 'streak')
     }
   }
 

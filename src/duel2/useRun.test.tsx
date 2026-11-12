@@ -4,6 +4,9 @@ import { RunController, type BroomView, type View } from './controller'
 import { useRun } from './useRun'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useDuel2Store } from './store'
 import { hintCoins } from './logic/merchant'
+import { useProgressStore } from '../stores/progressStore'
+import { INITIAL_PROGRESS_STATE } from '../types/progress'
+import { DUEL_MARKS } from '../utils/duel/marks'
 import { CATCH_AT, wavePos } from './logic/run'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
 import { wavePos as wp } from './logic/run'
@@ -106,7 +109,7 @@ describe('run controller', () => {
     towerAuto = true
     useDuel2Store.getState().resetProgress()
     // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
-    useDuel2Store.setState({ settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
+    useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
     played = []
     setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -1207,6 +1210,67 @@ describe('run controller', () => {
       c.destroy()
     })
 
+    describe('stage 0: the tower alone', () => {
+      beforeEach(() => {
+        useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+        useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+      })
+      const mastered = () => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
+
+      it('a new player starts with the tower; Book 2 opens when the tower is mastered, and the next screen is the broom', async () => {
+        duel2Telemetry.clear()
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        c.towerDone(2)
+        // not mastered yet: the tower again (a cycle of one screen)
+        await until(c, (v) => v.screen?.screen === 'tower' && tv(c).wave === 3)
+        expect(useDuel2Store.getState().bookOpen).toBe(false)
+        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: mastered() } })
+        c.towerDone(4)
+        await until(c, (v) => v.screen?.screen === 'broom', 20_000)
+        expect(useDuel2Store.getState().bookOpen).toBe(true)
+        const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+        expect(ev.filter((e) => e.e === 'book-open').length).toBe(1)
+        expect(sfxLog).toContain('streak')
+        c.destroy()
+      })
+
+      it('at stage 0 there is no pass heart and no merchant', async () => {
+        useDuel2Store.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        c.towerAnswer('wrong', 'kamatz')
+        c.towerAnswer('wrong', 'kamatz')
+        expect(c.view.hearts).toBe(1)
+        for (let k = 0; k < 4; k++) {
+          const w = tv(c).wave
+          c.towerDone(w + 1)
+          await until(c, (v) => v.screen?.screen === 'tower' && tv(c).wave === w + 2)
+          expect(c.view.merchant).toBeUndefined()
+        }
+        expect(c.view.hearts).toBe(1)
+        expect(c.view.passHeart ?? 0).toBe(0)
+        expect(c.view.heal).toBeUndefined()
+        expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
+        c.destroy()
+      })
+
+      it('a Book 2 player who never played the first duel: the tower first, nothing closes, nothing imported', async () => {
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, firstDuelImported: false })
+        useDuel2Store.getState().importFirstDuel(useProgressStore.getState().duel)
+        expect(useDuel2Store.getState()).toMatchObject({ totalStars: 120, bookOpen: true })
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        c.towerDone(2)
+        await until(c, (v) => v.screen?.screen === 'broom')
+        expect(useDuel2Store.getState().bookOpen).toBe(true)
+        c.destroy()
+      })
+    })
+
     it('the merchant comes before a tower boss when the hearts are low', async () => {
       useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true }, checkpointsSinceVisit: 0 })
       const c = atTower({ lastEnded: 'ghosts', towerVisits: 2, coins: 50 })
@@ -2038,7 +2102,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     vi.useFakeTimers()
     towerAuto = true
     useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
+    useDuel2Store.setState({ bookOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
     played = []
     setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
