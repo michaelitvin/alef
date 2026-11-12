@@ -34,6 +34,20 @@ describe('Tower', () => {
     expect(vi.mocked(playMusic)).not.toHaveBeenCalled()
   })
 
+  it('a phone on its side gets the landscape board (Book 2 plays only sideways; the portrait board left no room for the field)', async () => {
+    // a phone held sideways: landscape, but shorter than the duel's tablet query (min-height 500)
+    const mm = vi.fn((q: string) => ({ matches: q === '(orientation: landscape)', media: q, addEventListener: () => {}, removeEventListener: () => {} }))
+    vi.stubGlobal('matchMedia', mm)
+    try {
+      const { container } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
+      await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+      expect(container.querySelector('.nd-embedded.nd-landscape')).not.toBeNull()
+      expect((container.querySelector('.nd-pad') as HTMLElement).style.gridTemplateColumns).toBe('repeat(4, 1fr)')
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('its intro is kept in Book 2’s save, so it plays once ever', async () => {
     render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })

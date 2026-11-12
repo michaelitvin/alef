@@ -392,3 +392,12 @@
 
 /* Book 2's run: the tower is drawn over its stage, under its top bar (spec: one duel, Part 3) */
 .nd-root.nd-embedded { position: absolute; inset: 0; z-index: 1; padding-top: 76px; box-sizing: border-box; }
+/* a phone on its side in Book 2's run: smaller runes and monsters, so the field keeps its room under the top bar */
+@media (max-height: 500px) {
+  .nd-embedded.nd-landscape .nd-rune { height: 62px; }
+  .nd-embedded.nd-landscape .nd-word-btn { height: 52px; }
+  .nd-embedded.nd-landscape .nd-pad-area { padding: 4px 16px 8px; }
+  .nd-embedded.nd-landscape .nd-sprite { height: 72px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 110px; }
+  .nd-root.nd-embedded { padding-top: 64px; }
+}

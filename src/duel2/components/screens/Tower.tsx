@@ -5,7 +5,7 @@
 import { useEffect } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useDuelGame } from '../../../hooks/useDuelGame'
-import { Battlefield, useLandscape } from '../../../components/duel/Battlefield'
+import { Battlefield, EMBEDDED_LANDSCAPE_QUERY, useLandscape } from '../../../components/duel/Battlefield'
 import { SpellPad } from '../../../components/duel/SpellPad'
 import { RuneGlowDefs } from '../../../components/duel/RuneGlyph'
 import { ComboBurst } from '../../../components/duel/ComboBurst'
@@ -36,7 +36,8 @@ export function Tower({ view, paused, dry, onAnswer, onDone }: TowerProps) {
     },
   })
   const { state } = game
-  const landscape = useLandscape()
+  // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)
+  const landscape = useLandscape(EMBEDDED_LANDSCAPE_QUERY)
   const shakeCtl = useAnimationControls()
   // one visit per mount (the run gives each visit its own key)
   // eslint-disable-next-line react-hooks/exhaustive-deps
