@@ -71,6 +71,10 @@ describe('lines', () => {
     // the end screen has no coin ring any more
     expect(lineById('info-coin-ring')).toBeUndefined()
     expect(lineById('defeat')!.variations).toBe(2)
+    // the info lines say the new rules: hearts come back at the end of a pass, coins come from right answers
+    expect(lineById('info-hearts')!.he[0]).toMatch(/סִבּוּב/.source.normalize('NFC'))
+    expect(lineById('info-hearts')!.he[0]).not.toMatch(/מָסָךְ/.source.normalize('NFC'))
+    expect(lineById('info-coins')!.he[0]).not.toMatch(/כּוֹכָבִים/.source.normalize('NFC'))
     // the parent's wording: he chased the monster away
     expect(lineById('boss-win')!.he[1]).toBe('וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.'.normalize('NFC'))
   })
