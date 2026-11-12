@@ -1641,6 +1641,29 @@ describe('run controller', () => {
       c.destroy()
     }, 60_000)
 
+    it('the potion with an empty hand says its line at most once per 4 seconds; the hand glows every time', async () => {
+      const c = await cauldronThen(2)
+      await toMerchant(c)
+      const said = () => played.filter((id) => id.startsWith('m-empty-')).length
+      /** a coin in and back out: his hand is empty again and its glow is gone */
+      const clearGlow = async () => { give(c, [mv(c).coins[0]]); c.gesture({ type: 'hand' }); await tick(20); expect(mv(c).glow?.hand).toBeFalsy() }
+      c.gesture({ type: 'potion' })
+      await until(c, () => said() === 1)
+      for (let i = 0; i < 5; i++) {
+        await clearGlow()
+        c.gesture({ type: 'potion' })
+        await until(c, (v) => !!v.merchant?.glow?.hand)
+        await tick(300)
+      }
+      expect(said()).toBe(1)
+      await tick(4000)
+      await clearGlow()
+      c.gesture({ type: 'potion' })
+      await until(c, (v) => !!v.merchant?.glow?.hand)
+      await until(c, () => said() === 2)
+      c.destroy()
+    }, 60_000)
+
     it('the ✗ declines at any moment: his coins go back, the run goes on, the visit counts', async () => {
       setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-hello') ? 3000 : 10)) })
       const c = await cauldronThen(2)

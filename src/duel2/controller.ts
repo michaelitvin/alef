@@ -186,6 +186,8 @@ const COUNT_STEP_MS = 600
 const MERCHANT_LEAVE_MS = 1200
 /** no tap for this long while he pays: the merchant asks once more (once per visit; there is no time limit) */
 const MERCHANT_IDLE_MS = 20000
+/** the empty-hand line (first coins) is said at most once in this time */
+const MERCHANT_EMPTY_EVERY_MS = 4000
 /** the demo hand's drag of a coin into the merchant's hand (Merchant.tsx draws it) */
 export const MERCHANT_DEMO_DRAG_MS = 1800
 /** the demo hand moves to the merchant's hand before the coin flies back */
@@ -306,6 +308,8 @@ export class RunController {
     wrongTries: number; hinted: boolean; lastLine: string | null; decline: Promise<void>; declineNow: () => void
     /** the first-visit demo has played to its end in this visit; the idle line was said; his last tap (controller clock) */
     demoDone: boolean; idleSaid: boolean; lastTouch: number
+    /** when the empty-hand line was last said (controller clock): it is said at most once per MERCHANT_EMPTY_EVERY_MS */
+    emptySaidAt: number
   } | null = null
   private demoMove = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
@@ -667,7 +671,7 @@ export class RunController {
     this.wrongInRow = 0
     this.visit = {
       price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
-      demoDone: false, idleSaid: false, lastTouch: this.now(),
+      demoDone: false, idleSaid: false, lastTouch: this.now(), emptySaidAt: -Infinity,
     }
   }
 
@@ -860,7 +864,10 @@ export class RunController {
       // coins and undo are handled as they come (merchantGesture); the potion goes on here
       await this.waitMerchant(t)
       if (!v.given.length) {
+        // the hand glows at every tap; the line only once in a while (a child taps the potion again and again)
         this.mv({ glow: { hand: true } })
+        if (this.now() - v.emptySaidAt < MERCHANT_EMPTY_EVERY_MS) continue
+        v.emptySaidAt = this.now()
         this.set({ phase: 'feedback' })
         await this.vsay(t, [{ id: this.mLine('m-empty') }])
         continue
