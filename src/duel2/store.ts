@@ -6,12 +6,37 @@ import type { ScreenId } from './logic/predict'
 import type { Choice, Conf } from './logic/rounds'
 import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
+import type { NumberRange } from './logic/merchant'
 
 export interface Duel2Settings {
   sfx: boolean; music: boolean; volume: number
   /** the two drawing screens in the lap: on by default since the parent reviewed the strokes (spec: one duel, Part 5) */
   drawing?: boolean
+  /** the parent's number range for shopping at the merchant: the coin values and the top price (default 100) */
+  range: NumberRange
 }
+/** the merchant's counters (the parent's money section) and his adaptive level (spec: one duel, Part 2) */
+export interface MerchantSave {
+  visits: number; purchases: number; declines: number
+  /** tries that were not enough / too much */
+  short: number; over: number
+  hints: number
+  /** 0–2: how the coins are composed (merchant.ts composeCoins) */
+  level: number
+  /** the first-visit demo was shown; the undo was shown (the first time he gave too much) */
+  demoSeen: boolean; undoShown: boolean
+  /** exact payments in a row with no wrong try and no hint; payments in a row with a hint */
+  cleanRow: number; hintRow: number
+}
+export const FRESH_MERCHANT: MerchantSave = {
+  visits: 0, purchases: 0, declines: 0, short: 0, over: 0, hints: 0, level: 0, demoSeen: false, undoShown: false, cleanRow: 0, hintRow: 0,
+}
+/** checkpointsSinceVisit before his first visit (JSON cannot keep Infinity) */
+export const NEVER_VISITED = 999
+/** the level goes up after this many clean payments in a row, and down after this many hinted ones */
+const LEVEL_UP_ROW = 3
+const LEVEL_DOWN_ROW = 2
+const LEVEL_MAX = 2
 export interface Duel2Save {
   stage: StageProgress
   tallies: Record<string, Tally>
@@ -50,6 +75,9 @@ export interface Duel2Save {
   strokeMarks: Record<string, 'ok' | 'wrong'>
   /** his drawing rounds so far (telemetry only: the screen now decides print or handwriting) */
   drawRounds: number
+  merchant: MerchantSave
+  /** checkpoints since the merchant's last visit, across runs (a declined visit counts as a visit) */
+  checkpointsSinceVisit: number
 }
 
 interface Actions {
@@ -74,10 +102,16 @@ interface Actions {
   setSettings: (p: Partial<Duel2Settings>) => void
   markStrokes: (key: string, mark: 'ok' | 'wrong' | null) => void
   noteDrawRound: () => void
+  noteMerchant: (e: 'visit' | 'purchase' | 'decline' | 'short' | 'over' | 'hint') => void
+  setMerchantFlag: (k: 'demoSeen' | 'undoShown') => void
+  /** a purchase: `exactNoHint` = exact at the first try with no hint; `hinted` = he used the hint (the level adapts) */
+  merchantPaid: (exactNoHint: boolean, hinted?: boolean) => void
+  /** a checkpoint passed: with his visit (back to 0) or without (one more) */
+  noteCheckpoint: (visited: boolean) => void
   resetProgress: () => void
 }
 
-export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: true }
+export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume: 0.8, drawing: true, range: 100 }
 /** the review marks to clear in version 2: the letters whose strokes changed after the parent's review (2026-11-07) */
 /** version 3: the letters changed after the second review */
 export const STROKES_CHANGED_V3 = [...'בדחטכמםצקרגזוץף'].map((l) => `${l}-hand`)
@@ -89,6 +123,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
+  merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
 })
 
 /**
@@ -96,7 +131,8 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
  * stroke data of some letters changed after the parent's review, so their review marks are cleared (they show as
  * unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the
  * third review. Version 5 (one duel): his coins (one for each 10 stars) become a balance, and drawing turns on for every
- * save (saves carry an explicit `drawing: false`; the parent can turn it off again).
+ * save (saves carry an explicit `drawing: false`; the parent can turn it off again). Version 6 (the merchant): the
+ * shopping range (100) and the merchant's counters, where missing.
  */
 export function migrateSave(state: unknown, version: number): Partial<Duel2Save> & { settings: Duel2Settings } {
   let s = { ...((state ?? {}) as Partial<Duel2Save>) }
@@ -107,6 +143,12 @@ export function migrateSave(state: unknown, version: number): Partial<Duel2Save>
     s = { ...s, strokeMarks: m }
   }
   if (version < 5) s = { ...s, coins: coinsOf(s.totalStars ?? 0), settings: { ...DEFAULT_SETTINGS, ...s.settings, drawing: true } }
+  if (version < 6) {
+    s = {
+      ...s, settings: { ...DEFAULT_SETTINGS, ...s.settings, range: s.settings?.range ?? 100 },
+      merchant: { ...FRESH_MERCHANT, ...s.merchant }, checkpointsSinceVisit: s.checkpointsSinceVisit ?? NEVER_VISITED,
+    }
+  }
   return s as Partial<Duel2Save> & { settings: Duel2Settings }
 }
 
@@ -173,10 +215,26 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
         return { strokeMarks: m }
       }),
       noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
+      noteMerchant: (e) => set((s) => {
+        const m = { ...FRESH_MERCHANT, ...s.merchant }
+        const key = ({ visit: 'visits', purchase: 'purchases', decline: 'declines', short: 'short', over: 'over', hint: 'hints' } as const)[e]
+        return { merchant: { ...m, [key]: m[key] + 1 } }
+      }),
+      setMerchantFlag: (k) => set((s) => ({ merchant: { ...FRESH_MERCHANT, ...s.merchant, [k]: true } })),
+      merchantPaid: (exactNoHint, hinted = false) => set((s) => {
+        const m = { ...FRESH_MERCHANT, ...s.merchant }
+        let { level, cleanRow, hintRow } = m
+        cleanRow = exactNoHint ? cleanRow + 1 : 0
+        hintRow = hinted ? hintRow + 1 : 0
+        if (cleanRow >= LEVEL_UP_ROW) { level = Math.min(LEVEL_MAX, level + 1); cleanRow = 0 }
+        if (hintRow >= LEVEL_DOWN_ROW) { level = Math.max(0, level - 1); hintRow = 0 }
+        return { merchant: { ...m, level, cleanRow, hintRow } }
+      }),
+      noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
     }),
     {
-      name: 'alef-duel2', version: 5, storage: createJSONStorage(() => localStorage),
+      name: 'alef-duel2', version: 6, storage: createJSONStorage(() => localStorage),
       // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
       // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
       // state over it.

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { DEFAULT_SETTINGS, coinsOf, migrateSave, useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
@@ -25,6 +25,76 @@ describe('duel2 store', () => {
     expect(out.stage).toEqual({ stage: 3, newAnswers: '' })
     expect(out.bossesBeaten).toEqual(['bat'])
     expect(out.strokeMarks).toEqual({ 'ד-print': 'ok' })
+  })
+  it('a version-5 save gets the range 100 and empty merchant counters, keeping everything else', () => {
+    const out = migrateSave({ coins: 40, settings: { sfx: true, music: true, volume: 1, drawing: true } }, 5)
+    expect(out.settings.range).toBe(100)
+    expect(out.settings.volume).toBe(1)
+    expect(out.merchant!.purchases).toBe(0)
+    expect(out.merchant!.demoSeen).toBe(false)
+    expect(out.checkpointsSinceVisit).toBe(NEVER_VISITED)
+    expect(out.coins).toBe(40)
+  })
+  it('an older save runs the version-6 step too, after the others', () => {
+    const out = migrateSave({ totalStars: 25, settings: { sfx: true, music: true, volume: 1 } }, 4)
+    expect(out.coins).toBe(2)
+    expect(out.settings.drawing).toBe(true)
+    expect(out.settings.range).toBe(100)
+    expect(out.merchant!.level).toBe(0)
+  })
+  it('a version-6 save keeps its range and counters', () => {
+    const merchant = { ...FRESH_MERCHANT, purchases: 4, level: 2 }
+    const out = migrateSave({ settings: { ...DEFAULT_SETTINGS, range: 10 }, merchant, checkpointsSinceVisit: 1 }, 6)
+    expect(out.settings.range).toBe(10)
+    expect(out.merchant).toEqual(merchant)
+    expect(out.checkpointsSinceVisit).toBe(1)
+  })
+  it('a new player shops up to 100; reset clears the merchant counters but keeps the range', () => {
+    expect(DEFAULT_SETTINGS.range).toBe(100)
+    const st = useDuel2Store.getState()
+    st.setSettings({ range: 1000 })
+    st.noteMerchant('purchase')
+    st.setMerchantFlag('demoSeen')
+    st.noteCheckpoint(true)
+    expect(useDuel2Store.getState().merchant.purchases).toBe(1)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(0)
+    useDuel2Store.getState().resetProgress()
+    expect(useDuel2Store.getState().merchant).toEqual(FRESH_MERCHANT)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
+    expect(useDuel2Store.getState().settings.range).toBe(1000)
+    useDuel2Store.getState().setSettings({ range: 100 })
+  })
+  it('the counters count each event; checkpoints count up between visits', () => {
+    const st = useDuel2Store.getState()
+    for (const e of ['visit', 'decline', 'short', 'short', 'over', 'hint'] as const) st.noteMerchant(e)
+    expect(useDuel2Store.getState().merchant).toMatchObject({ visits: 1, declines: 1, short: 2, over: 1, hints: 1, purchases: 0 })
+    st.noteCheckpoint(true)
+    st.noteCheckpoint(false)
+    st.noteCheckpoint(false)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(2)
+    st.setMerchantFlag('undoShown')
+    expect(useDuel2Store.getState().merchant.undoShown).toBe(true)
+  })
+  it('the merchant level goes up after 3 exact payments with no hint and down after 2 with a hint', () => {
+    const st = useDuel2Store.getState()
+    const level = () => useDuel2Store.getState().merchant.level
+    st.merchantPaid(true); st.merchantPaid(true)
+    expect(level()).toBe(0)
+    st.merchantPaid(true)
+    expect(level()).toBe(1)
+    // a payment that was not clean breaks the row
+    st.merchantPaid(true); st.merchantPaid(false); st.merchantPaid(true); st.merchantPaid(true)
+    expect(level()).toBe(1)
+    st.merchantPaid(true)
+    expect(level()).toBe(2)
+    for (let i = 0; i < 3; i++) st.merchantPaid(true)
+    expect(level()).toBe(2)
+    st.merchantPaid(false, true)
+    expect(level()).toBe(2)
+    st.merchantPaid(false, true)
+    expect(level()).toBe(1)
+    for (let i = 0; i < 6; i++) st.merchantPaid(false, true)
+    expect(level()).toBe(0)
   })
   it('a version-4 save opened by the new build: rehydrated, his coins and drawing on', async () => {
     localStorage.setItem('alef-duel2', JSON.stringify({ state: { totalStars: 42, crystals: 3, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 }))

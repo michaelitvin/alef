@@ -80,6 +80,23 @@ describe('parent area', () => {
     fireEvent.click(box)
     expect(useDuel2Store.getState().settings.drawing).toBe(true)
   })
+  it('the parent page sets the number range and shows the money section', () => {
+    useDuel2Store.setState({ merchant: { visits: 5, purchases: 3, declines: 2, short: 4, over: 1, hints: 6, level: 1, demoSeen: true, undoShown: true, cleanRow: 0, hintRow: 0 } })
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect((container.querySelector('input[data-range="100"]') as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(container.querySelector('input[data-range="10"]')!)
+    expect(useDuel2Store.getState().settings.range).toBe(10)
+    expect(track).toHaveBeenCalledWith('settings', expect.objectContaining({ range: 10 }))
+    const money = container.querySelector('[data-money]')!
+    expect(money.querySelector('[data-money-purchases]')!.textContent).toBe('3')
+    expect(money.querySelector('[data-money-declines]')!.textContent).toBe('2')
+    expect(money.querySelector('[data-money-short]')!.textContent).toBe('4')
+    expect(money.querySelector('[data-money-over]')!.textContent).toBe('1')
+    expect(money.querySelector('[data-money-hints]')!.textContent).toBe('6')
+    expect(money.querySelector('[data-money-level]')!.textContent).toMatch(/1/)
+    useDuel2Store.getState().setSettings({ range: 100 })
+  })
   it('opens the stroke review and the test board', () => {
     const onStrokes = vi.fn()
     const onDrawTest = vi.fn()

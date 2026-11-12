@@ -50,6 +50,30 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
         <button onClick={onStrokes}>Stroke review</button>{' '}
         <button onClick={onDrawTest}>Drawing test board</button>
       </p>
+      <h3>Number range for shopping</h3>
+      <p>
+        At the merchant he pays the exact price of a potion (a heart) from his coins. The range sets the coin values and
+        the highest price: up to 10 (coins 1, 2, 5, 10), up to 100 (also 20, 50), up to 1000 (also 100, 200, 500).
+      </p>
+      <p>
+        {([10, 100, 1000] as const).map((r) => (
+          <label key={r} style={{ marginRight: 14 }}>
+            <input type="radio" name="d2-range" data-range={r} checked={(s.settings.range ?? 100) === r} onChange={() => setSettings({ range: r })} /> Up to {r}
+          </label>
+        ))}
+      </p>
+      <h3>Money</h3>
+      <table data-money style={{ borderCollapse: 'collapse' }}>
+        <tbody>
+          <tr><td>Merchant visits</td><td data-money-visits>{s.merchant?.visits ?? 0}</td></tr>
+          <tr><td>Potions bought</td><td data-money-purchases>{s.merchant?.purchases ?? 0}</td></tr>
+          <tr><td>Declined (✗)</td><td data-money-declines>{s.merchant?.declines ?? 0}</td></tr>
+          <tr><td>Tries that were not enough</td><td data-money-short>{s.merchant?.short ?? 0}</td></tr>
+          <tr><td>Tries that were too much</td><td data-money-over>{s.merchant?.over ?? 0}</td></tr>
+          <tr><td>Hints</td><td data-money-hints>{s.merchant?.hints ?? 0}</td></tr>
+          <tr><td>Coin level (0: one or two coins make the price; 1: three or more; 2: and a coin that is too big)</td><td data-money-level>{s.merchant?.level ?? 0}</td></tr>
+        </tbody>
+      </table>
       <h3>By screen</h3>
       {table(rows('sc:'), (k) => k)}
       <h3>By letter (hardest first)</h3>
