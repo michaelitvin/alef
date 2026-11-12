@@ -54,6 +54,9 @@ export const LINES: LineDef[] = [
   line('run-end', 'The run ends (no hearts left): neither praise for a loss nor disappointed', [
     'נִגְמְרוּ הַלְּבָבוֹת. עוֹד פַּעַם?', 'זֶהוּ לְהַפַּעַם. נְשַׂחֵק שׁוּב?', 'נִגְמַר הַסִּבּוּב. עוֹד סִבּוּב?',
   ], 0.5, 'warmly'),
+  line('defeat', 'The hearts ran out: the dizzy wizard spins and falls (playful; never praise for a loss), then the summary', [
+    'אוּפְּס, הַפַּעַם הֵן נִצְּחוּ.', 'אוֹי, הַקְּסָמִים נִגְמְרוּ לְהַפַּעַם.',
+  ], 0.5, 'playful'),
   line('new-best', 'Summary: a new best run', ['שִׂיא חָדָשׁ.', 'שָׁבַרְתָּ אֶת הַשִּׂיא שֶׁלְּךָ.'], 0, 'excited'),
   line('dot-without', 'Dotted-letter introduction: before the sound of the form without the dot', ['בְּלִי נְקֻדָּה...'], 0.5, 'warmly'),
   line('dot-with', 'Dotted-letter introduction: before the sound of the form with the dot', ['וְעִם נְקֻדָּה...'], 0.5, 'warmly'),
@@ -84,7 +87,6 @@ export const LINES: LineDef[] = [
   line('info-crystals', 'A tap on his crystals', ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.']),
   line('info-best', 'A tap on his best run', ['זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.']),
   line('info-bosses', 'A tap on the boss trophies (cover, end screen)', ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.']),
-  line('info-coin-ring', 'A tap on the ring around the coin (end screen)', ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.']),
   line('demo-broom', 'Demo: first broom flight with syllables (then the sound)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.']),
   line('demo-broom-letter', 'Demo: first broom flight with letters (then the letter name)', ['תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.']),
   line('demo-cauldron', 'Demo: first cauldron (then the sound)', ['תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.']),
@@ -144,7 +146,6 @@ const FE: Record<string, (string | null)[]> = {
   'info-crystals': ['אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.'],
   'info-best': ['זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.'],
   'info-bosses': ['אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.'],
-  'info-coin-ring': ['כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.'],
   'demo-broom': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר.'],
   'demo-broom-letter': ['תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.'],
   'demo-cauldron': ['תִּגְרְרִי לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.'],

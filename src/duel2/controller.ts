@@ -112,6 +112,8 @@ export interface View {
   heal?: { id: number; at: number }
   /** the hearts given back at the ends of passes in this run */
   passHeart?: number
+  /** the hearts ran out: the short defeat scene plays (the dizzy wizard spins and falls), then `over` */
+  defeat?: boolean
 }
 
 export interface RunOpts {
@@ -135,6 +137,8 @@ const FIX_DONE_MS = 700
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
 const FINALE_MS = 2500
+/** the defeat scene: the dizzy wizard spins and falls (spec: one duel, a short and funny end) */
+const DEFEAT_MS = 1800
 /** praise is spoken this many times per kind, then only its sound plays */
 const PRAISE_SPOKEN = 2
 /** how long a praise with no words lets its sound play */
@@ -893,7 +897,10 @@ export class RunController {
     await this.sleep(t, 1200)
   }
 
-  /** Ends the run: says the right answer, then the summary. A pause can no longer cancel it (it is already saved). */
+  /**
+   * Ends the run: says the right answer, then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
+   * playful, never praise for a loss), then the summary. A pause can no longer cancel it (it is already saved).
+   */
   private async endRun(cue: string): Promise<'over'> {
     this.ending = true
     this.stopBroom()
@@ -905,7 +912,14 @@ export class RunController {
       duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
     }
     await sayParts([{ id: cue }])
-    await new Promise<void>((r) => window.setTimeout(r, 600))
+    this.set({ defeat: true, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false, fixing: false })
+    this.sfx('hit')
+    this.track('defeat', { screen: this.screenId })
+    await Promise.all([
+      new Promise<void>((r) => window.setTimeout(r, DEFEAT_MS)),
+      new Promise<void>((r) => window.setTimeout(r, SFX_RING_MS)).then(() => sayParts([{ id: this.variation('defeat') }])),
+    ])
+    await new Promise<void>((r) => window.setTimeout(r, 300))
     this.token++
     this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'

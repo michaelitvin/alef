@@ -20,6 +20,7 @@ import { HealFly } from '../components/HealFly'
 import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
+import { useWizardArt } from '../assets/images'
 
 type Run = ReturnType<typeof useRun>
 
@@ -65,6 +66,7 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
 
 export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void }) {
   const run = useRun(opts)
+  const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const v = run.view
   const reported = useRef(false)
@@ -118,6 +120,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
       {v.heal && <HealFly key={v.heal.id} />}
+      {/* the hearts ran out: the dizzy wizard spins and falls, then the summary (no offer, no "continue?") */}
+      {v.defeat && <div data-defeat className="d2-defeat">{wiz('s-wizard-dizzy') && <img src={wiz('s-wizard-dizzy')} alt="" draggable={false} />}</div>}
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
   )

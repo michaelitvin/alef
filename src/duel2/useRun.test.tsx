@@ -563,6 +563,42 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  it('the run ends with the defeat scene, then the summary', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    sfxLog.length = 0
+    const c = make()
+    c.start()
+    for (let k = 0; k < 3; k++) {
+      await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      if (k < 2) { await until(c, (v) => v.needNext || !!v.fixing); await drain(c) }
+    }
+    await until(c, (v) => !!v.defeat)
+    expect(c.view.over).toBeNull()
+    await until(c, () => played.some((id) => id.startsWith('defeat-')))
+    expect(c.view.over).toBeNull()
+    await until(c, (v) => v.over !== null)
+    expect(sfxLog.filter((n) => n === 'hit').length).toBeGreaterThanOrEqual(4)
+    c.destroy()
+  })
+
+  it('a lock during the defeat scene still shows the summary', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    const c = make()
+    c.start()
+    for (let k = 0; k < 3; k++) {
+      await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      if (k < 2) { await until(c, (v) => v.needNext || !!v.fixing); await drain(c) }
+    }
+    await until(c, (v) => !!v.defeat)
+    c.pause()
+    expect(c.view.paused).toBe(false)
+    await until(c, (v) => v.over !== null, 8000)
+    expect(useDuel2Store.getState().runs).toBe(1)
+    c.destroy()
+  })
+
   it('a lock during the crystal gives one crystal', async () => {
     useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
     setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 200)) })

@@ -156,26 +156,19 @@ describe('shell', () => {
     expect(noText(container)).toBe('')
   })
 
-  it('the end screen: the coin ring fills from before the run (or its last coin) to now, the boss won, the next one as a silhouette', () => {
-    useDuel2Store.setState({ totalStars: 47, bossesBeaten: ['mimic'], bestRun: 3 })
+  it('the end screen: his coin balance and no ring, the boss won, the next one as a silhouette', () => {
+    useDuel2Store.setState({ totalStars: 47, coins: 31, bossesBeaten: ['mimic'], bestRun: 3 })
     const { container } = render(<Summary over={{ score: 9, crystals: 0, best: false, bosses: ['mimic'], startStars: 38 }} onAgain={() => {}} />)
-    const ring = container.querySelector('[data-coin-ring]')!
-    // 38 → 47 crossed the coin at 40 (it popped during play): the ring fills from 0 to 7 of 10
-    expect(ring.getAttribute('data-from')).toBe('0')
-    expect(ring.getAttribute('data-to')).toBe('7')
-    expect(container.querySelector('[data-coins]')!.textContent).toBe('4')
+    expect(container.querySelector('[data-coin-ring]')).toBeNull()
+    expect(container.querySelector('[data-coins]')!.textContent).toBe('31')
     expect(container.querySelector('[data-trophy="mimic"][data-beaten]')).not.toBeNull()
     expect(container.querySelector('[data-teaser][data-trophy="dot"]')).not.toBeNull()
     expect(container.querySelectorAll('button').length).toBe(1)
     expect(container.querySelector('.d2-play-big')).not.toBeNull()
     expect(noText(container)).toBe('')
-    // no coin in the run: from where it stood
-    const b = render(<Summary over={{ score: 2, crystals: 0, best: false, startStars: 43 }} onAgain={() => {}} />)
-    expect(b.container.querySelector('[data-coin-ring]')!.getAttribute('data-from')).toBe('3')
-    expect(b.container.querySelector('[data-trophy][data-beaten]')).toBeNull()
   })
 
-  it('a tap on the trophies or the coin ring says what they are', async () => {
+  it('a tap on the trophies or the coins on the end screen says what they are', async () => {
     vi.useFakeTimers()
     stopVoice()
     const played: string[] = []
@@ -186,9 +179,9 @@ describe('shell', () => {
     cover.unmount()
     const sum = render(<Summary over={{ score: 1, crystals: 0, best: false, startStars: 0 }} onAgain={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
-    fireEvent.pointerDown(sum.container.querySelector('[data-info="info-coin-ring"]')!)
+    fireEvent.pointerDown(sum.container.querySelector('[data-info="info-coins"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
-    expect(played.filter((id) => id.startsWith('info-'))).toEqual(['info-bosses-1', 'info-coin-ring-1'])
+    expect(played.filter((id) => id.startsWith('info-'))).toEqual(['info-bosses-1', 'info-coins-1'])
     setVoicePlayer(null)
   })
 })

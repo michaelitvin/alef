@@ -164,12 +164,11 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-summary-bosses .d2-trophy-slot { width: clamp(64px, 15vh, 120px); height: clamp(64px, 15vh, 120px); }
 .d2-summary-bosses [data-teaser] { width: clamp(56px, 12vh, 96px); height: clamp(56px, 12vh, 96px); }
 .d2-summary { gap: clamp(10px, 3vh, 28px); }
-.d2-coin-ring { display: inline-flex; align-items: center; gap: 10px; direction: ltr; }
-.d2-coin-ring-disc { position: relative; display: inline-grid; place-items: center; width: clamp(84px, 20vh, 140px); height: clamp(84px, 20vh, 140px); }
-.d2-coin-ring-disc svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.d2-coin-ring-fill { transition: stroke-dashoffset 1.2s ease-out; filter: drop-shadow(0 0 6px #ffd34d); }
-.d2-coin-ring-coin { width: 50%; height: 50%; filter: drop-shadow(0 0 8px #ffd34d); }
-.d2-coin-ring-num { color: #fff3c4; font: 800 56px system-ui, sans-serif; text-shadow: 0 0 8px #ffd34d88; }
+/* the defeat scene: the dizzy wizard spins and falls (one duel) */
+.d2-defeat { position: absolute; inset: 0; z-index: 14; pointer-events: none; display: grid; place-items: center; background: #0b0620aa; animation: d2-fade-in 0.3s ease-out; }
+.d2-defeat img { width: clamp(140px, 34vh, 300px); animation: d2-defeat-fall 1.8s ease-in forwards; }
+@keyframes d2-defeat-fall { 0% { transform: translateY(-20vh) rotate(0deg); } 60% { transform: translateY(0) rotate(540deg); } 100% { transform: translateY(30vh) rotate(720deg); opacity: 0.85; } }
+@keyframes d2-fade-in { from { opacity: 0; } }
 .d2-summary [data-teaser] { box-shadow: 0 0 18px #b48cff88; }
 .d2-play-big { width: clamp(110px, 26vh, 180px); height: clamp(110px, 26vh, 180px); box-shadow: 0 0 0 14px #ffb02e40, 0 0 50px 8px #ff8c28e6; animation: d2-pulse-big 0.9s ease-in-out infinite alternate; }
 .d2-play-big svg { width: 46%; height: 46%; }
