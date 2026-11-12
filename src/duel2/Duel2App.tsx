@@ -19,8 +19,13 @@ import { duel2Telemetry } from './telemetry'
 import { useDuel2Store } from './store'
 import { useProgressStore } from '../stores/progressStore'
 import type { View } from './controller'
+import { StationCover } from './screens/StationCover'
+import { openScreens, stationFromUrl } from './station'
 
-type Screen = 'cover' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
+type Screen = 'cover' | 'station' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
+
+/** back to the alef home screen (a session from the path ends there by itself) */
+export function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
 
 /** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
 function RotateHint() {
@@ -39,10 +44,13 @@ const ASK_LINE = 'ask-gender-1'
 /** when the take says בֵּן and בַּת (s into the trimmed file, at the speech rate) */
 const ASK_CUES = { boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }
 
-export default function Duel2App() {
+export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => void } = {}) {
+  // a station link from the home screen's path (?station=<screen>): one session of that minigame, if it is open for him
+  const [station] = useState(() => (typeof location === 'undefined' ? null
+    : stationFromUrl(location.search, openScreens(useDuel2Store.getState(), useProgressStore.getState().duel?.recent ?? {}))))
   // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
   // through the parent area (behind its hold), never past it
-  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : 'cover'))
+  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : station ? 'station' : 'cover'))
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
   const [entry, setEntry] = useState<GalleryEntry | null>(null)
@@ -73,7 +81,7 @@ export default function Duel2App() {
     setLoading(true)
     void preloadDuel2Assets().then(() => {
       setLoading(false)
-      if (screenRef.current !== 'cover') return
+      if (screenRef.current !== 'cover' && screenRef.current !== 'station') return
       // boy or girl is not set yet: ask the child first (spec 2026-11-07 girls)
       if (!getGender()) { setScreen('ask'); return }
       setRunNo((n) => n + 1)
@@ -95,8 +103,9 @@ export default function Duel2App() {
       </div>
     )
   }
-  if (screen === 'play') return <Play key={runNo} opts={{}} onOver={(o) => { setOver(o); setScreen('summary') }} />
-  if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} />
+  if (screen === 'play') return <Play key={runNo} opts={station ? { session: { screen: station } } : {}} onOver={(o) => { setOver(o); setScreen('summary') }} />
+  if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} onHome={goHome} />
+  if (screen === 'station' && station) return <StationCover station={station} onPlay={play} loading={loading} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} onStrokes={() => setScreen('strokes')} onDrawTest={() => setScreen('drawtest')} />
   if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); setScreen('parent') }} />
   if (screen === 'drawtest') return <DrawTest onBack={() => setScreen('parent')} />
