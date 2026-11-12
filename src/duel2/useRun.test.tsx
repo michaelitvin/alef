@@ -331,14 +331,20 @@ describe('run controller', () => {
       useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom' })
       const c = make()
       c.start()
+      // two hearts lost, so a second heart would show (with one lost, the cap of 3 would hide it)
       await ghostsWithALostHeart(c)
+      await until(c, (v) => v.screen?.screen === 'ghosts' && v.phase === 'answer')
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      await until(c, (v) => !!v.fixing)
+      await drain(c)
+      expect(c.view.hearts).toBe(1)
       let locked = false
       await finishGhosts(c, () => {
         if (!locked && played.some((id) => id.startsWith('pass-heart-'))) { locked = true; c.pause(); c.resume() }
       })
       expect(locked).toBe(true)
       await until(c, (v) => v.screen?.screen === 'broom')
-      expect(c.view.hearts).toBe(3)
+      expect(c.view.hearts).toBe(2)
       expect(c.view.passHeart).toBe(1)
       expect(events().filter((e) => e.e === 'pass-heart').length).toBe(1)
       c.destroy()
