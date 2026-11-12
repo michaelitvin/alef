@@ -7,6 +7,7 @@ import { DrawTest } from './DrawTest'
 import { STROKES } from '../data/strokes'
 import { WORDS } from '../data/words'
 import { useDuel2Store } from '../store'
+import { flightPace } from '../logic/run'
 import { clearGender, getPlayer } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
 
@@ -70,6 +71,11 @@ describe('parent area', () => {
     useDuel2Store.setState({ pace: 0.85 })
     const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
     expect(container.querySelector('[data-pace]')!.textContent).toMatch(/0\.85/)
+    // the rule as the flight applies it (flightPace): a catch 1% faster, a mistake 4% slower
+    const text = container.querySelector('[data-pace]')!.parentElement!.textContent!
+    expect(text).toMatch(/a mistake 4% slower/)
+    expect(flightPace(1, 'miss')).toBeCloseTo(1.04)
+    expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
     fireEvent.click(screen.getByText('Reset flight speed'))
     expect(useDuel2Store.getState().pace).toBe(1)
   })

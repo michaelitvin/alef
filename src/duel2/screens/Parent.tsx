@@ -86,7 +86,7 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
       <h3>Flight speed</h3>
       <p>
         The broom flight adapts to him and is saved on this device only: <span data-pace>{s.pace.toFixed(2)}</span>× the normal
-        flight time (0.85 = fastest, 1.6 = slowest): a catch makes it 1% faster, a mistake 12% slower.{' '}
+        flight time (0.85 = fastest, 1.6 = slowest): a catch makes it 1% faster, a mistake 4% slower.{' '}
         <button onClick={() => s.setPace(1)}>Reset flight speed</button>
       </p>
       <h3>Sound</h3>
