@@ -1,10 +1,10 @@
-// A tap on something he collects or keeps (hearts, stars, coins, crystals, his best) says briefly what it is (the parent).
+// A tap on something he collects or keeps (hearts, stars, coins, the coins' ×2/×3, crystals, his best) says briefly what it is (the parent).
 // Taps while the explanation still plays are ignored, so a burst of taps says it once.
 import type { ReactNode } from 'react'
 import { sayInfo } from '../audio/duel2Audio'
 import { duel2Telemetry } from '../telemetry'
 
-export type InfoLine = 'info-hearts' | 'info-stars' | 'info-coins' | 'info-crystals' | 'info-best' | 'info-bosses'
+export type InfoLine = 'info-hearts' | 'info-stars' | 'info-coins' | 'info-crystals' | 'info-best' | 'info-bosses' | 'info-mult'
 
 export function InfoTap(p: { line: InfoLine; children: ReactNode; className?: string }) {
   return (

@@ -34,7 +34,8 @@ export function TopBar(p: {
         {p.coins !== undefined && <InfoTap line="info-coins"><CoinCount n={p.coins} /></InfoTap>}
         {p.score !== undefined && <InfoTap line="info-stars"><StarCount n={p.score} attr="data-score" /></InfoTap>}
         {/* the streak multiplier of the coins (digits only); it pops when it rises (a new key) */}
-        {p.mult !== undefined && p.mult > 1 && <span key={p.mult} data-num data-mult={p.mult} className="d2-mult">×{p.mult}</span>}
+        {/* a tap says what it means (the parent), like the other info items */}
+        {p.mult !== undefined && p.mult > 1 && <InfoTap line="info-mult"><span key={p.mult} data-num data-mult={p.mult} className="d2-mult">×{p.mult}</span></InfoTap>}
         {p.hearts !== undefined && (
           <InfoTap line="info-hearts" className="d2-hearts-row">
             {Array.from({ length: p.hearts }, (_, i) => <span key={i} data-heart className="d2-heart"><HeartIcon /></span>)}

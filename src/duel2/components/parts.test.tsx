@@ -147,6 +147,17 @@ describe('parts', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
     expect(played).toEqual(['info-hearts-1', 'info-stars-1', 'info-coins-1'])
   })
+
+  it('a tap on the ×2 or ×3 says what it means, once per tap burst (the parent)', async () => {
+    vi.useFakeTimers()
+    const played: string[] = []
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
+    const { container } = render(<TopBar hearts={3} score={4} coins={2} mult={2} />)
+    fireEvent.pointerDown(container.querySelector('[data-mult]')!)
+    fireEvent.pointerDown(container.querySelector('[data-mult]')!)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(played).toEqual(['info-mult-1'])
+  })
 })
 
 describe('the merchant screen (spec: one duel, Part 2)', () => {
