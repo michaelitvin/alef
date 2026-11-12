@@ -135,3 +135,35 @@ describe('duelReducer', () => {
     expect(s.seenScreens).toEqual(['silent'])
   })
 })
+
+describe('START_AT (Book 2’s run)', () => {
+  const at = (wave: number, boss = false) => duelReducer(initialDuelState, { type: 'START_AT', wave, boss })
+  it('starts at that wave, with the run owning the hearts', () => {
+    const s = at(7)
+    expect(s.wave).toBe(7)
+    expect(s.hearts).toBe(Infinity)
+    expect(s.mega).toBe(0)
+    expect(s.next).toMatchObject({ kind: 'spawn', wave: 7, boss: false })
+    // a miss never ends the game: the run decides
+    const m = adv(tap(ready(s), 'segol'))
+    expect(m.next).toMatchObject({ kind: 'spawn', wave: 7 })
+  })
+  it('a boss visit starts with the boss', () => {
+    const s = at(10, true)
+    expect(s.bossHp).toBe(BOSS_HP)
+    expect(s.next).toMatchObject({ kind: 'spawn', wave: 10, boss: true, announce: 'boss' })
+  })
+  it('no מגה meter, and no boss after a 5th wave', () => {
+    let s = at(5)
+    for (let k = 0; k < MONSTERS_PER_WAVE; k++) {
+      s = tap(ready(s, mk({ id: k + 1 })), 'kamatz')
+      expect(s.mega).toBe(0)
+      s = adv(s)
+    }
+    expect(s.next).toMatchObject({ kind: 'spawn', wave: 6, boss: false })
+    expect(duelReducer({ ...ready(at(3)), mega: 99 }, { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+  })
+  it('the screens already explained are kept', () => {
+    expect(duelReducer(initialDuelState, { type: 'START_AT', wave: 1, boss: false, seen: ['A'] }).seenScreens).toEqual(['A'])
+  })
+})

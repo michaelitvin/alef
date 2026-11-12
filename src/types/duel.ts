@@ -69,6 +69,8 @@ export interface DuelState {
   /** the round is on screen while the wizard explains it: no walking, taps ignored */
   preview: boolean
   next: Next | null
+  /** Book 2's run plays the duel (START_AT): the run owns the hearts, no מגה, no boss after every 5th wave */
+  embedded?: boolean
 }
 
 export interface Tally {

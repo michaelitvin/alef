@@ -3,6 +3,9 @@ import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, is
 
 export type DuelAction =
   | { type: 'START' }
+  /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
+   * screens already explained (kept by Book 2's save) */
+  | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[] }
   | { type: 'ROUND_READY'; round: Round }
   /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
   | { type: 'ROUND_PREVIEW'; round: Round }
@@ -34,7 +37,7 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
     score: s.score + pts,
     combo,
     bestCombo: Math.max(s.bestCombo, combo),
-    mega: mega ? 0 : Math.min(MEGA_MAX, s.mega + 1),
+    mega: mega || s.embedded ? 0 : Math.min(MEGA_MAX, s.mega + 1),
     bossHp: round.boss ? Math.max(0, s.bossHp - dmg) : s.bossHp,
   }
 }
@@ -67,7 +70,8 @@ function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
   }
   const kills = s.kills + 1
   if (kills < MONSTERS_PER_WAVE) return { state: { kills }, next: { kind: 'spawn', wave: s.wave, boss: false, announce: null } }
-  if (s.wave % BOSS_EVERY === 0) return { state: { kills, bossHp: BOSS_HP }, next: { kind: 'spawn', wave: s.wave, boss: true, announce: 'boss' } }
+  // embedded (Book 2's run): only START_AT makes a boss visit
+  if (!s.embedded && s.wave % BOSS_EVERY === 0) return { state: { kills, bossHp: BOSS_HP }, next: { kind: 'spawn', wave: s.wave, boss: true, announce: 'boss' } }
   return newWave(s.wave + 1)
 }
 
@@ -75,6 +79,13 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
   switch (a.type) {
     case 'START':
       return { ...initialDuelState, phase: 'playing', next: { kind: 'spawn', wave: 1, boss: false, announce: null } }
+    case 'START_AT': {
+      const announce = a.boss ? 'boss' : newMonsterAt(a.wave) ? 'new-monster' : null
+      return {
+        ...initialDuelState, phase: 'playing', embedded: true, hearts: Infinity, wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
+        seenScreens: [...(a.seen ?? [])], next: { kind: 'spawn', wave: a.wave, boss: a.boss, announce },
+      }
+    }
     case 'ROUND_READY':
       return { ...s, round: a.round, outcome: null, twinTried: null, next: null, preview: false, walking: a.round.type === 'A' || a.round.type === 'D' }
     case 'ROUND_PREVIEW':
@@ -92,7 +103,7 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
     case 'TIMEOUT':
       return canAnswer(s) ? miss(s, null) : s
     case 'MEGA':
-      return canAnswer(s) && s.mega >= MEGA_MAX ? hit(s, null, true, a.effect) : s
+      return canAnswer(s) && !s.embedded && s.mega >= MEGA_MAX ? hit(s, null, true, a.effect) : s
     case 'SCREEN_EXPLAINED':
       return s.seenScreens.includes(a.key) ? s : { ...s, seenScreens: [...s.seenScreens, a.key] }
     case 'ADVANCE': {
