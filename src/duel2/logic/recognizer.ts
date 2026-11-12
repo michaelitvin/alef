@@ -428,14 +428,19 @@ function inZone(z: MarkZone, [x, y]: Pt, b: MarkBoxes): boolean {
   const w = L.right - L.left
   const h = L.bottom - L.top
   const mid = (L.left + L.right) / 2
-  if (z === 'under') { const base = Math.max(L.bottom, 1); return y > base - 0.05 && y < base + 0.9 && x > L.left - 0.3 && x < L.right + 0.3 }
+  // under: below his own letter's ink, not below the baseline (a letter drawn high has its vowel above the line), and
+  // touching its bottom a little; it ends where the inside (dagesh) zone ends, so the two never overlap
+  if (z === 'under') return y > L.bottom - 0.08 * h && y < Math.max(L.bottom, 1) + 0.9 && x > L.left - 0.3 && x < L.right + 0.3
   if (z === 'inside') return x > L.left + 0.12 * w && x < L.right - 0.12 * w && y > L.top + 0.12 * h && y < L.bottom - 0.08 * h
   if (z === 'above-right') return y < L.top + 0.15 && y > L.top - 0.9 && x >= mid && x <= L.right + 0.35
   if (z === 'above-left') return y < L.top + 0.15 && y > L.top - 0.9 && x < mid && x >= L.left - 0.4
   const V = b.vav
   if (!V) return false
   const vh = V.bottom - V.top
-  if (z === 'vav-left') return x > V.left - 0.4 && x < V.left + 0.08 && y > V.top + 0.15 * vh && y < V.bottom - 0.1 * vh
+  // shuruk: the vav is printed, and its box is its advance; the fonts put its stem in the right half of the box (Sigalit
+  // from 0.5 of it, Dana Yad from 0.38), so a dot just left of the stem is well inside the box. Generous: from about two
+  // dot-widths left of the box to almost the stem, from below the cholam's place down to the vav's foot.
+  if (z === 'vav-left') { const vw = V.right - V.left; return x > V.left - 0.5 && x < V.left + 0.45 * vw && y > V.top + 0.15 * vh && y < V.bottom }
   return y < V.top + 0.15 && y > V.top - 0.9 && x > V.left - 0.25 && x < V.right + 0.25
 }
 
@@ -501,7 +506,7 @@ export function markTargets(specs: MarkSpec[], boxes: MarkBoxes): Pt[][] {
         : s.zone === 'inside' ? [(L.left + L.right) / 2, L.top + 0.55 * h]
           : s.zone === 'above-right' ? [L.right - 0.12 * w, L.top - 0.2]
             : s.zone === 'above-left' ? [L.left + 0.12 * w, L.top - 0.2]
-              : s.zone === 'vav-left' ? [V.left - 0.15, (V.top + V.bottom) / 2]
+              : s.zone === 'vav-left' ? [V.left + 0.2 * (V.right - V.left), (V.top + V.bottom) / 2]
                 : [(V.left + V.right) / 2, V.top - 0.2]
     const [x, y] = c
     if (s.shape === 'dot') out.push([c])

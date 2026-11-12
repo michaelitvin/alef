@@ -353,12 +353,85 @@ describe('recognizer: marks', () => {
     expect(j(specs, [dot(0.5, 0.5)])).toBe('more')
     expect(j(specs, [bar(0.5, 1.3), dot(0.5, 0.5)])).toBe('ok')
   })
+  it('a mark under the letter is judged against his own letter, not the line (the parent: tsere a bit beneath his letter was rejected)', () => {
+    const ts: MarkSpec[] = [{ zone: 'under', shape: 'dots2' }]
+    const under = (ink: Box, strokes: Pt[][]) => judgeMarks(strokes, ts, { letter: ink }).state
+    const high: Box = { left: 0.05, right: 0.95, top: -0.1, bottom: 0.82 }
+    // his letter sits high: the dots a bit beneath it, still above the baseline
+    expect(under(high, [dot(0.35, 0.93), dot(0.65, 0.93)])).toBe('ok')
+    expect(under(high, [dot(0.35, 1.05), dot(0.65, 1.05)])).toBe('ok')
+    // his letter sits low: the dots beneath it, below the slot's area
+    const low: Box = { left: 0, right: 1, top: 0.3, bottom: 1.3 }
+    expect(under(low, [dot(0.35, 1.45), dot(0.65, 1.45)])).toBe('ok')
+    expect(under(low, [dot(0.35, 1.9), dot(0.65, 1.9)])).toBe('ok')
+    // the dots touch his letter's bottom a little
+    expect(under(letter, [dot(0.35, 0.93), dot(0.65, 0.93)])).toBe('ok')
+    expect(under(high, [dot(0.35, 0.76), dot(0.65, 0.76)])).toBe('ok')
+    // still wrong: inside his letter, above it, far below it, beside it, the wrong count
+    expect(under(high, [dot(0.35, 0.5), dot(0.65, 0.5)])).toBe('wrong')
+    expect(under(low, [dot(0.35, 1.05), dot(0.65, 1.05)])).toBe('wrong')
+    expect(under(high, [dot(0.35, -0.3), dot(0.65, -0.3)])).toBe('wrong')
+    expect(under(low, [dot(0.35, 2.4), dot(0.65, 2.4)])).toBe('wrong')
+    expect(under(high, [dot(1.6, 0.95), dot(1.9, 0.95)])).toBe('wrong')
+    expect(under(high, [dot(0.3, 0.95), dot(0.5, 0.95), dot(0.7, 0.95)])).toBe('wrong')
+    // with a dagesh too: a dot just inside his letter's bottom is the dagesh, not the vowel
+    const both: MarkSpec[] = [{ zone: 'inside', shape: 'dot' }, { zone: 'under', shape: 'dots2' }]
+    expect(judgeMarks([dot(0.5, 0.45), dot(0.35, 0.93), dot(0.65, 0.93)], both, { letter: high }).state).toBe('ok')
+  })
+  it('the order of the marks never matters: בֵּ (dagesh and tsere), שָׁ (ש dot and kamatz), in every order, on his own ב/ש', () => {
+    const perms = <T,>(a: T[]): T[][] => (a.length <= 1 ? [a] : a.flatMap((x, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map((r) => [x, ...r])))
+    for (const script of ['print', 'hand'] as const) {
+      for (const [dy, k] of [[0, 1], [-0.15, 0.85], [0.2, 1.1]] as const) {
+        const inkOf = (ch: string): Box => {
+          const ps = strokesOf(ch, script).variants[0].flatMap((s) => s.pts).map(([x, y]): Pt => [x * k, y * k + dy])
+          return { left: Math.min(...ps.map((p) => p[0])), right: Math.max(...ps.map((p) => p[0])), top: Math.min(...ps.map((p) => p[1])), bottom: Math.max(...ps.map((p) => p[1])) }
+        }
+        const b = inkOf('ב')
+        const bx = (b.left + b.right) / 2
+        const bet: MarkSpec[] = [{ zone: 'inside', shape: 'dot' }, { zone: 'under', shape: 'dots2' }]
+        const betMarks = [dot(bx, (b.top + b.bottom) / 2), dot(bx - 0.15, b.bottom + 0.12), dot(bx + 0.15, b.bottom + 0.12)]
+        for (const o of perms(betMarks)) expect(judgeMarks(o, bet, { letter: b }).state, `${script} ${dy} ${k}`).toBe('ok')
+        const s = inkOf('ש')
+        const sx = (s.left + s.right) / 2
+        const shin: MarkSpec[] = [{ zone: 'above-right', shape: 'dot' }, { zone: 'under', shape: 'T' }]
+        const shinMarks = [dot(s.right - 0.1, s.top - 0.15), bar(sx, s.bottom + 0.15), [[sx, s.bottom + 0.17], [sx, s.bottom + 0.32]] as Pt[]]
+        for (const o of perms(shinMarks)) expect(judgeMarks(o, shin, { letter: s }).state, `${script} ${dy} ${k}`).toBe('ok')
+      }
+    }
+  })
+  it('the shuruk dot: anywhere left of the vav\'s stem at about its middle height (the fonts\' vav stem is in the right half of its box)', () => {
+    // the printed vav's box (its advance), as the fonts have it: Sigalit 0.55 wide, its stem from 0.28; Dana Yad 0.44, from 0.16
+    for (const V of [{ left: -0.9, right: -0.35, top: 0, bottom: 1 }, { left: -0.79, right: -0.35, top: 0, bottom: 1 }]) {
+      const sh: MarkSpec[] = [{ zone: 'vav-left', shape: 'dot' }]
+      const at = (x: number, y: number) => judgeMarks([dot(x, y)], sh, { letter, vav: V }).state
+      const w = V.right - V.left
+      for (const x of [V.left + 0.4 * w, V.left + 0.25 * w, V.left + 0.1 * w, V.left, V.left - 0.2, V.left - 0.4])
+        for (const y of [0.3, 0.5, 0.7, 0.9]) expect(at(x, y), `${w} ${x} ${y}`).toBe('ok')
+      // clearly above it (a cholam), far left of it, right of its stem, or under the slot's letter: wrong
+      expect(at(V.left + 0.2 * w, -0.2)).toBe('wrong')
+      expect(at(V.left - 0.8, 0.5)).toBe('wrong')
+      expect(at(V.right - 0.05, 0.5)).toBe('wrong')
+      expect(at(0.5, 1.3)).toBe('wrong')
+      // the hand puts it close to the stem, inside the zone
+      expect(markTargets(sh, { letter, vav: V })[0][0][0]).toBeGreaterThan(V.left)
+    }
+  })
+  it('the dagesh: anywhere well inside his own letter', () => {
+    const dg: MarkSpec[] = [{ zone: 'inside', shape: 'dot' }]
+    const b: Box = { left: 0.1, right: 0.9, top: -0.2, bottom: 0.75 }
+    for (const x of [0.25, 0.4, 0.5, 0.6, 0.75]) for (const y of [0, 0.2, 0.35, 0.5, 0.65]) expect(judgeMarks([dot(x, y)], dg, { letter: b }).state, `${x} ${y}`).toBe('ok')
+    expect(judgeMarks([dot(0.5, 0.95)], dg, { letter: b }).state).toBe('wrong')
+    expect(judgeMarks([dot(0.5, -0.45)], dg, { letter: b }).state).toBe('wrong')
+    expect(judgeMarks([dot(1.2, 0.3)], dg, { letter: b }).state).toBe('wrong')
+  })
   it('the hand knows where each mark goes', () => {
     const t = markTargets([{ zone: 'under', shape: 'dots2' }, { zone: 'inside', shape: 'dot' }], { letter, vav })
     expect(t.length).toBe(3)
     expect(judgeMarks(t, [{ zone: 'under', shape: 'dots2' }, { zone: 'inside', shape: 'dot' }], { letter, vav }).state).toBe('ok')
     for (const sh of ['dot', 'dots2', 'dots3-tri', 'dots3-diag', 'bar', 'T'] as const)
       for (const z of ['under', 'inside', 'above-right', 'above-left', 'vav-left', 'vav-above'] as const) {
+        // the vav only ever takes one dot (shuruk, cholam male)
+        if (z.startsWith('vav') && sh !== 'dot') continue
         const sp: MarkSpec[] = [{ zone: z, shape: sh }]
         expect(judgeMarks(markTargets(sp, { letter, vav }), sp, { letter, vav }).state, `${z} ${sh}`).toBe('ok')
       }
