@@ -1914,8 +1914,9 @@ export class RunController {
             .catch(() => {}).finally(() => { announcing = false; if (holdSpawn) go() })
         }
         if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt) spawn(now)
-        // the visit ends when all its orbs have arrived (Michael: "let me finish")
-        if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open(waves)) { this.stopBroom(); resolve('done') }
+        // the visit ends when all its orbs have arrived (Michael: "let me finish"); the screen's waves, not `waves`: a wave
+        // spawned in this tick (the last one, after a new sound) is only there
+        if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open((this.view.screen as BroomView).waves)) { this.stopBroom(); resolve('done') }
       }, 50)
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
