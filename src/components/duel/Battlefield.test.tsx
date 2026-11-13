@@ -24,6 +24,11 @@ describe('Battlefield', () => {
     rerender(<Battlefield round={r('imp')} outcome={null} walking paused landscape={false} banner={null} />)
     expect(container.querySelector('.nd-timebar')).toBeNull()
   })
+  it('in Book 2\'s run there is no time line (the parent\'s pick), while the monster walks too', () => {
+    const { container } = render(<Battlefield round={r('imp')} outcome={null} walking paused={false} landscape banner={null} timeLine={false} />)
+    expect(container.querySelector('.nd-monster')).not.toBeNull()
+    expect(container.querySelector('.nd-timebar')).toBeNull()
+  })
   it('shows the wizard pose for the outcome and an explosion on hits', () => {
     const hit = { kind: 'hit' as const, choiceKey: 'kamatz', mega: false, final: true, points: 100, effect: 'boom' as const }
     const { container } = render(<Battlefield round={r('imp')} outcome={hit} walking paused={false} landscape={false} banner={null} />)

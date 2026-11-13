@@ -61,7 +61,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone }: TowerProps) {
         <Starfield />
         <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused}
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} fx={game.fx}
-          resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} />
+          resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
           {state.round && (

@@ -411,6 +411,25 @@
   .nd-embedded.nd-landscape .nd-field { --nd-stack: calc(87.5% + var(--d2-content-top, 78px) - 10px); }
   .nd-embedded.nd-landscape .nd-tower { height: calc(var(--nd-stack) * 0.613); }
   .nd-embedded.nd-landscape .nd-wizard { height: calc(var(--nd-stack) * 0.438); bottom: calc(12.5% + var(--nd-stack) * 0.562); }
-  /* the time bar starts right of the tower, so it does not cross the wizard */
-  .nd-embedded.nd-landscape .nd-timebar { left: 22%; }
+  /* the marks 1.5 times bigger in their runes (the parent's pick); the glyph is taller than its rune, and a vav's holam
+     dot is near the glyph's top, so a vav mark grows less and moves down (the dot stays inside its rune) */
+  .nd-embedded .nd-rune svg { width: 72px; height: 72px; }
+  .nd-embedded .nd-rune .nd-rune-mark { transform: scale(1.25); }
+  .nd-embedded .nd-rune svg[viewBox="0 0 64 64"] .nd-rune-mark { transform: translateY(9px) scale(1.05); }
 }
+/* a tablet in Book 2's run (the parent's pick): the tower and the wizard half way between the duel's tablet board and a
+   rise to the screen's top (the wizard's hat about 100 px from the top), the monsters 25% bigger (a boss 20%), and the
+   marks about 1.7 times bigger in their runes */
+@media (min-height: 501px) {
+  .nd-embedded.nd-landscape .nd-field { --nd-stack: calc(78% + 34px); }
+  .nd-embedded.nd-landscape .nd-tower { height: calc(var(--nd-stack) * 0.613); }
+  .nd-embedded.nd-landscape .nd-wizard { height: calc(var(--nd-stack) * 0.438); bottom: calc(12.5% + var(--nd-stack) * 0.562); }
+  .nd-embedded.nd-landscape .nd-sprite { height: 150px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 240px; }
+  .nd-embedded.nd-landscape .nd-rune { height: 108px; }
+  .nd-embedded .nd-rune svg { width: 86px; height: 86px; }
+  .nd-embedded .nd-rune .nd-rune-mark { transform: scale(1.2); }
+  .nd-embedded .nd-rune svg[viewBox="0 0 64 64"] .nd-rune-mark { transform: translateY(5px) scale(1.1); }
+}
+/* a bigger mark may reach past its glyph's box: its glow is not cut off */
+.nd-embedded .nd-rune svg { overflow: visible; }

@@ -48,6 +48,17 @@ describe('Tower', () => {
     }
   })
 
+  it('shows no time line while the monster walks (the parent’s pick: it ran under the cue bubble)', async () => {
+    const { container } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
+    let walked = false
+    for (let i = 0; i < 40 && !walked; i++) {
+      await act(async () => { await vi.advanceTimersByTimeAsync(500) })
+      walked = !!container.querySelector('.nd-monster')
+      expect(container.querySelector('.nd-timebar')).toBeNull()
+    }
+    expect(walked).toBe(true)
+  })
+
   it('its intro is kept in Book 2’s save, so it plays once ever', async () => {
     render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
