@@ -561,6 +561,47 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(seen.slice(0, 5).some((x) => x.monster === 'bat')).toBe(false)
   })
 
+  it('placement: the first ten monsters ask the ten marks once each', async () => {
+    const { e, done } = emb({ placement: true })
+    const { result } = renderHook(() => useDuelGame({ rng: Math.random, walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const asked: string[] = []
+    await flushLines()
+    for (let k = 0; k < 30 && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); await act(async () => { await vi.advanceTimersByTimeAsync(3000) }); continue }
+      asked.push(r.target.id)
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+    expect(asked.length).toBe(10)
+    expect(new Set(asked).size).toBe(10)
+  })
+
+  it('onWaveEnd is asked at the end of each wave but the last; true ends the visit there', async () => {
+    const ends: number[] = []
+    const a = emb({ waves: 2, onWaveEnd: (w) => { ends.push(w); return false } })
+    const r1 = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: a.e }))
+    act(() => r1.result.current.start())
+    await playRight(r1.result, 14, a.done)
+    expect(ends).toEqual([1])
+    expect(a.answers.length).toBe(10)
+    expect(a.done).toEqual([2])
+    r1.unmount()
+    const b = emb({ waves: 2, onWaveEnd: () => true })
+    const r2 = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: b.e }))
+    act(() => r2.result.current.start())
+    await playRight(r2.result, 14, b.done)
+    expect(b.answers.length).toBe(5)
+    expect(b.done).toEqual([1])
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+    await flushLines()
+    expect(b.answers.length).toBe(5)
+  })
+
   it('a boss visit is the boss alone: its defeat ends the visit', async () => {
     const { e, answers, done } = emb({ wave: 5, boss: true })
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))

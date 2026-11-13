@@ -56,6 +56,13 @@ export interface DuelEmbedded {
    */
   owed?: string[]
   onIntroduced?: (id: string) => void
+  /** the placement check (Book 2's stage 0): every mark with no recent answer is asked first (pickTarget's cover) */
+  placement?: boolean
+  /**
+   * a wave of the visit ended and another one would start: true ends the visit there (onDone with that wave), e.g. when
+   * stage 0 has passed in the middle of a visit
+   */
+  onWaveEnd?: (wave: number) => boolean
 }
 
 export interface UseDuelGameOpts {
@@ -259,7 +266,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       const r = makeRound({
         id: nextId.current++, wave: next.wave, kills: s.kills, boss: next.boss, rng,
         lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
-        bossStart: next.boss ? bossStart.current : undefined,
+        bossStart: next.boss ? bossStart.current : undefined, cover: !!emb.current?.placement,
       })
       if (!r.boss && emb.current) {
         const now = owedNow.current
@@ -302,6 +309,11 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (e) {
       // a visit of Book 2's run: its waves are done (or its boss is beaten): no next monster
       if (next.kind === 'spawn' && next.wave >= e.wave + (e.boss ? 1 : e.waves)) {
+        if (!doneRef.current) { doneRef.current = true; e.onDone(next.wave - 1) }
+        return
+      }
+      // a wave ended in the middle of the visit: the run may end the visit here
+      if (next.kind === 'spawn' && waveStart.current >= 0 && next.wave > waveStart.current && e.onWaveEnd?.(next.wave - 1)) {
         if (!doneRef.current) { doneRef.current = true; e.onDone(next.wave - 1) }
         return
       }
