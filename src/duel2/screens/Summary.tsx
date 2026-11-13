@@ -73,7 +73,7 @@ export function Summary({ over, onAgain, onHome }: {
       <div className="d2-summary-row">
         <InfoTap line="info-coins"><CoinCount n={coins} size="big" /></InfoTap>
         <InfoTap line="info-stars"><StarCount n={over.score} size="big" attr="data-run-score" /></InfoTap>
-        {!over.session && <InfoTap line="info-best"><span className="d2-best"><span className="d2-trophy-small"><TrophyIcon /></span><span data-num data-best-score>{Math.max(best, over.score)}</span></span></InfoTap>}
+        {!over.session && <InfoTap line="info-best" className="d2-summary-best"><span className="d2-best"><span className="d2-trophy-small"><TrophyIcon /></span><span data-num data-best-score>{Math.max(best, over.score)}</span></span></InfoTap>}
       </div>
       {!over.session && (
         <div className="d2-summary-row">

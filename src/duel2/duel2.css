@@ -179,6 +179,18 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-summary-bosses .d2-trophy-slot { width: clamp(64px, 15vh, 120px); height: clamp(64px, 15vh, 120px); }
 .d2-summary-bosses [data-teaser] { width: clamp(56px, 12vh, 96px); height: clamp(56px, 12vh, 96px); }
 .d2-summary { gap: clamp(10px, 3vh, 28px); }
+/* a session from the path has nothing in the first row: it takes no room, so the coins and stars are centred */
+.d2-summary-row:empty { display: none; }
+/* a tablet (the parent's pick): the coins and the stars about 2.5 times bigger, centred; after a full run his best
+   (smaller) has its own line under them, so the row never runs to the screen's edges */
+@media (min-width: 900px) and (min-height: 600px) {
+  .d2-summary-row { gap: clamp(40px, 8vw, 120px); flex-wrap: wrap; justify-content: center; row-gap: 12px; }
+  .d2-summary .d2-stars-big { font-size: clamp(64px, 17vh, 150px); gap: 0.15em; }
+  .d2-summary .d2-stars-big .d2-star { width: clamp(80px, 21vh, 180px); height: clamp(80px, 21vh, 180px); }
+  .d2-summary .d2-best { font-size: clamp(48px, 9vh, 80px); }
+  .d2-summary .d2-trophy-small { width: 1.2em; height: 1.2em; }
+  .d2-summary-best { flex-basis: 100%; display: flex; justify-content: center; }
+}
 /* the defeat scene: the dizzy wizard spins and falls (one duel) */
 .d2-defeat { position: absolute; inset: 0; z-index: 14; pointer-events: none; display: grid; place-items: center; background: #0b0620aa; animation: d2-fade-in 0.3s ease-out; }
 .d2-warm { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0.01; pointer-events: none; }
