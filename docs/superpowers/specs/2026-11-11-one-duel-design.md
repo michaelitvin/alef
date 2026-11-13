@@ -106,6 +106,9 @@ change.
   doesn't get the merchant when he has no money.
 - My call: on his last heart, the merchant comes at the next checkpoint. With 2 hearts, at every other checkpoint, so
   that the merchant doesn't become routine.
+- My call (2026-11-13): **his first meeting ever** comes at the first checkpoint where he has fewer than 3 hearts and
+  enough coins, with no every-other wait. The save marks "never met" (`checkpointsSinceVisit` starts at `NEVER_VISITED`),
+  so the every-other cadence starts only after the first meeting. The faster stage 0 (Part 3) also brings him sooner.
 - One potion per visit.
 
 ### Prices
@@ -253,6 +256,8 @@ My calls:
   measure (my starting point: every nikkud mark has at least 3 recent answers, and at least 75 % of all the marks' recent
   answers together are right; a player who is right 80 % of the time gets there in about 95 answers, about ten tower
   visits). Then stage 1 opens broom and ghosts, as today. Inside a screen, the content still moves up by stage.
+  **Changed 2026-11-13** (see *Placement: a skilled child moves on fast*): that rule is now the slow lane; a placement
+  check and a fast lane come before it.
 - **The order of a run stays a fixed cycle** (`ORDER`, `nextScreen`, `lastEnded`), with the first duel's screen first.
   "Fewer of the minigames he excels at" means a shorter visit, not a random order. A screen with no recent mistakes
   gets a shorter visit (about half), and a screen he has excelled at for a long time is skipped in every other cycle.
@@ -275,6 +280,38 @@ My calls:
   child screen).
 - **A session from the path:** one visit to that minigame (about 10 questions, or one boss), then the summary screen.
   No hearts at stake and no merchant. Stars and coins are still earned.
+
+### Placement: a skilled child moves on fast (the parent approved, 2026-11-13)
+
+A child who already knows nikkud was held at stage 0 too long: a simulated child with no mistakes needed about 40 tower
+answers. The causes: the picker did not cover all ten marks quickly, mastery was checked only at the end of a tower
+visit, and after 8 clean answers the visit fell to one wave, so there were more stops per answer. The parent: "a
+placement check is a good idea for other things as well".
+
+- **The placement check.** At stage 0, while a mark has no recent answer, the tower asks one of those marks (at random
+  among them). With ten marks, the first two waves (10 answers) ask each mark once. Only the tower in the run does this;
+  the first duel's own game is as before.
+- **Two lanes.** Book 2 opens by the old rule (the slow lane: every mark at least 3 recent answers, 75 % of them right)
+  **or** by the fast lane: every mark has a recent answer, each mark's latest answer is right, and his last 10 tower
+  answers (in time order) are all right. The save keeps the tower's last 10 answers in time order for this
+  (`towerTail`; a new field with a default, so no save migration).
+- **The check runs after every wave,** not only at the end of a visit. A pass in the middle of a visit ends the visit at
+  that wave's end; then the book opens with the usual celebration.
+- **At stage 0 the tower's visit is never shorter.** (After the book opens, the shorter visit is decided by the tower's
+  last 8 answers in time order, as on the other screens; before 8 are kept, by every mark's recent answers.)
+- **The parent can open the book:** "Already knows nikkud: open Book 2" in the parent area, shown only while the book is
+  closed. It is logged (`book-open` with `by: parent`).
+- **Measured** (200 simulated players each; answers until the book opens, median, with the 10th and 90th percentiles):
+
+  | Right | Before | Now | By the fast lane |
+  | --- | --- | --- | --- |
+  | 100 % | 41 (33–46) | 10 (10–10) | all |
+  | 95 % | 50 (40–81) | 10 (10–60) | 94 % |
+  | 90 % | 63 (42–121) | 46 (10–97) | 71 % |
+  | 80 % | 100 (57–182) | 92 (31–170) | 18 % |
+
+  The 80 % child's road is about as before. About 1 in 10 of them gets 10 right in a row in the placement check and
+  goes on at once; the stage machine and the shorter-visit rules then adapt to him in Book 2 (tune in a playtest).
 
 ## Part 4 — The main screen
 

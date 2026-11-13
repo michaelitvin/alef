@@ -465,6 +465,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   time is it.
 - Pause the game when the tablet locks or the child switches to another app. Stop all sound, music too, and cover the game while it is paused.
   After the pause, continue with the same question.
+- Place a skilled child fast. Start with a placement check: ask each item once early, and let a clean result move him on
+  at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
+  visit, and do not make the visits shorter while the check can still pass.
+  Reason: a child who already knows the content gets bored in a long grind, and the next things to learn come late.
+  Example (book 2): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. The parent:
+  "a placement check is a good idea for other things as well". Now the first 10 answers ask each mark once, and 10 right
+  answers in a row (each mark's latest answer right) open the minigames.
 - Make a new minigame available from the start. Do not lock it behind levels.
 - Calculate how many answers a usual run has before the hearts run out (at 1 mistake in 5). Make sure that every screen
   comes up in a usual run.
