@@ -1730,8 +1730,11 @@ export class RunController {
     const boxes: MarkBoxes = { letter: ink, vav: v.layout.vav?.box }
     this.drawState!.boxes = boxes
     this.setScreen({ mode: 'mark' } as Partial<DrawView>)
-    await this.say(t, [{ id: lineAudioId('draw-mark', 1), onStart: () => this.setScreen({ glow: 'marks' } as Partial<DrawView>) }])
+    // his marks count from the moment the letter is done, also while the voice asks for them: a dot drawn at once (the
+    // ש's own dot, right after the ש) was thrown away, so the marks seemed to need an order (the parent)
     this.set({ phase: 'answer' })
+    const ask = this.say(t, [{ id: lineAudioId('draw-mark', 1), onStart: () => this.setScreen({ glow: 'marks' } as Partial<DrawView>) }])
+    ask.catch(() => {})
     let wrong = false
     let tries = 0
     let mine: Pt[][] = []
@@ -1757,6 +1760,7 @@ export class RunController {
       if (tries >= DRAW_TRIES) { for (const p of targets) this.addStroke(p, 'helped'); onHelped(); break }
       this.set({ phase: 'answer' })
     }
+    await ask
     this.setScreen({ glow: undefined } as Partial<DrawView>)
     return wrong
   }

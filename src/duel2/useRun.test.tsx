@@ -2472,6 +2472,43 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.destroy()
   })
 
+  /** a round of this word: seeds are tried until the draw screen asks for it */
+  async function roundOf(id: string, script: 'print' | 'hand', stage: 2 | 3) {
+    for (let seed = 1; seed < 400; seed++) {
+      const c = make({ rng: seeded(seed), force: { screen: 'draw', stage, script } })
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'draw')
+      if (dv(c).word.id === id) return c
+      c.destroy()
+    }
+    throw new Error(`no seed draws ${id}`)
+  }
+  for (const script of ['print', 'hand'] as const) for (const order of ['the ש dot first', 'the shuruk first'] as const) {
+    it(`שׁוּעָל (${script}): the ש dot and the shuruk in any order, also drawn at once after the letter (the parent: ${order})`, async () => {
+      // the voice that asks for the marks takes its real time
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('draw-mark') ? 1800 : 10)) })
+      duel2Telemetry.clear()
+      const c = await roundOf('fox', script, 3)
+      await answering(c)
+      await drawLetter(c)
+      const v = dv(c)
+      const ink = bbox(v.strokes.filter((x) => x.state === 'ok').flatMap((x) => x.pts))
+      // where a child puts them: the ש dot a little off the hand's place, the shuruk close to the vav
+      const [shinDot, shuruk] = markTargets(v.marks, { letter: ink, vav: v.layout.vav?.box }).map(([[x, y]]): Pt[] => [[x + 0.04, y - 0.03], [x + 0.06, y]])
+      const marks = order === 'the ש dot first' ? [shinDot, shuruk] : [shuruk, shinDot]
+      // the first mark comes at once (while the voice still asks for the marks)
+      await tick(20)
+      expect(dv(c).mode).toBe('mark')
+      for (const m of marks) { c.gesture({ type: 'stroke', pts: m }); await tick(30) }
+      await until(c, () => dv(c).mode === 'done')
+      expect(dv(c).strokes.filter((x) => x.state === 'wrong').length).toBe(0)
+      await tick(3000)
+      c.destroy()
+      const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+      expect(ev.filter((e) => e.e === 'draw-mark').map((e) => e.ok)).toEqual([true])
+    })
+  }
+
   it('he waits: the instruction and the word after 8 s; the hint (the hand) after 16 s', async () => {
     const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
     c.start()

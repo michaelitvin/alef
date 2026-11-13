@@ -151,6 +151,11 @@ describe('parent area', () => {
     expect(container.querySelectorAll('[data-stroke-card="מ-print"] svg[data-variant]').length).toBe(3)
     expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="1"]')!.textContent).toMatch(/taught/)
     expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="2"]')!.textContent).toMatch(/also/)
+    // פ in one stroke from the centre (the parent): print פ ף and handwriting פ show it as a second form
+    for (const card of ['פ-print', 'ף-print', 'פ-hand']) {
+      expect(container.querySelectorAll(`[data-stroke-card="${card}"] svg[data-variant]`).length, card).toBe(2)
+      expect(container.querySelector(`[data-stroke-card="${card}"] [data-variant-label="2"]`)!.textContent, card).toMatch(/also/)
+    }
     // handwriting shows a second, upright school font next to the game's font
     expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')).not.toBeNull()
     // the letters drawn after Dana Yad show it as the main reference (big), the game's font small below
