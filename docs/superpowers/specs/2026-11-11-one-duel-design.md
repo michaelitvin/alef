@@ -145,8 +145,9 @@ Shopping is too rare to *teach* arithmetic. It is a place to practise what he kn
 ### The screen
 
 The game's own parts only, in the Book 2 layout: the wizard on the left, the merchant on the right.
-- **The top bar is Book 2's own:** the speaker and the wand (hint) on the left, his coins and hearts on the right.
-  The speaker says the merchant's last line again.
+- **The top bar is Book 2's own,** with one help button on the left: the question mark (the parent: the wand and the
+  speaker were unclear; "there should be one button that repeats the walkthrough"). His coins and hearts are on the right.
+  There is no speaker on this screen.
 - **The potion** is in the merchant's raised hand. **The price tag** is tied to the bottle with a string. It is
   parchment and shows the game's coin icon and the price as a numeral.
 - **The merchant's open hand** is where the coins go.
@@ -167,6 +168,10 @@ The game's own parts only, in the Book 2 layout: the wizard on the left, the mer
    walks away. The run goes on.
 3. **Nothing for about 20 seconds:** he asks once more, then waits. There is no time limit.
 
+**A child who knows the merchant** (the parent asked for a shorter opening; my call: he knows him once he has bought
+a potion from him, the save's purchase count) hears only the short offer, רוֹצֶה [רוֹצָה] שִׁקּוּי לֵב?, and sees no demo. The
+explanations that come when a move is first needed (the undo) still come.
+
 **First visit only, the merchant shows how,** right after the opening line. Everything else dims, and the game's
 pointing hand shows each step while he says it:
 - D1: the price tag glows;
@@ -184,20 +189,24 @@ Then it is his turn, with the same price (rule: the demo's round is the first ro
   undoes one more coin. There is no "start over" button. Undo is shown only when he first needs it (below).
 - **Buying:** he taps the potion. The merchant counts: the coins in his hand light up one by one, each with a chime,
   and a bubble shows the running total. Then the tag lights up, so he sees both numbers together.
-  - **Exact:** the potion flies to the wizard, a heart flies to the top bar, and the coins go into the merchant's pouch.
+  - **Exact:** the potion flies to the wizard, a heart flies to the top bar and the hearts flash (as at the end of a pass),
+    and the coins go into the merchant's pouch. Then the merchant says that the child has a heart back (the parent).
   - **Not enough:** the tag flashes. The coins stay, and he adds more.
   - **Too much:** the tag flashes. The coins stay. **The first time only,** the pointing hand taps the merchant's hand
     and the last coin flies back to its pile (the parent liked showing it "just when it's needed").
   - Wrong tries cost nothing, and he can try any number of times.
-- **The hint:** the wand. After two wrong tries in a row, the wand glows (it does not open by itself: rule, a hint
-  comes by itself only after a long wait). The hint shows the answer, which is acceptable because he asked for it;
-  the parent's objection to outlines was that they showed the answer without being asked. The coins in the merchant's hand go back, and
-  the top coins of the piles that make the price glow green. He still gives them himself.
+- **Help: the question mark.** A tap plays the walkthrough again: D1–D4, and the undo step too once he has seen it (the
+  hand on the merchant's hand; no coin moves). The deal stays as it is: the price, his piles and the coins in the
+  merchant's hand. The button is hidden while the replay plays, and a touch on a coin, the potion or the merchant's hand
+  ends the replay at once and counts (rule: a hint goes away when the child acts). After two wrong tries in a row, the ?
+  glows (it does not open by itself). A replay counts as a hint in the parent's money section and for the coins' level.
+  The green coins of the earlier hint are gone (they showed the answer; the parent asked for one button that repeats the
+  walkthrough).
 - **He taps the potion with nothing in the merchant's hand:** the merchant's hand glows.
 
 ### Voice lines (boy forms; girl forms in brackets)
 
-The merchant speaks; only the hint is the narrator's. The parent wrote or changed the opening line and the D2 line.
+The merchant speaks all the lines (the narrator's hint line left with the green coins). The parent wrote or changed the opening line and the D2 line.
 
 | When | Line |
 |---|---|
@@ -209,10 +218,11 @@ The merchant speaks; only the hint is the narrator's. The parent wrote or change
 | D3 | וְאָז גַּע [גְּעִי] בַּשִּׁקּוּי. |
 | D4 | לֹא צָרִיךְ? גַּע [גְּעִי] כָּאן. |
 | Exact | בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי. |
+| Then, the heart back (the parent asked; no עוֹד, no "!") | עַכְשָׁו יֵשׁ לְךָ [לָךְ] לֵב בַּחֲזָרָה. |
+| Opening, a child who knows him (the parent) | רוֹצֶה [רוֹצָה] שִׁקּוּי לֵב? |
 | Not enough | זֶה לֹא מַסְפִּיק. |
 | Too much | זֶה יוֹתֵר מִדַּי. |
 | Too much, first time, with the undo demo | קַח [קְחִי] מַטְבֵּעַ בַּחֲזָרָה. |
-| Hint, narrator | אוּלַי אֵלֶּה? |
 | Potion tapped with an empty hand | קֹדֶם מַטְבְּעוֹת. |
 
 - **No numbers are spoken.** Every count is shown. (This solves recording every number.)

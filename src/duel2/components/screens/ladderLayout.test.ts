@@ -12,7 +12,7 @@ const PHONES = [[780, 360], [740, 360], [915, 412], [844, 390]] as const
 const RUNGS = 5
 
 interface Rect { l: number; t: number; r: number; b: number }
-/** the bar's items at their widest (CSS px; layout.ts barItems): the speaker and the wand, the go-on button with its pulse, the counts with ×3 */
+/** the bar's items at their widest (CSS px; layout.ts barItems): the speaker and the hint button, the go-on button with its pulse, the counts with ×3 */
 function barItems(w: number, leftSide: boolean): Record<string, Rect> {
   const bt = BAR_TOP_PX + (BAR_H_PX - BAR_ITEMS_PX.button) / 2
   const bar = barModel(w)
@@ -21,11 +21,11 @@ function barItems(w: number, leftSide: boolean): Record<string, Rect> {
     next: { l: bar.next[0], r: bar.next[1], t: nt, b: bar.nextSide ? bt + BAR_ITEMS_PX.button : BAR_TOP_PX + BAR_H_PX / 2 + BAR_NEXT_HALF_PX },
     counts: { l: bar.counts[0], r: bar.counts[1], t: BAR_TOP_PX, b: BAR_TOP_PX + BAR_H_PX },
   }
-  // the finished ladder is a celebration: no go-on button then (it shows only while he must go on); on a phone it would be in the wand's place
+  // the finished ladder is a celebration: no go-on button then (it shows only while he must go on); on a phone it would be in the hint's place
   if (!leftSide && bar.nextSide) delete items.next
   if (leftSide) {
     items.speaker = { l: bar.speaker![0], r: bar.speaker![1], t: bt, b: bt + BAR_ITEMS_PX.button }
-    items.wand = { l: bar.wand[0], r: bar.wand[1], t: bt, b: bt + BAR_ITEMS_PX.button }
+    items.hint = { l: bar.hint[0], r: bar.hint[1], t: bt, b: bt + BAR_ITEMS_PX.button }
   }
   return items
 }
@@ -62,7 +62,7 @@ describe('the ladder in the band (the parent: bigger on the phone, never under t
     for (const [w, h] of SIZES) {
       for (let built = 0; built <= RUNGS; built++) {
         const b = ladderBoxes(built, RUNGS, ladderView({ w, h }))
-        // the finished ladder (ladder-top) is a celebration: the speaker and the wand are not in the bar then
+        // the finished ladder (ladder-top) is a celebration: the speaker and the hint button are not in the bar then
         const items = barItems(w, built < RUNGS)
         const boxes: [string, Box][] = [['ladder', b.ladder], ['wizard', b.wizard], ...b.rungs.map((r, k): [string, Box] => [`rung ${k}`, r]), ...b.plates.map((p, i): [string, Box] => [`plate ${i}`, p])]
         for (const [name, box] of boxes) {

@@ -3133,6 +3133,148 @@
    "earlier_takes": null
   },
   {
+   "id": "m-heart-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-1-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-1-f/v3.mp3",
+   "request": {
+    "text": "[playful] עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-heart-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "m-heart-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-1.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-1/v2.mp3",
+   "request": {
+    "text": "[playful] עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-1/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-2-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "הַלֵּב חָזַר אֵלַיִךְ.",
+   "take": "clips/m-heart-2-f/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב חָזַר אֵלַיִךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-2-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-2.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "קִבַּלְתָּ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-2/v2.mp3",
+   "request": {
+    "text": "[playful] קִבַּלְתָּ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-2/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-3-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "הַלֵּב שֶׁלָּךְ חָזַר.",
+   "take": "clips/m-heart-3-f/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב שֶׁלָּךְ חָזַר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-3-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-3.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "הַלֵּב שֶׁלְּךָ חָזַר.",
+   "take": "clips/m-heart-3/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב שֶׁלְּךָ חָזַר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-3/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
    "id": "m-hello-1-f",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/m-hello-1-f.mp3",
@@ -3250,40 +3392,50 @@
    "earlier_takes": null
   },
   {
-   "id": "m-hint-1",
+   "id": "m-offer-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hint-1.mp3",
-   "where": "Merchant visit, the hint (narrator): his coins go back and the coins that make the price glow green",
-   "caption": "אוּלַי אֵלֶּה?",
-   "take": "clips/m-hint-1/v1.mp3",
+   "file": "src/duel2/assets/audio/voice/m-offer-1-f.mp3",
+   "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then — when a girl plays",
+   "caption": "רוֹצָה שִׁקּוּי לֵב?",
+   "take": "clips/m-offer-1-f/v2.mp3",
    "request": {
-    "text": "[warmly] אוּלַי אֵלֶּה?",
+    "text": "[playful] רוֹצָה שִׁקּוּי לֵב?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-offer-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
-   "id": "m-hint-2",
+   "id": "m-offer-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hint-2.mp3",
-   "where": "Merchant visit, the hint (narrator): his coins go back and the coins that make the price glow green",
-   "caption": "אוּלַי הַמַּטְבְּעוֹת הָאֵלֶּה?",
-   "take": "clips/m-hint-2/v1.mp3",
+   "file": "src/duel2/assets/audio/voice/m-offer-1.mp3",
+   "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then",
+   "caption": "רוֹצֶה שִׁקּוּי לֵב?",
+   "take": "clips/m-offer-1/v2.mp3",
    "request": {
-    "text": "[warmly] אוּלַי הַמַּטְבְּעוֹת הָאֵלֶּה?",
+    "text": "[playful] רוֹצֶה שִׁקּוּי לֵב?",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 101
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/m-offer-1/v1.mp3",
+     "seed": 1
+    }
+   ]
   },
   {
    "id": "m-over-1",

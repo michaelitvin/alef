@@ -62,10 +62,10 @@ describe('no item of the bar covers another (the go-on button never over the cou
   it('at every size, with the counts at their widest (999 coins, 99 stars, ×3, three hearts), with or without the speaker', () => {
     for (const [w] of BAR_SIZES) for (const speaker of [true, false]) {
       const bar = barItems(w, speaker)
-      // what shows at once: the go-on button in the left group takes the wand's place (the wand is not shown then)
+      // what shows at once: the go-on button in the left group takes the hint's place (the hint button is not shown then)
       const shown: [string, [number, number]][] = [['next', bar.next], ['counts', bar.counts]]
       if (bar.speaker) shown.push(['speaker', bar.speaker])
-      if (!bar.nextSide) shown.push(['wand', bar.wand])
+      if (!bar.nextSide) shown.push(['hint', bar.hint])
       shown.push(['off the screen', [-Infinity, 0]], ['off the screen', [w, Infinity]])
       for (let i = 0; i < shown.length; i++) for (let j = i + 1; j < shown.length; j++) {
         const [a, [a0, a1]] = shown[i], [b, [b0, b1]] = shown[j]
@@ -75,19 +75,19 @@ describe('no item of the bar covers another (the go-on button never over the cou
       }
     }
   })
-  it('the go-on button stays in the middle where it clears the counts (a tablet), else it takes the wand\'s place on the left (a phone)', () => {
+  it('the go-on button stays in the middle where it clears the counts (a tablet), else it takes the hint button\'s place on the left (a phone)', () => {
     expect(nextInMiddle(1024)).toBe(true)
     expect(nextInMiddle(1280)).toBe(true)
     for (const w of [740, 780, 915]) expect(nextInMiddle(w)).toBe(false)
     expect(barItems(1280).next[0] + BAR_ITEMS_PX.next * NEXT_PULSE / 2).toBeCloseTo(640)
     expect(barItems(780).nextSide).toBe(true)
   })
-  it('in the wand\'s place the go-on button is the wand\'s size and does not grow (the stylesheet)', async () => {
+  it('in the hint button\'s place the go-on button is its size and does not grow (the stylesheet)', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
     const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(new RegExp(`\\.d2-topbar \\.d2-topbar-side \\.d2-btn-next \\{ width: ${BAR_ITEMS_PX.button}px; height: ${BAR_ITEMS_PX.button}px; animation-name: d2-glow; \\}`))
     expect(css).not.toMatch(/@keyframes d2-glow \{[^}]*transform/)
-    expect(barItems(780).next).toEqual(barItems(780).wand)
+    expect(barItems(780).next).toEqual(barItems(780).hint)
   })
   it('the play screen tells the bar where the go-on button goes', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
@@ -126,17 +126,17 @@ describe('the doors on a phone: the door rises into the band (the parent\'s pick
     expect(bandStageBox(780, 360, top, BAND_CONTENT_W.doors)!.scale / stageBox(780, 360, top).scale).toBeGreaterThan(1.2)
   })
 
-  it('nothing he sees or taps is under an item of the bar: the wand, the go-on button (with its pulse), the counts with the ×2/×3 badge at their widest', () => {
+  it('nothing he sees or taps is under an item of the bar: the hint button, the go-on button (with its pulse), the counts with the ×2/×3 badge at their widest', () => {
     for (const [w, h] of PHONES) {
       const b = bandStageBox(w, h, top, BAND_CONTENT_W.doors)!
       const bar = barItems(w, false)
-      // the wand and the go-on button are no wider than this; the counts are measured at their widest
-      expect(bar.wand[1] - bar.wand[0]).toBe(BAR_ITEMS_PX.button)
-      expect(bar.wand[0]).toBe(BAR_SIDE_PX)
+      // the hint button and the go-on button are no wider than this; the counts are measured at their widest
+      expect(bar.hint[1] - bar.hint[0]).toBe(BAR_ITEMS_PX.button)
+      expect(bar.hint[0]).toBe(BAR_SIDE_PX)
       for (const c of content) {
         const x0 = b.x + c.x0 * b.scale, x1 = b.x + c.x1 * b.scale, y0 = b.y + c.y0 * b.scale
         if (y0 >= BAR_TOP_PX + BAR_H_PX) continue
-        for (const [name, [l, r]] of [['wand', bar.wand], ['next', bar.next], ['counts', bar.counts]] as const) {
+        for (const [name, [l, r]] of [['hint', bar.hint], ['next', bar.next], ['counts', bar.counts]] as const) {
           const apart = x1 + BAND_AIR_PX <= l + 0.01 || x0 >= r + BAND_AIR_PX - 0.01
           expect(apart, `${w}x${h}: ${c.what} under ${name}`).toBe(true)
         }

@@ -329,6 +329,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Make the go-on button of an explanation large and glowing, and put it where the explanation leaves room (book 2: at the
   bottom). Check at phone size that it covers nothing he must see.
   Example (book 2): the parent: "make the play button more prominent, and make sure it doesn't hide any content".
+- Make the hint button a question mark. Do not use a symbol that the child must learn first, such as a wand.
+  Reason: a child knows the question mark as "help"; he did not know what the wand did.
+  Example (book 2): the parent: "a hint button would be more intuitive if it looked like a question mark".
+- On a screen that a walkthrough teaches, give one help button (the question mark) that plays the walkthrough again.
+  Do not add a second help button or a speaker for the last line there. Let the replay keep the state of the task, and let
+  a touch on an answer end it.
+  Reason: two buttons with no clear meaning confuse the child. The walkthrough is the help that he needs there.
+  Example (merchant): the parent: "it's unclear what the hint wand and sound buttons are doing. there should be one button
+  that repeats the walkthrough".
 - Ask before you remove a control the child uses. A control that looks redundant to an adult can be one the child likes.
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
@@ -346,6 +355,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example: the home screen's path runs right to left, so its play buttons point left; inside Book 2 the wizard flies to
   the right, so its play and next buttons point right.
 - Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
+- When the child knows a screen, make its opening short. Remove the long greeting and the demo. Keep the explanations
+  that come when a move is first needed.
+  Reason: a long opening that he already knows makes him wait.
+  Example (merchant): the parent: "when the kid is already familiar with the merchant, the merchant's prompt could be
+  shortened"; after his first purchase the merchant says only "רוֹצֶה שִׁקּוּי לֵב?".
 - Explain a move at the moment that the child first needs it, not in the opening demo.
   Example (merchant): how to take a coin back is shown the first time that he gives too much.
 - Do not count for the child what the task asks him to count. Count only after he decides, as feedback.
@@ -417,6 +431,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Let the child skip a hint or an explanation when he shows that he knows: he tries to pick. Keep the answers open
   while a hint plays, and let a pick stop the hint and count. Let a tap anywhere on an explanation that covers the screen end it.
   Example (book 2): the parent: "explanations get the kid stuck if he already knows the answer".
+- A hint goes away when the child acts. When he touches an answer (finger-down, before a drag or a tap ends) or puts the
+  pen down to draw, remove the hint at once: its card, its glow, its pointing hand and its voice. Keep the hint counted.
+  Reason: the hint covers his own try or takes his attention from it.
+  Example (book 2): the parent: "hints should go away when the kid touches an answer, or starts drawing".
 - Give hints that fit the question. Keep them behind a hint button. Show a hint by itself only when the child has not
   answered for a long time (book 2: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the
   right answer glows and its sound plays.

@@ -26,7 +26,7 @@ import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
-import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
+import { composeCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
 import { NEVER_VISITED } from './store'
 import { SHORT_AFTER, screenRecent, skipInCycle, towerMastered, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
@@ -107,9 +107,10 @@ export interface MerchantView {
   bought?: boolean
   /** the tag lights after counting (both numbers seen together), and flashes when the payment was not right */
   tag?: 'lit' | 'flash'
-  glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean; hint?: number[] }
-  /** the demo hand shows this step; `t` changes on every new demo move */
-  demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number }
+  glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean }
+  /** the demo hand shows this step; `t` changes on every new demo move; `help`: the ? replays it while he pays (his coins
+   * stay pickable, and a touch on them ends the replay) */
+  demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number; help?: boolean }
 }
 
 export type Overlay =
@@ -149,13 +150,15 @@ export interface View {
   defeat?: boolean
   /** the merchant's visit at a checkpoint (drawn instead of the screen) */
   merchant?: MerchantView
-  /** the wand glows: two wrong payments in a row (it does not open the hint by itself) */
+  /** the hint button (?) glows: two wrong payments in a row (it does not open by itself) */
   hintGlow?: boolean
   /** the coins the top bar shows instead of his balance (the gallery's merchant visit) */
   coins?: number
 }
 /** the gestures of a merchant's visit */
 export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
+/** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
+export type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
 
 export interface RunOpts {
   sandbox?: boolean
@@ -304,13 +307,22 @@ export class RunController {
   /** the merchant's visit in progress: it survives a pause (coins in his hand included) */
   private visit: {
     price: number; coins: number[]; given: number[]; said: boolean; bought: boolean; declined: boolean; byeSaid: boolean
-    wrongTries: number; hinted: boolean; lastLine: string | null; decline: Promise<void>; declineNow: () => void
+    wrongTries: number; hinted: boolean; decline: Promise<void>; declineNow: () => void
+    /** the ? replays the walkthrough now; the glow to put back when it ends */
+    helping: boolean; helpGlow?: MerchantView['glow']
     /** the first-visit demo has played to its end in this visit; the idle line was said; his last tap (controller clock) */
     demoDone: boolean; idleSaid: boolean; lastTouch: number
     /** when the empty-hand line was last said (controller clock): it is said at most once per MERCHANT_EMPTY_EVERY_MS */
     emptySaidAt: number
   } | null = null
   private demoMove = 0
+  /** a new number ends the ?'s walkthrough replay that runs */
+  private helpNo = 0
+  /** the door's hint (the syllables light again) runs; a new number ends it */
+  private doorHint = 0
+  private doorHintOn = false
+  /** a hint's voice plays (a touch on an answer stops it) */
+  private hintVoice = 0
   private mWaiter: ((g: MerchantGesture) => void) | null = null
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
@@ -323,7 +335,7 @@ export class RunController {
   /** the next screen after a crystal that came at the cycle's end */
   private afterCrystal: { screen: ScreenId; newCycle: boolean } | null = null
   private purchasesThisRun = 0
-  /** wrong payments in a row in this visit (the wand glows after two) */
+  /** wrong payments in a row in this visit (the hint button glows after two) */
   private wrongInRow = 0
 
   constructor(private opts: RunOpts = {}) {
@@ -341,13 +353,14 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture) {
+  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
     if (this.view.paused) return
+    if (g.type === 'touch') { this.dropHint(g.by); return }
     if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantGesture(g); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWaiter || this.view.screen?.screen !== 'draw') return
       // a stroke stops a hint's hand at once (he shows that he knows)
-      if (this.view.screen.demo?.hint) this.setScreen({ demo: undefined } as Partial<DrawView>)
+      this.dropHint('pen')
       const w = this.strokeWaiter
       this.strokeWaiter = null
       w(g.pts)
@@ -357,6 +370,8 @@ export class RunController {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
       return
     }
+    // he picks: a hint that shows goes away (its voice too)
+    this.dropHint('answer')
     if (this.view.phase === 'mistake') {
       // after a mistake only the marked right answer goes on: he does the right move himself (the parent)
       const right = (this.view.screen as { reveal?: { right: string } } | null)?.reveal?.right
@@ -379,11 +394,8 @@ export class RunController {
     w?.()
   }
   replay() {
-    if (this.view.merchant) {
-      // the speaker says the merchant's last line again
-      if (this.visit?.lastLine) { stopVoice(); void sayParts([{ id: this.visit.lastLine }]) }
-      return
-    }
+    // the merchant's screen has no speaker: its one help button (?) replays the walkthrough (the parent)
+    if (this.view.merchant) return
     if (this.view.screen?.screen === 'draw') {
       this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
       stopVoice()
@@ -397,20 +409,44 @@ export class RunController {
     void sayParts([{ id: this.cueId(t) }])
   }
   hint() {
-    if (this.view.merchant) { this.merchantHint(); return }
+    if (this.view.merchant) { void this.merchantHelp(); return }
     const s = this.view.screen
     if (s?.screen === 'doors' && this.view.phase === 'answer') {
-      // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it)
+      // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it); a touch on a key ends it
       const t = this.token
+      const no = ++this.doorHint
+      const on = () => t === this.token && no === this.doorHint
+      this.doorHintOn = true
       this.setScreen({ lit: 0 } as Partial<DoorsView>)
-      void this.sleep(t, 600).then(() => this.setScreen({ lit: 1 } as Partial<DoorsView>))
-        .then(() => this.sleep(t, 1400)).then(() => this.setScreen({ lit: 2 } as Partial<DoorsView>)).catch(() => {})
+      void this.sleep(t, 600).then(() => { if (on()) this.setScreen({ lit: 1 } as Partial<DoorsView>) })
+        .then(() => this.sleep(t, 1400)).then(() => { if (on()) { this.doorHintOn = false; this.setScreen({ lit: 2 } as Partial<DoorsView>) } }).catch(() => {})
       return
     }
     if (s?.screen === 'draw') { if (this.view.phase === 'answer') this.drawHint(false); return }
     const t = this.currentTarget()
     if (!t || this.view.overlay) return
     void this.playHint(t, false).catch(() => {})
+  }
+
+  /**
+   * He acts (touches an answer, puts the pen down, picks): a hint that shows goes away at once — its card and glow, its
+   * hand, its voice, the door's lighting, the merchant's walkthrough replay (rule: a hint goes away when the child acts).
+   * The hint stays counted; `hint-stop` says that he cut it.
+   */
+  private dropHint(by: 'answer' | 'pen') {
+    let cut = false
+    if (this.view.overlay?.kind === 'hint') { this.set({ overlay: null }); cut = true }
+    const s = this.view.screen
+    if (s?.screen === 'draw' && s.demo?.hint) { this.setScreen({ demo: undefined } as Partial<DrawView>); cut = true }
+    if (s?.screen === 'doors' && this.doorHintOn) {
+      this.doorHint++
+      this.doorHintOn = false
+      this.setScreen({ lit: 2 } as Partial<DoorsView>)
+      cut = true
+    }
+    if (this.visit?.helping) { stopVoice(); this.endHelp(); cut = true }
+    if (this.hintVoice) { this.hintVoice = 0; stopVoice(); cut = true }
+    if (cut) this.track('hint-stop', { screen: this.view.merchant ? 'merchant' : this.view.screen?.screen ?? null, by })
   }
 
   // ---- lifecycle
@@ -663,10 +699,10 @@ export class RunController {
   private newMerchantVisit(price: number, coins: number[]) {
     let declineNow = () => {}
     const decline = new Promise<void>((r) => { declineNow = r })
-    // "two wrong tries in a row" are counted within one visit (the wand's glow ends with the visit too)
+    // "two wrong tries in a row" are counted within one visit (the hint button's glow ends with the visit too)
     this.wrongInRow = 0
     this.visit = {
-      price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, lastLine: null, decline, declineNow,
+      price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, helping: false, decline, declineNow,
       demoDone: false, idleSaid: false, lastTouch: this.now(), emptySaidAt: -Infinity,
     }
   }
@@ -687,12 +723,8 @@ export class RunController {
   }
 
   private mv(p: Partial<MerchantView>) { if (this.view.merchant) this.set({ merchant: { ...this.view.merchant, ...p } }) }
-  /** a merchant's line: a variation, kept for the speaker button */
-  private mLine(id: string) {
-    const v = this.variation(id)
-    if (this.visit) this.visit.lastLine = v
-    return v
-  }
+  /** a merchant's line: a variation */
+  private mLine(id: string) { return this.variation(id) }
   /** say or wait during a visit; the ✗ cuts it at any moment (only in the loop that is current: a pause replaces it) */
   private async vsay(t: number, parts: { id: string; onStart?: () => void }[]) {
     await this.guard(t, Promise.race([this.say(t, parts), this.visit!.decline]))
@@ -730,6 +762,11 @@ export class RunController {
     }
   }
 
+  /** he knows the merchant: he has bought a potion from him before (a persisted count; the gallery: never) */
+  private knowsMerchant() {
+    return !this.opts.force && (useDuel2Store.getState().merchant?.purchases ?? 0) > 0
+  }
+
   /** the first-visit demo: on his first visit ever (the gallery: when it asks for the demo) */
   private merchantDemoDue() {
     if (this.opts.force) return !!this.opts.force.demo
@@ -742,40 +779,73 @@ export class RunController {
    * ✗ is hidden until its step; the demo counts as seen only when it ends (a pause shows it again).
    */
   private async merchantDemo(t: number) {
-    const step = (at: NonNullable<MerchantView['demo']>['step'], glow: MerchantView['glow']) =>
-      this.mv({ phase: 'arrive', demo: { step: at, t: ++this.demoMove }, glow })
     this.set({ phase: 'demo', hintAvailable: false })
     this.track('merchant-demo', {})
-    step('price', { tag: true })
-    await this.vsay(t, [{ id: this.mLine('m-price') }])
-    step('give', undefined)
-    await Promise.all([this.vsleep(t, MERCHANT_DEMO_DRAG_MS), this.vsay(t, [{ id: this.mLine('m-give') }])])
-    step('potion', { potion: true })
-    await this.vsay(t, [{ id: this.mLine('m-tap') }])
-    step('decline', { decline: true })
-    await this.vsay(t, [{ id: this.mLine('m-decline') }])
+    await this.walkthrough(t, false)
     this.mv({ demo: undefined, glow: undefined })
     if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('demoSeen')
   }
 
   /**
-   * The wand during a visit: the coins in the merchant's hand go back, and the top coins of the piles that make the price
-   * glow green (he still gives them himself). It shows the answer, which is fine: he asked for it.
+   * The walkthrough's steps: D1–D4, and with `help` (the ? while he pays) the undo too once it was shown to him. The help's
+   * replay leaves the deal as it is (the coins in the merchant's hand stay) and ends when he touches a coin, the potion or
+   * the merchant's hand. Returns false when it was ended before its last step.
    */
-  private merchantHint() {
+  private async walkthrough(t: number, help: boolean): Promise<boolean> {
+    const v = this.visit!
+    const no = this.helpNo
+    const live = () => !help || (v.helping && no === this.helpNo)
+    type Step = NonNullable<MerchantView['demo']>['step']
+    const steps: [Step, MerchantView['glow'], string][] = [
+      ['price', { tag: true }, 'm-price'], ['give', undefined, 'm-give'], ['potion', { potion: true }, 'm-tap'], ['decline', { decline: true }, 'm-decline'],
+      ...(help && this.undoShown() ? [['undo', { hand: true }, 'm-undo'] as [Step, MerchantView['glow'], string]] : []),
+    ]
+    for (const [step, glow, line] of steps) {
+      if (!live()) return false
+      this.mv({ phase: help ? 'pay' : 'arrive', demo: { step, t: ++this.demoMove, ...(help ? { help: true } : {}) }, glow })
+      const say = this.vsay(t, [{ id: this.mLine(line) }])
+      await (step === 'give' ? Promise.all([this.vsleep(t, MERCHANT_DEMO_DRAG_MS), say]) : say)
+    }
+    return live()
+  }
+
+  /**
+   * The help button (?) during a visit: the merchant's walkthrough again (the parent: one button that repeats it). Only
+   * while he pays and nothing else plays; the button is hidden while it runs. It counts as a hint for the parent's money
+   * section and the coins' level.
+   */
+  private async merchantHelp() {
     const v = this.visit
     const mv = this.view.merchant
-    if (!v || !mv || mv.phase !== 'pay' || v.bought || v.declined) return
-    v.lastTouch = this.now()
-    v.given = []
+    if (!v || !mv || mv.phase !== 'pay' || mv.demo || v.bought || v.declined || v.helping || this.view.phase !== 'answer') return
+    const t = this.token
+    v.helping = true
+    v.helpGlow = mv.glow
     v.hinted = true
+    v.lastTouch = this.now()
     this.wrongInRow = 0
-    this.mv({ given: [], glow: { hint: hintCoins(v.coins, v.price) } })
-    this.set({ hintGlow: false })
+    this.set({ hintGlow: false, hintAvailable: false })
     if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('hint')
-    this.track('merchant-hint', { auto: false })
+    this.track('merchant-help', { undo: this.undoShown(), given: v.given.length })
     stopVoice()
-    void sayParts([{ id: this.variation('m-hint') }])
+    try {
+      if (await this.walkthrough(t, true)) this.endHelp()
+    } catch (e) {
+      // a pause (the visit is drawn again as it was) or the ✗ (the visit ends)
+      if (!(e instanceof Aborted) && !(e instanceof Declined)) throw e
+      v.helping = false
+    }
+  }
+
+  /** the walkthrough replay ends (its last step, or he touched): the deal as it was, his turn again */
+  private endHelp() {
+    const v = this.visit
+    if (!v?.helping) return
+    v.helping = false
+    this.helpNo++
+    v.lastTouch = this.now()
+    this.mv({ demo: undefined, glow: v.helpGlow })
+    if (this.view.merchant?.phase === 'pay') this.set({ hintAvailable: true })
   }
 
   private merchantGesture(g: MerchantGesture) {
@@ -785,7 +855,7 @@ export class RunController {
     if (g.type === 'decline') {
       // the ✗, at any moment of the visit (it is hidden while the first-visit demo plays)
       // (the undo's hand shows while the ✗ is on the screen: it works then too)
-    if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
+    if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && !mv.demo.help && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
       v.declined = true
       this.track('merchant-decline', { phase: mv.phase })
       if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('decline')
@@ -794,6 +864,8 @@ export class RunController {
       return
     }
     if (mv.phase !== 'pay') return
+    // he acts during the ?'s walkthrough: it ends at once, and his move counts
+    if (v.helping) { stopVoice(); this.endHelp() }
     v.lastTouch = this.now()
     if (g.type === 'coin') {
       // the top coin of that pile jumps into his hand (a coin he no longer has cannot be given)
@@ -802,11 +874,7 @@ export class RunController {
       if (!left.includes(g.value)) return
       v.given.push(g.value)
       this.sfx('coin')
-      // the hint's coins keep glowing until he has given each of them himself
-      const hint = [...(mv.glow?.hint ?? [])]
-      const k = hint.indexOf(g.value)
-      if (k >= 0) hint.splice(k, 1)
-      this.mv({ given: [...v.given], glow: hint.length ? { hint } : undefined })
+      this.mv({ given: [...v.given], glow: undefined })
       return
     }
     if (g.type === 'hand') {
@@ -832,15 +900,16 @@ export class RunController {
         if (!v.said) {
           this.set({ merchant: { phase: 'arrive', price: v.price, coins: v.coins, given: v.given, glow: { piles: true } }, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false })
           await this.vsleep(t, MERCHANT_ARRIVE_MS)
-          await this.vsay(t, [{ id: this.mLine('m-hello') }])
+          // a child who knows the merchant (he bought from him before) hears only the short offer, and no demo (the parent)
+          await this.vsay(t, [{ id: this.mLine(this.knowsMerchant() ? 'm-offer' : 'm-hello') }])
           v.said = true
           this.mv({ glow: undefined })
         } else {
-          // after a pause: the visit as it was, the coins in his hand included, and the hint's green coins still glowing
-          const hint = this.view.merchant?.glow?.hint
-          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given, ...(hint?.length ? { glow: { hint } } : {}) }, overlay: null, needNext: false, hintAvailable: false })
+          // after a pause: the visit as it was, the coins in his hand included (a walkthrough replay is not resumed)
+          v.helping = false
+          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
         }
-        if (!v.demoDone && this.merchantDemoDue()) await this.merchantDemo(t)
+        if (!v.demoDone && !this.knowsMerchant() && this.merchantDemoDue()) await this.merchantDemo(t)
         v.demoDone = true
         await this.payLoop(t)
       }
@@ -893,7 +962,7 @@ export class RunController {
     v.wrongTries++
     this.wrongInRow++
     if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant(vd)
-    // two wrong tries in a row: the wand glows (it does not open by itself)
+    // two wrong tries in a row: the hint button (?) glows (it does not open by itself)
     if (this.wrongInRow >= 2) this.set({ hintGlow: true })
     await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
     if (vd === 'over' && !this.undoShown()) {
@@ -931,10 +1000,13 @@ export class RunController {
     this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
     this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
     this.mv({ phase: 'sold', glow: undefined, bought: true })
-    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, ...(this.view.coins !== undefined ? { coins: this.view.coins - v.price } : {}) })
+    // the heart flies to the top bar and the hearts flash, as at the end of a pass
+    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, heartFlash: ++heartFlashes,
+      ...(this.view.coins !== undefined ? { coins: this.view.coins - v.price } : {}) })
     this.sfx('potion')
     await this.sleep(t, SFX_RING_MS)
-    await this.say(t, [{ id: this.mLine('m-exact') }])
+    // then he says that he has a heart back (the parent)
+    await this.say(t, [{ id: this.mLine('m-exact') }, { id: this.mLine('m-heart') }])
   }
 
   /** He walks away (after the ✗: his coins go back to their piles and he says goodbye). */
@@ -1266,9 +1338,12 @@ export class RunController {
     if (!this.opts.sandbox) duel2Telemetry.track('hint', { target: c.id, auto })
     this.set({ overlay: { kind: 'hint', target: c, glow: null } })
     const glow = (g: Highlight) => () => { if (this.view.overlay?.kind === 'hint') this.set({ overlay: { kind: 'hint', target: c, glow: g } }) }
+    const voice = ++this.fxId
+    this.hintVoice = voice
     try {
       await this.say(t, [{ id: `ln-${c.itemId}`, onStart: glow('letter') }, { id: `vn-${c.mark}`, onStart: glow('vowel') }])
     } finally {
+      if (this.hintVoice === voice) this.hintVoice = 0
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
     }
   }

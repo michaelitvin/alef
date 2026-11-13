@@ -1,5 +1,5 @@
 // The top bar (rule: floating buttons in the top bar, never over the content): hearts on the right, the cue's speaker and
-// the hint on the left, next in the middle after a mistake or an explanation (on a phone in the hint's place: the middle is
+// the hint (a question mark) on the left — at the merchant one help button (the same ?) that replays his walkthrough, next in the middle after a mistake or an explanation (on a phone in the hint's place: the middle is
 // over the counts there), the run's points beside the hearts (the child
 // asked where to see his points), and the streak multiplier of the coins (×2, ×3) beside them. Every button answers on
 // finger-down.
@@ -36,11 +36,13 @@ function Btn(p: { label: string; onPress: () => void; children: ReactNode; big?:
 export function TopBar(p: {
   /** none in a session from the path (no hearts at stake) */
   hearts?: number; score?: number; coins?: number; mult?: 1 | 2 | 3; onReplay?: () => void; onHint?: () => void; onNext?: () => void
-  /** the wand glows (the merchant: two wrong payments in a row); it never opens the hint by itself */
+  /** the ? glows (the merchant: two wrong payments in a row); it never opens the hint by itself */
   hintGlow?: boolean
+  /** the ? is the merchant's help: it replays his walkthrough (aria label "help") */
+  help?: boolean
   /** a new (higher) value flashes the hearts: a heart came back at the end of a pass (no line says it: the parent) */
   heartFlash?: number
-  /** a phone: the middle is over the counts, so the go-on button takes the wand's place after the speaker (layout.ts nextInMiddle) */
+  /** a phone: the middle is over the counts, so the go-on button takes the ?'s place after the speaker (layout.ts nextInMiddle) */
   nextSide?: boolean
 }) {
   const flash = useFlash(p.heartFlash)
@@ -50,7 +52,7 @@ export function TopBar(p: {
     <div className="d2-topbar">
       <div className="d2-topbar-side">
         {p.onReplay && <Btn label="replay" onPress={p.onReplay}><SpeakerIcon /></Btn>}
-        {side ? next : p.onHint && <Btn label="hint" onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
+        {side ? next : p.onHint && <Btn label={p.help ? 'help' : 'hint'} onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
       </div>
       <div className="d2-topbar-mid">{!side && next}</div>
       <div className="d2-topbar-side d2-hearts">

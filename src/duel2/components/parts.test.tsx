@@ -73,12 +73,12 @@ describe('parts', () => {
     fireEvent.pointerDown(container.querySelector('[data-skip]')!)
     expect(onNext).toHaveBeenCalledTimes(1)
   })
-  it('on a phone the go-on button takes the wand\'s place on the left, after the speaker (never over the counts)', () => {
+  it('on a phone the go-on button takes the hint button\'s place on the left, after the speaker (never over the counts)', () => {
     const { container } = render(<TopBar hearts={3} coins={999} score={99} mult={3} onReplay={() => {}} onHint={() => {}} onNext={() => {}} nextSide />)
     const side = container.querySelector('.d2-topbar-side:not(.d2-hearts)')!
     expect([...side.children].map((e) => e.getAttribute('aria-label'))).toEqual(['replay', 'next'])
     expect(container.querySelector('.d2-topbar-mid [aria-label="next"]')).toBeNull()
-    // on a tablet it stays in the middle, and the wand stays
+    // on a tablet it stays in the middle, and the hint button stays
     const mid = render(<TopBar hearts={3} onReplay={() => {}} onHint={() => {}} onNext={() => {}} />).container
     expect(mid.querySelector('.d2-topbar-mid [aria-label="next"]')).not.toBeNull()
     expect(mid.querySelector('[aria-label="hint"]')).not.toBeNull()
@@ -280,8 +280,8 @@ describe('the merchant screen (spec: one duel, Part 2)', () => {
     expect(tops(draw(base).container)).toEqual(['can', 'can', 'can', 'can'])
     // only the top coin: the coins under it do not glow
     expect(draw({ ...base, coins: [2, 2, 2] }).container.querySelectorAll('[data-state="can"]').length).toBe(1)
-    // the hint's green wins over the soft glow
-    expect(tops(draw({ ...base, glow: { hint: [5, 2] } }).container)).toEqual(['can', 'hint', 'hint', 'can'])
+    // the ?'s replay of the walkthrough keeps them pickable (a touch on one ends the replay)
+    expect(tops(draw({ ...base, demo: { step: 'price', t: 1, help: true } }).container)).toEqual(['can', 'can', 'can', 'can'])
     for (const v of [{ ...base, phase: 'arrive' as const }, { ...base, phase: 'arrive' as const, demo: { step: 'give' as const, t: 1 } },
       { ...base, phase: 'count' as const, given: [1], counted: 1 }, { ...base, phase: 'leave' as const }]) {
       expect(draw(v).container.querySelectorAll('[data-state="can"]').length).toBe(0)
@@ -316,15 +316,45 @@ describe('the merchant screen (spec: one duel, Part 2)', () => {
     expect(d4.container.querySelector('[data-decline]')).not.toBeNull()
     expect(d4.container.querySelector('[data-piles]')!.getAttribute('data-dim')).toBe('1')
   })
-  it('the wand glows when the top bar is asked to', () => {
+  it('the hint button glows when the top bar is asked to', () => {
     const { container } = render(<TopBar hearts={2} onHint={() => {}} hintGlow />)
     expect(container.querySelector('[aria-label="hint"]')!.getAttribute('data-glow')).toBe('true')
   })
-  it('the hint makes the top coins of the right piles glow green; the ✗ card glows when it is pointed out', () => {
-    const { container } = draw({ ...base, glow: { hint: [5, 2], decline: true } })
-    expect(container.querySelectorAll('[data-pile="5"] [data-state="hint"]').length).toBe(1)
-    expect(container.querySelectorAll('[data-pile="2"] [data-state="hint"]').length).toBe(1)
-    expect(container.querySelectorAll('[data-pile="10"] [data-state="hint"]').length).toBe(0)
+  it('the hint button is a question mark (the parent), with no wand; the speaker is a speaker', () => {
+    const { container } = render(<TopBar hearts={2} onReplay={() => {}} onHint={() => {}} />)
+    const hint = container.querySelector('[aria-label="hint"]')!
+    expect(hint.querySelector('svg[data-icon="question"]')).not.toBeNull()
+    expect(hint.textContent).toBe('')
+    expect(container.querySelector('[aria-label="replay"] svg[data-icon="speaker"]')).not.toBeNull()
+  })
+  it('at the merchant the ? is one help button (the same icon and glow), with no speaker', () => {
+    const onHint = vi.fn()
+    const { container } = render(<TopBar hearts={2} coins={20} onHint={onHint} hintGlow help />)
+    expect(container.querySelector('[aria-label="hint"]')).toBeNull()
+    expect(container.querySelector('[aria-label="replay"]')).toBeNull()
+    const help = container.querySelector('[aria-label="help"]')!
+    expect(help.querySelector('svg[data-icon="question"]')).not.toBeNull()
+    expect(help.getAttribute('data-glow')).toBe('true')
+    fireEvent.pointerDown(help)
+    expect(onHint).toHaveBeenCalledTimes(1)
+  })
+  it('the ✗ card glows when it is pointed out', () => {
+    const { container } = draw({ ...base, glow: { decline: true } })
     expect(container.querySelector('[data-decline]')!.getAttribute('data-glow')).toBe('true')
+  })
+  it('the ?\'s replay shows the undo too: the hand on his hand, his coins stay in it', () => {
+    const { container } = draw({ ...base, given: [5, 1], demo: { step: 'undo', t: 5, help: true }, glow: { hand: true } })
+    expect(container.querySelector('[data-demo-hand]')).not.toBeNull()
+    expect(container.querySelectorAll('[data-merchant-hand] [data-value-coin]').length).toBe(2)
+  })
+  it('a finger-down on a coin tells the run at once (a hint goes away before the drag ends)', async () => {
+    const { TouchAnswer } = await import('./DragPick')
+    const touch = vi.fn()
+    const { container } = render(<TouchAnswer.Provider value={touch}><Merchant v={base} onCoin={() => {}} onHand={() => {}} onPotion={() => {}} onDecline={() => {}} /></TouchAnswer.Provider>)
+    fireEvent.pointerDown(container.querySelector('[data-pile-top]')!, { pointerId: 1, clientX: 300, clientY: 800 })
+    expect(touch).toHaveBeenCalledWith('answer')
+    // in the replay's coin step the demo's coin lies over its pile: it takes no touch, so the finger reaches the pile
+    const r = render(<Merchant v={{ ...base, demo: { step: 'give', t: 2, help: true } }} onCoin={() => {}} onHand={() => {}} onPotion={() => {}} onDecline={() => {}} />)
+    expect((r.container.querySelector('[data-demo-coin]') as SVGElement).style.pointerEvents).toBe('none')
   })
 })
