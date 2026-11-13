@@ -22,9 +22,11 @@ export interface TowerProps {
   dry?: boolean
   onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'
   onDone: (lastWave: number) => void
+  /** a wave ended in the middle of the visit: true ends the visit there (stage 0 passed) */
+  onWaveEnd?: (wave: number) => boolean
 }
 
-export function Tower({ view, paused, dry, onAnswer, onDone }: TowerProps) {
+export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd }: TowerProps) {
   const settings = useDuel2Store((s) => s.settings)
   const game = useDuelGame({
     embedded: {
@@ -33,6 +35,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone }: TowerProps) {
       owed: dry ? [] : useDuel2Store.getState().towerOwed ?? [],
       onIntroduced: (id) => { if (!dry) useDuel2Store.getState().monsterIntroduced(id) },
       onAnswer, onDone, audio: { sfx: settings.sfx, volume: settings.volume }, dry,
+      placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
     },
   })
   const { state } = game

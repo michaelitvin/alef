@@ -29,5 +29,6 @@ export function useRun(opts: RunOpts) {
     /** the tower's board reports its answers and the end of its visit */
     towerAnswer: (r: 'right' | 'wrong', markId: string) => c.towerAnswer(r, markId),
     towerDone: (lastWave: number) => c.towerDone(lastWave),
+    towerWaveEnd: (wave: number) => c.towerWaveEnd(wave),
   }
 }

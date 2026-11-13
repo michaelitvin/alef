@@ -54,7 +54,7 @@ function ScreenFor({ run, v, demoT, dry, size }: { run: Run; v: View; demoT?: nu
       return <Draw view={s} phase={v.phase} onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} />
     case 'tower':
       // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
-      return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} />
+      return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} onWaveEnd={run.towerWaveEnd} />
   }
 }
 

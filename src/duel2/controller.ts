@@ -28,7 +28,7 @@ import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
 import { composeCoins, hintCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
 import { NEVER_VISITED } from './store'
-import { SHORT_AFTER, screenRecent, skipInCycle, towerMastered, visitScale } from './logic/mastery'
+import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { skippedMonsters } from '../utils/duel/rules'
 import { useProgressStore } from '../stores/progressStore'
@@ -89,7 +89,11 @@ export interface DrawView {
 }
 /** The first duel's tower (spec: one duel, Part 3): drawn by `Tower` (the duel's own board), which reports each answer
  * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
-export interface TowerView { screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number }
+export interface TowerView {
+  screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
+  /** stage 0's placement check: the marks he has not answered yet are asked first */
+  placement?: boolean
+}
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
 
 /** A merchant's visit at a checkpoint (spec: one duel, Part 2): drawn over the stage by `Merchant`. */
@@ -600,6 +604,8 @@ export class RunController {
     if (this.opts.session) return SESSION_LENGTH[screen]
     const full = VISIT[screen]
     if (this.opts.force) return full
+    // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
+    if (screen === 'tower' && !this.bookOpen()) return full
     const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
     // the tower's recent answers are every mark's, side by side (not in time order): none of them may be a mistake
     const scale = screen === 'tower' ? (r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1) : visitScale(r)
@@ -985,7 +991,8 @@ export class RunController {
     }
     const tw = this.tower
     this.syncMult()
-    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
+    const placement = !this.bookOpen() || undefined
+    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
     this.resuming = false
     const last = tw.done ?? await this.guard(t, new Promise<number>((r) => { this.towerWaiter = r }))
     this.towerWaiter = null
@@ -1004,12 +1011,31 @@ export class RunController {
         await this.sleep(t, COIN_POP_MS)
       }
     }
-    // stage 0 passes when his marks are mastered by the duel's own measure: Book 2's minigames open (once)
-    if (!this.opts.sandbox && !this.bookOpen() && towerMastered(useProgressStore.getState().duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))) {
+    // stage 0 passes when his marks are mastered by the duel's own measure (the slow lane) or he has shown that he
+    // knows them (the fast lane): Book 2's minigames open (once). A pass in the middle of a visit ended it at that wave.
+    const lane = this.stage0Passed()
+    if (lane) {
       useDuel2Store.getState().openBook()
-      this.track('book-open', { stars: useDuel2Store.getState().totalStars, towerWave: last + 1 })
+      this.track('book-open', { stars: useDuel2Store.getState().totalStars, towerWave: last + 1, lane })
       await this.celebrate(t, 'streak')
     }
+  }
+
+  /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
+  private stage0Passed(): 'fast' | 'slow' | null {
+    if (this.opts.sandbox || this.bookOpen()) return null
+    return stage0Lane(useProgressStore.getState().duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id), useDuel2Store.getState().towerTail ?? '')
+  }
+
+  /**
+   * A wave of the tower's visit ended and another would start: at stage 0 the check runs after every wave, and a pass
+   * ends the visit at this wave (true); the book opens with its celebration when the visit is over (runTower).
+   */
+  towerWaveEnd(wave: number): boolean {
+    if (this.ending || !this.tower || this.view.screen?.screen !== 'tower') return false
+    const lane = this.stage0Passed()
+    if (lane) this.track('tower-placed', { wave, lane })
+    return !!lane
   }
 
   /** An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. */
@@ -1017,6 +1043,7 @@ export class RunController {
     if (this.ending) return 'over'
     if (this.view.screen?.screen !== 'tower') return 'on'
     this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+    if (!this.opts.sandbox) useDuel2Store.getState().noteTowerAnswer(r === 'right')
     if (r === 'right') {
       this.streak++
       this.gainStar()

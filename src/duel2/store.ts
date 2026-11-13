@@ -7,7 +7,7 @@ import type { Choice, Conf } from './logic/rounds'
 import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 import type { NumberRange } from './logic/merchant'
-import { towerMastered } from './logic/mastery'
+import { pushTowerTail, towerMastered } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import type { DuelStats } from '../types/duel'
 import { COIN_EVERY, DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, STROKES_CHANGED_V2, STROKES_CHANGED_V3, STROKES_CHANGED_V4, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
@@ -86,6 +86,8 @@ export interface Duel2Save {
   towerOwed: string[]
   /** Book 2's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Book 2 save) */
   bookOpen: boolean
+  /** the tower's last answers in time order, newest last (o / x): the fast lane of stage 0 (mastery.fastLane) */
+  towerTail: string
   /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
   firstDuelImported: boolean
   /** the cycles of the run so far, across runs: a long-mastered screen is skipped in every other one */
@@ -130,6 +132,8 @@ interface Actions {
   oweMonsters: (ids: string[]) => void
   /** an owed monster was introduced */
   monsterIntroduced: (id: string) => void
+  /** an answer on the tower, in time order (the fast lane's tail) */
+  noteTowerAnswer: (right: boolean) => void
   /** stage 0 has passed: Book 2's minigames open */
   openBook: () => void
   /** a new cycle of the run starts */
@@ -149,7 +153,7 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, firstDuelImported: false, cycleNo: 0, broomSessions: 0,
+  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, towerTail: '', firstDuelImported: false, cycleNo: 0, broomSessions: 0,
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -231,6 +235,7 @@ export const useDuel2Store = create<Duel2Save & Actions>()(
       setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
       oweMonsters: (ids) => set((s) => ({ towerOwed: [...new Set([...(s.towerOwed ?? []), ...ids])] })),
       monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
+      noteTowerAnswer: (right) => set((s) => ({ towerTail: pushTowerTail(s.towerTail, right) })),
       openBook: () => set({ bookOpen: true }),
       nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
       noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),

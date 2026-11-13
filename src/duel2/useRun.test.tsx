@@ -1318,6 +1318,84 @@ describe('run controller', () => {
         c.destroy()
       })
 
+      it('the placement check: the tower is told to ask unasked marks first, only while the book is closed', async () => {
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        expect(tv(c).placement).toBe(true)
+        c.destroy()
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
+        const d = make()
+        d.start()
+        await until(d, (v) => v.screen?.screen === 'tower')
+        expect(tv(d).placement).toBeUndefined()
+        d.destroy()
+      })
+
+      it('the tower’s answers are kept in time order (the fast lane’s tail of 10)', async () => {
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        c.towerAnswer('wrong', 'kamatz')
+        for (let k = 0; k < 10; k++) c.towerAnswer('right', 'segol')
+        expect(useDuel2Store.getState().towerTail).toBe('o'.repeat(10))
+        c.towerAnswer('wrong', 'kamatz')
+        expect(useDuel2Store.getState().towerTail).toBe('o'.repeat(9) + 'x')
+        c.destroy()
+      })
+
+      it('the check runs after every wave: a pass in the middle of a visit ends it there, then the book opens (fast lane)', async () => {
+        duel2Telemetry.clear()
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        expect(tv(c).waves).toBe(2)
+        // not passed yet: the visit goes on
+        expect(c.towerWaveEnd(1)).toBe(false)
+        // ten right answers, one on each mark (the placement check), recorded by the duel's own store
+        const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'o']))
+        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
+        for (const m of DUEL_MARKS) c.towerAnswer('right', m.id)
+        expect(c.towerWaveEnd(2)).toBe(true)
+        // the board ends the visit at that wave
+        c.towerDone(2)
+        await until(c, (v) => v.screen?.screen === 'broom', 20_000)
+        expect(useDuel2Store.getState()).toMatchObject({ bookOpen: true, towerWave: 3 })
+        const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; lane?: string }[]
+        expect(ev.filter((e) => e.e === 'book-open').map((e) => e.lane)).toEqual(['fast'])
+        expect(ev.filter((e) => e.e === 'tower-placed').length).toBe(1)
+        expect(sfxLog).toContain('streak')
+        c.destroy()
+      })
+
+      it('the fast lane needs every mark’s latest answer right', async () => {
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, m.id === 'kamatz' ? 'ox' : 'o']))
+        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
+        for (let k = 0; k < 10; k++) c.towerAnswer('right', 'segol')
+        expect(c.towerWaveEnd(1)).toBe(false)
+        c.destroy()
+      })
+
+      it('at stage 0 the tower visit is never halved (the check after each wave does the work)', async () => {
+        const clean = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'oo']))
+        // the slow lane is not passed (2 answers a mark), yet there is no recent mistake: an open book would halve it
+        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: clean } })
+        const c = make()
+        c.start()
+        await until(c, (v) => v.screen?.screen === 'tower')
+        expect(tv(c).waves).toBe(2)
+        c.destroy()
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
+        const d = make()
+        d.start()
+        await until(d, (v) => v.screen?.screen === 'tower')
+        expect(tv(d).waves).toBe(1)
+        d.destroy()
+      })
+
       it('at stage 0 there is no pass heart and no merchant', async () => {
         useDuel2Store.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
         const c = make()

@@ -14,11 +14,31 @@ export const SHORT_AFTER = 8
 /** a screen is skipped in every other cycle when the last this many answers (at least this many) are all right */
 export const SKIP_AFTER = 12
 
+/**
+ * The fast lane of stage 0 (the parent, 2026-11-13: a child who already knows nikkud is placed fast): every mark has a
+ * recent answer, every mark's latest answer is right, and the last `tail` tower answers in time order are all right.
+ */
+export const FAST_LANE = { tail: 10 }
+
 const share = (r: string) => (r.length ? [...r].filter((c) => c === 'o').length / r.length : 0)
 
 export function towerMastered(recent: Record<string, string>, markIds: string[]): boolean {
   if (!markIds.length || !markIds.every((id) => (recent[id] ?? '').length >= TOWER_MASTER.minAnswers)) return false
   return share(markIds.map((id) => recent[id]).join('')) >= TOWER_MASTER.rate
+}
+
+/** the tower's answers in time order, newest last (o = right, x = wrong), keeping the fast lane's tail */
+export const pushTowerTail = (tail: string | undefined, right: boolean) => ((tail ?? '') + (right ? 'o' : 'x')).slice(-FAST_LANE.tail)
+
+export function fastLane(recent: Record<string, string>, markIds: string[], tail: string): boolean {
+  if (!markIds.length || !markIds.every((id) => (recent[id] ?? '').endsWith('o'))) return false
+  return tail.length >= FAST_LANE.tail && !tail.slice(-FAST_LANE.tail).includes('x')
+}
+
+/** stage 0 passes by either lane: the slow one (towerMastered) or the fast one (fastLane); null while it has not */
+export function stage0Lane(recent: Record<string, string>, markIds: string[], tail: string): 'fast' | 'slow' | null {
+  if (fastLane(recent, markIds, tail)) return 'fast'
+  return towerMastered(recent, markIds) ? 'slow' : null
 }
 
 /** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Book 2's `sc:` feature */
