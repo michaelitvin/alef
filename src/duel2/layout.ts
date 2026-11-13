@@ -21,10 +21,11 @@ export const CONTENT_TOP_PX = BAR_TOP_PX + BAR_H_PX + BAR_GAP_PX
  * The topmost stage y (of 900) of what he sees and taps on each screen while he answers (measured: the highest pick, ghost, drawing board,
  * plate, glyph, orb or button, with its hover, plus a margin). The stage's sky above it is empty, so on a short wide
  * screen (a phone on its side) that sky may go under the top bar's band, and the game gets larger: the content still
- * starts below the band, so nothing in the bar covers it. 0: the stage is fitted below the band (as before).
+ * starts below the band, so nothing in the bar covers it. Not named (0): the stage is fitted below the band (as
+ * before). The drawing in handwriting is not named: its tall words reach the stage's top.
  */
 export const STAGE_CONTENT_TOP: Record<string, number> = {
-  broom: 96, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, 'draw-hand': 85, crystal: 170, merchant: 104,
+  broom: 96, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, crystal: 170, merchant: 104,
 }
 
 /**
