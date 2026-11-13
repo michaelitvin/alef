@@ -74,6 +74,10 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
     return () => { document.removeEventListener('visibilitychange', vis); window.removeEventListener('pagehide', vis) }
   }, [])
   if (TEST_HOOKS && location.hash === '#/glyphs') return <div className="d2-root"><GlyphSheet /></div>
+  // the end screens as they look after a full run (crystals, a trophy, the next boss, the play button) and after a
+  // session from the path, for layout checks at every screen size
+  if (TEST_HOOKS && location.hash === '#/summary') return <Summary over={{ score: 37, crystals: 3, best: true, bosses: ['mimic'] }} onAgain={() => {}} />
+  if (TEST_HOOKS && location.hash === '#/summary-session') return <Summary over={{ score: 12, crystals: 0, best: false, session: true }} onAgain={() => {}} onHome={() => {}} />
 
   const play = () => {
     if (loading) return
