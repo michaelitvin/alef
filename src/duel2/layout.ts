@@ -80,3 +80,28 @@ export function flightView(w?: number, h?: number): { left: number; width: numbe
   const { scale } = stageBox(w, h, STAGE_CONTENT_TOP.broom)
   return { left: FLIGHT_LEFT, width: Math.max(1600, w / scale), scale }
 }
+
+/**
+ * The first duel's tower in Book 2's run (duel.css, `.nd-embedded`; the parent's pick): the sizes on a phone on its side
+ * (height ≤ 500) and on a tablet. `glyph`: a rune's glyph box (the duel's own: 60); `mark`: the mark's scale in it;
+ * `vav`: a vav mark's scale and its drop (glyph units; its holam dot is near the glyph's top). `sprite`/`boss`: the
+ * monster's height. `pad`: the rune row's band (rune, padding, border). No time line at the field's top.
+ */
+export const TOWER_LAYOUT = {
+  phone: { rune: 62, glyph: 72, mark: 1.25, vav: 1.05, vavDrop: 9, sprite: 72, boss: 76, pad: 62 + 4 + 8 + 2 },
+  tablet: { rune: 108, glyph: 86, mark: 1.2, vav: 1.1, vavDrop: 5, sprite: 150, boss: 240, pad: 108 + 6 + 40 + 2 },
+} as const
+/** the duel's glyph box (SpellPad) */
+export const DUEL_GLYPH_PX = 60
+/** the monster's feet: 14% of the field above its bottom (duel.css .nd-monster) */
+export const MONSTER_BOTTOM = 0.14
+/** the cue bubble's height, its arrow and its gap included (a picture, a sign or a speaker; measured ≤ 62), and a boss's hearts row */
+export const CUE_PX = { bubble: 64, gap: 12, bossGap: 4, bossBubble: 56, hearts: 26 }
+
+/** The top of the monster's cue bubble (CSS px from the screen's top) on a w×h screen in Book 2's run, the boss's or a monster's. */
+export function towerCueTop(h: number, boss: boolean): number {
+  const t = h > 500 ? TOWER_LAYOUT.tablet : TOWER_LAYOUT.phone
+  const fieldBottom = h - t.pad
+  const feet = fieldBottom - (fieldBottom - CONTENT_TOP_PX) * MONSTER_BOTTOM
+  return boss ? feet - t.boss - CUE_PX.hearts - CUE_PX.bossGap - CUE_PX.bossBubble : feet - t.sprite - CUE_PX.gap - CUE_PX.bubble
+}

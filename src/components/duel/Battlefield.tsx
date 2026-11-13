@@ -49,10 +49,12 @@ interface Props {
   resultBanner?: boolean
   /** a hit shows its +points (Book 2's run: no, the first duel's points are retired there) */
   points?: boolean
+  /** the time line at the field's top (Book 2's run: no, the parent's pick; the walking monster shows the time) */
+  timeLine?: boolean
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
   const WIZARD = useWizard()
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
@@ -121,7 +123,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
         transition={outcome ? { duration: 0.4 } : { repeat: Infinity, duration: 1.8 }}
       />
 
-      {round && !outcome && walking && !paused && (
+      {timeLine && round && !outcome && walking && !paused && (
         <div className="nd-timebar">
           <motion.div
             key={round.id}
