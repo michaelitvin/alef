@@ -400,10 +400,10 @@
   .nd-embedded.nd-landscape .nd-word-btn { height: 52px; }
   .nd-embedded.nd-landscape .nd-pad-area { padding: 4px 16px 8px; }
   .nd-embedded.nd-landscape .nd-sprite { height: 72px; }
-  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 84px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 76px; }
   /* the boss's clue bubble must stay below the top bar: its hearts in one row, the bubble's gap smaller */
   .nd-embedded.nd-landscape .nd-boss-hp { display: flex; flex-wrap: nowrap; }
-  .nd-embedded.nd-landscape .nd-boss .nd-clue { margin-bottom: 4px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-clue { margin-bottom: 4px; padding-top: 2px; padding-bottom: 2px; }
   /* the tower and the wizard use the screen's full height on their side (the parent: he was small, and no control sits
      above him): the stack rises from the tower's base (12.5% of the field) into the empty left of the top bar's band, to
      10 px below the screen's top. The bar's left end is empty on the tower (its speaker is on the board), and its counts
