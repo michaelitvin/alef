@@ -9,11 +9,18 @@ const RING: Record<PickState, string | undefined> = {
   idle: undefined, right: '#ffffff', wrong: '#ff4d6a', near: '#8fd8ff', reveal: '#ffd34d', off: undefined,
 }
 
-function Picker(p: { w: number; h: number; x: number; y: number; state: PickState; onPick?: () => void; testCorrect?: boolean; round: boolean; children?: ReactNode; img: string }) {
+/** a plate's height per its width */
+export const PLATE_ASPECT = 0.49
+/** a pick's hit area is this much larger than its drawing, each way (moving targets are hard to tap) */
+export const HIT = 1.3
+
+function Picker(p: { w: number; h: number; x: number; y: number; state: PickState; onPick?: () => void; testCorrect?: boolean; round: boolean; children?: ReactNode; img: string
+  /** a part of the scene, never a pick (a built rung): no hit area */
+  still?: boolean }) {
   const ring = RING[p.state]
   const can = (p.state === 'idle' || p.state === 'reveal') && !!p.onPick
-  const hw = p.w * 0.65
-  const hh = p.h * 0.65
+  const hw = (p.w * HIT) / 2
+  const hh = (p.h * HIT) / 2
   return (
     <g className={`d2-pick d2-pick-${p.state}`} opacity={p.state === 'off' ? 0.35 : 1}>
       {ring && (p.round
@@ -29,11 +36,11 @@ function Picker(p: { w: number; h: number; x: number; y: number; state: PickStat
         ? <circle data-glyph-backing cx={p.x} cy={p.y} r={p.w * 0.36} fill="#1b0f3c" opacity={0.45} style={{ filter: 'blur(4px)' }} />
         : <rect data-glyph-backing x={p.x - p.w * 0.38} y={p.y - p.h * 0.34} width={p.w * 0.76} height={p.h * 0.68} rx={p.h * 0.2} fill="#1b0f3c" opacity={0.35} />}
       {p.children}
-      <rect data-pick x={p.x - hw} y={p.y - hh} width={hw * 2} height={hh * 2} fill="transparent"
+      {!p.still && <rect data-pick x={p.x - hw} y={p.y - hh} width={hw * 2} height={hh * 2} fill="transparent"
         {...(TEST_HOOKS && p.testCorrect ? { 'data-correct': '1' } : {})}
         {...(p.state === 'reveal' ? { 'data-reveal': '1' } : {})}
         style={{ cursor: can ? 'pointer' : 'default' }}
-        onPointerDown={(e) => { e.preventDefault(); if (can) p.onPick!() }} />
+        onPointerDown={(e) => { e.preventDefault(); if (can) p.onPick!() }} />}
     </g>
   )
 }
@@ -43,6 +50,6 @@ export function Orb(p: { size: number; x: number; y: number; children?: ReactNod
 }
 
 /** The plate is about twice as wide as it is tall. */
-export function Plate(p: { w: number; x: number; y: number; children?: ReactNode; state?: PickState; onPick?: () => void; testCorrect?: boolean }) {
-  return <Picker w={p.w} h={p.w * 0.49} x={p.x} y={p.y} state={p.state ?? 'idle'} onPick={p.onPick} testCorrect={p.testCorrect} round={false} img="s-plate">{p.children}</Picker>
+export function Plate(p: { w: number; x: number; y: number; children?: ReactNode; state?: PickState; onPick?: () => void; testCorrect?: boolean; still?: boolean }) {
+  return <Picker w={p.w} h={p.w * PLATE_ASPECT} x={p.x} y={p.y} state={p.state ?? 'idle'} onPick={p.onPick} testCorrect={p.testCorrect} round={false} img="s-plate" still={p.still}>{p.children}</Picker>
 }
