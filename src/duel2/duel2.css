@@ -34,6 +34,10 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-pulse { to { transform: scale(1.08); } }
 /* in the top bar the go-on button is as tall as the bar, so it stays in the bar's band */
 .d2-topbar .d2-btn-next { width: var(--d2-bar-h); height: var(--d2-bar-h); }
+/* on a phone the go-on button takes the wand's place (the middle is over the counts there; layout.ts nextInMiddle): the wand's
+   size, and it glows instead of growing, so it never takes more room than the wand */
+.d2-topbar .d2-topbar-side .d2-btn-next { width: 60px; height: 60px; animation-name: d2-glow; }
+@keyframes d2-glow { to { box-shadow: 0 0 34px #ffb02e, 0 0 10px #fff6d8; } }
 /* an explanation's go-on button (the parent: more prominent, and never over what he must see): big, glowing, at the
    bottom where the explanation leaves room, with the replay button beside it */
 .d2-explain-controls { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);

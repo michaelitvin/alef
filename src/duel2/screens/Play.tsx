@@ -23,7 +23,7 @@ import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
-import { BAND_CONTENT_W, layoutVars, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
+import { BAND_CONTENT_W, layoutVars, nextInMiddle, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
@@ -168,7 +168,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
         <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow}
-          onNext={v.needNext ? run.onNext : undefined} />
+          onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w)} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}

@@ -64,14 +64,55 @@ export function stageBox(w: number, h: number, top = 0): { x: number; y: number;
   return { x: (w - sw) / 2, y, w: sw, h: sh, scale }
 }
 
+type Span = [number, number]
+/** the bar's items on a w-wide screen (x from the screen's left, CSS px; all of them in the band) */
+export interface BarItems {
+  /** the speaker (none on a screen without it, the doors) */
+  speaker?: Span
+  /** the wand: after the speaker */
+  wand: Span
+  /** the go-on button with its pulse: in the middle, or (nextSide) in the wand's place and size, the wand not shown then */
+  next: Span
+  nextSide: boolean
+  /** the counts at their widest */
+  counts: Span
+  /** the left group (the go-on button in the wand's place is no wider) */
+  left: Span
+}
+
 /**
- * The bar's items on a w-wide screen, each at its widest (x from the screen's left; all of them in the band, y from
- * BAR_TOP_PX to BAR_TOP_PX + BAR_H_PX): on the left the speaker and the wand (the doors have no speaker), the go-on
- * button in the middle (with its pulse), the counts on the right.
+ * The go-on button stays in the bar's middle only where it clears both sides with a gap: the left buttons and the counts at
+ * their widest (a tablet). On a narrower screen (a phone) the centre is over the counts, so there it goes in the left group.
  */
-export function barItems(w: number, speaker = true): { left: [number, number]; next: [number, number]; counts: [number, number] } {
-  const buttons = speaker ? 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX : BAR_ITEMS_PX.button
-  return { left: [BAR_SIDE_PX, BAR_SIDE_PX + buttons], next: [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX], counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX] }
+export function nextInMiddle(w: number): boolean {
+  return w / 2 - BAR_NEXT_HALF_PX >= BAR_LEFT_END_PX + BAR_ITEM_GAP_PX && w / 2 + BAR_NEXT_HALF_PX + BAR_ITEM_GAP_PX <= w - BAR_SIDE_PX - BAR_COUNTS_PX
+}
+
+/**
+ * The bar's items on a w-wide screen, each at its widest: on the left the speaker and the wand (the doors have no speaker),
+ * the go-on button in the middle where it fits (nextInMiddle), else in the wand's place after the speaker (TopBar: the
+ * wand is not shown with it), the counts on the right. No two of them overlap at any size.
+ */
+export function barItems(w: number, speaker = true): BarItems {
+  const B = BAR_ITEMS_PX.button
+  const sp: Span | undefined = speaker ? [BAR_SIDE_PX, BAR_SIDE_PX + B] : undefined
+  const slot = sp ? sp[1] + BAR_ITEM_GAP_PX : BAR_SIDE_PX
+  const wand: Span = [slot, slot + B]
+  const nextSide = !nextInMiddle(w)
+  // in the wand's place the go-on button is the wand's size and glows instead of growing (duel2.css), so it takes no more room
+  const next: Span = nextSide ? wand : [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX]
+  const left: Span = [BAR_SIDE_PX, wand[1]]
+  return { speaker: sp, wand, next, nextSide, counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX], left }
+}
+
+/**
+ * The band's free middle on a w-wide screen (CSS px), where content may rise into the band: right of the left group (the
+ * speaker, the wand or the go-on button in its place), left of the counts at their widest and of the go-on button when it
+ * is in the middle, with BAND_AIR_PX on each side.
+ */
+export function bandGap(w: number, speaker = true): { left: number; right: number } {
+  const bar = barItems(w, speaker)
+  return { left: bar.left[1] + BAND_AIR_PX, right: (bar.nextSide ? bar.counts[0] : Math.min(bar.next[0], bar.counts[0])) - BAND_AIR_PX }
 }
 
 /** the screens whose content rises into the top band on a phone (layout.ts bandStageBox): its width (stage units) */
@@ -85,14 +126,12 @@ export const BAND_TOP_PX = 10
  * The doors on a phone on its side (the parent's pick, "into the band"): the door's top rises into the empty middle of
  * the top band, so the door, its word plate and the keys are bigger. The content (STAGE_CONTENT_TOP..900) fills the
  * screen from BAND_TOP_PX to its bottom, and its middle (stage x 800, `width` wide) moves into the band's free gap:
- * right of the wand, left of the go-on button and of the counts at their widest, with BAND_AIR_PX on each side. The
+ * between the bar's items (bandGap). The
  * door is then left of the screen's centre. Null where it does not help: on a tablet, or when the stage would not grow.
  */
 export function bandStageBox(w: number, h: number, top: number, width: number): { x: number; y: number; w: number; h: number; scale: number } | null {
   if (h > BAND_MAX_H) return null
-  const bar = barItems(w, false)
-  const l = bar.left[1] + BAND_AIR_PX
-  const r = Math.min(bar.next[0], bar.counts[0]) - BAND_AIR_PX
+  const { left: l, right: r } = bandGap(w, false)
   const scale = Math.min((h - BAND_TOP_PX) / (900 - top), (r - l) / width)
   if (!(scale > stageBox(w, h, top).scale + 1e-6)) return null
   const cx = (l + r) / 2
@@ -146,15 +185,6 @@ export function flightView(w?: number, h?: number): { left: number; width: numbe
   if (!w || !h) return { left: FLIGHT_LEFT, width: 1600, scale: 1 }
   const { scale } = stageBox(w, h, STAGE_CONTENT_TOP.broom)
   return { left: FLIGHT_LEFT, width: Math.max(1600, w / scale), scale }
-}
-
-/**
- * The band's free middle on a w-wide screen, left of the centre (CSS px): right of the speaker and the wand, left of both the
- * go-on button (in the middle) and the counts at their widest, with air on each side.
- */
-export function bandGap(w: number): { left: number; right: number } {
-  const bar = barItems(w)
-  return { left: bar.left[1] + BAND_AIR_PX, right: Math.min(bar.next[0], bar.counts[0]) - BAND_AIR_PX }
 }
 
 /** a stage view that fills the whole screen: the viewBox (stage units) and the scale (CSS px per stage unit) */

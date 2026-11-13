@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BAND_CONTENT_W, BAND_TOP_PX, BAND_AIR_PX, BAR_GAP_PX, BAR_H_PX, BAR_ITEMS_PX, BAR_SIDE_PX, BAR_TOP_PX, CONTENT_TOP_PX, NEXT_PULSE, STAGE_CONTENT_TOP, bandStageBox, barItems, layoutVars, stageBox } from './layout'
+import { BAND_CONTENT_W, BAND_TOP_PX, BAND_AIR_PX, BAR_GAP_PX, BAR_H_PX, BAR_ITEMS_PX, BAR_SIDE_PX, BAR_TOP_PX, CONTENT_TOP_PX, NEXT_PULSE, STAGE_CONTENT_TOP, bandStageBox, barItems, layoutVars, nextInMiddle, stageBox } from './layout'
 import { DOOR_BOX, FULL_LIGHT, KEY_BOW, KEY_H, KEY_W, KEY_X, KEY_Y } from './components/screens/Doors'
 
 const SIZES = [[780, 360], [740, 360], [915, 412], [1280, 800], [1024, 768], [1920, 1080]] as const
@@ -57,6 +57,45 @@ describe('the top bar never covers the game (rule: floating buttons in the top b
   })
 })
 
+describe('no item of the bar covers another (the go-on button never over the counts)', () => {
+  const BAR_SIZES = [[780, 360], [740, 360], [915, 412], [1024, 768], [1280, 800]] as const
+  it('at every size, with the counts at their widest (999 coins, 99 stars, ×3, three hearts), with or without the speaker', () => {
+    for (const [w] of BAR_SIZES) for (const speaker of [true, false]) {
+      const bar = barItems(w, speaker)
+      // what shows at once: the go-on button in the left group takes the wand's place (the wand is not shown then)
+      const shown: [string, [number, number]][] = [['next', bar.next], ['counts', bar.counts]]
+      if (bar.speaker) shown.push(['speaker', bar.speaker])
+      if (!bar.nextSide) shown.push(['wand', bar.wand])
+      shown.push(['off the screen', [-Infinity, 0]], ['off the screen', [w, Infinity]])
+      for (let i = 0; i < shown.length; i++) for (let j = i + 1; j < shown.length; j++) {
+        const [a, [a0, a1]] = shown[i], [b, [b0, b1]] = shown[j]
+        if (a === b) continue
+        const apart = a1 <= b0 + 0.01 || b1 <= a0 + 0.01
+        expect(apart, `${w}: ${a} [${a0.toFixed(1)}, ${a1.toFixed(1)}] x ${b} [${b0.toFixed(1)}, ${b1.toFixed(1)}] (speaker ${speaker})`).toBe(true)
+      }
+    }
+  })
+  it('the go-on button stays in the middle where it clears the counts (a tablet), else it takes the wand\'s place on the left (a phone)', () => {
+    expect(nextInMiddle(1024)).toBe(true)
+    expect(nextInMiddle(1280)).toBe(true)
+    for (const w of [740, 780, 915]) expect(nextInMiddle(w)).toBe(false)
+    expect(barItems(1280).next[0] + BAR_ITEMS_PX.next * NEXT_PULSE / 2).toBeCloseTo(640)
+    expect(barItems(780).nextSide).toBe(true)
+  })
+  it('in the wand\'s place the go-on button is the wand\'s size and does not grow (the stylesheet)', async () => {
+    const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
+    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    expect(css).toMatch(new RegExp(`\\.d2-topbar \\.d2-topbar-side \\.d2-btn-next \\{ width: ${BAR_ITEMS_PX.button}px; height: ${BAR_ITEMS_PX.button}px; animation-name: d2-glow; \\}`))
+    expect(css).not.toMatch(/@keyframes d2-glow \{[^}]*transform/)
+    expect(barItems(780).next).toEqual(barItems(780).wand)
+  })
+  it('the play screen tells the bar where the go-on button goes', async () => {
+    const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
+    const play = fs.readFileSync('src/duel2/screens/Play.tsx', 'utf8')
+    expect(play).toMatch(/nextSide=\{!nextInMiddle\(size\.w\)\}/)
+  })
+})
+
 describe('the doors on a phone: the door rises into the band (the parent\'s pick)', () => {
   const PHONES = [[780, 360], [740, 360], [915, 412]] as const
   const top = STAGE_CONTENT_TOP.doors
@@ -92,12 +131,12 @@ describe('the doors on a phone: the door rises into the band (the parent\'s pick
       const b = bandStageBox(w, h, top, BAND_CONTENT_W.doors)!
       const bar = barItems(w, false)
       // the wand and the go-on button are no wider than this; the counts are measured at their widest
-      expect(bar.left[1] - bar.left[0]).toBe(BAR_ITEMS_PX.button)
-      expect(bar.left[0]).toBe(BAR_SIDE_PX)
+      expect(bar.wand[1] - bar.wand[0]).toBe(BAR_ITEMS_PX.button)
+      expect(bar.wand[0]).toBe(BAR_SIDE_PX)
       for (const c of content) {
         const x0 = b.x + c.x0 * b.scale, x1 = b.x + c.x1 * b.scale, y0 = b.y + c.y0 * b.scale
         if (y0 >= BAR_TOP_PX + BAR_H_PX) continue
-        for (const [name, [l, r]] of Object.entries(bar)) {
+        for (const [name, [l, r]] of [['wand', bar.wand], ['next', bar.next], ['counts', bar.counts]] as const) {
           const apart = x1 + BAND_AIR_PX <= l + 0.01 || x0 >= r + BAND_AIR_PX - 0.01
           expect(apart, `${w}x${h}: ${c.what} under ${name}`).toBe(true)
         }

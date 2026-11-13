@@ -73,6 +73,16 @@ describe('parts', () => {
     fireEvent.pointerDown(container.querySelector('[data-skip]')!)
     expect(onNext).toHaveBeenCalledTimes(1)
   })
+  it('on a phone the go-on button takes the wand\'s place on the left, after the speaker (never over the counts)', () => {
+    const { container } = render(<TopBar hearts={3} coins={999} score={99} mult={3} onReplay={() => {}} onHint={() => {}} onNext={() => {}} nextSide />)
+    const side = container.querySelector('.d2-topbar-side:not(.d2-hearts)')!
+    expect([...side.children].map((e) => e.getAttribute('aria-label'))).toEqual(['replay', 'next'])
+    expect(container.querySelector('.d2-topbar-mid [aria-label="next"]')).toBeNull()
+    // on a tablet it stays in the middle, and the wand stays
+    const mid = render(<TopBar hearts={3} onReplay={() => {}} onHint={() => {}} onNext={() => {}} />).container
+    expect(mid.querySelector('.d2-topbar-mid [aria-label="next"]')).not.toBeNull()
+    expect(mid.querySelector('[aria-label="hint"]')).not.toBeNull()
+  })
   it('next looks like the play button', () => {
     const { container } = render(<TopBar hearts={3} onNext={() => {}} />)
     expect(container.querySelector('[aria-label="next"] [data-icon="play"]')).not.toBeNull()

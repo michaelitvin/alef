@@ -1,5 +1,6 @@
 // The top bar (rule: floating buttons in the top bar, never over the content): hearts on the right, the cue's speaker and
-// the hint on the left, next in the middle after a mistake or an explanation, the run's points beside the hearts (the child
+// the hint on the left, next in the middle after a mistake or an explanation (on a phone in the hint's place: the middle is
+// over the counts there), the run's points beside the hearts (the child
 // asked where to see his points), and the streak multiplier of the coins (×2, ×3) beside them. Every button answers on
 // finger-down.
 import { useEffect, useState, type ReactNode } from 'react'
@@ -39,15 +40,19 @@ export function TopBar(p: {
   hintGlow?: boolean
   /** a new (higher) value flashes the hearts: a heart came back at the end of a pass (no line says it: the parent) */
   heartFlash?: number
+  /** a phone: the middle is over the counts, so the go-on button takes the wand's place after the speaker (layout.ts nextInMiddle) */
+  nextSide?: boolean
 }) {
   const flash = useFlash(p.heartFlash)
+  const next = p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>
+  const side = !!(p.nextSide && p.onNext)
   return (
     <div className="d2-topbar">
       <div className="d2-topbar-side">
         {p.onReplay && <Btn label="replay" onPress={p.onReplay}><SpeakerIcon /></Btn>}
-        {p.onHint && <Btn label="hint" onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
+        {side ? next : p.onHint && <Btn label="hint" onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
       </div>
-      <div className="d2-topbar-mid">{p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>}</div>
+      <div className="d2-topbar-mid">{!side && next}</div>
       <div className="d2-topbar-side d2-hearts">
         {p.coins !== undefined && <InfoTap line="info-coins"><CoinCount n={p.coins} /></InfoTap>}
         {p.score !== undefined && <InfoTap line="info-stars"><StarCount n={p.score} attr="data-score" /></InfoTap>}

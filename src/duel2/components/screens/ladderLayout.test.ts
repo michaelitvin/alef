@@ -2,7 +2,7 @@
 // an item of the bar, in every state, and the wizard starts on the screen.
 import { describe, expect, it } from 'vitest'
 import {
-  BAR_COUNTS_PX, BAR_ITEMS_PX, BAR_LEFT_END_PX, BAR_NEXT_HALF_PX, BAR_SIDE_PX, BAR_TOP_PX, BAR_H_PX, BAR_ITEM_GAP_PX, CONTENT_TOP_PX,
+  BAR_ITEMS_PX, BAR_NEXT_HALF_PX, BAR_SIDE_PX, BAR_TOP_PX, BAR_H_PX, BAR_ITEM_GAP_PX, CONTENT_TOP_PX, barItems as barModel,
   INTO_BAND_TOP_PX, STAGE_CONTENT_TOP, layoutVars, stageBox, toScreen,
 } from '../../layout'
 import { ladderBoxes, ladderView, type Box } from './Ladder'
@@ -12,16 +12,20 @@ const PHONES = [[780, 360], [740, 360], [915, 412], [844, 390]] as const
 const RUNGS = 5
 
 interface Rect { l: number; t: number; r: number; b: number }
-/** the bar's items at their widest (CSS px): the speaker and the wand, the go-on button with its pulse, the counts with ×3 */
+/** the bar's items at their widest (CSS px; layout.ts barItems): the speaker and the wand, the go-on button with its pulse, the counts with ×3 */
 function barItems(w: number, leftSide: boolean): Record<string, Rect> {
   const bt = BAR_TOP_PX + (BAR_H_PX - BAR_ITEMS_PX.button) / 2
+  const bar = barModel(w)
+  const nt = bar.nextSide ? bt : BAR_TOP_PX + BAR_H_PX / 2 - BAR_NEXT_HALF_PX
   const items: Record<string, Rect> = {
-    next: { l: w / 2 - BAR_NEXT_HALF_PX, r: w / 2 + BAR_NEXT_HALF_PX, t: BAR_TOP_PX + BAR_H_PX / 2 - BAR_NEXT_HALF_PX, b: BAR_TOP_PX + BAR_H_PX / 2 + BAR_NEXT_HALF_PX },
-    counts: { l: w - BAR_SIDE_PX - BAR_COUNTS_PX, r: w - BAR_SIDE_PX, t: BAR_TOP_PX, b: BAR_TOP_PX + BAR_H_PX },
+    next: { l: bar.next[0], r: bar.next[1], t: nt, b: bar.nextSide ? bt + BAR_ITEMS_PX.button : BAR_TOP_PX + BAR_H_PX / 2 + BAR_NEXT_HALF_PX },
+    counts: { l: bar.counts[0], r: bar.counts[1], t: BAR_TOP_PX, b: BAR_TOP_PX + BAR_H_PX },
   }
+  // the finished ladder is a celebration: no go-on button then (it shows only while he must go on); on a phone it would be in the wand's place
+  if (!leftSide && bar.nextSide) delete items.next
   if (leftSide) {
-    items.speaker = { l: BAR_SIDE_PX, r: BAR_SIDE_PX + BAR_ITEMS_PX.button, t: bt, b: bt + BAR_ITEMS_PX.button }
-    items.wand = { l: BAR_SIDE_PX + BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX, r: BAR_LEFT_END_PX, t: bt, b: bt + BAR_ITEMS_PX.button }
+    items.speaker = { l: bar.speaker![0], r: bar.speaker![1], t: bt, b: bt + BAR_ITEMS_PX.button }
+    items.wand = { l: bar.wand[0], r: bar.wand[1], t: bt, b: bt + BAR_ITEMS_PX.button }
   }
   return items
 }
