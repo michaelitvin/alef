@@ -39,6 +39,19 @@ describe('parent area', () => {
     fireEvent.click(screen.getByText(/Ladder — the dot/))
     expect(onStart.mock.calls[0][0].force).toMatchObject({ screen: 'ladder', fixed: 'dot', stage: 3 })
   })
+  it('“already knows nikkud”: the parent opens Book 2 at stage 0 (logged); the switch shows only while the book is closed', () => {
+    useDuel2Store.getState().resetProgress()
+    useDuel2Store.setState({ bookOpen: false })
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    const box = container.querySelector('[data-setting-open-book]') as HTMLInputElement
+    expect(box).not.toBeNull()
+    fireEvent.click(box)
+    expect(useDuel2Store.getState().bookOpen).toBe(true)
+    expect(track).toHaveBeenCalledWith('book-open', expect.objectContaining({ by: 'parent' }))
+    expect(container.querySelector('[data-setting-open-book]')).toBeNull()
+    expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
+  })
   it('the parent can set boy or girl (shared by all the games), and it is logged', () => {
     clearGender()
     const track = vi.spyOn(duel2Telemetry, 'track')
