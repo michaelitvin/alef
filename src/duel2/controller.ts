@@ -607,8 +607,10 @@ export class RunController {
     // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
     if (screen === 'tower' && !this.bookOpen()) return full
     const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
-    // the tower's recent answers are every mark's, side by side (not in time order): none of them may be a mistake
-    const scale = screen === 'tower' ? (r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1) : visitScale(r)
+    // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
+    // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake
+    const tail = useDuel2Store.getState().towerTail ?? ''
+    const scale = screen !== 'tower' ? visitScale(r) : tail.length >= SHORT_AFTER ? visitScale(tail) : r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1
     if (scale === 1) return full
     return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
   }

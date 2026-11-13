@@ -1618,6 +1618,16 @@ describe('run controller', () => {
       await until(d, (v) => v.screen?.screen === 'tower')
       expect((d.view.screen as { waves: number }).waves).toBe(1)
       d.destroy()
+      // once the tower has its own answers in time order, its last 8 decide (an old slip on one mark no longer holds it back)
+      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: { ...recent, kamatz: 'xoooo' } } })
+      for (const [tail, waves] of [['xoooooooo', 1], ['ooooooxo', 2]] as const) {
+        useDuel2Store.setState({ bookOpen: true, lastEnded: 'ghosts', cycleNo: 1, towerTail: tail })
+        const e = make()
+        e.start()
+        await until(e, (v) => v.screen?.screen === 'tower')
+        expect((e.view.screen as { waves: number }).waves).toBe(waves)
+        e.destroy()
+      }
     }, 60_000)
   })
 
