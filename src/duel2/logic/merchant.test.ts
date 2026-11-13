@@ -35,6 +35,10 @@ describe('the merchant (pure rules)', () => {
   it('on the last heart at the next checkpoint, even right after a visit', () => {
     expect(merchantDue({ adventure: true, hearts: 1, coins: 50, price: 6, sinceVisit: 0, bossNext: false })).toBe(true)
   })
+  it('his first meeting ever: at the first checkpoint with fewer than 3 hearts and enough coins (no every-other wait)', () => {
+    expect(merchantDue({ adventure: true, hearts: 2, coins: 6, price: 6, sinceVisit: Infinity, bossNext: false })).toBe(true)
+    expect(merchantDue({ adventure: true, hearts: 2, coins: 5, price: 6, sinceVisit: Infinity, bossNext: false })).toBe(false)
+  })
   it('with 2 hearts every other checkpoint, and always before a boss', () => {
     const two = { adventure: true, hearts: 2, coins: 50, price: 6, bossNext: false }
     expect(merchantDue({ ...two, sinceVisit: 1 })).toBe(false)
