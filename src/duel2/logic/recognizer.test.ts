@@ -247,6 +247,34 @@ describe("recognizer: the parent's review (alternatives, look-alikes)", () => {
       v.forEach((x, i) => expect(ok(l, 'print', x), `${l} v${i + 1}`).toBe(true))
     }
   })
+  it('פ in one stroke from the centre and around passes (the parent); the taught order stays first', () => {
+    // print פ and ף: the tongue backwards (from its end in the centre, up to the roof), then the roof and round
+    const pe = strokesOf('פ', 'print').variants
+    expect(pe[0].length).toBe(2)
+    const one = (l: string, sc: 'print' | 'hand') => strokesOf(l, sc).variants.find((v, i) => i > 0 && v.length === 1)
+    for (const l of 'פף') {
+      const v = one(l, 'print')!
+      expect(v, l).toBeDefined()
+      expect(v[0].pts[0], l).toEqual([0.45, 0.45])
+      expect(ok(l, 'print', v), l).toBe(true)
+      for (const seed of [1, 2, 3]) expect(allOk(run(l, 'print', [draw(v[0], { noise: 0.03, seed })])), `${l} ${seed}`).toBe(true)
+      for (const tf of [{ scale: 0.7 }, { scale: 1.3, dx: 0.2 }]) expect(allOk(run(l, 'print', [draw(v[0], tf)])), `${l} ${JSON.stringify(tf)}`).toBe(true)
+    }
+    // handwriting פ is one stroke already (from the top-left, round, into the curl): it also passes from the curl outwards
+    const hv = one('פ', 'hand')!
+    expect(strokesOf('פ', 'hand').variants[0][0].pts[0]).toEqual([0.2, 0.22])
+    expect(ok('פ', 'hand', hv)).toBe(true)
+    // still wrong: a scribble in one stroke, כ, the outside alone, the tongue alone
+    const scribble: Pt[] = Array.from({ length: 40 }, (_, i) => [0.5 + 0.4 * Math.sin(i * 1.7), 0.5 + 0.4 * Math.cos(i * 2.3)])
+    for (const sc of ['print', 'hand'] as const) expect(allOk(run('פ', sc, [scribble])), sc).toBe(false)
+    expect(allOk(run('ף', 'print', [scribble]))).toBe(false)
+    expect(ok('פ', 'print', strokesOf('כ', 'print').variants[0])).toBe(false)
+    expect(ok('פ', 'print', [pe[0][0]])).toBe(false)
+    expect(ok('פ', 'print', [pe[0][1]])).toBe(false)
+    // and the one-stroke פ is not a כ
+    expect(ok('כ', 'print', one('פ', 'print')!)).toBe(false)
+    expect(ok('כ', 'hand', hv)).toBe(false)
+  })
   it('the zigzag and the straight stem of ז both pass after the same head', () => {
     const [a, b] = strokesOf('ז', 'print').variants
     expect(ok('ז', 'print', [a[0], b[1]])).toBe(true)

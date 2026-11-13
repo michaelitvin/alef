@@ -342,6 +342,14 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
 - Do not use a clock for slow tasks, such as drawing.
+- In a drawing task, accept the dots and marks in any order, also across neighbouring letters. Match each drawn mark to
+  the nearest mark that is still missing, and judge its place against the child's own letter. Accept a mark that he
+  draws immediately after the letter, also while the voice asks for the marks: he continues his writing, he does not
+  answer a new question.
+  Example (book 2): in שׁוּעָל the ש dot drawn first was lost, so the marks seemed to need an order.
+- Accept each stroke order and stroke count that the parent approves for a letter, in addition to the order that the
+  hand teaches. The hand continues to show the taught order.
+  Example (book 2): the parent writes פ in one stroke, from the centre and around.
 - Build a new screen from the game's own parts: its top bar, buttons, choice cards, coin, demo hand and colours. Do not
   draw a new version of a part that the game already has.
   Example (merchant): new coins, yes/no buttons and a new pointing hand each looked foreign; the parent rejected them one

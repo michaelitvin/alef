@@ -23,7 +23,7 @@
 // Where sources disagree the letter holds both variants, and either passes: print ם (one loop or two strokes), print ע
 // (the arms in either order); handwriting א (the line first in one source), and lenient directions (`either`) for
 // handwriting ס ע ש. The parent's own alternatives pass too: print ז with a zigzag stem, print מ in three strokes or in
-// two with the small piece first. The first variant is the one the hand teaches. A pen lift that splits one stroke into two passes (the recognizer joins them), except for
+// two with the small piece first, פ in one stroke from the centre and around (print פ ף, handwriting פ). The first variant is the one the hand teaches. A pen lift that splits one stroke into two passes (the recognizer joins them), except for
 // `strict` letters: print ד is two strokes (the roof, then the down line with a corner) and ר is one curved stroke, and
 // the check must tell them apart by that (the parent).
 
@@ -85,8 +85,15 @@ const PRINT: LetterDef[] = [
     [s([1.05, 0.05], [0.6, 0.95], [0, 1]), s([0.1, 0.05], [0.45, 0.65])],
     [s([0.1, 0.05], [0.45, 0.65]), s([1.05, 0.05], [0.6, 0.95], [0, 1])],
   ]),
-  L('פ', 'print', 1.05, [[s([0.05, 0.08], [0.9, 0.08], [1, 0.5], [0.9, 0.95], [0.05, 0.95]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])]]),
-  L('ף', 'print', 1.05, [[s([0.05, 0.08], [0.95, 0.08], [0.95, 1.45]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])]]),
+  // the parent: פ may be one stroke, from the centre and around (the tongue backwards up to the roof, then the outside)
+  L('פ', 'print', 1.05, [
+    [s([0.05, 0.08], [0.9, 0.08], [1, 0.5], [0.9, 0.95], [0.05, 0.95]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])],
+    [s([0.45, 0.45], [0.14, 0.45], [0.14, 0.08], [0.9, 0.08], [1, 0.5], [0.9, 0.95], [0.05, 0.95])],
+  ]),
+  L('ף', 'print', 1.05, [
+    [s([0.05, 0.08], [0.95, 0.08], [0.95, 1.45]), s([0.14, 0.12], [0.14, 0.45], [0.45, 0.45])],
+    [s([0.45, 0.45], [0.14, 0.45], [0.14, 0.08], [0.95, 0.08], [0.95, 1.45])],
+  ]),
   L('צ', 'print', 1.05, [[s([0.05, 0.05], [0.85, 0.85], [0.9, 0.95], [0.05, 0.95]), s([1, 0.05], [0.5, 0.5])]]),
   // ETZE: one straight slanted line from the top-left into the basement, the wing from the top-right meets it low
   L('ץ', 'print', 0.95, [[s([0.05, 0.05], [0.75, 1.45]), s([0.88, 0.05], [0.43, 0.78])]]),
@@ -134,7 +141,11 @@ const HAND: LetterDef[] = [
   L('ן', 'hand', 0.3, [[s([0.18, 0], [0.11, 1.8])]]),
   L('ס', 'hand', 1.15, [[e([0.5, 0.05], [0.85, 0.05], [1.1, 0.3], [1.05, 0.7], [0.7, 0.97], [0.3, 0.95], [0.1, 0.65], [0.15, 0.25], [0.45, 0.07])]]),
   L('ע', 'hand', 1.1, [[e([1, -0.12], [0.75, 0.12], [0.5, 0.4], [0.25, 0.85], [0.45, 1], [0.85, 0.8], [1.03, 0.4], [0.8, 0.1], [0.15, 0.1])]]),
-  L('פ', 'hand', 1.1, [[s([0.2, 0.22], [0.5, 0.05], [0.9, 0.08], [1.08, 0.4], [0.95, 0.8], [0.6, 0.98], [0.2, 0.92], [0.1, 0.7], [0.3, 0.52], [0.55, 0.58])]]),
+  // the parent: also from the centre and around (the same stroke from the curl outwards)
+  L('פ', 'hand', 1.1, [
+    [s([0.2, 0.22], [0.5, 0.05], [0.9, 0.08], [1.08, 0.4], [0.95, 0.8], [0.6, 0.98], [0.2, 0.92], [0.1, 0.7], [0.3, 0.52], [0.55, 0.58])],
+    [s([0.55, 0.58], [0.3, 0.52], [0.1, 0.7], [0.2, 0.92], [0.6, 0.98], [0.95, 0.8], [1.08, 0.4], [0.9, 0.08], [0.5, 0.05], [0.2, 0.22])],
+  ]),
   // ף and ץ rise above the top line (ETZE, JMU, 2x2; the font's ף is another style): they begin like ל (a small loop at
   // the bottom-left, up the stem), go round a loop at the top right and back across the stem; ף then ends going down,
   // ץ going up (the parent)
