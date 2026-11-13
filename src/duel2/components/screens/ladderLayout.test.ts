@@ -79,7 +79,7 @@ describe('the ladder in the band (the parent: bigger on the phone, never under t
     expect(css).toMatch(new RegExp(`\\.d2-topbar-side, \\.d2-topbar-mid \\{[^}]*gap: ${BAR_ITEM_GAP_PX}px`))
   })
   it("the play screen gives the ladder's full view the whole screen", () => {
-    const v = layoutVars({ w: 780, h: 360 }, STAGE_CONTENT_TOP.ladder, true) as Record<string, string>
+    const v = layoutVars({ w: 780, h: 360 }, STAGE_CONTENT_TOP.ladder, 'full') as Record<string, string>
     expect(v['--d2-stage-top']).toBe('0px')
     expect(v['--d2-stage-h']).toBe('100%')
   })

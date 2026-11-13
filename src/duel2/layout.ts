@@ -20,8 +20,9 @@ export const BAR_ITEM_GAP_PX = 12
 /** the bar's left side at its widest: the speaker and the wand (CSS px from the screen's left edge) */
 export const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX
 /**
- * The counts on the bar's right side at their widest (measured 437 px): coins up to 999, stars up to 99, the ×2/×3 badge, three
- * hearts. CSS px from the screen's right edge's margin (BAR_SIDE_PX).
+ * The counts on the bar's right side at their widest (measured 436–437 px): coins up to 999, stars up to 99, the ×2/×3
+ * badge (both as wide), three hearts; each more digit adds 21 px, without the badge they are 80 px narrower. CSS px from
+ * the screen's right edge's margin (BAR_SIDE_PX). One value for every screen that goes up into the band.
  */
 export const BAR_COUNTS_PX = 438
 /** the go-on button's half width in the middle of the bar, with its pulse */
@@ -64,21 +65,63 @@ export function stageBox(w: number, h: number, top = 0): { x: number; y: number;
 }
 
 /**
+ * The bar's items on a w-wide screen, each at its widest (x from the screen's left; all of them in the band, y from
+ * BAR_TOP_PX to BAR_TOP_PX + BAR_H_PX): on the left the speaker and the wand (the doors have no speaker), the go-on
+ * button in the middle (with its pulse), the counts on the right.
+ */
+export function barItems(w: number, speaker = true): { left: [number, number]; next: [number, number]; counts: [number, number] } {
+  const buttons = speaker ? 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX : BAR_ITEMS_PX.button
+  return { left: [BAR_SIDE_PX, BAR_SIDE_PX + buttons], next: [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX], counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX] }
+}
+
+/** the screens whose content rises into the top band on a phone (layout.ts bandStageBox): its width (stage units) */
+export const BAND_CONTENT_W: Record<string, number> = { doors: 560 * (519 / 600) }
+/** a screen at most this tall is a phone on its side: there the content rises into the band (a tablet keeps its layout) */
+export const BAND_MAX_H = 500
+/** the content's top on a phone, with the content in the band (CSS px from the screen's top) */
+export const BAND_TOP_PX = 10
+
+/**
+ * The doors on a phone on its side (the parent's pick, "into the band"): the door's top rises into the empty middle of
+ * the top band, so the door, its word plate and the keys are bigger. The content (STAGE_CONTENT_TOP..900) fills the
+ * screen from BAND_TOP_PX to its bottom, and its middle (stage x 800, `width` wide) moves into the band's free gap:
+ * right of the wand, left of the go-on button and of the counts at their widest, with BAND_AIR_PX on each side. The
+ * door is then left of the screen's centre. Null where it does not help: on a tablet, or when the stage would not grow.
+ */
+export function bandStageBox(w: number, h: number, top: number, width: number): { x: number; y: number; w: number; h: number; scale: number } | null {
+  if (h > BAND_MAX_H) return null
+  const bar = barItems(w, false)
+  const l = bar.left[1] + BAND_AIR_PX
+  const r = Math.min(bar.next[0], bar.counts[0]) - BAND_AIR_PX
+  const scale = Math.min((h - BAND_TOP_PX) / (900 - top), (r - l) / width)
+  if (!(scale > stageBox(w, h, top).scale + 1e-6)) return null
+  const cx = (l + r) / 2
+  return { x: cx - 800 * scale, y: h - 900 * scale, w: 1600 * scale, h: 900 * scale, scale }
+}
+
+/**
  * The CSS variables that place the bar and the stage (set on the play screen's root). With the screen's size and its
  * content's top (STAGE_CONTENT_TOP), the stage's own box (--d2-stage-top, --d2-stage-h; relative to the band, so a notch
- * moves both); without them the stage fills the room below the band. `full`: the screen's own view fills the whole screen
- * (intoBandView).
+ * moves both); without them the stage fills the room below the band. `into`: the content may rise into the band on a
+ * phone: 'full' — the screen's own view fills the whole screen (intoBandView, the ladder); a width (BAND_CONTENT_W, the
+ * doors) — the stage's box then also has its own left edge and width (bandStageBox).
  */
-export function layoutVars(size?: { w: number; h: number }, top = 0, full = false): CSSProperties {
+export function layoutVars(size?: { w: number; h: number }, top = 0, into?: 'full' | number): CSSProperties {
   const v: Record<string, string> = {
     '--d2-bar-top': `max(${BAR_TOP_PX}px, env(safe-area-inset-top))`,
     '--d2-bar-h': `${BAR_H_PX}px`,
     '--d2-content-top': `calc(var(--d2-bar-top) + ${BAR_H_PX + BAR_GAP_PX}px)`,
   }
+  const inBand = size && top > 0 && typeof into === 'number' ? bandStageBox(size.w, size.h, top, into) : null
   // a full view (intoBandView): the stage's SVG covers the whole screen, its viewBox places the game
-  if (full) {
+  if (into === 'full') {
     v['--d2-stage-top'] = '0px'
     v['--d2-stage-h'] = '100%'
+  } else if (inBand) {
+    v['--d2-stage-top'] = `${inBand.y.toFixed(1)}px`
+    v['--d2-stage-h'] = `${inBand.h.toFixed(1)}px`
+    v['--d2-stage-left'] = `${inBand.x.toFixed(1)}px`
+    v['--d2-stage-w'] = `${inBand.w.toFixed(1)}px`
   } else if (size && top > 0) {
     const b = stageBox(size.w, size.h, top)
     const fit = stageBox(size.w, size.h)
@@ -110,7 +153,8 @@ export function flightView(w?: number, h?: number): { left: number; width: numbe
  * go-on button (in the middle) and the counts at their widest, with air on each side.
  */
 export function bandGap(w: number): { left: number; right: number } {
-  return { left: BAR_LEFT_END_PX + BAND_AIR_PX, right: Math.min(w / 2 - BAR_NEXT_HALF_PX, w - BAR_SIDE_PX - BAR_COUNTS_PX) - BAND_AIR_PX }
+  const bar = barItems(w)
+  return { left: bar.left[1] + BAND_AIR_PX, right: Math.min(bar.next[0], bar.counts[0]) - BAND_AIR_PX }
 }
 
 /** a stage view that fills the whole screen: the viewBox (stage units) and the scale (CSS px per stage unit) */

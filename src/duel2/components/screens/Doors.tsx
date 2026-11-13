@@ -62,9 +62,14 @@ export function throughDoor(u: number): { k: number; light: number } {
 let arrived = false
 export function markArrivedThroughLight() { arrived = true }
 export function takeArrivedThroughLight() { const a = arrived; arrived = false; return a }
+/**
+ * The light that fills the screen: as large as the stage's backdrop (3×3 stages), since on a phone the doors' stage is
+ * moved left of the screen's centre (layout.ts: bandStageBox) and the screen shows more of its right side.
+ */
+export const FULL_LIGHT = { x: -1600, y: -900, width: 4800, height: 2700 }
 /** The light the next room comes out of (it fades away by itself). */
 export function ArriveLight() {
-  return <rect data-arrive-light className="d2-arrive-light" x={-400} y={-300} width={2400} height={1500} fill="#fff6d8" pointerEvents="none" />
+  return <rect data-arrive-light className="d2-arrive-light" {...FULL_LIGHT} fill="#fff6d8" pointerEvents="none" />
 }
 
 /** What waits behind the door, far away in its light: the next door (its plate still blank), or the crystal. */
@@ -87,12 +92,14 @@ function NextRoom(p: { crystal?: number }) {
   )
 }
 export const KEY_X = [520, 800, 1080]
+/** the keys' handles hang at this height (stage y) */
+export const KEY_Y = 690
 
 /** Where the round handle's disc sits in the key sprite (measured): centre and radius as fractions of the sprite width/height. */
 export const KEY_BOW = { cx: 0.5, cy: 0.345, r: 0.369 }
 const DISC_R = 80
-const KEY_W = DISC_R / KEY_BOW.r
-const KEY_H = KEY_W * (600 / 428)
+export const KEY_W = DISC_R / KEY_BOW.r
+export const KEY_H = KEY_W * (600 / 428)
 
 function KeyShape(p: { x: number; y: number; picture: string; state: 'idle' | 'reveal' | 'wrong' | 'off'; correct: boolean }) {
   const ring = p.state === 'reveal' ? '#ffd34d' : p.state === 'wrong' ? '#ff4d6a' : '#e7b860'
@@ -179,8 +186,8 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
       </g>
       </g>
       {/* going through: the doorway's light fills the screen */}
-      {p.zooming && z.light > 0 && <rect data-door-light x={-400} y={-300} width={2400} height={1500} fill="url(#d2-door-light)" opacity={z.light} pointerEvents="none" />}
-      {p.zooming && z.light >= 1 && <rect x={-400} y={-300} width={2400} height={1500} fill="#fff6d8" pointerEvents="none" />}
+      {p.zooming && z.light > 0 && <rect data-door-light {...FULL_LIGHT} fill="url(#d2-door-light)" opacity={z.light} pointerEvents="none" />}
+      {p.zooming && z.light >= 1 && <rect {...FULL_LIGHT} fill="#fff6d8" pointerEvents="none" />}
       {arrive > 0 && <ArriveLight key={arrive} />}
       {!p.opening && p.keys.map((k, i) => {
         const state = p.reveal?.right === k.id ? 'reveal' : p.reveal?.wrong === k.id ? 'wrong' : p.phase === 'feedback' ? 'off' : 'idle'
@@ -188,8 +195,8 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
           <DragPick key={k.id} attrs={{ 'data-key': k.id, ...(state === 'reveal' ? { 'data-reveal': '1' } : {}) }} enabled={(can && state === 'idle') || (p.phase === 'mistake' && state === 'reveal')} onPick={() => p.onPick(k.id)}
             // he brings the key to the door (anywhere on it)
             inZone={(q) => Math.abs(q.x - 800) < dw / 2 && q.y > 95 && q.y < 95 + dh - 20}
-            demo={p.demo?.id === k.id ? { t: p.demo.t, dx: 800 - KEY_X[i], dy: 560 - 690 } : undefined}>
-            <KeyShape x={KEY_X[i]} y={690} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
+            demo={p.demo?.id === k.id ? { t: p.demo.t, dx: 800 - KEY_X[i], dy: 560 - KEY_Y } : undefined}>
+            <KeyShape x={KEY_X[i]} y={KEY_Y} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
           </DragPick>
         )
       })}

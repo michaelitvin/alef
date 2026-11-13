@@ -23,7 +23,7 @@ import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
-import { layoutVars, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
+import { BAND_CONTENT_W, layoutVars, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
@@ -107,6 +107,8 @@ function contentTop(v: View): number {
   if (s.screen === 'draw') return STAGE_CONTENT_TOP[s.script === 'hand' ? 'draw-hand' : 'draw']
   return STAGE_CONTENT_TOP[s.screen] ?? 0
 }
+/** the width of the content that rises into the top band on a phone (layout.ts: the doors), if any */
+const bandWidth = (v: View): number | undefined => (v.merchant || !v.screen ? undefined : BAND_CONTENT_W[v.screen.screen])
 
 export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void }) {
   const run = useRun(opts)
@@ -137,7 +139,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
-      style={layoutVars(size, contentTop(v), !!fullView(v, size))}>
+      style={layoutVars(size, contentTop(v), fullView(v, size) ? 'full' : bandWidth(v))}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
