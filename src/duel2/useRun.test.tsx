@@ -7,7 +7,8 @@ import { hintCoins } from './logic/merchant'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { DUEL_MARKS } from '../utils/duel/marks'
-import { CATCH_AT, wavePos } from './logic/run'
+import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
+import { BROOM_ORB, LANE_Y, flightPath, orbX } from './components/screens/Broom'
 import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
 import { wavePos as wp } from './logic/run'
 
@@ -817,6 +818,41 @@ describe('run controller', () => {
     expect(spawnAt - cueAt).toBeLessThan(300)
     c.destroy()
   })
+
+  it('no two orbs on the screen ever overlap at the parent\'s sizes: a whole flight with mistakes and new sounds, and a boss', async () => {
+    setVoicePlayer(() => new Promise((r) => setTimeout(r, 600)))
+    const sizes = [[780, 360], [740, 360], [915, 412], [1024, 768], [1280, 800]].map(([w, h]) => flightPath({ w, h }))
+    for (const force of [{ screen: 'broom', stage: 2, kind: 'syllable' }, { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' }] as Force[]) {
+      const c = make({ force })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
+      let checked = 0
+      let waves = 0
+      for (let i = 0; i < 1600; i++) {
+        const s = c.view.screen
+        if (s?.screen !== 'broom' || s.finished || s.boss?.won) break
+        const now = c.broomClock()
+        const orbs = s.waves.flatMap((w) => w.choices.map((_, j) => ({ w: w.id, lane: w.lanes?.[j] ?? j, jitter: w.jitter[j], k: wavePos(w.startMs + w.offsets[j] * s.travelMs, now, s.travelMs) })).filter((_, j) => !w.resolved[j]))
+        waves = Math.max(waves, ...s.waves.map((w) => w.id))
+        for (const o of orbs) expect(Math.abs(o.jitter)).toBeLessThanOrEqual(ORB_JITTER)
+        for (const p of sizes) {
+          const xs = orbs.map((o) => ({ ...o, x: orbX(o.k, p) })).filter((o) => o.x - BROOM_ORB / 2 < p.view.left + p.view.width && o.x + BROOM_ORB / 2 > p.view.left)
+          for (let a = 0; a < xs.length; a++) for (let b = a + 1; b < xs.length; b++) {
+            const A = xs[a], B = xs[b]
+            const dist = Math.hypot(A.x - B.x, LANE_Y[A.lane] + A.jitter - LANE_Y[B.lane] - B.jitter)
+            expect(dist, `waves ${A.w}/${B.w} lanes ${A.lane}/${B.lane}`).toBeGreaterThanOrEqual(BROOM_ORB)
+            checked++
+          }
+        }
+        // a mix: mostly catches (new sounds come every few), some mistakes (spent waves)
+        if (c.view.phase === 'answer') steer(c, i % 7 !== 3)
+        await tick(50)
+      }
+      expect(checked).toBeGreaterThan(100)
+      expect(waves).toBeGreaterThan(4)
+      c.destroy()
+    }
+  }, 60_000)
 
   it('the flight ends only when every orb has arrived (the parent: "let me finish")', async () => {
     const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })

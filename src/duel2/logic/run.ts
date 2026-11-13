@@ -79,7 +79,13 @@ export const CATCH_AT = 0.04
 /** unclamped below: an orb flies on past the wizard (negative = behind his front) */
 export const wavePos = (startMs: number, nowMs: number, travel: number) => Math.min(1, 1 - (nowMs - startMs) / travel)
 /** the target counts as missed only when its centre is past the wizard's back (Michael: it failed while it still overlapped him) */
-export const PASS_AT = -0.07
+export const PASS_AT = -0.138
+/** a new wave sets off this long (a fraction of the travel) after the one before */
+export const WAVE_EVERY = 0.55
+/** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
+export const POPCORN = 0.28
+/** the most an orb flies above or below its lane's centre (stage units): popcorn, but never into a neighbour lane's orb */
+export const ORB_JITTER = 12
 
 /**
  * One tick of a wave (forgiving for a child): the target is caught while it overlaps him in his lane (CATCH_AT to

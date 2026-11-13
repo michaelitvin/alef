@@ -25,7 +25,7 @@ export const CONTENT_TOP_PX = BAR_TOP_PX + BAR_H_PX + BAR_GAP_PX
  * before). The drawing in handwriting is not named: its tall words reach the stage's top.
  */
 export const STAGE_CONTENT_TOP: Record<string, number> = {
-  broom: 96, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, crystal: 170, merchant: 104,
+  broom: 78, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, crystal: 170, merchant: 104,
 }
 
 /**
@@ -66,3 +66,17 @@ export function layoutVars(size?: { w: number; h: number }, top = 0): CSSPropert
   return v as CSSProperties
 }
 
+
+/** the flight's left edge (stage x): the wizard flies near the screen's left edge (the parent's pick: the flight fills the width) */
+export const FLIGHT_LEFT = -60
+
+/**
+ * The broom flight's view on a w×h screen: as wide as the screen at the stage's scale (stageBox with its content top),
+ * from FLIGHT_LEFT. At least 1600 wide (the boss on the right stays whole); a wide phone sees more sky on the right.
+ * Without a size: a 16:9 screen.
+ */
+export function flightView(w?: number, h?: number): { left: number; width: number; scale: number } {
+  if (!w || !h) return { left: FLIGHT_LEFT, width: 1600, scale: 1 }
+  const { scale } = stageBox(w, h, STAGE_CONTENT_TOP.broom)
+  return { left: FLIGHT_LEFT, width: Math.max(1600, w / scale), scale }
+}

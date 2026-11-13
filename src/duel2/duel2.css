@@ -62,7 +62,7 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-spin { to { transform: rotate(360deg); } }
 .d2-cover-stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 .d2-fly-off { animation: d2-fly-off 2s cubic-bezier(0.45, 0, 0.6, 1) forwards; transform-box: view-box; }
-@keyframes d2-fly-off { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-30px, 20px) rotate(4deg); } 55% { transform: translate(500px, -90px) rotate(-10deg); } 100% { transform: translate(1900px, -360px) rotate(-14deg); } }
+@keyframes d2-fly-off { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-30px, 20px) rotate(4deg); } 55% { transform: translate(500px, -90px) rotate(-10deg); } 100% { transform: translate(2700px, -420px) rotate(-14deg); } }
 .d2-crystal-shelf { display: flex; gap: 10px; align-items: flex-end; direction: ltr; padding: 8px 12px; border-radius: 18px; background: #1b0f3c99; box-shadow: 0 0 16px #b48cff66; }
 .d2-shelf-crystal { display: inline-flex; align-items: flex-end; gap: 2px; color: #fff3c4; font: 800 26px system-ui, sans-serif; }
 .d2-shelf-crystal img { height: 64px; width: auto; filter: drop-shadow(0 0 8px #b48cff); }

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
 import { item as itemOf, mark as markOf } from '../logic/content'
-import { Broom, LANE_Y, WIZ_X } from '../components/screens/Broom'
+import { Broom, LANE_Y, WIZ_X, flightPath } from '../components/screens/Broom'
 import { Cauldron, ORB_X, ORB_Y } from '../components/screens/Cauldron'
 import { Ladder, LADDER_PLATE_X, plateYs } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
@@ -27,7 +27,7 @@ import { layoutVars, STAGE_CONTENT_TOP } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
-function ScreenFor({ run, v, demoT, dry }: { run: Run; v: View; demoT?: number; dry?: boolean }) {
+function ScreenFor({ run, v, demoT, dry, size }: { run: Run; v: View; demoT?: number; dry?: boolean; size?: { w: number; h: number } }) {
   const s = v.screen
   if (!s) return null
   const pick = (id: string) => run.onGesture({ type: 'pick', id })
@@ -35,7 +35,7 @@ function ScreenFor({ run, v, demoT, dry }: { run: Run; v: View; demoT?: number; 
   switch (s.screen) {
     case 'broom':
       return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} boss={s.boss} clock={run.clock}
-        correctId={TEST_HOOKS ? s.target.id : undefined} />
+        correctId={TEST_HOOKS ? s.target.id : undefined} size={size} />
     case 'cauldron':
       return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
@@ -68,6 +68,13 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
   if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: KEY_X[i], y: 690 }, to: { x: 800, y: 560 } } }
   return null
+}
+
+/** the demo hand's view: the flight's own (it fills the screen's width), else the stage's */
+function overlayViewBox(v: View, size: { w: number; h: number }): string {
+  if (v.screen?.screen !== 'broom') return '0 0 1600 900'
+  const view = flightPath(size).view
+  return `${view.left} 0 ${view.width.toFixed(1)} 900`
 }
 
 /** the window's size (the stage's box depends on it) */
@@ -127,9 +134,9 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
             const path = demoPath(v)
             return (
               <>
-                <ScreenFor run={run} v={v} demoT={demoT} />
+                <ScreenFor run={run} v={v} demoT={demoT} size={size} />
                 {path && (
-                  <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
+                  <svg className="d2-stage d2-overlay" viewBox={overlayViewBox(v, size)} preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
                     <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} loop />
                   </svg>
                 )}
@@ -140,7 +147,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       ) : v.merchant ? (
         <Merchant v={v.merchant} onCoin={(value) => run.onGesture({ type: 'coin', value })} onHand={() => run.onGesture({ type: 'hand' })}
           onPotion={() => run.onGesture({ type: 'potion' })} onDecline={() => run.onGesture({ type: 'decline' })} />
-      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} />}
+      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} size={size} />}
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}

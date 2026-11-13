@@ -139,7 +139,8 @@ describe('screens', () => {
   })
   it('the flying wizard is big enough to see and small enough to dodge', () => {
     expect(BROOM_WIZARD_H).toBeGreaterThanOrEqual(140)
-    expect(BROOM_WIZARD_H).toBeLessThanOrEqual(220 * 0.75)
+    // the parent's pick: 1.5 times the old 150, still lower than a lane (flight.test.ts)
+    expect(BROOM_WIZARD_H).toBeLessThan(LANE_Y[1] - LANE_Y[0])
   })
   it('the glyphs are large', () => {
     expect(BROOM_GLYPH_PX).toBeGreaterThan(80)

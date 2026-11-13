@@ -10,7 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, waveTick, wavePos, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
+  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
@@ -219,15 +219,12 @@ const IDLE_HINT_MS = 16000
 const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
-const WAVE_EVERY = 0.55
 /** the boss swoops in this long before its line */
 const BOSS_ARRIVE_MS = 1300
 /** its hit pose shows this long */
 const BOSS_HIT_MS = 600
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
-/** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
-const POPCORN = 0.28
 /** drawing: wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
 const DRAW_TRIES = 3
 /** a stroke shorter than this (letter units) is a tap, not a stroke of the letter */
@@ -1826,7 +1823,7 @@ export class RunController {
       const w: BroomWave = {
         id: ++this.waveId, choices, startMs: now, ...(lanes ? { lanes } : {}),
         offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
-        jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
+        jitter: choices.map(() => Math.round((this.rng() - 0.5) * 2 * ORB_JITTER)),
         resolved: choices.map(() => false),
       }
       this.setScreen({ waves: [...(this.view.screen as BroomView).waves, w], travelMs: travel } as Partial<BroomView>)

@@ -4,34 +4,48 @@
 import { useEffect, useRef, useState } from 'react'
 import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
-import { laneAt, wavePos } from '../../logic/run'
+import { wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
 import type { BossView } from '../../controller'
+import { flightView } from '../../layout'
 
-export const LANE_Y = [250, 470, 690]
-export const LANE_H = 220
+/** each lane's centre (stage y): far enough apart that two orbs in neighbouring lanes never overlap (LANE_GAP, ORB_JITTER) */
+export const LANE_Y = [260, 505, 750]
+export const LANE_H = 245
 /** the wizard's centre (stage x) */
 export const WIZ_X = 170
-/** about two thirds of a lane high: big enough to see, small enough to dodge (Michael: first too big, then too small) */
-export const BROOM_WIZARD_H = 150
-export const BROOM_ORB = 170
-export const BROOM_GLYPH_PX = 100
-// beyond the widest screen edge (the background extends past the stage on wide screens), so orbs fly in, never pop in
-const START_X = 2000
+/** the parent: 1.5 times the old 150 (big enough to see; a lane is still higher than he is, so he can dodge) */
+export const BROOM_WIZARD_H = 225
+/** the parent: 1.3 times the old 170 */
+export const BROOM_ORB = 221
+export const BROOM_GLYPH_PX = 130
 const WIZ_W = BROOM_WIZARD_H * (600 / 512)
-/** the wizard sprite's box (stage x) */
+/** the sprite's box (stage x) */
 export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W / 2, width: WIZ_W })
-/** the orbs' centre x for a wave position k (1 = right edge, 0 = touching the wizard's front) */
-export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (START_X - WIZ_X)
+/** an orb's centre when it touches the wizard's front (wave position 0) */
+export const ORB_FRONT = WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3
+
+/**
+ * The flight on a w×h screen: the view (as wide as the screen, layout.ts flightView) and the start of the orbs' path,
+ * just beyond its right edge (with the ring of a marked orb), so every orb flies in and none waits in sight. An orb
+ * crosses the whole path in the flight's travel time on every screen. Without a size: a 16:9 screen.
+ */
+export function flightPath(size?: { w: number; h: number }) {
+  const view = flightView(size?.w, size?.h)
+  const startX = view.left + view.width + BROOM_ORB * 0.6
+  return { view, startX, span: startX - ORB_FRONT }
+}
+/** the orbs' centre x for a wave position k (1 = the path's start beyond the right edge, 0 = touching the wizard's front) */
+export const orbX = (k: number, path = flightPath()) => ORB_FRONT + k * path.span
 /** the boss's box on the right (stage units): it faces the wizard */
 export const BOSS_BOX = { x: 1060, y: 235, w: 460, h: 490 }
 export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
-const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
+export const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
 export interface BroomWave {
@@ -52,6 +66,8 @@ export function Broom(p: {
   finished?: boolean
   /** a boss visit: the boss on the right, its health bar, the bolts, the win */
   boss?: BossView
+  /** the screen's size: the flight fills its width (flightPath) */
+  size?: { w: number; h: number }
 }) {
   const wiz = useWizardArt()
   const clock = p.clock ?? (() => performance.now())
@@ -85,7 +101,8 @@ export function Broom(p: {
   const svgRef = useRef<SVGSVGElement>(null)
   const y = dragY ?? LANE_Y[p.lane]
   const stageY = (e: React.PointerEvent) => toStage(svgRef.current, e.clientX, e.clientY).y
-  const laneOf = (y: number) => laneAt(Math.min(1, Math.max(0, (y - 140) / (H - 140 - 30))))
+  // the lane whose band holds y: the borders are halfway between the lanes
+  const laneOf = (y: number): 0 | 1 | 2 => (y < (LANE_Y[0] + LANE_Y[1]) / 2 ? 0 : y < (LANE_Y[1] + LANE_Y[2]) / 2 ? 1 : 2)
   const lastLane = useRef<0 | 1 | 2>(p.lane)
   const release = (e: React.PointerEvent) => {
     if (down.current === null) return
@@ -96,8 +113,9 @@ export function Broom(p: {
     p.onLane(l)
   }
   const wizW = WIZ_W
+  const path = flightPath(p.size)
   return (
-    <Stage bg="bg-sky" ref={svgRef}
+    <Stage bg="bg-sky" ref={svgRef} viewBox={`${path.view.left} 0 ${path.view.width.toFixed(1)} ${H}`}
       onPointerDown={(e) => { down.current = e.pointerId; (e.target as Element).setPointerCapture?.(e.pointerId); setDragY(stageY(e)) }}
       onPointerMove={(e) => {
         if (down.current === null) return
@@ -119,7 +137,7 @@ export function Broom(p: {
             if (w.resolved[i] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
             const lane = w.lanes?.[i] ?? i
             const k = wavePos(w.startMs + w.offsets[i] * p.travelMs, t, p.travelMs)
-            const x = orbX(k)
+            const x = orbX(k, path)
             const y = LANE_Y[lane] + w.jitter[i]
             let state: PickState = 'idle'
             if (p.reveal?.right === c.id) state = 'reveal'

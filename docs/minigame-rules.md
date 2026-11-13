@@ -280,6 +280,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (book 2): the word "דֶּלֶת" was on a door, and a door was one of the pictures to choose from.
 - Make the player sprite small enough for the action.
   Example (book 2): the wizard on the broom filled most of his lane, so he could not dodge.
+- Do not let two moving answers overlap. Keep neighbouring lanes at least one answer apart, with their random offsets.
+  Keep two answers in one lane at least one answer apart at the fastest speed. Start each answer outside the screen,
+  so that it flies in. Check this with a geometry test at each screen size, also when you make the answers bigger.
+  Example (book 2): the parent made the broom's orbs 1.3 times bigger and said: "pay attention so orbs don't overlap
+  each other". Orbs in neighbouring lanes already overlapped a little on a phone.
 
 ## Art generation
 
