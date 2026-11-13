@@ -182,6 +182,15 @@ describe('screens', () => {
       expect(Math.max(...ys)).toBeLessThanOrEqual(820)
     }
   })
+  it('on a new ladder the wizard is back at the start at once (he climbs, he never slides down under the bar)', () => {
+    const plates = [c('lamed', 'chirik'), c('lamed', 'shuruk'), c('lamed', 'segol')]
+    const r = render(<Ladder built={[]} plates={plates} rungs={5} onPick={() => {}} phase="answer" />)
+    const img = () => r.container.querySelector('image[data-wizard]') as SVGImageElement | null
+    expect(img()).not.toBeNull()
+    expect(img()!.style.transition).toBe('none')
+    r.rerender(<Ladder built={[c('lamed', 'kamatz')]} plates={plates} rungs={5} onPick={() => {}} phase="answer" />)
+    expect(img()!.style.transition).toBe('')
+  })
   it('ladder shows the built rungs and three plates', () => {
     const { container } = render(<Ladder built={[c('lamed', 'kamatz')]} plates={[c('lamed', 'chirik'), c('lamed', 'shuruk'), c('lamed', 'segol')]} rungs={5} onPick={() => {}} phase="answer" />)
     expect(container.querySelectorAll('[data-rung]').length).toBe(1)

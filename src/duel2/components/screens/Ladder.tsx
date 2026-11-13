@@ -88,7 +88,9 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
         </g>
       ))}
       {wiz('s-wizard-idle') && (
-        <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb" />
+        // a new ladder: he is back at the start at once (sliding down from the top he would pass under the bar's buttons)
+        <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb"
+          style={p.built.length === 0 ? { transition: 'none' } : undefined} />
       )}
       {p.plates.map((c, i) => {
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
