@@ -12,8 +12,10 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 /* on a short wide screen the stage may grow: its empty sky goes up under the band, its content stays below it
    (layout.ts: STAGE_CONTENT_TOP). The hint card keeps the room below the band. */
 .d2-root[data-screen="play"] .d2-stage { top: var(--d2-stage-top, var(--d2-content-top)); height: var(--d2-stage-h, calc(100% - var(--d2-content-top))); }
+/* the doors on a phone: the door rises into the band's free middle, left of the centre (layout.ts: bandStageBox) */
+.d2-root[data-screen="play"] .d2-stage { left: var(--d2-stage-left, 0); width: var(--d2-stage-w, 100%); }
 /* an explanation's frame: the bar is hidden while it shows, so the frame takes the whole screen (Overlays.tsx) */
-.d2-root[data-screen="play"] .d2-stage.d2-frame { top: 0; height: 100%; }
+.d2-root[data-screen="play"] .d2-stage.d2-frame { top: 0; height: 100%; left: 0; width: 100%; }
 .d2-topbar { position: absolute; top: var(--d2-bar-top); left: 24px; right: 24px; height: var(--d2-bar-h);
   display: flex; align-items: center; justify-content: space-between; z-index: 20; pointer-events: none; direction: ltr; }
 .d2-topbar-side, .d2-topbar-mid { display: flex; gap: 12px; align-items: center; pointer-events: auto; }

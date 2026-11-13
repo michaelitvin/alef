@@ -44,18 +44,71 @@ export function stageBox(w: number, h: number, top = 0): { x: number; y: number;
   return { x: (w - sw) / 2, y, w: sw, h: sh, scale }
 }
 
+/** the bar's distance from the screen's left and right edges (duel2.css .d2-topbar) */
+export const BAR_SIDE_PX = 24
+/**
+ * The counts on the bar's right at their widest while he plays (measured: three digits of coins, a two-digit score,
+ * the ×2/×3 badge (both as wide), three hearts; each more digit adds 21 px; without the badge they are 80 px narrower).
+ */
+export const BAR_COUNTS_MAX_PX = 436
+/** the room kept between the game and an item of the bar */
+export const BAR_AIR_PX = 8
+
+/**
+ * The bar's items on a w-wide screen, each at its widest (x from the screen's left; all of them in the band, y from
+ * BAR_TOP_PX to BAR_TOP_PX + BAR_H_PX): on the left the speaker and the wand (the doors have no speaker), the go-on
+ * button in the middle (with its pulse), the counts on the right.
+ */
+export function barItems(w: number, speaker = true): { left: [number, number]; next: [number, number]; counts: [number, number] } {
+  const buttons = speaker ? 2 * BAR_ITEMS_PX.button + 12 : BAR_ITEMS_PX.button
+  const half = (BAR_ITEMS_PX.next * NEXT_PULSE) / 2
+  return { left: [BAR_SIDE_PX, BAR_SIDE_PX + buttons], next: [w / 2 - half, w / 2 + half], counts: [w - BAR_SIDE_PX - BAR_COUNTS_MAX_PX, w - BAR_SIDE_PX] }
+}
+
+/** the screens whose content rises into the top band on a phone (layout.ts bandStageBox): its width (stage units) */
+export const BAND_CONTENT_W: Record<string, number> = { doors: 560 * (519 / 600) }
+/** a screen at most this tall is a phone on its side: there the content rises into the band (a tablet keeps its layout) */
+export const BAND_MAX_H = 500
+/** the content's top on a phone, with the content in the band (CSS px from the screen's top) */
+export const BAND_TOP_PX = 10
+
+/**
+ * The doors on a phone on its side (the parent's pick, "into the band"): the door's top rises into the empty middle of
+ * the top band, so the door, its word plate and the keys are bigger. The content (STAGE_CONTENT_TOP..900) fills the
+ * screen from BAND_TOP_PX to its bottom, and its middle (stage x 800, `width` wide) moves into the band's free gap:
+ * right of the wand, left of the go-on button and of the counts at their widest, with BAR_AIR_PX on each side. The
+ * door is then left of the screen's centre. Null where it does not help: on a tablet, or when the stage would not grow.
+ */
+export function bandStageBox(w: number, h: number, top: number, width: number): { x: number; y: number; w: number; h: number; scale: number } | null {
+  if (h > BAND_MAX_H) return null
+  const bar = barItems(w, false)
+  const l = bar.left[1] + BAR_AIR_PX
+  const r = Math.min(bar.next[0], bar.counts[0]) - BAR_AIR_PX
+  const scale = Math.min((h - BAND_TOP_PX) / (900 - top), (r - l) / width)
+  if (!(scale > stageBox(w, h, top).scale + 1e-6)) return null
+  const cx = (l + r) / 2
+  return { x: cx - 800 * scale, y: h - 900 * scale, w: 1600 * scale, h: 900 * scale, scale }
+}
+
 /**
  * The CSS variables that place the bar and the stage (set on the play screen's root). With the screen's size and its
  * content's top (STAGE_CONTENT_TOP), the stage's own box (--d2-stage-top, --d2-stage-h; relative to the band, so a notch
- * moves both); without them the stage fills the room below the band.
+ * moves both); without them the stage fills the room below the band. With `band` (BAND_CONTENT_W) the content may rise
+ * into the band on a phone (bandStageBox): the stage's box then also has its own left edge and width.
  */
-export function layoutVars(size?: { w: number; h: number }, top = 0): CSSProperties {
+export function layoutVars(size?: { w: number; h: number }, top = 0, band?: number): CSSProperties {
   const v: Record<string, string> = {
     '--d2-bar-top': `max(${BAR_TOP_PX}px, env(safe-area-inset-top))`,
     '--d2-bar-h': `${BAR_H_PX}px`,
     '--d2-content-top': `calc(var(--d2-bar-top) + ${BAR_H_PX + BAR_GAP_PX}px)`,
   }
-  if (size && top > 0) {
+  const inBand = size && top > 0 && band ? bandStageBox(size.w, size.h, top, band) : null
+  if (inBand) {
+    v['--d2-stage-top'] = `${inBand.y.toFixed(1)}px`
+    v['--d2-stage-h'] = `${inBand.h.toFixed(1)}px`
+    v['--d2-stage-left'] = `${inBand.x.toFixed(1)}px`
+    v['--d2-stage-w'] = `${inBand.w.toFixed(1)}px`
+  } else if (size && top > 0) {
     const b = stageBox(size.w, size.h, top)
     const fit = stageBox(size.w, size.h)
     if (b.scale > fit.scale + 1e-6) {
