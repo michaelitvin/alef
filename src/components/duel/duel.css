@@ -404,4 +404,13 @@
   /* the boss's clue bubble must stay below the top bar: its hearts in one row, the bubble's gap smaller */
   .nd-embedded.nd-landscape .nd-boss-hp { display: flex; flex-wrap: nowrap; }
   .nd-embedded.nd-landscape .nd-boss .nd-clue { margin-bottom: 4px; }
+  /* the tower and the wizard use the screen's full height on their side (the parent: he was small, and no control sits
+     above him): the stack rises from the tower's base (12.5% of the field) into the empty left of the top bar's band, to
+     10 px below the screen's top. The bar's left end is empty on the tower (its speaker is on the board), and its counts
+     and hearts are at the right end. Proportions as on a tablet: tower 42, overlap 3.5, wizard 30 (of 68.5). */
+  .nd-embedded.nd-landscape .nd-field { --nd-stack: calc(87.5% + var(--d2-content-top, 78px) - 10px); }
+  .nd-embedded.nd-landscape .nd-tower { height: calc(var(--nd-stack) * 0.613); }
+  .nd-embedded.nd-landscape .nd-wizard { height: calc(var(--nd-stack) * 0.438); bottom: calc(12.5% + var(--nd-stack) * 0.562); }
+  /* the time bar starts right of the tower, so it does not cross the wizard */
+  .nd-embedded.nd-landscape .nd-timebar { left: 22%; }
 }
