@@ -19,7 +19,7 @@ export function PlayButton({ theme, size }: { theme: 'duel' | 'clock'; size?: st
   const t = THEMES[theme]
   return (
     <svg viewBox="0 0 100 100" className="home-play" data-play={theme} aria-label="play" role="img"
-      style={{ width: size ?? 'clamp(52px, 15vw, 84px)', filter: `drop-shadow(0 0 10px ${t.glow})` }}>
+      style={{ width: size ?? 'var(--home-play-w, clamp(52px, 15vw, 84px))', filter: `drop-shadow(0 0 10px ${t.glow})` }}>
       <defs>
         <radialGradient id={`${id}c`} cx="40%" cy="35%" r="70%"><stop offset="0" stopColor={t.centre[0]} /><stop offset="1" stopColor={t.centre[1]} /></radialGradient>
         <linearGradient id={`${id}r`} x1="0" y1="0" x2="0" y2="1">
