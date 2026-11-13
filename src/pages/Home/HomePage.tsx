@@ -71,6 +71,7 @@ export function HomePage() {
 
       {/* Header */}
       <motion.header
+        className="home-header"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         style={{

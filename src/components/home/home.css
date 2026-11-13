@@ -95,3 +95,10 @@
 .home-box { width: calc(100% - 2 * 12px); max-width: 620px; box-sizing: border-box; background: linear-gradient(#fdf6e3, #f3e3c3);
   border-radius: 18px; padding: 14px; box-shadow: 0 2px 10px #0002; margin: 0 12px; }
 @media (max-width: 480px) { .home-box { padding: 10px; width: calc(100% - 2 * 8px); margin: 0 8px; } }
+
+/* a phone on its side: a short header, so the duel's card is whole in the first view (the parent's proportions review) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .home-header { padding: 8px 16px !important; }
+  .home-header h1 { font-size: 2rem !important; margin: 0 !important; line-height: 1.1; }
+  .home-header p { font-size: 1.1rem !important; margin: 0 !important; }
+}
