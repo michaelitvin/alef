@@ -878,6 +878,32 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  it('a new sound said just before the last wave: its wave comes and flies to the end before the wizard flies away (the parent: "it said and now something else, and nothing came")', async () => {
+    // a session from the path and the gallery; with these misses the last wave sets off on an empty sky
+    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 900)) })
+    for (const [opts, seed, miss] of [[{ session: { screen: 'broom' } }, 5, 4], [{ session: { screen: 'broom' } }, 1, 3], [{ force: { screen: 'broom', stage: 2, kind: 'syllable' } }, 6, 5]] as const) {
+      const c = make({ ...opts, rng: seeded(seed) })
+      c.start()
+      let left: number[] | null = null
+      let saidNew = false
+      for (let i = 0; i < 4000 && left === null; i++) {
+        const s = c.view.screen
+        if (played.some((id) => id.startsWith('target-new'))) saidNew = true
+        if (s?.screen === 'broom' && s.finished) { left = s.waves.filter((w) => w.resolved.some((r) => !r)).map((w) => w.id); break }
+        if (s?.screen === 'broom' && c.view.phase === 'answer') {
+          const head = s.waves.find((w) => w.resolved.some((r) => !r))
+          let k = head ? head.choices.findIndex((x, j) => x.soundId === s.target.soundId && !head.resolved[j]) : -1
+          if (head && head.id % miss === 0 && k >= 0) k = (k + 1) % head.choices.length
+          if (k >= 0) c.gesture({ type: 'lane', lane: (head!.lanes?.[k] ?? k) as 0 | 1 | 2 })
+        }
+        await tick(50)
+      }
+      expect(saidNew).toBe(true)
+      expect(left, `seed ${seed}: orbs still on their way when the flight ended`).toEqual([])
+      c.destroy()
+    }
+  }, 60_000)
+
   it('ghosts with letters ask for the letter when he waits', async () => {
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
     c.start()
