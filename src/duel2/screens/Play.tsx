@@ -10,6 +10,7 @@ import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
 import { Draw } from '../components/screens/Draw'
+import { TouchAnswer } from '../components/DragPick'
 import { Merchant } from '../components/screens/Merchant'
 import { Tower } from '../components/screens/Tower'
 import { TopBar } from '../components/TopBar'
@@ -118,6 +119,8 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const size = useWindowSize()
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)
+  // finger-down on an answer, or the pen down: a hint that shows goes away (rule)
+  const touch = (by: 'answer' | 'pen') => run.onGesture({ type: 'touch', by })
   if (v.over && !reported.current) {
     reported.current = true
     queueMicrotask(() => onOver(v.over!))
@@ -134,10 +137,11 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
     const timer = window.setTimeout(() => setShake((x) => (x === id ? null : x)), 450)
     return () => window.clearTimeout(timer)
   }, [bfx?.id, bfx?.kind])
-  // during a merchant's visit the speaker says his last line again
+  // the merchant's visit has one help button (?) that replays his walkthrough, and no speaker (the parent)
   // (the tower has its own speaker on the duel's board)
-  const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
+  const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
+    <TouchAnswer.Provider value={touch}>
     <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
       style={layoutVars(size, contentTop(v), fullView(v, size) ? 'full' : bandWidth(v))}>
       {o?.kind === 'demo' ? (
@@ -167,7 +171,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {(!o || o.kind === 'hint' || o.kind === 'word') && (
         <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
-          onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow}
+          onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow} help={!!v.merchant}
           onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w)} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
@@ -179,5 +183,6 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {v.defeat && <div data-defeat className="d2-defeat">{wiz('s-wizard-dizzy') && <img src={wiz('s-wizard-dizzy')} alt="" draggable={false} />}</div>}
       {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
     </div>
+    </TouchAnswer.Provider>
   )
 }

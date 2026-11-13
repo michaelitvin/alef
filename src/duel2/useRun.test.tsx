@@ -741,6 +741,59 @@ describe('run controller', () => {
     c.destroy()
   })
 
+  describe('a hint goes away when he acts (the parent)', () => {
+    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    it('a touch on an answer: the hint card, its glow and its voice go away at once; the hint stays counted', async () => {
+      duel2Telemetry.clear()
+      // the hint's voice takes long; a stop ends it (stopVoice drops what plays)
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.hintAvailable)
+      c.hint()
+      await until(c, (v) => v.overlay?.kind === 'hint')
+      c.gesture({ type: 'touch', by: 'answer' })
+      expect(c.view.overlay).toBeNull()
+      // the hint's next part (the vowel) never plays
+      await tick(5000)
+      expect(played.some((id) => id.startsWith('vn-'))).toBe(false)
+      expect(events().filter((e) => e.e === 'hint').length).toBe(1)
+      expect(events().find((e) => e.e === 'hint-stop')).toMatchObject({ screen: 'ladder', by: 'answer' })
+      // he can still pick, and ask again
+      expect(c.view.phase).toBe('answer')
+      expect(c.view.hintAvailable).toBe(true)
+      c.destroy()
+    })
+
+    it('a pick (a tap on a ghost) also ends a hint from the button', async () => {
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
+      const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.hintAvailable)
+      c.hint()
+      await until(c, (v) => v.overlay?.kind === 'hint')
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      expect(c.view.overlay?.kind).not.toBe('hint')
+      await tick(5000)
+      expect(played.some((id) => id.startsWith('vn-'))).toBe(false)
+      c.destroy()
+    })
+
+    it('a touch on a key ends the door\'s hint: the syllables are lit again at once', async () => {
+      const c = make({ force: { screen: 'doors', stage: 2 } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.hintAvailable)
+      c.hint()
+      expect((c.view.screen as { lit: number }).lit).toBe(0)
+      c.gesture({ type: 'touch', by: 'answer' })
+      expect((c.view.screen as { lit: number }).lit).toBe(2)
+      // the hint's steps do not come back
+      await tick(2500)
+      expect((c.view.screen as { lit: number }).lit).toBe(2)
+      c.destroy()
+    })
+  })
+
   it('the instruction plays only when he has not picked for a while (Michael: he gets it)', async () => {
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
@@ -1749,7 +1802,10 @@ describe('run controller', () => {
       expect(c.view.hearts).toBe(2)
       expect(coins()).toBe(before - 6)
       expect(c.view.heal).toBeDefined()
-      expect(played.some((id) => id.startsWith('m-exact-'))).toBe(true)
+      // the hearts flash as at the end of a pass, and he says that the child has a heart back, after "exactly" (the parent)
+      expect(c.view.heartFlash).toBeGreaterThan(0)
+      const said = played.filter((id) => /^m-(exact|heart)-/.test(id)).map((id) => id.replace(/-\d+$/, ''))
+      expect(said).toEqual(['m-exact', 'm-heart'])
       expect(useDuel2Store.getState().merchant.purchases).toBe(1)
       expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(0)
       await until(c, (v) => v.screen?.screen === 'ladder')
@@ -1757,6 +1813,32 @@ describe('run controller', () => {
       expect(ev.find((e) => e.e === 'merchant-arrive')).toMatchObject({ price: 6, hearts: 1 })
       expect(ev.find((e) => e.e === 'merchant-offer')).toMatchObject({ verdict: 'exact', price: 6, sum: 6 })
       expect(ev.find((e) => e.e === 'merchant-buy')).toMatchObject({ price: 6 })
+      c.destroy()
+    }, 60_000)
+
+    it('a child who has not bought from him yet hears the full opening', async () => {
+      const c = await cauldronThen(2)
+      await toMerchant(c)
+      expect(played.some((id) => id.startsWith('m-hello-'))).toBe(true)
+      expect(played.some((id) => id.startsWith('m-offer-'))).toBe(false)
+      c.destroy()
+    }, 60_000)
+
+    it('a child who knows the merchant (bought before) hears only the short offer, and no demo; the ? still replays it all', async () => {
+      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
+      // even with the demo never seen, a purchase means that he knows him
+      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, purchases: 1 } })
+      const c = await cauldronThen(2)
+      await playTo(c, (v) => !!v.merchant)
+      let demo = false
+      for (let i = 0; i < 400 && !arrived(c.view); i++) { if (mv(c).demo) demo = true; await tick(50) }
+      expect(arrived(c.view)).toBe(true)
+      expect(demo).toBe(false)
+      const ids = played.filter((id) => id.startsWith('m-')).map((id) => id.replace(/-\d+$/, ''))
+      expect(ids).toEqual(['m-offer'])
+      c.hint()
+      expect(mv(c).demo?.step).toBe('price')
+      await until(c, (v) => v.merchant?.demo?.step === 'decline')
       c.destroy()
     }, 60_000)
 
@@ -2159,7 +2241,7 @@ describe('run controller', () => {
         c.destroy()
       }, 60_000)
 
-      it('two wrong tries make the wand glow; it does not open the hint by itself', async () => {
+      it('two wrong tries make the ? glow; it does not open by itself', async () => {
         const c = await cauldronThen(2)
         await toMerchant(c)
         const small = Math.min(...mv(c).coins)
@@ -2174,45 +2256,100 @@ describe('run controller', () => {
         expect(c.view.hintGlow).toBe(true)
         expect(c.view.hintAvailable).toBe(true)
         await tick(30_000)
-        expect(played.some((id) => id.startsWith('m-hint-'))).toBe(false)
-        expect(mv(c).glow?.hint).toBeUndefined()
+        expect(played.some((id) => id.startsWith('m-price-'))).toBe(false)
+        expect(mv(c).demo).toBeUndefined()
         c.destroy()
       }, 60_000)
 
-      it('the hint sends his coins back and makes the right top coins glow', async () => {
+      /** the ?'s replay, step by step (each line takes a moment), until it is his turn again */
+      async function helpSteps(c: RunController) {
+        const steps: string[] = []
+        for (let i = 0; i < 400; i++) {
+          const d = mv(c).demo
+          if (d && steps[steps.length - 1] !== d.step) steps.push(d.step)
+          if (!d && steps.length) break
+          await tick(50)
+        }
+        return steps
+      }
+
+      it('the ? replays the walkthrough (D1–D4) and leaves the deal as it was', async () => {
+        slowMerchant()
+        const c = await cauldronThen(2)
+        await toMerchant(c)
+        const before = { ...mv(c) }
+        give(c, [mv(c).coins[0]])
+        const given = [...mv(c).given]
+        played.length = 0
+        c.hint()
+        expect(mv(c).demo).toMatchObject({ step: 'price', help: true })
+        // the button is hidden while it runs
+        expect(c.view.hintAvailable).toBe(false)
+        const steps = await helpSteps(c)
+        // this child has seen the undo (beforeEach): it is shown again too
+        expect(steps).toEqual(['price', 'give', 'potion', 'decline', 'undo'])
+        expect(played.filter((id) => id.startsWith('m-')).map((id) => id.replace(/-\d+$/, ''))).toEqual(['m-price', 'm-give', 'm-tap', 'm-decline', 'm-undo'])
+        // the deal is as it was: the price, his coins, the coins in the merchant's hand; his turn again
+        expect(mv(c)).toMatchObject({ phase: 'pay', price: before.price, coins: before.coins, given })
+        expect(mv(c).demo).toBeUndefined()
+        expect(c.view.hintAvailable).toBe(true)
+        expect(c.view.phase).toBe('answer')
+        expect(useDuel2Store.getState().merchant.hints).toBe(1)
+        expect(events().find((e) => e.e === 'merchant-help')).toMatchObject({ undo: true, given: 1 })
+        c.destroy()
+      }, 60_000)
+
+      it('the ? replay leaves out the undo while he has not needed it yet; a second tap on it does nothing', async () => {
+        slowMerchant()
+        useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true } })
+        const c = await cauldronThen(2)
+        await toMerchant(c)
+        c.hint()
+        await tick(100)
+        c.hint()
+        const steps = await helpSteps(c)
+        expect(steps).toEqual(['price', 'give', 'potion', 'decline'])
+        expect(played.filter((id) => id.startsWith('m-price-')).length).toBe(1)
+        c.destroy()
+      }, 60_000)
+
+      it('a touch on a coin during the ? replay ends it at once, and the coin is given', async () => {
+        slowMerchant()
+        const c = await cauldronThen(2)
+        await toMerchant(c)
+        c.hint()
+        await until(c, (v) => v.merchant?.demo?.step === 'give')
+        const coin = mv(c).coins[0]
+        c.gesture({ type: 'touch', by: 'answer' })
+        expect(mv(c).demo).toBeUndefined()
+        expect(c.view.hintAvailable).toBe(true)
+        c.gesture({ type: 'coin', value: coin })
+        expect(mv(c).given).toEqual([coin])
+        // it does not come back
+        await tick(3000)
+        expect(mv(c).demo).toBeUndefined()
+        expect(played.some((id) => id.startsWith('m-tap-'))).toBe(false)
+        expect(events().some((e) => e.e === 'hint-stop' && e.by === 'answer')).toBe(true)
+        c.destroy()
+      }, 60_000)
+
+      it('a lock during the ? replay: the visit comes back as it was, without the replay', async () => {
+        slowMerchant()
         const c = await cauldronThen(2)
         await toMerchant(c)
         give(c, [mv(c).coins[0]])
-        c.view.hintGlow = true
+        const given = [...mv(c).given]
         c.hint()
-        expect(mv(c).given).toEqual([])
-        expect(mv(c).glow?.hint).toEqual(hintCoins(mv(c).coins, mv(c).price))
-        expect(c.view.hintGlow).toBeFalsy()
-        await until(c, () => played.some((id) => id.startsWith('m-hint-')))
-        expect(useDuel2Store.getState().merchant.hints).toBe(1)
-        expect(events().find((e) => e.e === 'merchant-hint')).toMatchObject({ auto: false })
-        // he still gives them himself; each one he gives stops glowing
-        const h = mv(c).glow!.hint!
-        give(c, [h[0]])
-        expect(mv(c).glow?.hint ?? []).toEqual(h.slice(1))
-        give(c, h.slice(1))
-        c.gesture({ type: 'potion' })
-        await until(c, (v) => !v.merchant)
-        // a purchase with the hint does not count as a clean one
-        expect(useDuel2Store.getState().merchant.cleanRow).toBe(0)
-        c.destroy()
-      }, 60_000)
-
-      it('a lock after the hint keeps the hint’s coins glowing green (and the wand’s glow)', async () => {
-        const c = await cauldronThen(2)
-        await toMerchant(c)
-        c.hint()
-        const h = mv(c).glow!.hint!
-        expect(h.length).toBeGreaterThan(0)
+        await until(c, (v) => v.merchant?.demo?.step === 'give')
         c.pause()
         c.resume()
         await until(c, arrived)
-        expect(mv(c).glow?.hint).toEqual(h)
+        expect(mv(c).demo).toBeUndefined()
+        expect(mv(c).given).toEqual(given)
+        await tick(500)
+        expect(c.view.hintAvailable).toBe(true)
+        c.hint()
+        expect(mv(c).demo?.step).toBe('price')
         c.destroy()
       }, 60_000)
 
@@ -2537,6 +2674,26 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     expect(c.view.score).toBe(1)
     await until(c, () => played.filter((x) => x === `w-${id}`).length === 2)
     expect(c.view.hearts).toBe(hearts)
+    c.destroy()
+  })
+
+  it('the pen down ends the hint\'s hand at once (before the stroke is judged)', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
+    c.start()
+    await answering(c)
+    c.hint()
+    expect(dv(c).demo?.hint).toBe(true)
+    c.gesture({ type: 'touch', by: 'pen' })
+    expect(dv(c).demo).toBeUndefined()
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+    expect(ev.filter((e) => e.e === 'hint').length).toBe(1)
+    expect(ev.find((e) => e.e === 'hint-stop')).toMatchObject({ screen: 'draw', by: 'pen' })
+    // his stroke still counts
+    const [first] = strokesFor(c)
+    c.gesture({ type: 'stroke', pts: first })
+    await tick(20)
+    expect(dv(c).strokes[0].state).toBe('ok')
     c.destroy()
   })
 

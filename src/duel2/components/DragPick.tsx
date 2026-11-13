@@ -1,10 +1,17 @@
 // A choice he can drag to where it goes (the pot, the next rung, the door) or tap. A tap answers on finger-up, because
 // finger-down starts a drag; a drag answers only when he lets go over the drop zone, and otherwise the choice flies back.
 // The demo moves the choice with the hand (rule): `demo` is the fraction of the way to `to`.
-import { useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { toStage } from './screens/Stage'
 
 const MOVE_PX = 20
+
+/**
+ * Finger-down on an answer (or the pen down on a drawing screen): the run is told at once, so that a hint that shows goes
+ * away before the drag or the tap ends (rule: a hint goes away when the child acts). Unset outside a run (the gallery).
+ */
+export const TouchAnswer = createContext<((by: 'answer' | 'pen') => void) | null>(null)
+export const useTouchAnswer = () => useContext(TouchAnswer)
 
 export function DragPick(p: {
   enabled: boolean
@@ -18,6 +25,7 @@ export function DragPick(p: {
   /** the drag: the finger's stage point while the choice is held (from finger-down), null when it is let go or cancelled */
   onDrag?: (q: { x: number; y: number } | null) => void
 }) {
+  const touch = useTouchAnswer()
   const [d, setD] = useState<{ id: number; sx: number; sy: number; dx: number; dy: number; moved: boolean } | null>(null)
   const at = (e: React.PointerEvent) => toStage(e.currentTarget as Element, e.clientX, e.clientY)
   const tx = d ? `translate(${d.dx} ${d.dy})` : p.demo ? `translate(${p.demo.dx * p.demo.t} ${p.demo.dy * p.demo.t})` : undefined
@@ -30,6 +38,7 @@ export function DragPick(p: {
         const q = at(e)
         setD({ id: e.pointerId, sx: q.x, sy: q.y, dx: 0, dy: 0, moved: false })
         p.onDrag?.(q)
+        touch?.('answer')
       }}
       onPointerMove={(e) => {
         if (!d || d.id !== e.pointerId) return

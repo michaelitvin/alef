@@ -141,12 +141,12 @@ describe('one duel lines: the parent’s review 2026-11-12', () => {
 describe('merchant lines (spec: one duel, Part 2)', () => {
   const want: Record<string, number> = {
     'm-hello': 3, 'm-again': 2, 'm-bye': 2, 'm-price': 1, 'm-give': 1, 'm-tap': 1, 'm-decline': 1, 'm-exact': 3, 'm-short': 3,
-    'm-over': 3, 'm-undo': 1, 'm-empty': 2, 'm-hint': 2,
+    'm-over': 3, 'm-undo': 1, 'm-empty': 2, 'm-offer': 1, 'm-heart': 3,
   }
-  it('every line exists with its variations; the merchant speaks in his own voice, the hint is the narrator', () => {
+  it('every line exists with its variations; the merchant speaks all of them in his own voice', () => {
     for (const [id, n] of Object.entries(want)) {
       expect(lineById(id)?.variations, id).toBe(n)
-      expect(lineById(id)!.voice, id).toBe(id === 'm-hint' ? undefined : 'merchant')
+      expect(lineById(id)!.voice, id).toBe('merchant')
     }
   })
   it('the spec’s texts: the parent’s opening line and the table’s lines', () => {
@@ -165,12 +165,18 @@ describe('merchant lines (spec: one duel, Part 2)', () => {
     expect(he('m-short')).toBe(n('זֶה לֹא מַסְפִּיק.'))
     expect(he('m-over')).toBe(n('זֶה יוֹתֵר מִדַּי.'))
     expect(he('m-undo')).toBe(n('קַח מַטְבֵּעַ בַּחֲזָרָה.'))
-    expect(he('m-hint')).toBe(n('אוּלַי אֵלֶּה?'))
+    // the help button replays the walkthrough: the narrator's hint line left with the green coins (the parent)
+    expect(lineById('m-hint')).toBeUndefined()
+    // the parent: the short offer for a child who knows him, and the heart that came back
+    expect(he('m-offer')).toBe(n('רוֹצֶה שִׁקּוּי לֵב?'))
+    expect(lineById('m-offer')!.fe).toEqual([n('רוֹצָה שִׁקּוּי לֵב?')])
+    expect(he('m-heart')).toBe(n('עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.'))
+    expect(lineById('m-heart')!.fe![0]).toBe(n('עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.'))
     expect(he('m-empty')).toBe(n('קֹדֶם מַטְבְּעוֹת.'))
   })
   it('a girl form for every line that addresses the child; no "!", no digits (no numbers are spoken)', () => {
     // masculine words that address the child: the verbs, "you", the wizard
-    const addresses = /(קוֹסֵם|תִּרְצֶה|תֵּן|גַּע|קַח|שֶׁלְּךָ|רוֹצֶה)/
+    const addresses = /(קוֹסֵם|תִּרְצֶה|תֵּן|גַּע|קַח|שֶׁלְּךָ|לְךָ|קִבַּלְתָּ|רוֹצֶה)/
     for (const id of Object.keys(want)) {
       const l = lineById(id)!
       l.he.forEach((t, i) => {
@@ -183,6 +189,9 @@ describe('merchant lines (spec: one duel, Part 2)', () => {
   })
   it('"not enough" avoids עוֹד and קְצָת (this voice says them wrongly)', () => {
     for (const t of lineById('m-short')!.he) expect(/עוֹד|קְצָת/.test(t), t).toBe(false)
+    // the heart line too (the parent's draft had עוֹד), in both genders; and no ־ְתְּ past form for a girl (rule)
+    for (const t of [...lineById('m-heart')!.he, ...lineById('m-heart')!.fe!]) expect(/עוֹד|קְצָת/.test(t!), t!).toBe(false)
+    for (const t of lineById('m-heart')!.fe!) expect(/ְתְּ/.test(t!.normalize('NFD')), t!).toBe(false)
   })
   it('the parent’s review 2026-11-12: no wow; a neutral undo for a girl; take 3 of exact does not need שֶׁלְּךָ', () => {
     for (const t of lineById('m-over')!.he) expect(/וָואוּ/.test(t), t).toBe(false)

@@ -17,7 +17,7 @@ export const NEXT_PULSE = 1.08
 /** the bar's distance from the screen's left and right edges (.d2-topbar) and the gap between its items */
 export const BAR_SIDE_PX = 24
 export const BAR_ITEM_GAP_PX = 12
-/** the bar's left side at its widest: the speaker and the wand (CSS px from the screen's left edge) */
+/** the bar's left side at its widest: the speaker and the hint button (CSS px from the screen's left edge) */
 export const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX
 /**
  * The counts on the bar's right side at their widest (measured 436–437 px): coins up to 999, stars up to 99, the ×2/×3
@@ -69,14 +69,14 @@ type Span = [number, number]
 export interface BarItems {
   /** the speaker (none on a screen without it, the doors) */
   speaker?: Span
-  /** the wand: after the speaker */
-  wand: Span
-  /** the go-on button with its pulse: in the middle, or (nextSide) in the wand's place and size, the wand not shown then */
+  /** the hint button (?): after the speaker */
+  hint: Span
+  /** the go-on button with its pulse: in the middle, or (nextSide) in the hint's place and size, the hint button not shown then */
   next: Span
   nextSide: boolean
   /** the counts at their widest */
   counts: Span
-  /** the left group (the go-on button in the wand's place is no wider) */
+  /** the left group (the go-on button in the hint's place is no wider) */
   left: Span
 }
 
@@ -89,25 +89,25 @@ export function nextInMiddle(w: number): boolean {
 }
 
 /**
- * The bar's items on a w-wide screen, each at its widest: on the left the speaker and the wand (the doors have no speaker),
- * the go-on button in the middle where it fits (nextInMiddle), else in the wand's place after the speaker (TopBar: the
- * wand is not shown with it), the counts on the right. No two of them overlap at any size.
+ * The bar's items on a w-wide screen, each at its widest: on the left the speaker and the hint button (the doors have no speaker),
+ * the go-on button in the middle where it fits (nextInMiddle), else in the hint's place after the speaker (TopBar: the
+ * hint button is not shown with it), the counts on the right. No two of them overlap at any size.
  */
 export function barItems(w: number, speaker = true): BarItems {
   const B = BAR_ITEMS_PX.button
   const sp: Span | undefined = speaker ? [BAR_SIDE_PX, BAR_SIDE_PX + B] : undefined
   const slot = sp ? sp[1] + BAR_ITEM_GAP_PX : BAR_SIDE_PX
-  const wand: Span = [slot, slot + B]
+  const hint: Span = [slot, slot + B]
   const nextSide = !nextInMiddle(w)
-  // in the wand's place the go-on button is the wand's size and glows instead of growing (duel2.css), so it takes no more room
-  const next: Span = nextSide ? wand : [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX]
-  const left: Span = [BAR_SIDE_PX, wand[1]]
-  return { speaker: sp, wand, next, nextSide, counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX], left }
+  // in the hint's place the go-on button is the hint button's size and glows instead of growing (duel2.css), so it takes no more room
+  const next: Span = nextSide ? hint : [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX]
+  const left: Span = [BAR_SIDE_PX, hint[1]]
+  return { speaker: sp, hint, next, nextSide, counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX], left }
 }
 
 /**
  * The band's free middle on a w-wide screen (CSS px), where content may rise into the band: right of the left group (the
- * speaker, the wand or the go-on button in its place), left of the counts at their widest and of the go-on button when it
+ * speaker, the hint button or the go-on button in its place), left of the counts at their widest and of the go-on button when it
  * is in the middle, with BAND_AIR_PX on each side.
  */
 export function bandGap(w: number, speaker = true): { left: number; right: number } {

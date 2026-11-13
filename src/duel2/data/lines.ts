@@ -121,6 +121,8 @@ export const LINES: LineDef[] = [
     'מָה נִשְׁמָע קוֹסֵם? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצֶה אֶחָד?',
     'הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?',
   ]),
+  // the parent: a child who knows the merchant (he bought a potion from him before) hears only this short offer
+  mline('m-offer', 'Merchant: his opening when the child knows him (a potion bought before); no demo then', ['רוֹצֶה שִׁקּוּי לֵב?']),
   mline('m-again', 'Merchant: nothing tapped for 20 s after he came (once per visit)', ['נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?', 'אָז מָה? קוֹנִים שִׁקּוּי?']),
   // no comma before קוֹסֵם: no pause there (the parent 2026-11-12)
   mline('m-bye', 'Merchant: the ✗ (no thanks); his coins go back and he walks away', ['בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.', 'אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.']),
@@ -133,13 +135,18 @@ export const LINES: LineDef[] = [
   mline('m-exact', 'Merchant: he counted the exact price; the potion flies to the wizard', [
     'בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.', 'בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.', 'מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.',
   ]),
+  // the parent: after a purchase he says that the child has a heart back (after m-exact, while the hearts flash). The
+  // parent's draft had עוֹד (said wrongly by the voices: rule) and "!" (it shouts): לֵב בַּחֲזָרָה instead; no הִנֵּה (m-exact
+  // take 1 says it just before)
+  mline('m-heart', 'Merchant: after a purchase, right after m-exact: the heart flew to the top bar', [
+    'עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.', 'קִבַּלְתָּ לֵב בַּחֲזָרָה.', 'הַלֵּב שֶׁלְּךָ חָזַר.',
+  ]),
   // "not enough" avoids עוֹד and קְצָת (this voice says them wrongly: rule). Plain words, no "wow" (the parent 2026-11-12:
   // "חָסֵר לִי כֶּסֶף" was weird wording; "why wow?")
   mline('m-short', 'Merchant: he counted less than the price (the tag flashes; the coins stay)', ['זֶה לֹא מַסְפִּיק.', 'זֶה פָּחוֹת מֵהַמְּחִיר.', 'צָרִיךְ יוֹתֵר מַטְבְּעוֹת.']),
   mline('m-over', 'Merchant: he counted more than the price (the tag flashes; the coins stay)', ['זֶה יוֹתֵר מִדַּי.', 'זֶה יוֹתֵר מֵהַמְּחִיר.', 'יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.']),
   mline('m-undo', 'Merchant: too much, the first time only: the hand taps his hand and the last coin flies back', ['קַח מַטְבֵּעַ בַּחֲזָרָה.']),
   mline('m-empty', 'Merchant: the potion tapped with nothing in his hand (his hand glows)', ['קֹדֶם מַטְבְּעוֹת.', 'קֹדֶם תֵּן לִי מַטְבְּעוֹת.']),
-  line('m-hint', 'Merchant visit, the hint (narrator): his coins go back and the coins that make the price glow green', ['אוּלַי אֵלֶּה?', 'אוּלַי הַמַּטְבְּעוֹת הָאֵלֶּה?'], 0.5, 'warmly'),
   // the boy/girl question (spec 2026-11-07 girls): one take for both, before the first run while the setting is unset
   line('ask-gender', 'Before the first run, while boy/girl is not set: the two wizards glow on בֵּן and בַּת', ['מִי מְשַׂחֵק? בֵּן אוֹ בַּת?'], 0.5, 'warmly'),
 ]
@@ -193,6 +200,9 @@ const FE: Record<string, (string | null)[]> = {
     'מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?',
     'הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?',
   ],
+  'm-offer': ['רוֹצָה שִׁקּוּי לֵב?'],
+  // ־ְתְּ past forms are said as the masculine (rule): the girl's take 2 has a neutral wording
+  'm-heart': ['עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.', 'הַלֵּב חָזַר אֵלַיִךְ.', 'הַלֵּב שֶׁלָּךְ חָזַר.'],
   'm-again': ['נוּ, תִּרְצִי לִקְנוֹת אֶחָד?', null],
   'm-bye': ['בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.', null],
   'm-give': ['תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'],

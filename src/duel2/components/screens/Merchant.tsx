@@ -7,7 +7,7 @@ import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
 import type { MerchantView } from '../../controller'
 import { hintCoins, piles } from '../../logic/merchant'
-import { DragPick } from '../DragPick'
+import { DragPick, useTouchAnswer } from '../DragPick'
 import { DemoHand, HandShape } from '../DemoHand'
 import { PriceTag, ValueCoin, coinSize } from '../ValueCoin'
 import { Stage, faceTransform } from './Stage'
@@ -65,8 +65,10 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
   v: MerchantView; onCoin: (value: number) => void; onHand: () => void; onPotion: () => void; onDecline: () => void
 }) {
   const wiz = useWizardArt()
-  // he can give coins (the opening line and the demo are over; not while the merchant counts or leaves)
-  const pay = v.phase === 'pay' && !v.demo
+  // he can give coins (the opening line and the demo are over; not while the merchant counts or leaves). The ?'s replay
+  // of the walkthrough keeps them open: a touch on a coin ends it (rule: a hint goes away when the child acts)
+  const pay = v.phase === 'pay' && (!v.demo || !!v.demo.help)
+  const touch = useTouchAnswer()
   // a coin is being dragged: his hand glows as the place to drop it, brighter while the coin is over it (the parent)
   const [drag, setDrag] = useState<'drag' | 'over' | null>(null)
   const glow = v.glow ?? {}
@@ -75,8 +77,6 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
   const gnomeX = GNOME.right - gnomeW
   const counting = v.phase === 'count' && (v.counted ?? 0) > 0
   const running = v.given.slice(0, v.counted ?? 0).reduce((a, b) => a + b, 0)
-  const hintLeft = new Map<number, number>()
-  for (const h of glow.hint ?? []) hintLeft.set(h, (hintLeft.get(h) ?? 0) + 1)
   // the ✗ is hidden while the first-visit demo plays, until the demo points it out (spec)
   const showDecline = (!v.demo || v.demo.step === 'decline' || v.demo.step === 'undo') && v.phase !== 'leave' && v.phase !== 'sold'
   const handSpacing = Math.min(48, 300 / Math.max(1, v.given.length))
@@ -84,8 +84,9 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
   const step = v.demo?.step
   const dim = (target: boolean) => (step && !target ? { 'data-dim': '1', opacity: 0.3 } : {})
   const [dragT, setDragT] = useState(0)
-  // D2 drags the top coin of the hint's first pile into his hand (and back)
-  const demoValue = step === 'give' ? hintCoins(left, v.price)[0] : undefined
+  // D2 drags the top coin of the first pile of a payment into his hand (and back); in a replay with coins in his hand that
+  // may not be payable from the rest, so the first pile then
+  const demoValue = step === 'give' ? hintCoins(left, v.price)[0] ?? piles(left)[0]?.value : undefined
   const demoPile = demoValue !== undefined ? pileLayout(left).find((p) => p.value === demoValue) : undefined
   const ease = (k: number) => (k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2)
   const dragAt = demoPile ? { x: demoPile.cx + (HAND.x - demoPile.cx) * ease(dragT), y: demoPile.topY + (HAND.y + 14 - demoPile.topY) * ease(dragT),
@@ -103,7 +104,7 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
       </g>
       {!v.bought && (
         <g data-potion {...dim(step === 'potion')} className={`d2-press${glow.potion || (pay && v.given.length > 0) ? ' d2-pulse' : ''}`}
-          onPointerDown={(e) => { e.preventDefault(); onPotion() }} style={{ cursor: 'pointer' }}>
+          onPointerDown={(e) => { e.preventDefault(); touch?.('answer'); onPotion() }} style={{ cursor: 'pointer' }}>
           <circle cx={POTION.x} cy={POTION.y} r={POTION.w * 0.62} fill="transparent" />
           {IMAGES['s-potion']
             ? <image href={IMAGES['s-potion']} x={POTION.x - POTION.w / 2} y={POTION.y - POTION.w * (412 / 512) / 2} width={POTION.w} height={POTION.w * (412 / 512)} />
@@ -115,7 +116,7 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
         <g className="d2-potion-fly"><image href={IMAGES['s-potion']} x={POTION.x - POTION.w / 2} y={POTION.y - POTION.w * (412 / 512) / 2} width={POTION.w} height={POTION.w * (412 / 512)} /></g>
       )}
       {!v.bought && <g data-tag-part {...dim(step === 'price')}><PriceTag price={v.price} x={TAG.x} y={TAG.y} flash={v.tag === 'flash'} lit={v.tag === 'lit'} glow={glow.tag} /></g>}
-      <g data-merchant-hand data-drop-glow={(pay && drag) || undefined} {...dim(step === 'give' || step === 'undo')} className="d2-press" onPointerDown={(e) => { e.preventDefault(); onHand() }} style={{ cursor: 'pointer' }}>
+      <g data-merchant-hand data-drop-glow={(pay && drag) || undefined} {...dim(step === 'give' || step === 'undo')} className="d2-press" onPointerDown={(e) => { e.preventDefault(); touch?.('answer'); onHand() }} style={{ cursor: 'pointer' }}>
         <circle cx={HAND.x} cy={HAND.y} r={handGlow === 'over' ? HAND.r * 1.25 : HAND.r} fill={handGlow ? (handGlow === 'over' ? '#fff6a077' : '#fff6a044') : 'transparent'}
           stroke={handGlow ? '#fff6a0' : 'none'} strokeWidth={handGlow === 'over' ? 9 : 6}
           className={handGlow === 'over' ? 'd2-glow d2-glow-strong' : handGlow ? 'd2-glow' : undefined} />
@@ -132,15 +133,13 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
       )}
       <g data-piles className={glow.piles ? 'd2-pulse-once' : undefined} {...dim(step === 'give')}>
         {pileLayout(left).map((p) => {
-          let hints = Math.min(p.drawn, hintLeft.get(p.value) ?? 0)
           // the demo lifts this pile's top coin (it moves with the hand)
           const lifted = demoPile?.value === p.value
           const coins = Array.from({ length: p.drawn }, (_, i) => i)
           const ys = coins.map((i) => PILES.bottom - p.size / 2 - i * p.size * PILES.step)
-          // the hint's coins glow green from the top of the pile down; otherwise the top coin glows softly while he can pick it
-          const state = coins.map(() => undefined as 'hint' | 'can' | undefined)
-          for (let i = p.drawn - 1; i >= 0 && hints > 0; i--, hints--) state[i] = 'hint'
-          if (pay && !state[p.drawn - 1]) state[p.drawn - 1] = 'can'
+          // the top coin glows softly while he can pick it
+          const state = coins.map(() => undefined as 'can' | undefined)
+          if (pay) state[p.drawn - 1] = 'can'
           return (
             <g key={p.value} data-pile={p.value} data-pile-count={p.count}>
               {coins.slice(0, -1).map((i) => <ValueCoin key={i} value={p.value} size={p.size} x={p.cx} y={ys[i]} state={state[i]} />)}
@@ -154,7 +153,8 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
           )
         })}
       </g>
-      {dragAt && demoPile && <ValueCoin value={demoPile.value} size={dragAt.size} x={dragAt.x} y={dragAt.y} />}
+      {/* the demo's coin never takes a touch: in the ?'s replay a finger on its pile reaches the pile (and ends the replay) */}
+      {dragAt && demoPile && <g data-demo-coin style={{ pointerEvents: 'none' }}><ValueCoin value={demoPile.value} size={dragAt.size} x={dragAt.x} y={dragAt.y} /></g>}
       {showDecline && (
         <foreignObject x={DECLINE.x - DECLINE.size / 2} y={DECLINE.y - DECLINE.size / 2} width={DECLINE.size} height={DECLINE.size} overflow="visible">
           <div data-decline className="d2-xcard" data-glow={glow.decline ? 'true' : undefined} role="button" aria-label="no thanks"

@@ -4,17 +4,19 @@ export const HeartIcon = () => (
     <path fill="#ff5a7a" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C14.1 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z" />
   </svg>
 )
+/** "say it again": a speaker with sound waves */
 export const SpeakerIcon = () => (
-  <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden>
+  <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden data-icon="speaker">
     <path fill="#fff6d8" d="M4 9h4l5-4v14l-5-4H4z" />
     <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="#fff6d8" strokeWidth="2" fill="none" strokeLinecap="round" />
   </svg>
 )
-/** a magic wand with a spark: "show me how to read it" */
+/** the hint and help button: a question mark in the bar's cream, with a gold spark at its dot (the parent: "a hint button
+ * would be more intuitive if it looked like a question mark") */
 export const HintIcon = () => (
-  <svg viewBox="0 0 24 24" width="62%" height="62%" aria-hidden>
-    <path d="M4 20 L14 10" stroke="#e7b860" strokeWidth="2.6" strokeLinecap="round" />
-    <path fill="#ffd34d" d="M17 2l1.2 3.3L21.5 6.5l-3.3 1.2L17 11l-1.2-3.3L12.5 6.5l3.3-1.2z" />
+  <svg viewBox="0 0 24 24" width="62%" height="62%" aria-hidden data-icon="question">
+    <path d="M8 8.6a4 4 0 1 1 5.6 3.7c-1 .5-1.6 1.3-1.6 2.4v.8" stroke="#fff6d8" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="12" cy="20" r="2" fill="#ffd34d" />
   </svg>
 )
 /** next: the play triangle, as in the clock game (Michael: a left arrow was not understood as "go on") */
