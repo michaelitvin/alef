@@ -23,7 +23,7 @@ import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
-import { layoutVars } from '../layout'
+import { layoutVars, STAGE_CONTENT_TOP } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
@@ -70,11 +70,33 @@ function demoPath(v: View): { from: { x: number; y: number }; to: { x: number; y
   return null
 }
 
+/** the window's size (the stage's box depends on it) */
+function useWindowSize() {
+  const get = () => ({ w: window.innerWidth, h: window.innerHeight })
+  const [size, setSize] = useState(get)
+  useEffect(() => {
+    const f = () => setSize(get())
+    window.addEventListener('resize', f)
+    return () => window.removeEventListener('resize', f)
+  }, [])
+  return size
+}
+
+/** the topmost content's stage y on this screen (layout.ts) */
+function contentTop(v: View): number {
+  if (v.merchant) return STAGE_CONTENT_TOP.merchant
+  const s = v.screen
+  if (!s) return 0
+  if (s.screen === 'draw') return STAGE_CONTENT_TOP[s.script === 'hand' ? 'draw-hand' : 'draw']
+  return STAGE_CONTENT_TOP[s.screen] ?? 0
+}
+
 export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void }) {
   const run = useRun(opts)
   const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const v = run.view
+  const size = useWindowSize()
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)
   if (v.over && !reported.current) {
@@ -98,7 +120,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   const canReplay = v.merchant ? v.merchant.phase === 'pay' : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
-      style={layoutVars()}>
+      style={layoutVars(size, contentTop(v))}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {

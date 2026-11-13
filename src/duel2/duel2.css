@@ -9,6 +9,9 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
    mirrored backdrop draws past its box). The variables come from layout.ts (layoutVars, on the play screen's root). */
 .d2-root[data-screen="play"] .d2-stage, .d2-root[data-screen="play"] .d2-hint-card {
   top: var(--d2-content-top); bottom: auto; height: calc(100% - var(--d2-content-top)); }
+/* on a short wide screen the stage may grow: its empty sky goes up under the band, its content stays below it
+   (layout.ts: STAGE_CONTENT_TOP). The hint card keeps the room below the band. */
+.d2-root[data-screen="play"] .d2-stage { top: var(--d2-stage-top, var(--d2-content-top)); height: var(--d2-stage-h, calc(100% - var(--d2-content-top))); }
 /* an explanation's frame: the bar is hidden while it shows, so the frame takes the whole screen (Overlays.tsx) */
 .d2-root[data-screen="play"] .d2-stage.d2-frame { top: 0; height: 100%; }
 .d2-topbar { position: absolute; top: var(--d2-bar-top); left: 24px; right: 24px; height: var(--d2-bar-h);
