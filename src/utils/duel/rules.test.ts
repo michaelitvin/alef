@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { markById } from './marks'
 import { wordsFor } from './words'
 import {
-  bossFor, isCorrect, isTwin, keyOf, newMonsterAt, padSize, pickEffect, points, screenTypesFor, unlockedMonsters, walkMs,
+  bossFor, isCorrect, isTwin, keyOf, newMonsterAt, skippedMonsters, padSize, pickEffect, points, screenTypesFor, unlockedMonsters, walkMs,
 } from './rules'
 import { nextPace, PACE_MAX, PACE_MIN } from './rules'
 import type { Round } from '../../types/duel'
@@ -49,6 +49,10 @@ describe('rules', () => {
     expect(newMonsterAt(1)).toBeNull()
     expect(newMonsterAt(2)).toBe('imp')
     expect(newMonsterAt(5)).toBeNull()
+    // a tower boss visit from wave 3 to wave 5 skips the ghost's and the bat's waves
+    expect(skippedMonsters(3, 5)).toEqual(['ghost', 'bat'])
+    expect(skippedMonsters(6, 10)).toEqual(['mushroom', 'golem', 'octopus'])
+    expect(skippedMonsters(1, 1)).toEqual([])
     expect(bossFor(5)).toBe('dragon')
     expect(bossFor(10)).toBe('troll')
     expect(bossFor(15)).toBe('dragon')

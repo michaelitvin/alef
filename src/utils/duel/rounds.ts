@@ -20,9 +20,14 @@ export type Confusions = Record<string, Record<string, number>>
 
 /**
  * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available
- * (see pickNearTarget).
+ * (see pickNearTarget). `cover` (the placement check of Book 2's stage 0): while a mark has no recent answer, one of
+ * those marks, at random, so that the first answers ask every mark once.
  */
-export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}): DuelMark {
+export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}, opts: { cover?: boolean } = {}): DuelMark {
+  if (opts.cover) {
+    const unasked = DUEL_MARKS.filter((m) => !recent[m.id])
+    if (unasked.length) return pick(rng, unasked)
+  }
   const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], recent[m.id]))
   return DUEL_MARKS[pickNearTarget(rng, p)]
 }
@@ -56,14 +61,16 @@ export interface MakeRoundOpts {
   confusions?: Confusions
   /** a boss fight continuing: where the boss starts (0..1 along the path) */
   bossStart?: number
+  /** the placement check (Book 2's stage 0): the marks with no recent answer first (pickTarget) */
+  cover?: boolean
 }
 
 /** Sound clues start at wave 3; its first round is a sound screen so the spoken instruction introduces them in context. */
 const FIRST_SOUND_WAVE = 3
 
-export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confusions, bossStart }: MakeRoundOpts): Round {
+export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confusions, bossStart, cover }: MakeRoundOpts): Round {
   const type = wave === FIRST_SOUND_WAVE && kills === 0 && !boss ? 'B' : pick(rng, screenTypesFor(wave))
-  const target = pickTarget(rng, lifetime, recent)
+  const target = pickTarget(rng, lifetime, recent, { cover })
   const word = pick(rng, wordsFor(target.group))
 
   let runes: DuelMark[] = []

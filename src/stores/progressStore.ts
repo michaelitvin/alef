@@ -60,7 +60,8 @@ interface ProgressActions {
   setFont: (font: FontType) => void
   setDuelMusic: (on: boolean) => void
   recordDuelSession: () => void
-  recordDuelRound: (markId: string, type: ScreenType, result: RoundResult, ms: number) => void
+  /** `opts.recent: false`: the round is tallied but kept out of `recent` (Book 2's run: a מגה kill is not reading) */
+  recordDuelRound: (markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }) => void
   recordDuelTwin: (markId: string, type: ScreenType) => void
   /** He tapped `tappedId` when `askedId` was the answer (directional). */
   recordDuelConfusion: (askedId: string, tappedId: string) => void
@@ -470,7 +471,7 @@ export const useProgressStore = create<ProgressStore>()(
       recordDuelSession: () => {
         set((state) => ({ duel: { ...state.duel, sessions: state.duel.sessions + 1, lastPlayed: Date.now() } }))
       },
-      recordDuelRound: (markId, type, result, ms) => {
+      recordDuelRound: (markId, type, result, ms, opts) => {
         const bump = (t: Tally | undefined): Tally => {
           const b = { ...EMPTY_TALLY, ...t }
           return { ...b, seen: b.seen + 1, [result]: b[result] + 1 }
@@ -482,7 +483,7 @@ export const useProgressStore = create<ProgressStore>()(
             lastPlayed: Date.now(),
             byMark: { ...state.duel.byMark, [markId]: bump(state.duel.byMark[markId]) },
             byType: { ...state.duel.byType, [type]: bump(state.duel.byType[type]) },
-            recent: {
+            recent: opts?.recent === false ? state.duel.recent : {
               ...state.duel.recent,
               [markId]: ((state.duel.recent?.[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
             },

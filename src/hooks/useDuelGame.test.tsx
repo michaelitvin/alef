@@ -10,7 +10,7 @@ vi.mock('../utils/duel/duelAudio', () => ({
   playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
 }))
 import { useDuelGame } from './useDuelGame'
-import { muteDuelAudio, playLine, unlockDuelAudio } from '../utils/duel/duelAudio'
+import { muteDuelAudio, playLine, playMusic, unlockDuelAudio } from '../utils/duel/duelAudio'
 import { markById } from '../utils/duel/marks'
 import { wordsFor } from '../utils/duel/words'
 import type { Round } from '../types/duel'
@@ -400,5 +400,310 @@ describe('clues are spoken once, cleanly, by the narrator (no monster voice)', (
       expect(calls.some((c) => String(c[0]).startsWith('mon-'))).toBe(false)
       unmount()
     }
+  })
+})
+
+describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
+  type Emb = NonNullable<Parameters<typeof useDuelGame>[0]>['embedded']
+  function emb(over: Partial<NonNullable<Emb>> = {}) {
+    const answers: [string, string][] = []
+    const done: number[] = []
+    const seenNow: string[] = []
+    const e: NonNullable<Emb> = {
+      wave: 1, waves: 2, boss: false, seen: ['tower-intro', 'tower-screen-A', 'tower-screen-B', 'tower-screen-C', 'tower-screen-silent'],
+      onSeen: (k) => { seenNow.push(k) }, onAnswer: (r, m) => { answers.push([r, m]); return 'on' }, onDone: (w) => { done.push(w) },
+      ...over,
+    }
+    return { e, answers, done, seenNow }
+  }
+  /** answers every monster right until `n` answers were given or the visit is done */
+  async function playRight(result: { current: ReturnType<typeof useDuelGame> }, n: number, done: number[]) {
+    await flushLines()
+    for (let k = 0; k < n && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); continue }
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+  }
+
+  it('two waves of five, each answer reported, then onDone once', async () => {
+    const { e, answers, done } = emb()
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
+    act(() => result.current.start())
+    expect(result.current.state.hearts).toBe(Infinity)
+    await playRight(result, 14, done)
+    expect(answers.length).toBe(10)
+    expect(answers.every(([r]) => r === 'right')).toBe(true)
+    expect(done).toEqual([2])
+    // no next monster after the visit
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+    await flushLines()
+    expect(answers.length).toBe(10)
+  })
+
+  /** answers right until the wizard starts "tap the lightning" (line-mega); returns that pending line */
+  async function toMegaLine(result: { current: ReturnType<typeof useDuelGame> }) {
+    await flushLines()
+    for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-mega'); guard++) {
+      const r = result.current.state.round
+      if (r && !result.current.state.outcome) act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      for (let g = 0; g < 10 && pending.length && !pending.some((p) => p.id === 'line-mega'); g++) {
+        await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
+      }
+    }
+    return pending.find((p) => p.id === 'line-mega')
+  }
+
+  it('the מגה spell is back (the parent, 2026-11-14): after 8 hits the line plays and the lightning shows', async () => {
+    const charges: number[] = []
+    const { e, answers } = emb({ waves: 3, onCharge: (n) => { charges.push(n) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    expect(line).toBeTruthy()
+    expect(answers.length).toBe(8)
+    expect(result.current.state.mega).toBe(8)
+    expect(charges[charges.length - 1]).toBe(8)
+    expect(result.current.lightning).toBe(false) // charged, but not named yet
+    act(() => line!.onCue!('lightning'))
+    expect(result.current.lightning).toBe(true)
+  })
+
+  it('a cast kills the monster; it is no answer for the run (no star, no streak, no heart) and not in the mastery data', async () => {
+    const megas: string[] = []
+    const charges: number[] = []
+    const { e, answers } = emb({ waves: 3, onMega: (m) => { megas.push(m) }, onCharge: (n) => { charges.push(n) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    act(() => line!.onCue!('lightning'))
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await flushLines()
+    const r = result.current.state.round!
+    expect(result.current.state.outcome).toBeNull()
+    const before = useProgressStore.getState().duel
+    const combo = result.current.state.combo
+    const kills = result.current.state.kills
+    act(() => result.current.megaCast())
+    expect(result.current.state.outcome).toMatchObject({ kind: 'hit', mega: true })
+    expect(result.current.state.combo).toBe(combo)
+    expect(result.current.state.mega).toBe(0)
+    expect(charges[charges.length - 1]).toBe(0)
+    expect(answers.length).toBe(8) // not reported: no star, no towerTail, the streak and the hearts stay
+    expect(megas).toEqual([r.target.id])
+    const after = useProgressStore.getState().duel
+    expect(after.recent?.[r.target.id]).toBe(before.recent?.[r.target.id]) // not a right answer for mastery
+    expect(after.pace).toBe(before.pace)
+    expect(after.byMark[r.target.id]?.mega).toBe(1) // counted on its own (the parent report's מגה column)
+    expect(result.current.lightning).toBe(false)
+    // the wave goes on: the kill counts toward its five
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await flushLines()
+    expect(result.current.state.kills).toBe(kills + 1)
+    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    expect(ev.some((x) => x.e === 'outcome' && x.result === 'mega')).toBe(true)
+    expect(ev.some((x) => x.e === 'mega_tap')).toBe(true)
+  })
+
+  it('a charge carried over from the last visit: the line plays again after the first hit, then the lightning', async () => {
+    const { e } = emb({ mega: 8 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    expect(result.current.state.mega).toBe(8)
+    expect(result.current.lightning).toBe(false)
+    const line = await toMegaLine(result)
+    expect(line).toBeTruthy()
+  })
+
+  it('a cast tapped while paused does nothing; one queued between monsters waits through a pause', async () => {
+    const megas: string[] = []
+    const { e } = emb({ waves: 3, onMega: (m) => { megas.push(m) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    act(() => line!.onCue!('lightning'))
+    act(() => result.current.megaCast()) // the last hit's feedback is still on: queued
+    act(() => result.current.pause())
+    await act(async () => { line!.resolve(); await vi.advanceTimersByTimeAsync(5000) })
+    await flushLines()
+    expect(megas).toEqual([])
+    act(() => result.current.megaCast()) // paused: ignored
+    expect(result.current.state.outcome?.mega).toBeFalsy()
+    act(() => result.current.resume())
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(megas.length).toBe(1)
+  })
+
+  it('onAnswer "over" stops after the feedback: no next monster', async () => {
+    const { e, answers, done } = emb({ onAnswer: (r, m) => { answers.push([r, m]); return 'over' } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
+    act(() => result.current.start())
+    await flushLines()
+    const r = result.current.state.round!
+    const wrong = r.runes.find((m) => m.group !== r.target.group)!
+    act(() => result.current.choose({ kind: 'rune', mark: wrong }))
+    expect(done).toEqual([])
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(answers).toEqual([['wrong', r.target.id]])
+    expect(done).toEqual([1])
+    expect(result.current.state.round!.id).toBe(r.id)
+    expect(result.current.state.next).toBeNull()
+  })
+
+  it('a monster that reaches the tower is a wrong answer for the run', async () => {
+    const { e, answers } = emb()
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000, embedded: e }))
+    act(() => result.current.start())
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3100) })
+    expect(answers.map(([r]) => r)).toEqual(['wrong'])
+    expect(result.current.state.hearts).toBe(Infinity)
+  })
+
+  it('no session or run-end records, but the rounds are recorded (the adaptive data)', async () => {
+    const { e, done } = emb()
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
+    act(() => result.current.start())
+    await playRight(result, 3, done)
+    const d = useProgressStore.getState().duel
+    expect(d.sessions).toBe(0)
+    expect(d.bestScore).toBe(0)
+    expect(Object.values(d.byMark).reduce((a, t) => a + t.seen, 0)).toBe(3)
+  })
+
+  it('the gallery (dry) records nothing', async () => {
+    const { e, done } = emb({ dry: true })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
+    act(() => result.current.start())
+    await playRight(result, 2, done)
+    expect(useProgressStore.getState().duel.byMark).toEqual({})
+  })
+
+  it('the intro plays only when not seen (then it is kept); no duel music', async () => {
+    vi.mocked(playMusic).mockClear()
+    const a = emb()
+    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: a.e }))
+    act(() => result.current.start())
+    await flushLines()
+    expect(lines()).not.toContain('line-intro')
+    expect(lines()).not.toContain('line-how-A')
+    unmount()
+    vi.mocked(playLine).mockClear()
+    const b = emb({ seen: [] })
+    const r2 = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: b.e }))
+    act(() => r2.result.current.start())
+    await flushLines()
+    expect(lines()).toContain('line-intro')
+    expect(b.seenNow).toEqual(['tower-intro', 'tower-screen-A'])
+    expect(vi.mocked(playMusic)).not.toHaveBeenCalled()
+  })
+
+  it('wave 5 of a normal visit does not become a boss', async () => {
+    const { e, done } = emb({ wave: 4, waves: 2 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
+    act(() => result.current.start())
+    const bosses: boolean[] = []
+    await flushLines()
+    for (let k = 0; k < 14 && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); continue }
+      bosses.push(r.boss)
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+    expect(bosses.length).toBe(10)
+    expect(bosses.some(Boolean)).toBe(false)
+    expect(done).toEqual([5])
+  })
+
+  it('owed monsters (a boss visit jumped their waves) are introduced at the start of a wave, and never appear before', async () => {
+    const intro: string[] = []
+    const { e, done } = emb({ wave: 9, waves: 2, owed: ['ghost', 'bat'], onIntroduced: (id) => { intro.push(id) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const seen: { wave: number; monster: string }[] = []
+    await flushLines()
+    for (let k = 0; k < 40 && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); await act(async () => { await vi.advanceTimersByTimeAsync(3000) }); continue }
+      seen.push({ wave: result.current.state.wave, monster: r.monster })
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+    expect(seen.length).toBe(10)
+    expect(intro).toEqual(['ghost', 'bat'])
+    expect(lines().filter((l) => l === 'line-new-monster').length).toBe(2)
+    // the first monster of each wave is the one just introduced; bat never comes before its introduction
+    expect(seen[0].monster).toBe('ghost')
+    expect(seen[5].monster).toBe('bat')
+    expect(seen.slice(0, 5).some((x) => x.monster === 'bat')).toBe(false)
+  })
+
+  it('placement: the first ten monsters ask the ten marks once each', async () => {
+    const { e, done } = emb({ placement: true })
+    const { result } = renderHook(() => useDuelGame({ rng: Math.random, walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const asked: string[] = []
+    await flushLines()
+    for (let k = 0; k < 30 && !done.length; k++) {
+      const r = result.current.state.round
+      if (!r || result.current.state.outcome) { await flushLines(); await act(async () => { await vi.advanceTimersByTimeAsync(3000) }); continue }
+      asked.push(r.target.id)
+      act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      await flushLines()
+    }
+    expect(asked.length).toBe(10)
+    expect(new Set(asked).size).toBe(10)
+  })
+
+  it('onWaveEnd is asked at the end of each wave but the last; true ends the visit there', async () => {
+    const ends: number[] = []
+    const a = emb({ waves: 2, onWaveEnd: (w) => { ends.push(w); return false } })
+    const r1 = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: a.e }))
+    act(() => r1.result.current.start())
+    await playRight(r1.result, 14, a.done)
+    expect(ends).toEqual([1])
+    expect(a.answers.length).toBe(10)
+    expect(a.done).toEqual([2])
+    r1.unmount()
+    const b = emb({ waves: 2, onWaveEnd: () => true })
+    const r2 = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: b.e }))
+    act(() => r2.result.current.start())
+    await playRight(r2.result, 14, b.done)
+    expect(b.answers.length).toBe(5)
+    expect(b.done).toEqual([1])
+    await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+    await flushLines()
+    expect(b.answers.length).toBe(5)
+  })
+
+  it('a boss visit is the boss alone: its defeat ends the visit', async () => {
+    const { e, answers, done } = emb({ wave: 5, boss: true })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    await flushLines()
+    expect(result.current.state.round?.boss).toBe(true)
+    await playRight(result, 30, done)
+    expect(answers.length).toBe(8)
+    expect(done).toEqual([5])
   })
 })

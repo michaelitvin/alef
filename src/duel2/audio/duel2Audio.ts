@@ -9,9 +9,9 @@ import { FEMININE_IDS } from '../data/lines'
 import { getGender, voiceFor } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
 
-export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win' | 'stroke' | 'drawn'
+export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win' | 'stroke' | 'drawn' | 'coin' | 'count'
 /** new effects play an existing one until the sfx pipeline gives them their own (boss: spec 2026-11-07; drawing: a right stroke, a letter done) */
-const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { spell: 'zap', potion: 'crystal', 'boss-win': 'streak', stroke: 'catch', drawn: 'zap' }
+const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { spell: 'zap', potion: 'crystal', 'boss-win': 'streak', stroke: 'catch', drawn: 'zap', coin: 'lock', count: 'zap' }
 export const GAP_MS = 800
 const MUSIC_VOL = 0.35
 const DUCK_VOL = 0.08

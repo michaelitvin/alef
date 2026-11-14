@@ -4,6 +4,8 @@ import type { RunOpts } from '../controller'
 
 export interface GalleryEntry { id: string; label: string; force: NonNullable<RunOpts['force']> }
 export const GALLERY: GalleryEntry[] = [
+  { id: 'tower', label: 'Tower — two waves (the first duel, in the run)', force: { screen: 'tower', stage: 1 } },
+  { id: 'tower-boss', label: 'Tower — boss', force: { screen: 'tower', stage: 1, towerBoss: true } },
   { id: 'broom-letter', label: 'Broom flight — letters (hear a letter name)', force: { screen: 'broom', stage: 1, kind: 'letter', demo: true } },
   { id: 'broom-syllable', label: 'Broom flight — syllables', force: { screen: 'broom', stage: 2, kind: 'syllable', demo: true } },
   { id: 'cauldron', label: 'Cauldron — put the vowel on the letter', force: { screen: 'cauldron', stage: 2, demo: true } },
@@ -12,8 +14,8 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'ladder-dot', label: 'Ladder — the dot changes the sound', force: { screen: 'ladder', stage: 3, fixed: 'dot', demo: true } },
   { id: 'ghosts-letter', label: 'Look-alike ghosts — letters', force: { screen: 'ghosts', stage: 1, kind: 'letter', demo: true } },
   { id: 'ghosts-syllable', label: 'Look-alike ghosts — syllables', force: { screen: 'ghosts', stage: 2, kind: 'syllable', demo: true } },
-  { id: 'draw-print', label: 'Drawing — the first letter in print', force: { screen: 'draw', stage: 2, script: 'print', demo: true } },
-  { id: 'draw-hand', label: 'Drawing — the first letter in handwriting', force: { screen: 'draw', stage: 3, script: 'hand', demo: true } },
+  { id: 'draw-print', label: 'Drawing — the first letter in print', force: { screen: 'draw', stage: 2, demo: true } },
+  { id: 'draw-hand', label: 'Drawing — the first letter in handwriting', force: { screen: 'draw-hand', stage: 3, demo: true } },
   { id: 'doors', label: 'Door corridor — read the word', force: { screen: 'doors', stage: 4, demo: true } },
   { id: 'crystal', label: 'Crystal (the reward)', force: { screen: 'crystal', stage: 4 } },
   { id: 'dot-intro', label: 'Dotted letters — the introduction (ב/בּ, כ/כּ, פ/פּ, שׂ/שׁ)', force: { screen: 'dot', stage: 3, fixed: 'dot' } },
@@ -21,7 +23,7 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'boss-shin', label: 'Flight boss — the twin-headed bird (שׁ/שׂ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } },
   { id: 'boss-mimic', label: 'Flight boss — the mimic (look-alike letters: ד/ר, צ/ע, …)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } },
   { id: 'boss-bat', label: 'Flight boss — the o/u bat (וֹ against וּ)', force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } },
-  { id: 'potion', label: 'Rescue potion (the flight starts with a heart lost; its first-time look)', force: { screen: 'broom', stage: 2, kind: 'syllable', potion: true } },
+  { id: 'merchant', label: 'Merchant — buy a heart with exact coins (1 heart, 40 coins; his first-visit demo)', force: { screen: 'merchant', stage: 2, demo: true } },
 ]
 
 export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: GalleryEntry) => void }) {

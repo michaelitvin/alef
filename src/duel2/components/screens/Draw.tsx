@@ -12,6 +12,7 @@ import { bbox, markTargets, pathLength } from '../../logic/recognizer'
 import { strokesOf } from '../../data/strokes'
 import { TEST_HOOKS } from '../../testHooks'
 import { Stage, toStage, type Phase } from './Stage'
+import { useTouchAnswer } from '../DragPick'
 
 const poly = (p: Pt[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
 const INK = { fill: '#fff6d8', stroke: '#1b0f3c', paintOrder: 'stroke' as const, strokeLinejoin: 'round' as const }
@@ -37,6 +38,7 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
 
 /** `bare`: no picture (the parent's test board) */
 export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) => void; bare?: boolean }) {
+  const touch = useTouchAnswer()
   const v = p.view
   const L = v.layout
   const can = p.phase === 'answer'
@@ -149,6 +151,8 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
           const ctm = svg?.getScreenCTM?.()
           inv.current = ctm && typeof ctm.inverse === 'function' ? ctm.inverse() : null
           setDown(true)
+          // the pen goes down: a hint's hand goes away at once (rule)
+          touch?.('pen')
           live.current = { id: e.pointerId, pts: [at(e)] }
           show()
         }}

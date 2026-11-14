@@ -4,38 +4,48 @@
 import { useEffect, useRef, useState } from 'react'
 import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
-import { laneAt, wavePos } from '../../logic/run'
+import { wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
-import type { BossView, PotionView } from '../../controller'
+import type { BossView } from '../../controller'
+import { flightView } from '../../layout'
 
-export const LANE_Y = [250, 470, 690]
-export const LANE_H = 220
+/** each lane's centre (stage y): far enough apart that two orbs in neighbouring lanes never overlap (LANE_GAP, ORB_JITTER) */
+export const LANE_Y = [260, 505, 750]
+export const LANE_H = 245
 /** the wizard's centre (stage x) */
 export const WIZ_X = 170
-/** about two thirds of a lane high: big enough to see, small enough to dodge (Michael: first too big, then too small) */
-export const BROOM_WIZARD_H = 150
-export const BROOM_ORB = 170
-export const BROOM_GLYPH_PX = 100
-// beyond the widest screen edge (the background extends past the stage on wide screens), so orbs fly in, never pop in
-const START_X = 2000
+/** the parent: 1.5 times the old 150 (big enough to see; a lane is still higher than he is, so he can dodge) */
+export const BROOM_WIZARD_H = 225
+/** the parent: 1.3 times the old 170 */
+export const BROOM_ORB = 221
+export const BROOM_GLYPH_PX = 130
 const WIZ_W = BROOM_WIZARD_H * (600 / 512)
-/** the wizard sprite's box (stage x) */
+/** the sprite's box (stage x) */
 export const wizardBox = () => ({ left: WIZ_X - WIZ_W / 2, right: WIZ_X + WIZ_W / 2, width: WIZ_W })
-/** the orbs' centre x for a wave position k (1 = right edge, 0 = touching the wizard's front) */
-export const orbX = (k: number) => WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3 + k * (START_X - WIZ_X)
+/** an orb's centre when it touches the wizard's front (wave position 0) */
+export const ORB_FRONT = WIZ_X + WIZ_W / 2 - BROOM_ORB * 0.3
+
+/**
+ * The flight on a w×h screen: the view (as wide as the screen, layout.ts flightView) and the start of the orbs' path,
+ * just beyond its right edge (with the ring of a marked orb), so every orb flies in and none waits in sight. An orb
+ * crosses the whole path in the flight's travel time on every screen. Without a size: a 16:9 screen.
+ */
+export function flightPath(size?: { w: number; h: number }) {
+  const view = flightView(size?.w, size?.h)
+  const startX = view.left + view.width + BROOM_ORB * 0.6
+  return { view, startX, span: startX - ORB_FRONT }
+}
+/** the orbs' centre x for a wave position k (1 = the path's start beyond the right edge, 0 = touching the wizard's front) */
+export const orbX = (k: number, path = flightPath()) => ORB_FRONT + k * path.span
 /** the boss's box on the right (stage units): it faces the wizard */
 export const BOSS_BOX = { x: 1060, y: 235, w: 460, h: 490 }
 export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
-const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
-/** clearly a gift: bigger than an orb */
-export const POTION_W = BROOM_ORB * 1.2
-/** how long the heart of a caught potion flies to the top bar */
-const HEAL_MS = 800
+export const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
 export interface BroomWave {
@@ -56,9 +66,8 @@ export function Broom(p: {
   finished?: boolean
   /** a boss visit: the boss on the right, its health bar, the bolts, the win */
   boss?: BossView
-  potion?: PotionView
-  /** a heart flies from the caught potion to the top bar */
-  heal?: { id: number; lane: number; at: number }
+  /** the screen's size: the flight fills its width (flightPath) */
+  size?: { w: number; h: number }
 }) {
   const wiz = useWizardArt()
   const clock = p.clock ?? (() => performance.now())
@@ -92,7 +101,8 @@ export function Broom(p: {
   const svgRef = useRef<SVGSVGElement>(null)
   const y = dragY ?? LANE_Y[p.lane]
   const stageY = (e: React.PointerEvent) => toStage(svgRef.current, e.clientX, e.clientY).y
-  const laneOf = (y: number) => laneAt(Math.min(1, Math.max(0, (y - 140) / (H - 140 - 30))))
+  // the lane whose band holds y: the borders are halfway between the lanes
+  const laneOf = (y: number): 0 | 1 | 2 => (y < (LANE_Y[0] + LANE_Y[1]) / 2 ? 0 : y < (LANE_Y[1] + LANE_Y[2]) / 2 ? 1 : 2)
   const lastLane = useRef<0 | 1 | 2>(p.lane)
   const release = (e: React.PointerEvent) => {
     if (down.current === null) return
@@ -103,8 +113,9 @@ export function Broom(p: {
     p.onLane(l)
   }
   const wizW = WIZ_W
+  const path = flightPath(p.size)
   return (
-    <Stage bg="bg-sky" ref={svgRef}
+    <Stage bg="bg-sky" ref={svgRef} viewBox={`${path.view.left} 0 ${path.view.width.toFixed(1)} ${H}`}
       onPointerDown={(e) => { down.current = e.pointerId; (e.target as Element).setPointerCapture?.(e.pointerId); setDragY(stageY(e)) }}
       onPointerMove={(e) => {
         if (down.current === null) return
@@ -126,7 +137,7 @@ export function Broom(p: {
             if (w.resolved[i] && p.reveal?.right !== c.id && p.reveal?.wrong !== c.id) return null
             const lane = w.lanes?.[i] ?? i
             const k = wavePos(w.startMs + w.offsets[i] * p.travelMs, t, p.travelMs)
-            const x = orbX(k)
+            const x = orbX(k, path)
             const y = LANE_Y[lane] + w.jitter[i]
             let state: PickState = 'idle'
             if (p.reveal?.right === c.id) state = 'reveal'
@@ -142,9 +153,6 @@ export function Broom(p: {
           })}
         </g>
       ))}
-      {p.potion && !p.potion.caught && <Potion potion={p.potion} t={t} />}
-      {p.potion?.caught && <g data-potion data-lane={p.potion.lane} className="d2-potion-pop" transform={`translate(${orbX(0).toFixed(1)} 0)`}><PotionArt y={LANE_Y[p.potion.lane]} intro={false} /></g>}
-      {p.heal && t - p.heal.at < HEAL_MS && <Heal key={p.heal.id} from={{ x: WIZ_X + 60, y: LANE_Y[p.heal.lane] }} k={Math.max(0, (t - p.heal.at) / HEAL_MS)} />}
       {p.boss?.bolt && !p.boss.won && <Bolt key={p.boss.bolt.id} from={{ x: WIZ_X + 70, y: LANE_Y[p.boss.bolt.lane] }} />}
       {p.boss?.won && <BossWin boss={p.boss} />}
       <defs>
@@ -174,7 +182,6 @@ function BossDefs() {
       <radialGradient id="d2-bossglow"><stop offset="0" stopColor="#b48cff" stopOpacity="0.35" /><stop offset="1" stopColor="#b48cff" stopOpacity="0" /></radialGradient>
       <radialGradient id="d2-burst"><stop offset="0" stopColor="#fff" stopOpacity="0.95" /><stop offset="0.4" stopColor="#ffd34d" stopOpacity="0.6" /><stop offset="1" stopColor="#ffd34d" stopOpacity="0" /></radialGradient>
       <radialGradient id="d2-bigburst"><stop offset="0" stopColor="#fff" stopOpacity="0.9" /><stop offset="0.25" stopColor="#fff3c4" stopOpacity="0.6" /><stop offset="1" stopColor="#ffd34d" stopOpacity="0" /></radialGradient>
-      <radialGradient id="d2-pglow"><stop offset="0" stopColor="#ff8fb0" stopOpacity="0.75" /><stop offset="1" stopColor="#ff5a7a" stopOpacity="0" /></radialGradient>
       <filter id="d2-soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
     </>
   )
@@ -275,55 +282,15 @@ function BossWin({ boss }: { boss: BossView }) {
   )
 }
 
-function PotionArt({ y, intro }: { y: number; intro: boolean }) {
-  const h = POTION_W * (412 / 512)
-  return (
-    <>
-      {/* a soft glow behind the bottle; the bottle itself is always at full opacity */}
-      <circle cx={0} cy={y} r={POTION_W * (intro ? 0.78 : 0.62)} fill="url(#d2-pglow)" className={intro ? 'd2-potion-glow' : 'd2-potion-aura'} />
-      {IMAGES['s-potion']
-        ? <image href={IMAGES['s-potion']} x={-POTION_W / 2} y={y - h / 2} width={POTION_W} height={h} />
-        : <path d={`M0 ${y + 50} C-80 ${y} -50 ${y - 60} 0 ${y - 20} C50 ${y - 60} 80 ${y} 0 ${y + 50}Z`} fill="#ff5a7a" />}
-    </>
-  )
-}
-
-/** The rescue potion floats across its lane like an orb, with a trail of pink sparkles. */
-function Potion({ potion, t }: { potion: PotionView; t: number }) {
-  const x = orbX(wavePos(potion.startMs, t, potion.travelMs))
-  const y = LANE_Y[potion.lane]
-  return (
-    <g data-potion data-lane={potion.lane} transform={`translate(${x.toFixed(1)} 0)`} pointerEvents="none">
-      {[0, 1, 2, 3].map((i) => <path key={i} d={sparkle(70 + i * 55, y + (i % 2 ? 18 : -14), 14 - i * 2.5)} fill="#ffb3c8" opacity={1 - i * 0.2} />)}
-      <PotionArt y={y} intro={potion.intro} />
-    </g>
-  )
-}
-
-/** A heart flies from the caught potion to the hearts in the top bar. */
-function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
-  const to = { x: 1500, y: 40 }
-  const e = 1 - (1 - k) * (1 - k)
-  const x = from.x + (to.x - from.x) * e
-  const y = from.y + (to.y - from.y) * e - Math.sin(Math.PI * e) * 120
-  const s = 2.6 - e * 1.2
-  return (
-    <g data-heal pointerEvents="none" transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(2)})`}>
-      <path d="M0 9s-7.5-4.6-9.6-9.2C-11.1-3.6-9-7-5.6-7c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C2.1-5.9 3.6-7 5.6-7 9-7 11.1-3.6 9.6-0.2 7.5 4.4 0 9 0 9z"
-        fill="#ff5a7a" stroke="#fff6d8" strokeWidth={1.2} style={{ filter: 'drop-shadow(0 0 6px #ff5a7a)' }} />
-    </g>
-  )
-}
-
 /**
- * The pictures a flight can need suddenly (the potion, the boss's poses), drawn all the time at near-zero opacity so the
- * browser has them decoded: a picture must never appear after the rest (rule; the potion's first frames were empty).
+ * The pictures a flight can need suddenly (the boss's poses), drawn all the time at near-zero opacity so the browser has
+ * them decoded: a picture must never appear after the rest (rule; the old potion's first frames were empty).
  */
 function Warm({ boss }: { boss?: string }) {
-  const ids = ['s-potion', ...(boss ? ['fly', 'hit', 'down'].map((p) => `boss-${boss}-${p}`) : [])].filter((id) => IMAGES[id])
+  const ids = (boss ? ['fly', 'hit', 'down'].map((p) => `boss-${boss}-${p}`) : []).filter((id) => IMAGES[id])
   return (
     <g data-warm opacity={0.004} pointerEvents="none" aria-hidden>
-      {ids.map((id) => <image key={id} href={IMAGES[id]} x={WIZ_X - 40} y={LANE_Y[1] - 40} width={id === 's-potion' ? POTION_W : BOSS_BOX.w} height={id === 's-potion' ? POTION_W * (412 / 512) : BOSS_BOX.h} />)}
+      {ids.map((id) => <image key={id} href={IMAGES[id]} x={WIZ_X - 40} y={LANE_Y[1] - 40} width={BOSS_BOX.w} height={BOSS_BOX.h} />)}
     </g>
   )
 }

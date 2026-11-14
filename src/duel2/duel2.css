@@ -4,18 +4,40 @@
 html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-root { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent; color: #fff6d8; font-family: Rubik, 'Noto Sans Hebrew', system-ui, sans-serif; }
-.d2-topbar { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 24px; right: 24px; height: 64px;
+/* The top bar's band (rule: floating buttons in the top bar, never over the content): the play screen's stage starts below
+   it, so nothing in the bar covers the game on any screen size. The background still fills the whole screen (the stage's
+   mirrored backdrop draws past its box). The variables come from layout.ts (layoutVars, on the play screen's root). */
+.d2-root[data-screen="play"] .d2-stage, .d2-root[data-screen="play"] .d2-hint-card {
+  top: var(--d2-content-top); bottom: auto; height: calc(100% - var(--d2-content-top)); }
+/* on a short wide screen the stage may grow: its empty sky goes up under the band, its content stays below it
+   (layout.ts: STAGE_CONTENT_TOP). The ladder on such a screen goes up into the band's empty middle: its stage covers the
+   whole screen and its viewBox places the game (layout.ts: intoBandView). The hint card keeps the room below the band. */
+.d2-root[data-screen="play"] .d2-stage { top: var(--d2-stage-top, var(--d2-content-top)); height: var(--d2-stage-h, calc(100% - var(--d2-content-top))); }
+/* the doors on a phone: the door rises into the band's free middle, left of the centre (layout.ts: bandStageBox) */
+.d2-root[data-screen="play"] .d2-stage { left: var(--d2-stage-left, 0); width: var(--d2-stage-w, 100%); }
+/* an explanation's frame: the bar is hidden while it shows, so the frame takes the whole screen (Overlays.tsx) */
+.d2-root[data-screen="play"] .d2-stage.d2-frame { top: 0; height: 100%; left: 0; width: 100%; }
+.d2-topbar { position: absolute; top: var(--d2-bar-top); left: 24px; right: 24px; height: var(--d2-bar-h);
   display: flex; align-items: center; justify-content: space-between; z-index: 20; pointer-events: none; direction: ltr; }
 .d2-topbar-side, .d2-topbar-mid { display: flex; gap: 12px; align-items: center; pointer-events: auto; }
 .d2-topbar-mid { position: absolute; left: 50%; transform: translateX(-50%); }
 .d2-hearts { gap: 6px; }
 .d2-heart { width: 40px; height: 40px; filter: drop-shadow(0 0 6px #ff5a7a88); }
+/* a heart came back at the end of a pass: the hearts flash as the flying heart lands (HealFly, 0.8 s) */
+.d2-heart[data-flash] { animation: d2-heart-flash 0.25s ease-in-out 0.6s 4 alternate; }
+@keyframes d2-heart-flash { to { transform: scale(1.35); filter: brightness(1.6) drop-shadow(0 0 14px #ffd6e0); } }
 .d2-btn { width: 60px; height: 60px; border-radius: 50%; border: 3px solid rgba(255, 211, 77, 0.75); background: #28145ad9;
   display: grid; place-items: center; padding: 0; cursor: pointer; box-shadow: 0 0 12px #b48cff80; touch-action: manipulation; }
 .d2-btn:active { transform: scale(0.92); }
 .d2-btn-next { width: 84px; height: 84px; background: linear-gradient(#ffb02e, #ff6a1a); border-color: #fff6d8;
   box-shadow: 0 0 24px #ff8c28cc; animation: d2-pulse 1s ease-in-out infinite alternate; }
 @keyframes d2-pulse { to { transform: scale(1.08); } }
+/* in the top bar the go-on button is as tall as the bar, so it stays in the bar's band */
+.d2-topbar .d2-btn-next { width: var(--d2-bar-h); height: var(--d2-bar-h); }
+/* on a phone the go-on button takes the hint's place (the middle is over the counts there; layout.ts nextInMiddle): the hint button's
+   size, and it glows instead of growing, so it never takes more room than the hint button */
+.d2-topbar .d2-topbar-side .d2-btn-next { width: 60px; height: 60px; animation-name: d2-glow; }
+@keyframes d2-glow { to { box-shadow: 0 0 34px #ffb02e, 0 0 10px #fff6d8; } }
 /* an explanation's go-on button (the parent: more prominent, and never over what he must see): big, glowing, at the
    bottom where the explanation leaves room, with the replay button beside it */
 .d2-explain-controls { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
@@ -47,7 +69,7 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 @keyframes d2-spin { to { transform: rotate(360deg); } }
 .d2-cover-stars { position: absolute; top: max(24px, env(safe-area-inset-top)); left: 28px; z-index: 6; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
 .d2-fly-off { animation: d2-fly-off 2s cubic-bezier(0.45, 0, 0.6, 1) forwards; transform-box: view-box; }
-@keyframes d2-fly-off { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-30px, 20px) rotate(4deg); } 55% { transform: translate(500px, -90px) rotate(-10deg); } 100% { transform: translate(1900px, -360px) rotate(-14deg); } }
+@keyframes d2-fly-off { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-30px, 20px) rotate(4deg); } 55% { transform: translate(500px, -90px) rotate(-10deg); } 100% { transform: translate(2700px, -420px) rotate(-14deg); } }
 .d2-crystal-shelf { display: flex; gap: 10px; align-items: flex-end; direction: ltr; padding: 8px 12px; border-radius: 18px; background: #1b0f3c99; box-shadow: 0 0 16px #b48cff66; }
 .d2-shelf-crystal { display: inline-flex; align-items: flex-end; gap: 2px; color: #fff3c4; font: 800 26px system-ui, sans-serif; }
 .d2-shelf-crystal img { height: 64px; width: auto; filter: drop-shadow(0 0 8px #b48cff); }
@@ -64,9 +86,16 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-trophy-small { display: inline-block; width: 48px; height: 48px; }
 .d2-parent-btn { position: absolute; bottom: 28px; right: 28px; width: 64px; height: 64px; border-radius: 50%; border: none;
   background: #28145a99; display: grid; place-items: center; z-index: 6; touch-action: none; }
-.d2-parent-ring[data-state="holding"] { animation: d2-hold 2s linear forwards; }
+/* a held button (HoldButton): the gold ring fills in 2 s; a short press shows how far it got */
+.d2-hold { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.d2-hold-ring[data-state="holding"] { animation: d2-hold 2s linear forwards; }
 @keyframes d2-hold { from { stroke-dashoffset: 157; } to { stroke-dashoffset: 0; } }
-.d2-parent-ring { stroke-dashoffset: 157; }
+.d2-hold-ring { stroke-dashoffset: 157; }
+/* the way home (a 2 s hold): the parent button's look, in the top bar's left corner, on the pause cover and the summary */
+.d2-home-btn { width: 56px; height: 56px; border-radius: 50%; border: none; padding: 0; background: #28145a99;
+  display: grid; place-items: center; touch-action: none; cursor: pointer; flex: none; pointer-events: auto; }
+.d2-pause .d2-home-btn { position: absolute; top: calc(var(--d2-bar-top) + (var(--d2-bar-h) - 56px) / 2); left: 24px; }
+.d2-summary .d2-home-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 24px; z-index: 6; }
 .d2-drift { animation: d2-drift 12s linear infinite; }
 @keyframes d2-drift { from { transform: translateX(1750px); } to { transform: translateX(600px); } }
 .d2-pause { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 40px;
@@ -151,12 +180,6 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-trophy-fly { animation: d2-trophy-fly 3.2s cubic-bezier(0.5, 0, 0.6, 1) 1.2s both; transform-origin: 1290px 480px; transform-box: view-box; }
 /* it flies to the trophy shelf, which sits at the bottom left of the cover */
 @keyframes d2-trophy-fly { 0% { transform: scale(0.3); opacity: 0; } 20% { transform: scale(1.05); opacity: 1; } 60% { transform: scale(1); opacity: 1; } 100% { transform: translate(-1140px, 380px) scale(0.2); opacity: 0; } }
-/* the rescue potion: glows on its first flight; caught, it pops */
-.d2-potion-glow { animation: d2-potion-glow 0.7s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
-@keyframes d2-potion-glow { from { transform: scale(0.9); opacity: 0.75; } to { transform: scale(1.15); opacity: 1; } }
-.d2-potion-aura { opacity: 0.8; }
-.d2-potion-pop { animation: d2-potion-pop 0.6s ease-out forwards; transform-box: fill-box; transform-origin: center; }
-@keyframes d2-potion-pop { 0% { opacity: 1; } 100% { opacity: 0; } }
 /* the bosses he keeps: a golden frame for a beaten one, a dark silhouette for one that still waits */
 .d2-cover-trophies { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); left: 28px; z-index: 6; }
 .d2-boss-shelf { display: flex; gap: 12px; align-items: center; direction: ltr; padding: 10px 14px; border-radius: 26px;
@@ -170,12 +193,27 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-summary-bosses .d2-trophy-slot { width: clamp(64px, 15vh, 120px); height: clamp(64px, 15vh, 120px); }
 .d2-summary-bosses [data-teaser] { width: clamp(56px, 12vh, 96px); height: clamp(56px, 12vh, 96px); }
 .d2-summary { gap: clamp(10px, 3vh, 28px); }
-.d2-coin-ring { display: inline-flex; align-items: center; gap: 10px; direction: ltr; }
-.d2-coin-ring-disc { position: relative; display: inline-grid; place-items: center; width: clamp(84px, 20vh, 140px); height: clamp(84px, 20vh, 140px); }
-.d2-coin-ring-disc svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.d2-coin-ring-fill { transition: stroke-dashoffset 1.2s ease-out; filter: drop-shadow(0 0 6px #ffd34d); }
-.d2-coin-ring-coin { width: 50%; height: 50%; filter: drop-shadow(0 0 8px #ffd34d); }
-.d2-coin-ring-num { color: #fff3c4; font: 800 56px system-ui, sans-serif; text-shadow: 0 0 8px #ffd34d88; }
+/* a session from the path has nothing in the first row: it takes no room, so the coins and stars are centred */
+.d2-summary-row:empty { display: none; }
+/* a tablet (the parent's pick): the coins and the stars about 2.5 times bigger, centred; after a full run his best
+   (smaller) has its own line under them, so the row never runs to the screen's edges */
+@media (min-width: 900px) and (min-height: 600px) {
+  .d2-summary-row { gap: clamp(40px, 8vw, 120px); flex-wrap: wrap; justify-content: center; row-gap: 12px; }
+  .d2-summary .d2-stars-big { font-size: clamp(64px, 17vh, 150px); gap: 0.15em; }
+  .d2-summary .d2-stars-big .d2-star { width: clamp(80px, 21vh, 180px); height: clamp(80px, 21vh, 180px); }
+  .d2-summary .d2-best { font-size: clamp(48px, 9vh, 80px); }
+  .d2-summary .d2-trophy-small { width: 1.2em; height: 1.2em; }
+  .d2-summary-best { flex-basis: 100%; display: flex; justify-content: center; }
+}
+/* the defeat scene: the dizzy wizard spins and falls (one duel) */
+.d2-defeat { position: absolute; inset: 0; z-index: 14; pointer-events: none; display: grid; place-items: center; background: #0b0620aa; animation: d2-fade-in 0.3s ease-out; }
+.d2-warm { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0.01; pointer-events: none; }
+.d2-warm img { width: 1px; height: 1px; }
+.d2-defeat img { width: clamp(140px, 34vh, 300px); animation: d2-defeat-fall 1.8s ease-in forwards; }
+/* the falling wizard is the only one on the screen: the screen's own wizard (any screen, the tower's board too) hides */
+.d2-root[data-defeat] [data-wizard], .d2-root[data-defeat] .nd-wizard { visibility: hidden; }
+@keyframes d2-defeat-fall { 0% { transform: translateY(-20vh) rotate(0deg); } 60% { transform: translateY(0) rotate(540deg); } 100% { transform: translateY(30vh) rotate(720deg); opacity: 0.85; } }
+@keyframes d2-fade-in { from { opacity: 0; } }
 .d2-summary [data-teaser] { box-shadow: 0 0 18px #b48cff88; }
 .d2-play-big { width: clamp(110px, 26vh, 180px); height: clamp(110px, 26vh, 180px); box-shadow: 0 0 0 14px #ffb02e40, 0 0 50px 8px #ff8c28e6; animation: d2-pulse-big 0.9s ease-in-out infinite alternate; }
 .d2-play-big svg { width: 46%; height: 46%; }
@@ -198,5 +236,54 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-drawtest-stage { position: relative; min-height: 0; }
 .d2-drawtest-side { overflow: auto; padding: 14px; border-left: 1px solid #ccc; }
 
+/* the streak multiplier beside the stars: a small gold badge that pops when it rises */
+.d2-mult { display: inline-block; margin-inline-end: 10px; padding: 0 10px; border-radius: 999px; background: #3a1f78cc;
+  border: 2px solid #ffd34d; color: #ffe9a0; font: 800 26px system-ui, sans-serif; direction: ltr; text-shadow: 0 0 6px #ffd34d88;
+  animation: d2-mult-pop 0.5s ease-out; }
+@keyframes d2-mult-pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.35); opacity: 1; } 100% { transform: scale(1); } }
 /* the coin glows orange, the star yellow: they must not look alike (the parent) */
 .d2-star.d2-coin { filter: drop-shadow(0 0 8px #ff8a1e); }
+
+/* the merchant (one duel): the ✗ card is the game's choice card (GenderQuestion's .gq-pick look) */
+.d2-xcard { box-sizing: border-box; width: 100%; height: 100%; display: grid; place-items: center; cursor: pointer; border-radius: 40px;
+  background: radial-gradient(ellipse at 50% 60%, #ffffff22, #ffffff08 70%); border: 6px solid #ffffff22;
+  transition: transform .25s, box-shadow .3s, border-color .3s; -webkit-tap-highlight-color: transparent; touch-action: none; }
+.d2-xcard svg { width: 62%; height: 62%; filter: drop-shadow(0 4px 8px #0008); pointer-events: none; }
+.d2-xcard[data-glow="true"] { border-color: #ffd34d; box-shadow: 0 0 40px #ffd34daa, inset 0 0 30px #ffd34d44; transform: scale(1.05); }
+.d2-xcard:active { transform: scale(0.94); }
+.d2-press { transform-box: fill-box; transform-origin: center; transition: transform .12s; }
+.d2-press:active { transform: scale(0.94); }
+.d2-vcoin-lit { filter: drop-shadow(0 0 14px #fff6a0) drop-shadow(0 0 5px #fff); }
+.d2-vcoin-hint { filter: drop-shadow(0 0 18px #8dff9a) drop-shadow(0 0 5px #fff); }
+.d2-vcoin-can { filter: drop-shadow(0 0 7px #ffd34d99); }
+.d2-vcoin-gone { opacity: 0.18; filter: grayscale(1); }
+.d2-tag { filter: drop-shadow(0 4px 5px #0006); transform-box: fill-box; transform-origin: center; transition: transform .2s; }
+.d2-tag.d2-glow, .d2-tag-lit { filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 22px #ffd34d); }
+.d2-tag-flash { animation: d2-tag-flash .5s ease-in-out 2; }
+@keyframes d2-tag-flash { 50% { filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 22px #ff5a3a) drop-shadow(0 0 22px #ff5a3a); transform: scale(1.12); } }
+.d2-pulse { animation: d2-merchant-pulse 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.d2-pulse image, circle.d2-glow { filter: drop-shadow(0 0 18px #fff6a0) drop-shadow(0 0 8px #fff); }
+circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12px #fff); }
+@keyframes d2-merchant-pulse { 50% { transform: scale(1.07); } }
+.d2-pulse-once { animation: d2-merchant-pulse 0.9s ease-in-out 1; transform-box: fill-box; transform-origin: center bottom; }
+.d2-gnome { transition: transform 1.2s ease-in-out, opacity 1.2s; }
+.d2-gnome-arrive { animation: d2-gnome-in 1.2s ease-out both; }
+.d2-gnome-leave { transform: translateX(420px); opacity: 0; }
+@keyframes d2-gnome-in { from { transform: translateX(420px); opacity: 0; } to { transform: none; opacity: 1; } }
+.d2-potion-fly { animation: d2-potion-fly 0.9s ease-in forwards; }
+@keyframes d2-potion-fly { to { transform: translate(-900px, 120px) scale(0.5); opacity: 0; } }
+.d2-btn[data-glow="true"] { border-color: #ffd34d; box-shadow: 0 0 22px #ffd34d, 0 0 8px #fff6a0; animation: d2-merchant-pulse 1.1s ease-in-out infinite; }
+[data-dim] { transition: opacity .3s; }
+.d2-tap { animation: d2-tap 0.9s ease-in-out infinite; }
+@keyframes d2-tap { 50% { transform: translate(-4px, 8px); } }
+/* the cover of a session from the home screen's path: the station's picture on the right, the play button on the left */
+.d2-station-row { position: relative; z-index: 2; display: flex; direction: rtl; align-items: center; gap: clamp(24px, 6vw, 72px); }
+.d2-station-disc { width: clamp(150px, 34vh, 230px); height: clamp(150px, 34vh, 230px); border-radius: 50%; background: #fff; border: 5px solid #c9a24a;
+  display: grid; place-items: center; box-shadow: 0 0 40px #b48cff99; }
+/* the play button stands in the row beside the picture (the main cover centres its play button over the art) */
+.d2-station .d2-play { position: relative; left: auto; top: auto; transform: none; }
+.d2-station .home-glyph { font-family: Sigalit, 'Noto Sans Hebrew', serif; color: #3b1d6e; line-height: 1; }
+.d2-station .home-glyph-hand { font-family: 'Dana Yad', Sigalit, serif; }
+.d2-station .home-orb { position: relative; display: block; }
+.d2-station .home-orb img { width: 100%; height: 100%; }
+.d2-station .home-orb span { position: absolute; inset: 0; display: grid; place-items: center; font-family: Sigalit, serif; color: #fff6d8; text-shadow: 0 0 4px #1b0f3c; }

@@ -139,7 +139,8 @@ describe('screens', () => {
   })
   it('the flying wizard is big enough to see and small enough to dodge', () => {
     expect(BROOM_WIZARD_H).toBeGreaterThanOrEqual(140)
-    expect(BROOM_WIZARD_H).toBeLessThanOrEqual(220 * 0.75)
+    // the parent's pick: 1.5 times the old 150, still lower than a lane (flight.test.ts)
+    expect(BROOM_WIZARD_H).toBeLessThan(LANE_Y[1] - LANE_Y[0])
   })
   it('the glyphs are large', () => {
     expect(BROOM_GLYPH_PX).toBeGreaterThan(80)
@@ -180,6 +181,15 @@ describe('screens', () => {
       expect(Math.min(...ys)).toBeGreaterThanOrEqual(150)
       expect(Math.max(...ys)).toBeLessThanOrEqual(820)
     }
+  })
+  it('on a new ladder the wizard is back at the start at once (he climbs, he never slides down under the bar)', () => {
+    const plates = [c('lamed', 'chirik'), c('lamed', 'shuruk'), c('lamed', 'segol')]
+    const r = render(<Ladder built={[]} plates={plates} rungs={5} onPick={() => {}} phase="answer" />)
+    const img = () => r.container.querySelector('image[data-wizard]') as SVGImageElement | null
+    expect(img()).not.toBeNull()
+    expect(img()!.style.transition).toBe('none')
+    r.rerender(<Ladder built={[c('lamed', 'kamatz')]} plates={plates} rungs={5} onPick={() => {}} phase="answer" />)
+    expect(img()!.style.transition).toBe('')
   })
   it('ladder shows the built rungs and three plates', () => {
     const { container } = render(<Ladder built={[c('lamed', 'kamatz')]} plates={[c('lamed', 'chirik'), c('lamed', 'shuruk'), c('lamed', 'segol')]} rungs={5} onPick={() => {}} phase="answer" />)
@@ -338,7 +348,7 @@ describe('screens', () => {
     expect(container.querySelector('[data-wizard].d2-fly-off')).not.toBeNull()
   })
 
-  describe('the boss and the potion on the flight', () => {
+  describe('the boss on the flight', () => {
     const noText = (root: Element) => {
       const clone = root.cloneNode(true) as Element
       clone.querySelectorAll('[data-glyph],[data-num]').forEach((e) => e.remove())
@@ -380,34 +390,10 @@ describe('screens', () => {
       const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="question" clock={() => 0} boss={boss('mimic', { arrived: false })} />)
       expect(container.querySelector('[data-boss].d2-boss-in')).not.toBeNull()
     })
-    it('the potion is clearly the bottle: full opacity, about 1.2x an orb, a soft glow behind it', () => {
-      const p = { id: 1, lane: 1, startMs: 0, travelMs: 5000, intro: true }
-      const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 1000} potion={p} />)
-      const img = container.querySelector('[data-potion] image')!
-      expect(Number(img.getAttribute('width'))).toBeCloseTo(BROOM_ORB * 1.2, 0)
-      expect(img.getAttribute('opacity')).toBeNull()
-      expect(img.closest('[opacity]')).toBeNull()
-      // the glow is behind the bottle
-      const g = container.querySelector('[data-potion]')!
-      const kids = [...g.children]
-      expect(kids.indexOf(g.querySelector('.d2-potion-glow')!)).toBeLessThan(kids.indexOf(img))
-    })
-    it('the flight keeps the potion and the boss poses decoded before they are needed (no late picture)', () => {
+    it('the flight keeps the boss poses decoded before they are needed (no late picture)', () => {
       const { container } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 0} boss={boss('bat')} />)
       const warm = [...container.querySelectorAll('[data-warm] image')].map((e) => e.getAttribute('href'))
-      expect(warm.some((h) => /s-potion/.test(h!))).toBe(true)
       for (const pose of ['fly', 'hit', 'down']) expect(warm.some((h) => new RegExp(`boss-bat-${pose}`).test(h!)), pose).toBe(true)
-    })
-    it('the potion floats in its lane, glows on its first flight, and a heart flies to the top bar when caught', () => {
-      const p = { id: 1, lane: 2, startMs: 0, travelMs: 5000, intro: true }
-      const { container, rerender } = render(<Broom waves={[]} travelMs={5000} lane={0} onLane={() => {}} phase="answer" clock={() => 1000} potion={p} />)
-      const g = container.querySelector('[data-potion]')!
-      expect(g.querySelector('image')!.getAttribute('href')).toMatch(/s-potion/)
-      expect(g.getAttribute('data-lane')).toBe('2')
-      expect(container.querySelector('[data-potion] .d2-potion-glow')).not.toBeNull()
-      rerender(<Broom waves={[]} travelMs={5000} lane={2} onLane={() => {}} phase="answer" clock={() => 1000} potion={{ ...p, caught: true }} heal={{ id: 2, lane: 2, at: 1000 }} />)
-      expect(container.querySelector('[data-heal]')).not.toBeNull()
-      expect(noText(container)).toBe('')
     })
   })
 

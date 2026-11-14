@@ -1,5 +1,5 @@
-// His coins: one for every 10 stars, kept between plays (they grow only now and then). The coin pops when the number
-// changes. Digits carry data-num for the no-text checks.
+// His coin balance: spending money, earned per right answer (times the streak multiplier). The coin pops when the
+// number changes. Digits carry data-num for the no-text checks.
 import { CoinIcon } from './icons'
 
 export function CoinCount(p: { n: number; size?: 'small' | 'big' }) {

@@ -5,10 +5,13 @@ import { WORDS } from '../../src/duel2/data/words.ts'
 import { LINES, VOICE, lineAudioId } from '../../src/duel2/data/lines.ts'
 
 const items: unknown[] = []
-const voice = { voice: VOICE.id, model: VOICE.model, lang: VOICE.lang }
+const narrator = { voice: VOICE.id, model: VOICE.model, lang: VOICE.lang }
+const voice = narrator
 
 for (const l of LINES)
   l.he.forEach((text, i) => {
+    // the merchant speaks in his own voice: the pipeline picks it (`speaker`) and keeps the narrator's id off his lines
+    const voice = l.voice ? { voice: null, speaker: l.voice, model: VOICE.model, lang: VOICE.lang } : narrator
     items.push({
       id: lineAudioId(l.id, i + 1), kind: 'tts', group: 'line', text, spoken: l.tag ? `[${l.tag}] ${text}` : text,
       where: l.where, context: '', stability: l.stability, takes: 1, ...voice,

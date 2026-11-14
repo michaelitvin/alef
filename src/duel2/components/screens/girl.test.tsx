@@ -6,7 +6,7 @@ import { Ladder } from './Ladder'
 import { Ghosts } from './Ghosts'
 import { Cover } from '../../screens/Cover'
 import { PauseCover } from '../../screens/PauseCover'
-import { Duel2EntryCard } from '../../../components/duel2/Duel2EntryCard'
+import { StationPath } from '../../../components/home/StationPath'
 import { syllable } from '../../logic/content'
 import { syllableChoice } from '../../logic/rounds'
 import { clearGender, setGender } from '../../../shared/player'
@@ -24,7 +24,8 @@ describe('the girl wizard (Book 2)', () => {
     render(<Ghosts signs={wave} onPick={() => {}} phase="answer" />).container,
     render(<Cover onPlay={() => {}} onParent={() => {}} />).container,
     render(<PauseCover onPlay={() => {}} />).container,
-    render(<Duel2EntryCard />).container,
+    // the home screen's path: its wizard stands at the newest open station
+    render(<StationPath />).container,
   ]
   it('a girl sees only girl wizard pictures', () => {
     setGender('girl', 'child')

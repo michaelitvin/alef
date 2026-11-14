@@ -1,6 +1,6 @@
 // The run controller (spec: Run, Screens). One async flow per screen: question → cue → answer → feedback, with mistakes
 // that wait for next, explanations, hints, demos, the dotted-letter introduction, the word link, celebrations, the hearts
-// (refilled on every screen) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
+// (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
 import type { Rng } from '../shared/adaptive'
 import { item as itemOf, mark as markOf, syllable, type MarkId, type Stage } from './logic/content'
@@ -10,22 +10,28 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, CATCH_AT, HEARTS, PASS_AT, orbEvents, wavePos, VISIT, heartsOnScreenStart, newRound, flightPace, nextScreen, onAnswer, runStart, travelMs,
+  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
   type Hearts,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
 import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './components/screens/Doors'
 import { lineAudioId, lineById } from './data/lines'
-import { playSfx, sayParts, startMusic, stopMusic, stopVoice, voiceIdle, type Duel2Sfx } from './audio/duel2Audio'
-import { coinsOf, useDuel2Store } from './store'
+import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
+import { useDuel2Store } from './store'
 import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './components/ExplainPanel'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
-import { drawFeature, drawWords, marksFor, needsDemo, scriptFor, splitWord } from './logic/draw'
+import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
+import { composeCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
+import { NEVER_VISITED } from './store'
+import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
+import { DUEL_MARKS } from '../utils/duel/marks'
+import { skippedMonsters } from '../utils/duel/rules'
+import { useProgressStore } from '../stores/progressStore'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
@@ -50,15 +56,10 @@ export interface BossView {
   /** his first win against this kind: the boss falls into a golden frame that flies to the trophy shelf */
   first?: boolean
 }
-/** The rescue potion: it floats across one lane like an orb; never an answer. */
-export interface PotionView { id: number; lane: number; startMs: number; travelMs: number; intro: boolean; caught?: boolean }
 export interface BroomView {
   screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean
   /** a boss visit (every second broom visit of a run) */
   boss?: BossView
-  potion?: PotionView
-  /** a heart flies from the caught potion to the top bar (from its lane, at this broom-clock time) */
-  heal?: { id: number; lane: number; at: number }
   /** the last hit or miss during the flight (the flight does not stop): drives the flash, the shake and the dizzy wizard */
   fx?: { id: number; kind: 'hit' | 'miss'; at: number }
   /** the flight is over: its finale (the wizard swoops away) */
@@ -86,7 +87,37 @@ export interface DrawView {
   /** what the voice names glows: the marks' places */
   glow?: 'marks'
 }
-export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView
+/** The first duel's tower (spec: one duel, Part 3): drawn by `Tower` (the duel's own board), which reports each answer
+ * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
+export interface TowerView {
+  screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
+  /** stage 0's placement check: the marks he has not answered yet are asked first */
+  placement?: boolean
+  /** the duel's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
+  mega?: number
+}
+export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
+
+/** A merchant's visit at a checkpoint (spec: one duel, Part 2): drawn over the stage by `Merchant`. */
+export interface MerchantView {
+  phase: 'arrive' | 'pay' | 'count' | 'leave' | 'sold'
+  price: number
+  /** all his savings for this visit, as composed at arrival (the coins in the merchant's hand included) */
+  coins: number[]
+  /** the coins in the merchant's hand, in giving order */
+  given: number[]
+  /** while the merchant counts: how many of the given coins he has counted (the bubble shows their running total) */
+  counted?: number
+  verdict?: 'exact' | 'short' | 'over'
+  /** he bought the potion: it flew to the wizard and the coins went into the merchant's pouch */
+  bought?: boolean
+  /** the tag lights after counting (both numbers seen together), and flashes when the payment was not right */
+  tag?: 'lit' | 'flash'
+  glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean }
+  /** the demo hand shows this step; `t` changes on every new demo move; `help`: the ? replays it while he pays (his coins
+   * stay pickable, and a touch on them ends the replay) */
+  demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number; help?: boolean }
+}
 
 export type Overlay =
   | { kind: 'demo'; line: string; demo: string }
@@ -106,36 +137,87 @@ export interface View {
   fixing?: boolean
   hintAvailable: boolean
   paused: boolean
-  over: { score: number; crystals: number; best: boolean; bosses?: BossKind[]; startStars?: number } | null
+  /** `session`: a session from the path ended (one visit, nothing at stake): its summary goes home by itself */
+  over: { score: number; crystals: number; best: boolean; bosses?: BossKind[]; startStars?: number; session?: boolean } | null
   /** the points of this run (right answers) */
   score: number
   /** counts the coins he earned this run (a coin pops in the top bar) */
   coinPop?: number
+  /** the streak multiplier of the coins, shown in the top bar (spec: one duel) */
+  mult: 1 | 2 | 3
+  /** a heart flies to the top bar (the end of a pass, the merchant's potion; over any screen); `at` = the controller's
+   * clock; `from` = where it rises (stage units; the middle by default) */
+  heal?: { id: number; at: number; from?: { x: number; y: number } }
+  /** the hearts given back at the ends of passes in this run */
+  passHeart?: number
+  /** a new value flashes the top bar's hearts (a pass heart); it only grows, across runs too (TopBar) */
+  heartFlash?: number
+  /** the hearts ran out: the short defeat scene plays (the dizzy wizard spins and falls), then `over` */
+  defeat?: boolean
+  /** the merchant's visit at a checkpoint (drawn instead of the screen) */
+  merchant?: MerchantView
+  /** the hint button (?) glows: two wrong payments in a row (it does not open by itself) */
+  hintGlow?: boolean
+  /** the coins the top bar shows instead of his balance (the gallery's merchant visit) */
+  coins?: number
 }
+/** the gestures of a merchant's visit */
+export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
+/** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
+export type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
 
 export interface RunOpts {
   sandbox?: boolean
   force?: {
-    screen: ScreenId | 'crystal' | 'dot'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
+    /** 'merchant': the gallery's merchant visit (1 heart, 40 coins); the visit ends the gallery screen */
+    screen: ScreenId | 'crystal' | 'dot' | 'merchant'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
-    /** the gallery: a flight that starts with a heart lost, so the potion comes after the first wave */
-    potion?: boolean
+    /** the gallery: the tower's boss visit */
+    towerBoss?: boolean
   }
+  /**
+   * A session from the home screen's path (spec: one duel, Part 3): one visit of this screen (SESSION_LENGTH), then the
+   * summary. No hearts at stake (a mistake costs only the streak), no merchant, no pass heart, no crystal; the run's
+   * lastEnded and best are not changed. Stars and coins are earned as usual.
+   */
+  session?: { screen: ScreenId }
   rng?: Rng
   now?: () => number
 }
 
 class Aborted extends Error {}
+/** the ✗ ended the visit (it can come at any moment of a visit) */
+class Declined extends Error {}
+/** the merchant walks in this long before his opening line */
+const MERCHANT_ARRIVE_MS = 1200
+/** he counts one coin each this long */
+const COUNT_STEP_MS = 600
+/** he walks away this long */
+const MERCHANT_LEAVE_MS = 1200
+/** no tap for this long while he pays: the merchant asks once more (once per visit; there is no time limit) */
+const MERCHANT_IDLE_MS = 20000
+/** the empty-hand line (first coins) is said at most once in this time */
+const MERCHANT_EMPTY_EVERY_MS = 4000
+/** the demo hand's drag of a coin into the merchant's hand (Merchant.tsx draws it) */
+export const MERCHANT_DEMO_DRAG_MS = 1800
+/** the demo hand moves to the merchant's hand before the coin flies back */
+const UNDO_TAP_MS = 700
+/** where the potion's heart rises: the wizard (Merchant.tsx WIZARD) */
+const WIZARD_AT = { x: 260, y: 520 }
 /** no pick for this long: the instruction and the sound play once */
 /** an effect rings this long before the voice goes on (fluent, but not cut) */
 const SFX_RING_MS = 400
+/** the pass hearts' flashes so far, in every run (View.heartFlash) */
+let heartFlashes = 0
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
 const FINALE_MS = 2500
+/** the defeat scene: the dizzy wizard spins and falls (spec: one duel, a short and funny end) */
+const DEFEAT_MS = 1800
 /** praise is spoken this many times per kind, then only its sound plays */
 const PRAISE_SPOKEN = 2
 /** how long a praise with no words lets its sound play */
@@ -146,21 +228,12 @@ const IDLE_HINT_MS = 16000
 const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
-const WAVE_EVERY = 0.55
 /** the boss swoops in this long before its line */
 const BOSS_ARRIVE_MS = 1300
 /** its hit pose shows this long */
 const BOSS_HIT_MS = 600
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
-/** the potion's first flight is slower (a new element: rule) */
-const POTION_INTRO_SLOW = 1.5
-/** the potion comes this many waves after the wave that cost the heart */
-const POTION_AFTER_WAVES = 1
-/** wave slots the introducing potion waits for a free voice before the queued speech is cut */
-const POTION_VOICE_WAIT = 2
-/** the most an orb starts late in its wave (fraction of the travel): popcorn, not a column */
-const POPCORN = 0.28
 /** drawing: wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
 const DRAW_TRIES = 3
 /** a stroke shorter than this (letter units) is a tap, not a stroke of the letter */
@@ -174,14 +247,14 @@ const sylFeatures = (c: Choice, screen: ScreenId) => {
 }
 
 export class RunController {
-  view: View = { phase: 'question', hearts: 3, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0 }
+  view: View = { phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
   private listeners = new Set<() => void>()
   private token = 0
   private rng: Rng
   private now: () => number
   private pausedAt: number | null = null
   private pausedTotal = 0
-  private hearts: Hearts = heartsOnScreenStart()
+  private hearts: Hearts = heartsAtRunStart()
   private screenId: ScreenId | 'crystal' = 'broom'
   private stage: Stage
   private roundInScreen = 0
@@ -210,8 +283,16 @@ export class RunController {
   private visitKind: Kind | null = null
   /** the run is ending: a pause no longer cancels the summary */
   private ending = false
+  /** he left the run with the home button (exit): closing the game after it is no abandon */
+  private exited = false
   /** the crystal of this cycle was given (a pause during it must not give it twice) */
   private crystalAwarded = false
+  /** a pass has ended: its heart is due before the next screen */
+  private passDue = false
+  private passHearts = 0
+  /** this pass went through every screen of the cycle: the run started at the cycle's first screen, or a pass ended
+   * since (spec: "a pass is one trip through all his open minigames"; a run resumed near the end gets no heart there) */
+  private passFull = false
   private demoShown = false
   private assets: string[] = []
   /** broom visits in this run: every second one is a boss visit */
@@ -222,8 +303,6 @@ export class RunController {
   private visitStarted = false
   /** the boss of this visit: its hits survive a pause (rule: losing them is the "gives up" problem again) */
   private boss: { kind: BossKind; hitsLeft: number; arrived: boolean; startedAt: number; won?: boolean; first?: boolean; celebrated?: boolean; praised?: boolean; coins: number; newSaid?: boolean } | null = null
-  /** the potion has come in this visit (at most once) */
-  private potionShown = false
   private bossesWon: BossKind[] = []
   private startStars = 0
   private drawPlan: Word[] | null = null
@@ -231,6 +310,43 @@ export class RunController {
   private strokeWaiter: ((pts: Pt[]) => void) | null = null
   private strokeNo = 0
   private demoNo = 0
+  /** a screen has ended: the checkpoint (maybe the merchant) comes before the next one */
+  private checkpointDue = false
+  /** the merchant's visit in progress: it survives a pause (coins in his hand included) */
+  private visit: {
+    price: number; coins: number[]; given: number[]; said: boolean; bought: boolean; declined: boolean; byeSaid: boolean
+    wrongTries: number; hinted: boolean; decline: Promise<void>; declineNow: () => void
+    /** the ? replays the walkthrough now; the glow to put back when it ends */
+    helping: boolean; helpGlow?: MerchantView['glow']
+    /** the first-visit demo has played to its end in this visit; the idle line was said; his last tap (controller clock) */
+    demoDone: boolean; idleSaid: boolean; lastTouch: number
+    /** when the empty-hand line was last said (controller clock): it is said at most once per MERCHANT_EMPTY_EVERY_MS */
+    emptySaidAt: number
+  } | null = null
+  private demoMove = 0
+  /** a new number ends the ?'s walkthrough replay that runs */
+  private helpNo = 0
+  /** the door's hint (the syllables light again) runs; a new number ends it */
+  private doorHint = 0
+  private doorHintOn = false
+  /** a hint's voice plays (a touch on an answer stops it) */
+  private hintVoice = 0
+  private mWaiter: ((g: MerchantGesture) => void) | null = null
+  /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
+  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
+  private towerNo = 0
+  /** the duel's מגה charge: it carries over between the tower's visits within this run, and starts empty in a new run */
+  private towerMegaCharge = 0
+  private towerWaiter: ((lastWave: number) => void) | null = null
+  /** this visit's length (rounds, waves, rungs, doors or words), decided when it starts */
+  private visitLen = 0
+  /** the doors were skipped in this cycle: their crystal comes at the cycle's end */
+  private crystalOwed = false
+  /** the next screen after a crystal that came at the cycle's end */
+  private afterCrystal: { screen: ScreenId; newCycle: boolean } | null = null
+  private purchasesThisRun = 0
+  /** wrong payments in a row in this visit (the hint button glows after two) */
+  private wrongInRow = 0
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
@@ -247,12 +363,14 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] }) {
+  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
     if (this.view.paused) return
+    if (g.type === 'touch') { this.dropHint(g.by); return }
+    if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantGesture(g); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWaiter || this.view.screen?.screen !== 'draw') return
       // a stroke stops a hint's hand at once (he shows that he knows)
-      if (this.view.screen.demo?.hint) this.setScreen({ demo: undefined } as Partial<DrawView>)
+      this.dropHint('pen')
       const w = this.strokeWaiter
       this.strokeWaiter = null
       w(g.pts)
@@ -262,6 +380,8 @@ export class RunController {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
       return
     }
+    // he picks: a hint that shows goes away (its voice too)
+    this.dropHint('answer')
     if (this.view.phase === 'mistake') {
       // after a mistake only the marked right answer goes on: he does the right move himself (the parent)
       const right = (this.view.screen as { reveal?: { right: string } } | null)?.reveal?.right
@@ -284,6 +404,8 @@ export class RunController {
     w?.()
   }
   replay() {
+    // the merchant's screen has no speaker: its one help button (?) replays the walkthrough (the parent)
+    if (this.view.merchant) return
     if (this.view.screen?.screen === 'draw') {
       this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
       stopVoice()
@@ -297,13 +419,17 @@ export class RunController {
     void sayParts([{ id: this.cueId(t) }])
   }
   hint() {
+    if (this.view.merchant) { void this.merchantHelp(); return }
     const s = this.view.screen
     if (s?.screen === 'doors' && this.view.phase === 'answer') {
-      // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it)
+      // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it); a touch on a key ends it
       const t = this.token
+      const no = ++this.doorHint
+      const on = () => t === this.token && no === this.doorHint
+      this.doorHintOn = true
       this.setScreen({ lit: 0 } as Partial<DoorsView>)
-      void this.sleep(t, 600).then(() => this.setScreen({ lit: 1 } as Partial<DoorsView>))
-        .then(() => this.sleep(t, 1400)).then(() => this.setScreen({ lit: 2 } as Partial<DoorsView>)).catch(() => {})
+      void this.sleep(t, 600).then(() => { if (on()) this.setScreen({ lit: 1 } as Partial<DoorsView>) })
+        .then(() => this.sleep(t, 1400)).then(() => { if (on()) { this.doorHintOn = false; this.setScreen({ lit: 2 } as Partial<DoorsView>) } }).catch(() => {})
       return
     }
     if (s?.screen === 'draw') { if (this.view.phase === 'answer') this.drawHint(false); return }
@@ -312,15 +438,41 @@ export class RunController {
     void this.playHint(t, false).catch(() => {})
   }
 
+  /**
+   * He acts (touches an answer, puts the pen down, picks): a hint that shows goes away at once — its card and glow, its
+   * hand, its voice, the door's lighting, the merchant's walkthrough replay (rule: a hint goes away when the child acts).
+   * The hint stays counted; `hint-stop` says that he cut it.
+   */
+  private dropHint(by: 'answer' | 'pen') {
+    let cut = false
+    if (this.view.overlay?.kind === 'hint') { this.set({ overlay: null }); cut = true }
+    const s = this.view.screen
+    if (s?.screen === 'draw' && s.demo?.hint) { this.setScreen({ demo: undefined } as Partial<DrawView>); cut = true }
+    if (s?.screen === 'doors' && this.doorHintOn) {
+      this.doorHint++
+      this.doorHintOn = false
+      this.setScreen({ lit: 2 } as Partial<DoorsView>)
+      cut = true
+    }
+    if (this.visit?.helping) { stopVoice(); this.endHelp(); cut = true }
+    if (this.hintVoice) { this.hintVoice = 0; stopVoice(); cut = true }
+    if (cut) this.track('hint-stop', { screen: this.view.merchant ? 'merchant' : this.view.screen?.screen ?? null, by })
+  }
+
   // ---- lifecycle
   start() {
     if (this.running) return
     this.running = true
     const st = useDuel2Store.getState()
     this.startStars = st.totalStars ?? 0
-    if (!this.opts.sandbox) duel2Telemetry.track('run-start', { stage: this.stage })
+    // the hearts last the whole run (spec: one duel, Part 1)
+    this.hearts = heartsAtRunStart()
+    const session = this.opts.session?.screen
+    if (!this.opts.sandbox) duel2Telemetry.track(session ? 'session-start' : 'run-start', { stage: this.stage, ...(session ? { screen: session } : {}) })
     const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen) : runStart(this.stage, st.lastEnded, this.drawOn())
+    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen)
+      : session ?? runStart(this.stage, st.lastEnded, this.drawOn(), this.bookOpen())
+    this.passFull = !f && !session && this.screenId === cycleOf(this.stage, this.drawOn(), this.bookOpen())[0]
     void this.loop()
   }
   destroy() {
@@ -329,7 +481,37 @@ export class RunController {
     this.stopBroom()
     stopVoice()
     stopMusic()
-    if (!this.view.over && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
+    if (this.exited) return
+    // closing the game before the cycle's end: the crystal the skipped doors owe him is still his
+    if (!this.view.over && !this.ending) this.payOwedCrystal()
+    // the run is already ending (its run-end was sent): closing now is no abandon
+    if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
+    if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
+  }
+  /**
+   * He held the home button (2 s): the run stops here, as when the game is closed — the owed crystal is paid, nothing is
+   * lost (stars, coins and crystals are saved as they come), and the run's records (lastEnded, runs, best) are not
+   * written, as after a lock or an app close; the hearts and the streak start fresh in the next run anyway. The sound
+   * stops. A 'run-exit' says where he left (no 'abandon' then).
+   */
+  exit() {
+    if (this.exited) return
+    const screen = this.view.merchant ? 'merchant' : this.screenId
+    const paused = this.view.paused
+    const done = !!this.view.over || this.ending
+    this.token++
+    this.running = false
+    this.stopBroom()
+    stopVoice()
+    stopMusic()
+    this.pickWaiter = null
+    this.nextWaiter = null
+    this.strokeWaiter = null
+    this.mWaiter = null
+    if (!done) this.payOwedCrystal()
+    if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'exit' })
+    this.exited = true
+    this.track('run-exit', { screen, score: this.score, paused, ...(done ? { ended: true } : {}) })
   }
   pause() {
     if (this.view.paused || this.view.over || this.ending) return
@@ -340,10 +522,8 @@ export class RunController {
     this.pickWaiter = null
     this.nextWaiter = null
     this.strokeWaiter = null
+    this.mWaiter = null
     this.resuming = true
-    // a potion still on its way is lost with the waves; it may come again
-    const pv = this.view.screen?.screen === 'broom' ? this.view.screen.potion : undefined
-    if (pv && !pv.caught) this.potionShown = false
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
   }
@@ -358,6 +538,8 @@ export class RunController {
 
   /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
   private drawOn() { return !!useDuel2Store.getState().settings.drawing }
+  /** Book 2's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
+  private bookOpen() { return !!this.opts.force || useDuel2Store.getState().bookOpen !== false }
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
@@ -390,7 +572,7 @@ export class RunController {
   }
   private currentTarget(): Choice | null {
     const s = this.view.screen
-    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw') return null
+    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw' || s.screen === 'tower') return null
     return s.target
   }
   private kindFor(screen: ScreenId): Kind {
@@ -409,9 +591,14 @@ export class RunController {
   private async loop() {
     const t = this.token
     try {
+      if (this.opts.force?.screen === 'merchant') return await this.galleryMerchant(t)
       for (;;) {
+        if (this.passDue) this.runPassHeart()
+        if (this.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
+        // a session from the path is one visit
+        if (this.opts.session) return await this.endSession()
         if (this.opts.force) {
           // the gallery plays one screen, then starts it again
           this.roundInScreen = 0
@@ -420,14 +607,27 @@ export class RunController {
           this.drawPlan = null
           this.visitKind = null
           this.crystalAwarded = false
-          this.hearts = heartsOnScreenStart()
+          this.hearts = heartsAtRunStart()
           this.newVisit()
           continue
         }
         if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
+        const nx = this.screenId === 'crystal' ? (this.afterCrystal ?? this.nextOf('doors')) : this.nextOf(this.screenId)
+        this.afterCrystal = null
+        if (this.screenId !== 'crystal' && nx.newCycle && this.crystalOwed) {
+          // the doors were skipped in this cycle: their crystal still comes, at the cycle's end (then the pass heart)
+          this.crystalOwed = false
+          this.afterCrystal = nx
+          this.screenId = 'crystal'
+          continue
+        }
         this.crystalAwarded = false
-        const from: ScreenId = this.screenId === 'crystal' ? 'doors' : this.screenId
-        const nx = nextScreen(this.stage, from, this.drawOn())
+        // stage 0 (the tower alone) has no pass heart
+        if (nx.newCycle) {
+          this.passDue = this.passFull && this.bookOpen()
+          this.passFull = true
+          if (!this.opts.sandbox) useDuel2Store.getState().nextCycle()
+        }
         this.screenId = nx.screen
         this.roundInScreen = 0
         this.ladder = null
@@ -435,25 +635,577 @@ export class RunController {
         this.drawPlan = null
         this.visitKind = null
         this.newVisit()
+        // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart
+        this.checkpointDue = true
       }
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
     }
   }
 
+  /**
+   * The screen after `from` in the cycle, passing over the screens he has long mastered in this cycle (every other cycle;
+   * never the tower, never the only screen): a skipped screen has no visit and no checkpoint of its own.
+   */
+  private nextOf(from: ScreenId): { screen: ScreenId; newCycle: boolean } {
+    const open = this.bookOpen()
+    let nx = nextScreen(this.stage, from, this.drawOn(), open)
+    const len = cycleOf(this.stage, this.drawOn(), open).length
+    const st = useDuel2Store.getState()
+    const duelRecent = useProgressStore.getState().duel?.recent ?? {}
+    for (let k = 0; k < len && !this.opts.session; k++) {
+      // a new cycle starts at the tower, which is never skipped
+      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, st.recent, duelRecent), st.cycleNo ?? 0, len)) break
+      if (nx.screen === 'doors') this.crystalOwed = true
+      this.track('skip', { screen: nx.screen, cycle: st.cycleNo ?? 0 })
+      const n2 = nextScreen(this.stage, nx.screen, this.drawOn(), open)
+      nx = { screen: n2.screen, newCycle: n2.newCycle }
+    }
+    return nx
+  }
+
+  /**
+   * The length of a visit, decided when it starts: about half for a screen with no recent mistakes (at least 2 rounds;
+   * the tower at least 1 wave). The gallery plays the full visit.
+   */
+  private lenFor(screen: ScreenId): number {
+    if (this.opts.session) return SESSION_LENGTH[screen]
+    const full = VISIT[screen]
+    if (this.opts.force) return full
+    // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
+    if (screen === 'tower' && !this.bookOpen()) return full
+    const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
+    // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
+    // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake
+    const tail = useDuel2Store.getState().towerTail ?? ''
+    const scale = screen !== 'tower' ? visitScale(r) : tail.length >= SHORT_AFTER ? visitScale(tail) : r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1
+    if (scale === 1) return full
+    return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
+  }
+
+  /**
+   * The end of a pass: one heart comes back (up to HEARTS) at once, with a sound: it flies to the top bar and the hearts
+   * there flash (`heartFlash`). No line and no pause: the game goes on (the parent, 2026-11-12: "no need to say it at all.
+   * just give the heart back and flash it promptly").
+   */
+  private runPassHeart() {
+    this.passDue = false
+    const r = passEndHeart(this.hearts)
+    if (!r.gained) return
+    this.hearts = r.hearts
+    this.passHearts++
+    this.set({ hearts: this.hearts.left, passHeart: this.passHearts, heal: { id: ++this.fxId, at: this.now() }, heartFlash: ++heartFlashes })
+    this.track('pass-heart', { hearts: this.hearts.left })
+    this.sfx('potion')
+  }
+
+  // ---- the merchant (spec: one duel, Part 2)
+  /**
+   * A checkpoint between two screens: the merchant comes when the rules say so (merchantDue). Decided once; a visit in
+   * progress goes on after a pause as it was.
+   */
+  private async runCheckpoint(t: number) {
+    if (!this.visit) {
+      const adventure = !this.opts.force && !this.opts.session
+      // no merchant at stage 0 (the tower alone)
+      if (!adventure || !this.bookOpen()) { this.checkpointDue = false; return }
+      // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss
+      if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
+      const st = useDuel2Store.getState()
+      const range = st.settings.range ?? 100
+      const price = priceAt(this.purchasesThisRun, range)
+      // the checkpoints since his last visit, this one included (the save counts the ones passed without him): with 2
+      // hearts he comes at every other checkpoint
+      const since = st.checkpointsSinceVisit ?? NEVER_VISITED
+      const due = merchantDue({
+        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
+        bossNext: this.screenId === 'tower' ? this.towerBossNext() : !!this.visitBoss,
+      })
+      if (!this.opts.sandbox) st.noteCheckpoint(due)
+      if (!due) { this.checkpointDue = false; return }
+      // the composition is made once, at his arrival (never during a visit)
+      this.newMerchantVisit(price, composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng))
+      const coins = this.visit!.coins
+      if (!this.opts.sandbox) st.noteMerchant('visit')
+      this.track('merchant-arrive', { price, coins: st.coins ?? 0, hearts: this.hearts.left, composition: coins })
+    }
+    await this.runVisit(t)
+    this.visit = null
+    this.checkpointDue = false
+    // the next screen starts fresh (a pause during the visit is not a pause of that screen)
+    this.resuming = false
+  }
+
+  private newMerchantVisit(price: number, coins: number[]) {
+    let declineNow = () => {}
+    const decline = new Promise<void>((r) => { declineNow = r })
+    // "two wrong tries in a row" are counted within one visit (the hint button's glow ends with the visit too)
+    this.wrongInRow = 0
+    this.visit = {
+      price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, helping: false, decline, declineNow,
+      demoDone: false, idleSaid: false, lastTouch: this.now(), emptySaidAt: -Infinity,
+    }
+  }
+
+  /** The gallery's merchant (the parent reviews him): a visit with 1 heart and 40 coins, its demo first; then the gallery. */
+  private async galleryMerchant(t: number) {
+    const GALLERY_COINS = 40
+    if (!this.visit) {
+      this.hearts = { left: 1, nearMissUsed: false }
+      const range = useDuel2Store.getState().settings.range ?? 100
+      const price = priceAt(0, range)
+      this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, useDuel2Store.getState().merchant?.level ?? 0, this.rng))
+    }
+    this.set({ hearts: this.hearts.left, coins: GALLERY_COINS - (this.visit!.bought ? this.visit!.price : 0) })
+    await this.runVisit(t)
+    this.visit = null
+    this.set({ over: { score: 0, crystals: 0, best: false } })
+  }
+
+  private mv(p: Partial<MerchantView>) { if (this.view.merchant) this.set({ merchant: { ...this.view.merchant, ...p } }) }
+  /** a merchant's line: a variation */
+  private mLine(id: string) { return this.variation(id) }
+  /** say or wait during a visit; the ✗ cuts it at any moment (only in the loop that is current: a pause replaces it) */
+  private async vsay(t: number, parts: { id: string; onStart?: () => void }[]) {
+    await this.guard(t, Promise.race([this.say(t, parts), this.visit!.decline]))
+    if (this.visit!.declined) throw new Declined()
+  }
+  private async vsleep(t: number, ms: number) {
+    await this.guard(t, Promise.race([this.sleep(t, ms), this.visit!.decline]))
+    if (this.visit!.declined) throw new Declined()
+  }
+  /** his next gesture of the visit (the ✗ ends the wait) */
+  private async waitMerchant(t: number): Promise<MerchantGesture> {
+    const v = this.visit!
+    v.lastTouch = Math.max(v.lastTouch, this.now())
+    // no tap for MERCHANT_IDLE_MS: he asks once more, once per visit (coins given meanwhile count as taps)
+    let timer: number | undefined
+    const arm = (ms: number) => {
+      timer = window.setTimeout(() => {
+        if (t !== this.token || this.view.paused || this.view.merchant?.phase !== 'pay' || v.idleSaid) return
+        const idle = this.now() - v.lastTouch
+        if (idle < MERCHANT_IDLE_MS) { arm(MERCHANT_IDLE_MS - idle); return }
+        v.idleSaid = true
+        this.track('merchant-idle', {})
+        void sayParts([{ id: this.mLine('m-again') }])
+      }, ms)
+    }
+    if (!v.idleSaid) arm(MERCHANT_IDLE_MS - (this.now() - v.lastTouch))
+    try {
+      // a wait that a pause left behind ends as aborted, never as a decline (the loop after the pause ends the visit)
+      const g = await this.guard(t, Promise.race([new Promise<MerchantGesture>((r) => { this.mWaiter = r }), v.decline.then(() => null)]))
+      if (!g || v.declined) throw new Declined()
+      return g
+    } finally {
+      this.mWaiter = null
+      window.clearTimeout(timer)
+    }
+  }
+
+  /** he knows the merchant: he has bought a potion from him before (a persisted count; the gallery: never) */
+  private knowsMerchant() {
+    return !this.opts.force && (useDuel2Store.getState().merchant?.purchases ?? 0) > 0
+  }
+
+  /** the first-visit demo: on his first visit ever (the gallery: when it asks for the demo) */
+  private merchantDemoDue() {
+    if (this.opts.force) return !!this.opts.force.demo
+    return !useDuel2Store.getState().merchant?.demoSeen
+  }
+
+  /**
+   * The first visit: everything else dims and the game's pointing hand shows each step while he says it — the price tag,
+   * a coin dragged into his hand (and back), the potion, the ✗. Then it is his turn, with the same price and piles. The
+   * ✗ is hidden until its step; the demo counts as seen only when it ends (a pause shows it again).
+   */
+  private async merchantDemo(t: number) {
+    this.set({ phase: 'demo', hintAvailable: false })
+    this.track('merchant-demo', {})
+    await this.walkthrough(t, false)
+    this.mv({ demo: undefined, glow: undefined })
+    if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('demoSeen')
+  }
+
+  /**
+   * The walkthrough's steps: D1–D4, and with `help` (the ? while he pays) the undo too once it was shown to him. The help's
+   * replay leaves the deal as it is (the coins in the merchant's hand stay) and ends when he touches a coin, the potion or
+   * the merchant's hand. Returns false when it was ended before its last step.
+   */
+  private async walkthrough(t: number, help: boolean): Promise<boolean> {
+    const v = this.visit!
+    const no = this.helpNo
+    const live = () => !help || (v.helping && no === this.helpNo)
+    type Step = NonNullable<MerchantView['demo']>['step']
+    const steps: [Step, MerchantView['glow'], string][] = [
+      ['price', { tag: true }, 'm-price'], ['give', undefined, 'm-give'], ['potion', { potion: true }, 'm-tap'], ['decline', { decline: true }, 'm-decline'],
+      ...(help && this.undoShown() ? [['undo', { hand: true }, 'm-undo'] as [Step, MerchantView['glow'], string]] : []),
+    ]
+    for (const [step, glow, line] of steps) {
+      if (!live()) return false
+      this.mv({ phase: help ? 'pay' : 'arrive', demo: { step, t: ++this.demoMove, ...(help ? { help: true } : {}) }, glow })
+      const say = this.vsay(t, [{ id: this.mLine(line) }])
+      await (step === 'give' ? Promise.all([this.vsleep(t, MERCHANT_DEMO_DRAG_MS), say]) : say)
+    }
+    return live()
+  }
+
+  /**
+   * The help button (?) during a visit: the merchant's walkthrough again (the parent: one button that repeats it). Only
+   * while he pays and nothing else plays; the button is hidden while it runs. It counts as a hint for the parent's money
+   * section and the coins' level.
+   */
+  private async merchantHelp() {
+    const v = this.visit
+    const mv = this.view.merchant
+    if (!v || !mv || mv.phase !== 'pay' || mv.demo || v.bought || v.declined || v.helping || this.view.phase !== 'answer') return
+    const t = this.token
+    v.helping = true
+    v.helpGlow = mv.glow
+    v.hinted = true
+    v.lastTouch = this.now()
+    this.wrongInRow = 0
+    this.set({ hintGlow: false, hintAvailable: false })
+    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('hint')
+    this.track('merchant-help', { undo: this.undoShown(), given: v.given.length })
+    stopVoice()
+    try {
+      if (await this.walkthrough(t, true)) this.endHelp()
+    } catch (e) {
+      // a pause (the visit is drawn again as it was) or the ✗ (the visit ends)
+      if (!(e instanceof Aborted) && !(e instanceof Declined)) throw e
+      v.helping = false
+    }
+  }
+
+  /** the walkthrough replay ends (its last step, or he touched): the deal as it was, his turn again */
+  private endHelp() {
+    const v = this.visit
+    if (!v?.helping) return
+    v.helping = false
+    this.helpNo++
+    v.lastTouch = this.now()
+    this.mv({ demo: undefined, glow: v.helpGlow })
+    if (this.view.merchant?.phase === 'pay') this.set({ hintAvailable: true })
+  }
+
+  private merchantGesture(g: MerchantGesture) {
+    const v = this.visit
+    const mv = this.view.merchant
+    if (!v || !mv || v.bought || v.declined) return
+    if (g.type === 'decline') {
+      // the ✗, at any moment of the visit (it is hidden while the first-visit demo plays)
+      // (the undo's hand shows while the ✗ is on the screen: it works then too)
+    if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && !mv.demo.help && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
+      v.declined = true
+      this.track('merchant-decline', { phase: mv.phase })
+      if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('decline')
+      stopVoice()
+      v.declineNow()
+      return
+    }
+    if (mv.phase !== 'pay') return
+    // he acts during the ?'s walkthrough: it ends at once, and his move counts
+    if (v.helping) { stopVoice(); this.endHelp() }
+    v.lastTouch = this.now()
+    if (g.type === 'coin') {
+      // the top coin of that pile jumps into his hand (a coin he no longer has cannot be given)
+      const left = [...v.coins]
+      for (const x of v.given) left.splice(left.indexOf(x), 1)
+      if (!left.includes(g.value)) return
+      v.given.push(g.value)
+      this.sfx('coin')
+      this.mv({ given: [...v.given], glow: undefined })
+      return
+    }
+    if (g.type === 'hand') {
+      // undo: the last coin given goes back to its pile
+      if (!v.given.length) return
+      v.given.pop()
+      this.track('merchant-undo', {})
+      this.sfx('coin')
+      this.mv({ given: [...v.given] })
+      return
+    }
+    // the potion: the merchant counts (the visit's flow goes on)
+    const w = this.mWaiter
+    this.mWaiter = null
+    w?.(g)
+  }
+
+  /** The visit: he walks in and offers the potion; the child pays from his piles, or declines with the ✗. */
+  private async runVisit(t: number) {
+    const v = this.visit!
+    try {
+      if (!v.bought && !v.declined) {
+        if (!v.said) {
+          this.set({ merchant: { phase: 'arrive', price: v.price, coins: v.coins, given: v.given, glow: { piles: true } }, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false })
+          await this.vsleep(t, MERCHANT_ARRIVE_MS)
+          // a child who knows the merchant (he bought from him before) hears only the short offer, and no demo (the parent)
+          await this.vsay(t, [{ id: this.mLine(this.knowsMerchant() ? 'm-offer' : 'm-hello') }])
+          v.said = true
+          this.mv({ glow: undefined })
+        } else {
+          // after a pause: the visit as it was, the coins in his hand included (a walkthrough replay is not resumed)
+          v.helping = false
+          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
+        }
+        if (!v.demoDone && !this.knowsMerchant() && this.merchantDemoDue()) await this.merchantDemo(t)
+        v.demoDone = true
+        await this.payLoop(t)
+      }
+    } catch (e) {
+      if (!(e instanceof Declined)) throw e
+    }
+    await this.visitEnd(t)
+  }
+
+  /** He gives coins and takes them back (merchantGesture), and taps the potion; the merchant counts. Returns when he bought it. */
+  private async payLoop(t: number) {
+    const v = this.visit!
+    for (;;) {
+      // a glow (his empty hand, the hint) stays until he gives a coin
+      this.mv({ phase: 'pay', counted: undefined, verdict: undefined, tag: undefined, demo: undefined, given: [...v.given] })
+      this.set({ phase: 'answer', hintAvailable: true })
+      // coins and undo are handled as they come (merchantGesture); the potion goes on here
+      await this.waitMerchant(t)
+      if (!v.given.length) {
+        // the hand glows at every tap; the line only once in a while (a child taps the potion again and again)
+        this.mv({ glow: { hand: true } })
+        if (this.now() - v.emptySaidAt < MERCHANT_EMPTY_EVERY_MS) continue
+        v.emptySaidAt = this.now()
+        this.set({ phase: 'feedback' })
+        await this.vsay(t, [{ id: this.mLine('m-empty') }])
+        continue
+      }
+      if (await this.count(t) === 'exact') return this.buy(t)
+    }
+  }
+
+  /** The merchant counts the coins in his hand one by one (a chime each, the running total in a bubble), then the tag. */
+  private async count(t: number): Promise<'exact' | 'short' | 'over'> {
+    const v = this.visit!
+    const given = [...v.given]
+    const sum = given.reduce((a, b) => a + b, 0)
+    this.set({ phase: 'feedback' })
+    this.mv({ phase: 'count', counted: 0, glow: undefined })
+    for (let i = 0; i < given.length; i++) {
+      await this.vsleep(t, COUNT_STEP_MS)
+      this.mv({ counted: i + 1 })
+      this.sfx('count')
+    }
+    const vd = payVerdict(sum, v.price)
+    this.mv({ verdict: vd, tag: vd === 'exact' ? 'lit' : 'flash' })
+    this.track('merchant-offer', { sum, price: v.price, verdict: vd, coins: given })
+    await this.vsleep(t, COUNT_STEP_MS)
+    if (vd === 'exact') return vd
+    // wrong tries cost nothing; the coins stay in his hand
+    v.wrongTries++
+    this.wrongInRow++
+    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant(vd)
+    // two wrong tries in a row: the hint button (?) glows (it does not open by itself)
+    if (this.wrongInRow >= 2) this.set({ hintGlow: true })
+    await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
+    if (vd === 'over' && !this.undoShown()) {
+      // the first time ever he gives too much: the hand taps the merchant's hand and the last coin flies back (rule:
+      // explain a move when he first needs it)
+      this.mv({ demo: { step: 'undo', t: ++this.demoMove } })
+      await this.vsleep(t, UNDO_TAP_MS)
+      v.given.pop()
+      this.sfx('coin')
+      this.mv({ given: [...v.given] })
+      await this.vsay(t, [{ id: this.mLine('m-undo') }])
+      this.mv({ demo: undefined })
+      if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('undoShown')
+      else this.sandboxUndoShown = true
+    }
+    return vd
+  }
+
+  private sandboxUndoShown = false
+  private undoShown() { return this.opts.sandbox ? this.sandboxUndoShown : !!useDuel2Store.getState().merchant?.undoShown }
+
+  /** The exact price: the coins are spent, the potion flies to the wizard and a heart to the top bar. */
+  private async buy(t: number) {
+    const v = this.visit!
+    v.bought = true
+    const st = useDuel2Store.getState()
+    if (!this.opts.sandbox) {
+      st.spendCoins(v.price)
+      st.noteMerchant('purchase')
+      st.merchantPaid(v.wrongTries === 0 && !v.hinted, v.hinted)
+    }
+    this.purchasesThisRun++
+    this.wrongInRow = 0
+    this.set({ hintGlow: false })
+    this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
+    this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
+    this.mv({ phase: 'sold', glow: undefined, bought: true })
+    // the heart flies to the top bar and the hearts flash, as at the end of a pass
+    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, heartFlash: ++heartFlashes,
+      ...(this.view.coins !== undefined ? { coins: this.view.coins - v.price } : {}) })
+    this.sfx('potion')
+    await this.sleep(t, SFX_RING_MS)
+    // then he says that he has a heart back (the parent)
+    await this.say(t, [{ id: this.mLine('m-exact') }, { id: this.mLine('m-heart') }])
+  }
+
+  /** He walks away (after the ✗: his coins go back to their piles and he says goodbye). */
+  private async visitEnd(t: number) {
+    const v = this.visit!
+    this.set({ phase: 'feedback', hintAvailable: false, hintGlow: false })
+    if (v.declined) {
+      v.given = []
+      this.mv({ phase: 'leave', given: [], glow: undefined, demo: undefined, tag: undefined, counted: undefined, verdict: undefined })
+      if (!v.byeSaid) { v.byeSaid = true; await this.say(t, [{ id: this.mLine('m-bye') }]) }
+    } else this.mv({ phase: 'leave', glow: undefined })
+    await this.sleep(t, MERCHANT_LEAVE_MS)
+    this.set({ merchant: undefined })
+  }
+
   private newVisit() {
     this.visitBoss = undefined
     this.visitStarted = false
     this.boss = null
-    this.potionShown = false
+    this.tower = null
+  }
+
+  // ---- the first duel's tower (spec: one duel, Part 3)
+  /** every third tower visit is a boss visit (the run's boss rhythm); the gallery forces it */
+  private towerBossNext(): boolean {
+    if (this.opts.force) return !!this.opts.force.towerBoss
+    return (useDuel2Store.getState().towerVisits ?? 0) % 3 === 2
+  }
+
+  /**
+   * A tower visit: the duel's board plays two waves from where his last visit ended (a boss visit: the boss alone, at the
+   * next multiple of 5). Its answers come in through towerAnswer; the visit ends with towerDone. A pause keeps the visit.
+   */
+  private async runTower(t: number) {
+    const st = useDuel2Store.getState()
+    if (!this.tower) {
+      const boss = this.towerBossNext()
+      const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
+      const wave = boss ? Math.ceil(from / 5) * 5 : from
+      if (!this.opts.sandbox) {
+        st.noteTowerVisit()
+        // the boss's wave jumps over the waves from `from`: the new monsters of those waves are introduced later, the
+        // first time each of them appears
+        if (boss && wave > from) st.oweMonsters(skippedMonsters(from, wave))
+      }
+      this.tower = { wave, waves: this.visitLen || VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
+      this.track('tower-start', { wave, boss, waves: this.tower.waves })
+    }
+    const tw = this.tower
+    this.syncMult()
+    const placement = !this.bookOpen() || undefined
+    const mega = this.towerMegaCharge || undefined
+    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}), ...(mega ? { mega } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
+    this.resuming = false
+    const last = tw.done ?? await this.guard(t, new Promise<number>((r) => { this.towerWaiter = r }))
+    this.towerWaiter = null
+    // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
+    if (this.ending) { await this.endRun(); throw new Aborted() }
+    if (!this.opts.sandbox) st.setTowerWave(last + 1)
+    if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
+    if (tw.boss) {
+      // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
+      this.set({ phase: 'celebrate' })
+      while (tw.coins < BOSS_COINS) {
+        tw.coins++
+        if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
+        this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
+        this.sfx('lock')
+        await this.sleep(t, COIN_POP_MS)
+      }
+    }
+    // stage 0 passes when his marks are mastered by the duel's own measure (the slow lane) or he has shown that he
+    // knows them (the fast lane): Book 2's minigames open (once). A pass in the middle of a visit ended it at that wave.
+    const lane = this.stage0Passed()
+    if (lane) {
+      useDuel2Store.getState().openBook()
+      this.track('book-open', { stars: useDuel2Store.getState().totalStars, towerWave: last + 1, lane })
+      await this.celebrate(t, 'streak')
+    }
+  }
+
+  /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
+  private stage0Passed(): 'fast' | 'slow' | null {
+    if (this.opts.sandbox || this.bookOpen()) return null
+    return stage0Lane(useProgressStore.getState().duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id), useDuel2Store.getState().towerTail ?? '')
+  }
+
+  /**
+   * A wave of the tower's visit ended and another would start: at stage 0 the check runs after every wave, and a pass
+   * ends the visit at this wave (true); the book opens with its celebration when the visit is over (runTower).
+   */
+  towerWaveEnd(wave: number): boolean {
+    if (this.ending || !this.tower || this.view.screen?.screen !== 'tower') return false
+    const lane = this.stage0Passed()
+    if (lane) this.track('tower-placed', { wave, lane })
+    return !!lane
+  }
+
+  /** An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. */
+  towerAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
+    if (this.ending) return 'over'
+    if (this.view.screen?.screen !== 'tower') return 'on'
+    this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+    if (!this.opts.sandbox) useDuel2Store.getState().noteTowerAnswer(r === 'right')
+    if (r === 'right') {
+      this.streak++
+      this.gainStar()
+      // the badge follows the streak; the duel's own streak line celebrates on the board (no second voice over it)
+      const m = multiplierOf(this.streak)
+      if (m > this.view.mult) { this.set({ mult: m }); this.track('mult', { mult: m, streak: this.streak }) }
+      return 'on'
+    }
+    const outcome = this.answerOutcome('wrong')
+    this.hearts = outcome.hearts
+    this.resetStreak()
+    this.set({ hearts: this.hearts.left })
+    if (!outcome.over) return 'on'
+    // the answer on the screen finishes (the duel's feedback), then towerDone ends the run; a pause no longer cancels it
+    this.ending = true
+    return 'over'
+  }
+
+  /**
+   * A מגה kill on the tower (the parent brought it back, 2026-11-14): it is not reading (spec: count special results
+   * separately), so it gives no star or coin, does not move the streak or the hearts, and is not in the fast lane's tail.
+   * Its own telemetry event keeps it out of the answers.
+   */
+  towerMega(markId: string) {
+    if (this.ending || this.view.screen?.screen !== 'tower') return
+    this.track('tower-mega', { target: markId, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+  }
+
+  /** the duel's מגה charge changed: kept for the run's next tower visit */
+  towerCharge(mega: number) {
+    if (this.view.screen?.screen === 'tower') this.towerMegaCharge = mega
+  }
+
+  /** The tower's visit is over (its waves, its boss, or the hearts ran out and the last answer finished). */
+  towerDone(lastWave: number) {
+    if (!this.tower || this.tower.done !== null) return
+    this.tower.done = lastWave
+    const w = this.towerWaiter
+    this.towerWaiter = null
+    w?.(lastWave)
   }
 
   /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
   private decideBoss(): BossKind | null {
     if (this.opts.force) return this.opts.force.boss ?? null
-    this.broomVisits++
-    if (!isBossVisit(this.broomVisits)) return null
     const st = useDuel2Store.getState()
+    if (this.opts.session) {
+      // every second broom session is a boss fight (the run's rhythm: every second broom visit)
+      const n = st.broomSessions ?? 0
+      if (!this.opts.sandbox) st.noteBroomSession()
+      if (n % 2 !== 1) return null
+    } else {
+      this.broomVisits++
+      if (!isBossVisit(this.broomVisits)) return null
+    }
     const kind = chooseBoss({
       stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
       beaten: st.bossesBeaten ?? [], last: st.lastBoss ?? null, rng: this.rng,
@@ -463,17 +1215,18 @@ export class RunController {
   }
 
   private async runScreen(t: number, screen: ScreenId) {
-    // hearts refill when a visit starts; a pause keeps them (also during a boss)
-    if (!this.visitStarted) { this.visitStarted = true; this.hearts = heartsOnScreenStart() }
+    // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
+    if (!this.visitStarted) { this.visitStarted = true; this.visitLen = this.lenFor(screen); if (this.opts.force) this.hearts = heartsAtRunStart() }
+    if (screen === 'tower') return this.runTower(t)
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
     // a boss throws syllables
     if (this.visitBoss) this.visitKind = 'syllable'
     this.set({ hearts: this.hearts.left, overlay: null, needNext: false })
     const kind = (this.visitKind ??= this.kindFor(screen))
     const st = useDuel2Store.getState()
-    if (screen === 'draw') {
+    if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
-      while (this.roundInScreen < VISIT.draw) await this.runDrawRound(t)
+      while (this.roundInScreen < this.visitLen) await this.runDrawRound(t, screen)
       return
     }
     const demo = this.demoKey(screen, kind)
@@ -488,7 +1241,7 @@ export class RunController {
       this.set({ overlay: null })
     }
     if (screen === 'broom') return this.runBroom(t, kind)
-    while (this.roundInScreen < VISIT[screen]) {
+    while (this.roundInScreen < this.visitLen) {
       const done = await this.runRound(t, screen, kind)
       if (done === 'over') throw new Aborted()
     }
@@ -505,7 +1258,7 @@ export class RunController {
     if (this.resuming && cur && cur.screen === screen && !this.answered) {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
-      this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [], potion: undefined } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
+      this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
       return cur.screen === 'doors' ? cur.word : (cur as BroomView).target
     }
     this.resuming = false
@@ -530,9 +1283,9 @@ export class RunController {
       return target
     }
     if (screen === 'ladder') {
-      if (!this.ladder) this.ladder = { ...ladderPlan(c, VISIT.ladder, this.opts.force?.fixed), built: [] }
+      if (!this.ladder) this.ladder = { ...ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
       const step = this.ladder.steps[this.ladder.built.length]
-      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: VISIT.ladder, target: step.target } })
+      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target } })
       return step.target
     }
     if (screen === 'ghosts') {
@@ -544,13 +1297,13 @@ export class RunController {
     if (!this.doorWords.length) {
       const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(this.stage, 3)))
       const scored = pool.map((w) => ({ w, p: predict([`w:${w.id}`], useDuel2Store.getState().tallies, useDuel2Store.getState().recent) }))
-      this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, VISIT.doors).map((x) => x.w)
+      this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, this.visitLen).map((x) => x.w)
     }
     const word = this.doorWords[this.roundInScreen % this.doorWords.length]
     const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => this.rng() - 0.5).slice(0, 2)
     const keys = [word, ...others].sort(() => this.rng() - 0.5)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
-    const behind = this.roundInScreen === VISIT.doors - 1
+    const behind = this.roundInScreen === this.visitLen - 1 && !this.opts.session
       ? { crystal: useDuel2Store.getState().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
     this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
     return word
@@ -581,6 +1334,7 @@ export class RunController {
   /** One round on a calm screen. Returns 'over' when the hearts ran out. */
   private async runRound(t: number, screen: ScreenId, kind: Kind): Promise<'next' | 'over'> {
     this.hearts = newRound(this.hearts)
+    this.syncMult()
     const target = this.buildRound(screen, kind)
     const intro = this.needsDotIntro(target)
     if (intro) await this.dotIntro(t, intro)
@@ -661,9 +1415,12 @@ export class RunController {
     if (!this.opts.sandbox) duel2Telemetry.track('hint', { target: c.id, auto })
     this.set({ overlay: { kind: 'hint', target: c, glow: null } })
     const glow = (g: Highlight) => () => { if (this.view.overlay?.kind === 'hint') this.set({ overlay: { kind: 'hint', target: c, glow: g } }) }
+    const voice = ++this.fxId
+    this.hintVoice = voice
     try {
       await this.say(t, [{ id: `ln-${c.itemId}`, onStart: glow('letter') }, { id: `vn-${c.mark}`, onStart: glow('vowel') }])
     } finally {
+      if (this.hintVoice === voice) this.hintVoice = 0
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
     }
   }
@@ -702,12 +1459,13 @@ export class RunController {
     if (!tapped) return 'near'
     const right = tapped.id === c.id || tapped.soundId === c.soundId
     const near = !right && tapped.nearMissOf === c.id
-    const outcome = onAnswer(this.hearts, right ? 'right' : near ? 'near' : 'wrong')
+    const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
     if (right) {
       this.record(screen, c, tapped, 'right')
       this.roundInScreen++
-      this.gainStar()
+      // the streak counts this answer before its coins (the fifth right answer pays 2)
       this.streak++
+      this.gainStar()
       this.set({ phase: 'feedback' })
       const confident = predict(sylFeatures(c, screen), useDuel2Store.getState().tallies, useDuel2Store.getState().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
@@ -717,7 +1475,7 @@ export class RunController {
       await this.sleep(t, SFX_RING_MS)
       await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       await this.maybeWordLink(t, c)
-      if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
+      await this.streakMoment(t)
       await this.sleep(t, 300)
       return 'next'
     }
@@ -729,7 +1487,7 @@ export class RunController {
     }
     // a mistake
     this.hearts = outcome.hearts
-    this.streak = 0
+    this.resetStreak()
     this.record(screen, c, tapped, 'wrong')
     this.roundInScreen++
     this.sfx('hit')
@@ -776,26 +1534,27 @@ export class RunController {
 
   private async evaluateDoor(t: number, word: Word, picked: string): Promise<'next' | 'over'> {
     const right = picked === word.id
-    const outcome = onAnswer(this.hearts, right ? 'right' : 'wrong')
+    const outcome = this.answerOutcome(right ? 'right' : 'wrong')
     const tapped = WORDS.find((w) => w.id === picked) ?? null
     if (right) {
       this.record('doors', word, tapped, 'right')
       this.roundInScreen++
-      this.gainStar()
       this.streak++
+      this.gainStar()
       this.set({ phase: 'feedback' })
       this.sfx('key')
       this.setScreen({ opening: true } as Partial<DoorsView>)
       this.sfx('door')
       await this.sleep(t, SFX_RING_MS)
       await this.say(t, [{ id: `w-${word.id}` }])
+      await this.streakMoment(t)
       // through the doorway to the next door (or the crystal): the round goes on where the flight ends
       this.setScreen({ zooming: true } as Partial<DoorsView>)
       await this.sleep(t, ZOOM_MS + 60)
       return 'next'
     }
     this.hearts = outcome.hearts
-    this.streak = 0
+    this.resetStreak()
     this.record('doors', word, tapped, 'wrong')
     this.sfx('hit')
     this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
@@ -863,6 +1622,14 @@ export class RunController {
     return this.variation(kind)
   }
 
+  /** The doors were skipped and the run ends before the cycle's end: their crystal is given now, once (no screen). */
+  private payOwedCrystal() {
+    if (!this.crystalOwed) return
+    this.crystalOwed = false
+    this.crystalsThisRun++
+    if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind: useDuel2Store.getState().crystals, owed: true }) }
+  }
+
   private async runCrystal(t: number) {
     if (!this.crystalAwarded) {
       this.crystalAwarded = true
@@ -875,19 +1642,30 @@ export class RunController {
     await this.sleep(t, 1200)
   }
 
-  /** Ends the run: says the right answer, then the summary. A pause can no longer cancel it (it is already saved). */
-  private async endRun(cue: string): Promise<'over'> {
+  /**
+   * Ends the run: says the right answer (none after the tower: the duel said it), then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
+   * playful, never praise for a loss), then the summary. A pause can no longer cancel it (it is already saved).
+   */
+  private async endRun(cue?: string): Promise<'over'> {
     this.ending = true
     this.stopBroom()
     stopMusic()
     const st = useDuel2Store.getState()
     const best = this.score > st.bestRun
+    this.payOwedCrystal()
     if (!this.opts.sandbox) {
       st.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
       duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
     }
-    await sayParts([{ id: cue }])
-    await new Promise<void>((r) => window.setTimeout(r, 600))
+    if (cue) await sayParts([{ id: cue }])
+    this.set({ defeat: true, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false, fixing: false })
+    this.sfx('hit')
+    this.track('defeat', { screen: this.screenId })
+    await Promise.all([
+      new Promise<void>((r) => window.setTimeout(r, DEFEAT_MS)),
+      new Promise<void>((r) => window.setTimeout(r, SFX_RING_MS)).then(() => sayParts([{ id: this.variation('defeat') }])),
+    ])
+    await new Promise<void>((r) => window.setTimeout(r, 300))
     this.token++
     this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'
@@ -896,7 +1674,8 @@ export class RunController {
   // ---- the drawing screen (spec: 2026-11-07 drawing)
   private dv() { return this.view.screen as DrawView }
 
-  private buildDraw(): DrawView {
+  /** a drawing round: the script comes from the screen (print or handwriting); DrawView.screen is 'draw' for both */
+  private buildDraw(script: Script): DrawView {
     const cur = this.view.screen
     if (this.resuming && cur?.screen === 'draw' && !this.answered) {
       // after a pause the same word starts again from its beginning
@@ -910,7 +1689,6 @@ export class RunController {
     const st = useDuel2Store.getState()
     this.drawPlan ??= drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
     const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
-    const script = this.opts.force?.script ?? scriptFor(this.stage, st.drawRounds ?? 0)
     const split = splitWord(word, script)
     const def = strokesOf(split.letter, script)
     const marks = marksFor(word, this.stage)
@@ -995,12 +1773,14 @@ export class RunController {
    * One drawing round: the word; the demo when needed; he writes the letter from memory, each stroke judged when the
    * finger lifts; then the lines (told, never failed); then the marks; then the word again and a star. No hearts are lost.
    */
-  private async runDrawRound(t: number) {
-    const v0 = this.buildDraw()
+  private async runDrawRound(t: number, screen: 'draw' | 'draw-hand') {
+    this.syncMult()
+    const v0 = this.buildDraw(this.opts.force?.script ?? scriptOf(screen))
     const { letter, script, word } = v0
     const def = strokesOf(letter, script)
     const st = useDuel2Store.getState()
-    const firstVisit = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw')
+    // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo)
+    const firstVisit = screen === 'draw' && (this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw'))
     const checker = new LetterChecker(def)
     this.drawState = { checker }
     this.set({ phase: 'question', overlay: null, hintAvailable: true, needNext: false })
@@ -1081,16 +1861,18 @@ export class RunController {
     this.roundInScreen++
     this.setScreen({ mode: 'done', glow: undefined, demo: undefined } as Partial<DrawView>)
     this.sfx('drawn')
+    // every finished drawing counts in the streak: only a lost heart resets it (none is lost here)
+    this.streak++
     this.gainStar()
     const clean = wrongStrokes === 0 && !helped && !markWrong
     if (!this.opts.sandbox) {
-      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), 'sc:draw'], miss: !clean, newStage: false })
+      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), `sc:${screen}`], miss: !clean, newStage: false })
       useDuel2Store.getState().noteDrawRound()
     }
     this.track('draw-done', { letter, script, word: word.id, ms: Math.round(this.now() - started), wrongStrokes, helped })
     await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: `w-${word.id}` }])
-    if (clean) { this.streak++; if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak') } else this.streak = 0
+    await this.streakMoment(t)
     await this.sleep(t, 500)
   }
 
@@ -1100,8 +1882,11 @@ export class RunController {
     const boxes: MarkBoxes = { letter: ink, vav: v.layout.vav?.box }
     this.drawState!.boxes = boxes
     this.setScreen({ mode: 'mark' } as Partial<DrawView>)
-    await this.say(t, [{ id: lineAudioId('draw-mark', 1), onStart: () => this.setScreen({ glow: 'marks' } as Partial<DrawView>) }])
+    // his marks count from the moment the letter is done, also while the voice asks for them: a dot drawn at once (the
+    // ש's own dot, right after the ש) was thrown away, so the marks seemed to need an order (the parent)
     this.set({ phase: 'answer' })
+    const ask = this.say(t, [{ id: lineAudioId('draw-mark', 1), onStart: () => this.setScreen({ glow: 'marks' } as Partial<DrawView>) }])
+    ask.catch(() => {})
     let wrong = false
     let tries = 0
     let mine: Pt[][] = []
@@ -1127,6 +1912,7 @@ export class RunController {
       if (tries >= DRAW_TRIES) { for (const p of targets) this.addStroke(p, 'helped'); onHelped(); break }
       this.set({ phase: 'answer' })
     }
+    await ask
     this.setScreen({ glow: undefined } as Partial<DrawView>)
     return wrong
   }
@@ -1144,17 +1930,15 @@ export class RunController {
    */
   private async runBroom(t: number, kind: Kind) {
     this.hearts = newRound(this.hearts)
+    this.syncMult()
     if (this.visitBoss && !this.boss) {
       this.boss = { kind: this.visitBoss, hitsLeft: BOSS_HITS, arrived: false, startedAt: this.now(), coins: 0 }
       this.track('boss-start', { kind: this.visitBoss })
     }
-    // the gallery's potion entry: he has lost a heart already, so the potion comes after the first wave
-    const galleryPotion = !!this.opts.force?.potion && !this.potionShown
-    if (galleryPotion) { this.hearts = { ...this.hearts, left: HEARTS - 1 }; this.set({ hearts: this.hearts.left }) }
     let target = this.buildRound('broom', kind) as Choice
     this.spokenTargets.clear()
     this.stopBroom()
-    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false, potion: undefined, boss: this.bossView() } as Partial<BroomView>)
+    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false, boss: this.bossView() } as Partial<BroomView>)
     if (this.boss?.won) return this.bossWin(t)
     startMusic(this.boss ? 'boss' : 'flight')
     this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
@@ -1178,14 +1962,10 @@ export class RunController {
     let announcing = false
     let holdSpawn = false
     let nextSpawnAt = -Infinity
-    /** no wave sets off before this (a slow potion must never be caught up by orbs) */
-    let potionClearAt = -Infinity
-    let potionWaits = 0
-    /** the potion comes once this many waves have set off */
-    // a heart lost before a pause (or the gallery's potion entry) still brings the potion
-    let potionAfter: number | null = galleryPotion || (this.hearts.left < HEARTS && !this.potionShown) ? POTION_AFTER_WAVES : null
+    /** the hearts ran out: the orbs on the screen finish (nothing counts any more), then the run ends */
+    let dying = false
     /** a boss visit has no wave count: it lasts until the boss is beaten or the hearts run out */
-    const more = () => !!this.boss || spawned < VISIT.broom
+    const more = () => !!this.boss || spawned < this.visitLen
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
     const spawn = (now: number) => {
       const choices = this.boss ? bossWave(this.ctx(), this.boss.kind, target) : broomWave(this.ctx(), target, kind)
@@ -1199,7 +1979,7 @@ export class RunController {
       const w: BroomWave = {
         id: ++this.waveId, choices, startMs: now, ...(lanes ? { lanes } : {}),
         offsets: choices.map(() => Math.round(this.rng() * POPCORN * 100) / 100),
-        jitter: choices.map(() => Math.round((this.rng() - 0.5) * 60)),
+        jitter: choices.map(() => Math.round((this.rng() - 0.5) * 2 * ORB_JITTER)),
         resolved: choices.map(() => false),
       }
       this.setScreen({ waves: [...(this.view.screen as BroomView).waves, w], travelMs: travel } as Partial<BroomView>)
@@ -1207,25 +1987,6 @@ export class RunController {
       this.cueStarted = this.now()
       spawned++
       nextSpawnAt = now + travel * WAVE_EVERY
-    }
-    const spawnPotion = (now: number) => {
-      const intro = this.opts.sandbox ? !!this.opts.force?.potion : !useDuel2Store.getState().potionIntroSeen
-      const pt = travel * (intro ? POTION_INTRO_SLOW : 1)
-      const lane = Math.floor(this.rng() * 3) % 3
-      this.potionShown = true
-      potionAfter = null
-      this.setScreen({ potion: { id: ++this.fxId, lane, startMs: now, travelMs: pt, intro } } as Partial<BroomView>)
-      this.track('potion-show', { intro, boss: this.boss?.kind ?? null })
-      // the next wave keeps away from it: it starts after the potion's own slot, and late enough never to catch it up
-      nextSpawnAt = now + travel * WAVE_EVERY
-      potionClearAt = now + (pt - travel) + 0.3 * travel
-      if (intro) {
-        // a new element is explained when it first appears; the flight does not stop for it. The voice is free (the
-        // intro potion waits for that), so the line plays at once; it counts as seen only once it was really heard.
-        void this.say(t, [{ id: lineAudioId('potion-intro', 1) }]).then((heard) => {
-          if (heard && !this.opts.sandbox) useDuel2Store.getState().markPotionIntro()
-        }).catch(() => {})
-      }
     }
     const result = await this.guard(t, new Promise<'done' | 'over' | 'won'>((resolve, reject) => {
       this.broomTimer = window.setInterval(() => {
@@ -1235,22 +1996,12 @@ export class RunController {
         const events: { hit: Choice | null; wave: BroomWave }[] = []
         const waves = cur.waves.map((w) => {
           const k = w.choices.map((_, i) => wavePos(w.startMs + w.offsets[i] * travel, now, travel))
-          const e = orbEvents(k, w.resolved, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
-          const hitWrong = e.hit !== null && w.choices[e.hit].soundId !== target.soundId
-          // one wave is one question: after a mistake its other orbs fly on harmlessly (no second heart for the same wave)
-          if (w.spent) return { ...w, resolved: e.resolved }
-          if (e.hit !== null) events.push({ hit: w.choices[e.hit], wave: w })
-          else if (e.missedTarget) events.push({ hit: null, wave: w })
-          return { ...w, resolved: e.resolved, spent: hitWrong || e.missedTarget }
+          // one wave is one question: after its catch or a mistake its other orbs fly on harmlessly (at most one heart)
+          const e = waveTick(k, { resolved: w.resolved, spent: w.spent || dying }, cur.lane, w.choices.map((c) => c.soundId === target.soundId), w.lanes)
+          if (e.event) events.push({ hit: e.event.kind === 'miss' ? null : w.choices[e.event.orb], wave: w })
+          return { ...w, resolved: e.resolved, ...(e.spent ? { spent: true } : {}) }
         }).filter((w) => w.resolved.some((r) => !r))
         this.setScreen({ waves } as Partial<BroomView>)
-        // the potion: caught in its lane like an orb, missed when it has passed him (it costs nothing)
-        const pv = cur.potion
-        if (pv && !pv.caught) {
-          const k = wavePos(pv.startMs, now, pv.travelMs)
-          if (pv.lane === cur.lane && k <= CATCH_AT && k >= PASS_AT) this.onPotion(t, pv)
-          else if (k < PASS_AT) { this.track('potion-miss', {}); this.setScreen({ potion: undefined } as Partial<BroomView>) }
-        }
         for (const ev of events) {
           if (ev.hit && ev.hit.soundId === target.soundId) {
             // the catch that beats the boss has its own celebration: no streak praise on it
@@ -1262,17 +2013,21 @@ export class RunController {
           } else {
             if (this.onFlightMistake(t, target, ev.hit, ev.wave) === 'over') {
               if (this.boss) this.track('boss-lose', { kind: this.boss.kind, left: this.boss.hitsLeft })
-              this.stopBroom()
-              resolve('over')
-              return
+              // the answers already on the screen finish (rule), then the run ends; a pause can no longer cancel it
+              dying = true
+              this.ending = true
+              this.setScreen({ waves: (this.view.screen as BroomView).waves.map((w) => ({ ...w, spent: true })) } as Partial<BroomView>)
+              break
             }
-            // a lost heart: the rescue potion comes a wave or so later (once per visit)
-            if (this.hearts.left < HEARTS && !this.potionShown && potionAfter === null) potionAfter = spawned + POTION_AFTER_WAVES
           }
         }
         // a new sound: once no orb with the old sound is flying (other leftovers finish harmlessly), say it while he
         // flies; the next orbs set off when the sound itself is said (Michael: with "and now" they were already close by
         // the sound) and not later (no long waits)
+        if (dying) {
+          if (!(this.view.screen as BroomView).waves.length) { this.stopBroom(); resolve('over') }
+          return
+        }
         const oldLeft = waves.some((w) => !w.spent && w.choices.some((c, j) => c.soundId === target.soundId && !w.resolved[j]))
         if (newTargetDue && !announcing && !oldLeft) {
           announcing = true
@@ -1285,18 +2040,10 @@ export class RunController {
           void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target), onStart: go }])
             .catch(() => {}).finally(() => { announcing = false; if (holdSpawn) go() })
         }
-        if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt && now >= potionClearAt) {
-          const potionDue = potionAfter !== null && spawned >= potionAfter && !this.potionShown && this.hearts.left < HEARTS && !(this.view.screen as BroomView).potion
-          // the introducing potion comes only when the voice is free, so its line is never said after it has gone
-          const introNow = this.opts.sandbox ? !!this.opts.force?.potion : !useDuel2Store.getState().potionIntroSeen
-          // (after two wave slots of waiting, what is still queued is cut: the introduction goes first)
-          if (potionDue && introNow && !voiceIdle() && ++potionWaits > POTION_VOICE_WAIT) { stopVoice(); potionWaits = 0 }
-          if (potionDue && (!introNow || voiceIdle())) spawnPotion(now)
-          else spawn(now)
-        }
-        // the visit ends when all its orbs (and the potion) have arrived (Michael: "let me finish")
-        const potionFlying = !!(this.view.screen as BroomView).potion && !(this.view.screen as BroomView).potion!.caught
-        if (!this.boss && spawned >= VISIT.broom && !newTargetDue && !open(waves) && !potionFlying) { this.stopBroom(); resolve('done') }
+        if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt) spawn(now)
+        // the visit ends when all its orbs have arrived (Michael: "let me finish"); the screen's waves, not `waves`: a wave
+        // spawned in this tick (the last one, after a new sound) is only there
+        if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open((this.view.screen as BroomView).waves)) { this.stopBroom(); resolve('done') }
       }, 50)
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
@@ -1316,7 +2063,7 @@ export class RunController {
 
   /** the wizard swoops away with a celebration sound */
   private async finale(t: number) {
-    this.setScreen({ finished: true, reveal: undefined, potion: undefined } as Partial<BroomView>)
+    this.setScreen({ finished: true, reveal: undefined } as Partial<BroomView>)
     this.set({ phase: 'celebrate' })
     this.sfx('streak')
     await this.sleep(t, FINALE_MS)
@@ -1352,7 +2099,7 @@ export class RunController {
 
   /**
    * The win: the defeated pose, a burst of light, a celebration sound, the congratulation line (praise rule), 3 bonus
-   * coins one by one, and on his first win against this kind the golden frame and its line. Re-entrant after a pause:
+   * coins one by one (added to his balance), and on his first win against this kind the golden frame and its line. Re-entrant after a pause:
    * each part happens once.
    */
   private async bossWin(t: number) {
@@ -1366,7 +2113,7 @@ export class RunController {
       this.bossesWon.push(b.kind)
       this.track('boss-win', { kind: b.kind, ms: Math.round(this.now() - b.startedAt), first: b.first })
     }
-    this.setScreen({ waves: [], reveal: undefined, potion: undefined, boss: this.bossView() } as Partial<BroomView>)
+    this.setScreen({ waves: [], reveal: undefined, boss: this.bossView() } as Partial<BroomView>)
     this.set({ phase: 'celebrate' })
     // its sound and music start once (a resume during the win goes on from where it was)
     if (!b.celebrated) {
@@ -1386,7 +2133,7 @@ export class RunController {
     }
     while (b.coins < BOSS_COINS) {
       b.coins++
-      if (!this.opts.sandbox) useDuel2Store.getState().addStars(10)
+      if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
       this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
       this.sfx('lock')
       await this.sleep(t, COIN_POP_MS)
@@ -1400,46 +2147,86 @@ export class RunController {
     await this.finale(t)
   }
 
-  /** The potion caught: a gentle sound, and a heart flies from the bottle to the top bar. Never an answer. */
-  private onPotion(t: number, pv: PotionView) {
-    this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
-    const heal = { id: ++this.fxId, lane: pv.lane, at: this.broomClock() }
-    this.setScreen({ potion: { ...pv, caught: true }, heal } as Partial<BroomView>)
-    this.set({ hearts: this.hearts.left })
-    this.sfx('potion')
-    this.track('potion-catch', { hearts: this.hearts.left })
-    window.setTimeout(() => {
-      const s = this.view.screen
-      if (t === this.token && s?.screen === 'broom' && s.potion?.id === pv.id) this.setScreen({ potion: undefined } as Partial<BroomView>)
-    }, 900)
-  }
-
-  /** A point: this run's score, and a star on his kept total; every COIN_EVERY-th star is a coin, with a sound. */
+  /**
+   * A right answer: this run's score, a star on his kept total, and coins for his balance — one times the streak
+   * multiplier (`this.streak` already counts this answer). The coin in the top bar pops (its number changes).
+   */
   private gainStar() {
     this.score++
-    this.set({ score: this.score })
+    this.set({ score: this.score, coinPop: (this.view.coinPop ?? 0) + 1 })
     if (this.opts.sandbox) return
     const st = useDuel2Store.getState()
-    const before = coinsOf(st.totalStars)
     st.addStar()
-    if (coinsOf(useDuel2Store.getState().totalStars) > before) {
-      this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
-      this.sfx('lock')
-    }
+    st.addCoins(coinsFor(this.streak))
   }
+
+  /** The hearts after an answer: in a session from the path no heart is at stake (a mistake costs only the streak). */
+  private answerOutcome(a: 'right' | 'wrong' | 'near') {
+    const o = onAnswer(this.hearts, a)
+    if (!this.opts.session || a === 'right' || o.forgiven) return o
+    return { hearts: { ...this.hearts, nearMissUsed: o.hearts.nearMissUsed }, forgiven: false, over: false }
+  }
+
+  /**
+   * The end of a session from the path: no defeat scene, no run records (lastEnded, best and runs stay); the summary
+   * shows its stars and goes home by itself. A pause can no longer cancel it.
+   */
+  private async endSession(): Promise<void> {
+    this.ending = true
+    this.stopBroom()
+    stopMusic()
+    this.track('session-end', { screen: this.screenId, score: this.score })
+    this.token++
+    this.set({ over: { score: this.score, crystals: 0, best: false, bosses: [...this.bossesWon], startStars: this.startStars, session: true }, needNext: false, overlay: null, hintAvailable: false })
+  }
+
+  /** A heart was lost: the streak and its multiplier start again (a forgiven near miss does not come here). */
+  private resetStreak() {
+    this.streak = 0
+    this.syncMult()
+  }
+  /** the top bar's badge follows the streak (also after a pause cut its moment short) */
+  private syncMult() {
+    const m = multiplierOf(this.streak)
+    if (m !== this.view.mult) this.set({ mult: m })
+  }
+  /**
+   * After a right answer (the streak counts it): at 5 and 10 the multiplier rises in its own moment, with a sound and its
+   * line (always spoken); at 15, 20, … the streak praise (spoken the first PRAISE_SPOKEN times).
+   */
+  private async streakMoment(t: number) {
+    const m = multiplierOf(this.streak)
+    if (m > this.view.mult) {
+      this.set({ phase: 'celebrate', mult: m })
+      this.sfx('streak')
+      this.track('mult', { mult: m, streak: this.streak })
+      await this.sleep(t, SFX_RING_MS)
+      await this.say(t, [{ id: this.multLine(m) }])
+      return
+    }
+    this.syncMult()
+    if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
+  }
+  private multLine(m: 1 | 2 | 3) { return lineAudioId('mult-up', m === 2 ? 1 : 2) }
 
   private onCatch(target: Choice, noPraise = false) {
     const st = useDuel2Store.getState()
     this.record('broom', target, target, 'right')
     if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'catch'))
-    this.gainStar()
     this.streak++
+    this.gainStar()
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
       this.spokenTargets.add(target.soundId)
       void sayParts([{ id: this.cueId(target) }])
     }
-    if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
+    // the multiplier rises over the flight (its sound and line; no line on the catch that beats the boss)
+    const m = multiplierOf(this.streak)
+    if (m > this.view.mult) {
+      this.set({ mult: m })
+      this.track('mult', { mult: m, streak: this.streak })
+      if (!noPraise) { this.sfx('streak'); void sayParts([{ id: this.multLine(m) }]) }
+    } else if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
   }
 
   /**
@@ -1449,14 +2236,14 @@ export class RunController {
   private onFlightMistake(t: number, target: Choice, hit: Choice | null, wave: BroomWave): 'on' | 'over' {
     const st = useDuel2Store.getState()
     const near = !!hit && hit.nearMissOf === target.id
-    const outcome = onAnswer(this.hearts, near ? 'near' : 'wrong')
+    const outcome = this.answerOutcome(near ? 'near' : 'wrong')
     this.hearts = outcome.hearts
     if (outcome.forgiven) {
       this.record('broom', target, hit, 'near')
       void sayParts([{ id: this.variation('almost') }])
       return 'on'
     }
-    this.streak = 0
+    this.resetStreak()
     this.record('broom', target, hit, 'wrong')
     if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash

@@ -3,6 +3,9 @@ import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, is
 
 export type DuelAction =
   | { type: 'START' }
+  /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
+   * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */
+  | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[]; mega?: number }
   | { type: 'ROUND_READY'; round: Round }
   /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
   | { type: 'ROUND_PREVIEW'; round: Round }
@@ -27,7 +30,8 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
   const dmg = mega ? 2 : 1
   const final = !round.boss || s.bossHp - dmg <= 0
   const pts = points(s.combo, mega)
-  const combo = s.combo + 1
+  // embedded (Book 2's run): a lightning kill is not reading, so it does not add to the streak (nor break it)
+  const combo = mega && s.embedded ? s.combo : s.combo + 1
   return {
     ...s,
     outcome: { kind: 'hit', choiceKey, mega, final, points: pts, effect },
@@ -67,7 +71,8 @@ function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
   }
   const kills = s.kills + 1
   if (kills < MONSTERS_PER_WAVE) return { state: { kills }, next: { kind: 'spawn', wave: s.wave, boss: false, announce: null } }
-  if (s.wave % BOSS_EVERY === 0) return { state: { kills, bossHp: BOSS_HP }, next: { kind: 'spawn', wave: s.wave, boss: true, announce: 'boss' } }
+  // embedded (Book 2's run): only START_AT makes a boss visit
+  if (!s.embedded && s.wave % BOSS_EVERY === 0) return { state: { kills, bossHp: BOSS_HP }, next: { kind: 'spawn', wave: s.wave, boss: true, announce: 'boss' } }
   return newWave(s.wave + 1)
 }
 
@@ -75,6 +80,14 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
   switch (a.type) {
     case 'START':
       return { ...initialDuelState, phase: 'playing', next: { kind: 'spawn', wave: 1, boss: false, announce: null } }
+    case 'START_AT': {
+      const announce = a.boss ? 'boss' : newMonsterAt(a.wave) ? 'new-monster' : null
+      return {
+        ...initialDuelState, phase: 'playing', embedded: true, hearts: Infinity, wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
+        mega: Math.max(0, Math.min(MEGA_MAX, a.mega ?? 0)),
+        seenScreens: [...(a.seen ?? [])], next: { kind: 'spawn', wave: a.wave, boss: a.boss, announce },
+      }
+    }
     case 'ROUND_READY':
       return { ...s, round: a.round, outcome: null, twinTried: null, next: null, preview: false, walking: a.round.type === 'A' || a.round.type === 'D' }
     case 'ROUND_PREVIEW':

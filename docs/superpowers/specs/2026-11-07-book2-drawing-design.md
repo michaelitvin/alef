@@ -84,7 +84,9 @@ is never final; finals appear only on the review page and the test board, for co
   and the corner.
 - **Marks:** place (under the letter / inside it / above the right or left arm / left of a vav at mid-height) and count
   (1 dot, 2 dots side by side, 3 dots in a triangle or a diagonal, a short line, a T) — order inside a mark is not
-  checked.
+  checked, and neither is the order of the marks (the parent, 2026-11-13: the ש dot or the shuruk first in שׁוּעָל, the
+  dagesh or the vowel first in פַּרְפַּר). Each part goes to the nearest mark still owed whose place it is in, judged on
+  all his parts together; the marks are taken from the moment the letter is done, also while the voice asks for them.
 - The recognizer is plain TypeScript, no model, no network; unit-tested with synthetic strokes (right, wobbly, reversed,
   wrong order, ד drawn as ר and back).
 

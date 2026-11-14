@@ -1,0 +1,26 @@
+{
+  "note": "One entry per image in src/assets/home/: the Gemini request of the chosen take (cut out from a flat green, cropped, WebP).",
+  "images": [
+    {
+      "name": "card",
+      "file": "src/assets/home/card.webp",
+      "take": "3 of 4 (the parent picked take 3)",
+      "prompt": "Single game sprite for a game's title card. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Use the wizard tower from the reference image (same stone tower, same roof, same colors) standing on the LEFT side of the image, and the kid wizard on the wooden broom from the reference image (same character, same blue hat with gold band, same blue robe, same broom) flying OUT of the tower's top window towards the RIGHT, rising slightly, cape flowing behind him, smiling and excited. A soft magical glow and a short glowing swoosh trail behind the broom, from the window to the wizard. Wide composition: the tower takes about the left third, the wizard is in the middle, the right third is EMPTY (the game puts other things there). Exactly this ONE group (tower + wizard), complete (nothing cut off), with empty margin around it. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no sky, no ground, no shadow, no scenery, no other objects, no stars, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
+      "reference": "the first duel's tower sprite and Book 2's wizard on his broom (host-local copies of src/assets/duel/sprites/tower.webp and src/duel2/assets/img/s-wizbroom.webp)",
+      "model": "gemini-3-pro-image",
+      "used": "the duel card on the home screen, mirrored so that the picture reads right to left",
+      "girl_version": "card-girl (below); the home screen shows it when the saved player is a girl"
+    },
+    {
+      "name": "card-girl",
+      "file": "src/assets/home/card-girl.webp",
+      "take": "4 of 4 (takes 1 and 2 had a shorter last sentence: without 'the wizard at the same size'; take 1 drew her smaller, take 2 over the tower; takes 3 and 4 both match the boy card, take 4 the closest in pose and size)",
+      "prompt": "Single game sprite for a game's title card. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Use the wizard tower from the reference image (same stone tower, same roof, same colors) standing on the LEFT side of the image, and the kid wizard girl on the wooden broom from the reference image (same character, same hat, same robe, same broom) flying OUT of the tower's top window towards the RIGHT, rising slightly, cape flowing behind her, smiling and excited. A soft magical glow and a short glowing swoosh trail behind the broom, from the window to the wizard. Wide composition: the tower takes about the left third, the wizard is in the middle, the right third is EMPTY (the game puts other things there). Exactly this ONE group (tower + wizard), complete (nothing cut off), with empty margin around it. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no sky, no ground, no shadow, no scenery, no other objects, no stars, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.\nThe last reference image is the finished boy version of this same card: match its composition closely (the same tower position and size, the same flight path, the wizard at the same size, pose and placement, the same swoosh), with the girl from the reference image in place of the boy.",
+      "reference": "in this order: the first duel's tower sprite (src/assets/duel/sprites/tower.webp on a flat green), Book 2's girl wizard on her broom (src/duel2/assets/img/s-wizbroom-girl.webp on a flat magenta, 800x640), and the boy card's chosen take 3 as Gemini returned it (unmirrored, on its green; the source of src/assets/home/card.webp), for the composition",
+      "model": "gemini-3-pro-image",
+      "aspect": "16:9",
+      "processing": "as the boy card: the flat green keyed out by green-ness (G minus the larger of R and B, against the median border colour), the colour un-mixed from the green and despilled (G never above the larger of R and B), specks under 1500 px dropped, cropped to the art with a 6 px margin, scaled to 640 px wide (640x514), WebP quality 80 (about 61 KB, as the boy card). Not mirrored in the file: the CSS mirrors both cards",
+      "used": "the duel card on the home screen when the saved player is a girl (shared/player), mirrored by the CSS so that the picture reads right to left"
+    }
+  ]
+}

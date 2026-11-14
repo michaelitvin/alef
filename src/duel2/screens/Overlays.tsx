@@ -7,9 +7,11 @@ import { Glyph, GlyphDefs } from '../components/Glyph'
 import { MarkAlone } from '../components/MarkAlone'
 import type { Highlight } from '../components/ExplainPanel'
 
+// an explanation hides the top bar and dims the screen under it, so its frame takes the whole screen (larger glyphs on a
+// phone on its side); its go-on and replay buttons are at the bottom, clear of the glyphs
 function Frame({ children, dim = true }: { children: React.ReactNode; dim?: boolean }) {
   return (
-    <svg className="d2-stage d2-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" overflow="visible">
+    <svg className="d2-stage d2-overlay d2-frame" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" overflow="visible">
       <GlyphDefs />
       {dim && <rect x={-1600} y={-900} width={4800} height={2700} fill="#0b0824" opacity={0.96} />}
       {children}

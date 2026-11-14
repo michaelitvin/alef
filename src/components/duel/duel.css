@@ -389,3 +389,50 @@
 .nd-proj-rainbow { width: 60px; height: 14px; margin-left: -30px; border-radius: 8px; background: linear-gradient(90deg, #ff5a5a, #ffd34d, #7dff9a, #8fd8ff, #b48cff); filter: drop-shadow(0 0 8px #fff); }
 .nd-proj-bubble { border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, rgba(143, 216, 255, 0.5) 40%, rgba(180, 140, 255, 0.25) 70%); border: 2px solid rgba(255, 255, 255, 0.8); }
 @keyframes nd-spin { to { transform: rotate(360deg); } }
+
+/* Book 2's run: the tower is drawn over its stage, under its top bar (spec: one duel, Part 3) */
+.nd-root.nd-embedded { position: absolute; inset: 0; z-index: 1; }
+/* the field starts below Book 2's top bar (src/duel2/layout.ts); the sky still fills the screen behind the bar */
+.nd-embedded .nd-screen { padding-top: var(--d2-content-top, 78px); box-sizing: border-box; }
+/* a phone on its side in Book 2's run: smaller runes and monsters, so the field keeps its room under the top bar */
+@media (max-height: 500px) {
+  .nd-embedded.nd-landscape .nd-rune { height: 62px; }
+  .nd-embedded.nd-landscape .nd-word-btn { height: 52px; }
+  .nd-embedded.nd-landscape .nd-pad-area { padding: 4px 16px 8px; }
+  .nd-embedded.nd-landscape .nd-sprite { height: 72px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 76px; }
+  /* the boss's clue bubble must stay below the top bar: its hearts in one row, the bubble's gap smaller */
+  .nd-embedded.nd-landscape .nd-boss-hp { display: flex; flex-wrap: nowrap; }
+  .nd-embedded.nd-landscape .nd-boss .nd-clue { margin-bottom: 4px; padding-top: 2px; padding-bottom: 2px; }
+  /* the tower and the wizard use the screen's full height on their side (the parent: he was small, and no control sits
+     above him): the stack rises from the tower's base (12.5% of the field) into the empty left of the top bar's band, to
+     10 px below the screen's top. The bar's left end is empty on the tower (its speaker is on the board), and its counts
+     and hearts are at the right end. Proportions as on a tablet: tower 42, overlap 3.5, wizard 30 (of 68.5). */
+  .nd-embedded.nd-landscape .nd-field { --nd-stack: calc(87.5% + var(--d2-content-top, 78px) - 10px); }
+  .nd-embedded.nd-landscape .nd-tower { height: calc(var(--nd-stack) * 0.613); }
+  .nd-embedded.nd-landscape .nd-wizard { height: calc(var(--nd-stack) * 0.438); bottom: calc(12.5% + var(--nd-stack) * 0.562); }
+  /* the marks 1.5 times bigger in their runes (the parent's pick); the glyph is taller than its rune, and a vav's holam
+     dot is near the glyph's top, so a vav mark grows less and moves down (the dot stays inside its rune) */
+  .nd-embedded .nd-rune svg { width: 72px; height: 72px; }
+  .nd-embedded .nd-rune .nd-rune-mark { transform: scale(1.25); }
+  .nd-embedded .nd-rune svg[viewBox="0 0 64 64"] .nd-rune-mark { transform: translateY(9px) scale(1.05); }
+}
+/* a tablet in Book 2's run (the parent's pick): the tower and the wizard half way between the duel's tablet board and a
+   rise to the screen's top (the wizard's hat about 100 px from the top), the monsters 25% bigger (a boss 20%), and the
+   marks about 1.7 times bigger in their runes */
+@media (min-height: 501px) {
+  .nd-embedded.nd-landscape .nd-field { --nd-stack: calc(78% + 34px); }
+  .nd-embedded.nd-landscape .nd-tower { height: calc(var(--nd-stack) * 0.613); }
+  .nd-embedded.nd-landscape .nd-wizard { height: calc(var(--nd-stack) * 0.438); bottom: calc(12.5% + var(--nd-stack) * 0.562); }
+  .nd-embedded.nd-landscape .nd-sprite { height: 150px; }
+  .nd-embedded.nd-landscape .nd-boss .nd-sprite { height: 240px; }
+  .nd-embedded.nd-landscape .nd-rune { height: 108px; }
+  .nd-embedded .nd-rune svg { width: 86px; height: 86px; }
+  .nd-embedded .nd-rune .nd-rune-mark { transform: scale(1.2); }
+  .nd-embedded .nd-rune svg[viewBox="0 0 64 64"] .nd-rune-mark { transform: translateY(5px) scale(1.1); }
+}
+/* a bigger mark may reach past its glyph's box: its glow is not cut off */
+.nd-embedded .nd-rune svg { overflow: visible; }
+/* the מגה lightning in Book 2's run (the parent brought it back, 2026-11-14): above the rune row with a gap (its runes
+   start higher in the pad than on the duel's own board), clear of the top bar and the cue bubble */
+.nd-embedded.nd-landscape .nd-mega-btn { top: -74px; }

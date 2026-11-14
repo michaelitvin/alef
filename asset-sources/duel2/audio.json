@@ -82,6 +82,72 @@
    "earlier_takes": null
   },
   {
+   "id": "sfx-coin-1",
+   "kind": "sfx",
+   "file": "src/duel2/assets/audio/sfx/coin-1.mp3",
+   "where": "Merchant: a coin jumps into his hand (or flies back on undo)",
+   "caption": null,
+   "take": "clips/sfx-coin-1/v2.mp3",
+   "request": {
+    "text": "metal coin clink: one gold coin drops onto other coins, a short bright 'ching', no whoosh",
+    "duration_seconds": 0.7,
+    "prompt_influence": 0.5
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/sfx-coin-1/v1.mp3",
+     "seed": null
+    }
+   ]
+  },
+  {
+   "id": "sfx-coin-2",
+   "kind": "sfx",
+   "file": "src/duel2/assets/audio/sfx/coin-2.mp3",
+   "where": "Merchant: a coin jumps into his hand (or flies back on undo)",
+   "caption": null,
+   "take": "clips/sfx-coin-2/v2.mp3",
+   "request": {
+    "text": "two metal coins knocking together once, a clear jingling clink like coins in a hand, no whoosh",
+    "duration_seconds": 0.7,
+    "prompt_influence": 0.5
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/sfx-coin-2/v1.mp3",
+     "seed": null
+    }
+   ]
+  },
+  {
+   "id": "sfx-count-1",
+   "kind": "sfx",
+   "file": "src/duel2/assets/audio/sfx/count-1.mp3",
+   "where": "Merchant counts the coins in his hand, one sound per coin (every 0.6 s)",
+   "caption": null,
+   "take": "clips/sfx-count-1/v1.mp3",
+   "request": {
+    "text": "one coin placed on a wooden counter, a soft clear tick-clink, short and dry, no echo",
+    "duration_seconds": 0.5,
+    "prompt_influence": 0.5
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "sfx-count-2",
+   "kind": "sfx",
+   "file": "src/duel2/assets/audio/sfx/count-2.mp3",
+   "where": "Merchant counts the coins in his hand, one sound per coin (every 0.6 s)",
+   "caption": null,
+   "take": "clips/sfx-count-2/v1.mp3",
+   "request": {
+    "text": "a single coin tapped onto a small stack of coins, short soft clink, friendly, kids game",
+    "duration_seconds": 0.5,
+    "prompt_influence": 0.5
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "sfx-crystal-1",
    "kind": "sfx",
    "file": "src/duel2/assets/audio/sfx/crystal-1.mp3",
@@ -829,6 +895,42 @@
      "seed": 1
     }
    ]
+  },
+  {
+   "id": "defeat-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/defeat-1.mp3",
+   "where": "The hearts ran out: the dizzy wizard spins and falls (playful; never praise for a loss), then the summary",
+   "caption": "אוּפְּס, הַפַּעַם הֵן נִצְּחוּ.",
+   "take": "clips/defeat-1/v1.mp3",
+   "request": {
+    "text": "[playful] אוּפְּס, הַפַּעַם הֵן נִצְּחוּ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "defeat-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/defeat-2.mp3",
+   "where": "The hearts ran out: the dizzy wizard spins and falls (playful; never praise for a loss), then the summary",
+   "caption": "אוֹי, הַקְּסָמִים נִגְמְרוּ לְהַפַּעַם.",
+   "take": "clips/defeat-2/v1.mp3",
+   "request": {
+    "text": "[playful] אוֹי, הַקְּסָמִים נִגְמְרוּ לְהַפַּעַם.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   },
   {
    "id": "demo-broom-1-f",
@@ -1603,32 +1705,14 @@
    ]
   },
   {
-   "id": "info-coin-ring-1-f",
+   "id": "info-coins-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-coin-ring-1-f.mp3",
-   "where": "A tap on the ring around the coin (end screen) — when a girl plays",
-   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.",
-   "take": "clips/info-coin-ring-1-f/v1.mp3",
+   "file": "src/duel2/assets/audio/voice/info-coins-1-f.mp3",
+   "where": "A tap on his coins — when a girl plays",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.",
+   "take": "clips/info-coins-1-f/v2.mp3",
    "request": {
-    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתְּ מְקַבֶּלֶת מַטְבֵּעַ חָדָשׁ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
-  },
-  {
-   "id": "info-coin-ring-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-coin-ring-1.mp3",
-   "where": "A tap on the ring around the coin (end screen)",
-   "caption": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.",
-   "take": "clips/info-coin-ring-1/v2.mp3",
-   "request": {
-    "text": "כְּשֶׁהָעִגּוּל מִתְמַלֵּא, אַתָּה מְקַבֵּל מַטְבֵּעַ חָדָשׁ.",
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
@@ -1638,44 +1722,26 @@
    },
    "earlier_takes": [
     {
-     "file": "clips/info-coin-ring-1/v1.mp3",
+     "file": "clips/info-coins-1-f/v1.mp3",
      "seed": 1
     }
    ]
-  },
-  {
-   "id": "info-coins-1-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-coins-1-f.mp3",
-   "where": "A tap on his coins — when a girl plays",
-   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.",
-   "take": "clips/info-coins-1-f/v1.mp3",
-   "request": {
-    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתְּ מְקַבֶּלֶת מַטְבֵּעַ.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
   },
   {
    "id": "info-coins-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-coins-1.mp3",
    "where": "A tap on his coins",
-   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
-   "take": "clips/info-coins-1/v4.mp3",
+   "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.",
+   "take": "clips/info-coins-1/v5.mp3",
    "request": {
-    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. עַל כָּל עֲשָׂרָה כּוֹכָבִים אַתָּה מְקַבֵּל מַטְבֵּעַ.",
+    "text": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 103
+    "seed": 104
    },
    "earlier_takes": [
     {
@@ -1689,6 +1755,10 @@
     {
      "file": "clips/info-coins-1/v3.mp3",
      "seed": 102
+    },
+    {
+     "file": "clips/info-coins-1/v4.mp3",
+     "seed": 103
     }
    ]
   },
@@ -1733,16 +1803,16 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-hearts-1-f.mp3",
    "where": "A tap on the hearts — when a girl plays",
-   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.",
-   "take": "clips/info-hearts-1-f/v7.mp3",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
+   "take": "clips/info-hearts-1-f/v10.mp3",
    "request": {
-    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְהֵם חוֹזְרִים בְּכָל מָסָךְ חָדָשׁ.",
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 106
+    "seed": 109
    },
    "earlier_takes": [
     {
@@ -1768,6 +1838,18 @@
     {
      "file": "clips/info-hearts-1-f/v6.mp3",
      "seed": 105
+    },
+    {
+     "file": "clips/info-hearts-1-f/v7.mp3",
+     "seed": 106
+    },
+    {
+     "file": "clips/info-hearts-1-f/v8.mp3",
+     "seed": 107
+    },
+    {
+     "file": "clips/info-hearts-1-f/v9.mp3",
+     "seed": 108
     }
    ]
   },
@@ -1776,18 +1858,74 @@
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/info-hearts-1.mp3",
    "where": "A tap on the hearts",
-   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
-   "take": "clips/info-hearts-1/v1.mp3",
+   "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
+   "take": "clips/info-hearts-1/v4.mp3",
    "request": {
-    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וּבְכָל מָסָךְ חָדָשׁ הֵם חוֹזְרִים.",
+    "text": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
     "model_id": "eleven_v4",
     "language_code": "he",
     "voice_settings": {
      "stability": 0.5
     },
-    "seed": 1
+    "seed": 103
    },
-   "earlier_takes": null
+   "earlier_takes": [
+    {
+     "file": "clips/info-hearts-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-hearts-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-hearts-1/v3.mp3",
+     "seed": 102
+    }
+   ]
+  },
+  {
+   "id": "info-mult-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/info-mult-1.mp3",
+   "where": "A tap on the ×2 or ×3 beside the coins (the streak multiplier)",
+   "caption": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
+   "take": "clips/info-mult-1/v6.mp3",
+   "request": {
+    "text": "[warmly] תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.3
+    },
+    "seed": 105
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/info-mult-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/info-mult-1/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/info-mult-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/info-mult-1/v4.mp3",
+     "seed": 103
+    },
+    {
+     "file": "clips/info-mult-1/v5.mp3",
+     "seed": 104
+    },
+    {
+     "file": "clips/info-mult-1/v7.mp3",
+     "seed": 106
+    }
+   ]
   },
   {
    "id": "info-stars-1-f",
@@ -2646,6 +2784,944 @@
    "earlier_takes": null
   },
   {
+   "id": "m-again-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-again-1-f.mp3",
+   "where": "Merchant: nothing tapped for 20 s after he came (once per visit) — when a girl plays",
+   "caption": "נוּ, תִּרְצִי לִקְנוֹת אֶחָד?",
+   "take": "clips/m-again-1-f/v2.mp3",
+   "request": {
+    "text": "[playful] נוּ, תִּרְצִי לִקְנוֹת אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-again-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-again-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-again-1.mp3",
+   "where": "Merchant: nothing tapped for 20 s after he came (once per visit)",
+   "caption": "נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?",
+   "take": "clips/m-again-1/v1.mp3",
+   "request": {
+    "text": "[playful] נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-again-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-again-2.mp3",
+   "where": "Merchant: nothing tapped for 20 s after he came (once per visit)",
+   "caption": "אָז מָה? קוֹנִים שִׁקּוּי?",
+   "take": "clips/m-again-2/v1.mp3",
+   "request": {
+    "text": "[playful] אָז מָה? קוֹנִים שִׁקּוּי?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-bye-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-bye-1-f.mp3",
+   "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away — when a girl plays",
+   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.",
+   "take": "clips/m-bye-1-f/v5.mp3",
+   "request": {
+    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 104
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-bye-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-bye-1-f/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/m-bye-1-f/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/m-bye-1-f/v4.mp3",
+     "seed": 103
+    }
+   ]
+  },
+  {
+   "id": "m-bye-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-bye-1.mp3",
+   "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
+   "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.",
+   "take": "clips/m-bye-1/v5.mp3",
+   "request": {
+    "text": "[playful] בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 104
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-bye-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-bye-1/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/m-bye-1/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/m-bye-1/v4.mp3",
+     "seed": 103
+    }
+   ]
+  },
+  {
+   "id": "m-bye-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-bye-2.mp3",
+   "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
+   "caption": "אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.",
+   "take": "clips/m-bye-2/v1.mp3",
+   "request": {
+    "text": "[playful] אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-decline-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-decline-1-f.mp3",
+   "where": "Merchant, first visit demo D4: the ✗ card glows — when a girl plays",
+   "caption": "לֹא צָרִיךְ? גְּעִי כָּאן.",
+   "take": "clips/m-decline-1-f/v2.mp3",
+   "request": {
+    "text": "[playful] לֹא צָרִיךְ? גְּעִי כָּאן.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-decline-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-decline-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-decline-1.mp3",
+   "where": "Merchant, first visit demo D4: the ✗ card glows",
+   "caption": "לֹא צָרִיךְ? גַּע כָּאן.",
+   "take": "clips/m-decline-1/v1.mp3",
+   "request": {
+    "text": "[playful] לֹא צָרִיךְ? גַּע כָּאן.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-empty-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-empty-1.mp3",
+   "where": "Merchant: the potion tapped with nothing in his hand (his hand glows)",
+   "caption": "קֹדֶם מַטְבְּעוֹת.",
+   "take": "clips/m-empty-1/v1.mp3",
+   "request": {
+    "text": "[playful] קֹדֶם מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-empty-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-empty-2-f.mp3",
+   "where": "Merchant: the potion tapped with nothing in his hand (his hand glows) — when a girl plays",
+   "caption": "קֹדֶם תְּנִי לִי מַטְבְּעוֹת.",
+   "take": "clips/m-empty-2-f/v1.mp3",
+   "request": {
+    "text": "[playful] קֹדֶם תְּנִי לִי מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-empty-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-empty-2.mp3",
+   "where": "Merchant: the potion tapped with nothing in his hand (his hand glows)",
+   "caption": "קֹדֶם תֵּן לִי מַטְבְּעוֹת.",
+   "take": "clips/m-empty-2/v1.mp3",
+   "request": {
+    "text": "[playful] קֹדֶם תֵּן לִי מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-exact-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-exact-1.mp3",
+   "where": "Merchant: he counted the exact price; the potion flies to the wizard",
+   "caption": "בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.",
+   "take": "clips/m-exact-1/v1.mp3",
+   "request": {
+    "text": "[playful] בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-exact-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-exact-2.mp3",
+   "where": "Merchant: he counted the exact price; the potion flies to the wizard",
+   "caption": "בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.",
+   "take": "clips/m-exact-2/v1.mp3",
+   "request": {
+    "text": "[playful] בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-exact-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-exact-3.mp3",
+   "where": "Merchant: he counted the exact price; the potion flies to the wizard",
+   "caption": "מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.",
+   "take": "clips/m-exact-3/v5.mp3",
+   "request": {
+    "text": "[playful] מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 104
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-exact-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-exact-3/v2.mp3",
+     "seed": 101
+    },
+    {
+     "file": "clips/m-exact-3/v3.mp3",
+     "seed": 102
+    },
+    {
+     "file": "clips/m-exact-3/v4.mp3",
+     "seed": 103
+    }
+   ]
+  },
+  {
+   "id": "m-give-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-give-1-f.mp3",
+   "where": "Merchant, first visit demo D2 (the parent's wording): the hand drags a coin into his hand — when a girl plays",
+   "caption": "תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
+   "take": "clips/m-give-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-give-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-give-1.mp3",
+   "where": "Merchant, first visit demo D2 (the parent's wording): the hand drags a coin into his hand",
+   "caption": "תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
+   "take": "clips/m-give-1/v1.mp3",
+   "request": {
+    "text": "[playful] תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-heart-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-1-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-1-f/v3.mp3",
+   "request": {
+    "text": "[playful] עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-heart-1-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "m-heart-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-1.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-1/v2.mp3",
+   "request": {
+    "text": "[playful] עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-1/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-2-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "הַלֵּב חָזַר אֵלַיִךְ.",
+   "take": "clips/m-heart-2-f/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב חָזַר אֵלַיִךְ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-2-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-2.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "קִבַּלְתָּ לֵב בַּחֲזָרָה.",
+   "take": "clips/m-heart-2/v2.mp3",
+   "request": {
+    "text": "[playful] קִבַּלְתָּ לֵב בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-2/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-3-f.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
+   "caption": "הַלֵּב שֶׁלָּךְ חָזַר.",
+   "take": "clips/m-heart-3-f/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב שֶׁלָּךְ חָזַר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-3-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-heart-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-heart-3.mp3",
+   "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
+   "caption": "הַלֵּב שֶׁלְּךָ חָזַר.",
+   "take": "clips/m-heart-3/v2.mp3",
+   "request": {
+    "text": "[playful] הַלֵּב שֶׁלְּךָ חָזַר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-heart-3/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-hello-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-1-f.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
+   "caption": "שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?",
+   "take": "clips/m-hello-1-f/v1.mp3",
+   "request": {
+    "text": "[playful] שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-hello-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-1.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
+   "caption": "שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?",
+   "take": "clips/m-hello-1/v1.mp3",
+   "request": {
+    "text": "[playful] שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-hello-2-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-2-f.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
+   "caption": "מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?",
+   "take": "clips/m-hello-2-f/v3.mp3",
+   "request": {
+    "text": "[playful] מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-hello-2-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-hello-2-f/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "m-hello-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-2.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
+   "caption": "מָה נִשְׁמָע קוֹסֵם? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצֶה אֶחָד?",
+   "take": "clips/m-hello-2/v1.mp3",
+   "request": {
+    "text": "[playful] מָה נִשְׁמָע קוֹסֵם? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצֶה אֶחָד?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-hello-3-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-3-f.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
+   "caption": "הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?",
+   "take": "clips/m-hello-3-f/v1.mp3",
+   "request": {
+    "text": "[playful] הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-hello-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-hello-3.mp3",
+   "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
+   "caption": "הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?",
+   "take": "clips/m-hello-3/v1.mp3",
+   "request": {
+    "text": "[playful] הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-offer-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-offer-1-f.mp3",
+   "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then — when a girl plays",
+   "caption": "רוֹצָה שִׁקּוּי לֵב?",
+   "take": "clips/m-offer-1-f/v2.mp3",
+   "request": {
+    "text": "[playful] רוֹצָה שִׁקּוּי לֵב?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-offer-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-offer-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-offer-1.mp3",
+   "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then",
+   "caption": "רוֹצֶה שִׁקּוּי לֵב?",
+   "take": "clips/m-offer-1/v2.mp3",
+   "request": {
+    "text": "[playful] רוֹצֶה שִׁקּוּי לֵב?",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-offer-1/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-over-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-over-1.mp3",
+   "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
+   "caption": "זֶה יוֹתֵר מִדַּי.",
+   "take": "clips/m-over-1/v1.mp3",
+   "request": {
+    "text": "[playful] זֶה יוֹתֵר מִדַּי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-over-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-over-2.mp3",
+   "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
+   "caption": "זֶה יוֹתֵר מֵהַמְּחִיר.",
+   "take": "clips/m-over-2/v1.mp3",
+   "request": {
+    "text": "[playful] זֶה יוֹתֵר מֵהַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-over-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-over-3.mp3",
+   "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
+   "caption": "יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.",
+   "take": "clips/m-over-3/v3.mp3",
+   "request": {
+    "text": "[playful] יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-over-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-over-3/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "m-price-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-price-1.mp3",
+   "where": "Merchant, first visit demo D1: the price tag glows",
+   "caption": "זֶה הַמְּחִיר.",
+   "take": "clips/m-price-1/v1.mp3",
+   "request": {
+    "text": "[playful] זֶה הַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-short-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-short-1.mp3",
+   "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
+   "caption": "זֶה לֹא מַסְפִּיק.",
+   "take": "clips/m-short-1/v1.mp3",
+   "request": {
+    "text": "[playful] זֶה לֹא מַסְפִּיק.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-short-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-short-2.mp3",
+   "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
+   "caption": "זֶה פָּחוֹת מֵהַמְּחִיר.",
+   "take": "clips/m-short-2/v1.mp3",
+   "request": {
+    "text": "[playful] זֶה פָּחוֹת מֵהַמְּחִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-short-3",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-short-3.mp3",
+   "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
+   "caption": "צָרִיךְ יוֹתֵר מַטְבְּעוֹת.",
+   "take": "clips/m-short-3/v3.mp3",
+   "request": {
+    "text": "[playful] צָרִיךְ יוֹתֵר מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-short-3/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-short-3/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "m-tap-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-tap-1-f.mp3",
+   "where": "Merchant, first visit demo D3: the hand taps the potion — when a girl plays",
+   "caption": "וְאָז גְּעִי בַּשִּׁקּוּי.",
+   "take": "clips/m-tap-1-f/v2.mp3",
+   "request": {
+    "text": "[playful] וְאָז גְּעִי בַּשִּׁקּוּי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-tap-1-f/v1.mp3",
+     "seed": 1
+    }
+   ]
+  },
+  {
+   "id": "m-tap-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-tap-1.mp3",
+   "where": "Merchant, first visit demo D3: the hand taps the potion",
+   "caption": "וְאָז גַּע בַּשִּׁקּוּי.",
+   "take": "clips/m-tap-1/v1.mp3",
+   "request": {
+    "text": "[playful] וְאָז גַּע בַּשִּׁקּוּי.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "m-undo-1-f",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-undo-1-f.mp3",
+   "where": "Merchant: too much, the first time only: the hand taps his hand and the last coin flies back — when a girl plays",
+   "caption": "אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.",
+   "take": "clips/m-undo-1-f/v2.mp3",
+   "request": {
+    "text": "[playful] אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 101
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/m-undo-1-f/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/m-undo-1-f/v3.mp3",
+     "seed": 102
+    }
+   ]
+  },
+  {
+   "id": "m-undo-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/m-undo-1.mp3",
+   "where": "Merchant: too much, the first time only: the hand taps his hand and the last coin flies back",
+   "caption": "קַח מַטְבֵּעַ בַּחֲזָרָה.",
+   "take": "clips/m-undo-1/v1.mp3",
+   "request": {
+    "text": "[playful] קַח מַטְבֵּעַ בַּחֲזָרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0.5
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "mult-up-1",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/mult-up-1.mp3",
+   "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
+   "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.",
+   "take": "clips/mult-up-1/v3.mp3",
+   "request": {
+    "text": "[excited] עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/mult-up-1/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/mult-up-1/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
+   "id": "mult-up-2",
+   "kind": "tts",
+   "file": "src/duel2/assets/audio/voice/mult-up-2.mp3",
+   "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
+   "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.",
+   "take": "clips/mult-up-2/v3.mp3",
+   "request": {
+    "text": "[excited] עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 102
+   },
+   "earlier_takes": [
+    {
+     "file": "clips/mult-up-2/v1.mp3",
+     "seed": 1
+    },
+    {
+     "file": "clips/mult-up-2/v2.mp3",
+     "seed": 101
+    }
+   ]
+  },
+  {
    "id": "new-best-1",
    "kind": "tts",
    "file": "src/duel2/assets/audio/voice/new-best-1.mp3",
@@ -2708,55 +3784,6 @@
      "seed": 1
     }
    ]
-  },
-  {
-   "id": "potion-intro-1-f",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/potion-intro-1-f.mp3",
-   "where": "The rescue potion, the first time it floats by (the flight goes on) — when a girl plays",
-   "caption": "שִׁקּוּי קֶסֶם. אִם תִּתְפְּסִי אוֹתוֹ, תְּקַבְּלִי לֵב.",
-   "take": "clips/potion-intro-1-f/v4.mp3",
-   "request": {
-    "text": "[warmly] שיקוי קסם. אם תתפסי אותו, תקבלי לב.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 103
-   },
-   "earlier_takes": [
-    {
-     "file": "clips/potion-intro-1-f/v1.mp3",
-     "seed": 1
-    },
-    {
-     "file": "clips/potion-intro-1-f/v2.mp3",
-     "seed": 101
-    },
-    {
-     "file": "clips/potion-intro-1-f/v3.mp3",
-     "seed": 102
-    }
-   ]
-  },
-  {
-   "id": "potion-intro-1",
-   "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/potion-intro-1.mp3",
-   "where": "The rescue potion, the first time it floats by (the flight goes on)",
-   "caption": "שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.",
-   "take": "clips/potion-intro-1/v1.mp3",
-   "request": {
-    "text": "[warmly] שִׁקּוּי קֶסֶם. אִם תִּתְפֹּס אוֹתוֹ, תְּקַבֵּל לֵב.",
-    "model_id": "eleven_v4",
-    "language_code": "he",
-    "voice_settings": {
-     "stability": 0.5
-    },
-    "seed": 1
-   },
-   "earlier_takes": null
   },
   {
    "id": "q-broom-1",

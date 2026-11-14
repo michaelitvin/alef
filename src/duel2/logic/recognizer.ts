@@ -428,14 +428,19 @@ function inZone(z: MarkZone, [x, y]: Pt, b: MarkBoxes): boolean {
   const w = L.right - L.left
   const h = L.bottom - L.top
   const mid = (L.left + L.right) / 2
-  if (z === 'under') { const base = Math.max(L.bottom, 1); return y > base - 0.05 && y < base + 0.9 && x > L.left - 0.3 && x < L.right + 0.3 }
+  // under: below his own letter's ink, not below the baseline (a letter drawn high has its vowel above the line), and
+  // touching its bottom a little; it ends where the inside (dagesh) zone ends, so the two never overlap
+  if (z === 'under') return y > L.bottom - 0.08 * h && y < Math.max(L.bottom, 1) + 0.9 && x > L.left - 0.3 && x < L.right + 0.3
   if (z === 'inside') return x > L.left + 0.12 * w && x < L.right - 0.12 * w && y > L.top + 0.12 * h && y < L.bottom - 0.08 * h
   if (z === 'above-right') return y < L.top + 0.15 && y > L.top - 0.9 && x >= mid && x <= L.right + 0.35
   if (z === 'above-left') return y < L.top + 0.15 && y > L.top - 0.9 && x < mid && x >= L.left - 0.4
   const V = b.vav
   if (!V) return false
   const vh = V.bottom - V.top
-  if (z === 'vav-left') return x > V.left - 0.4 && x < V.left + 0.08 && y > V.top + 0.15 * vh && y < V.bottom - 0.1 * vh
+  // shuruk: the vav is printed, and its box is its advance; the fonts put its stem in the right half of the box (Sigalit
+  // from 0.5 of it, Dana Yad from 0.38), so a dot just left of the stem is well inside the box. Generous: from about two
+  // dot-widths left of the box to almost the stem, from below the cholam's place down to the vav's foot.
+  if (z === 'vav-left') { const vw = V.right - V.left; return x > V.left - 0.5 && x < V.left + 0.45 * vw && y > V.top + 0.15 * vh && y < V.bottom }
   return y < V.top + 0.15 && y > V.top - 0.9 && x > V.left - 0.25 && x < V.right + 0.25
 }
 
@@ -473,36 +478,74 @@ function shapeState(shape: MarkShape, g: Comp[]): 'more' | 'ok' | 'wrong' {
   return tick.c[1] > bar.c[1] && tick.c[0] > bar.box.left - 0.1 && tick.c[0] < bar.box.right + 0.1 ? 'ok' : 'wrong'
 }
 
-/** His marks (strokes and taps) against the marks the word needs. 'more' = not all of them yet, nothing wrong so far. */
+/** how many parts (dots, or a bar and a tick) a mark has at most */
+const PARTS: Record<MarkShape, number> = { dot: 1, dots2: 2, 'dots3-tri': 3, 'dots3-diag': 3, bar: 1, T: 2 }
+
+/**
+ * His marks (strokes and taps) against the marks the word needs. 'more' = not all of them yet, nothing wrong so far.
+ * The order never matters (the parent): the letter's own dots (dagesh, the ש dot) and the vowel, also a vowel on the next
+ * letter (shuruk, cholam male), come in any order. Each part goes to a mark whose place it is in: the nearest one still
+ * owed, judged on all his parts together; only when all those are full is it one too many.
+ */
 export function judgeMarks(strokes: Pt[][], specs: MarkSpec[], boxes: MarkBoxes): { state: 'more' | 'ok' | 'wrong' } {
-  const groups = new Map<MarkZone, Comp[]>(specs.map((s) => [s.zone, []]))
+  const comps: Comp[] = []
+  const fits: MarkSpec[][] = []
   for (const st of strokes) {
     const c = classify(st, boxes.letter.right - boxes.letter.left)
     if (c.kind === 'other') return { state: 'wrong' }
-    const sp = specs.find((s) => inZone(s.zone, c.c, boxes))
-    if (!sp) return { state: 'wrong' }
-    groups.get(sp.zone)!.push(c)
+    const f = specs.filter((s) => inZone(s.zone, c.c, boxes))
+    if (!f.length) return { state: 'wrong' }
+    comps.push(c)
+    fits.push(f)
   }
+  // more parts than all the marks have together: one too many (and the search below stays tiny)
+  if (comps.length > specs.reduce((a, s) => a + PARTS[s.shape], 0)) return { state: 'wrong' }
+  // all his parts together (so a later part can still take the place an earlier one was nearest to): the fewest parts
+  // beyond a mark's count, then the shortest distances to the marks' places. Few parts and few marks: try every way.
+  const centre = new Map<MarkZone, Pt>(specs.map((s) => [s.zone, markCentre(s.zone, boxes)]))
+  const d2 = (a: Pt, b: Pt) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+  const count = new Map<MarkZone, number>(specs.map((s) => [s.zone, 0]))
+  const pick: MarkSpec[] = []
+  let best: { over: number; dist: number; pick: MarkSpec[] } | null = null
+  const walk = (i: number, over: number, dist: number) => {
+    if (best && (over > best.over || (over === best.over && dist >= best.dist))) return
+    if (i === comps.length) { best = { over, dist, pick: [...pick] }; return }
+    for (const sp of fits[i]) {
+      const n = count.get(sp.zone)!
+      count.set(sp.zone, n + 1)
+      pick.push(sp)
+      walk(i + 1, over + (n + 1 > PARTS[sp.shape] ? 1 : 0), dist + d2(comps[i].c, centre.get(sp.zone)!))
+      pick.pop()
+      count.set(sp.zone, n)
+    }
+  }
+  walk(0, 0, 0)
+  const groups = new Map<MarkZone, Comp[]>(specs.map((s) => [s.zone, []]))
+  best!.pick.forEach((sp, i) => groups.get(sp.zone)!.push(comps[i]))
   const states = specs.map((s) => shapeState(s.shape, groups.get(s.zone)!))
   if (states.includes('wrong')) return { state: 'wrong' }
   return { state: states.every((s) => s === 'ok') ? 'ok' : 'more' }
 }
 
-/** Where the hand puts each mark: a tap is a one-point stroke. */
-export function markTargets(specs: MarkSpec[], boxes: MarkBoxes): Pt[][] {
+/** the middle of a mark's place: where the hand puts it, and what a drawn part is nearest to */
+function markCentre(z: MarkZone, boxes: MarkBoxes): Pt {
   const L = boxes.letter
   const w = L.right - L.left
   const h = L.bottom - L.top
   const V = boxes.vav ?? L
+  return z === 'under' ? [(L.left + L.right) / 2, Math.max(L.bottom, 1) + 0.3]
+    : z === 'inside' ? [(L.left + L.right) / 2, L.top + 0.55 * h]
+      : z === 'above-right' ? [L.right - 0.12 * w, L.top - 0.2]
+        : z === 'above-left' ? [L.left + 0.12 * w, L.top - 0.2]
+          : z === 'vav-left' ? [V.left + 0.2 * (V.right - V.left), (V.top + V.bottom) / 2]
+            : [(V.left + V.right) / 2, V.top - 0.2]
+}
+
+/** Where the hand puts each mark: a tap is a one-point stroke. */
+export function markTargets(specs: MarkSpec[], boxes: MarkBoxes): Pt[][] {
   const out: Pt[][] = []
   for (const s of specs) {
-    const c: Pt =
-      s.zone === 'under' ? [(L.left + L.right) / 2, Math.max(L.bottom, 1) + 0.3]
-        : s.zone === 'inside' ? [(L.left + L.right) / 2, L.top + 0.55 * h]
-          : s.zone === 'above-right' ? [L.right - 0.12 * w, L.top - 0.2]
-            : s.zone === 'above-left' ? [L.left + 0.12 * w, L.top - 0.2]
-              : s.zone === 'vav-left' ? [V.left - 0.15, (V.top + V.bottom) / 2]
-                : [(V.left + V.right) / 2, V.top - 0.2]
+    const c = markCentre(s.zone, boxes)
     const [x, y] = c
     if (s.shape === 'dot') out.push([c])
     else if (s.shape === 'dots2') out.push([[x + 0.14, y]], [[x - 0.14, y]])

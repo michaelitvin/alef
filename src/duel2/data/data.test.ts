@@ -58,14 +58,30 @@ describe('lines', () => {
         for (const w of words) expect(tokens.includes(w), `${l.id}: ${w}`).toBe(false)
       }
   })
-  it('the boss and potion lines exist (text only: the parent pipeline records them), none ends with "…"', () => {
-    for (const id of ['boss-arrive', 'boss-win', 'boss-new', 'potion-intro', 'info-bosses', 'info-coin-ring']) {
+  it('the boss lines exist (text only: the parent pipeline records them), none ends with "…"', () => {
+    for (const id of ['boss-arrive', 'boss-win', 'boss-new', 'info-bosses', 'defeat']) {
       const l = lineById(id)!
       expect(l, id).toBeDefined()
       for (const t of l.he) expect(/(\.\.\.|…)$/.test(t), `${id}: ${t}`).toBe(false)
     }
     expect(lineById('boss-arrive')!.variations).toBe(3)
     expect(lineById('boss-win')!.variations).toBe(3)
+    // no flying potion any more (spec: one duel)
+    expect(lineById('potion-intro')).toBeUndefined()
+    // the end screen has no coin ring any more
+    expect(lineById('info-coin-ring')).toBeUndefined()
+    expect(lineById('defeat')!.variations).toBe(2)
+    // the info lines say the new rules: hearts come back at the end of a pass, coins come from right answers
+    // spelled as it is said ("sivuv", the parent); the pause cannot fall inside "וּבְסוֹף כָּל"
+    for (const t of [lineById('info-hearts')!.he[0], lineById('info-hearts')!.fe![0]!]) {
+      expect(t).toMatch(/וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב/.source.normalize('NFC'))
+      expect(t).not.toMatch(/סִבּוּב/.source.normalize('NFC'))
+    }
+    expect(lineById('info-hearts')!.he[0]).not.toMatch(/מָסָךְ/.source.normalize('NFC'))
+    expect(lineById('info-coins')!.he[0]).not.toMatch(/כּוֹכָבִים/.source.normalize('NFC'))
+    // no number that the game logic can change (rule): a right answer pays more with a streak
+    expect(lineById('info-coins')!.he[0]).toBe('אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.'.normalize('NFC'))
+    expect(lineById('info-coins')!.fe![0]).toBe('אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.'.normalize('NFC'))
     // the parent's wording: he chased the monster away
     expect(lineById('boss-win')!.he[1]).toBe('וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.'.normalize('NFC'))
   })
@@ -107,4 +123,79 @@ describe('lines lead into the sound', () => {
   })
 })
 
+})
+
+describe('one duel lines: the parent’s review 2026-11-12', () => {
+  it('no pass-heart line: the heart comes back with no words', () => {
+    expect(lineById('pass-heart')).toBeUndefined()
+  })
+  it('the multiplier says he gets more coins (the coins are not worth more), in words that suit a boy and a girl', () => {
+    const n = (t: string) => t.normalize('NFC')
+    expect(lineById('mult-up')!.he).toEqual([n('עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.'), n('עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.')])
+    expect(lineById('mult-up')!.fe).toBeUndefined()
+    expect(lineById('info-mult')!.he[0]).toBe(n('תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.'))
+    expect(lineById('info-mult')!.fe).toBeUndefined()
+  })
+})
+
+describe('merchant lines (spec: one duel, Part 2)', () => {
+  const want: Record<string, number> = {
+    'm-hello': 3, 'm-again': 2, 'm-bye': 2, 'm-price': 1, 'm-give': 1, 'm-tap': 1, 'm-decline': 1, 'm-exact': 3, 'm-short': 3,
+    'm-over': 3, 'm-undo': 1, 'm-empty': 2, 'm-offer': 1, 'm-heart': 3,
+  }
+  it('every line exists with its variations; the merchant speaks all of them in his own voice', () => {
+    for (const [id, n] of Object.entries(want)) {
+      expect(lineById(id)?.variations, id).toBe(n)
+      expect(lineById(id)!.voice, id).toBe('merchant')
+    }
+  })
+  it('the spec’s texts: the parent’s opening line and the table’s lines', () => {
+    const he = (id: string, k = 0) => lineById(id)!.he[k]
+    const n = (t: string) => t.normalize('NFC')
+    expect(he('m-hello')).toBe(n('שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?'))
+    expect(lineById('m-hello')!.fe![0]).toBe(n('שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?'))
+    expect(he('m-again')).toBe(n('נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?'))
+    expect(he('m-bye')).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.'))
+    expect(lineById('m-bye')!.fe![0]).toBe(n('בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.'))
+    expect(he('m-price')).toBe(n('זֶה הַמְּחִיר.'))
+    expect(he('m-give')).toBe(n('תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.'))
+    expect(he('m-tap')).toBe(n('וְאָז גַּע בַּשִּׁקּוּי.'))
+    expect(he('m-decline')).toBe(n('לֹא צָרִיךְ? גַּע כָּאן.'))
+    expect(he('m-exact')).toBe(n('בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.'))
+    expect(he('m-short')).toBe(n('זֶה לֹא מַסְפִּיק.'))
+    expect(he('m-over')).toBe(n('זֶה יוֹתֵר מִדַּי.'))
+    expect(he('m-undo')).toBe(n('קַח מַטְבֵּעַ בַּחֲזָרָה.'))
+    // the help button replays the walkthrough: the narrator's hint line left with the green coins (the parent)
+    expect(lineById('m-hint')).toBeUndefined()
+    // the parent: the short offer for a child who knows him, and the heart that came back
+    expect(he('m-offer')).toBe(n('רוֹצֶה שִׁקּוּי לֵב?'))
+    expect(lineById('m-offer')!.fe).toEqual([n('רוֹצָה שִׁקּוּי לֵב?')])
+    expect(he('m-heart')).toBe(n('עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.'))
+    expect(lineById('m-heart')!.fe![0]).toBe(n('עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.'))
+    expect(he('m-empty')).toBe(n('קֹדֶם מַטְבְּעוֹת.'))
+  })
+  it('a girl form for every line that addresses the child; no "!", no digits (no numbers are spoken)', () => {
+    // masculine words that address the child: the verbs, "you", the wizard
+    const addresses = /(קוֹסֵם|תִּרְצֶה|תֵּן|גַּע|קַח|שֶׁלְּךָ|לְךָ|קִבַּלְתָּ|רוֹצֶה)/
+    for (const id of Object.keys(want)) {
+      const l = lineById(id)!
+      l.he.forEach((t, i) => {
+        expect(t.includes('!'), `${id}: ${t}`).toBe(false)
+        expect(/[0-9]/.test(t), `${id}: ${t}`).toBe(false)
+        if (addresses.test(t.normalize('NFC'))) expect(l.fe?.[i], `${id} ${i + 1} needs a girl form`).toBeTruthy()
+        if (l.fe?.[i]) expect(l.fe[i]!.includes('!')).toBe(false)
+      })
+    }
+  })
+  it('"not enough" avoids עוֹד and קְצָת (this voice says them wrongly)', () => {
+    for (const t of lineById('m-short')!.he) expect(/עוֹד|קְצָת/.test(t), t).toBe(false)
+    // the heart line too (the parent's draft had עוֹד), in both genders; and no ־ְתְּ past form for a girl (rule)
+    for (const t of [...lineById('m-heart')!.he, ...lineById('m-heart')!.fe!]) expect(/עוֹד|קְצָת/.test(t!), t!).toBe(false)
+    for (const t of lineById('m-heart')!.fe!) expect(/ְתְּ/.test(t!.normalize('NFD')), t!).toBe(false)
+  })
+  it('the parent’s review 2026-11-12: no wow; a neutral undo for a girl; take 3 of exact does not need שֶׁלְּךָ', () => {
+    for (const t of lineById('m-over')!.he) expect(/וָואוּ/.test(t), t).toBe(false)
+    expect(lineById('m-undo')!.fe![0]).toBe('אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.'.normalize('NFC'))
+    expect(lineById('m-exact')!.fe).toBeUndefined()
+  })
 })

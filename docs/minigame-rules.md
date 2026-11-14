@@ -20,6 +20,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Reason: English phonics conflict with Hebrew vowels. Example (duel): the child heard "U" as "uh" (= kamatz).
 - Do not say what the screen already shows.
   Example (duel): do not say "לחץ על הברק". Make the lightning appear with an animation that attracts attention.
+  Example (book 2): a heart that comes back at the end of a pass has no line ("לֵב אֶחָד חוֹזֵר אֵלֶיךָ" was removed). The heart
+  flies to the top bar at once and the hearts there flash; the game does not stop for it.
 - When the voice names an object, make the object appear at that moment. If it is already on the screen, make it glow.
   Example (duel): in "הגן על ה**מגדל**", the tower rises on "מגדל". The clue bubble appears on "בתמונה". The marks appear on "הניקוד".
 - Make each round say what to do: a short question before the content (for example "What time does the clock show?"
@@ -50,8 +52,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): "הַמָּחוֹג הָאָרוֹךְ", not "הָאָרֹךְ".
 - Make sure each line is correct in its context, and that its feeling agrees with the moment.
   Example (duel): "המגדל נפל. כל הכבוד" praised the child for a loss. The first "כִּמְעַט" sounded disappointed; it must encourage.
+  Example (book 2): "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל" was wrong: the coins are not worth more, he gets more coins. The line is
+  now "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת".
 - Make each number agree in gender with the noun that it counts. Check every line with a number and a noun.
-  Example (merchant): מַטְבֵּעַ is masculine, so the line is "עֲשָׂרָה מַטְבְּעוֹת", not "עֶשֶׂר מַטְבְּעוֹת".
+  Example (a merchant draft): מַטְבֵּעַ is masculine, so "עֲשָׂרָה מַטְבְּעוֹת", not "עֶשֶׂר מַטְבְּעוֹת".
 - Do not use game or technical words. Say what happens.
   Example (duel): "wave" and "combo" were removed. "עוד מפלצות בדרך" replaced the wave line.
 - Use the full name of a thing when its short name has another meaning. Example (book 2): רוּחַ alone is "wind"; the
@@ -224,9 +228,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   "extremely ugly"; the camera now moves into the doorway's light, and the next door comes out of that light.
 - Check how the font draws each dotted letter. Sigalit fuses the shin dot into ש's right arm (שׁ looked like ن); the
   game draws its own dot above the arm.
-- Give rewards at several paces: points for each answer (the run), a slower count that is kept between plays and grows
-  only now and then (book 2: a coin for every 10 points), and a rare prize (a crystal per lap). Example (book 2): the
-  parent asked for "points that are cumulative, kept between plays and only increase from time to time".
+- Give rewards at several paces: points for each answer (the run), a count that is kept between plays and only grows
+  (book 2: all his stars), and a rare prize (a crystal per lap). Example (book 2): the parent asked for "points that are
+  cumulative, kept between plays and only increase from time to time". Spending money is a different thing: it goes up
+  and down. Example (one duel): coins were a coin for every 10 stars; now each right answer pays coins (more for a
+  streak), and he spends them at the merchant, so the stars are the count that only grows.
 - Let the child see what he collects. Example (book 2): the crystals were a moment only; the parent: "if he hoards them,
   he should see them" — the start screen now shows them by kind.
 - Show a passage (a door, a portal) from the inside: the next room through the opening, and a camera that flies through
@@ -274,6 +280,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (book 2): the word "דֶּלֶת" was on a door, and a door was one of the pictures to choose from.
 - Make the player sprite small enough for the action.
   Example (book 2): the wizard on the broom filled most of his lane, so he could not dodge.
+- Do not let two moving answers overlap. Keep neighbouring lanes at least one answer apart, with their random offsets.
+  Keep two answers in one lane at least one answer apart at the fastest speed. Start each answer outside the screen,
+  so that it flies in. Check this with a geometry test at each screen size, also when you make the answers bigger.
+  Example (book 2): the parent made the broom's orbs 1.3 times bigger and said: "pay attention so orbs don't overlap
+  each other". Orbs in neighbouring lanes already overlapped a little on a phone.
 
 ## Art generation
 
@@ -305,8 +316,18 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Put floating buttons in the top bar, not over the content area. Before you add a button, check at phone size that it
   covers nothing.
   Example (clock): the hint button under the gear counter covered the question; now it is in the top bar beside the gears.
-- Do not put a way out of the game (home, back to the menu) on a child screen. Put it in the parent area.
+  Keep the content area below the top bar: start the game area under the bar, and do not let content go up into it.
+  Example (book 2): on a phone on its side the ladder's top plates went under the coins and the stars; now the stage
+  starts below the bar on every screen.
+- A way out of the game (home, back to the menu) on a child screen must need a 2 s hold, with a ring that fills. A tap
+  must never leave: a tap or a short press only shows how far the ring got. Use the same held button as the parent button.
+  Put it in the left corner of the top bar, as the first item, and on the end screen in the same corner. The hold keeps
+  it safe next to the speaker. Reason: the parent wants the way home on the left (2026-11-14), where a back button usually is.
+  Reason: a plain home button takes the child out by mistake, and with no way out at all the parent cannot leave a run.
   Example (book 2): a home button next to "play again" took the child to the old duel twice; he did not know what he pressed.
+  Then the game had no way out, and the parent (2026-11-14): "there is no way out of the game and back to the main menu".
+  Now a held house button is in the top bar's left corner, on the pause cover and on the summary. The parent then:
+  "I feel that the home button belongs on the left" (first it was in the right corner, after the counts).
 - Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
   so far on the start screen. Digits are allowed; mark them for the no-text scan.
   Example (book 2): the child asked "where can I see my points?".
@@ -315,13 +336,62 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Make the go-on button of an explanation large and glowing, and put it where the explanation leaves room (book 2: at the
   bottom). Check at phone size that it covers nothing he must see.
   Example (book 2): the parent: "make the play button more prominent, and make sure it doesn't hide any content".
+- Make the hint button a question mark. Do not use a symbol that the child must learn first, such as a wand.
+  Reason: a child knows the question mark as "help"; he did not know what the wand did.
+  Example (book 2): the parent: "a hint button would be more intuitive if it looked like a question mark".
+- On a screen that a walkthrough teaches, give one help button (the question mark) that plays the walkthrough again.
+  Do not add a second help button or a speaker for the last line there. Let the replay keep the state of the task, and let
+  a touch on an answer end it.
+  Reason: two buttons with no clear meaning confuse the child. The walkthrough is the help that he needs there.
+  Example (merchant): the parent: "it's unclear what the hint wand and sound buttons are doing. there should be one button
+  that repeats the walkthrough".
 - Ask before you remove a control the child uses. A control that looks redundant to an adult can be one the child likes.
   Example (clock): the short-hand and long-hand buttons were removed for a "nearest hand moves" rule; the child wanted
   the buttons back, and they returned.
 - Do not use a clock for slow tasks, such as drawing.
+- In a drawing task, accept the dots and marks in any order, also across neighbouring letters. Match each drawn mark to
+  the nearest mark that is still missing, and judge its place against the child's own letter. Accept a mark that he
+  draws immediately after the letter, also while the voice asks for the marks: he continues his writing, he does not
+  answer a new question.
+  Example (book 2): in שׁוּעָל the ש dot drawn first was lost, so the marks seemed to need an order.
+- Accept each stroke order and stroke count that the parent approves for a letter, in addition to the order that the
+  hand teaches. The hand continues to show the taught order.
+  Example (book 2): the parent writes פ in one stroke, from the centre and around.
+- Build a new screen from the game's own parts: its top bar, buttons, choice cards, coin, demo hand and colours. Do not
+  draw a new version of a part that the game already has.
+  Example (merchant): new coins, yes/no buttons and a new pointing hand each looked foreign; the parent rejected them one
+  by one until each was the game's own.
+- Let the action itself be the answer. Do not add a button to confirm or to say yes.
+  Example (merchant): a handshake "deal" button and a yes card were removed; giving coins is the yes, a tap on the potion
+  buys it, and one ✗ card is the only "no".
+- Point the play triangle in the direction of the motion that the child sees. A path that goes right to left takes a
+  triangle that points left; a scene where the wizard flies to the right takes a triangle that points right. With no
+  motion, follow the reading direction (right to left).
+  Example: the home screen's path runs right to left, so its play buttons point left; inside Book 2 the wizard flies to
+  the right, so its play and next buttons point right.
+- Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
+- When the child knows a screen, make its opening short. Remove the long greeting and the demo. Keep the explanations
+  that come when a move is first needed.
+  Reason: a long opening that he already knows makes him wait.
+  Example (merchant): the parent: "when the kid is already familiar with the merchant, the merchant's prompt could be
+  shortened"; after his first purchase the merchant says only "רוֹצֶה שִׁקּוּי לֵב?".
+- Explain a move at the moment that the child first needs it, not in the opening demo.
+  Example (merchant): how to take a coin back is shown the first time that he gives too much.
+- Do not count for the child what the task asks him to count. Count only after he decides, as feedback.
+  Example (merchant): a running total on the plate did his adding for him; now the merchant counts after he taps the potion.
 - When the screen shows a place where a choice goes (a pot, a ladder rung, a door), let the child drag the choice there.
   Accept a tap too. Make the drop zone large, and let a choice that is dropped elsewhere fly back.
   Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.
+- While the child drags a choice, make its drop place glow. Make it glow more when the choice is over it.
+  Reason: the child does not always know where to drop the choice.
+  Example (merchant): the parent: "it's not clear where the coins should be dropped"; now the merchant's open hand glows
+  while a coin is dragged.
+- Make the choices that the child can pick glow softly while he can pick them. Do not let them glow while he cannot pick
+  them (an instruction, a demo, feedback). Make this glow gentler than a hint's glow, so that he can see the difference.
+  Example (merchant): the parent: "coins should glow too when you can pick them".
+- Make each choice large enough for a finger on a phone on its side: at least about 56 CSS px, with space between
+  choices so that a finger does not hit the next one.
+  Example (merchant): the coins were about 21 px on the parent's phone, and he could not pick the correct one.
 - Show a gesture with a demo that does the gesture: a hand that the child recognizes as a hand, and the object moves with it.
   Example (clock): the demo finger was a blob that moved in an arc beside the clock. Now a pointing hand pulls the long
   hand round, and the short hand moves with it.
@@ -376,6 +446,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Let the child skip a hint or an explanation when he shows that he knows: he tries to pick. Keep the answers open
   while a hint plays, and let a pick stop the hint and count. Let a tap anywhere on an explanation that covers the screen end it.
   Example (book 2): the parent: "explanations get the kid stuck if he already knows the answer".
+- A hint goes away when the child acts. When he touches an answer (finger-down, before a drag or a tap ends) or puts the
+  pen down to draw, remove the hint at once: its card, its glow, its pointing hand and its voice. Keep the hint counted.
+  Reason: the hint covers his own try or takes his attention from it.
+  Example (book 2): the parent: "hints should go away when the kid touches an answer, or starts drawing".
 - Give hints that fit the question. Keep them behind a hint button. Show a hint by itself only when the child has not
   answered for a long time (book 2: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the
   right answer glows and its sound plays.
@@ -394,7 +468,8 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   play only its sound. Example (book 2): the parent: "you don't need to tell him again that he went all the way to the top".
 - Let a sound effect ring a moment (about 0.4 s) before the voice goes on. Example (book 2): fluent rounds cut the effects.
 - In an action game (book 2: the broom flight), do not stop at a mistake. Flash, take a heart, mark the right answer for a
-  moment, play its sound again, and go on. One wave of choices costs at most one heart. Start a new target only when the
+  moment, play its sound again, and go on. One wave of choices costs at most one heart: after its
+  target is caught or a mistake happens, its other orbs fly past harmlessly. Start a new target only when the
   screen is empty, and announce it while the game goes on. Example (book 2): the parent: "make it more fluent, like an
   arcade game"; the old flight stopped at each mistake and new target, and the orbs on the screen vanished.
 - Keep the flow. Do not repeat the same feedback many times in one encounter.
@@ -423,6 +498,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   time is it.
 - Pause the game when the tablet locks or the child switches to another app. Stop all sound, music too, and cover the game while it is paused.
   After the pause, continue with the same question.
+- Place a skilled child fast. Start with a placement check: ask each item once early, and let a clean result move him on
+  at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
+  visit, and do not make the visits shorter while the check can still pass.
+  Reason: a child who already knows the content gets bored in a long grind, and the next things to learn come late.
+  Example (book 2): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. The parent:
+  "a placement check is a good idea for other things as well". Now the first 10 answers ask each mark once, and 10 right
+  answers in a row (each mark's latest answer right) open the minigames.
 - Make a new minigame available from the start. Do not lock it behind levels.
 - Calculate how many answers a usual run has before the hearts run out (at 1 mistake in 5). Make sure that every screen
   comes up in a usual run.

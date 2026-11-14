@@ -26,5 +26,13 @@ export function useRun(opts: RunOpts) {
     onReplay: () => c.replay(),
     onHint: () => c.hint(),
     resume: () => c.resume(),
+    /** he held the home button: the run stops (RunController.exit) */
+    exit: () => c.exit(),
+    /** the tower's board reports its answers and the end of its visit */
+    towerAnswer: (r: 'right' | 'wrong', markId: string) => c.towerAnswer(r, markId),
+    towerDone: (lastWave: number) => c.towerDone(lastWave),
+    towerWaveEnd: (wave: number) => c.towerWaveEnd(wave),
+    towerMega: (markId: string) => c.towerMega(markId),
+    towerCharge: (mega: number) => c.towerCharge(mega),
   }
 }

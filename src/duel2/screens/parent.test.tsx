@@ -7,27 +7,50 @@ import { DrawTest } from './DrawTest'
 import { STROKES } from '../data/strokes'
 import { WORDS } from '../data/words'
 import { useDuel2Store } from '../store'
+import { flightPace } from '../logic/run'
 import { clearGender, getPlayer } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
+import { useProgressStore } from '../../stores/progressStore'
+import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
 describe('parent area', () => {
   afterEach(() => vi.restoreAllMocks())
   it('gallery lists every screen and stage', () => {
     const { container } = render(<Gallery onBack={() => {}} onStart={() => {}} />)
     const ids = [...container.querySelectorAll('[data-entry]')].map((e) => e.getAttribute('data-entry'))
-    expect(ids).toEqual(['broom-letter', 'broom-syllable', 'cauldron', 'ladder-vowel', 'ladder-letter', 'ladder-dot', 'ghosts-letter', 'ghosts-syllable', 'draw-print', 'draw-hand', 'doors', 'crystal', 'dot-intro', 'boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat', 'potion'])
+    expect(ids).toEqual(['tower', 'tower-boss', 'broom-letter', 'broom-syllable', 'cauldron', 'ladder-vowel', 'ladder-letter', 'ladder-dot', 'ghosts-letter', 'ghosts-syllable', 'draw-print', 'draw-hand', 'doors', 'crystal', 'dot-intro', 'boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat', 'merchant'])
     expect(GALLERY.every((e) => e.force.demo !== false)).toBe(true)
   })
   it('the gallery has one entry per boss kind (at a stage that opens it) and one for the potion', () => {
     expect(GALLERY.find((e) => e.id === 'boss-dot')!.force).toMatchObject({ screen: 'broom', boss: 'dot', stage: 3, kind: 'syllable' })
     expect(GALLERY.find((e) => e.id === 'boss-mimic')!.force).toMatchObject({ screen: 'broom', boss: 'mimic', stage: 2 })
-    expect(GALLERY.find((e) => e.id === 'potion')!.force).toMatchObject({ screen: 'broom', potion: true })
+    expect(GALLERY.find((e) => e.id === 'potion')).toBeUndefined()
+  })
+  it('the gallery has the tower: two waves, and its boss', () => {
+    expect(GALLERY.find((e) => e.id === 'tower')!.force).toMatchObject({ screen: 'tower' })
+    expect(GALLERY.find((e) => e.id === 'tower-boss')!.force).toMatchObject({ screen: 'tower', towerBoss: true })
+  })
+  it('the gallery has the merchant, with his demo', () => {
+    expect(GALLERY.find((e) => e.id === 'merchant')!.force).toMatchObject({ screen: 'merchant', demo: true })
   })
   it('an entry starts its screen', () => {
     const onStart = vi.fn()
     render(<Gallery onBack={() => {}} onStart={onStart} />)
     fireEvent.click(screen.getByText(/Ladder — the dot/))
     expect(onStart.mock.calls[0][0].force).toMatchObject({ screen: 'ladder', fixed: 'dot', stage: 3 })
+  })
+  it('“already knows nikkud”: the parent opens Book 2 at stage 0 (logged); the switch shows only while the book is closed', () => {
+    useDuel2Store.getState().resetProgress()
+    useDuel2Store.setState({ bookOpen: false })
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    const box = container.querySelector('[data-setting-open-book]') as HTMLInputElement
+    expect(box).not.toBeNull()
+    fireEvent.click(box)
+    expect(useDuel2Store.getState().bookOpen).toBe(true)
+    expect(track).toHaveBeenCalledWith('book-open', expect.objectContaining({ by: 'parent' }))
+    expect(container.querySelector('[data-setting-open-book]')).toBeNull()
+    expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
   it('the parent can set boy or girl (shared by all the games), and it is logged', () => {
     clearGender()
@@ -37,6 +60,26 @@ describe('parent area', () => {
     expect(getPlayer()).toMatchObject({ gender: 'girl', by: 'parent' })
     expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'parent' })
     clearGender()
+  })
+  it('the first duel’s history: sessions, best score, best wave, and a row per mark', () => {
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel, sessions: 7, bestScore: 4321, bestWave: 9,
+      byMark: { kamatz: { seen: 30, correct: 20, wrong: 4, timeout: 2, twin: 1, mega: 4 } } } })
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('[data-duel-best]')!.textContent).toBe('4321')
+    expect(container.querySelector('[data-duel-wave]')!.textContent).toBe('9')
+    expect(container.querySelector('[data-duel-sessions]')!.textContent).toBe('7')
+    const row = container.querySelector('[data-duel-mark="kamatz"]')!
+    expect([...row.querySelectorAll('td')].slice(1).map((td) => td.textContent)).toEqual(['20', '4', '2', '4'])
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+  })
+  it('the stage line says stage 0 (the tower) before Book 2 opens', () => {
+    useDuel2Store.setState({ bookOpen: false })
+    const { container, unmount } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 0: the tower/)
+    unmount()
+    useDuel2Store.setState({ bookOpen: true })
+    const r = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
   it('export downloads JSON', () => {
     const url = vi.fn(() => 'blob:x')
@@ -67,18 +110,40 @@ describe('parent area', () => {
     useDuel2Store.setState({ pace: 0.85 })
     const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
     expect(container.querySelector('[data-pace]')!.textContent).toMatch(/0\.85/)
+    // the rule as the flight applies it (flightPace): a catch 1% faster, a mistake 4% slower
+    const text = container.querySelector('[data-pace]')!.parentElement!.textContent!
+    expect(text).toMatch(/a mistake 4% slower/)
+    expect(flightPace(1, 'miss')).toBeCloseTo(1.04)
+    expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
     fireEvent.click(screen.getByText('Reset flight speed'))
     expect(useDuel2Store.getState().pace).toBe(1)
   })
 
 
-  it('the drawing screen setting is off by default and turns on here', () => {
+  it('the parent can turn the drawing screens off and on here', () => {
     useDuel2Store.getState().setSettings({ drawing: false })
     const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
     const box = container.querySelector('input[data-setting-drawing]') as HTMLInputElement
     expect(box.checked).toBe(false)
     fireEvent.click(box)
     expect(useDuel2Store.getState().settings.drawing).toBe(true)
+  })
+  it('the parent page sets the number range and shows the money section', () => {
+    useDuel2Store.setState({ merchant: { visits: 5, purchases: 3, declines: 2, short: 4, over: 1, hints: 6, level: 1, demoSeen: true, undoShown: true, cleanRow: 0, hintRow: 0 } })
+    const track = vi.spyOn(duel2Telemetry, 'track')
+    const { container } = render(<Parent onClose={() => {}} onGallery={() => {}} />)
+    expect((container.querySelector('input[data-range="100"]') as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(container.querySelector('input[data-range="10"]')!)
+    expect(useDuel2Store.getState().settings.range).toBe(10)
+    expect(track).toHaveBeenCalledWith('settings', expect.objectContaining({ range: 10 }))
+    const money = container.querySelector('[data-money]')!
+    expect(money.querySelector('[data-money-purchases]')!.textContent).toBe('3')
+    expect(money.querySelector('[data-money-declines]')!.textContent).toBe('2')
+    expect(money.querySelector('[data-money-short]')!.textContent).toBe('4')
+    expect(money.querySelector('[data-money-over]')!.textContent).toBe('1')
+    expect(money.querySelector('[data-money-hints]')!.textContent).toBe('6')
+    expect(money.querySelector('[data-money-level]')!.textContent).toMatch(/1/)
+    useDuel2Store.getState().setSettings({ range: 100 })
   })
   it('opens the stroke review and the test board', () => {
     const onStrokes = vi.fn()
@@ -99,6 +164,11 @@ describe('parent area', () => {
     expect(container.querySelectorAll('[data-stroke-card="מ-print"] svg[data-variant]').length).toBe(3)
     expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="1"]')!.textContent).toMatch(/taught/)
     expect(container.querySelector('[data-stroke-card="מ-print"] [data-variant-label="2"]')!.textContent).toMatch(/also/)
+    // פ in one stroke from the centre (the parent): print פ ף and handwriting פ show it as a second form
+    for (const card of ['פ-print', 'ף-print', 'פ-hand']) {
+      expect(container.querySelectorAll(`[data-stroke-card="${card}"] svg[data-variant]`).length, card).toBe(2)
+      expect(container.querySelector(`[data-stroke-card="${card}"] [data-variant-label="2"]`)!.textContent, card).toMatch(/also/)
+    }
     // handwriting shows a second, upright school font next to the game's font
     expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')).not.toBeNull()
     // the letters drawn after Dana Yad show it as the main reference (big), the game's font small below

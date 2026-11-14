@@ -14,9 +14,12 @@ const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
 export const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
 
-/** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout. */
-export function useLandscape() {
-  const mq = () => (typeof window.matchMedia === 'function' ? window.matchMedia(LANDSCAPE_QUERY) : null)
+/** Book 2 plays only sideways, so its tower takes the landscape layout on a phone on its side too */
+export const EMBEDDED_LANDSCAPE_QUERY = '(orientation: landscape)'
+
+/** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout (unless `query` says otherwise). */
+export function useLandscape(query = LANDSCAPE_QUERY) {
+  const mq = () => (typeof window.matchMedia === 'function' ? window.matchMedia(query) : null)
   const [on, setOn] = useState(() => mq()?.matches ?? false)
   useEffect(() => {
     const m = mq()
@@ -44,10 +47,14 @@ interface Props {
   fx?: FxStyle | null
   /** show the result banner (off for a boss hit that does not finish it) */
   resultBanner?: boolean
+  /** a hit shows its +points (Book 2's run: no, the first duel's points are retired there) */
+  points?: boolean
+  /** the time line at the field's top (Book 2's run: no, the parent's pick; the walking monster shows the time) */
+  timeLine?: boolean
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
   const WIZARD = useWizard()
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
@@ -116,7 +123,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
         transition={outcome ? { duration: 0.4 } : { repeat: Infinity, duration: 1.8 }}
       />
 
-      {round && !outcome && walking && !paused && (
+      {timeLine && round && !outcome && walking && !paused && (
         <div className="nd-timebar">
           <motion.div
             key={round.id}
@@ -133,7 +140,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
           remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
-      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} />}
+      {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} points={points} />}
       {round && outcome && resultBanner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
 
       {banner && (

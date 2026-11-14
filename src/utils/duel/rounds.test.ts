@@ -123,6 +123,42 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
   })
 })
 
+describe('pickTarget with cover: the placement check (Book 2 stage 0)', () => {
+  it('the first answers ask every mark once, in a random order', () => {
+    const orders = new Set<string>()
+    for (let seed = 1; seed <= 20; seed++) {
+      const rng = seeded(seed)
+      const recent: Record<string, string> = {}
+      const asked: string[] = []
+      for (let k = 0; k < DUEL_MARKS.length; k++) {
+        const id = pickTarget(rng, {}, recent, { cover: true }).id
+        asked.push(id)
+        recent[id] = 'o'
+      }
+      expect(new Set(asked).size).toBe(DUEL_MARKS.length)
+      orders.add(asked.join())
+    }
+    expect(orders.size).toBeGreaterThan(10)
+  })
+  it('a mark with no recent answer comes first, even when another mark is the 1-in-5 one', () => {
+    const rng = seeded(11)
+    const recent = Object.fromEntries(DUEL_MARKS.filter((m) => m.id !== 'segol').map((m) => [m.id, m.id === 'kamatz' ? 'oxoxo' : 'ooo']))
+    for (let i = 0; i < 20; i++) expect(pickTarget(rng, {}, recent, { cover: true }).id).toBe('segol')
+  })
+  it('when every mark has an answer, cover changes nothing (the usual 1-in-5 aim)', () => {
+    const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooo']))
+    const a = seeded(5), b = seeded(5)
+    for (let i = 0; i < 50; i++) expect(pickTarget(a, {}, recent, { cover: true }).id).toBe(pickTarget(b, {}, recent).id)
+  })
+  it('makeRound passes cover to the picker; without it the duel’s own game is as it was', () => {
+    const recent = Object.fromEntries(DUEL_MARKS.filter((m) => m.id !== 'shva').map((m) => [m.id, 'ooo']))
+    const rng = seeded(2)
+    for (let i = 0; i < 10; i++) expect(makeRound({ id: i, wave: 1, kills: 1, boss: false, rng, lifetime: {}, recent, cover: true }).target.id).toBe('shva')
+    const seen = new Set(Array.from({ length: 40 }, (_, i) => makeRound({ id: i, wave: 1, kills: 1, boss: false, rng, lifetime: {}, recent }).target.id))
+    expect(seen.size).toBeGreaterThan(1)
+  })
+})
+
 describe('directional confusion', () => {
   // the target sits near 1-in-5 and the rest are mastered, so it is picked most; only its rounds are examined
   const forced = (id: string) => ({

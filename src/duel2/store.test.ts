@@ -1,18 +1,126 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { DEFAULT_SETTINGS, coinsOf, useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useDuel2Store } from './store'
 import type { Choice } from './logic/rounds'
+import type { DuelStats, Tally } from '../types/duel'
+import { DUEL_MARKS } from '../utils/duel/marks'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
   ({ kind: 'syllable', id: `${itemId}-${mark}`, text: '', soundId: '', itemId, group, mark })
 
 describe('duel2 store', () => {
   beforeEach(() => useDuel2Store.getState().resetProgress())
-  it('the drawing screen is off until the parent turns it on (an old save without the setting reads as off)', () => {
-    expect(DEFAULT_SETTINGS.drawing).toBe(false)
-    useDuel2Store.setState({ settings: { sfx: true, music: true, volume: 1 } as typeof DEFAULT_SETTINGS })
-    expect(!!useDuel2Store.getState().settings.drawing).toBe(false)
+  it('drawing is on for a new player', () => { expect(DEFAULT_SETTINGS.drawing).toBe(true) })
+  it('the parent can still turn drawing off', () => {
+    useDuel2Store.getState().setSettings({ drawing: false })
+    expect(useDuel2Store.getState().settings.drawing).toBe(false)
     useDuel2Store.getState().setSettings({ drawing: true })
-    expect(useDuel2Store.getState().settings.drawing).toBe(true)
+  })
+  it('a version-4 save keeps everything, gets his old coins as a balance, and drawing turns on by itself', () => {
+    const v4 = { stage: { stage: 3, newAnswers: '' }, totalStars: 137, crystals: 2, bossesBeaten: ['bat'],
+      settings: { sfx: true, music: false, volume: 0.5, drawing: false }, strokeMarks: { 'ד-print': 'ok' } }
+    const out = migrateSave(v4, 4)
+    expect(out.coins).toBe(13)
+    expect(out.settings.drawing).toBe(true)
+    expect(out.settings.music).toBe(false)
+    expect(out.totalStars).toBe(137)
+    expect(out.crystals).toBe(2)
+    expect(out.stage).toEqual({ stage: 3, newAnswers: '' })
+    expect(out.bossesBeaten).toEqual(['bat'])
+    expect(out.strokeMarks).toEqual({ 'ד-print': 'ok' })
+  })
+  it('a version-5 save gets the range 100 and empty merchant counters, keeping everything else', () => {
+    const out = migrateSave({ coins: 40, settings: { sfx: true, music: true, volume: 1, drawing: true } }, 5)
+    expect(out.settings.range).toBe(100)
+    expect(out.settings.volume).toBe(1)
+    expect(out.merchant!.purchases).toBe(0)
+    expect(out.merchant!.demoSeen).toBe(false)
+    expect(out.checkpointsSinceVisit).toBe(NEVER_VISITED)
+    expect(out.coins).toBe(40)
+  })
+  it('an older save runs the version-6 step too, after the others', () => {
+    const out = migrateSave({ totalStars: 25, settings: { sfx: true, music: true, volume: 1 } }, 4)
+    expect(out.coins).toBe(2)
+    expect(out.settings.drawing).toBe(true)
+    expect(out.settings.range).toBe(100)
+    expect(out.merchant!.level).toBe(0)
+  })
+  it('a version-6 save keeps its range and counters', () => {
+    const merchant = { ...FRESH_MERCHANT, purchases: 4, level: 2 }
+    const out = migrateSave({ settings: { ...DEFAULT_SETTINGS, range: 10 }, merchant, checkpointsSinceVisit: 1 }, 6)
+    expect(out.settings.range).toBe(10)
+    expect(out.merchant).toEqual(merchant)
+    expect(out.checkpointsSinceVisit).toBe(1)
+  })
+  it('a new player shops up to 100; reset clears the merchant counters but keeps the range', () => {
+    expect(DEFAULT_SETTINGS.range).toBe(100)
+    const st = useDuel2Store.getState()
+    st.setSettings({ range: 1000 })
+    st.noteMerchant('purchase')
+    st.setMerchantFlag('demoSeen')
+    st.noteCheckpoint(true)
+    expect(useDuel2Store.getState().merchant.purchases).toBe(1)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(0)
+    useDuel2Store.getState().resetProgress()
+    expect(useDuel2Store.getState().merchant).toEqual(FRESH_MERCHANT)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
+    expect(useDuel2Store.getState().settings.range).toBe(1000)
+    useDuel2Store.getState().setSettings({ range: 100 })
+  })
+  it('the counters count each event; checkpoints count up between visits', () => {
+    const st = useDuel2Store.getState()
+    for (const e of ['visit', 'decline', 'short', 'short', 'over', 'hint'] as const) st.noteMerchant(e)
+    expect(useDuel2Store.getState().merchant).toMatchObject({ visits: 1, declines: 1, short: 2, over: 1, hints: 1, purchases: 0 })
+    st.noteCheckpoint(true)
+    st.noteCheckpoint(false)
+    st.noteCheckpoint(false)
+    expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(2)
+    st.setMerchantFlag('undoShown')
+    expect(useDuel2Store.getState().merchant.undoShown).toBe(true)
+  })
+  it('the merchant level goes up after 3 exact payments with no hint and down after 2 with a hint', () => {
+    const st = useDuel2Store.getState()
+    const level = () => useDuel2Store.getState().merchant.level
+    st.merchantPaid(true); st.merchantPaid(true)
+    expect(level()).toBe(0)
+    st.merchantPaid(true)
+    expect(level()).toBe(1)
+    // a payment that was not clean breaks the row
+    st.merchantPaid(true); st.merchantPaid(false); st.merchantPaid(true); st.merchantPaid(true)
+    expect(level()).toBe(1)
+    st.merchantPaid(true)
+    expect(level()).toBe(2)
+    for (let i = 0; i < 3; i++) st.merchantPaid(true)
+    expect(level()).toBe(2)
+    st.merchantPaid(false, true)
+    expect(level()).toBe(2)
+    st.merchantPaid(false, true)
+    expect(level()).toBe(1)
+    for (let i = 0; i < 6; i++) st.merchantPaid(false, true)
+    expect(level()).toBe(0)
+  })
+  it('a version-4 save opened by the new build: rehydrated, his coins and drawing on', async () => {
+    localStorage.setItem('alef-duel2', JSON.stringify({ state: { totalStars: 42, crystals: 3, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 }))
+    await useDuel2Store.persist.rehydrate()
+    const s = useDuel2Store.getState()
+    expect(s.coins).toBe(4)
+    expect(s.totalStars).toBe(42)
+    expect(s.settings.drawing).toBe(true)
+  })
+  it('an older save runs every step: the stroke marks are cleared and the coins moved over', () => {
+    const out = migrateSave({ totalStars: 25, strokeMarks: { 'ה-print': 'ok', 'ש-hand': 'ok' } }, 3)
+    expect(out.strokeMarks).toEqual({ 'ש-hand': 'ok' })
+    expect(out.coins).toBe(2)
+    expect(out.settings.drawing).toBe(true)
+  })
+  it('coins go up and down; he cannot spend more than he has', () => {
+    const s = useDuel2Store.getState()
+    s.addCoins(5)
+    expect(s.spendCoins(7)).toBe(false)
+    expect(useDuel2Store.getState().coins).toBe(5)
+    expect(useDuel2Store.getState().spendCoins(3)).toBe(true)
+    expect(useDuel2Store.getState().coins).toBe(2)
+    useDuel2Store.getState().resetProgress()
+    expect(useDuel2Store.getState().coins).toBe(0)
   })
   it('the stroke review marks are kept, and a reset of his progress keeps them (they are the parent’s)', () => {
     useDuel2Store.getState().markStrokes('ד-print', 'ok')
@@ -118,5 +226,61 @@ describe('duel2 store', () => {
     expect(s.totalStars).toBe(42)
     expect(s.bossesBeaten).toEqual([])
     expect(s.potionIntroSeen).toBe(false)
+  })
+
+  describe('the first duel moves into the run (spec: one duel, Part 3)', () => {
+    const t = (correct: number, mega = 0): Tally => ({ seen: correct + mega, correct, wrong: 0, timeout: 0, twin: 0, mega })
+    const duel = (over: Partial<DuelStats> = {}): DuelStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
+
+    it('a new player starts at stage 0 (the tower alone), and nothing is imported yet', () => {
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: false, firstDuelImported: false, towerWave: 1, towerVisits: 0 })
+    })
+    it('an existing Book 2 save keeps Book 2 open and gets the tower in front', () => {
+      const out = migrateSave({ stage: { stage: 2, newAnswers: '' }, coins: 30, totalStars: 300 }, 6)
+      expect(out.bookOpen).toBe(true)
+      expect(out.coins).toBe(30)
+      expect(out.totalStars).toBe(300)
+      expect(out.stage).toEqual({ stage: 2, newAnswers: '' })
+    })
+    it('a stored save with no stage field still opens Book 2', () => {
+      expect(migrateSave({ coins: 3 }, 6).bookOpen).toBe(true)
+      expect(migrateSave({}, 4).bookOpen).toBe(true)
+    })
+    it('the first duel is imported once: correct answers become stars and a tenth of them coins; mega not counted', () => {
+      useDuel2Store.setState({ totalStars: 10, coins: 5 })
+      const d = duel({ byMark: { kamatz: t(25, 9), chirik: t(7) } })
+      const copy = JSON.parse(JSON.stringify(d))
+      useDuel2Store.getState().importFirstDuel(d)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 42, coins: 8, firstDuelImported: true })
+      // a second start (a reload) adds nothing
+      useDuel2Store.getState().importFirstDuel(d)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 42, coins: 8 })
+      // the first duel's own save is only read
+      expect(d).toEqual(copy)
+    })
+    it('a first duel player who never played Book 2 keeps stage 0 unless his marks are mastered', () => {
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
+      expect(useDuel2Store.getState().bookOpen).toBe(false)
+    })
+    it('a first-duel player who mastered his marks starts with Book 2 open', () => {
+      const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(40) }, recent }))
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: true, totalStars: 40, coins: 4 })
+    })
+    it('no first duel at all: nothing added, the import is done', () => {
+      useDuel2Store.getState().importFirstDuel(undefined)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 0, coins: 0, firstDuelImported: true, bookOpen: false })
+    })
+    it('a Book 2 player keeps Book 2 open after the import, even with no first duel', () => {
+      useDuel2Store.setState({ bookOpen: true })
+      useDuel2Store.getState().importFirstDuel(duel())
+      expect(useDuel2Store.getState().bookOpen).toBe(true)
+    })
+    it('the parent’s reset starts stage 0 again and lets the import run again', () => {
+      useDuel2Store.getState().importFirstDuel(duel({ byMark: { kamatz: t(20) } }))
+      useDuel2Store.setState({ bookOpen: true, towerWave: 9 })
+      useDuel2Store.getState().resetProgress()
+      expect(useDuel2Store.getState()).toMatchObject({ bookOpen: false, firstDuelImported: false, towerWave: 1, totalStars: 0 })
+    })
   })
 })
