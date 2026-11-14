@@ -433,3 +433,6 @@
 }
 /* a bigger mark may reach past its glyph's box: its glow is not cut off */
 .nd-embedded .nd-rune svg { overflow: visible; }
+/* the מגה lightning in Book 2's run (the parent brought it back, 2026-11-14): above the rune row with a gap (its runes
+   start higher in the pad than on the duel's own board), clear of the top bar and the cue bubble */
+.nd-embedded.nd-landscape .nd-mega-btn { top: -74px; }

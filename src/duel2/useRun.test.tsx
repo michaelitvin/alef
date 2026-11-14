@@ -1371,6 +1371,43 @@ describe('run controller', () => {
       c.destroy()
     })
 
+    it('a מגה kill on the tower is no answer: no star, no coin, the streak and the hearts stay, not in the tail; its own event', async () => {
+      duel2Telemetry.clear()
+      const c = atTower({ coins: 0, totalStars: 0, towerTail: '' })
+      await until(c, (v) => v.screen?.screen === 'tower')
+      for (let k = 0; k < 4; k++) c.towerAnswer('right', 'kamatz')
+      const before = { score: c.view.score, mult: c.view.mult, hearts: c.view.hearts, ...useDuel2Store.getState() }
+      c.towerMega('segol')
+      expect(c.view.score).toBe(before.score)
+      expect(c.view.hearts).toBe(before.hearts)
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: before.totalStars, coins: before.coins, towerTail: 'oooo' })
+      // the streak goes on from where it was: the fifth right answer gives ×2
+      c.towerAnswer('right', 'kamatz')
+      expect(c.view.mult).toBe(2)
+      const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; target?: string }[]
+      expect(ev.filter((e) => e.e === 'tower-mega')).toEqual([expect.objectContaining({ target: 'segol' })])
+      expect(ev.filter((e) => e.e === 'answer' && e.screen === 'tower').length).toBe(5)
+      c.destroy()
+    })
+
+    it('the מגה charge carries over to the next tower visit within the run; a new run starts with none', async () => {
+      useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+      const c = make()
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'tower')
+      expect(tv(c).mega).toBeUndefined()
+      c.towerCharge(8)
+      c.towerDone(2)
+      await until(c, (v) => v.screen?.screen === 'tower' && tv(c).wave === 3)
+      expect(tv(c).mega).toBe(8)
+      c.destroy()
+      const d = make()
+      d.start()
+      await until(d, (v) => v.screen?.screen === 'tower')
+      expect(tv(d).mega).toBeUndefined()
+      d.destroy()
+    })
+
     describe('stage 0: the tower alone', () => {
       beforeEach(() => {
         useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })

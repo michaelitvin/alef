@@ -30,8 +30,8 @@ const LINE_GAP_MS = 800
 
 
 /**
- * Book 2's run plays the duel as one of its screens (spec: one duel, Part 3): no מגה, the run owns the hearts (each answer
- * is reported), a fixed visit of `waves` waves from `wave` (or one boss), no session or run-end records (the rounds,
+ * Book 2's run plays the duel as one of its screens (spec: one duel, Part 3): the run owns the hearts (each answer
+ * is reported; a מגה kill is not an answer: it goes to `onMega`, and it is kept out of the mastery data), a fixed visit of `waves` waves from `wave` (or one boss), no session or run-end records (the rounds,
  * confusions and pace are still recorded: the adaptive data), no duel music, and no own visibility pause (the run pauses
  * it through pause()/resume()). The intro and the screen explanations play once ever: `seen` / `onSeen` keep them
  * (keys 'tower-intro' and 'tower-screen-<key>').
@@ -44,6 +44,15 @@ export interface DuelEmbedded {
   onSeen: (key: string) => void
   /** a hit → 'right'; a miss or a timeout → 'wrong' (the forgiven twin is not an answer); 'over' stops after its feedback */
   onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'
+  /**
+   * a מגה kill (the parent brought it back, 2026-11-14): not reading, so no answer for the run (no star, no streak, no
+   * heart); the run tracks it on its own
+   */
+  onMega?: (markId: string) => void
+  /** the מגה charge at the visit's start (the run keeps it from its last visit) */
+  mega?: number
+  /** the מגה charge changed: the run keeps it for its next visit */
+  onCharge?: (mega: number) => void
   /** the visit is over (its waves, the boss's defeat, or the run's hearts ran out): the last wave played */
   onDone: (lastWave: number) => void
   /** the duel's sound effects and volume follow the run's settings */
@@ -361,16 +370,20 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     }
     marksThisRun.current.add(r.target.id)
     const dry = !!emb.current?.dry
-    if (!dry) store.getState().recordDuelRound(r.target.id, r.type, result, performance.now() - spawnedAt.current)
-    // Book 2's run owns the hearts, the stars and the coins: each answer goes to it
-    if (emb.current && emb.current.onAnswer(o.kind === 'hit' ? 'right' : 'wrong', r.target.id) === 'over') overRef.current = true
+    // Book 2's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
+    // right answer for the mastery data (`recent`) nor for the pace
+    const megaInRun = !!emb.current && o.mega
+    if (!dry) store.getState().recordDuelRound(r.target.id, r.type, result, performance.now() - spawnedAt.current, megaInRun ? { recent: false } : undefined)
+    // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
+    if (megaInRun) emb.current!.onMega?.(r.target.id)
+    else if (emb.current && emb.current.onAnswer(o.kind === 'hit' ? 'right' : 'wrong', r.target.id) === 'over') overRef.current = true
     const now = performance.now()
     const msWalk = state.walking || result === 'timeout' ? now - walkStartedAt.current : null
     const pace = nextPace(store.getState().duel.pace ?? 1, { result, msWalk, walkMs: r.walkMs })
     if (r.boss) bossStart.current = o.final ? 0 : nextBossStart(r.startFrac ?? 0, msWalk, r.walkMs, result)
     const plan = feedbackPlan(r, o, confidence)
     setFeedback(plan)
-    if (!dry) store.getState().setDuelPace(pace)
+    if (!dry && !megaInRun) store.getState().setDuelPace(pace)
     track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
@@ -397,9 +410,10 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       wait = plan.waitMs
     }
     if (o.mega) megaAnnounced.current = false
-    const comboLine = o.kind === 'hit' && state.combo > 0 && state.combo % 5 === 0
+    // (in Book 2's run a מגה kill leaves the streak as it was: no second celebration of it)
+    const comboLine = o.kind === 'hit' && !megaInRun && state.combo > 0 && state.combo % 5 === 0
     if (comboLine) track('combo', { round: r.id, combo: state.combo })
-    const megaLine = !emb.current && o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !megaAnnounced.current
+    const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !megaAnnounced.current
     if (megaLine) megaAnnounced.current = true
 
     const speech = Promise.all([almost.current, delay(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
@@ -464,7 +478,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     setBanner(null)
     if (e) {
       const seen = e.seen.filter((k) => k.startsWith(towerScreenKey(''))).map((k) => k.slice(towerScreenKey('').length))
-      dispatch({ type: 'START_AT', wave: e.wave, boss: e.boss, seen })
+      dispatch({ type: 'START_AT', wave: e.wave, boss: e.boss, seen, mega: e.mega })
     } else dispatch({ type: 'START' })
   }, [store])
 
@@ -501,7 +515,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const megaCast = useCallback(() => {
     const s = stateRef.current
     const r = s.round
-    if (emb.current || s.paused || s.mega < MEGA_MAX) return
+    // (Book 2's run: not after its hearts ran out or its visit ended)
+    if (s.paused || s.mega < MEGA_MAX || overRef.current || doneRef.current) return
     track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
     if (!r || s.outcome || s.preview) {
       megaQueued.current = true // he did what the wizard said; it fires when the next monster appears
@@ -606,11 +621,13 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (megaQueued.current && state.round && !state.outcome && !state.paused && !state.preview) megaCast()
   }, [state.round, state.outcome, state.paused, state.preview, megaCast])
   useEffect(() => {
+    // Book 2's run keeps the charge for its next visit
+    if (state.phase === 'playing' && state.embedded) emb.current?.onCharge?.(state.mega)
     if (state.mega < MEGA_MAX) {
       setLightning(false)
       megaQueued.current = false
     }
-  }, [state.mega])
+  }, [state.mega, state.phase, state.embedded])
   useEffect(() => () => window.clearTimeout(cueTimer.current), [])
 
   return { state, banner, newBest, shake, cue, lightning, celebrate, speaking, hidden, fx, feedback, start, choose, megaCast, pause, resume, replayClue, sayMark }

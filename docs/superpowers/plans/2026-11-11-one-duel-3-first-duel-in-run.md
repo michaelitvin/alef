@@ -125,6 +125,9 @@ it('ratings', () => { expect([rating('oo'), rating('ooo'), rating('oxo'), rating
 - Produces:
   - Reducer action `{ type: 'START_AT'; wave: number; boss: boolean }` — like `START`, at that wave (a boss visit
     starts with `bossHp = BOSS_HP` and a boss spawn), `hearts = Infinity` (the run owns hearts), `mega` stays 0.
+    (**Changed 2026-11-14:** the parent brought the מגה spell back; see the spec's *The מגה spell is back*. `START_AT`
+    takes the run's kept charge (`mega`), the meter charges, `MEGA` casts, and the line plays; a cast goes to
+    `embedded.onMega`, not `onAnswer`.)
   - `UseDuelGameOpts.embedded?: { wave: number; waves: number; boss: boolean; seen: string[]; onSeen: (key: string) => void; onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'; onDone: (lastWave: number) => void }`.
     In embedded mode: `MEGA` is ignored and the lightning line never plays; `recordDuelSession` and `recordDuelRunEnd`
     are not called (`recordDuelRound`, confusions and pace still are: the adaptive data). The duel's intro plays once

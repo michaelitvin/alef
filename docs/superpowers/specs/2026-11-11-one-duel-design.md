@@ -251,7 +251,7 @@ The parent decided:
   while the Book 2 minigames open, one by one.
 - **One reward system:** stars, coins, hearts and the merchant.
 - **מגה כישוף is dropped,** in favour of the new system. The streak multiplier takes over its role (a reward for many
-  right in a row).
+  right in a row). **Changed 2026-11-14:** the parent brought it back (see *The מגה spell is back*).
 - **Existing players get a migration:** their progress transfers. Minigames where they excel and make no mistakes come
   up less and less often.
 - **Choosing one minigame:** a path of the open minigames under the duel card (Part 4). A session from the path has an
@@ -259,7 +259,8 @@ The parent decided:
 
 My calls:
 - **The first duel becomes a screen of the run,** the first station of the path. Its mechanics stay as they are, except
-  for three changes: no מגה, hearts are shared with the run, and stars and coins go to the shared count.
+  for three changes: no מגה, hearts are shared with the run, and stars and coins go to the shared count. (**Changed
+  2026-11-14:** the מגה spell is back; the other two changes stay.)
 - **When a minigame opens:** Book 2's stage machine stays as it is (`stages.ts`, `screensOfStage`, the content mix).
   It still decides which Book 2 screens are open and what content they use. A new **stage 0** comes before it, in which
   only the first duel's screen is open. Stage 0 passes when the first duel's marks are mastered by its own adaptive
@@ -322,6 +323,33 @@ placement check is a good idea for other things as well".
 
   The 80 % child's road is about as before. About 1 in 10 of them gets 10 right in a row in the placement check and
   goes on at once; the stage machine and the shorter-visit rules then adapt to him in Book 2 (tune in a playtest).
+
+### The מגה spell is back (the parent, 2026-11-14)
+
+The child missed it: he asked "why is there no more mega spell?". The parent wants it back on the tower in the run. It
+works as in the first duel's own game: after 8 hits the lightning is charged, the wizard says "tap the lightning"
+(`line-mega`), the lightning button shows at "בָּרָק", and a tap casts the מגה kill (its sound, its effect; on a boss it
+takes two hearts, and the boss's final hit is the big effect as before).
+
+Why it was off, and what is done about each reason (my calls):
+- **It is not reading** (rule: count special results separately). A מגה kill is no answer for the run: no star, no coin,
+  and the streak and the hearts stay as they were (the duel's own streak does not move either, so its streak line stays
+  in step with the top bar's ×2). It is kept out of the mastery data: not in the duel's `recent` (stage 0's slow and fast
+  lanes, the station ratings), not in the tower's time-ordered tail (`towerTail`: the fast lane and the shorter visit),
+  and it does not move the pace. Its tally (`byMark.mega`) is still kept, for the parent report's מגה column.
+- **It counts as a kill toward the wave's 5**, as in the first duel: the monster dies and the wave goes on. So a visit
+  with a cast has one reading answer fewer.
+- **Telemetry:** the duel's own `outcome` (`result: 'mega'`) and `mega_tap` as before; Book 2's telemetry gets its own
+  event, `tower-mega`, never an `answer`.
+- **The meter is gone with the HUD;** the wizard's line and the lightning are the signal (as in the first duel, where the
+  button shows only after the line). The button sits above the rune row, as in the first duel (a walking monster passes
+  behind it there, as in the first duel); it stays clear of the top
+  bar and the cue bubble on a phone on its side and on a tablet. It hides under Book 2's pause cover; a tap while paused
+  does nothing, and a tap between monsters waits for the next monster (also through a pause). After the run's hearts
+  ran out or the visit ended, a tap does nothing.
+- **The charge carries over between the tower's visits within a run** (a short visit is one wave, 5 hits: with a fresh
+  charge each visit he would never get there). A new run starts with no charge; it is not saved. A charged visit plays
+  the line again after its first hit, then the lightning shows.
 
 ## Part 4 — The main screen
 

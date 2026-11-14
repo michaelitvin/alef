@@ -430,7 +430,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     }
   }
 
-  it('two waves of five, each answer reported, then onDone once; no מגה line and no lightning', async () => {
+  it('two waves of five, each answer reported, then onDone once', async () => {
     const { e, answers, done } = emb()
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
     act(() => result.current.start())
@@ -439,13 +439,107 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(answers.length).toBe(10)
     expect(answers.every(([r]) => r === 'right')).toBe(true)
     expect(done).toEqual([2])
-    expect(lines()).not.toContain('line-mega')
-    expect(result.current.lightning).toBe(false)
-    expect(result.current.state.mega).toBe(0)
     // no next monster after the visit
     await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
     await flushLines()
     expect(answers.length).toBe(10)
+  })
+
+  /** answers right until the wizard starts "tap the lightning" (line-mega); returns that pending line */
+  async function toMegaLine(result: { current: ReturnType<typeof useDuelGame> }) {
+    await flushLines()
+    for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-mega'); guard++) {
+      const r = result.current.state.round
+      if (r && !result.current.state.outcome) act(() => result.current.choose({ kind: 'rune', mark: r.target }))
+      await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+      for (let g = 0; g < 10 && pending.length && !pending.some((p) => p.id === 'line-mega'); g++) {
+        await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
+      }
+    }
+    return pending.find((p) => p.id === 'line-mega')
+  }
+
+  it('the מגה spell is back (the parent, 2026-11-14): after 8 hits the line plays and the lightning shows', async () => {
+    const charges: number[] = []
+    const { e, answers } = emb({ waves: 3, onCharge: (n) => { charges.push(n) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    expect(line).toBeTruthy()
+    expect(answers.length).toBe(8)
+    expect(result.current.state.mega).toBe(8)
+    expect(charges[charges.length - 1]).toBe(8)
+    expect(result.current.lightning).toBe(false) // charged, but not named yet
+    act(() => line!.onCue!('lightning'))
+    expect(result.current.lightning).toBe(true)
+  })
+
+  it('a cast kills the monster; it is no answer for the run (no star, no streak, no heart) and not in the mastery data', async () => {
+    const megas: string[] = []
+    const charges: number[] = []
+    const { e, answers } = emb({ waves: 3, onMega: (m) => { megas.push(m) }, onCharge: (n) => { charges.push(n) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    act(() => line!.onCue!('lightning'))
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await flushLines()
+    const r = result.current.state.round!
+    expect(result.current.state.outcome).toBeNull()
+    const before = useProgressStore.getState().duel
+    const combo = result.current.state.combo
+    const kills = result.current.state.kills
+    act(() => result.current.megaCast())
+    expect(result.current.state.outcome).toMatchObject({ kind: 'hit', mega: true })
+    expect(result.current.state.combo).toBe(combo)
+    expect(result.current.state.mega).toBe(0)
+    expect(charges[charges.length - 1]).toBe(0)
+    expect(answers.length).toBe(8) // not reported: no star, no towerTail, the streak and the hearts stay
+    expect(megas).toEqual([r.target.id])
+    const after = useProgressStore.getState().duel
+    expect(after.recent?.[r.target.id]).toBe(before.recent?.[r.target.id]) // not a right answer for mastery
+    expect(after.pace).toBe(before.pace)
+    expect(after.byMark[r.target.id]?.mega).toBe(1) // counted on its own (the parent report's מגה column)
+    expect(result.current.lightning).toBe(false)
+    // the wave goes on: the kill counts toward its five
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    await flushLines()
+    expect(result.current.state.kills).toBe(kills + 1)
+    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    expect(ev.some((x) => x.e === 'outcome' && x.result === 'mega')).toBe(true)
+    expect(ev.some((x) => x.e === 'mega_tap')).toBe(true)
+  })
+
+  it('a charge carried over from the last visit: the line plays again after the first hit, then the lightning', async () => {
+    const { e } = emb({ mega: 8 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    expect(result.current.state.mega).toBe(8)
+    expect(result.current.lightning).toBe(false)
+    const line = await toMegaLine(result)
+    expect(line).toBeTruthy()
+  })
+
+  it('a cast tapped while paused does nothing; one queued between monsters waits through a pause', async () => {
+    const megas: string[] = []
+    const { e } = emb({ waves: 3, onMega: (m) => { megas.push(m) } })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 60_000, embedded: e }))
+    act(() => result.current.start())
+    const line = await toMegaLine(result)
+    act(() => line!.onCue!('lightning'))
+    act(() => result.current.megaCast()) // the last hit's feedback is still on: queued
+    act(() => result.current.pause())
+    await act(async () => { line!.resolve(); await vi.advanceTimersByTimeAsync(5000) })
+    await flushLines()
+    expect(megas).toEqual([])
+    act(() => result.current.megaCast()) // paused: ignored
+    expect(result.current.state.outcome?.mega).toBeFalsy()
+    act(() => result.current.resume())
+    await flushLines()
+    await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
+    expect(megas.length).toBe(1)
   })
 
   it('onAnswer "over" stops after the feedback: no next monster', async () => {
