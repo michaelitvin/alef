@@ -1,6 +1,5 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
 // orbs drifting by, a big play button, a parent button that needs a 2 s hold, and a way home to alef.
-import { useEffect, useRef, useState } from 'react'
 import { IMAGES, useWizardArt } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
@@ -8,10 +7,9 @@ import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossShelf } from '../components/BossShelf'
+import { HoldButton, SlidersGlyph } from '../components/HoldButton'
 import { useDuel2Store } from '../store'
 
-const HOLD_MS = 2000
-const RING_C = 2 * Math.PI * 25
 const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
@@ -19,24 +17,6 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const crystals = useDuel2Store((s) => s.crystals ?? 0)
   const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
-  const timer = useRef<number | undefined>(undefined)
-  const started = useRef(0)
-  const [state, setState] = useState<'idle' | 'holding' | 'hint'>('idle')
-  const [frac, setFrac] = useState(0)
-  const press = () => {
-    window.clearTimeout(timer.current)
-    started.current = Date.now()
-    setState('holding')
-    timer.current = window.setTimeout(() => { setState('idle'); onParent() }, HOLD_MS)
-  }
-  const release = () => {
-    if (state !== 'holding') return
-    window.clearTimeout(timer.current)
-    setFrac(Math.min(1, (Date.now() - started.current) / HOLD_MS))
-    setState('hint')
-    timer.current = window.setTimeout(() => setState('idle'), 700)
-  }
-  useEffect(() => () => window.clearTimeout(timer.current), [])
   return (
     <div className="d2-root d2-cover" data-screen="cover">
       <svg className="d2-stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
@@ -77,15 +57,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
         <PlayIcon />
         {loading && <svg className="d2-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}
       </button>
-      <button type="button" aria-label="parent settings (hold)" className={`d2-parent-btn d2-parent-${state}`}
-        onPointerDown={press} onPointerUp={release} onPointerLeave={release} onPointerCancel={release} onContextMenu={(e) => e.preventDefault()}>
-        <svg viewBox="0 0 56 56" width="56" height="56" aria-hidden>
-          <circle cx="28" cy="28" r="25" fill="none" stroke="#ffffff22" strokeWidth="4" />
-          <circle cx="28" cy="28" r="25" fill="none" stroke="#ffd34d" strokeWidth="4" className="d2-parent-ring" data-state={state}
-            strokeDasharray={RING_C} style={state === 'hint' ? { strokeDashoffset: RING_C * (1 - frac) } : undefined} transform="rotate(-90 28 28)" />
-          <path d="M18 22h20M18 34h20M24 18v8M32 30v8" stroke="#d8c8ff" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      </button>
+      <HoldButton label="parent settings (hold)" className="d2-parent-btn" onHold={onParent}><SlidersGlyph /></HoldButton>
     </div>
   )
 }

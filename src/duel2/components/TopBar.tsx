@@ -2,12 +2,14 @@
 // the hint (a question mark) on the left — at the merchant one help button (the same ?) that replays his walkthrough, next in the middle after a mistake or an explanation (on a phone in the hint's place: the middle is
 // over the counts there), the run's points beside the hearts (the child
 // asked where to see his points), and the streak multiplier of the coins (×2, ×3) beside them. Every button answers on
-// finger-down.
+// finger-down. In a full run the right corner holds the home button, which needs a 2 s hold (HoldButton: a tap only shows
+// the hint ring).
 import { useEffect, useState, type ReactNode } from 'react'
 import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
+import { HoldButton, HouseGlyph } from './HoldButton'
 
 /** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (duel2.css) */
 const FLASH_MS = 1700
@@ -44,6 +46,8 @@ export function TopBar(p: {
   heartFlash?: number
   /** a phone: the middle is over the counts, so the go-on button takes the ?'s place after the speaker (layout.ts nextInMiddle) */
   nextSide?: boolean
+  /** a full run: the home button in the right corner, after a 2 s hold (layout.ts BAR_HOME_SLOT_PX) */
+  onHome?: () => void
 }) {
   const flash = useFlash(p.heartFlash)
   const next = p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>
@@ -55,6 +59,7 @@ export function TopBar(p: {
         {side ? next : p.onHint && <Btn label={p.help ? 'help' : 'hint'} onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
       </div>
       <div className="d2-topbar-mid">{!side && next}</div>
+      <div className="d2-topbar-right">
       <div className="d2-topbar-side d2-hearts">
         {p.coins !== undefined && <InfoTap line="info-coins"><CoinCount n={p.coins} /></InfoTap>}
         {p.score !== undefined && <InfoTap line="info-stars"><StarCount n={p.score} attr="data-score" /></InfoTap>}
@@ -69,6 +74,13 @@ export function TopBar(p: {
           </InfoTap>
         )}
       </div>
+      {p.onHome && <HomeButton onHome={p.onHome} />}
+      </div>
     </div>
   )
+}
+
+/** the way home (a 2 s hold): in the bar's right corner, on the pause cover and on the run's summary */
+export function HomeButton({ onHome }: { onHome: () => void }) {
+  return <HoldButton label="home (hold)" className="d2-home-btn" onHold={onHome}><HouseGlyph /></HoldButton>
 }

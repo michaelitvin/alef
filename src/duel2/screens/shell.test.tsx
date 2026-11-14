@@ -99,7 +99,7 @@ describe('shell', () => {
     expect(container.querySelector('[data-best]')).not.toBeNull()
     expect(noText(container)).toBe('')
   })
-  it('the end screen shows the points of this run and his best, and only play again (no way out by mistake)', () => {
+  it('the end screen shows the points of this run and his best, and only play again (no way out by mistake; the held home button only with onExit)', () => {
     useDuel2Store.setState({ bestRun: 14 })
     const { container } = render(<Summary over={{ score: 9, crystals: 0, best: false }} onAgain={() => {}} />)
     expect(container.querySelector('[data-run-score]')!.textContent).toBe('9')

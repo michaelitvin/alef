@@ -9,8 +9,8 @@ export const BAR_TOP_PX = 8
 export const BAR_H_PX = 64
 /** free space between the band and the stage (the go-on button's pulse grows into it) */
 export const BAR_GAP_PX = 6
-/** the items in the bar (duel2.css): the round buttons, a heart, the go-on button (as tall as the band) */
-export const BAR_ITEMS_PX = { button: 60, heart: 40, next: BAR_H_PX }
+/** the items in the bar (duel2.css): the round buttons, a heart, the go-on button (as tall as the band), the held home button */
+export const BAR_ITEMS_PX = { button: 60, heart: 40, next: BAR_H_PX, home: 56 }
 /** the go-on button's pulse (d2-pulse) */
 export const NEXT_PULSE = 1.08
 
@@ -25,6 +25,12 @@ export const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_
  * the screen's right edge's margin (BAR_SIDE_PX). One value for every screen that goes up into the band.
  */
 export const BAR_COUNTS_PX = 438
+/**
+ * The home button (a 2 s hold; rule: a way out on a child screen needs a hold) is the bar's last item on the right, in
+ * the corner after the counts: its slot (the button and a gap) moves the counts to the left. A full run only; it is not
+ * there in a path session (that goes home by itself) or where the content rises into the band (homeInBar).
+ */
+export const BAR_HOME_SLOT_PX = BAR_ITEMS_PX.home + BAR_ITEM_GAP_PX
 /** the go-on button's half width in the middle of the bar, with its pulse */
 export const BAR_NEXT_HALF_PX = (BAR_ITEMS_PX.next * NEXT_PULSE) / 2
 /** air between a bar item and content that goes up into the band */
@@ -76,6 +82,8 @@ export interface BarItems {
   nextSide: boolean
   /** the counts at their widest */
   counts: Span
+  /** the held home button, in the right corner (a full run only) */
+  home?: Span
   /** the left group (the go-on button in the hint's place is no wider) */
   left: Span
 }
@@ -84,8 +92,9 @@ export interface BarItems {
  * The go-on button stays in the bar's middle only where it clears both sides with a gap: the left buttons and the counts at
  * their widest (a tablet). On a narrower screen (a phone) the centre is over the counts, so there it goes in the left group.
  */
-export function nextInMiddle(w: number): boolean {
-  return w / 2 - BAR_NEXT_HALF_PX >= BAR_LEFT_END_PX + BAR_ITEM_GAP_PX && w / 2 + BAR_NEXT_HALF_PX + BAR_ITEM_GAP_PX <= w - BAR_SIDE_PX - BAR_COUNTS_PX
+export function nextInMiddle(w: number, home = false): boolean {
+  return w / 2 - BAR_NEXT_HALF_PX >= BAR_LEFT_END_PX + BAR_ITEM_GAP_PX
+    && w / 2 + BAR_NEXT_HALF_PX + BAR_ITEM_GAP_PX <= w - BAR_SIDE_PX - BAR_COUNTS_PX - (home ? BAR_HOME_SLOT_PX : 0)
 }
 
 /**
@@ -93,20 +102,23 @@ export function nextInMiddle(w: number): boolean {
  * the go-on button in the middle where it fits (nextInMiddle), else in the hint's place after the speaker (TopBar: the
  * hint button is not shown with it), the counts on the right. No two of them overlap at any size.
  */
-export function barItems(w: number, speaker = true): BarItems {
+export function barItems(w: number, speaker = true, home = false): BarItems {
   const B = BAR_ITEMS_PX.button
   const sp: Span | undefined = speaker ? [BAR_SIDE_PX, BAR_SIDE_PX + B] : undefined
   const slot = sp ? sp[1] + BAR_ITEM_GAP_PX : BAR_SIDE_PX
   const hint: Span = [slot, slot + B]
-  const nextSide = !nextInMiddle(w)
+  const nextSide = !nextInMiddle(w, home)
   // in the hint's place the go-on button is the hint button's size and glows instead of growing (duel2.css), so it takes no more room
   const next: Span = nextSide ? hint : [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX]
   const left: Span = [BAR_SIDE_PX, hint[1]]
-  return { speaker: sp, hint, next, nextSide, counts: [w - BAR_SIDE_PX - BAR_COUNTS_PX, w - BAR_SIDE_PX], left }
+  const right = w - BAR_SIDE_PX - (home ? BAR_HOME_SLOT_PX : 0)
+  return { speaker: sp, hint, next, nextSide, counts: [right - BAR_COUNTS_PX, right], left,
+    ...(home ? { home: [w - BAR_SIDE_PX - BAR_ITEMS_PX.home, w - BAR_SIDE_PX] as Span } : {}) }
 }
 
 /**
- * The band's free middle on a w-wide screen (CSS px), where content may rise into the band: right of the left group (the
+ * The band's free middle on a w-wide screen (CSS px), where content may rise into the band (without the home button: it is
+ * not shown where content rises into the band, homeInBar): right of the left group (the
  * speaker, the hint button or the go-on button in its place), left of the counts at their widest and of the go-on button when it
  * is in the middle, with BAND_AIR_PX on each side.
  */
@@ -170,6 +182,16 @@ export function layoutVars(size?: { w: number; h: number }, top = 0, into?: 'ful
     }
   }
   return v as CSSProperties
+}
+
+/**
+ * The held home button shows in the bar unless the screen's content rises into the band (layoutVars' `into`: the ladder's
+ * full view, or the doors' band box on a phone on its side). There the band's free middle is the content's (the parent's
+ * pick), and the home button's slot would leave too little room for it; he finds the button again on the next screen.
+ */
+export function homeInBar(size: { w: number; h: number }, top = 0, into?: 'full' | number): boolean {
+  if (into === 'full') return false
+  return !(top > 0 && typeof into === 'number' && bandStageBox(size.w, size.h, top, into))
 }
 
 

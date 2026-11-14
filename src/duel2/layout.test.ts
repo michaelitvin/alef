@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BAND_CONTENT_W, BAND_TOP_PX, BAND_AIR_PX, BAR_GAP_PX, BAR_H_PX, BAR_ITEMS_PX, BAR_SIDE_PX, BAR_TOP_PX, CONTENT_TOP_PX, NEXT_PULSE, STAGE_CONTENT_TOP, bandStageBox, barItems, layoutVars, nextInMiddle, stageBox } from './layout'
+import { BAND_CONTENT_W, BAND_TOP_PX, BAND_AIR_PX, BAR_GAP_PX, BAR_H_PX, BAR_HOME_SLOT_PX, BAR_ITEM_GAP_PX, BAR_ITEMS_PX, BAR_SIDE_PX, BAR_TOP_PX, CONTENT_TOP_PX, NEXT_PULSE, STAGE_CONTENT_TOP, bandStageBox, barItems, homeInBar, intoBandView, layoutVars, nextInMiddle, stageBox } from './layout'
 import { DOOR_BOX, FULL_LIGHT, KEY_BOW, KEY_H, KEY_W, KEY_X, KEY_Y } from './components/screens/Doors'
 
 const SIZES = [[780, 360], [740, 360], [915, 412], [1280, 800], [1024, 768], [1920, 1080]] as const
@@ -92,7 +92,62 @@ describe('no item of the bar covers another (the go-on button never over the cou
   it('the play screen tells the bar where the go-on button goes', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
     const play = fs.readFileSync('src/duel2/screens/Play.tsx', 'utf8')
-    expect(play).toMatch(/nextSide=\{!nextInMiddle\(size\.w\)\}/)
+    expect(play).toMatch(/nextSide=\{!nextInMiddle\(size\.w, homeBar\)\}/)
+  })
+})
+
+describe('the held home button in the bar\'s right corner (the parent, 2026-11-14: no way out of the game)', () => {
+  const SIZES_HOME = [[780, 360], [740, 360], [915, 412], [1024, 768], [1180, 820], [1280, 800]] as const
+  it('it covers no other item at any size (the counts at their widest, the go-on button where it goes, the speaker and the hint)', () => {
+    for (const [w] of SIZES_HOME) for (const speaker of [true, false]) {
+      const bar = barItems(w, speaker, true)
+      const home = bar.home!
+      const shown: [string, [number, number]][] = [['home', home], ['next', bar.next], ['counts', bar.counts]]
+      if (bar.speaker) shown.push(['speaker', bar.speaker])
+      if (!bar.nextSide) shown.push(['hint', bar.hint])
+      for (let i = 0; i < shown.length; i++) for (let j = i + 1; j < shown.length; j++) {
+        const [a, [a0, a1]] = shown[i], [b, [b0, b1]] = shown[j]
+        const apart = a1 + BAR_ITEM_GAP_PX <= b0 + 0.01 || b1 + BAR_ITEM_GAP_PX <= a0 + 0.01
+        expect(apart, `${w}: ${a} [${a0.toFixed(1)}, ${a1.toFixed(1)}] x ${b} [${b0.toFixed(1)}, ${b1.toFixed(1)}] (speaker ${speaker})`).toBe(true)
+      }
+    }
+  })
+  it('it is large enough to tap and away from the rounded screen corner', () => {
+    expect(BAR_ITEMS_PX.home).toBeGreaterThanOrEqual(56)
+    expect(BAR_ITEMS_PX.home).toBeLessThanOrEqual(BAR_H_PX)
+    expect(BAR_HOME_SLOT_PX).toBe(BAR_ITEMS_PX.home + BAR_ITEM_GAP_PX)
+    for (const [w] of SIZES_HOME) {
+      const home = barItems(w, true, true).home!
+      expect(home[1]).toBe(w - BAR_SIDE_PX)
+      expect(home[1] - home[0]).toBe(BAR_ITEMS_PX.home)
+      // its centre is at least 24 px + its radius from the side and 8 px + 4 px + its radius from the top
+      expect(BAR_SIDE_PX).toBeGreaterThanOrEqual(24)
+    }
+  })
+  it('the go-on button stays in the middle on the tablet (1180×820); on a phone it is in the hint\'s place', () => {
+    expect(nextInMiddle(1180, true)).toBe(true)
+    expect(nextInMiddle(1280, true)).toBe(true)
+    expect(nextInMiddle(780, true)).toBe(false)
+  })
+  it('the stylesheet: the button\'s size and the gap before it', async () => {
+    const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
+    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    expect(css).toMatch(new RegExp(`\\.d2-topbar-right \\{ display: flex; gap: ${BAR_ITEM_GAP_PX}px;`))
+    expect(css).toMatch(new RegExp(`\\.d2-home-btn \\{ width: ${BAR_ITEMS_PX.home}px; height: ${BAR_ITEMS_PX.home}px;`))
+    // the bar lets taps through (pointer-events: none) except on its items: the button takes them (QA: a hold did nothing)
+    expect(css).toMatch(/\.d2-home-btn \{[^}]*pointer-events: auto;/)
+  })
+  it('not in the bar where the content rises into the band (a phone on its side: the doors, the ladder), in it everywhere else', () => {
+    for (const [w, h] of [[780, 360], [740, 360], [915, 412]] as const) {
+      expect(homeInBar({ w, h }, STAGE_CONTENT_TOP.doors, BAND_CONTENT_W.doors), `${w}x${h}`).toBe(false)
+      expect(homeInBar({ w, h }, STAGE_CONTENT_TOP.ladder, 'full')).toBe(false)
+      for (const k of ['broom', 'ghosts', 'merchant', 'cauldron', 'draw'] as const) expect(homeInBar({ w, h }, STAGE_CONTENT_TOP[k])).toBe(true)
+      expect(homeInBar({ w, h }, 0)).toBe(true)
+    }
+    for (const [w, h] of [[1180, 820], [1024, 768], [1280, 800]] as const) {
+      expect(homeInBar({ w, h }, STAGE_CONTENT_TOP.doors, BAND_CONTENT_W.doors)).toBe(true)
+      expect(intoBandView(w, h, 800, 300, STAGE_CONTENT_TOP.ladder)).toBeNull()
+    }
   })
 })
 

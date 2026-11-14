@@ -281,6 +281,8 @@ export class RunController {
   private visitKind: Kind | null = null
   /** the run is ending: a pause no longer cancels the summary */
   private ending = false
+  /** he left the run with the home button (exit): closing the game after it is no abandon */
+  private exited = false
   /** the crystal of this cycle was given (a pause during it must not give it twice) */
   private crystalAwarded = false
   /** a pass has ended: its heart is due before the next screen */
@@ -475,11 +477,37 @@ export class RunController {
     this.stopBroom()
     stopVoice()
     stopMusic()
+    if (this.exited) return
     // closing the game before the cycle's end: the crystal the skipped doors owe him is still his
     if (!this.view.over && !this.ending) this.payOwedCrystal()
     // the run is already ending (its run-end was sent): closing now is no abandon
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
     if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
+  }
+  /**
+   * He held the home button (2 s): the run stops here, as when the game is closed — the owed crystal is paid, nothing is
+   * lost (stars, coins and crystals are saved as they come), and the run's records (lastEnded, runs, best) are not
+   * written, as after a lock or an app close; the hearts and the streak start fresh in the next run anyway. The sound
+   * stops. A 'run-exit' says where he left (no 'abandon' then).
+   */
+  exit() {
+    if (this.exited) return
+    const screen = this.view.merchant ? 'merchant' : this.screenId
+    const paused = this.view.paused
+    const done = !!this.view.over || this.ending
+    this.token++
+    this.running = false
+    this.stopBroom()
+    stopVoice()
+    stopMusic()
+    this.pickWaiter = null
+    this.nextWaiter = null
+    this.strokeWaiter = null
+    this.mWaiter = null
+    if (!done) this.payOwedCrystal()
+    if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'exit' })
+    this.exited = true
+    this.track('run-exit', { screen, score: this.score, paused, ...(done ? { ended: true } : {}) })
   }
   pause() {
     if (this.view.paused || this.view.over || this.ending) return

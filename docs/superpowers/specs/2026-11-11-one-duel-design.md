@@ -291,6 +291,26 @@ My calls:
 - **A session from the path:** one visit to that minigame (about 10 questions, or one boss), then the summary screen.
   No hearts at stake and no merchant. Stars and coins are still earned.
 
+### The way out (the parent, 2026-11-14)
+
+The parent's playtest note: "there is no way out of the game and back to the main menu". The rule against a way out on
+a child screen now asks for a held one (a plain home button took the child out by mistake).
+
+- **The button:** a small house in the held ring of the cover's parent button (the same component: `HoldButton`). A 2 s
+  hold leaves; a tap or a short press only shows how far the ring got, and never leaves.
+- **Where:** in a full run only, in the top bar's right corner, after the counts (`layout.ts`: `BAR_HOME_SLOT_PX` moves
+  the counts left; the go-on button still fits in the middle on a 1180×820 tablet and goes to the hint's place on a
+  phone, as before). Also on the pause cover, in the same corner, and on the summary of a full run. Not in a path
+  session or its summary (they go home by themselves), and not in the gallery.
+- **Not in the bar where the content rises into the band** (on a phone on its side: the doors and the ladder). There the
+  band's free middle is the content's (the parent's pick), and the slot would make the door and the ladder smaller; the
+  button is back on the next screen.
+- **Leaving:** the run stops as when the game is closed: the sound stops, the crystal that skipped doors owe him is paid,
+  stars, coins and crystals stay (they are saved as they come). The run's records (`lastEnded`, `runs`, best) are not
+  written, as after a lock or an app close; the hearts and the streak start fresh in the next run, as always. Telemetry:
+  `run-exit` with the screen, the score and whether the game was paused (no `abandon`); from the summary, `run-exit`
+  with `screen: 'summary'`. Then the alef home screen, where the parent area's way home goes.
+
 ### Placement: a skilled child moves on fast (the parent approved, 2026-11-13)
 
 A child who already knows nikkud was held at stage 0 too long: a simulated child with no mistakes needed about 40 tower

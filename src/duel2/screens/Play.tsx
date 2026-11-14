@@ -24,7 +24,7 @@ import { holdAudio } from '../audio/duel2Audio'
 import { useDuel2Store } from '../store'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
-import { BAND_CONTENT_W, layoutVars, nextInMiddle, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
+import { BAND_CONTENT_W, homeInBar, layoutVars, nextInMiddle, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
 
 type Run = ReturnType<typeof useRun>
 
@@ -111,7 +111,11 @@ function contentTop(v: View): number {
 /** the width of the content that rises into the top band on a phone (layout.ts: the doors), if any */
 const bandWidth = (v: View): number | undefined => (v.merchant || !v.screen ? undefined : BAND_CONTENT_W[v.screen.screen])
 
-export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void }) {
+export function Play({ opts, onOver, onExit }: {
+  opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void
+  /** a full run: the held home button leaves the run (it stops first: RunController.exit); none in a session or the gallery */
+  onExit?: () => void
+}) {
   const run = useRun(opts)
   const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
@@ -139,11 +143,15 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
   }, [bfx?.id, bfx?.kind])
   // the merchant's visit has one help button (?) that replays his walkthrough, and no speaker (the parent)
   // (the tower has its own speaker on the duel's board)
+  const into = fullView(v, size) ? 'full' : bandWidth(v)
+  // the way home (a 2 s hold): a full run only, in the bar's corner unless the content rises into the band there (layout.ts)
+  const exit = onExit && !opts.session && !opts.sandbox ? () => { run.exit(); onExit() } : undefined
+  const homeBar = !!exit && !v.over && homeInBar(size, contentTop(v), into)
   const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <TouchAnswer.Provider value={touch}>
     <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
-      style={layoutVars(size, contentTop(v), fullView(v, size) ? 'full' : bandWidth(v))}>
+      style={layoutVars(size, contentTop(v), into)}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
           {() => {
@@ -172,7 +180,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
         <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow} help={!!v.merchant}
-          onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w)} />
+          onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w, homeBar)} onHome={homeBar ? exit : undefined} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}
@@ -181,7 +189,7 @@ export function Play({ opts, onOver }: { opts: RunOpts; onOver: (o: NonNullable<
       {/* the defeat scene's picture is decoded before it is needed (rule: no late pictures); the broom draws it anyway */}
       {!v.defeat && wiz('s-wizard-dizzy') && <div data-warm className="d2-warm" aria-hidden><img src={wiz('s-wizard-dizzy')} alt="" draggable={false} /></div>}
       {v.defeat && <div data-defeat className="d2-defeat">{wiz('s-wizard-dizzy') && <img src={wiz('s-wizard-dizzy')} alt="" draggable={false} />}</div>}
-      {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} />}
+      {v.paused && <PauseCover onPlay={() => { holdAudio(false); run.resume() }} onHome={exit} />}
     </div>
     </TouchAnswer.Provider>
   )

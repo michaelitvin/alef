@@ -653,6 +653,50 @@ describe('run controller', () => {
     expect(ev.some((e) => e.e === 'abandon')).toBe(false)
   })
 
+  it('the held home button (exit) leaves the run as a close does: the stars and coins stay, no run records, a run-exit, the sound stops', async () => {
+    duel2Telemetry.clear()
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', runs: 5, bestRun: 0, totalStars: 10, coins: 3 })
+    const c = make()
+    c.start()
+    await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
+    c.gesture({ type: 'pick', id: rightId(c.view) })
+    await until(c, (v) => v.score === 1)
+    await drain(c)
+    const coins = useDuel2Store.getState().coins
+    expect(useDuel2Store.getState().totalStars).toBe(11)
+    c.exit()
+    const view = c.view
+    const heard = played.length
+    await tick(5000)
+    // the run stopped: no new line, no new round
+    expect(played.length).toBe(heard)
+    expect(c.view).toBe(view)
+    c.destroy()
+    const st = useDuel2Store.getState()
+    expect(st.totalStars).toBe(11)
+    expect(st.coins).toBe(coins)
+    // a lock or an app close writes no run records either: the next run starts where it would have
+    expect(st.lastEnded).toBe('cauldron')
+    expect(st.runs).toBe(5)
+    expect(st.bestRun).toBe(0)
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; score?: number; paused?: boolean }[]
+    expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ e: 'run-exit', screen: 'ladder', score: 1, paused: false })])
+    expect(ev.some((e) => e.e === 'abandon' || e.e === 'run-end')).toBe(false)
+  })
+
+  it('the home button on the pause cover: the run-exit says it was paused', async () => {
+    duel2Telemetry.clear()
+    const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.pause()
+    c.exit()
+    c.exit()
+    c.destroy()
+    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; paused?: boolean }[]
+    expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ screen: 'ghosts', paused: true })])
+  })
+
   it('a lock during the defeat scene still shows the summary', async () => {
     useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     const c = make()

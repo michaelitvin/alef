@@ -10,7 +10,7 @@ import { Gallery, type GalleryEntry } from './screens/Gallery'
 import { Strokes } from './screens/Strokes'
 import { DrawTest } from './screens/DrawTest'
 import { preloadDuel2Assets } from './assets/preload'
-import { configureAudio, holdAudio, say, setHidden, stopVoice, unlockDuel2Audio } from './audio/duel2Audio'
+import { configureAudio, holdAudio, say, setHidden, stopMusic, stopVoice, unlockDuel2Audio } from './audio/duel2Audio'
 import { IMAGES } from './assets/images'
 import { GenderQuestion } from '../shared/GenderQuestion'
 import { getGender, setGender } from '../shared/player'
@@ -22,7 +22,7 @@ import type { View } from './controller'
 import { StationCover } from './screens/StationCover'
 import { openScreens, stationFromUrl } from './station'
 
-type Screen = 'cover' | 'station' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest'
+type Screen = 'cover' | 'station' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest' | 'leaving'
 
 /** back to the alef home screen (a session from the path ends there by itself) */
 export function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
@@ -92,7 +92,17 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
       setScreen('play')
     })
   }
+  // the held home button (a full run and its summary): the run has stopped (Play: RunController.exit), the game leaves
+  // to the alef home screen (the parent area's way home goes there too); nothing of the game stays mounted meanwhile
+  const leave = () => {
+    stopVoice()
+    stopMusic()
+    duel2Telemetry.flush()
+    setScreen('leaving')
+    goHome()
+  }
   const view = (() => {
+  if (screen === 'leaving') return <div className="d2-root" data-screen="leaving" />
   if (screen === 'ask') {
     return (
       <div className="d2-root">
@@ -107,8 +117,11 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
       </div>
     )
   }
-  if (screen === 'play') return <Play key={runNo} opts={station ? { session: { screen: station } } : {}} onOver={(o) => { setOver(o); setScreen('summary') }} />
-  if (screen === 'summary' && over) return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} onHome={goHome} />
+  if (screen === 'play') return <Play key={runNo} opts={station ? { session: { screen: station } } : {}} onOver={(o) => { setOver(o); setScreen('summary') }} onExit={station ? undefined : leave} />
+  if (screen === 'summary' && over) {
+    return <Summary over={over} onAgain={() => { stopVoice(); setRunNo((n) => n + 1); setScreen('play') }} onHome={goHome}
+      onExit={over.session ? undefined : () => { duel2Telemetry.track('run-exit', { screen: 'summary', score: over.score }); leave() }} />
+  }
   if (screen === 'station' && station) return <StationCover station={station} onPlay={play} loading={loading} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} onStrokes={() => setScreen('strokes')} onDrawTest={() => setScreen('drawtest')} />
   if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); setScreen('parent') }} />

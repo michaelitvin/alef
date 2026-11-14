@@ -7,10 +7,11 @@ const { gate } = vi.hoisted(() => {
 })
 vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadDuel2Assets: () => gate.p }))
 // the run itself is tested in useRun.test: here a session ends at once, so the shell around it can be checked
-const { playOpts } = vi.hoisted(() => ({ playOpts: [] as unknown[] }))
+const { playOpts, exits } = vi.hoisted(() => ({ playOpts: [] as unknown[], exits: [] as (undefined | (() => void))[] }))
 vi.mock('./Play', () => ({
-  Play: ({ opts, onOver }: { opts: { session?: { screen: string } }; onOver: (o: unknown) => void }) => {
+  Play: ({ opts, onOver, onExit }: { opts: { session?: { screen: string } }; onOver: (o: unknown) => void; onExit?: () => void }) => {
     playOpts.push(opts)
+    exits.push(onExit)
     return <div data-screen="play" data-session={opts.session?.screen} onClick={() => onOver({ score: 4, crystals: 0, best: false, session: !!opts.session })} />
   },
 }))
@@ -117,6 +118,47 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     act(() => setVis('visible'))
     await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
     expect(home).toHaveBeenCalledTimes(1)
+  })
+
+  it('the held home button: a session has none (it goes home by itself); a full run leaves through it to the home screen', async () => {
+    at('?station=ghosts')
+    const a = render(<Duel2App goHome={() => {}} />)
+    fireEvent.pointerDown(a.container.querySelector('[data-station-play]')!)
+    await act(async () => { gate.open(); await gate.p })
+    expect(exits[exits.length - 1]).toBeUndefined()
+    fireEvent.click(a.container.querySelector('[data-screen="play"]')!)
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)) })
+    expect(a.container.querySelector('[aria-label="home (hold)"]')).toBeNull()
+    a.unmount()
+    at('')
+    const home = vi.fn()
+    const b = render(<Duel2App goHome={home} />)
+    fireEvent.click(b.container.querySelector('[aria-label="play"]')!)
+    await act(async () => { await gate.p; await new Promise((r) => setTimeout(r, 0)) })
+    expect(b.container.querySelector('[data-screen="play"]')).not.toBeNull()
+    const exit = exits[exits.length - 1]!
+    act(() => exit())
+    expect(home).toHaveBeenCalledTimes(1)
+    expect(b.container.querySelector('[data-screen="play"]')).toBeNull()
+    b.unmount()
+    // the summary of a full run: the hold leaves too, with a run-exit
+    const home2 = vi.fn()
+    const c = render(<Duel2App goHome={home2} />)
+    fireEvent.click(c.container.querySelector('[aria-label="play"]')!)
+    await act(async () => { await gate.p; await new Promise((r) => setTimeout(r, 0)) })
+    fireEvent.click(c.container.querySelector('[data-screen="play"]')!)
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)) })
+    const btn = c.container.querySelector('[data-screen="summary"] [aria-label="home (hold)"]')!
+    expect(btn).not.toBeNull()
+    vi.useFakeTimers()
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerUp(btn)
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    expect(home2).not.toHaveBeenCalled()
+    fireEvent.pointerDown(btn)
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+    expect(home2).toHaveBeenCalledTimes(1)
+    expect(c.container.querySelector('[data-screen="leaving"]')).not.toBeNull()
   })
 
   it('a normal run’s summary keeps its play button and never goes home', async () => {

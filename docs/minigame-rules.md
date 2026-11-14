@@ -319,8 +319,13 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Keep the content area below the top bar: start the game area under the bar, and do not let content go up into it.
   Example (book 2): on a phone on its side the ladder's top plates went under the coins and the stars; now the stage
   starts below the bar on every screen.
-- Do not put a way out of the game (home, back to the menu) on a child screen. Put it in the parent area.
+- A way out of the game (home, back to the menu) on a child screen must need a 2 s hold, with a ring that fills. A tap
+  must never leave: a tap or a short press only shows how far the ring got. Use the same held button as the parent button.
+  Put it in a corner of the top bar, away from the buttons that the child uses, and on the end screen.
+  Reason: a plain home button takes the child out by mistake, and with no way out at all the parent cannot leave a run.
   Example (book 2): a home button next to "play again" took the child to the old duel twice; he did not know what he pressed.
+  Then the game had no way out, and the parent (2026-11-14): "there is no way out of the game and back to the main menu".
+  Now a held house button is in the top bar's right corner, on the pause cover and on the summary.
 - Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
   so far on the start screen. Digits are allowed; mark them for the no-text scan.
   Example (book 2): the child asked "where can I see my points?".
