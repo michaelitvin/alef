@@ -25,6 +25,29 @@ image budget at the start.
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
 `asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
 
+## Deployment (GitHub Pages: production and staging)
+
+One Pages site holds two builds, made by `.github/workflows/deploy.yml`:
+
+| Branch | Served at | Role |
+| --- | --- | --- |
+| `release` | `/alef/` | production: what the child plays |
+| `main` | `/alef/staging/` | staging: merged work, before release |
+
+- A push to `main` or `release` rebuilds and deploys both, because each deploy replaces the whole site. The tests of
+  both branches must pass, or nothing deploys.
+- Merge feature branches into `main` as before. Check them on staging.
+- To release, fast-forward `release` to a tested commit of `main`: `git push origin main:release` (or `<sha>:release`).
+  Do not commit to `release` directly. A fix goes into `main` first.
+- The staging build is `ALEF_STAGING=1 npm run build` (base `/alef/staging/`).
+- Staging and production share one origin, so they share one localStorage. `src/shared/stagingStorage.ts` gives every
+  key in the staging build a `staging:` prefix, so staging never reads or changes the child's real saves. Each entry
+  point (`src/main.tsx`, `src/clock/main.tsx`, `src/duel2/main.tsx`) must import it first. A new entry point must too.
+- To test staging with the child's real progress, open a staging URL with `?copy-prod` (for example
+  `/alef/staging/?copy-prod`). After a confirmation, it replaces all staging saves with a copy of the production saves.
+  Production saves do not change.
+- The TTS worker (`worker/`) is not part of this. Deploy it by hand with `wrangler deploy`.
+
 ## Project Structure
 
 ```text
