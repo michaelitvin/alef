@@ -4,8 +4,8 @@ import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, is
 export type DuelAction =
   | { type: 'START' }
   /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
-   * screens already explained (kept by Book 2's save) */
-  | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[] }
+   * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */
+  | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[]; mega?: number }
   | { type: 'ROUND_READY'; round: Round }
   /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
   | { type: 'ROUND_PREVIEW'; round: Round }
@@ -30,14 +30,15 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
   const dmg = mega ? 2 : 1
   const final = !round.boss || s.bossHp - dmg <= 0
   const pts = points(s.combo, mega)
-  const combo = s.combo + 1
+  // embedded (Book 2's run): a lightning kill is not reading, so it does not add to the streak (nor break it)
+  const combo = mega && s.embedded ? s.combo : s.combo + 1
   return {
     ...s,
     outcome: { kind: 'hit', choiceKey, mega, final, points: pts, effect },
     score: s.score + pts,
     combo,
     bestCombo: Math.max(s.bestCombo, combo),
-    mega: mega || s.embedded ? 0 : Math.min(MEGA_MAX, s.mega + 1),
+    mega: mega ? 0 : Math.min(MEGA_MAX, s.mega + 1),
     bossHp: round.boss ? Math.max(0, s.bossHp - dmg) : s.bossHp,
   }
 }
@@ -83,6 +84,7 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
       const announce = a.boss ? 'boss' : newMonsterAt(a.wave) ? 'new-monster' : null
       return {
         ...initialDuelState, phase: 'playing', embedded: true, hearts: Infinity, wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
+        mega: Math.max(0, Math.min(MEGA_MAX, a.mega ?? 0)),
         seenScreens: [...(a.seen ?? [])], next: { kind: 'spawn', wave: a.wave, boss: a.boss, announce },
       }
     }
@@ -103,7 +105,7 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
     case 'TIMEOUT':
       return canAnswer(s) ? miss(s, null) : s
     case 'MEGA':
-      return canAnswer(s) && !s.embedded && s.mega >= MEGA_MAX ? hit(s, null, true, a.effect) : s
+      return canAnswer(s) && s.mega >= MEGA_MAX ? hit(s, null, true, a.effect) : s
     case 'SCREEN_EXPLAINED':
       return s.seenScreens.includes(a.key) ? s : { ...s, seenScreens: [...s.seenScreens, a.key] }
     case 'ADVANCE': {

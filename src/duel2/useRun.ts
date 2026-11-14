@@ -32,5 +32,7 @@ export function useRun(opts: RunOpts) {
     towerAnswer: (r: 'right' | 'wrong', markId: string) => c.towerAnswer(r, markId),
     towerDone: (lastWave: number) => c.towerDone(lastWave),
     towerWaveEnd: (wave: number) => c.towerWaveEnd(wave),
+    towerMega: (markId: string) => c.towerMega(markId),
+    towerCharge: (mega: number) => c.towerCharge(mega),
   }
 }

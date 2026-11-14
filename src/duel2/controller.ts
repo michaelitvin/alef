@@ -93,6 +93,8 @@ export interface TowerView {
   screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
   /** stage 0's placement check: the marks he has not answered yet are asked first */
   placement?: boolean
+  /** the duel's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
+  mega?: number
 }
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
 
@@ -333,6 +335,8 @@ export class RunController {
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
   private towerNo = 0
+  /** the duel's מגה charge: it carries over between the tower's visits within this run, and starts empty in a new run */
+  private towerMegaCharge = 0
   private towerWaiter: ((lastWave: number) => void) | null = null
   /** this visit's length (rounds, waves, rungs, doors or words), decided when it starts */
   private visitLen = 0
@@ -1094,7 +1098,8 @@ export class RunController {
     const tw = this.tower
     this.syncMult()
     const placement = !this.bookOpen() || undefined
-    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
+    const mega = this.towerMegaCharge || undefined
+    this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}), ...(mega ? { mega } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
     this.resuming = false
     const last = tw.done ?? await this.guard(t, new Promise<number>((r) => { this.towerWaiter = r }))
     this.towerWaiter = null
@@ -1162,6 +1167,21 @@ export class RunController {
     // the answer on the screen finishes (the duel's feedback), then towerDone ends the run; a pause no longer cancels it
     this.ending = true
     return 'over'
+  }
+
+  /**
+   * A מגה kill on the tower (the parent brought it back, 2026-11-14): it is not reading (spec: count special results
+   * separately), so it gives no star or coin, does not move the streak or the hearts, and is not in the fast lane's tail.
+   * Its own telemetry event keeps it out of the answers.
+   */
+  towerMega(markId: string) {
+    if (this.ending || this.view.screen?.screen !== 'tower') return
+    this.track('tower-mega', { target: markId, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+  }
+
+  /** the duel's מגה charge changed: kept for the run's next tower visit */
+  towerCharge(mega: number) {
+    if (this.view.screen?.screen === 'tower') this.towerMegaCharge = mega
   }
 
   /** The tower's visit is over (its waves, its boss, or the hearts ran out and the last answer finished). */

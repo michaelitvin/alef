@@ -3,7 +3,8 @@ import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../../utils/duel/duelAudio', async (orig) => {
   const m = await orig<typeof import('../../../utils/duel/duelAudio')>()
-  return { ...m, playLine: vi.fn(() => Promise.resolve()), playSfx: vi.fn(() => Promise.resolve()), playMusic: vi.fn(), muteDuelAudio: vi.fn() }
+  // "tap the lightning": its cue fires as the line is said (as the real player does by the line's end)
+  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), playMusic: vi.fn(), muteDuelAudio: vi.fn() }
 })
 import { Tower } from './Tower'
 import { muteDuelAudio, playMusic } from '../../../utils/duel/duelAudio'
@@ -23,7 +24,7 @@ describe('Tower', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('draws the duel’s board with no HUD, no מגה button and none of the duel’s covers', async () => {
+  it('draws the duel’s board with no HUD, no מגה button before the charge, and none of the duel’s covers', async () => {
     const { container } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     expect(container.querySelector('.nd-embedded')).not.toBeNull()
@@ -74,4 +75,35 @@ describe('Tower', () => {
     rerender(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     expect(vi.mocked(muteDuelAudio)).toHaveBeenLastCalledWith(false)
   })
+
+  it('the מגה spell (the parent brought it back, 2026-11-14): a carried charge, a hit, the line, the lightning; a cast is no answer', async () => {
+    const answers: string[] = []
+    const megas: string[] = []
+    const charges: number[] = []
+    const v = { ...view, mega: 8 }
+    const props = { view: v, onAnswer: (r: 'right' | 'wrong') => { answers.push(r); return 'on' as const }, onDone: () => {},
+      onMega: (m: string) => { megas.push(m) }, onCharge: (n: number) => { charges.push(n) } }
+    const { container, rerender } = render(<Tower {...props} paused={false} />)
+    const right = async () => {
+      for (let i = 0; i < 40 && !container.querySelector('.nd-rune[data-correct="1"]:not(:disabled)'); i++) await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+      act(() => { (container.querySelector('.nd-rune[data-correct="1"]') as HTMLButtonElement).click() })
+    }
+    await right()
+    expect(container.querySelector('.nd-mega-btn')).toBeNull()
+    for (let i = 0; i < 40 && !container.querySelector('.nd-mega-btn'); i++) await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+    expect(container.querySelector('.nd-mega-btn')).not.toBeNull()
+    // a lock hides it under Book 2's cover; the play brings it back
+    rerender(<Tower {...props} paused />)
+    expect(container.querySelector('.nd-mega-btn')).toBeNull()
+    rerender(<Tower {...props} paused={false} />)
+    for (let i = 0; i < 40 && !(container.querySelector('.nd-rune[data-correct="1"]:not(:disabled)') && container.querySelector('.nd-mega-btn')); i++) {
+      await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+    }
+    act(() => { (container.querySelector('.nd-mega-btn') as HTMLButtonElement).click() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(100) })
+    expect(megas.length).toBe(1)
+    expect(answers).toEqual(['right'])
+    expect(charges[charges.length - 1]).toBe(0)
+    expect(container.querySelector('.nd-mega-btn')).toBeNull()
+  }, 30_000)
 })

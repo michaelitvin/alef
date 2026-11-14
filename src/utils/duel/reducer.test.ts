@@ -1,4 +1,4 @@
-import { BOSS_HP, MONSTERS_PER_WAVE } from './rules'
+import { BOSS_HP, MEGA_MAX, MONSTERS_PER_WAVE } from './rules'
 import { describe, it, expect } from 'vitest'
 import { duelReducer, initialDuelState } from './reducer'
 import { markById } from './marks'
@@ -153,15 +153,31 @@ describe('START_AT (Book 2’s run)', () => {
     expect(s.bossHp).toBe(BOSS_HP)
     expect(s.next).toMatchObject({ kind: 'spawn', wave: 10, boss: true, announce: 'boss' })
   })
-  it('no מגה meter, and no boss after a 5th wave', () => {
+  it('no boss after a 5th wave; the מגה meter charges as in the duel (the parent brought it back, 2026-11-14)', () => {
     let s = at(5)
     for (let k = 0; k < MONSTERS_PER_WAVE; k++) {
       s = tap(ready(s, mk({ id: k + 1 })), 'kamatz')
-      expect(s.mega).toBe(0)
+      expect(s.mega).toBe(k + 1)
       s = adv(s)
     }
     expect(s.next).toMatchObject({ kind: 'spawn', wave: 6, boss: false })
-    expect(duelReducer({ ...ready(at(3)), mega: 99 }, { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+  })
+  it('the charge carries over from the last visit; a cast kills, counts as a kill of the wave, and keeps the combo', () => {
+    const s = duelReducer(initialDuelState, { type: 'START_AT', wave: 3, boss: false, mega: MEGA_MAX })
+    expect(s.mega).toBe(MEGA_MAX)
+    const c = duelReducer({ ...ready(s), combo: 4 }, { type: 'MEGA', effect: 'mega' })
+    expect(c.outcome).toMatchObject({ kind: 'hit', mega: true, final: true })
+    expect(c.mega).toBe(0)
+    expect(c.combo).toBe(4)
+    expect(c.hearts).toBe(Infinity)
+    expect(adv(c).kills).toBe(1)
+    // not charged yet: no cast
+    expect(duelReducer(ready(at(3)), { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+  })
+  it('a cast on the boss takes two of its hearts', () => {
+    const s = duelReducer(initialDuelState, { type: 'START_AT', wave: 5, boss: true, mega: MEGA_MAX })
+    const c = duelReducer(ready(s, mk({ boss: true })), { type: 'MEGA', effect: 'mega' })
+    expect(c.bossHp).toBe(BOSS_HP - 2)
   })
   it('the screens already explained are kept', () => {
     expect(duelReducer(initialDuelState, { type: 'START_AT', wave: 1, boss: false, seen: ['A'] }).seenScreens).toEqual(['A'])

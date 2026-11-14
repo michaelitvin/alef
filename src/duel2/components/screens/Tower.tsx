@@ -1,7 +1,8 @@
 // The first duel's tower as a screen of Book 2's run (spec: one duel, Part 3): the duel's own board (Battlefield and
 // SpellPad, its rules and timing in useDuelGame's embedded mode), drawn over the stage under Book 2's top bar. No DuelHud
-// (the top bar shows the run's hearts, stars and coins), no מגה, and none of the duel's covers: Book 2's pause cover holds,
-// and the run's summary ends the run.
+// (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Book 2's pause cover holds, and the
+// run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
+// sits above the rune row, as in the duel.
 import { useEffect } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useDuelGame } from '../../../hooks/useDuelGame'
@@ -10,6 +11,8 @@ import { SpellPad } from '../../../components/duel/SpellPad'
 import { RuneGlowDefs } from '../../../components/duel/RuneGlyph'
 import { ComboBurst } from '../../../components/duel/ComboBurst'
 import { Banner, Starfield } from '../../../components/duel/Starfield'
+import { Icon } from '../../../components/duel/Icon'
+import { MEGA_MAX } from '../../../utils/duel/rules'
 import { useDuel2Store } from '../../store'
 import type { TowerView } from '../../controller'
 import { TEST_HOOKS } from '../../testHooks'
@@ -24,9 +27,13 @@ export interface TowerProps {
   onDone: (lastWave: number) => void
   /** a wave ended in the middle of the visit: true ends the visit there (stage 0 passed) */
   onWaveEnd?: (wave: number) => boolean
+  /** a מגה kill: no answer for the run (no star, no streak, no heart); tracked on its own */
+  onMega?: (markId: string) => void
+  /** the מגה charge changed: the run keeps it for its next tower visit (view.mega) */
+  onCharge?: (mega: number) => void
 }
 
-export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd }: TowerProps) {
+export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge }: TowerProps) {
   const settings = useDuel2Store((s) => s.settings)
   const game = useDuelGame({
     embedded: {
@@ -36,6 +43,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd }: TowerP
       onIntroduced: (id) => { if (!dry) useDuel2Store.getState().monsterIntroduced(id) },
       onAnswer, onDone, audio: { sfx: settings.sfx, volume: settings.volume }, dry,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
+      mega: view.mega, onMega, onCharge,
     },
   })
   const { state } = game
@@ -67,6 +75,13 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd }: TowerP
           resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
+          {state.mega >= MEGA_MAX && game.lightning && state.round && !state.paused && !paused && (
+            <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0, rotate: -120 }}
+              animate={{ scale: [0, 1.9, 0.9, 1.15, 1], rotate: [-120, 20, -10, 0, 0] }}
+              transition={{ duration: 0.9, ease: 'easeOut' }} onClick={game.megaCast} aria-label="mega">
+              <Icon name="bolt" size={40} />
+            </motion.button>
+          )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}
               onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} />
