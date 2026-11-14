@@ -39,7 +39,7 @@
 .home-dots { display: flex; justify-content: center; gap: 3px; height: 8px; margin-top: 3px; }
 .home-dots i { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid #c08a00; box-sizing: border-box; }
 .home-dots i.on { background: #e0a800; border-color: #c08a00; }
-.home-wizhere { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); height: 46px; z-index: 2;
+.home-wizhere { position: absolute; top: -22px; left: 50%; transform: translateX(-50%) scaleX(-1); height: 46px; z-index: 2;
   filter: drop-shadow(0 2px 3px #0005); pointer-events: none; }
 .home-glyph { font-family: Sigalit, 'Noto Sans Hebrew', serif; color: #3b1d6e; line-height: 1; }
 .home-glyph-hand { font-family: 'Dana Yad', Sigalit, serif; }

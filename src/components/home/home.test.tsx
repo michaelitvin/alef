@@ -97,6 +97,17 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(g.container.querySelector('[data-wizard]')!.getAttribute('src')).toMatch(/girl/)
   })
 
+  it('the path goes right to left: the wizard and the ghost, drawn facing right, are mirrored to face left (the parent, 2026-11-14)', async () => {
+    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
+    const { container } = render(<StationPath />)
+    const ghost = st(container, 'ghosts').querySelector<HTMLImageElement>('[data-pic="img"]')!
+    expect(ghost.style.transform).toBe('scaleX(-1)')
+    expect(st(container, 'tower').querySelector<HTMLImageElement>('[data-pic="img"]')!.style.transform).toBe('')
+    const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
+    const css = fs.readFileSync('src/components/home/home.css', 'utf8')
+    expect(css).toMatch(/\.home-wizhere \{[^}]*transform: translateX\(-50%\) scaleX\(-1\);/)
+  })
+
   it('on load the path scrolls (at once, not smoothly) so the wizard\'s station is in view (RTL: it can start off-screen on a phone)', () => {
     save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
     // the path is 360px wide; the wizard's station (the ladder) lies off its left edge

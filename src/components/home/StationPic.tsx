@@ -9,6 +9,9 @@ import cauldron from '../../duel2/assets/img/s-cauldron.webp'
 import ladder from '../../duel2/assets/img/s-ladder.webp'
 import door from '../../duel2/assets/img/s-door.webp'
 
+/** pictures whose art faces right */
+const FACES_RIGHT = new Set<ScreenId>(['ghosts'])
+
 const IMG: Partial<Record<ScreenId, string>> = { tower, ghosts: ghost, cauldron, ladder, doors: door }
 
 /** `size`: the picture's box in px; without it, the path's discs' (--home-pic: 54 px, bigger on a tablet: home.css) */
@@ -29,5 +32,6 @@ export function StationPic({ id, size }: { id: ScreenId; size?: number }) {
         style={{ fontSize: part(0.67) }}>א</span>
     )
   }
-  return <img src={IMG[id]} alt="" draggable={false} data-pic="img" style={{ maxWidth: box, maxHeight: box }} />
+  // the ghost's art faces right: mirrored, it faces the way the path goes (right to left; rule: sprites face their travel)
+  return <img src={IMG[id]} alt="" draggable={false} data-pic="img" style={{ maxWidth: box, maxHeight: box, ...(FACES_RIGHT.has(id) ? { transform: 'scaleX(-1)' } : {}) }} />
 }
