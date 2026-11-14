@@ -1,8 +1,13 @@
 name: Deploy to GitHub Pages
 
+# One Pages site holds two builds:
+#   release → /alef/          (production)
+#   main    → /alef/staging/  (staging)
+# A push to either branch rebuilds both, because each deploy replaces the whole site.
+
 on:
   push:
-    branches: [main]
+    branches: [release, main]
   workflow_dispatch:
 
 permissions:
@@ -19,18 +24,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: release
+          path: prod
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: staging
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
+          cache-dependency-path: |
+            prod/package-lock.json
+            staging/package-lock.json
+
+      - name: Build production (release)
+        working-directory: prod
+        run: npm ci && npm test && npm run build
         env:
           VITE_TTS_ENDPOINT: ${{ secrets.VITE_TTS_ENDPOINT }}
+
+      - name: Build staging (main)
+        working-directory: staging
+        run: npm ci && npm test && npm run build
+        env:
+          VITE_TTS_ENDPOINT: ${{ secrets.VITE_TTS_ENDPOINT }}
+          ALEF_STAGING: '1'
+
+      - name: Put staging under production
+        run: |
+          mkdir site
+          cp -r prod/dist/. site/
+          cp -r staging/dist site/staging
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './site'
 
   deploy:
     needs: build
