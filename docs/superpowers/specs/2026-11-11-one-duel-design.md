@@ -299,13 +299,16 @@ a child screen now asks for a held one (a plain home button took the child out b
 
 - **The button:** a small house in the held ring of the cover's parent button (the same component: `HoldButton`). A 2 s
   hold leaves; a tap or a short press only shows how far the ring got, and never leaves.
-- **Where:** in a full run only, in the top bar's right corner, after the counts (`layout.ts`: `BAR_HOME_SLOT_PX` moves
-  the counts left; the go-on button still fits in the middle on a 1180×820 tablet and goes to the hint's place on a
-  phone, as before). Also on the pause cover, in the same corner, and on the summary of a full run. Not in a path
+- **Where:** in a full run only, in the top bar's left corner, before the speaker (the parent: "I feel that the home
+  button belongs on the left"; first it was in the right corner, after the counts). `layout.ts`: `BAR_HOME_SLOT_PX`
+  moves the speaker and the hint button right, and the counts stay at the right edge; the go-on button still fits in
+  the middle on a 1180×820 tablet and goes to the hint's place on a phone, as before. Also on the pause cover, in the
+  same corner (24 px from the left edge), and on the summary of a full run. Not in a path
   session or its summary (they go home by themselves), and not in the gallery.
-- **Not in the bar where the content rises into the band** (on a phone on its side: the doors and the ladder). There the
-  band's free middle is the content's (the parent's pick), and the slot would make the door and the ladder smaller; the
-  button is back on the next screen.
+- **Not in the bar where the content rises into the band** (on a phone on its side: the doors, the ladder and the
+  tower). There the band's free part is the content's (the parent's pick): the slot would make the door and the ladder
+  smaller, and on the tower the wizard stands in the band's left end, where the button is. The button is back on the
+  next screen, and it is on the pause cover.
 - **Leaving:** the run stops as when the game is closed: the sound stops, the crystal that skipped doors owe him is paid,
   stars, coins and crystals stay (they are saved as they come). The run's records (`lastEnded`, `runs`, best) are not
   written, as after a lock or an app close; the hearts and the streak start fresh in the next run, as always. Telemetry:

@@ -21,8 +21,6 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
   display: flex; align-items: center; justify-content: space-between; z-index: 20; pointer-events: none; direction: ltr; }
 .d2-topbar-side, .d2-topbar-mid { display: flex; gap: 12px; align-items: center; pointer-events: auto; }
 .d2-topbar-mid { position: absolute; left: 50%; transform: translateX(-50%); }
-/* the counts, then the held home button in the corner (layout.ts BAR_HOME_SLOT_PX: the button and this gap) */
-.d2-topbar-right { display: flex; gap: 12px; align-items: center; }
 .d2-hearts { gap: 6px; }
 .d2-heart { width: 40px; height: 40px; filter: drop-shadow(0 0 6px #ff5a7a88); }
 /* a heart came back at the end of a pass: the hearts flash as the flying heart lands (HealFly, 0.8 s) */
@@ -93,11 +91,11 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-hold-ring[data-state="holding"] { animation: d2-hold 2s linear forwards; }
 @keyframes d2-hold { from { stroke-dashoffset: 157; } to { stroke-dashoffset: 0; } }
 .d2-hold-ring { stroke-dashoffset: 157; }
-/* the way home (a 2 s hold): the parent button's look, in the top bar's right corner, on the pause cover and the summary */
+/* the way home (a 2 s hold): the parent button's look, in the top bar's left corner, on the pause cover and the summary */
 .d2-home-btn { width: 56px; height: 56px; border-radius: 50%; border: none; padding: 0; background: #28145a99;
   display: grid; place-items: center; touch-action: none; cursor: pointer; flex: none; pointer-events: auto; }
-.d2-pause .d2-home-btn { position: absolute; top: calc(var(--d2-bar-top) + (var(--d2-bar-h) - 56px) / 2); right: 24px; }
-.d2-summary .d2-home-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 24px; z-index: 6; }
+.d2-pause .d2-home-btn { position: absolute; top: calc(var(--d2-bar-top) + (var(--d2-bar-h) - 56px) / 2); left: 24px; }
+.d2-summary .d2-home-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 24px; z-index: 6; }
 .d2-drift { animation: d2-drift 12s linear infinite; }
 @keyframes d2-drift { from { transform: translateX(1750px); } to { transform: translateX(600px); } }
 .d2-pause { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 40px;

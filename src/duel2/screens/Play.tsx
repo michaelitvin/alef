@@ -147,7 +147,7 @@ export function Play({ opts, onOver, onExit }: {
   const into = fullView(v, size) ? 'full' : bandWidth(v)
   // the way home (a 2 s hold): a full run only, in the bar's corner unless the content rises into the band there (layout.ts)
   const exit = onExit && !opts.session && !opts.sandbox ? () => { run.exit(); onExit() } : undefined
-  const homeBar = !!exit && !v.over && homeInBar(size, contentTop(v), into)
+  const homeBar = !!exit && !v.over && homeInBar(size, contentTop(v), into, v.merchant ? 'merchant' : v.screen?.screen)
   const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <TouchAnswer.Provider value={touch}>
