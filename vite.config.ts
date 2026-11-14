@@ -4,9 +4,12 @@ import react from '@vitejs/plugin-react'
 import yaml from '@rollup/plugin-yaml'
 import { fileURLToPath } from 'node:url'
 
+// Production (release) is served at /alef/, staging (main) at /alef/staging/: the deploy workflow sets ALEF_STAGING=1.
+const base = process.env.ALEF_STAGING === '1' ? '/alef/staging/' : '/alef/'
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/alef/',
+  base,
   plugins: [react(), yaml()],
   build: {
     outDir: 'dist',
