@@ -481,9 +481,10 @@ Record each shipped asset's request in `asset-sources/` (CLAUDE.md).
   - The merchant gnome poses (mock art exists; final takes and any missing pose, such as walking away, to be made
     and reviewed).
   - The duel card picture (take 3 chosen).
-  - **The girl version of the card picture** (owed; the card budget left is about $0.90).
-  - Spent so far, in the art ledger: the card, 4 images (~$0.60 of a $1.50 budget); the merchant mock, 4 images
-    (~$0.60 of a $1 budget). Agree a budget with the parent before the final merchant art.
+  - The girl version of the card picture (take 4 of four chosen; the boy card, the tower and the girl's broom sprite
+    as references). The card shows it when the saved player is a girl.
+  - Spent so far, in the art ledger: the card, 8 images, the boy's 4 and the girl's 4 (~$1.20 of a $1.50 budget); the
+    merchant mock, 4 images (~$0.60 of a $1 budget). Agree a budget with the parent before the final merchant art.
 - **Voice:** the merchant's lines above, in boy and girl forms with variations, in a voice of their own, plus the two
   narrator lines. Review on the audio review page, as for the other games.
 - **Sounds:** a coin clink, a counting chime, and the tag's flash.

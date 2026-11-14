@@ -200,4 +200,22 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(container.querySelector('[data-play="duel"]')).not.toBeNull()
     expect(container.querySelector('[data-learn="duel"]')!.textContent).toBe('מה לומדים: לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.')
   })
+
+  it('the duel card picture follows the saved player: girl → the girl card; boy or not asked yet → the boy card', () => {
+    const art = (c: Element) => c.querySelector('.home-card-art')!
+    const unset = render(<DuelCard />)
+    expect(art(unset.container).getAttribute('data-card-art')).toBe('boy')
+    const boySrc = art(unset.container).getAttribute('src')
+    unset.unmount()
+    setGender('boy', 'child')
+    const boy = render(<DuelCard />)
+    expect(art(boy.container).getAttribute('data-card-art')).toBe('boy')
+    expect(art(boy.container).getAttribute('src')).toBe(boySrc)
+    boy.unmount()
+    setGender('girl', 'child')
+    const girl = render(<DuelCard />)
+    expect(art(girl.container).getAttribute('data-card-art')).toBe('girl')
+    expect(art(girl.container).getAttribute('src')).toMatch(/card-girl/)
+    expect(art(girl.container).getAttribute('src')).not.toBe(boySrc)
+  })
 })
