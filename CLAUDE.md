@@ -1,12 +1,20 @@
-# alef Development Guidelines
+# alef
 
-Auto-generated from all feature plans. Last updated: 2025-12-13
+A Hebrew reading game for a child who cannot read yet. Vite multi-page app: React 19, TypeScript, Zustand (persisted
+saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not to re-open: [docs/adr/](docs/adr/).
 
-## Active Technologies
-- TypeScript 5.9 with React 19.x + React 19, Vite 7, Zustand 5, Framer Motion 12, Howler.js 2.2 (002-didactic-activities)
-- localStorage via Zustand persist middleware (002-didactic-activities)
+## Map
 
-- TypeScript 5.x with React 18.x + React, Vite (build tool), Zustand (state management), Framer Motion (animations), Howler.js (audio) (001-hebrew-reading-game)
+| Game | Entry point | Read first |
+| --- | --- | --- |
+| Book 1 (lessons, stories, the first duel) and home | `index.html` → `src/main.tsx` → `src/App.tsx` (routes) | `src/stores/progressStore.ts` (save `alef-progress`) |
+| Book 2 (the run; the first duel is its tower) | `duel2/index.html` → `src/duel2/main.tsx` | [src/duel2/README.md](src/duel2/README.md) |
+| Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
+| Code two or more games share | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
+
+- Designs and build plans: `docs/superpowers/specs/` and `docs/superpowers/plans/`, newest date wins. `specs/` (speckit,
+  2025) is history only.
+- The TTS worker: `worker/` (deployed by hand with `wrangler deploy`). Audio catalog exports: `scripts/<game>/`.
 
 ## Minigame Design Rules
 
@@ -25,49 +33,20 @@ image budget at the start.
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
 `asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
 
-## Deployment (GitHub Pages: production and staging)
+## Checks
 
-One Pages site holds two builds, made by `.github/workflows/deploy.yml`:
+`npm test && npm run lint` before every commit. To see a change work in the real build, use the `/verify` skill.
+
+## Deployment (GitHub Pages: production and staging)
 
 | Branch | Served at | Role |
 | --- | --- | --- |
 | `release` | `/alef/` | production: what the child plays |
 | `main` | `/alef/staging/` | staging: merged work, before release |
 
-- A push to `main` or `release` rebuilds and deploys both, because each deploy replaces the whole site. The tests of
-  both branches must pass, or nothing deploys.
-- Merge feature branches into `main` as before. Check them on staging.
+- Merge feature branches into `main` and check them on staging. A push to either branch rebuilds and deploys both
+  (`.github/workflows/deploy.yml`); the tests of both must pass, or nothing deploys.
 - To release, fast-forward `release` to a tested commit of `main`: `git push origin main:release` (or `<sha>:release`).
-  Do not commit to `release` directly. A fix goes into `main` first.
-- The staging build is `ALEF_STAGING=1 npm run build` (base `/alef/staging/`).
-- Staging and production share one origin, so they share one localStorage. `src/shared/stagingStorage.ts` gives every
-  key in the staging build a `staging:` prefix, so staging never reads or changes the child's real saves. Each entry
-  point (`src/main.tsx`, `src/clock/main.tsx`, `src/duel2/main.tsx`) must import it first. A new entry point must too.
-- To test staging with the child's real progress, open a staging URL with `?copy-prod` (for example
-  `/alef/staging/?copy-prod`). After a confirmation, it replaces all staging saves with a copy of the production saves.
-  Production saves do not change.
-- The TTS worker (`worker/`) is not part of this. Deploy it by hand with `wrangler deploy`.
-
-## Project Structure
-
-```text
-backend/
-frontend/
-tests/
-```
-
-## Commands
-
-npm test && npm run lint
-
-## Code Style
-
-TypeScript 5.x with React 18.x: Follow standard conventions
-
-## Recent Changes
-- 002-didactic-activities: Added TypeScript 5.9 with React 19.x + React 19, Vite 7, Zustand 5, Framer Motion 12, Howler.js 2.2
-
-- 001-hebrew-reading-game: Added TypeScript 5.x with React 18.x + React, Vite (build tool), Zustand (state management), Framer Motion (animations), Howler.js (audio)
-
-<!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
+  Never commit to `release`. A fix goes into `main` first.
+- Staging prefixes every save with `staging:` ([ADR 0001](docs/adr/0001-staging-shares-the-origin.md)). A new entry point
+  must import `src/shared/stagingStorage` first. `?copy-prod` on a staging URL copies the child's real saves into staging.

@@ -1,0 +1,15 @@
+# Shared (`src/shared`)
+
+Code that two or more games use. A game may import from here. Code here never imports from a game.
+
+| Module | What it gives |
+| --- | --- |
+| `stagingStorage.ts` | The `staging:` prefix on every save in the staging build, and `?copy-prod`. Every entry point imports it first ([ADR 0001](../../docs/adr/0001-staging-shares-the-origin.md)). |
+| `adaptive.ts` | Desirable difficulty: `predictedMistakeRate`, `pickNearTarget`, `pushRecent`, `Tally` |
+| `audioCore.ts` | One Howl cache, `playOnce` with a safety timeout, `unlockAudio`, `VOICE_RATE` |
+| `telemetry.ts` | `createTelemetry(key)`: the capped log the parent can export |
+| `player.ts`, `GenderQuestion.tsx`, `PlayerSetting.tsx` | The child's gender (boy or girl forms of every line), asked once |
+| `rehydrateOnRestore.ts` | Reload a persisted store when the browser restores a page from its back/forward cache, so the page does not write back an old copy of a save that another page changed |
+
+Each game still has its own audio layer, preload, pause cover and parent screen. See the *Known friction* section in
+`src/duel2/README.md` and `src/clock/README.md` before you copy one for a new game.
