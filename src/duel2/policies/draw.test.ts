@@ -243,7 +243,7 @@ describe('the draw policy', () => {
     // a dot far above the letter is wrong
     const r = g.send({ type: 'stroke', pts: [[0.5, -0.9], [0.5, -0.9]] })
     expect(r.track).toEqual([{ e: 'draw-mark', data: { mark: 'under:T', ok: false } }])
-    expect(r.view?.strokes.at(-1)?.state).toBe('wrong')
+    expect(r.view?.strokes[r.view.strokes.length - 1].state).toBe('wrong')
     expect(r.wait).toEqual({ for: 'sleep', ms: WRONG_MS })
     expect(g.send({ type: 'slept' }).view?.demo?.strokes).toEqual(g.marks())
     g.settle()
@@ -301,6 +301,20 @@ describe('the draw policy', () => {
     g.send({ type: 'hint', auto: false })
     expect(g.view.demo?.strokes).toEqual(g.marks())
   })
+
+  for (const script of ['print', 'hand'] as const) for (const first of ['the ש dot', 'the shuruk'] as const) {
+    it(`שׁוּעָל (${script}): the ש dot and the shuruk in any order, drawn while their line still asks (${first} first)`, () => {
+      const g = round(ctxOf('fox', 3, script)).open()
+      g.drawLetter()
+      // where a child puts them: the ש dot a little off the hand's place, the shuruk close to the vav
+      const [shinDot, shuruk] = g.marks().map(([[x, y]]): Pt[] => [[x + 0.04, y - 0.03], [x + 0.06, y]])
+      for (const m of first === 'the ש dot' ? [shinDot, shuruk] : [shuruk, shinDot]) g.stroke(m)
+      expect(g.view.strokes.filter((x) => x.state === 'wrong')).toHaveLength(0)
+      expect(g.tracked('draw-mark').map((x) => x.ok)).toEqual([true])
+      g.send({ type: 'asked' })
+      expect(g.view.mode).toBe('done')
+    })
+  }
 
   it('handwriting counts on its own screen', () => {
     const g = round(ctxOf('camel', 1, 'hand')).open()
