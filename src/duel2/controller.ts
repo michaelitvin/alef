@@ -20,7 +20,7 @@ import { lineAudioId, lineById } from './data/lines'
 import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
 import { readOnlySavePort, storeSavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
-import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
+import { BOSS_COINS, BOSS_SLOW, bossTarget, bossWave, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
@@ -29,6 +29,7 @@ import { drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/dra
 import { drawLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
 import { composeCoins, merchantDue, priceAt } from './logic/merchant'
+import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
 import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, type MerchantState, type MerchantView } from './policies/merchant'
 import { NEVER_VISITED } from './store'
 import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
@@ -43,20 +44,6 @@ export interface BroomWave {
   lanes?: number[]
   /** a mistake happened in this wave: its other orbs no longer count */
   spent?: boolean
-}
-export type BossPose = 'fly' | 'hit' | 'down'
-export interface BossView {
-  kind: BossKind
-  /** segments of its health bar still lit */
-  hitsLeft: number
-  pose: BossPose
-  /** it has swooped in (after a pause it is simply there) */
-  arrived: boolean
-  /** the last spell bolt from the wizard to the boss (the lane it left from) */
-  bolt?: { id: number; lane: number }
-  won?: boolean
-  /** his first win against this kind: the boss falls into a golden frame that flies to the trophy shelf */
-  first?: boolean
 }
 export interface BroomView {
   screen: 'broom'; kind: Kind; waves: BroomWave[]; travelMs: number; lane: 0 | 1 | 2; target: Choice; reveal?: Reveal; missed?: boolean
@@ -89,6 +76,7 @@ export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | Do
 
 export type { MerchantView } from './policies/merchant'
 export type { DrawStroke, DrawView } from './policies/draw'
+export type { BossPose, BossView } from './policies/broomBoss'
 
 export type Overlay =
   | { kind: 'demo'; line: string; demo: string }
@@ -185,10 +173,6 @@ const IDLE_HINT_MS = 16000
 const STREAK_EVERY = 5
 const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
-/** the boss swoops in this long before its line */
-const BOSS_ARRIVE_MS = 1300
-/** its hit pose shows this long */
-const BOSS_HIT_MS = 600
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
 
@@ -255,8 +239,8 @@ export class RunController {
   private visitBoss: BossKind | null | undefined = undefined
   /** this visit has started: its hearts were filled (a pause keeps them) */
   private visitStarted = false
-  /** the boss of this visit: its hits survive a pause (rule: losing them is the "gives up" problem again) */
-  private boss: { kind: BossKind; hitsLeft: number; arrived: boolean; startedAt: number; won?: boolean; first?: boolean; celebrated?: boolean; praised?: boolean; coins: number; newSaid?: boolean } | null = null
+  /** the boss of this visit (policies/broomBoss.ts): its hits survive a pause (rule: losing them is the "gives up" problem again) */
+  private boss: BossState | null = null
   private bossesWon: BossKind[] = []
   private startStars = 0
   private drawPlan: Word[] | null = null
@@ -916,25 +900,20 @@ export class RunController {
     w?.(lastWave)
   }
 
-  /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
+  /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind (policies/broomBoss.ts). */
   private decideBoss(): BossKind | null {
-    if (this.opts.force) return this.opts.force.boss ?? null
     const st = this.save.read()
-    if (this.opts.session) {
-      // every second broom session is a boss fight (the run's rhythm: every second broom visit)
-      const n = st.broomSessions ?? 0
-      this.save.noteBroomSession()
-      if (n % 2 !== 1) return null
-    } else {
-      this.broomVisits++
-      if (!isBossVisit(this.broomVisits)) return null
-    }
-    const kind = chooseBoss({
-      stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
+    const d = bossDue({
+      force: this.opts.force ? { boss: this.opts.force.boss } : undefined, session: !!this.opts.session, broomSessions: st.broomSessions ?? 0,
+      broomVisits: this.broomVisits, stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
       beaten: st.bossesBeaten ?? [], last: st.lastBoss ?? null, rng: this.rng,
     })
-    if (kind) this.save.setLastBoss(kind)
-    return kind
+    this.broomVisits = d.broomVisits
+    for (const op of d.save) {
+      if (op.op === 'noteBroomSession') this.save.noteBroomSession()
+      else this.save.setLastBoss(op.kind)
+    }
+    return d.kind
   }
 
   private async runScreen(t: number, screen: ScreenId) {
@@ -1536,27 +1515,22 @@ export class RunController {
     this.hearts = newRound(this.hearts)
     this.syncMult()
     if (this.visitBoss && !this.boss) {
-      this.boss = { kind: this.visitBoss, hitsLeft: BOSS_HITS, arrived: false, startedAt: this.now(), coins: 0 }
-      this.track('boss-start', { kind: this.visitBoss })
+      this.boss = bossVisit(this.visitBoss)
+      this.bossStep({ type: 'start' })
     }
     let target = this.buildRound('broom', kind) as Choice
     this.spokenTargets.clear()
     this.stopBroom()
-    this.setScreen({ waves: [], reveal: undefined, missed: false, fx: undefined, finished: false, boss: this.bossView() } as Partial<BroomView>)
+    const fresh: Partial<BroomView> = { waves: [], reveal: undefined, missed: false, fx: undefined, finished: false }
+    if (this.boss) this.bossStep({ type: 'fly' }, fresh)
+    else this.setScreen({ ...fresh, boss: undefined } as Partial<BroomView>)
     if (this.boss?.won) return this.bossWin(t)
     startMusic(this.boss ? 'boss' : 'flight')
     this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
     this.assets = []
-    if (this.boss && !this.boss.arrived) {
-      // the sky darkens and the boss swoops in from the right; then its line and the first sound
-      await this.sleep(t, BOSS_ARRIVE_MS)
-      this.boss.arrived = true
-      this.setScreen({ boss: this.bossView() } as Partial<BroomView>)
-      await this.say(t, [{ id: this.variation('boss-arrive') }, { id: this.cueId(target) }])
-    } else {
-      // only the sound to catch (the demo taught the screen)
-      await this.say(t, [{ id: this.cueId(target) }])
-    }
+    // a boss swoops in first (once), then its line; otherwise only the sound to catch (the demo taught the screen)
+    if (this.boss) await this.bossRun(t, { type: 'arrive' }, target)
+    else await this.say(t, [{ id: this.cueId(target) }])
     this.set({ phase: 'answer' })
     const travel = travelMs(this.save.read().pace) * (this.boss ? BOSS_SLOW : 1)
     this.track('flight', { kind, travelMs: Math.round(travel), pace: this.save.read().pace, boss: this.boss?.kind ?? null })
@@ -1616,7 +1590,7 @@ export class RunController {
             if (catches % TARGET_EVERY === 0 && more()) newTargetDue = true
           } else {
             if (this.onFlightMistake(t, target, ev.hit, ev.wave) === 'over') {
-              if (this.boss) this.track('boss-lose', { kind: this.boss.kind, left: this.boss.hitsLeft })
+              if (this.boss) this.bossStep({ type: 'lose' })
               // the answers already on the screen finish (rule), then the run ends; a pause can no longer cancel it
               dying = true
               this.ending = true
@@ -1674,80 +1648,66 @@ export class RunController {
     stopMusic()
   }
 
-  private bossView(): BossView | undefined {
-    const b = this.boss
-    if (!b) return undefined
-    const prev = this.view.screen?.screen === 'broom' ? this.view.screen.boss : undefined
-    return {
-      // the hit pose is a moment only (bossHit sets it): rebuilt views fly
-      kind: b.kind, hitsLeft: b.hitsLeft, arrived: b.arrived, pose: b.won ? 'down' : 'fly',
-      ...(prev?.bolt ? { bolt: prev.bolt } : {}), ...(b.won ? { won: true, first: !!b.first } : {}),
+  // ---- the flight boss: policies/broomBoss.ts decides, the run does what it says
+  /** One step of the boss's policy, done: its view (with `patch` over the screen), sounds, music, saves and telemetry. */
+  private bossStep(e: BossInput, patch: Partial<BroomView> = {}): BossStep {
+    const r = stepBoss(this.boss!, { ...e, at: this.now() })
+    this.boss = r.state
+    if (r.view || Object.keys(patch).length) this.setScreen({ ...patch, ...(r.view ? { boss: r.view } : {}) } as Partial<BroomView>)
+    if (r.run) this.set(r.run)
+    if (r.music) stopMusic()
+    for (const x of r.sfx) this.sfx(x)
+    if (r.music === 'celebrate') startMusic('celebrate')
+    for (const op of r.save) {
+      if (op.op === 'markBossBeaten') { this.save.markBossBeaten(op.kind); this.bossesWon.push(op.kind) }
+      else if (op.op === 'notePraise') this.save.notePraise(op.kind)
+      else if (op.op === 'addCoins') this.save.addCoins(op.n)
+      else this.save.markBossNewHeard(op.kind)
     }
+    if (r.coinPop) this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
+    for (const x of r.track) this.track(x.e, x.data)
+    return r
+  }
+
+  /** Sends `e`, then does each wait the step asks for and sends its end, until a step asks for none (`target`: the cue). */
+  private async bossRun(t: number, e: BossInput, target?: Choice, patch?: Partial<BroomView>): Promise<BossStep> {
+    let r = this.bossStep(e, patch)
+    while (r.wait) {
+      if (r.wait.for === 'sleep') {
+        await this.sleep(t, r.wait.ms)
+        r = this.bossStep({ type: 'slept' })
+      } else {
+        const ok = await this.say(t, r.say.map((l) => ({ id: this.bossLine(l, target) })))
+        r = this.bossStep({ type: 'heard', ok: !!ok })
+      }
+    }
+    return r
+  }
+  private bossLine(l: BossLine, target?: Choice) {
+    if ('cue' in l) return this.cueId(target!)
+    return l.take ? lineAudioId(l.line, l.take) : this.variation(l.line)
   }
 
   /** A right catch on a boss visit: a spell bolt flies to the boss, it shows its hit pose, one segment goes out. */
   private bossHit(t: number, lane: number): 'on' | 'won' {
-    const b = this.boss!
-    b.hitsLeft = Math.max(0, b.hitsLeft - 1)
-    const bolt = { id: ++this.fxId, lane }
-    this.setScreen({ boss: { ...this.bossView()!, hitsLeft: b.hitsLeft, pose: 'hit', bolt } } as Partial<BroomView>)
-    this.sfx('spell')
-    this.track('boss-hit', { kind: b.kind, left: b.hitsLeft })
-    if (b.hitsLeft === 0) return 'won'
-    this.time.after(BOSS_HIT_MS, () => {
-      const s = this.view.screen
-      if (t === this.token && s?.screen === 'broom' && s.boss?.bolt?.id === bolt.id && !s.boss.won) this.setScreen({ boss: { ...s.boss, pose: 'fly' } } as Partial<BroomView>)
-    })
-    return 'on'
+    const r = this.bossStep({ type: 'hit', id: ++this.fxId, lane })
+    if (r.poseFor) {
+      const { id, ms } = r.poseFor
+      this.time.after(ms, () => { if (t === this.token && this.boss && this.view.screen?.screen === 'broom') this.bossStep({ type: 'pose', id }) })
+    }
+    return r.won ? 'won' : 'on'
   }
 
   /**
-   * The win: the defeated pose, a burst of light, a celebration sound, the congratulation line (praise rule), 3 bonus
-   * coins one by one (added to his balance), and on his first win against this kind the golden frame and its line. Re-entrant after a pause:
-   * each part happens once.
+   * The win (the policy's order): the defeated pose, its sound and music, the congratulation line (praise rule), 3 bonus
+   * coins one by one, and on his first win against this kind the golden frame and its line; then the flight's finale.
+   * Re-entrant after a pause: each part happens once.
    */
   private async bossWin(t: number) {
-    const b = this.boss!
     const st = this.save.read()
-    if (!b.won) {
-      b.won = true
-      // the trophy is kept at once; the "new in your collection" moment only once its line was heard
-      b.first = !(st.bossNewHeard ?? []).includes(b.kind)
-      this.save.markBossBeaten(b.kind)
-      this.bossesWon.push(b.kind)
-      this.track('boss-win', { kind: b.kind, ms: Math.round(this.now() - b.startedAt), first: b.first })
-    }
-    this.setScreen({ waves: [], reveal: undefined, boss: this.bossView() } as Partial<BroomView>)
-    this.set({ phase: 'celebrate' })
-    // its sound and music start once (a resume during the win goes on from where it was)
-    if (!b.celebrated) {
-      b.celebrated = true
-      stopMusic()
-      this.sfx('boss-win')
-      startMusic('celebrate')
-      await this.sleep(t, SFX_RING_MS)
-    }
-    if (!b.praised) {
-      b.praised = true
-      const praise = this.praiseLine('boss-win', false)
-      if (praise) {
-        // the praise counts as heard only when it really played (a missing file leaves it for next time)
-        if (await this.say(t, [{ id: praise }])) this.save.notePraise('boss-win')
-      } else await this.sleep(t, PRAISE_SOUND_MS)
-    }
-    while (b.coins < BOSS_COINS) {
-      b.coins++
-      this.save.addCoins(1)
-      this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
-      this.sfx('lock')
-      await this.sleep(t, COIN_POP_MS)
-    }
-    if (b.first && !b.newSaid) {
-      b.newSaid = true
-      if (await this.say(t, [{ id: lineAudioId('boss-new', 1) }])) this.save.markBossNewHeard(b.kind)
-    }
-    await this.sleep(t, 600)
-    stopMusic()
+    const heardNew = (st.bossNewHeard ?? []).includes(this.boss!.kind)
+    const praise = (st.praiseHeard?.['boss-win'] ?? 0) < PRAISE_SPOKEN
+    await this.bossRun(t, { type: 'win', heardNew, praise }, undefined, { waves: [], reveal: undefined })
     await this.finale(t)
   }
 
