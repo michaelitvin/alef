@@ -121,6 +121,15 @@ describe('the storage budget', () => {
     expect(sum(false) + sum(true)).toBeLessThan(TODAY_CHARS)
   })
 
+  it('the play-time ledger (60 days, 3 games, 10-digit ms) fits in the room left for the saves, with staging\'s copy', async () => {
+    const { PLAYTIME_KEEP_DAYS } = await import('./playtime')
+    const days: Record<string, unknown> = {}
+    for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { book2: 86_400_000, clock: 86_400_000, lessons: 86_400_000 }
+    const one = JSON.stringify({ v: 1, days }).length
+    expect(one).toBeLessThan(6_000)
+    expect(QUOTA_CHARS - sum(false) - 2 * one).toBeGreaterThanOrEqual(240_000)
+  })
+
   it('a live log past its cap trims its oldest events, as before', () => {
     const t = createTelemetry('t-cap', { game: 'clock', maxChars: 20_000 })
     for (let i = 0; i < 200; i++) t.track('x', { i, pad: 'p'.repeat(200) })

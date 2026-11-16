@@ -1,4 +1,5 @@
 // The play screen: the current screen, the top bar, the overlays and the pause cover, driven by the run controller.
+import { usePlaytime } from '../../shared/playtime'
 import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
@@ -121,6 +122,8 @@ export function Play({ opts, onOver, onExit }: {
   const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const v = run.view
+  // play time for the parent's Progress section: not in the gallery's sandbox, not under the pause cover
+  usePlaytime('book2', !opts.sandbox && !v.paused && !v.over)
   const size = useWindowSize()
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)

@@ -1,3 +1,4 @@
+import { usePlaytime } from './shared/playtime'
 import { useEffect, useRef } from 'react'
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { useSoundEffects } from './hooks/useAudio'
@@ -55,6 +56,14 @@ function NavigationSoundEffect() {
  */
 const DEV_SHORTCUTS = import.meta.env.MODE !== 'production'
 
+/** counts the time on a lesson route (the reading course) for the parent's Progress section */
+const LESSON_ROUTE = /^\/(letters|nikkud|syllables|words|sentences|stories)(\/|$)/
+function LessonPlaytime() {
+  const { pathname } = useLocation()
+  usePlaytime('lessons', LESSON_ROUTE.test(pathname))
+  return null
+}
+
 function App() {
   const { settings, setDevMode } = useProgressStore()
 
@@ -98,6 +107,7 @@ function App() {
   return (
     <HashRouter>
       <NavigationSoundEffect />
+      <LessonPlaytime />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/letters" element={<LettersPage />} />
