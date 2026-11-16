@@ -14,6 +14,7 @@ import { Banner, Starfield } from '../../../components/duel/Starfield'
 import { Icon } from '../../../components/duel/Icon'
 import { MEGA_MAX } from '../../../utils/duel/rules'
 import { useDuel2Store } from '../../store'
+import { duel2Telemetry } from '../../telemetry'
 import type { TowerView } from '../../controller'
 import { TEST_HOOKS } from '../../testHooks'
 import '../../../components/duel/duel.css'
@@ -33,6 +34,9 @@ interface TowerProps {
   onCharge?: (mega: number) => void
 }
 
+/** the gallery records nothing, its events neither */
+const NO_TELEMETRY = { track: () => {}, flush: () => {} }
+
 export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge }: TowerProps) {
   const game = useDuelGame({
     embedded: {
@@ -44,6 +48,8 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge,
     },
+    // the duel's events go to Book 2's log (via: 'tower'), in Book 2's run (ADR 0004)
+    telemetry: dry ? NO_TELEMETRY : duel2Telemetry,
   })
   const { state } = game
   // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)

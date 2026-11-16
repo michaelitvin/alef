@@ -1,13 +1,13 @@
 // The shared parent area (rule: Interaction; a parent screen, so text and English are allowed). Every entry page mounts it
 // behind the parent gate and opens it at a section, by default the open game's own:
 //
-//   <ParentArea game="book2" onClose={toCover} track={duel2Telemetry.track} openDev={setScreen} homeHref={BASE_URL} />
+//   <ParentArea game="book2" onClose={toCover} track={duel2Telemetry.track} telemetry={duel2Telemetry} openDev={setScreen} homeHref={BASE_URL} />
 //
 // Sections, top to bottom: Child, Sound, Progress, the open game's settings and reset, Data, Developer. Every game's lines
 // come from the registry (registry.ts); only the open game's settings, reset and developer tools show.
 import { Suspense, useEffect, useRef, type ReactNode } from 'react'
 import { gameParent } from './registry'
-import type { GameId, SectionId, Track } from './types'
+import type { GameId, LiveLog, SectionId, Track } from './types'
 import { ChildSection } from './sections/Child'
 import { SoundSection } from './sections/Sound'
 import { ProgressSection } from './sections/Progress'
@@ -23,6 +23,8 @@ export interface ParentAreaProps {
   section?: SectionId
   /** the open game's telemetry: the area's changes are logged as the old parent screens logged them */
   track?: Track
+  /** the open game's log instance: the Data section reads and clears the open game's log through it */
+  telemetry?: LiveLog
   /** open one of the page's developer screens (Book 2: gallery, strokes, drawtest) */
   openDev?: (id: string) => void
   /** the way to the alef home screen, from a game's own page */
@@ -38,7 +40,7 @@ function scrollTo(root: HTMLElement | null, id: SectionId) {
   root?.querySelector(`[data-section="${id}"]`)?.scrollIntoView?.({ block: 'start' })
 }
 
-export function ParentArea({ game, onClose, section = 'game', track, openDev, homeHref }: ParentAreaProps) {
+export function ParentArea({ game, onClose, section = 'game', track, telemetry, openDev, homeHref }: ParentAreaProps) {
   const g = gameParent(game)
   const root = useRef<HTMLDivElement>(null)
   const goTo = (id: SectionId) => scrollTo(root.current, id)
@@ -69,7 +71,7 @@ export function ParentArea({ game, onClose, section = 'game', track, openDev, ho
         {Settings && <Suspense fallback={<p>Loading…</p>}><Settings goTo={goTo} track={track} /></Suspense>}
         <p><button type="button" data-parent-reset className="pa-danger" onClick={reset}>Reset {g.title} progress</button></p>
       </>)}
-      {part('data', 'Data', <DataSection />)}
+      {part('data', 'Data (telemetry export)', <DataSection game={game} live={telemetry} />)}
       {part('developer', 'Developer', <DeveloperSection game={g} goTo={goTo} track={track} openDev={openDev} />)}
     </div>
   )

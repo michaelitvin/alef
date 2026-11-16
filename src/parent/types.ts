@@ -3,6 +3,7 @@
 // screens with React.lazy, so the area can show every game without creating another game's store (creating a store
 // writes its save) and without building an audio kit or a telemetry log (a log instance rewrites its key on pagehide).
 import type { ComponentType, LazyExoticComponent } from 'react'
+import type { TelemetryEvent, TelemetryLog } from '../shared/telemetry'
 
 /** the games that have a part in the area (the lessons are the main app's reading course) */
 export type GameId = 'book2' | 'clock' | 'lessons'
@@ -12,6 +13,17 @@ export type SectionId = 'child' | 'sound' | 'progress' | 'game' | 'data' | 'deve
 
 /** the open game's telemetry (`track` of its log); the lessons have none */
 export type Track = (event: string, fields?: Record<string, unknown>) => void
+
+/**
+ * The open game's log instance (`createTelemetry`): the Data section reads and clears the open game's log through it, so
+ * its unflushed events are in the export and a cleared log does not come back on its next flush.
+ */
+export interface LiveLog {
+  key: string
+  /** every event, flushed first */
+  events: () => TelemetryEvent[]
+  clear: () => void
+}
 
 /** one mix-up: what was asked, what the child chose, how often */
 export interface Mixup { asked: string; chosen: string; n: number }
@@ -34,8 +46,8 @@ export interface GameParent {
   title: string
   /** the save's localStorage key: summary and mixups get its raw text */
   saveKey: string
-  /** the telemetry logs this game owns, for the Data section's counts (Task 17 adds the export) */
-  logs?: { key: string; label: string }[]
+  /** the telemetry logs this game owns: the Data section lists, exports and clears them */
+  logs?: TelemetryLog[]
   /** the game's own settings: shown only when the area is open on this game's page */
   Settings?: LazyExoticComponent<ComponentType<SectionProps>>
   /** the game's developer tools: shown only on this game's page */

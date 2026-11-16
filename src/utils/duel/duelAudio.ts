@@ -7,7 +7,6 @@ import { createGameAudio } from '../../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../../shared/gameAudio/output'
 import { SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
-import { track } from './telemetry'
 
 export { VOICE_RATE } from '../../shared/gameAudio/kit'
 
@@ -18,6 +17,10 @@ type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
 export const DUEL_FEMININE: ReadonlySet<string> = new Set([
   'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-new-monster', 'line-combo', 'line-over', 'line-boss-win',
 ])
+
+/** where the kit's own events (voice-fallback) go: the log of the tower's visit while one is on (useDuelGame sets it) */
+let audioLog: { track(e: string, data?: Record<string, unknown>): void } | null = null
+export function setDuelAudioLog(log: typeof audioLog) { audioLog = log }
 
 const audio = createGameAudio<SfxName, never>({
   game: 'duel',
@@ -33,7 +36,7 @@ const audio = createGameAudio<SfxName, never>({
   sfxPick: 'random',
   sfxVolume: 0.8,
   feminine: (id) => DUEL_FEMININE.has(id),
-  telemetry: { track },
+  telemetry: { track: (e, data) => audioLog?.track(e, data) },
   lineTimeoutMs: 9000, // > longest line (~4.2 s) plus a slow first load
   sfxTimeoutMs: 3000,
   // no voice queue (the hook keeps its own gap between lines) and no music

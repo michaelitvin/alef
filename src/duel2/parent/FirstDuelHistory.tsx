@@ -3,9 +3,8 @@
 // shows (it was in Book 2's old parent screen and in the lessons' progress page).
 import { useProgressStore } from '../../stores/progressStore'
 import { DUEL_MARKS } from '../../utils/duel/marks'
-import { exportTelemetry, telemetryCount } from '../../utils/duel/telemetry'
 import type { ScreenType, Tally } from '../../types/duel'
-import { downloadJson } from '../../shared/download'
+import type { SectionProps } from '../../parent/types'
 
 // the first duel's screens (the picture-choice screen D was dropped, so it has no row)
 const TYPE_NAMES: Partial<Record<ScreenType, string>> = { A: 'picture → mark', B: 'sound → mark', C: 'name → mark' }
@@ -24,7 +23,7 @@ const cell = (t: Tally | undefined, key: (typeof COLS)[number]['key']) => {
 const col = (key: (typeof COLS)[number]['key']) => (key === 'correctPct' ? 'correct' : key)
 const misses = (t?: Tally) => (t ? (t.wrong ?? 0) + (t.timeout ?? 0) : -1)
 
-export function FirstDuelHistory() {
+export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
   const d = useProgressStore((p) => p.duel)
   const byMark = d?.byMark ?? {}
   const rows = [...DUEL_MARKS].filter((m) => byMark[m.id]).sort((a, b) => misses(byMark[b.id]) - misses(byMark[a.id]))
@@ -62,12 +61,10 @@ export function FirstDuelHistory() {
           </tbody>
         </table>
       </>}
-      {/* Task 17 replaces this with the Data section's one export */}
       <p>
-        <button type="button" data-duel-export
-          onClick={() => downloadJson(exportTelemetry(), `alef-duel-telemetry-${new Date().toISOString().slice(0, 10)}.json`)}>
-          Export first duel telemetry ({telemetryCount()} events)
-        </button>
+        Its old event log is kept as it is: export it in{' '}
+        <button type="button" data-goto-data onClick={() => goTo('data')}>Data</button> as “First duel (history)”. The tower’s
+        events now go to Book 2’s log, marked <code>via: tower</code>.
       </p>
     </div>
   )

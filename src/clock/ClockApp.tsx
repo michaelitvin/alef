@@ -77,6 +77,6 @@ export default function ClockApp() {
   }, [door, screen])
   if (shell.asking) return shell.question
   if (screen === 'work') return <Workshop onExit={() => setScreen('cover')} />
-  if (screen === 'parent') return <ParentArea game="clock" onClose={() => setScreen('cover')} track={(e, f) => clockTelemetry.track(e, f)} homeHref={import.meta.env.BASE_URL} />
+  if (screen === 'parent') return <ParentArea game="clock" onClose={() => setScreen('cover')} track={(e, f) => clockTelemetry.track(e, f)} telemetry={clockTelemetry} homeHref={import.meta.env.BASE_URL} />
   return <Cover onPlay={shell.play} onParent={() => setScreen('parent')} loading={shell.loading} />
 }

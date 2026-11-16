@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  SESSION, STAGING_CAP_SHARE, TELEMETRY_CAPS, createTelemetry, exportDoc, filterEvents, readLog, telemetryCap,
+  SESSION, STAGING_CAP_SHARE, TELEMETRY_CAPS, createTelemetry, exportDoc, exportFileName, filterEvents, readLog, telemetryCap,
 } from './telemetry'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
 
@@ -30,6 +30,17 @@ describe('telemetry export', () => {
     expect(doc.games[0].about).toMatchObject({ game: 'Book 2', repo: 'https://github.com/michaelitvin/alef' })
     expect(doc.games[0].about.docs).toEqual(['docs/a.md', 'docs/minigame-rules.md'])
     expect(doc.games[1].events.map((e: { e: string }) => e.e)).toEqual(['two', 'three'])
+    expect(doc.since).toBeNull()
+  })
+
+  it('each part can name its key, and the document says the period it covers', () => {
+    const doc = JSON.parse(exportDoc([{ key: 'k-1', about: { game: 'A', docs: [] }, events: [] }], { since: Date.UTC(2026, 9, 17) }))
+    expect(doc.games[0].key).toBe('k-1')
+    expect(doc.since).toBe('2026-10-17T00:00:00.000Z')
+  })
+
+  it('the file name lists the games and the date', () => {
+    expect(exportFileName(['book2', 'duel'], new Date('2026-11-16T10:00:00Z'))).toBe('alef-telemetry-book2-duel-2026-11-16.json')
   })
 })
 
@@ -140,13 +151,12 @@ describe('the storage budget', () => {
     expect(is[0]).toBeGreaterThan(0)
   })
 
-  it('the instances use their caps: Book 2 0.7 M, clock 0.5 M, duel 1 M', async () => {
+  it('the instances use their caps: Book 2 0.7 M, clock 0.5 M; the frozen duel log counts at 1 M', async () => {
     const { duel2Telemetry } = await import('../duel2/telemetry')
     const { clockTelemetry } = await import('../clock/telemetry')
-    const { TELEMETRY_MAX_CHARS } = await import('../utils/duel/telemetry')
     expect(duel2Telemetry.maxChars).toBe(700_000)
     expect(clockTelemetry.maxChars).toBe(500_000)
-    expect(TELEMETRY_MAX_CHARS).toBe(1_000_000)
+    expect(telemetryCap('duel', false)).toBe(1_000_000)
     expect([duel2Telemetry.game, clockTelemetry.game]).toEqual(['book2', 'clock'])
   })
 })

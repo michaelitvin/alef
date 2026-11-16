@@ -4,13 +4,13 @@
 import { useClockStore, type ClockSettings as ClockSettingsT } from '../store'
 import { clockTelemetry } from '../telemetry'
 import { predictedMistakeRate } from '../../shared/adaptive'
-import { downloadJson } from '../../shared/download'
 import { featurePrior } from '../logic/rounds'
 import type { Lang } from '../logic/phrases'
+import type { SectionProps } from '../../parent/types'
 
 const LANG_LABEL: Record<Lang, string> = { he: 'עברית / Hebrew', en: 'English' }
 
-export default function ClockSettings() {
+export default function ClockSettings({ goTo }: SectionProps) {
   const s = useClockStore()
   const setSettings = (p: Partial<ClockSettingsT>) => {
     s.setSettings(p)
@@ -58,12 +58,11 @@ export default function ClockSettings() {
       </table>
       <h3>Top confusions (asked → chosen)</h3>
       <ul>{confusions.map((c) => <li key={c.asked + c.chosen}>{c.asked} → {c.chosen} ×{c.n}</li>)}</ul>
-      {/* Task 17 moves these into the Data section's one export */}
       <h3>Telemetry</h3>
-      <button type="button" onClick={() => downloadJson(clockTelemetry.exportJson(), `clock-telemetry-${new Date().toISOString().slice(0, 10)}.json`)}>
-        Export telemetry ({clockTelemetry.count()} events)
-      </button>{' '}
-      <button type="button" onClick={() => window.confirm('Clear the clock telemetry log?') && clockTelemetry.clear()}>Clear telemetry</button>
+      <p>
+        Export or clear the clock’s event log in{' '}
+        <button type="button" data-goto-data onClick={() => goTo('data')}>Data</button>.
+      </p>
     </div>
   )
 }

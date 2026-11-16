@@ -16,7 +16,7 @@ describe('the clock\'s section in the parent area', () => {
   afterEach(() => vi.restoreAllMocks())
 
   it('cannot untick the last language', () => {
-    const { getByLabelText } = render(<ClockSettings />)
+    const { getByLabelText } = render(<ClockSettings goTo={() => {}} />)
     fireEvent.click(getByLabelText('עברית / Hebrew'))
     expect(useClockStore.getState().settings.langs).toEqual(['en'])
     fireEvent.click(getByLabelText('English'))
@@ -25,7 +25,7 @@ describe('the clock\'s section in the parent area', () => {
 
   it('logs each settings change', () => {
     const track = vi.spyOn(clockTelemetry, 'track')
-    const { getByLabelText } = render(<ClockSettings />)
+    const { getByLabelText } = render(<ClockSettings goTo={() => {}} />)
     fireEvent.click(getByLabelText('עברית / Hebrew'))
     expect(track).toHaveBeenCalledWith('settings', { keys: ['langs'], langs: ['en'] })
     fireEvent.click(getByLabelText(/Hebrew: mix print and cursive/))
@@ -35,7 +35,7 @@ describe('the clock\'s section in the parent area', () => {
   it('shows the level, rounds and gears, and a row per feature with its predicted miss', () => {
     useClockStore.getState().addGears(4)
     useClockStore.setState({ tallies: { half: { seen: 4, wrong: 1 } }, recent: { half: 'xo' } })
-    const { container } = render(<ClockSettings />)
+    const { container } = render(<ClockSettings goTo={() => {}} />)
     expect(container.querySelector('[data-clock-progress]')!.textContent).toMatch(/gears 4/)
     expect(container.querySelector('[data-feature="half"]')!.textContent).toMatch(/%$/)
   })

@@ -2,6 +2,7 @@
 // game-parent-index-is-light); the settings load with React.lazy, only on the clock's page.
 import { lazy } from 'react'
 import { confusionList, persistedState, type GameParent } from '../../parent/types'
+import { CLOCK_LOG } from '../telemetryLog'
 
 /** the fields of the clock's save the area reads (src/clock/store.ts ClockSave) */
 interface ClockSaveView {
@@ -17,7 +18,7 @@ export const clockParent: GameParent = {
   id: 'clock',
   title: 'Clock workshop',
   saveKey: 'alef-clock',
-  logs: [{ key: 'alef-clock-telemetry', label: 'Clock workshop' }],
+  logs: [CLOCK_LOG],
   Settings: lazy(() => import('./Settings')),
   summary: (raw) => {
     const s = persistedState<ClockSaveView>(raw)

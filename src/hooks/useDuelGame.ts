@@ -9,11 +9,10 @@ import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pi
 import { wordsFor } from '../utils/duel/words'
 import { LINE_CUES, type LineCue } from '../assets/duel/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../assets/duel/sprites'
-import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
 import { feedbackPlan, nextBossStart, type FeedbackPlan } from '../utils/duel/flow'
 import { predictedMistakeRate } from '../utils/duel/rounds'
 import { makeFxPicker, type FxStyle } from '../utils/duel/fxStyle'
-import { lineAsset, muteDuelAudio, playLine, playSfx, stopAllLines, unlockDuelAudio } from '../utils/duel/duelAudio'
+import { lineAsset, muteDuelAudio, playLine, playSfx, setDuelAudioLog, stopAllLines, unlockDuelAudio } from '../utils/duel/duelAudio'
 import { EFFECT_PRESETS } from '../components/duel/Explosion'
 import type { IconName } from '../components/duel/Icon'
 import { useProgressStore } from '../stores/progressStore'
@@ -69,6 +68,15 @@ interface DuelEmbedded {
   onWaveEnd?: (wave: number) => boolean
 }
 
+/**
+ * Where the duel's events go: Book 2's log (ADR 0004). The hook adds `via: 'tower'` and its own visit counter `visit` to
+ * every event, and never sets the log's run number (that is Book 2's run).
+ */
+export interface DuelTelemetry {
+  track: (e: string, data?: Record<string, unknown>) => void
+  flush: () => void
+}
+
 interface UseDuelGameOpts {
   rng?: Rng
   /** verify/test builds only: fixed monster walk time */
@@ -76,12 +84,13 @@ interface UseDuelGameOpts {
   /** injectable round factory (tests) */
   makeRound?: (o: MakeRoundOpts) => Round
   embedded: DuelEmbedded
+  telemetry: DuelTelemetry
 }
 
 const TOWER_INTRO = 'tower-intro'
 const towerScreenKey = (key: string) => `tower-screen-${key}`
 
-export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defaultMakeRound, embedded }: UseDuelGameOpts) {
+export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defaultMakeRound, embedded, telemetry }: UseDuelGameOpts) {
   /** the current embedded callbacks (the options object is new on every render) */
   const emb = useRef(embedded)
   emb.current = embedded
@@ -111,6 +120,12 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   stateRef.current = state
   const pausedRef = useRef(false)
   const runId = useRef(0) // bumps on start/unmount: stale async continuations stop
+  /** the log the visit writes to; every event says it came from the tower, and which visit of this hook */
+  const tel = useRef(telemetry)
+  tel.current = {
+    track: (e, data = {}) => telemetry.track(e, { ...data, via: 'tower', visit: runId.current }),
+    flush: () => telemetry.flush(),
+  }
   const roundToken = useRef(0) // bumps on every begin(): stale per-round continuations stop
   const nextId = useRef(1)
   const introDue = useRef(false)
@@ -144,7 +159,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const store = useProgressStore
   /** Every voice line goes through here so telemetry knows exactly which asset played. */
   const say = useCallback((id: string, cb?: (c: LineCue) => void) => {
-    track('line', lineAsset(id))
+    tel.current.track('line', lineAsset(id))
     return playLine(id, cb)
   }, [])
 
@@ -188,7 +203,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       spawnedAt.current = performance.now()
       walkStartedAt.current = performance.now()
       const s = stateRef.current
-      track('round', {
+      tel.current.track('round', {
         round: r.id, restart, wave: s.wave, kills: s.kills, boss: r.boss, bossHp: s.bossHp, hearts: s.hearts,
         combo: s.combo, type: r.type, target: r.target.id, word: r.word.key, picture: r.type === 'A' ? WORD_PICTURE[r.word.key] : null,
         monster: r.monster, monsterSrc: MONSTERS[r.monster]?.src ?? null, walkMs: r.walkMs,
@@ -209,7 +224,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
         .then(() => {
           if (token !== roundToken.current || pausedRef.current) return
           walkStartedAt.current = performance.now()
-          track('walk', { round: r.id, clueMs: Math.round(walkStartedAt.current - spawnedAt.current) })
+          tel.current.track('walk', { round: r.id, clueMs: Math.round(walkStartedAt.current - spawnedAt.current) })
           dispatch({ type: 'WALK_START' })
         })
     },
@@ -247,7 +262,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
           : announce === 'new-monster' ? { sprite: owed ?? newMonsterAt(next.wave) ?? 'fuzzy' }
           : { icons: ['swords'] }
         setBanner(visual)
-        track('announce', { kind: announce, wave: next.wave, ...(owed ? { owed } : {}) })
+        tel.current.track('announce', { kind: announce, wave: next.wave, ...(owed ? { owed } : {}) })
         await say(`line-${announce}`)
         setBanner(null)
         // a pause during the line says it again after the resume (as for any announcement)
@@ -364,7 +379,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const plan = feedbackPlan(r, o, confidence)
     setFeedback(plan)
     if (!dry && !megaInRun) store.getState().setDuelPace(pace)
-    track('outcome', {
+    tel.current.track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
       hearts: state.hearts, combo: state.combo, score: state.score, bossHp: state.bossHp,
@@ -392,7 +407,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (o.mega) megaAnnounced.current = false
     // (in Book 2's run a מגה kill leaves the streak as it was: no second celebration of it)
     const comboLine = o.kind === 'hit' && !megaInRun && state.combo > 0 && state.combo % 5 === 0
-    if (comboLine) track('combo', { round: r.id, combo: state.combo })
+    if (comboLine) tel.current.track('combo', { round: r.id, combo: state.combo })
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !megaAnnounced.current
     if (megaLine) megaAnnounced.current = true
 
@@ -428,10 +443,10 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
   const start = useCallback(() => {
     unlockDuelAudio()
     muteDuelAudio(false) // a run left while paused must not leave everything muted
+    setDuelAudioLog({ track: (e, data) => tel.current.track(e, data) }) // the kit's voice-fallback events go to the visit's log
     const e = emb.current
     runId.current += 1
-    setTelemetryRun(runId.current)
-    track('run_start', { embedded: true, wave: e.wave, waves: e.waves, boss: e.boss })
+    tel.current.track('run_start', { embedded: true, wave: e.wave, waves: e.waves, boss: e.boss })
     overRef.current = false
     doneRef.current = false
     roundToken.current += 1
@@ -462,7 +477,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (twinRound.current === r.id && keyOf(c) === twinKey.current) return // same twin again: still forgiven
     const now = performance.now()
     const pos = c.kind === 'rune' ? r.runes.findIndex((m) => m.id === c.mark.id) : r.padWords.findIndex((w) => w.group === c.group)
-    track('choice', {
+    tel.current.track('choice', {
       round: r.id, key: keyOf(c), pos, correct: isCorrect(r, c), twin: !isCorrect(r, c) && isTwin(r, c), walking: s.walking,
       msShown: Math.round(now - spawnedAt.current), msWalk: s.walking ? Math.round(now - walkStartedAt.current) : null,
     })
@@ -490,7 +505,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const r = s.round
     // (Book 2's run: not after its hearts ran out or its visit ended)
     if (s.paused || s.mega < MEGA_MAX || overRef.current || doneRef.current) return
-    track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
+    tel.current.track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
     if (!r || s.outcome || s.preview) {
       megaQueued.current = true // he did what the wizard said; it fires when the next monster appears
       return
@@ -506,8 +521,8 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const s = stateRef.current
     if (s.phase !== 'playing' || pausedRef.current) return
     pausedRef.current = true
-    track('pause', { cause: document.hidden ? 'hidden' : 'button', round: s.round?.id ?? null, duringOutcome: !!s.outcome })
-    flushTelemetry()
+    tel.current.track('pause', { cause: document.hidden ? 'hidden' : 'button', round: s.round?.id ?? null, duringOutcome: !!s.outcome })
+    tel.current.flush()
     dispatch({ type: 'PAUSE' })
     muteDuelAudio(true)
     stopAllLines()
@@ -517,7 +532,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (!pausedRef.current) return
     pausedRef.current = false
     unlockDuelAudio() // inside the ▶ tap: Android may have suspended audio during a long lock
-    track('resume', {})
+    tel.current.track('resume', {})
     dispatch({ type: 'RESUME' })
     muteDuelAudio(false)
     const s = stateRef.current
@@ -536,7 +551,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
 
   const replayClue = useCallback(() => {
     const r = stateRef.current.round
-    if (r) track('replay', { round: r.id })
+    if (r) tel.current.track('replay', { round: r.id })
     if (r) void playClue(r)
   }, [playClue])
 
@@ -545,11 +560,11 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     const onHide = () => {
       const s = stateRef.current
       if (s.phase !== 'playing') return
-      track('abandon', {
+      tel.current.track('abandon', {
         reason: 'pagehide', round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused,
         duringOutcome: !!s.outcome, msShown: s.round ? Math.round(performance.now() - spawnedAt.current) : null,
       })
-      flushTelemetry()
+      tel.current.flush()
     }
     window.addEventListener('pagehide', onHide)
     return () => window.removeEventListener('pagehide', onHide)
@@ -564,13 +579,14 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       // (a visit of Book 2's run that is done is no abandon)
       if (s.phase === 'playing' && !doneRef.current) {
         // left mid-run (home button, back): churn
-        track('abandon', {
+        tel.current.track('abandon', {
           reason: 'unmount',
           round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused, duringOutcome: !!s.outcome,
           msShown: s.round ? Math.round(performance.now() - spawnedAt.current) : null,
         })
       }
-      flushTelemetry()
+      tel.current.flush()
+      setDuelAudioLog(null)
       runId.current += 1
       roundToken.current += 1
       pausedRef.current = false

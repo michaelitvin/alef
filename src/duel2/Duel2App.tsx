@@ -105,7 +105,7 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
   }
   if (screen === 'station' && station) return <StationCover station={station} onPlay={play} loading={loading} />
   if (screen === 'parent') {
-    return <ParentArea game="book2" section={areaAt} onClose={() => setScreen('cover')} track={(e, f) => duel2Telemetry.track(e, f)} homeHref={import.meta.env.BASE_URL}
+    return <ParentArea game="book2" section={areaAt} onClose={() => setScreen('cover')} track={(e, f) => duel2Telemetry.track(e, f)} telemetry={duel2Telemetry} homeHref={import.meta.env.BASE_URL}
       openDev={(id) => { if (id === 'gallery' || id === 'strokes' || id === 'drawtest') setScreen(id) }} />
   }
   if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); backToArea() }} />

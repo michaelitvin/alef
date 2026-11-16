@@ -18,7 +18,8 @@ export const SESSION = `${Date.now().toString(36)}-${Math.random().toString(36).
 /**
  * The caps in characters (localStorage counts UTF-16, so ≈2 bytes each). The origin's quota (≈5 MB) is shared by every
  * log and every save of production and of staging (ADR 0001), so the sum stays well under it. The first duel's log is
- * frozen at what it holds (owner decision: an update never deletes the child's history); 1 M is its old cap.
+ * frozen at what it holds (owner decision: an update never deletes the child's history; nothing writes it since its
+ * events go to Book 2's log, ADR 0004); 1 M is its old cap, the most it can hold.
  */
 export const TELEMETRY_CAPS: Record<TelemetryGame, number> = { book2: 700_000, clock: 500_000, duel: 1_000_000 }
 /** The staging build shares production's quota, so it keeps a quarter of each cap. */
@@ -33,11 +34,21 @@ interface TelemetryOptions {
   /** the cap in characters; default `telemetryCap(game)` */
   maxChars?: number
   about?: TelemetryAbout
-  /**
-   * Never trim or drop a stored event: past the cap (or on a full storage) the NEW events are dropped instead, and an
-   * unreadable stored log is never overwritten. For a log that holds history which must not be lost.
-   */
-  appendOnly?: boolean
+}
+
+/**
+ * A stored log as the parent area's Data section lists it. A game declares its logs (in its `parent/index.ts`); the
+ * export reads them with `readLog`, or through the open game's instance.
+ */
+export interface TelemetryLog {
+  key: string
+  /** the picker's label (parent text) */
+  label: string
+  /** the game in the export's file name */
+  game: TelemetryGame
+  about: TelemetryAbout
+  /** history: nothing writes it any more, and it is never cleared or rewritten (the first duel's old log) */
+  history?: boolean
 }
 
 function parseLog(raw: string | null): TelemetryEvent[] | null {
@@ -75,61 +86,38 @@ function aboutNote(about: TelemetryAbout) {
   }
 }
 
-/** One export document for one or more games: each part keeps its own `about` and its events. */
-export function exportDoc(parts: { about: TelemetryAbout; events: TelemetryEvent[] }[]): string {
+/** One export document for one or more logs: each part keeps its own key, its `about` and its events. */
+export function exportDoc(parts: { key?: string; about: TelemetryAbout; events: TelemetryEvent[] }[], { since }: { since?: number } = {}): string {
   return JSON.stringify({
     v: 2,
     exportedAt: new Date().toISOString(),
-    games: parts.map((p) => ({ about: aboutNote(p.about), events: p.events })),
+    since: since === undefined ? null : new Date(since).toISOString(),
+    games: parts.map((p) => ({ ...(p.key ? { key: p.key } : {}), about: aboutNote(p.about), events: p.events })),
   }, null, 1)
 }
 
-export function createTelemetry(key: string, { game, maxChars = telemetryCap(game), about, appendOnly = false }: TelemetryOptions) {
+/** `alef-telemetry-<games>-<date>.json`, the export's file name */
+export function exportFileName(games: readonly string[], now = new Date()): string {
+  return `alef-telemetry-${games.join('-')}-${now.toISOString().slice(0, 10)}.json`
+}
+
+export function createTelemetry(key: string, { game, maxChars = telemetryCap(game), about }: TelemetryOptions) {
   const FLUSH_MS = 1000
   let run = 0
   let events: TelemetryEvent[] | null = null
-  /** how many of `events` are already in storage (append-only mode) */
-  let stored = 0
-  /** the stored log could not be read: in append-only mode it is never overwritten */
-  let unreadable = false
   let timer: number | undefined
 
   const load = (): TelemetryEvent[] => {
     let raw: string | null = null
     try { raw = localStorage.getItem(key) } catch { /* no storage */ }
-    const evs = parseLog(raw)
-    unreadable = evs === null
-    stored = evs?.length ?? 0
-    return evs ?? []
+    return parseLog(raw) ?? []
   }
   const all = () => (events ??= load())
-
-  function flushAppendOnly(evs: TelemetryEvent[]) {
-    if (unreadable) { evs.splice(stored); return }
-    if (evs.length === stored) return
-    let size = JSON.stringify({ v: 1, events: evs.slice(0, stored) }).length
-    let keep = stored
-    while (keep < evs.length) {
-      const add = JSON.stringify(evs[keep]).length + (keep > 0 ? 1 : 0)
-      if (size + add > maxChars) break
-      size += add
-      keep++
-    }
-    evs.splice(keep)
-    if (keep === stored) return
-    try {
-      localStorage.setItem(key, JSON.stringify({ v: 1, events: evs }))
-      stored = evs.length
-    } catch {
-      evs.splice(stored)
-    }
-  }
 
   function flush() {
     window.clearTimeout(timer)
     timer = undefined
     const evs = all()
-    if (appendOnly) { flushAppendOnly(evs); return }
     let json = JSON.stringify({ v: 1, events: evs })
     while (json.length > maxChars && evs.length > 1) {
       evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
@@ -177,8 +165,6 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
     },
     clear: () => {
       events = []
-      stored = 0
-      unreadable = false
       window.clearTimeout(timer)
       timer = undefined
       try { localStorage.removeItem(key) } catch { /* nothing to clear */ }

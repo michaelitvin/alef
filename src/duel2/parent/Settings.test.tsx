@@ -11,7 +11,6 @@ import { flightPace } from '../logic/run'
 import { duel2Telemetry } from '../telemetry'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
-import { clearTelemetry, track as trackDuel } from '../../utils/duel/telemetry'
 
 const section = () => render(<Book2Settings goTo={() => {}} />)
 
@@ -70,22 +69,15 @@ describe('Book 2\'s section in the parent area', () => {
     expect(container.querySelector('[data-duel-type="D"]')).toBeNull()
   })
 
-  it('exports Book 2’s log and the first duel’s log as JSON files', async () => {
-    clearTelemetry()
-    trackDuel('run_start', {})
-    trackDuel('choice', { key: 'segol' })
-    const blobs: Blob[] = []
-    Object.assign(URL, { createObjectURL: vi.fn((b: Blob) => { blobs.push(b); return 'blob:x' }), revokeObjectURL: () => {} })
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-    section()
-    fireEvent.click(screen.getByText('Export telemetry'))
-    expect(click).toHaveBeenCalledTimes(1)
-    const btn = document.querySelector('[data-duel-export]')!
-    expect(btn.textContent).toContain('2 events')
-    fireEvent.click(btn)
-    expect(click).toHaveBeenCalledTimes(2)
-    const doc = JSON.parse(await blobs[1].text())
-    expect(doc.events.map((e: { e: string }) => e.e)).toEqual(['run_start', 'choice'])
+  it('has no export of its own: Book 2’s telemetry and the first duel’s history link to the Data section', () => {
+    const goTo = vi.fn()
+    const { container } = render(<Book2Settings goTo={goTo} />)
+    expect(screen.queryByText('Export telemetry')).toBeNull()
+    expect(container.querySelector('[data-duel-export]')).toBeNull()
+    const links = container.querySelectorAll('[data-goto-data]')
+    expect(links).toHaveLength(2)
+    links.forEach((l) => fireEvent.click(l))
+    expect(goTo.mock.calls).toEqual([['data'], ['data']])
   })
 
   it('shows the flight speed this device has learned, and can reset it (it adapts per device)', () => {

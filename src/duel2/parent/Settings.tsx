@@ -5,7 +5,6 @@ import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { ITEMS } from '../logic/content'
 import type { SectionProps } from '../../parent/types'
-import { downloadJson } from '../../shared/download'
 import { FirstDuelHistory } from './FirstDuelHistory'
 
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
@@ -80,20 +79,18 @@ export default function Book2Settings({ goTo }: SectionProps) {
       <h3>Top mix-ups (asked → tapped)</h3>
       <ul>{conf(s.confusions.letters).map((x) => <li key={`l${x.a}${x.b}`}>{name(x.a)} → {name(x.b)}: {x.n}</li>)}</ul>
       <ul>{conf(s.confusions.vowels).map((x) => <li key={`v${x.a}${x.b}`}>vowel {x.a} → {x.b}: {x.n}</li>)}</ul>
-      <FirstDuelHistory />
+      <FirstDuelHistory goTo={goTo} />
       <h3>Flight speed</h3>
       <p>
         The broom flight adapts to him and is saved on this device only: <span data-pace>{s.pace.toFixed(2)}</span>× the normal
         flight time (0.85 = fastest, 1.6 = slowest): a catch makes it 1% faster, a mistake 4% slower.{' '}
         <button type="button" onClick={() => s.setPace(1)}>Reset flight speed</button>
       </p>
-      {/* Task 17 moves these into the Data section's one export */}
       <h3>Telemetry</h3>
       <p>
-        <button type="button" onClick={() => downloadJson(duel2Telemetry.exportJson(), `duel2-telemetry-${new Date().toISOString().slice(0, 10)}.json`)}>Export telemetry</button>{' '}
-        <button type="button" onClick={() => { if (window.confirm('Clear the telemetry log?')) duel2Telemetry.clear() }}>Clear telemetry</button>
+        Export or clear Book 2’s event log (the tower’s events are in it) in{' '}
+        <button type="button" data-goto-data onClick={() => goTo('data')}>Data</button>.
       </p>
-      <p style={{ color: '#666' }}>Events logged: {duel2Telemetry.count()}</p>
     </div>
   )
 }

@@ -58,10 +58,10 @@ afterEach(() => {
 describe('duelAudio', () => {
   it('a girl hears the feminine take (with its own cues); a missing one falls back to the masculine take and is logged', async () => {
     const player = await import('../../shared/player')
-    const tel = await import('./telemetry')
-    const track = vi.spyOn(tel, 'track')
+    const track = vi.fn()
     player.setGender('girl', 'child')
     const audio = await import('./duelAudio')
+    audio.setDuelAudioLog({ track }) // the tower's visit sets its log (Book 2's)
     const cues: string[] = []
     void audio.playLine('line-intro', (c) => cues.push(c))
     expect(byUrl('lif')).toBeTruthy()
@@ -83,7 +83,7 @@ describe('duelAudio', () => {
     expect(audio.lineAsset('line-intro')).toEqual({ id: 'line-intro', file: 'line-intro', url: 'li' })
     void audio.playLine('line-intro')
     expect(byUrl('li')).toBeTruthy()
-    track.mockRestore()
+    audio.setDuelAudioLog(null)
   })
   it('playLine resolves when the line ends', async () => {
     const audio = await import('./duelAudio')

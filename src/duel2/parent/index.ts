@@ -4,6 +4,8 @@ import { lazy } from 'react'
 import { confusionList, persistedState, type GameParent } from '../../parent/types'
 import { ITEMS } from '../logic/content'
 import type { Duel2Save } from '../store'
+import { BOOK2_LOG } from '../telemetryLog'
+import { DUEL_HISTORY_LOG } from '../../utils/duel/telemetryHistory'
 
 const glyph = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
@@ -11,7 +13,7 @@ export const book2Parent: GameParent = {
   id: 'book2',
   title: 'Book 2',
   saveKey: 'alef-duel2',
-  logs: [{ key: 'alef-duel2-telemetry', label: 'Book 2' }, { key: 'alef-duel-telemetry', label: 'First duel (history)' }],
+  logs: [BOOK2_LOG, DUEL_HISTORY_LOG],
   Settings: lazy(() => import('./Settings')),
   DevTools: lazy(() => import('./DevTools')),
   summary: (raw) => {
