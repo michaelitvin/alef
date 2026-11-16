@@ -5,56 +5,7 @@ import { useProgressStore } from '../stores/progressStore'
 /**
  * Audio playback status
  */
-export type AudioStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'error'
-
-/**
- * Track if audio has been unlocked by user gesture
- */
-let audioUnlocked = false
-let pendingPlays: (() => void)[] = []
-
-/**
- * Unlock audio context on first user interaction
- * This is required by browsers' autoplay policy
- */
-export function unlockAudio(): void {
-  if (audioUnlocked) return
-
-  const unlock = () => {
-    // Resume the AudioContext if it exists and is suspended
-    const ctx = Howler.ctx
-    if (ctx && ctx.state === 'suspended') {
-      ctx.resume().then(() => {
-        audioUnlocked = true
-        // Play any pending audio
-        pendingPlays.forEach(fn => fn())
-        pendingPlays = []
-      })
-    } else {
-      audioUnlocked = true
-      // Play any pending audio
-      pendingPlays.forEach(fn => fn())
-      pendingPlays = []
-    }
-
-    // Remove listeners after first interaction
-    document.removeEventListener('click', unlock, true)
-    document.removeEventListener('touchstart', unlock, true)
-    document.removeEventListener('keydown', unlock, true)
-  }
-
-  // Listen for user interaction
-  document.addEventListener('click', unlock, true)
-  document.addEventListener('touchstart', unlock, true)
-  document.addEventListener('keydown', unlock, true)
-}
-
-/**
- * Check if audio is unlocked
- */
-export function isAudioUnlocked(): boolean {
-  return audioUnlocked
-}
+type AudioStatus = 'idle' | 'loading' | 'playing' | 'error'
 
 /**
  * Audio cache to prevent re-loading the same files
@@ -94,30 +45,10 @@ function getHowl(src: string, volume: number): Howl {
 }
 
 /**
- * Preload audio files into cache
- */
-export function preloadAudio(paths: string[], volume: number = 0.8): void {
-  paths.forEach((path) => {
-    if (!audioCache.has(path)) {
-      getHowl(path, volume)
-    }
-  })
-}
-
-/**
- * Clear audio cache
- */
-export function clearAudioCache(): void {
-  audioCache.forEach((howl) => howl.unload())
-  audioCache.clear()
-}
-
-/**
  * Hook for playing audio files
  */
 export function useAudio() {
   const [status, setStatus] = useState<AudioStatus>('idle')
-  const [currentSrc, setCurrentSrc] = useState<string | null>(null)
   const currentHowlRef = useRef<Howl | null>(null)
 
   const settings = useProgressStore((state) => state.settings)
@@ -172,7 +103,6 @@ export function useAudio() {
         }
 
         setStatus('loading')
-        setCurrentSrc(src)
 
         // Track if promise is already settled
         let settled = false
@@ -244,49 +174,6 @@ export function useAudio() {
     [soundEnabled, volume]
   )
 
-  /**
-   * Play multiple audio files in sequence
-   * Accepts either string paths or Promises that resolve to string paths
-   */
-  const playSequence = useCallback(
-    async (srcs: (string | Promise<string>)[]): Promise<void> => {
-      for (const src of srcs) {
-        await play(src)
-      }
-    },
-    [play]
-  )
-
-  /**
-   * Stop current audio
-   */
-  const stop = useCallback(() => {
-    if (currentHowlRef.current) {
-      currentHowlRef.current.stop()
-      setStatus('idle')
-    }
-  }, [])
-
-  /**
-   * Pause current audio
-   */
-  const pause = useCallback(() => {
-    if (currentHowlRef.current && status === 'playing') {
-      currentHowlRef.current.pause()
-      setStatus('paused')
-    }
-  }, [status])
-
-  /**
-   * Resume paused audio
-   */
-  const resume = useCallback(() => {
-    if (currentHowlRef.current && status === 'paused') {
-      currentHowlRef.current.play()
-      setStatus('playing')
-    }
-  }, [status])
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -298,14 +185,7 @@ export function useAudio() {
 
   return {
     play,
-    playSequence,
-    stop,
-    pause,
-    resume,
-    status,
-    currentSrc,
     isPlaying: status === 'playing',
-    isLoading: status === 'loading',
   }
 }
 
@@ -329,14 +209,6 @@ export function useSoundEffects() {
     return play(`${EFFECTS_BASE}/error-${variant}.mp3`)
   }, [play])
 
-  const playTap = useCallback(() => {
-    return play(`${EFFECTS_BASE}/tap.mp3`)
-  }, [play])
-
-  const playUnlock = useCallback(() => {
-    return play(`${EFFECTS_BASE}/unlock.mp3`)
-  }, [play])
-
   const playCelebrate = useCallback(() => {
     return play(`${EFFECTS_BASE}/celebrate.mp3`)
   }, [play])
@@ -348,11 +220,8 @@ export function useSoundEffects() {
   return {
     playSuccess,
     playError,
-    playTap,
-    playUnlock,
     playCelebrate,
     playPageTurn,
   }
 }
 
-export default useAudio
