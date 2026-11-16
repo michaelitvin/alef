@@ -13,7 +13,7 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | Pure rules: stages, mastery, prediction, merchant prices, boss, the drawing recognizer | `logic/*.ts` |
 | The save (`alef-duel2`) | `store.ts`; defaults and migrations in `saveFormat.ts` (no side effects, so home can read it) |
 | Screens of the run | `components/screens/*.tsx`; app-level screens (cover, play, summary, parent) in `screens/` |
-| The tower | `components/screens/Tower.tsx` embeds Book 1's duel (`src/hooks/useDuelGame.ts`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
+| The tower | `components/screens/Tower.tsx` embeds Book 1, the first duel (`src/hooks/useDuelGame.ts`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
 | Voice, effects, music | `audio/duel2Audio.ts`; the line texts in `data/lines.ts` |
 | A station link from home (`?station=`) | `station.ts` |
 
@@ -28,5 +28,5 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 
 ## Known friction
 
-- `controller.ts` reads Book 1's save (`useProgressStore`) and imports `ZOOM_MS` from a view (`components/screens/Doors`).
+- `controller.ts` reads the lessons' save (`useProgressStore`, which also holds the first duel's history) and imports `ZOOM_MS` from a view (`components/screens/Doors`).
 - `audio/duel2Audio.ts` repeats most of `src/clock/audio/clockAudio.ts` and `src/utils/duel/duelAudio.ts`.

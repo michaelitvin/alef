@@ -5,13 +5,13 @@ This file holds the domain words only. How a word is built lives in the code and
 
 ## Books and games
 
-**Book 1**:
-The original reading course: letters, nikkud, syllables, words, sentences and stories, each a path of lessons.
-_Avoid_: the old app, the main app
+**Book 1** or **Duel** (the first duel):
+The first wizard duel (nikkud, by sound), where the wizard reads a mark by its sound to beat a monster. It is now the tower screen of Book 2's run.
+_Avoid_: the old app, nikkud duel, wizard duel (when you mean Book 2)
 
-**Duel** (the first duel):
-Book 1's nikkud game, where the wizard reads a mark by its sound to beat a monster. It is now the tower screen of Book 2's run.
-_Avoid_: nikkud duel, wizard duel (when you mean Book 2)
+**The lessons**:
+The reading course: letters, nikkud, syllables, words, sentences, stories; the home's shelf of older activities.
+_Avoid_: Book 1
 
 **Book 2**:
 The letters-and-syllables adventure: a run through a fixed cycle of screens, with stakes and a merchant.

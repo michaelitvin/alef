@@ -7,7 +7,8 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 
 | Game | Entry point | Read first |
 | --- | --- | --- |
-| Book 1 (lessons, stories, the first duel) and home | `index.html` → `src/main.tsx` → `src/App.tsx` (routes) | `src/stores/progressStore.ts` (save `alef-progress`) |
+| The lessons and home | `index.html` → `src/main.tsx` → `src/App.tsx` (routes) | `src/stores/progressStore.ts` (save `alef-progress`) |
+| Book 1, the first duel (Book 2's tower) | the tower screen of Book 2; no page of its own | `src/hooks/useDuelGame.ts`, `src/utils/duel/`, `src/components/duel/` |
 | Book 2 (the run; the first duel is its tower) | `duel2/index.html` → `src/duel2/main.tsx` | [src/duel2/README.md](src/duel2/README.md) |
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
 | Code two or more games share | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
