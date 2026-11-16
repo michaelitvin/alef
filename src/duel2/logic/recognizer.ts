@@ -188,6 +188,12 @@ export class LetterChecker {
   constructor(readonly def: LetterDef) {
     this.alive = def.variants.map((v, vi) => ({ v, vi, idx: 0, frame: ID, pairs: [], pending: [], paths: [], frames: [] }))
   }
+  /** a copy that judges on alone: what it is given never changes this one (the draw policy is pure) */
+  clone(): LetterChecker {
+    const c = new LetterChecker(this.def)
+    c.alive = this.alive.map((t) => ({ ...t, pairs: [...t.pairs], pending: [...t.pending], paths: [...t.paths], frames: [...t.frames] }))
+    return c
+  }
   get index() { return this.lead().idx }
   get total() { return this.lead().v.length }
   get done() { return this.alive.some((t) => t.idx >= t.v.length) }
