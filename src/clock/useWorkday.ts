@@ -13,7 +13,8 @@ import { checkFor, planRound } from './logic/rounds'
 import { WORKDAY_LENGTH, dayKey, kindInfo, langForRound, pickCustomer, realTimeFor, type ClockKind, type Customer } from './logic/workday'
 import type { Exercise, RoundPlan } from './logic/types'
 import { CUSTOMER_LINES, REQUEST_ASKS, customerAudioId, lineAudioId, lineById, parseLine, requestFor, type Cue, type Request } from './data/lines'
-import { spokenLineText, holdAudio, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
+import { spokenLineText, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
+import { usePauseHold } from '../shared/shell/usePauseHold'
 import { scriptFor, type CaptionScript } from './components/Caption'
 import { explainLineId } from './components/ExplainPlayer'
 
@@ -356,8 +357,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
   }, [roundKey, paused]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // the pause cover keeps all audio silent until he taps play (rule)
-  useEffect(() => { holdAudio(paused) }, [paused])
-  useEffect(() => () => holdAudio(false), [])
+  usePauseHold(paused)
 
   // pause when the tablet locks (rule); resume asks the same question again (or, after the answer was counted, brings
   // the next customer)

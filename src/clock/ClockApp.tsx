@@ -7,10 +7,9 @@ import { useClockStore } from './store'
 import { playVoice, stopVoices, startMusic, stopMusic } from './audio/clockAudio'
 import { lineAudioId } from './data/lines'
 import { preloadClockAssets } from './assets/preload'
-import { GenderQuestion } from '../shared/GenderQuestion'
-import { getGender, setGender } from '../shared/player'
 import { VOICE_RATE } from '../shared/gameAudio/howlerPlayer'
-import { unlockAudioOutput, useAudioOutput } from '../shared/gameAudio/output'
+import { unlockAudioOutput } from '../shared/gameAudio/output'
+import { useGameShell } from '../shared/shell/GameShell'
 import { clockTelemetry } from './telemetry'
 import { VOICE_WORDS } from './assets/audioFiles'
 // the clock has no player character: the question shows the wizards the child knows from the other games
@@ -24,20 +23,42 @@ function askCues(id: string) {
 }
 
 export default function ClockApp() {
-  const [screen, setScreen] = useState<'cover' | 'ask' | 'work' | 'parent'>('cover')
-  const starting = useRef(false)
-  const screenRef = useRef(screen)
-  screenRef.current = screen
-  // fonts, images, effects and lines load while the door shows; play waits for the fonts and images (at most 4 s)
-  useEffect(() => { void preloadClockAssets() }, [])
-  // sound is the device's one setting for every game (src/shared/deviceSettings.ts); switching apps silences all the
-  // clock audio, on every screen (rule; the workshop also pauses, and its cover holds the sound: useWorkday)
-  useAudioOutput()
+  const [screen, setScreen] = useState<'cover' | 'work' | 'parent'>('cover')
+  /** the door shows (not the boy/girl question over it) */
+  const onDoor = useRef(true)
+  const lang = useClockStore((s) => s.settings.langs[0])
+  // the shell (src/shared/shell/GameShell.tsx): fonts, images, effects and lines load while the door shows (play waits
+  // for the fonts and images, at most READY_MS); the device's one sound setting; switching apps silences all the clock
+  // audio, on every screen (rule; the workshop also pauses, and its cover holds the sound: useWorkday)
+  const shell = useGameShell({
+    preload: preloadClockAssets,
+    // the clock has no player character: the question shows the wizards the child knows from the other games
+    // (its pictures load first, with the rest of the workshop: a picture must not appear after the screen)
+    askGender: {
+      boySrc: IMAGES['wizard-boy'], girlSrc: IMAGES['wizard-girl'], line: lineAudioId('ask-gender', lang), cues: askCues(lineAudioId('ask-gender', lang)),
+      play: (id) => playVoice(id), stop: stopVoices,
+      onChosen: (g) => clockTelemetry.track('player', { gender: g, by: 'child' }),
+    },
+    canStart: () => onDoor.current,
+    onPlay: () => setScreen('work'),
+    // boy or girl is set: the welcome plays while the rest loads; the workshop opens when both are done
+    welcome: () => {
+      const st = useClockStore.getState()
+      if (st.welcomed) return Promise.resolve()
+      const line = playVoice(lineAudioId('welcome', st.settings.langs[0])).then(() => {}, () => {})
+      st.setWelcomed()
+      return line
+    },
+    // boy or girl is not set yet: ask the child before the welcome (spec 2026-11-07 girls)
+    onAsk: stopMusic,
+  })
+  const door = screen === 'cover' && !shell.asking
+  onDoor.current = door
   // the door plays the calm music (the workshop turns it off while customers come); browsers allow sound only after
   // the first tap
   const tapped = useRef(false)
   useEffect(() => {
-    if (screen !== 'cover') {
+    if (!door) {
       if (screen === 'parent') stopMusic()
       return
     }
@@ -48,56 +69,14 @@ export default function ClockApp() {
       tapped.current = true
       unlockAudioOutput()
       // the music file waits for the fonts and images, so it does not slow them down
-      void preloadClockAssets().then(() => { if (screenRef.current === 'cover') startMusic(useClockStore.getState().workdays) })
+      void preloadClockAssets().then(() => { if (onDoor.current) startMusic(useClockStore.getState().workdays) })
     }
     if (tapped.current) { start(); return }
     window.addEventListener('pointerdown', start)
     return () => window.removeEventListener('pointerdown', start)
-  }, [screen])
-  const [loading, setLoading] = useState(false)
-  const play = () => {
-    if (starting.current) return
-    unlockAudioOutput()
-    // boy or girl is not set yet: ask the child before the welcome (spec 2026-11-07 girls)
-    // (its pictures load first, with the rest of the workshop: a picture must not appear after the screen)
-    if (!getGender()) {
-      starting.current = true
-      setLoading(true)
-      void preloadClockAssets().finally(() => {
-        starting.current = false
-        setLoading(false)
-        if (screenRef.current !== 'cover') return
-        stopMusic()
-        setScreen('ask')
-      })
-      return
-    }
-    starting.current = true
-    setLoading(true)
-    const st = useClockStore.getState()
-    const welcome = st.welcomed ? Promise.resolve() : playVoice(lineAudioId('welcome', st.settings.langs[0])).catch(() => {})
-    if (!st.welcomed) st.setWelcomed()
-    // the welcome plays while the rest loads; the workshop opens when both are done
-    void Promise.all([welcome, preloadClockAssets()]).finally(() => {
-      starting.current = false
-      setLoading(false)
-      if (screenRef.current === 'cover') setScreen('work')
-    })
-  }
-  if (screen === 'ask') {
-    const lang = useClockStore.getState().settings.langs[0]
-    return (
-      <GenderQuestion boySrc={IMAGES['wizard-boy']} girlSrc={IMAGES['wizard-girl']} line={lineAudioId('ask-gender', lang)} play={(id) => playVoice(id)} stop={stopVoices}
-        cues={askCues(lineAudioId('ask-gender', lang))}
-        onChoose={(g) => {
-          setGender(g, 'child')
-          clockTelemetry.track('player', { gender: g, by: 'child' })
-          setScreen('cover')
-          play()
-        }} />
-    )
-  }
+  }, [door, screen])
+  if (shell.asking) return shell.question
   if (screen === 'work') return <Workshop onExit={() => setScreen('cover')} />
   if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} />
-  return <Cover onPlay={play} onParent={() => setScreen('parent')} loading={loading} />
+  return <Cover onPlay={shell.play} onParent={() => setScreen('parent')} loading={shell.loading} />
 }
