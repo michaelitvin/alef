@@ -10,8 +10,7 @@ import {
   type Choice, type Kind, type LadderStep, type RoundCtx,
 } from './logic/rounds'
 import {
-  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, VISIT, SESSION_LENGTH, HEARTS, cycleOf, heartsAtRunStart, newRound, flightPace, coinsFor, multiplierOf, nextScreen, onAnswer, passEndHeart, runStart, travelMs,
-  type Hearts,
+  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, VISIT, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
 import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
@@ -28,11 +27,12 @@ import { LetterChecker } from './logic/recognizer'
 import { drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
-import { composeCoins, merchantDue, priceAt } from './logic/merchant'
+import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
 import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
 import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, type MerchantState, type MerchantView } from './policies/merchant'
 import { NEVER_VISITED } from './store'
-import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
+import { stage0Lane } from './logic/mastery'
+import { runPass, stepPass, type PassFacts, type PassInput, type PassState, type PassStep } from './policies/pass'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { skippedMonsters } from '../utils/duel/rules'
 
@@ -161,8 +161,6 @@ const FIX_DONE_MS = 700
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
 const FINALE_MS = 2500
-/** the defeat scene: the dizzy wizard spins and falls (spec: one duel, a short and funny end) */
-const DEFEAT_MS = 1800
 /** praise is spoken this many times per kind, then only its sound plays */
 const PRAISE_SPOKEN = 2
 /** how long a praise with no words lets its sound play */
@@ -191,13 +189,18 @@ export class RunController {
   private save: SavePort
   private pausedAt: number | null = null
   private pausedTotal = 0
-  private hearts: Hearts = heartsAtRunStart()
-  private screenId: ScreenId | 'crystal' = 'broom'
+  /** the pass: the screen, the hearts, the crystals, the checkpoint (policies/pass.ts) */
+  private pass: PassState
+  private get hearts() { return this.pass.hearts }
+  // the end-to-end tests set these directly (a low heart, owed doors' crystal)
+  private set hearts(h: PassState['hearts']) { this.pass = { ...this.pass, hearts: h } }
+  protected get crystalOwed() { return this.pass.crystalOwed }
+  protected set crystalOwed(v: boolean) { this.pass = { ...this.pass, crystalOwed: v } }
+  private get screenId() { return this.pass.screen }
   private stage: Stage
   private roundInScreen = 0
   private score = 0
   private streak = 0
-  private crystalsThisRun = 0
   private lastWordLink = false
   private lastLine: Record<string, number> = {}
   private pickWaiter: ((g: string) => void) | null = null
@@ -223,14 +226,6 @@ export class RunController {
   private ending = false
   /** he left the run with the home button (exit): closing the game after it is no abandon */
   private exited = false
-  /** the crystal of this cycle was given (a pause during it must not give it twice) */
-  private crystalAwarded = false
-  /** a pass has ended: its heart is due before the next screen */
-  private passDue = false
-  private passHearts = 0
-  /** this pass went through every screen of the cycle: the run started at the cycle's first screen, or a pass ended
-   * since (spec: "a pass is one trip through all his open minigames"; a run resumed near the end gets no heart there) */
-  private passFull = false
   private demoShown = false
   private assets: string[] = []
   /** broom visits in this run: every second one is a boss visit */
@@ -253,8 +248,6 @@ export class RunController {
   private drawDone: (() => void) | null = null
   private strokeNo = 0
   private demoNo = 0
-  /** a screen has ended: the checkpoint (maybe the merchant) comes before the next one */
-  private checkpointDue = false
   /** the merchant's visit in progress (policies/merchant.ts): it survives a pause (coins in his hand included) */
   private visit: MerchantState | null = null
   /** ends the run's wait for the visit (it has ended) */
@@ -278,11 +271,6 @@ export class RunController {
   private towerWaiter: ((lastWave: number) => void) | null = null
   /** this visit's length (rounds, waves, rungs, doors or words), decided when it starts */
   private visitLen = 0
-  /** the doors were skipped in this cycle: their crystal comes at the cycle's end */
-  private crystalOwed = false
-  /** the next screen after a crystal that came at the cycle's end */
-  private afterCrystal: { screen: ScreenId; newCycle: boolean } | null = null
-  private purchasesThisRun = 0
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
@@ -290,6 +278,7 @@ export class RunController {
     this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(storeSavePort) : storeSavePort)
     this.now = opts.now ?? (() => this.time.now())
     this.stage = opts.force?.stage ?? this.save.read().stage.stage
+    this.pass = this.newPass()
   }
 
   // ---- React bridge
@@ -402,14 +391,10 @@ export class RunController {
     this.running = true
     const st = this.save.read()
     this.startStars = st.totalStars ?? 0
-    // the hearts last the whole run (spec: one duel, Part 1)
-    this.hearts = heartsAtRunStart()
     const session = this.opts.session?.screen
     if (!this.opts.sandbox) duel2Telemetry.track(session ? 'session-start' : 'run-start', { stage: this.stage, ...(session ? { screen: session } : {}) })
-    const f = this.opts.force
-    this.screenId = f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen)
-      : session ?? runStart(this.stage, st.lastEnded, this.drawOn(), this.bookOpen())
-    this.passFull = !f && !session && this.screenId === cycleOf(this.stage, this.drawOn(), this.bookOpen())[0]
+    // the hearts last the whole run (spec: one duel, Part 1)
+    this.pass = this.newPass(st.lastEnded)
     void this.loop()
   }
   destroy() {
@@ -420,7 +405,7 @@ export class RunController {
     stopMusic()
     if (this.exited) return
     // closing the game before the cycle's end: the crystal the skipped doors owe him is still his
-    if (!this.view.over && !this.ending) this.payOwedCrystal()
+    if (!this.view.over && !this.ending) this.passStep({ type: 'owed' })
     // the run is already ending (its run-end was sent): closing now is no abandon
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
     if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
@@ -444,7 +429,7 @@ export class RunController {
     this.pickWaiter = null
     this.nextWaiter = null
     this.endStrokeWait()
-    if (!done) this.payOwedCrystal()
+    if (!done) this.passStep({ type: 'owed' })
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'exit' })
     this.exited = true
     this.track('run-exit', { screen, score: this.score, paused, ...(done ? { ended: true } : {}) })
@@ -522,116 +507,79 @@ export class RunController {
       : screen === 'ghosts' ? (kind === 'letter' ? 'demo-ghosts-letter' : 'demo-ghosts-syllable') : `demo-${screen}`
   }
 
-  // ---- the loop: screens in their cycle until the hearts run out
+  // ---- the loop: screens in their cycle until the hearts run out (policies/pass.ts says which comes next)
   private async loop() {
     const t = this.token
     try {
       if (this.opts.force?.screen === 'merchant') return await this.galleryMerchant(t)
       for (;;) {
-        if (this.passDue) this.runPassHeart()
-        if (this.checkpointDue) await this.runCheckpoint(t)
+        if (this.pass.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
-        // a session from the path is one visit
-        if (this.opts.session) return await this.endSession()
-        if (this.opts.force) {
-          // the gallery plays one screen, then starts it again
-          this.roundInScreen = 0
-          this.ladder = null
-          this.doorWords = []
-          this.drawPlan = null
-          this.visitKind = null
-          this.crystalAwarded = false
-          this.hearts = heartsAtRunStart()
-          this.newVisit()
-          continue
-        }
-        if (this.screenId === 'doors') { this.screenId = 'crystal'; continue }
-        const nx = this.screenId === 'crystal' ? (this.afterCrystal ?? this.nextOf('doors')) : this.nextOf(this.screenId)
-        this.afterCrystal = null
-        if (this.screenId !== 'crystal' && nx.newCycle && this.crystalOwed) {
-          // the doors were skipped in this cycle: their crystal still comes, at the cycle's end (then the pass heart)
-          this.crystalOwed = false
-          this.afterCrystal = nx
-          this.screenId = 'crystal'
-          continue
-        }
-        this.crystalAwarded = false
-        // stage 0 (the tower alone) has no pass heart
-        if (nx.newCycle) {
-          this.passDue = this.passFull && this.bookOpen()
-          this.passFull = true
-          this.save.nextCycle()
-        }
-        this.screenId = nx.screen
+        const r = this.passStep({ type: 'screen-done', facts: this.facts(), score: this.score })
+        if (r.end) return this.endSession(r)
+        if (!r.fresh) continue
         this.roundInScreen = 0
         this.ladder = null
         this.doorWords = []
         this.drawPlan = null
         this.visitKind = null
         this.newVisit()
-        // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart
-        this.checkpointDue = true
       }
     } catch (e) {
       if (!(e instanceof Aborted)) throw e
     }
   }
 
-  /**
-   * The screen after `from` in the cycle, passing over the screens he has long mastered in this cycle (every other cycle;
-   * never the tower, never the only screen): a skipped screen has no visit and no checkpoint of its own.
-   */
-  private nextOf(from: ScreenId): { screen: ScreenId; newCycle: boolean } {
-    const open = this.bookOpen()
-    let nx = nextScreen(this.stage, from, this.drawOn(), open)
-    const len = cycleOf(this.stage, this.drawOn(), open).length
+  /** the run's mode for the pass, and its first screen (the gallery's forced one, the session's) */
+  private newPass(lastEnded: ScreenId | null = null): PassState {
+    const f = this.opts.force
+    const session = this.opts.session?.screen
+    return runPass({
+      mode: session ? 'session' : f ? 'gallery' : 'run', lastEnded, facts: this.facts(),
+      screen: session ?? (f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : undefined),
+    })
+  }
+  /** what the pass reads from the saves, now */
+  private facts(): PassFacts {
     const st = this.save.read()
-    const duelRecent = this.save.firstDuelRecent()
-    for (let k = 0; k < len && !this.opts.session; k++) {
-      // a new cycle starts at the tower, which is never skipped
-      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, st.recent, duelRecent), st.cycleNo ?? 0, len)) break
-      if (nx.screen === 'doors') this.crystalOwed = true
-      this.track('skip', { screen: nx.screen, cycle: st.cycleNo ?? 0 })
-      const n2 = nextScreen(this.stage, nx.screen, this.drawOn(), open)
-      nx = { screen: n2.screen, newCycle: n2.newCycle }
+    return {
+      stage: this.stage, draw: this.drawOn(), bookOpen: this.bookOpen(), recent: st.recent, duelRecent: this.save.firstDuelRecent(),
+      cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
     }
-    return nx
   }
 
-  /**
-   * The length of a visit, decided when it starts: about half for a screen with no recent mistakes (at least 2 rounds;
-   * the tower at least 1 wave). The gallery plays the full visit.
-   */
-  private lenFor(screen: ScreenId): number {
-    if (this.opts.session) return SESSION_LENGTH[screen]
-    const full = VISIT[screen]
-    if (this.opts.force) return full
-    // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
-    if (screen === 'tower' && !this.bookOpen()) return full
-    const r = screenRecent(screen, this.save.read().recent, this.save.firstDuelRecent())
-    // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
-    // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake
-    const tail = this.save.read().towerTail ?? ''
-    const scale = screen !== 'tower' ? visitScale(r) : tail.length >= SHORT_AFTER ? visitScale(tail) : r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1
-    if (scale === 1) return full
-    return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
+  /** One step of the pass's policy, done: the top bar (a pass heart flies there), the sounds, the saves, the telemetry. */
+  private passStep(e: PassInput): PassStep {
+    const r = stepPass(this.pass, { ...e, at: this.now() })
+    this.pass = r.state
+    if (r.run) this.set({ ...r.run, ...(r.heal ? { heal: { id: ++this.fxId, at: this.now() }, heartFlash: ++heartFlashes } : {}) })
+    for (const x of r.sfx) this.sfx(x)
+    for (const op of r.save) {
+      if (op.op === 'nextCycle') this.save.nextCycle()
+      else if (op.op === 'noteCheckpoint') this.save.noteCheckpoint(op.due)
+      else if (op.op === 'endRun') this.save.endRun(op.screen, op.score)
+      else {
+        this.save.addCrystal()
+        this.track('crystal', { kind: this.save.read().crystals, ...(op.owed ? { owed: true } : {}) })
+      }
+    }
+    for (const x of r.track) this.track(x.e, x.data)
+    return r
   }
 
-  /**
-   * The end of a pass: one heart comes back (up to HEARTS) at once, with a sound: it flies to the top bar and the hearts
-   * there flash (`heartFlash`). No line and no pause: the game goes on (the parent, 2026-11-12: "no need to say it at all.
-   * just give the heart back and flash it promptly").
-   */
-  private runPassHeart() {
-    this.passDue = false
-    const r = passEndHeart(this.hearts)
-    if (!r.gained) return
-    this.hearts = r.hearts
-    this.passHearts++
-    this.set({ hearts: this.hearts.left, passHeart: this.passHearts, heal: { id: ++this.fxId, at: this.now() }, heartFlash: ++heartFlashes })
-    this.track('pass-heart', { hearts: this.hearts.left })
-    this.sfx('potion')
+  /** Sends `e`, then does each wait the step asks for and sends its end (a pause does not cut them: the run is ending). */
+  private async passRun(e: PassInput): Promise<PassStep> {
+    let r = this.passStep(e)
+    while (r.wait) {
+      if (r.wait.for === 'sleep') { await this.time.sleep(r.wait.ms); r = this.passStep({ type: 'slept' }) }
+      else {
+        const said = sayParts(r.say.map((l) => ({ id: 'id' in l ? l.id : this.variation(l.line) })))
+        await (r.wait.min ? Promise.all([said, this.time.sleep(r.wait.min)]) : said)
+        r = this.passStep({ type: 'heard' })
+      }
+    }
+    return r
   }
 
   // ---- the merchant (spec: one duel, Part 2): policies/merchant.ts decides, the run does what it says
@@ -641,23 +589,19 @@ export class RunController {
    */
   private async runCheckpoint(t: number) {
     if (!this.visit) {
-      const adventure = !this.opts.force && !this.opts.session
-      // no merchant at stage 0 (the tower alone)
-      if (!adventure || !this.bookOpen()) { this.checkpointDue = false; return }
-      // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss
+      // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss (the
+      // checkpoint is only in the adventure, where the boss is decided at the visit's start anyway)
       if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
       const st = this.save.read()
-      const range = st.settings.range ?? 100
-      const price = priceAt(this.purchasesThisRun, range)
-      // the checkpoints since his last visit, this one included (the save counts the ones passed without him): with 2
-      // hearts he comes at every other checkpoint
+      const range: NumberRange = st.settings.range ?? 100
+      // the checkpoints since his last visit, this one included (the save counts the ones passed without him)
       const since = st.checkpointsSinceVisit ?? NEVER_VISITED
-      const due = merchantDue({
-        adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
+      const r = this.passStep({
+        type: 'checkpoint', bookOpen: this.bookOpen(), coins: st.coins ?? 0, range, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
         bossNext: this.screenId === 'tower' ? this.towerBossNext() : !!this.visitBoss,
       })
-      this.save.noteCheckpoint(due)
-      if (!due) { this.checkpointDue = false; return }
+      if (!r.merchant) return
+      const price = r.merchant.price
       // the composition is made once, at his arrival (never during a visit)
       this.newMerchantVisit(price, composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng))
       const coins = this.visit!.coins
@@ -666,7 +610,7 @@ export class RunController {
     }
     await this.runVisit(t)
     this.visit = null
-    this.checkpointDue = false
+    this.passStep({ type: 'visited' })
     // the next screen starts fresh (a pause during the visit is not a pause of that screen)
     this.resuming = false
   }
@@ -682,7 +626,7 @@ export class RunController {
   private async galleryMerchant(t: number) {
     const GALLERY_COINS = 40
     if (!this.visit) {
-      this.hearts = { left: 1, nearMissUsed: false }
+      this.passStep({ type: 'gallery-merchant' })
       const range = this.save.read().settings.range ?? 100
       const price = priceAt(0, range)
       this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, this.save.read().merchant?.level ?? 0, this.rng))
@@ -727,8 +671,7 @@ export class RunController {
     if (r.view !== undefined) this.set({ merchant: r.view ?? undefined })
     if (r.run) this.set(r.run)
     if (r.bought) {
-      this.purchasesThisRun++
-      this.hearts = { ...this.hearts, left: r.bought.hearts }
+      this.passStep({ type: 'bought', hearts: r.bought.hearts })
       // the heart flies to the top bar and the hearts flash, as at the end of a pass
       this.set({ hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, heartFlash: ++heartFlashes,
         ...(this.view.coins !== undefined ? { coins: this.view.coins - r.bought.price } : {}) })
@@ -867,7 +810,6 @@ export class RunController {
       return 'on'
     }
     const outcome = this.answerOutcome('wrong')
-    this.hearts = outcome.hearts
     this.resetStreak()
     this.set({ hearts: this.hearts.left })
     if (!outcome.over) return 'on'
@@ -918,7 +860,7 @@ export class RunController {
 
   private async runScreen(t: number, screen: ScreenId) {
     // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
-    if (!this.visitStarted) { this.visitStarted = true; this.visitLen = this.lenFor(screen); if (this.opts.force) this.hearts = heartsAtRunStart() }
+    if (!this.visitStarted) { this.visitStarted = true; this.visitLen = this.passStep({ type: 'visit', screen, facts: this.facts() }).len! }
     if (screen === 'tower') return this.runTower(t)
     if (screen === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
     // a boss throws syllables
@@ -1036,7 +978,7 @@ export class RunController {
 
   /** One round on a calm screen. Returns 'over' when the hearts ran out. */
   private async runRound(t: number, screen: ScreenId, kind: Kind): Promise<'next' | 'over'> {
-    this.hearts = newRound(this.hearts)
+    this.passStep({ type: 'round' })
     this.syncMult()
     const target = this.buildRound(screen, kind)
     const intro = this.needsDotIntro(target)
@@ -1181,13 +1123,11 @@ export class RunController {
       return 'next'
     }
     if (outcome.forgiven) {
-      this.hearts = outcome.hearts
       this.record(screen, c, tapped, 'near')
       await this.say(t, [{ id: this.variation('almost') }])
       return 'near'
     }
     // a mistake
-    this.hearts = outcome.hearts
     this.resetStreak()
     this.record(screen, c, tapped, 'wrong')
     this.roundInScreen++
@@ -1254,7 +1194,6 @@ export class RunController {
       await this.sleep(t, ZOOM_MS + 60)
       return 'next'
     }
-    this.hearts = outcome.hearts
     this.resetStreak()
     this.record('doors', word, tapped, 'wrong')
     this.sfx('hit')
@@ -1323,22 +1262,8 @@ export class RunController {
     return this.variation(kind)
   }
 
-  /** The doors were skipped and the run ends before the cycle's end: their crystal is given now, once (no screen). */
-  private payOwedCrystal() {
-    if (!this.crystalOwed) return
-    this.crystalOwed = false
-    this.crystalsThisRun++
-    this.save.addCrystal()
-    this.track('crystal', { kind: this.save.read().crystals, owed: true })
-  }
-
   private async runCrystal(t: number) {
-    if (!this.crystalAwarded) {
-      this.crystalAwarded = true
-      this.crystalsThisRun++
-      this.save.addCrystal()
-      this.track('crystal', { kind: this.save.read().crystals })
-    }
+    this.passStep({ type: 'crystal' })
     const kind = this.save.read().crystals
     this.set({ screen: { screen: 'crystal', kind }, overlay: null })
     await this.celebrate(t, 'crystal')
@@ -1353,22 +1278,9 @@ export class RunController {
     this.ending = true
     this.stopBroom()
     stopMusic()
-    const st = this.save.read()
-    const best = this.score > st.bestRun
-    this.payOwedCrystal()
-    this.save.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
-    this.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
-    if (cue) await sayParts([{ id: cue }])
-    this.set({ defeat: true, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false, fixing: false })
-    this.sfx('hit')
-    this.track('defeat', { screen: this.screenId })
-    await Promise.all([
-      this.time.sleep(DEFEAT_MS),
-      this.time.sleep(SFX_RING_MS).then(() => sayParts([{ id: this.variation('defeat') }])),
-    ])
-    await this.time.sleep(300)
+    const r = await this.passRun({ type: 'lost', score: this.score, bestRun: this.save.read().bestRun, cue })
     this.token++
-    this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
+    this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'
   }
 
@@ -1512,7 +1424,7 @@ export class RunController {
    * the screen are done, and is announced while he flies. The visit ends when its last orbs have all arrived.
    */
   private async runBroom(t: number, kind: Kind) {
-    this.hearts = newRound(this.hearts)
+    this.passStep({ type: 'round' })
     this.syncMult()
     if (this.visitBoss && !this.boss) {
       this.boss = bossVisit(this.visitBoss)
@@ -1723,23 +1635,18 @@ export class RunController {
   }
 
   /** The hearts after an answer: in a session from the path no heart is at stake (a mistake costs only the streak). */
-  private answerOutcome(a: 'right' | 'wrong' | 'near') {
-    const o = onAnswer(this.hearts, a)
-    if (!this.opts.session || a === 'right' || o.forgiven) return o
-    return { hearts: { ...this.hearts, nearMissUsed: o.hearts.nearMissUsed }, forgiven: false, over: false }
-  }
+  private answerOutcome(a: 'right' | 'wrong' | 'near') { return this.passStep({ type: 'answer', a }).outcome! }
 
   /**
    * The end of a session from the path: no defeat scene, no run records (lastEnded, best and runs stay); the summary
    * shows its stars and goes home by itself. A pause can no longer cancel it.
    */
-  private async endSession(): Promise<void> {
+  private endSession(r: PassStep) {
     this.ending = true
     this.stopBroom()
     stopMusic()
-    this.track('session-end', { screen: this.screenId, score: this.score })
     this.token++
-    this.set({ over: { score: this.score, crystals: 0, best: false, bosses: [...this.bossesWon], startStars: this.startStars, session: true }, needNext: false, overlay: null, hintAvailable: false })
+    this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars, session: true }, needNext: false, overlay: null, hintAvailable: false })
   }
 
   /** A heart was lost: the streak and its multiplier start again (a forgiven near miss does not come here). */
@@ -1799,7 +1706,6 @@ export class RunController {
     const st = this.save.read()
     const near = !!hit && hit.nearMissOf === target.id
     const outcome = this.answerOutcome(near ? 'near' : 'wrong')
-    this.hearts = outcome.hearts
     if (outcome.forgiven) {
       this.record('broom', target, hit, 'near')
       void sayParts([{ id: this.variation('almost') }])
