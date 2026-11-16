@@ -76,6 +76,15 @@ module.exports = {
       to: { path: ['^src/duel2/(components|screens)/', '^src/stores/'] },
     },
     {
+      name: 'run-policies-are-pure',
+      severity: 'error',
+      comment:
+        'Book 2\'s run policies (src/duel2/policies) are pure: they import only the pure rules (logic/) and each other, never ' +
+        'a store, the audio, the clock, the telemetry or a view. The run does what a step returns.',
+      from: { path: '^src/duel2/policies/', pathNot: TEST },
+      to: { path: '^src/', pathNot: '^src/duel2/(logic|policies)/' },
+    },
+    {
       name: 'parent-area-reads-games-only-through-their-parent-index',
       severity: 'error',
       comment:
