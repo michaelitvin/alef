@@ -4,14 +4,17 @@ import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows, fonts } from '../../styles/theme'
 import type { FontType } from '../../types/progress'
 import { Header } from '../../components/navigation/Navigation'
-import { AgeGate, isSettingsVerified } from '../../components/settings/AgeGate'
+import { ParentGate } from '../../shared/parentGate/ParentGate'
+import { GearIcon } from '../../components/home/HomeIcons'
+import './settings.css'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
 
 export function SettingsPage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
-  const [verified, setVerified] = useState(isSettingsVerified())
+  // the parent gate on every visit (rule): nothing is stored, so Back, Forward or a reload shows it again
+  const [verified, setVerified] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const devMode = useProgressStore((state) => state.settings.devMode)
@@ -35,7 +38,7 @@ export function SettingsPage() {
     setShowResetConfirm(false)
   }
 
-  // Show age gate if not verified
+  // the gate first
   if (!verified) {
     return (
       <div
@@ -51,7 +54,12 @@ export function SettingsPage() {
           showBack
           onBack={handleBack}
         />
-        <AgeGate onVerified={() => setVerified(true)} />
+        <div style={{ flex: 1, display: 'grid', placeItems: 'center' }}>
+          {/* a wrong year goes back home, with no message */}
+          <ParentGate label="settings (hold)" className="settings-gate" onOpen={() => setVerified(true)} onCancel={() => navigate('/', { replace: true })}
+            ring={{ track: colors.neutral[200], fill: colors.primary[500], width: 4, trackWidth: 4 }}
+            overlay={<GearIcon size="40px" />} />
+        </div>
       </div>
     )
   }

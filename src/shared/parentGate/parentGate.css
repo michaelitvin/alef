@@ -1,0 +1,13 @@
+/* the parent gate's number pad (YearPad): over everything, one size for every game */
+.pg-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: #0d0820cc;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none; font-family: system-ui, sans-serif; }
+.pg-pad { background: #fff8e7; border-radius: 20px; padding: 18px; box-shadow: 0 10px 40px #0008; width: min(86vw, 320px); }
+.pg-slots { display: flex; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.pg-slot { width: 44px; height: 54px; border-radius: 10px; border: 2px solid #c9b48a; display: grid; place-items: center;
+  font-size: 28px; font-weight: 600; color: #222; background: #fff; }
+.pg-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pg-key { height: 56px; border: 0; border-radius: 12px; background: #f3e6c8; color: #3a2a14; font-size: 26px; font-weight: 600;
+  display: grid; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pg-key:active { background: #e6d2a6; }
+/* 0 under 8, the delete key under 9 */
+.pg-key[data-digit="0"] { grid-column: 2; }

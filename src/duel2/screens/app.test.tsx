@@ -19,7 +19,8 @@ import { duel2Telemetry } from '../telemetry'
 import { say, startMusic } from '../audio/duel2Audio'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { clearGender, setGender } from '../../shared/player'
-import { HOLD_MS } from '../components/HoldButton'
+import { HOLD_MS } from '../../shared/HoldButton'
+import { enterYear } from '../../shared/parentGate/testing'
 const fakeAudio = installFakeAudio()
 
 const pending = () => { pre.p = new Promise<void>((r) => { pre.open = r }) }
@@ -27,6 +28,7 @@ const at = (url: string) => history.replaceState(null, '', url)
 const openParent = (c: HTMLElement) => {
   fireEvent.pointerDown(c.querySelector('[aria-label="parent settings (hold)"]')!)
   act(() => { vi.advanceTimersByTime(HOLD_MS) })
+  enterYear(new Date().getFullYear() - 40)
 }
 
 describe('Duel2App around its screens', () => {

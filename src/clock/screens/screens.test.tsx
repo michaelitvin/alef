@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { Bonus } from './Bonus'
 import { Cover } from './Cover'
 import { useClockStore } from '../store'
+import { enterYear } from '../../shared/parentGate/testing'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 
 const audio = installFakeAudio()
@@ -70,12 +71,12 @@ describe('Cover', () => {
     expect(home.querySelector('svg')).not.toBeNull()
     expect(home.textContent).toBe('')
   })
-  it('a 2-second press on the gear opens the parent area; a tap does not', () => {
+  it('a 2-second press on the gear, then the year of birth, opens the parent area; a tap does not', () => {
     vi.useFakeTimers()
     const onParent = vi.fn()
-    const { getByLabelText, getByTestId } = render(<Cover onPlay={() => {}} onParent={onParent} />)
+    const { getByLabelText, container } = render(<Cover onPlay={() => {}} onParent={onParent} />)
     const gear = getByLabelText('parent settings (hold)')
-    const ring = getByTestId('parent-ring')
+    const ring = container.querySelector('[data-hold-ring]')!
     expect(ring.getAttribute('data-state')).toBe('idle')
     fireEvent.pointerDown(gear)
     expect(ring.getAttribute('data-state')).toBe('holding')
@@ -87,6 +88,8 @@ describe('Cover', () => {
     expect(ring.getAttribute('data-state')).toBe('idle')
     fireEvent.pointerDown(gear)
     act(() => { vi.advanceTimersByTime(2100) })
+    expect(onParent).not.toHaveBeenCalled()
+    enterYear(new Date().getFullYear() - 40)
     expect(onParent).toHaveBeenCalled()
     vi.useRealTimers()
   })

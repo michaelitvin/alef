@@ -12,6 +12,7 @@ import { setDeviceSettings } from '../shared/deviceSettings'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { effectsOn, holdAudio, musicOn } from '../shared/gameAudio/output'
 import { stopMusic } from './audio/clockAudio'
+import { enterYear } from '../shared/parentGate/testing'
 
 const audio = installFakeAudio()
 /** the music starts: each one is a new track */
@@ -109,6 +110,17 @@ describe('ClockApp', () => {
     fireEvent.pointerDown(container.querySelector('.ck-parent-btn') as HTMLElement)
     await act(async () => {})
     expect(musicStarts()).toBe(0)
+    // nor do the presses on its number pad
+    vi.useFakeTimers()
+    fireEvent.pointerDown(container.querySelector('.ck-parent-btn') as HTMLElement)
+    act(() => { vi.advanceTimersByTime(2000) })
+    vi.useRealTimers()
+    fireEvent.pointerDown(document.querySelector('[data-year-pad] [data-digit="1"]')!)
+    await act(async () => {})
+    expect(musicStarts()).toBe(0)
+    fireEvent.pointerDown(document.querySelector('[data-pad-backdrop]')!)
+    await act(async () => {})
+    expect(musicStarts()).toBe(0)
     fireEvent.pointerDown(container.querySelector('.ck-cover') as HTMLElement)
     await act(async () => {})
     expect(musicStarts()).toBe(1)
@@ -123,6 +135,7 @@ describe('ClockApp', () => {
     fireEvent.click(screen.getByRole('button', { name: 'play' }))
     fireEvent.pointerDown(container.querySelector('.ck-parent-btn') as HTMLElement)
     act(() => { vi.advanceTimersByTime(2000) })
+    enterYear(new Date().getFullYear() - 40)
     expect(container.querySelector('.ck-parent')).not.toBeNull()
     await act(async () => { loaded() })
     expect(container.querySelector('.ck-parent')).not.toBeNull()

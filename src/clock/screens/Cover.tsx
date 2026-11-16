@@ -1,6 +1,6 @@
 // The shop door: one big cuckoo clock showing the real time, its cuckoo popping out to greet him, the play button hanging
-// under it like a weight, two customers waiting. No text (rule). Home to alef, and a 2-second
-// hold for the parent area. The playtest: "The initial screen is just pure ugly" (a cropped wall, a small tower, a circle).
+// under it like a weight, two customers waiting. No text (rule). Home to alef, and the parent gate
+// (a 2-second hold, then the year of birth) for the parent area. The playtest: "The initial screen is just pure ugly" (a cropped wall, a small tower, a circle).
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { HomeIcon, PlayIcon, SlidersIcon } from '../components/icons'
@@ -11,9 +11,10 @@ import { IMAGES } from '../assets/images'
 import { CASE_DISCS } from '../assets/caseDiscs'
 import { mirrorFor } from '../assets/facing'
 import { playSfx } from '../audio/clockAudio'
+import { ParentGate } from '../../shared/parentGate/ParentGate'
 
-const HOLD_MS = 2000
-const RING_C = 2 * Math.PI * 25 + 3
+/** the parent button's ring: green on cream, round ends */
+const PARENT_RING = { track: '#c9b48a', fill: '#3c8d2f', width: 5, trackWidth: 4, round: true }
 /** where the cuckoo's little door is in the cuckoo case image (fractions of its box) */
 const DOOR = { x: 0.5, y: 0.228 }
 
@@ -36,26 +37,6 @@ function useFaceSize() {
 }
 
 export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
-  const timer = useRef<number | undefined>(undefined)
-  const hintTimer = useRef<number | undefined>(undefined)
-  const started = useRef(0)
-  // idle | holding (ring fills over 2 s) | hint (a short tap: ring frozen part-way, icon wiggles)
-  const [state, setState] = useState<'idle' | 'holding' | 'hint'>('idle')
-  const [frac, setFrac] = useState(0)
-  const press = () => {
-    window.clearTimeout(timer.current); window.clearTimeout(hintTimer.current)
-    started.current = Date.now()
-    setState('holding')
-    timer.current = window.setTimeout(() => { setState('idle'); onParent() }, HOLD_MS)
-  }
-  const release = () => {
-    if (state !== 'holding') return
-    window.clearTimeout(timer.current)
-    setFrac(Math.min(1, (Date.now() - started.current) / HOLD_MS))
-    setState('hint')
-    hintTimer.current = window.setTimeout(() => setState('idle'), 700)
-  }
-  useEffect(() => () => { window.clearTimeout(timer.current); window.clearTimeout(hintTimer.current) }, [])
   // the real time, now: the first clock he sees each day is today's
   const [pose, setPose] = useState(nowPose)
   useEffect(() => {
@@ -108,17 +89,8 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
           {guestPic(guests[1], 'left', 'end')}
         </div>
       </div>
-      <button type="button" aria-label="parent settings (hold)" title="Hold for 2 seconds: parent settings"
-        className={`ck-parent-btn ck-parent-${state}`} onPointerDown={press} onPointerUp={release} onPointerLeave={release}
-        onPointerCancel={release} onContextMenu={(e) => e.preventDefault()} onKeyDown={(e) => e.preventDefault()}>
-        <svg className="ck-parent-ring" viewBox="0 0 56 56" width="56" height="56" aria-hidden>
-          <circle cx="28" cy="28" r="25" className="ck-parent-ring-bg" />
-          <circle data-testid="parent-ring" data-state={state} cx="28" cy="28" r="25" className="ck-parent-ring-fg"
-            strokeDasharray={RING_C} style={state === 'hint' ? { strokeDashoffset: RING_C * (1 - frac) } : undefined}
-            transform="rotate(-90 28 28)" />
-        </svg>
-        <SlidersIcon size={28} />
-      </button>
+      <ParentGate label="parent settings (hold)" title="Hold for 2 seconds: parent settings" className="ck-parent-btn" onOpen={onParent}
+        ring={PARENT_RING} overlay={<SlidersIcon size={28} />} />
     </div>
   )
 }

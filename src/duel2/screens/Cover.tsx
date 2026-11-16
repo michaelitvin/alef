@@ -1,5 +1,5 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
-// orbs drifting by, a big play button, a parent button that needs a 2 s hold, and a way home to alef.
+// orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and a way home to alef.
 import { IMAGES, useWizardArt } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
@@ -7,7 +7,8 @@ import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossShelf } from '../components/BossShelf'
-import { HoldButton, SlidersGlyph } from '../components/HoldButton'
+import { ParentGate } from '../../shared/parentGate/ParentGate'
+import { SlidersGlyph } from '../components/holdGlyphs'
 import { useDuel2Store } from '../store'
 
 const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
@@ -57,7 +58,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
         <PlayIcon />
         {loading && <svg className="d2-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}
       </button>
-      <HoldButton label="parent settings (hold)" className="d2-parent-btn" onHold={onParent}><SlidersGlyph /></HoldButton>
+      <ParentGate label="parent settings (hold)" className="d2-parent-btn" onOpen={onParent}><SlidersGlyph /></ParentGate>
     </div>
   )
 }

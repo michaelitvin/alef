@@ -9,7 +9,8 @@ import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
-import { HoldButton, HouseGlyph } from './HoldButton'
+import { HoldButton } from '../../shared/HoldButton'
+import { HouseGlyph } from './holdGlyphs'
 
 /** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (duel2.css) */
 const FLASH_MS = 1700

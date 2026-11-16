@@ -16,6 +16,7 @@ const fakeAudio = installFakeAudio()
 import Duel2App from '../Duel2App'
 import { clearGender, getPlayer, setGender } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
+import { enterYear } from '../../shared/parentGate/testing'
 
 const noText = (root: Element) => {
   const clone = root.cloneNode(true) as Element
@@ -31,7 +32,7 @@ describe('shell', () => {
     expect(noText(container)).toBe('')
     expect(container.querySelectorAll('[data-glyph]').length).toBeGreaterThan(0)
   })
-  it('parent button needs a 2 s hold', () => {
+  it('the parent button is the parent gate: a 2 s hold, then the year of birth', () => {
     vi.useFakeTimers()
     const onParent = vi.fn()
     render(<Cover onPlay={() => {}} onParent={onParent} />)
@@ -42,6 +43,12 @@ describe('shell', () => {
     expect(onParent).not.toHaveBeenCalled()
     fireEvent.pointerDown(btn)
     act(() => { vi.advanceTimersByTime(2000) })
+    expect(onParent).not.toHaveBeenCalled()
+    enterYear(new Date().getFullYear() - 6)
+    expect(onParent).not.toHaveBeenCalled()
+    fireEvent.pointerDown(btn)
+    act(() => { vi.advanceTimersByTime(2000) })
+    enterYear(new Date().getFullYear() - 40)
     expect(onParent).toHaveBeenCalledTimes(1)
   })
   it('play waits for preload', async () => {

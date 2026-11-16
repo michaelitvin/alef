@@ -63,8 +63,8 @@ export default function ClockApp() {
       return
     }
     const start = (e?: PointerEvent) => {
-      // the parent-settings button leads away from the door: its press starts no music
-      if (e?.target instanceof Element && e.target.closest('.ck-parent-btn')) return
+      // the parent-settings button and its number pad lead away from the door: their presses start no music
+      if (e?.target instanceof Element && e.target.closest('.ck-parent-btn, [data-parent-gate]')) return
       window.removeEventListener('pointerdown', start)
       tapped.current = true
       unlockAudioOutput()
