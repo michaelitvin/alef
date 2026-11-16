@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Howl, Howler } from 'howler'
-import { useProgressStore } from '../stores/progressStore'
+import { useDeviceSettings } from '../shared/deviceSettings'
 
 /**
  * Audio playback status
@@ -48,12 +48,20 @@ function getHowl(src: string, volume: number): Howl {
  * Hook for playing audio files
  */
 export function useAudio() {
+  return usePlayer(false)
+}
+
+/**
+ * The player under both hooks. The device's one sound setting (src/shared/deviceSettings.ts) gives the volume to all;
+ * `effects` plays only while the device's effects are on. A voice line is never gated by it: the child cannot read.
+ */
+function usePlayer(effects: boolean) {
   const [status, setStatus] = useState<AudioStatus>('idle')
   const currentHowlRef = useRef<Howl | null>(null)
 
-  const settings = useProgressStore((state) => state.settings)
-  const volume = settings.volume
-  const soundEnabled = settings.soundEffects
+  const device = useDeviceSettings()
+  const volume = device.volume
+  const soundEnabled = !effects || device.sfx
 
   // Set global volume
   useEffect(() => {
@@ -67,7 +75,7 @@ export function useAudio() {
    */
   const play = useCallback(
     async (srcOrPromise: string | Promise<string>): Promise<void> => {
-      // Check if sound is enabled
+      // an effect while the device's effects are off
       if (!soundEnabled) {
         return
       }
@@ -198,7 +206,7 @@ const EFFECTS_BASE = `${import.meta.env.BASE_URL}assets/audio/effects`
  * Hook for playing UI sound effects
  */
 export function useSoundEffects() {
-  const { play } = useAudio()
+  const { play } = usePlayer(true)
 
   const playSuccess = useCallback(() => {
     return play(`${EFFECTS_BASE}/success.mp3`)

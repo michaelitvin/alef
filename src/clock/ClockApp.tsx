@@ -10,6 +10,7 @@ import { preloadClockAssets } from './assets/preload'
 import { GenderQuestion } from '../shared/GenderQuestion'
 import { getGender, setGender } from '../shared/player'
 import { VOICE_RATE } from '../shared/audioCore'
+import { useDeviceSettings } from '../shared/deviceSettings'
 import { clockTelemetry } from './telemetry'
 import { VOICE_WORDS } from './assets/audioFiles'
 // the clock has no player character: the question shows the wizards the child knows from the other games
@@ -29,8 +30,9 @@ export default function ClockApp() {
   screenRef.current = screen
   // fonts, images, effects and lines load while the door shows; play waits for the fonts and images (at most 4 s)
   useEffect(() => { void preloadClockAssets() }, [])
-  const settings = useClockStore((s) => s.settings)
-  useEffect(() => configureClockAudio(settings), [settings])
+  // sound is the device's one setting for every game (src/shared/deviceSettings.ts)
+  const sound = useDeviceSettings()
+  useEffect(() => configureClockAudio(sound), [sound])
   // switching apps silences all the clock audio, on every screen (rule)
   useEffect(() => {
     const vis = () => setClockHidden(document.visibilityState === 'hidden')

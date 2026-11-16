@@ -16,6 +16,7 @@ import { IMAGES } from './assets/images'
 import { GenderQuestion } from '../shared/GenderQuestion'
 import { getGender, setGender } from '../shared/player'
 import { VOICE_RATE } from '../shared/audioCore'
+import { useDeviceSettings } from '../shared/deviceSettings'
 import { duel2Telemetry } from './telemetry'
 import { useDuel2Store } from './store'
 import { useProgressStore } from '../stores/progressStore'
@@ -61,8 +62,9 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
   useEffect(() => { void preloadDuel2Assets() }, [])
   // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe)
   useEffect(() => { useDuel2Store.getState().importFirstDuel(useProgressStore.getState().duel) }, [])
-  const settings = useDuel2Store((s) => s.settings)
-  useEffect(() => configureAudio(settings), [settings])
+  // sound is the device's one setting for every game (src/shared/deviceSettings.ts)
+  const sound = useDeviceSettings()
+  useEffect(() => configureAudio(sound), [sound])
   // switching apps silences everything; the play screen also pauses (useRun) and its cover holds the sound (rule)
   useEffect(() => {
     const vis = () => {

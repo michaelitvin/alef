@@ -4,6 +4,7 @@ import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { ITEMS } from '../logic/content'
 import { PlayerSetting } from '../../shared/PlayerSetting'
+import { setDeviceSettings, useDeviceSettings, type DeviceSettings } from '../../shared/deviceSettings'
 import { useProgressStore } from '../../stores/progressStore'
 import { DUEL_MARKS } from '../../utils/duel/marks'
 
@@ -15,6 +16,9 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
   // the first duel's own save: shown as history (read only)
   const duel = useProgressStore((p) => p.duel)
   const setSettings = (p: Partial<Duel2Settings>) => { s.setSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
+  // sound is the device's one setting for every game
+  const sound = useDeviceSettings()
+  const setSound = (p: Partial<Omit<DeviceSettings, 'v'>>) => { setDeviceSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
   const download = () => {
     const blob = new Blob([duel2Telemetry.exportJson()], { type: 'application/json' })
     const a = document.createElement('a')
@@ -118,9 +122,9 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
         <button onClick={() => s.setPace(1)}>Reset flight speed</button>
       </p>
       <h3>Sound</h3>
-      <label><input type="checkbox" checked={s.settings.sfx} onChange={(e) => setSettings({ sfx: e.target.checked })} /> Effects</label>{' '}
-      <label><input type="checkbox" checked={s.settings.music} onChange={(e) => setSettings({ music: e.target.checked })} /> Music</label>{' '}
-      <label>Volume <input type="range" min={0} max={1} step={0.05} value={s.settings.volume} onChange={(e) => setSettings({ volume: Number(e.target.value) })} /></label>
+      <label><input type="checkbox" checked={sound.sfx} onChange={(e) => setSound({ sfx: e.target.checked })} /> Effects</label>{' '}
+      <label><input type="checkbox" checked={sound.music} onChange={(e) => setSound({ music: e.target.checked })} /> Music</label>{' '}
+      <label>Volume <input type="range" min={0} max={1} step={0.05} value={sound.volume} onChange={(e) => setSound({ volume: Number(e.target.value) })} /></label>
       <h3>Data</h3>
       <p>
         <button onClick={download}>Export telemetry</button>{' '}

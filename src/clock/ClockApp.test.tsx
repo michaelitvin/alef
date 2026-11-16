@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-const { playVoice, setClockHidden, startMusic, stopMusic, preload } = vi.hoisted(() => ({
+const { playVoice, setClockHidden, startMusic, stopMusic, preload, configureClockAudio } = vi.hoisted(() => ({
+  configureClockAudio: vi.fn(),
   playVoice: vi.fn((..._a: unknown[]) => Promise.resolve()),
   setClockHidden: vi.fn(), startMusic: vi.fn(), stopMusic: vi.fn(),
   preload: vi.fn(() => Promise.resolve()),
@@ -9,15 +10,27 @@ vi.mock('./assets/preload', () => ({ preloadClockAssets: preload }))
 vi.mock('./audio/clockAudio', () => ({
   spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
   playVoice, playSfx: () => Promise.resolve(), stopVoices: () => {}, startMusic, stopMusic,
-  preloadVoices: () => {}, configureClockAudio: () => {}, unlockClockAudio: () => {}, muteClockAudio: () => {},
+  preloadVoices: () => {}, configureClockAudio, unlockClockAudio: () => {}, muteClockAudio: () => {},
   setClockHidden, holdClockAudio: () => {},
 }))
 import ClockApp from './ClockApp'
 import { useClockStore } from './store'
 import { clearGender, getPlayer, setGender } from '../shared/player'
 import { clockTelemetry } from './telemetry'
+import { setDeviceSettings } from '../shared/deviceSettings'
 
 describe('ClockApp', () => {
+  it('plays at the device\'s one sound setting, not the clock save\'s old fields', () => {
+    setDeviceSettings({ sfx: false, music: false, volume: 0.3 })
+    useClockStore.setState((s) => ({ settings: { ...s.settings, sfx: true, music: true, volume: 1 } }))
+    configureClockAudio.mockClear()
+    const { unmount } = render(<ClockApp />)
+    expect(configureClockAudio).toHaveBeenLastCalledWith({ v: 1, sfx: false, music: false, volume: 0.3 })
+    act(() => setDeviceSettings({ music: true }))
+    expect(configureClockAudio).toHaveBeenLastCalledWith({ v: 1, sfx: false, music: true, volume: 0.3 })
+    unmount()
+    setDeviceSettings({ sfx: true, music: true, volume: 0.8 })
+  })
   beforeEach(() => { setGender('boy', 'parent'); playVoice.mockClear() })
   afterEach(() => clearGender())
   it('the first play asks boy or girl before the welcome; the welcome then speaks to her', async () => {

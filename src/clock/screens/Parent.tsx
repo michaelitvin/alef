@@ -2,6 +2,7 @@
 import { useClockStore, type ClockSettings } from '../store'
 import { clockTelemetry } from '../telemetry'
 import { PlayerSetting } from '../../shared/PlayerSetting'
+import { setDeviceSettings, useDeviceSettings, type DeviceSettings } from '../../shared/deviceSettings'
 import { predictedMistakeRate } from '../../shared/adaptive'
 import { featurePrior } from '../logic/rounds'
 import type { Lang } from '../logic/phrases'
@@ -15,6 +16,12 @@ export function Parent({ onClose }: { onClose: () => void }) {
     store.setSettings(p)
     clockTelemetry.track('settings', { keys: Object.keys(p), ...p })
   } }
+  // sound is the device's one setting for every game
+  const sound = useDeviceSettings()
+  const setSound = (p: Partial<Omit<DeviceSettings, 'v'>>) => {
+    setDeviceSettings(p)
+    clockTelemetry.track('settings', { keys: Object.keys(p), ...p })
+  }
   const toggleLang = (l: Lang) => {
     const on = s.settings.langs.includes(l)
     const langs = on ? s.settings.langs.filter((x) => x !== l) : (['he', 'en'] as Lang[]).filter((x) => x === l || s.settings.langs.includes(x))
@@ -53,9 +60,9 @@ export function Parent({ onClose }: { onClose: () => void }) {
         <input type="checkbox" checked={s.settings.enCapsMix} onChange={(e) => s.setSettings({ enCapsMix: e.target.checked })} /> English: mix small letters and CAPITALS
       </label>
       <h3>Sound</h3>
-      <label style={{ display: 'block' }}><input type="checkbox" checked={s.settings.sfx} onChange={(e) => s.setSettings({ sfx: e.target.checked })} /> Effects</label>
-      <label style={{ display: 'block' }}><input type="checkbox" checked={s.settings.music} onChange={(e) => s.setSettings({ music: e.target.checked })} /> Music</label>
-      <label style={{ display: 'block' }}>Volume <input type="range" min={0} max={1} step={0.05} value={s.settings.volume} onChange={(e) => s.setSettings({ volume: Number(e.target.value) })} /></label>
+      <label style={{ display: 'block' }}><input type="checkbox" checked={sound.sfx} onChange={(e) => setSound({ sfx: e.target.checked })} /> Effects</label>
+      <label style={{ display: 'block' }}><input type="checkbox" checked={sound.music} onChange={(e) => setSound({ music: e.target.checked })} /> Music</label>
+      <label style={{ display: 'block' }}>Volume <input type="range" min={0} max={1} step={0.05} value={sound.volume} onChange={(e) => setSound({ volume: Number(e.target.value) })} /></label>
       <h3>Progress</h3>
       <p>Level {s.progress.level} (recent new-time answers: {s.progress.newAnswers || '—'}) · rounds {s.roundNo} · gears {s.gears} · workdays {s.workdays} · best streak {s.bestStreak}</p>
       <table style={{ borderCollapse: 'collapse' }}>

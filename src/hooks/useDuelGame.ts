@@ -2,6 +2,7 @@
 // announcements, spoken instructions, clue-then-clock, the outcome's effects and speech, pause, and stats.
 // Pacing rule: the next monster appears only after the effects AND every wizard line have finished (+500 ms).
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { getDeviceSettings } from '../shared/deviceSettings'
 import type { Choice, DuelMark, Next, PictureWord, Rng, Round } from '../types/duel'
 import { duelReducer, initialDuelState } from '../utils/duel/reducer'
 import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
@@ -431,7 +432,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     unlockDuelAudio()
     muteDuelAudio(false) // a run left while paused must not leave everything muted
     const e = emb.current
-    configureDuelAudio({ sfx: e.audio?.sfx ?? true, volume: e.audio?.volume ?? store.getState().settings.volume })
+    configureDuelAudio({ sfx: e.audio?.sfx ?? true, volume: e.audio?.volume ?? getDeviceSettings().volume })
     runId.current += 1
     setTelemetryRun(runId.current)
     track('run_start', { embedded: true, wave: e.wave, waves: e.waves, boss: e.boss })
@@ -456,7 +457,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     setBanner(null)
     const seen = e.seen.filter((k) => k.startsWith(towerScreenKey(''))).map((k) => k.slice(towerScreenKey('').length))
     dispatch({ type: 'START_AT', wave: e.wave, boss: e.boss, seen, mega: e.mega })
-  }, [store])
+  }, [])
 
   const choose = useCallback((c: Choice) => {
     const s = stateRef.current
