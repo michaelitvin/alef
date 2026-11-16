@@ -3,14 +3,13 @@ import { renderHook, act } from '@testing-library/react'
 
 const pending: { id: string; resolve: () => void; onCue?: (c: string) => void }[] = []
 vi.mock('../utils/duel/duelAudio', () => ({
-  unlockDuelAudio: vi.fn(), preloadDuelAudio: vi.fn(), configureDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
-  playMusic: vi.fn(), stopMusic: vi.fn(), trackForWave: () => 'calm',
+  unlockDuelAudio: vi.fn(), configureDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
   playSfx: vi.fn(() => Promise.resolve()),
   lineAsset: (id: string) => ({ id, file: id, url: `u:${id}` }),
   playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
 }))
 import { useDuelGame } from './useDuelGame'
-import { muteDuelAudio, playLine, playMusic, unlockDuelAudio } from '../utils/duel/duelAudio'
+import { muteDuelAudio, playLine, unlockDuelAudio } from '../utils/duel/duelAudio'
 import { markById } from '../utils/duel/marks'
 import { wordsFor } from '../utils/duel/words'
 import type { Round } from '../types/duel'
@@ -569,7 +568,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(result.current.state.hearts).toBe(Infinity)
   })
 
-  it('no session or run-end records, but the rounds are recorded (the adaptive data)', async () => {
+  it('the rounds are recorded (the adaptive data), but no session or run-end records', async () => {
     const { e, done } = emb()
     const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e }))
     act(() => result.current.start())
@@ -588,8 +587,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(useProgressStore.getState().duel.byMark).toEqual({})
   })
 
-  it('the intro plays only when not seen (then it is kept); no duel music', async () => {
-    vi.mocked(playMusic).mockClear()
+  it('the intro plays only when not seen (then it is kept)', async () => {
     const a = emb()
     const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: a.e }))
     act(() => result.current.start())
@@ -604,7 +602,6 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     await flushLines()
     expect(lines()).toContain('line-intro')
     expect(b.seenNow).toEqual(['tower-intro', 'tower-screen-A'])
-    expect(vi.mocked(playMusic)).not.toHaveBeenCalled()
   })
 
   it('wave 5 of a normal visit does not become a boss', async () => {

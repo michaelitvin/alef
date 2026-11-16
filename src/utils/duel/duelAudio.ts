@@ -1,43 +1,30 @@
-// Duel audio: effects and music on Web Audio; speech on html5 audio, whose playbackRate keeps the pitch,
-// so lines can play faster without sounding like chipmunks. Every spoken line ducks the music; dramatic
-// lines pause it outright. Anything missing, failing or silent resolves via a safety timeout so the game
-// can never stall waiting for audio.
-import type { Howl } from 'howler'
+// Duel audio (the tower in Book 2's run): effects on Web Audio; speech on html5 audio, whose playbackRate keeps the
+// pitch, so lines can play faster without sounding like chipmunks. The tower has no music of its own (Book 2's run
+// plays its own). Anything missing, failing or silent resolves via a safety timeout so the game can never stall
+// waiting for audio.
 import { Howler } from 'howler'
 import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
 
 export { VOICE_RATE } from '../../shared/audioCore'
-import { MUSIC_SETS, SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
+import { SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
-import { getGender, voiceFor, FEMININE_SUFFIX } from '../../shared/player'
+import { getGender, voiceFor } from '../../shared/player'
 import { track } from './telemetry'
 
 export type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
-export type MusicTrack = 'calm' | 'mid' | 'fast' | 'boss' | 'victory'
 
-const MUSIC_VOL = 0.35
-const DUCK_VOL = 0.1
 const LINE_TIMEOUT_MS = 9000 // > longest line (~4.2 s) plus a slow first load
 const SFX_TIMEOUT_MS = 3000
-/** Announcements that should land on their own: the background music pauses while they play. */
-const DRAMATIC = new Set(['line-mega', 'line-boss', 'line-boss-win', 'line-new-monster', 'line-combo', 'line-record'])
+let cfg = { sfx: true, volume: 0.8 }
 
-let cfg = { sfx: true, music: true, volume: 0.8 }
-
-export function configureDuelAudio(o: { sfx: boolean; music: boolean; volume: number }) {
+export function configureDuelAudio(o: { sfx: boolean; volume: number }) {
   cfg = o
   Howler.volume(o.volume)
-  if (!o.music) stopMusic()
 }
 
 /** Call inside the ▶ tap: resumes the AudioContext (autoplay policies). */
 export function unlockDuelAudio() {
   unlockAudio()
-}
-
-export function preloadDuelAudio() {
-  Object.values(SFX_URLS).forEach((u) => getHowl(u))
-  Object.values(VOICE_URLS).forEach((u) => getHowl(u, false, true))
 }
 
 const VARIANTS: Record<SfxName, string[]> = {
@@ -79,7 +66,7 @@ export function lineAsset(id: string): { id: string; file: string; url: string |
 }
 
 /**
- * Plays a voice line at VOICE_RATE; music ducks meanwhile, or pauses for a dramatic line.
+ * Plays a voice line at VOICE_RATE.
  * `onCue` hears each LINE_CUES word as it is spoken; any not yet heard fire when the line ends
  * (early, failed or missing), so what a line promises — "tap the lightning" — always shows up.
  */
@@ -98,84 +85,15 @@ export function playLine(lineId: string, onCue?: (cue: LineCue) => void): Promis
     fireRest()
     return Promise.resolve()
   }
-  const dramatic = DRAMATIC.has(id.endsWith(FEMININE_SUFFIX) ? id.slice(0, -FEMININE_SUFFIX.length) : id)
-  duck(true)
-  if (dramatic) hush(true)
   const timers = cues.map((c, i) => window.setTimeout(() => fire(i), (c.at / VOICE_RATE) * 1000))
   return playOnce(getHowl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).finally(() => {
     timers.forEach((t) => window.clearTimeout(t))
     fireRest()
-    duck(false)
-    if (dramatic) hush(false)
   })
 }
 
 export function stopAllLines() {
   Object.values(VOICE_URLS).forEach((u) => peekHowl(u)?.stop())
-}
-
-// ---- music ----
-let current: Howl | null = null
-let musicId: number | undefined // the playing sound in `current`, so a resume continues it instead of layering a new one
-let ducks = 0
-let hushes = 0
-/** Which variation each tier played last (they rotate). */
-const lastVariation: Partial<Record<MusicTrack, number>> = {}
-/** The tier + wave the current track belongs to: a new wave (or a new boss fight) moves to the next variation. */
-let currentKey = ''
-
-export const trackForWave = (wave: number, boss: boolean): MusicTrack => (boss ? 'boss' : wave <= 2 ? 'calm' : wave <= 5 ? 'mid' : 'fast')
-
-/** Starts the tier's music for this wave: the same wave keeps its track; a new wave gets the tier's next variation. */
-export function playMusic(track: MusicTrack, wave = 0) {
-  if (!cfg.music) return
-  const key = track === 'victory' ? 'victory' : `${track}:${wave}`
-  if (key === currentKey && current) return // same wave or same boss fight: keep the track (even while paused for a line)
-  const set = MUSIC_SETS[track]
-  const prev = lastVariation[track] ?? Math.floor(Math.random() * set.length) - 1
-  const i = (prev + 1) % set.length
-  lastVariation[track] = i
-  const next = getHowl(set[i], track !== 'victory')
-  stopMusic()
-  currentKey = key
-  current = next
-  musicId = undefined
-  next.volume(0)
-  if (hushes > 0) return // a dramatic line is speaking: start when it ends
-  musicId = next.play()
-  next.fade(0, ducks > 0 ? DUCK_VOL : MUSIC_VOL, 800)
-}
-
-export function stopMusic() {
-  if (!current) return
-  const h = current
-  current = null
-  currentKey = ''
-  musicId = undefined
-  h.fade(h.volume(), 0, 300)
-  window.setTimeout(() => h.stop(), 320)
-}
-
-/** Pause the music for a dramatic line (fade out, then pause); resume where it stopped once all have ended. */
-function hush(on: boolean) {
-  hushes = Math.max(0, hushes + (on ? 1 : -1))
-  const h = current
-  if (!h) return
-  if (on && hushes === 1) {
-    h.fade(h.volume(), 0, 150)
-    window.setTimeout(() => {
-      if (hushes > 0 && current === h && musicId !== undefined) h.pause(musicId)
-    }, 160)
-  } else if (!on && hushes === 0) {
-    if (musicId !== undefined) h.play(musicId)
-    else musicId = h.play()
-    h.fade(0, ducks > 0 ? DUCK_VOL : MUSIC_VOL, 400)
-  }
-}
-
-function duck(on: boolean) {
-  ducks = Math.max(0, ducks + (on ? 1 : -1))
-  if (current?.playing() && hushes === 0) current.fade(current.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)
 }
 
 export function muteDuelAudio(on: boolean) {

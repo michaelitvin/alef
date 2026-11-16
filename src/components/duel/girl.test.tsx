@@ -2,9 +2,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
 import { Battlefield } from './Battlefield'
-import { StartCover } from './StartCover'
-import { PauseCover } from './PauseCover'
-import { RunSummary } from './RunSummary'
 import { markById } from '../../utils/duel/marks'
 import { wordsFor } from '../../utils/duel/words'
 import type { Round } from '../../types/duel'
@@ -18,9 +15,6 @@ describe('the girl wizard (nikkud duel)', () => {
   const screens = () => [
     render(<Battlefield round={round} outcome={null} walking paused={false} landscape={false} banner={null} />).container,
     render(<Battlefield round={round} outcome={{ kind: 'miss' } as never} walking={false} paused={false} landscape={false} banner={null} />).container,
-    render(<StartCover onPlay={() => {}} musicOn onToggleMusic={() => {}} onParent={() => {}} onHome={() => {}} />).container,
-    render(<PauseCover onResume={() => {}} onHome={() => {}} />).container,
-    render(<RunSummary wave={3} score={900} bestCombo={4} best={900} newBest={false} missed={[]} onSay={() => {}} onReplay={() => {}} onHome={() => {}} />).container,
   ]
   it('a girl sees only the girl wizard', () => {
     setGender('girl', 'child')

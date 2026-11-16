@@ -151,7 +151,10 @@ export interface Settings {
   devMode: boolean
   /** Selected font for Hebrew text */
   font: FontType
-  /** Duel music; undefined (saves from before the duel) means on — see duelMusicOn() */
+  /**
+   * The first duel's own music switch, from its standalone page (removed): no code reads it any more, but saves from
+   * then still hold it
+   */
   duelMusic?: boolean
 }
 
@@ -216,7 +219,6 @@ export const DEFAULT_SETTINGS: Settings = {
   showHints: true,
   devMode: false,
   font: 'default',
-  duelMusic: true,
 }
 
 export const DEFAULT_STATS: Stats = {

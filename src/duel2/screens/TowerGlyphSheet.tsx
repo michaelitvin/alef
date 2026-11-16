@@ -1,4 +1,4 @@
-// Verify-mode only (#/duel/glyphs): every rune in every pad state, every picture word, every monster as it
+// Test builds only (#/tower-glyphs): every rune in every pad state, every picture word, every monster as it
 // walks (mirroring applied) and every icon — screenshotted by the headless verification for a visual check.
 import { DUEL_MARKS } from '../../utils/duel/marks'
 import { PICTURE_WORDS } from '../../utils/duel/words'
@@ -12,10 +12,10 @@ import { wordsFor } from '../../utils/duel/words'
 import '../../components/duel/duel.css'
 
 const STATES = ['', 'hit', 'miss', 'reveal', 'almost']
-const ICONS: IconName[] = ['heart', 'heartEmpty', 'sparkle', 'pause', 'play', 'replay', 'eye', 'ear', 'shield', 'flame', 'bolt', 'swords',
-  'speaker', 'speakerOff', 'talk', 'puff', 'trophy', 'music', 'musicOff', 'chart', 'bonk', 'wand', 'bossHeart']
+const ICONS: IconName[] = ['sparkle', 'flame', 'bolt', 'swords', 'speaker', 'speakerOff', 'talk', 'puff', 'bonk', 'bossHeart']
 
-export default function DuelGlyphSheet() {
+/** the tower's runes, picture words, monsters and icons (Book 1's parts, which the tower uses) */
+export function TowerGlyphSheet() {
   return (
     <div className="nd-root nd-glyphs" dir="rtl" style={{ overflow: 'auto', display: 'block', padding: 12 }}>
       <RuneGlowDefs />

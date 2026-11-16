@@ -1,6 +1,7 @@
 // Book 2: letters and syllables, a separate app in the alef repo (spec: docs/superpowers/specs/2026-10-19-duel-book-2-design.md).
 import { useEffect, useRef, useState } from 'react'
 import { GlyphSheet } from './screens/GlyphSheet'
+import { TowerGlyphSheet } from './screens/TowerGlyphSheet'
 import { TEST_HOOKS } from './testHooks'
 import { Cover } from './screens/Cover'
 import { Play } from './screens/Play'
@@ -74,6 +75,7 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
     return () => { document.removeEventListener('visibilitychange', vis); window.removeEventListener('pagehide', vis) }
   }, [])
   if (TEST_HOOKS && location.hash === '#/glyphs') return <div className="d2-root"><GlyphSheet /></div>
+  if (TEST_HOOKS && location.hash === '#/tower-glyphs') return <TowerGlyphSheet />
   // the end screens as they look after a full run (crystals, a trophy, the next boss, the play button) and after a
   // session from the path, for layout checks at every screen size
   if (TEST_HOOKS && location.hash === '#/summary') return <Summary over={{ score: 37, crystals: 3, best: true, bosses: ['mimic'] }} onAgain={() => {}} />

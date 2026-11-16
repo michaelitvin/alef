@@ -12,7 +12,7 @@ beforeEach(() => {
 
 describe('DuelStatsCard', () => {
   it('exports the telemetry log as a JSON file (with the event count shown)', async () => {
-    useProgressStore.getState().recordDuelSession()
+    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, sessions: 1 } })
     track('run_start', {})
     track('choice', { key: 'segol' })
     const urls: Blob[] = []
@@ -32,8 +32,8 @@ describe('DuelStatsCard', () => {
     expect(screen.getByText('עוד לא שיחקו')).toBeTruthy()
   })
   it('sorts marks by misses and shows twin and MEGA columns', () => {
+    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, sessions: 1 } })
     const st = useProgressStore.getState()
-    st.recordDuelSession()
     st.recordDuelRound('segol', 'A', 'wrong', 1000)
     st.recordDuelRound('segol', 'A', 'timeout', 1000)
     st.recordDuelRound('kamatz', 'C', 'correct', 1000)

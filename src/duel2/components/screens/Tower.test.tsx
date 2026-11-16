@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../../utils/duel/duelAudio', async (orig) => {
   const m = await orig<typeof import('../../../utils/duel/duelAudio')>()
   // "tap the lightning": its cue fires as the line is said (as the real player does by the line's end)
-  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), playMusic: vi.fn(), muteDuelAudio: vi.fn() }
+  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), muteDuelAudio: vi.fn() }
 })
 import { Tower } from './Tower'
-import { muteDuelAudio, playMusic } from '../../../utils/duel/duelAudio'
+import { muteDuelAudio } from '../../../utils/duel/duelAudio'
 import { useDuel2Store } from '../../store'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'
@@ -19,7 +19,6 @@ describe('Tower', () => {
     vi.useFakeTimers()
     useDuel2Store.getState().resetProgress()
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-    vi.mocked(playMusic).mockClear()
     vi.mocked(muteDuelAudio).mockClear()
   })
   afterEach(() => vi.useRealTimers())
@@ -32,7 +31,6 @@ describe('Tower', () => {
     expect(container.querySelector('.nd-mega-btn')).toBeNull()
     expect(container.querySelector('.nd-pause-cover')).toBeNull()
     expect(container.querySelector('.nd-pad')).not.toBeNull()
-    expect(vi.mocked(playMusic)).not.toHaveBeenCalled()
   })
 
   it('a phone on its side gets the landscape board (Book 2 plays only sideways; the portrait board left no room for the field)', async () => {

@@ -9,7 +9,6 @@ import type {
   ActivityAttempt,
   CurrentSession,
   FontType,
-  Settings,
 } from '../types/progress'
 import type { RoundResult, ScreenType, Tally } from '../types/duel'
 import { RECENT_KEEP } from '../utils/duel/rounds'
@@ -20,9 +19,6 @@ import {
 import { LEVEL_NODE_COUNTS } from '../data/levelNodes'
 
 const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0, mega: 0 }
-
-/** Duel music is on unless explicitly turned off (saves from before the duel have no value). */
-export const duelMusicOn = (s: Settings) => s.duelMusic !== false
 
 /** A fresh record for a node that has no saved progress yet */
 const newNode = (nodeId: string): NodeProgress => ({
@@ -70,15 +66,12 @@ interface ProgressActions {
   setVolume: (volume: number) => void
   setDevMode: (enabled: boolean) => void
   setFont: (font: FontType) => void
-  setDuelMusic: (on: boolean) => void
-  recordDuelSession: () => void
   /** `opts.recent: false`: the round is tallied but kept out of `recent` (Book 2's run: a מגה kill is not reading) */
   recordDuelRound: (markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }) => void
   recordDuelTwin: (markId: string, type: ScreenType) => void
   /** He tapped `tappedId` when `askedId` was the answer (directional). */
   recordDuelConfusion: (askedId: string, tappedId: string) => void
   setDuelPace: (pace: number) => void
-  recordDuelRunEnd: (score: number, wave: number) => void
 
   // Utility
   resetProgress: () => void
@@ -464,12 +457,6 @@ export const useProgressStore = create<ProgressStore>()(
       },
 
       // Nikkud Wizard Duel
-      setDuelMusic: (on) => {
-        set((state) => ({ settings: { ...state.settings, duelMusic: on } }))
-      },
-      recordDuelSession: () => {
-        set((state) => ({ duel: { ...state.duel, sessions: state.duel.sessions + 1, lastPlayed: Date.now() } }))
-      },
       recordDuelRound: (markId, type, result, ms, opts) => {
         const bump = (t: Tally | undefined): Tally => {
           const b = { ...EMPTY_TALLY, ...t }
@@ -511,11 +498,6 @@ export const useProgressStore = create<ProgressStore>()(
       },
       setDuelPace: (pace) => {
         set((state) => ({ duel: { ...state.duel, pace } }))
-      },
-      recordDuelRunEnd: (score, wave) => {
-        set((state) => ({
-          duel: { ...state.duel, bestScore: Math.max(state.duel.bestScore, score), bestWave: Math.max(state.duel.bestWave, wave) },
-        }))
       },
 
       // Reset all progress
@@ -618,7 +600,7 @@ export const useProgressStore = create<ProgressStore>()(
         vocabulary: state.vocabulary,
         duel: state.duel,
       }),
-      // Saves from before the duel lack `duel` (or carry null) and `settings.duelMusic`: keep the defaults.
+      // Saves from before the duel lack `duel` (or carry null): keep the defaults.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<ProgressState>
         return { ...current, ...p, duel: p.duel ?? current.duel, settings: { ...current.settings, ...p.settings } }

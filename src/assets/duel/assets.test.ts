@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { MONSTERS, WORD_PICTURE, WIZARD, TOWER } from './sprites'
-import { MUSIC_SETS, MUSIC_URLS, SFX_URLS, VOICE_URLS } from './audioFiles'
+import { SFX_URLS, VOICE_URLS } from './audioFiles'
 import { PICTURE_WORDS } from '../../utils/duel/words'
 import { DUEL_MARKS, SOUND_GROUPS } from '../../utils/duel/marks'
 import { ROSTER } from '../../utils/duel/rules'
@@ -19,25 +19,19 @@ describe('duel assets', () => {
   it('every picture word has a picture', () => {
     for (const w of PICTURE_WORDS) expect(WORD_PICTURE[w.key], w.key).toBeTruthy()
   })
-  it('every voice line the game uses exists; SFX and music are complete', () => {
+  it('every voice line the game uses exists; the SFX are complete', () => {
     const needed = [
       ...DUEL_MARKS.map((m) => `wiz-${m.id}`),
       ...SOUND_GROUPS.filter((g) => g !== 'silent').map((g) => `wiz-vowel-${g}`),
       ...PICTURE_WORDS.filter((w) => w.group !== 'silent').map((w) => `wiz-word-${w.key}`),
       'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-silent', 'line-wave',
-      'line-new-monster', 'line-boss', 'line-boss-win', 'line-mega', 'line-combo', 'line-over', 'line-record', 'line-almost',
+      'line-new-monster', 'line-boss', 'line-boss-win', 'line-mega', 'line-combo', 'line-almost',
     ]
     for (const id of needed) expect(VOICE_URLS[id], id).toBeTruthy()
     expect(Object.keys(VOICE_URLS).filter((k) => k.startsWith('mon-'))).toEqual([]) // the monster voice is gone
     expect(VOICE_URLS['line-new-spells']).toBeUndefined() // dropped: unclear; wave 3 opens with a sound screen instead
     for (const [k, v] of Object.entries(SFX_URLS)) expect(v, k).toBeTruthy()
-    for (const [k, v] of Object.entries(MUSIC_URLS)) expect(v, k).toBeTruthy()
     expect(Object.keys(SFX_URLS)).toHaveLength(9)
-    expect(Object.keys(MUSIC_URLS)).toHaveLength(11)
-    for (const tier of ['calm', 'mid', 'fast'] as const) expect(MUSIC_SETS[tier].length, tier).toBeGreaterThanOrEqual(3)
-    // review: bosses keep just the one existing boss track (their signature); the new boss variations were rejected
-    expect(MUSIC_SETS.boss).toEqual([MUSIC_URLS.boss])
-    expect(Object.keys(MUSIC_URLS).filter((k) => k.startsWith('boss'))).toEqual(['boss'])
   })
 })
 
@@ -72,10 +66,9 @@ describe('image preloading', () => {
 import { DUEL_FEMININE } from '../../utils/duel/duelAudio'
 import { WIZARD_GIRL } from './sprites'
 describe('duel girl assets', () => {
-  it('every line with a feminine version ships its -f file; the question and the girl wizard ship', () => {
+  it('every line with a feminine version ships its -f file; the girl wizard ships', () => {
     for (const id of DUEL_FEMININE) expect(VOICE_URLS[`${id}-f`], `${id}-f`).toBeTruthy()
     for (const id of Object.keys(VOICE_URLS)) if (id.endsWith('-f')) expect(DUEL_FEMININE.has(id.slice(0, -2)), id).toBe(true)
-    expect(VOICE_URLS['line-ask-gender']).toBeTruthy()
     for (const p of ['idle', 'cast', 'dizzy'] as const) expect(WIZARD_GIRL[p]).toMatch(/-girl/)
     void WIZARD
   })
