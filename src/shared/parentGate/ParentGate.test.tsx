@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ParentGate } from './ParentGate'
 import { HOLD_MS } from '../HoldButton'
 import { enterYear } from './testing'
+import { YEAR_QUESTION } from './YearPad'
 
 const BTN = '[aria-label="parent (hold)"]'
 const pad = () => document.querySelector('[data-year-pad]')
@@ -38,13 +39,18 @@ describe('the parent gate (rule: a 2 s hold, then the year of birth)', () => {
     expect(onOpen).not.toHaveBeenCalled()
   })
 
-  it('the hold opens a number pad with only digits on it', () => {
+  it('the hold opens a number pad: the digits, and one written question for the parent', () => {
     const { hold } = setup()
     hold()
     const p = pad()!
     expect(p).not.toBeNull()
     expect([...p.querySelectorAll('[data-digit]')].map((k) => k.getAttribute('data-digit')).sort()).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
-    expect(p.textContent!.replace(/[\d\s]/g, '')).toBe('')
+    const q = p.querySelector('[data-year-question]')!
+    expect(q.textContent).toBe(YEAR_QUESTION)
+    expect(q.textContent).toMatch(/שנת הלידה/)
+    const rest = p.cloneNode(true) as HTMLElement
+    rest.querySelector('[data-year-question]')!.remove()
+    expect(rest.textContent!.replace(/[\d\s]/g, '')).toBe('')
   })
 
   it('a right year opens', () => {

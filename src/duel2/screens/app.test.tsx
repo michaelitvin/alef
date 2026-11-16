@@ -1,7 +1,7 @@
 // What Duel2App does around its screens (the shell keeps all of it): the preload and the first duel's import on mount,
 // the test-build addresses, the turn-the-phone picture, the screen check after the preload, the way home, the station
 // link read once.
-import { act, fireEvent, render } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const { pre } = vi.hoisted(() => ({ pre: { p: Promise.resolve() as Promise<void>, open: () => {}, calls: 0 } }))
 vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadDuel2Assets: () => { pre.calls++; return pre.p } }))
@@ -70,7 +70,7 @@ describe('Duel2App around its screens', () => {
     const { container } = render(<Duel2App goHome={() => {}} />)
     expect(container.querySelector('.d2-rotate')).not.toBeNull()
     openParent(container)
-    expect(container.querySelector('.d2-parent')).not.toBeNull()
+    expect(container.querySelector('[data-parent-area="book2"]')).not.toBeNull()
     expect(container.querySelector('.d2-rotate')).toBeNull()
     vi.useRealTimers()
     at('/#/strokes')
@@ -92,10 +92,10 @@ describe('Duel2App around its screens', () => {
     const { container } = render(<Duel2App goHome={() => {}} />)
     fireEvent.click(container.querySelector('[aria-label="play"]')!)
     openParent(container)
-    expect(container.querySelector('.d2-parent')).not.toBeNull()
+    expect(container.querySelector('[data-parent-area="book2"]')).not.toBeNull()
     await act(async () => { pre.open(); await pre.p })
     expect(container.querySelector('[data-screen="play"]')).toBeNull()
-    expect(container.querySelector('.d2-parent')).not.toBeNull()
+    expect(container.querySelector('[data-parent-area="book2"]')).not.toBeNull()
   })
 
   it('the way home stops the voice and the music and writes the log, then goes home', async () => {
@@ -130,5 +130,29 @@ describe('Duel2App around its screens', () => {
     expect(container.querySelector('[data-screen="play"]')!.getAttribute('data-session')).toBe('ghosts')
     // a path session has no way home of its own (it goes home by itself)
     expect(exits[exits.length - 1]).toBeUndefined()
+  })
+
+  it('the parent button opens the shared area at Book 2; its developer screens go back to the area, Close to the cover', async () => {
+    vi.useFakeTimers()
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    const { container } = render(<Duel2App goHome={() => {}} />)
+    openParent(container)
+    vi.useRealTimers()
+    const area = () => container.querySelector('[data-parent-area="book2"]')
+    expect(area()).not.toBeNull()
+    expect(scroll.mock.contexts[scroll.mock.contexts.length - 1]).toBe(container.querySelector('[data-section="game"]'))
+    expect(container.querySelector('a[data-alef-menu]')).not.toBeNull()
+    fireEvent.click(await screen.findByText('Stroke review', {}, { timeout: 15000 }))
+    expect(container.querySelector('[data-strokes-page]')).not.toBeNull()
+    fireEvent.click(screen.getByText('Back'))
+    expect(area()).not.toBeNull()
+    expect(scroll.mock.contexts[scroll.mock.contexts.length - 1]).toBe(container.querySelector('[data-section="developer"]'))
+    fireEvent.click(await screen.findByText('Screens (review each screen)', {}, { timeout: 15000 }))
+    expect(container.querySelector('[data-entry]')).not.toBeNull()
+    fireEvent.click(screen.getByText('Back'))
+    fireEvent.click(container.querySelector('[data-parent-close]')!)
+    expect(area()).toBeNull()
+    expect(container.querySelector('[aria-label="play"]')).not.toBeNull()
   })
 })

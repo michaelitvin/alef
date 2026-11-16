@@ -15,7 +15,7 @@ import { SentenceGroupView } from './pages/Sentences/SentenceGroupView'
 import { StoriesPage } from './pages/Stories/StoriesPage'
 import { StoryView } from './pages/Stories/StoryView'
 import { ProgressPage } from './pages/Progress/ProgressPage'
-import { SettingsPage } from './pages/Settings/SettingsPage'
+import { ParentPage } from './pages/Parent/ParentPage'
 import { RoutesPage } from './pages/Debug/RoutesPage'
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
@@ -113,7 +113,8 @@ function App() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/stories/:storyId" element={<StoryView />} />
         <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        {/* the shared parent area, behind the gate on every visit */}
+        <Route path="/settings" element={<ParentPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
         {/* the first duel's own page is gone (it is Book 2's tower now): an old link or bookmark goes home, not to a blank page */}
         <Route path="/duel/*" element={<Navigate to="/" replace />} />

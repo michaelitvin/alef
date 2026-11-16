@@ -12,7 +12,7 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | React's view of the run | `useRun.ts` (a thin adapter: `useSyncExternalStore` over the controller) |
 | Pure rules: stages, mastery, prediction, merchant prices, boss, the drawing recognizer | `logic/*.ts` |
 | The save (`alef-duel2`) | `store.ts`; defaults and migrations in `saveFormat.ts` (no side effects, so home can read it) |
-| Screens of the run | `components/screens/*.tsx`; app-level screens (cover, play, summary, parent) in `screens/` |
+| Screens of the run | `components/screens/*.tsx`; app-level screens (cover, play, summary) in `screens/`; its part in the shared parent area in `parent/` |
 | The tower | `components/screens/Tower.tsx` embeds Book 1, the first duel (`src/hooks/useDuelGame.ts`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
 | Voice, effects, music | `audio/duel2Audio.ts` (Book 2's files and numbers on the shared kit, `src/shared/gameAudio/`); the line texts in `data/lines.ts` |
 | A station link from home (`?station=`) | `station.ts` |

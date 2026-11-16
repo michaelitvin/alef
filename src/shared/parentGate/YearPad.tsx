@@ -1,10 +1,12 @@
-// The number pad of the parent gate: four slots, the digits 0-9 and a delete key, over a dark backdrop. It shows no text
-// beyond the digits. On the fourth digit it gives the year; a tap on the backdrop cancels.
+// The number pad of the parent gate: a short written question for the parent (the child cannot read it), four slots, the
+// digits 0-9 and a delete key, over a dark backdrop. On the fourth digit it gives the year; a tap on the backdrop cancels.
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import './parentGate.css'
 
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+/** the question the parent reads (a parent screen may show text; the child cannot read it, rule: Interaction) */
+export const YEAR_QUESTION = 'הורה: הקלד/י את שנת הלידה שלך'
 
 export function YearPad({ onYear, onCancel }: { onYear: (y: number) => void; onCancel: () => void }) {
   const [typed, setTyped] = useState('')
@@ -18,6 +20,7 @@ export function YearPad({ onYear, onCancel }: { onYear: (y: number) => void; onC
     // data-parent-gate: a press here is not a tap on the game (the clock's door music ignores it)
     <div className="pg-backdrop" data-parent-gate data-pad-backdrop onPointerDown={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onCancel() }}>
       <div className="pg-pad" data-year-pad dir="ltr">
+        <p className="pg-question" dir="rtl" data-parent-text data-year-question>{YEAR_QUESTION}</p>
         <div className="pg-slots">
           {[0, 1, 2, 3].map((i) => <span key={i} className="pg-slot" data-year-slot data-num>{typed[i] ?? ''}</span>)}
         </div>

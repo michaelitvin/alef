@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Cover } from './screens/Cover'
 import { Workshop } from './screens/Workshop'
-import { Parent } from './screens/Parent'
+import { ParentArea } from '../parent/ParentArea'
 import { useClockStore } from './store'
 import { playVoice, stopVoices, startMusic, stopMusic } from './audio/clockAudio'
 import { lineAudioId } from './data/lines'
@@ -77,6 +77,6 @@ export default function ClockApp() {
   }, [door, screen])
   if (shell.asking) return shell.question
   if (screen === 'work') return <Workshop onExit={() => setScreen('cover')} />
-  if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} />
+  if (screen === 'parent') return <ParentArea game="clock" onClose={() => setScreen('cover')} track={(e, f) => clockTelemetry.track(e, f)} homeHref={import.meta.env.BASE_URL} />
   return <Cover onPlay={shell.play} onParent={() => setScreen('parent')} loading={shell.loading} />
 }

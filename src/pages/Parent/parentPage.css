@@ -1,4 +1,4 @@
-/* the settings page's parent gate: the held gear (its ring fills in 2 s), then the year of birth */
+/* the parent route's gate (#/settings): the held gear (its ring fills in 2 s), then the year of birth */
 .settings-gate { width: 96px; height: 96px; padding: 0; border: 0; border-radius: 50%; background: #f4efe6; display: grid;
   place-items: center; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .settings-gate > * { grid-area: 1 / 1; pointer-events: none; }

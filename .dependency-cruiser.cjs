@@ -67,6 +67,27 @@ module.exports = {
       },
     },
     {
+      name: 'parent-area-reads-games-only-through-their-parent-index',
+      severity: 'error',
+      comment:
+        'The shared parent area (src/parent) reaches a game only through its declared src/<game>/parent/index.ts (the registry); ' +
+        'the game screens it shows are lazy imports made by those files.',
+      from: { path: '^src/parent/', pathNot: TEST },
+      to: { path: '^src/', pathNot: ['^src/parent/', '^src/shared/', '^src/(duel2|clock|lessons)/parent/index\\.ts$'] },
+    },
+    {
+      name: 'game-parent-index-is-light',
+      severity: 'error',
+      comment:
+        'A game\'s parent/index.ts loads with the area on every page: no store (creating one writes its save), no audio (it builds ' +
+        'a kit), no telemetry (an instance rewrites its log on pagehide). Its screens and its reset are modules of their own, ' +
+        'loaded with import() (a dynamic import of the store itself would hide a static one: depcruise merges the two).',
+      from: { path: '^src/(duel2|clock|lessons)/parent/index\\.ts$' },
+      to: {
+        path: ['/store\\.ts$', '^src/stores/', '/audio/', '/telemetry\\.ts$'],
+      },
+    },
+    {
       name: 'home-into-duel2-only-through-its-surface',
       severity: 'error',
       comment: 'The home reads Book 2 only through its save format, station, mastery/predict logic and pictures.',

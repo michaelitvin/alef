@@ -149,7 +149,8 @@ _Avoid_: user, student
 The person who sets the rules, reviews every asset and reads the parent report.
 
 **Parent area**:
-A screen per game, behind a 2-second hold, with settings and the parent report.
+One screen for every game (`src/parent/`), behind the parent gate (a 2-second hold, then the parent's year of birth). Each
+entry page opens it at its own game's section; each game declares its part in `src/<game>/parent/index.ts`.
 
 **Production / staging**:
 What the child plays, and the merged work before it is released. They share one origin, but never one save.

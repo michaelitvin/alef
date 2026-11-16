@@ -6,7 +6,8 @@ import { TEST_HOOKS } from './testHooks'
 import { Cover } from './screens/Cover'
 import { Play } from './screens/Play'
 import { Summary } from './screens/Summary'
-import { Parent } from './screens/Parent'
+import { ParentArea } from '../parent/ParentArea'
+import type { SectionId } from '../parent/types'
 import { Gallery, type GalleryEntry } from './screens/Gallery'
 import { Strokes } from './screens/Strokes'
 import { DrawTest } from './screens/DrawTest'
@@ -55,6 +56,9 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
   const [entry, setEntry] = useState<GalleryEntry | null>(null)
+  // where the parent area opens: Book 2's section from the cover, the developer tools when a developer screen goes back
+  const [areaAt, setAreaAt] = useState<SectionId>('game')
+  const backToArea = () => { setAreaAt('developer'); setScreen('parent') }
   const screenRef = useRef(screen)
   screenRef.current = screen
   const startRun = () => { setRunNo((n) => n + 1); setScreen('play') }
@@ -100,10 +104,13 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
       onExit={over.session ? undefined : () => { duel2Telemetry.track('run-exit', { screen: 'summary', score: over.score }); leave() }} />
   }
   if (screen === 'station' && station) return <StationCover station={station} onPlay={play} loading={loading} />
-  if (screen === 'parent') return <Parent onClose={() => setScreen('cover')} onGallery={() => setScreen('gallery')} onStrokes={() => setScreen('strokes')} onDrawTest={() => setScreen('drawtest')} />
-  if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); setScreen('parent') }} />
-  if (screen === 'drawtest') return <DrawTest onBack={() => setScreen('parent')} />
-  if (screen === 'gallery') return <Gallery onBack={() => setScreen('parent')} onStart={(e) => { unlockAudioOutput(); setEntry(e); setRunNo((n) => n + 1); setScreen('gallery-play') }} />
+  if (screen === 'parent') {
+    return <ParentArea game="book2" section={areaAt} onClose={() => setScreen('cover')} track={(e, f) => duel2Telemetry.track(e, f)} homeHref={import.meta.env.BASE_URL}
+      openDev={(id) => { if (id === 'gallery' || id === 'strokes' || id === 'drawtest') setScreen(id) }} />
+  }
+  if (screen === 'strokes') return <Strokes onBack={() => { if (location.hash === '#/strokes') history.replaceState(null, '', location.pathname + location.search); backToArea() }} />
+  if (screen === 'drawtest') return <DrawTest onBack={backToArea} />
+  if (screen === 'gallery') return <Gallery onBack={backToArea} onStart={(e) => { unlockAudioOutput(); setEntry(e); setRunNo((n) => n + 1); setScreen('gallery-play') }} />
   if (screen === 'gallery-play' && entry) {
     return (
       <>
@@ -112,7 +119,7 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
       </>
     )
   }
-  return <Cover onPlay={play} onParent={() => setScreen('parent')} loading={loading} />
+  return <Cover onPlay={play} onParent={() => { setAreaAt('game'); setScreen('parent') }} loading={loading} />
   })()
   return <>{view}{screen !== 'parent' && screen !== 'gallery' && screen !== 'strokes' && <RotateHint />}</>
 }

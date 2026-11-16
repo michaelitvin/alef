@@ -1,5 +1,6 @@
 // Parent area (text allowed): progress, per-screen and per-item results, his top mix-ups, sound, telemetry export, reset,
-// and the screen gallery.
+// and the screen gallery. `embedded`: the game's part inside the shared parent area (src/parent), which has its own close,
+// way home, boy or girl, sound, reset and developer tools; Task 15 moves the rest into src/duel2/parent/.
 import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { ITEMS } from '../logic/content'
@@ -11,7 +12,7 @@ import { DUEL_MARKS } from '../../utils/duel/marks'
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
-export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose: () => void; onGallery: () => void; onStrokes?: () => void; onDrawTest?: () => void }) {
+export function Parent({ onClose, onGallery, onStrokes, onDrawTest, embedded = false }: { onClose: () => void; onGallery: () => void; onStrokes?: () => void; onDrawTest?: () => void; embedded?: boolean }) {
   const s = useDuel2Store()
   // the first duel's own save: shown as history (read only)
   const duel = useProgressStore((p) => p.duel)
@@ -39,11 +40,13 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
     </table>
   )
   return (
-    <div className="d2-parent">
+    <div className={embedded ? undefined : 'd2-parent'} data-book2-settings>
+      {!embedded && <>
       <button onClick={onClose} style={{ float: 'right', fontSize: 18 }}>Close</button>
       {/* the way out of the game lives here, behind the hold: on the child's screens a home button took him to the old duel */}
       <a data-alef-menu href={import.meta.env.BASE_URL} style={{ float: 'right', fontSize: 18, marginRight: 16 }}>Alef menu</a>
       <h2>Book 2 — parent</h2>
+      </>}
       <p data-stage-line>{s.bookOpen === false ? 'Stage 0: the tower (the first duel) alone; Book 2’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       {s.bookOpen === false && (
         <p data-open-book>
@@ -54,18 +57,22 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
           </label>
         </p>
       )}
+      {!embedded && <>
       <p><button onClick={onGallery} style={{ fontSize: 17, padding: '8px 14px' }}>Screens (review each screen)</button></p>
       <h3>Boy or girl</h3>
       <PlayerSetting onChange={(g) => duel2Telemetry.track('player', { gender: g, by: 'parent' })} />
+      </>}
       <h3>Drawing letters</h3>
       <p>
         Two drawing screens, after the doors: one in print, one in handwriting. They teach stroke order. Drawing is on by
         default; the stroke review shows which letters you checked ({Object.keys(s.strokeMarks ?? {}).length} of 54 checked).
       </p>
       <p>
-        <label><input type="checkbox" data-setting-drawing checked={!!s.settings.drawing} onChange={(e) => setSettings({ drawing: e.target.checked })} /> Drawing screens in the game</label>{' '}
+        <label><input type="checkbox" data-setting-drawing checked={!!s.settings.drawing} onChange={(e) => setSettings({ drawing: e.target.checked })} /> Drawing screens in the game</label>
+        {!embedded && <>{' '}
         <button onClick={onStrokes}>Stroke review</button>{' '}
         <button onClick={onDrawTest}>Drawing test board</button>
+        </>}
       </p>
       <h3>Number range for shopping</h3>
       <p>
@@ -121,15 +128,17 @@ export function Parent({ onClose, onGallery, onStrokes, onDrawTest }: { onClose:
         flight time (0.85 = fastest, 1.6 = slowest): a catch makes it 1% faster, a mistake 4% slower.{' '}
         <button onClick={() => s.setPace(1)}>Reset flight speed</button>
       </p>
+      {!embedded && <>
       <h3>Sound</h3>
       <label><input type="checkbox" checked={sound.sfx} onChange={(e) => setSound({ sfx: e.target.checked })} /> Effects</label>{' '}
       <label><input type="checkbox" checked={sound.music} onChange={(e) => setSound({ music: e.target.checked })} /> Music</label>{' '}
       <label>Volume <input type="range" min={0} max={1} step={0.05} value={sound.volume} onChange={(e) => setSound({ volume: Number(e.target.value) })} /></label>
+      </>}
       <h3>Data</h3>
       <p>
         <button onClick={download}>Export telemetry</button>{' '}
-        <button onClick={() => { if (window.confirm('Clear the telemetry log?')) duel2Telemetry.clear() }}>Clear telemetry</button>{' '}
-        <button onClick={() => { if (window.confirm('Reset all Book 2 progress?')) s.resetProgress() }}>Reset progress</button>
+        <button onClick={() => { if (window.confirm('Clear the telemetry log?')) duel2Telemetry.clear() }}>Clear telemetry</button>
+        {!embedded && <>{' '}<button onClick={() => { if (window.confirm('Reset all Book 2 progress?')) s.resetProgress() }}>Reset progress</button></>}
       </p>
       <p style={{ color: '#666' }}>Events logged: {duel2Telemetry.count()}</p>
     </div>
