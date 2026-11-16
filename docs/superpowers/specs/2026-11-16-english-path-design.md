@@ -39,7 +39,7 @@ What the research found (host-local report, 2026-11-11), and what this design ta
   level. he already knows many letters, and reads some words").
 - All nine stages of the American order in the first version (the parent decided).
 - Reading and writing together: sounds, blending, reading words, spelling words, writing letters.
-- One reward system across both paths: one purse of coins, the merchant in both runs.
+- The same reward system on both paths (stars, coins, hearts, the merchant), with a separate balance per path.
 
 **Non-goals**
 - English as a foreign language (no oral vocabulary teaching, no Hebrew instructions).
@@ -101,7 +101,7 @@ like that"), because the purple parts did not fit a green background. Decided wi
 - **Colours drawn in code** (top bar buttons, the tower's runes, letter tiles, panels) get the matching green values,
   one set for the English path.
 - **Not changed** (my call): the monsters, the bosses, the merchant, the picture words, the coins, hearts and stars.
-  Enemies stand out against green; rewards stay the same in both paths, because they are one reward system.
+  Enemies stand out against green; rewards look the same in both paths, because they are the same reward system.
 - The transformation is a script run once. Its output is committed as new image files; the game does not recolour at
   run time. Record each output's source file and the script's parameters in `asset-sources/english/images.json`. The
   script itself is host-local, like the other generation tools.
@@ -321,8 +321,10 @@ the Hebrew path does not change. If yes: the same screen, right to left, purple,
 - **Girls:** English lines rarely mark gender. Lines with "he/she", "his/her", "wizard/witch" get a girl form. My call:
   the girl is a "wizard" too (the parent's girls design calls her a wizard in Hebrew, קוסמת); the card line says "What
   she learns".
-- **One purse** (the parent decided): one coin balance for both paths. A coin earned in English can be spent at the
-  Hebrew merchant and the other way round. His current balance stays.
+- **A separate purse per path** (the parent decided, 2026-11-16, replacing "one purse"): coins earned in English are
+  spent only at the English merchant, and Hebrew coins only at the Hebrew merchant. Reasons: the coins and hearts
+  measure the skill of one path, so coins from the path he finds easy cannot buy hearts on the hard one; each path's
+  prices fit its own earning. The English balance starts at 0; his Hebrew balance does not change.
 - **Stars and bests are per path** (my call): the English run's stars, best run and crystals are its own, shown on its
   cover. The total stars on each cover are that path's.
 - **Hearts are per run**, as now; a run is in one language.
@@ -363,8 +365,8 @@ The English path has its own section in the shared parent area (the registry of 
   section shows the run's words in large print for the parent to hear him read from the screen held away from the
   game, with a ✓/✗ per word that the parent taps. My call: optional, never asked of the child by the game, logged as
   `parent-check`.
-- **Settings:** the English path on or off (default on); the drawing on or off; the number range is shared with the
-  Hebrew path (one purse).
+- **Settings:** the English path on or off (default on); the drawing on or off; the number range (up to 10, 100 or
+  1000) is one setting for both paths, because it is about his counting, not his reading.
 - **Data:** the English log in the shared export.
 
 ## Part 10 — Assets and budget
@@ -427,8 +429,8 @@ after it is merged into `main`. It may be built in parallel with Space Cat (see 
   the save key and the telemetry game id. The Hebrew course is today's content and must behave exactly as before (its
   tests stay green unchanged). My call: one app (`duel2/`) with the course chosen by the entry link
   (`?course=en`), not a new Vite entry, so that the run, the merchant and the screens exist once.
-- **Saves:** the English progress has its own save; the Hebrew save is not migrated. The coin balance is stored once and
-  read and written by both runs through the save port (*Left to the builder*: where).
+- **Saves:** the English progress has its own save; the Hebrew save is not migrated. Each save holds its own coin
+  balance, as Book 2's does now.
 - **The first duel's tower** (ADR 0002) is Hebrew-only code. The English tower is the same screen with English rounds; the
   builder decides whether `DuelController` takes a course or the English tower is a Book 2-style screen with the duel's
   look.
@@ -452,7 +454,6 @@ clock. Coordinate the home order and the `vite.config.ts` / knip entry lists whe
 
 ## Left to the builder
 
-- Where the shared coin balance is stored, and the migration that keeps his current coins.
 - How the course seam is cut through `RunController` and the screens, and whether the English tower reuses
   `DuelController`.
 - The exact word lists, heart-word distribution and nonsense words (the parent reviews the lists).
