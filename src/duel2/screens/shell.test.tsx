@@ -10,7 +10,9 @@ import { Cover } from './Cover'
 import { PauseCover } from './PauseCover'
 import { Summary } from './Summary'
 import { useDuel2Store } from '../store'
-import { setVoicePlayer, stopVoice } from '../audio/duel2Audio'
+import { stopVoice } from '../audio/duel2Audio'
+import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
+const fakeAudio = installFakeAudio()
 import Duel2App from '../Duel2App'
 import { clearGender, getPlayer, setGender } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
@@ -54,7 +56,7 @@ describe('shell', () => {
     clearGender()
     const track = vi.spyOn(duel2Telemetry, 'track')
     const said: string[] = []
-    setVoicePlayer((id) => { said.push(id); return Promise.resolve(true) })
+    fakeAudio.onVoice((id) => { said.push(id); return Promise.resolve(true) })
     const { container } = render(<Duel2App />)
     fireEvent.click(screen.getByLabelText('play'))
     await act(async () => { gate.open(); await gate.p })
@@ -71,7 +73,7 @@ describe('shell', () => {
     expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'child' })
     expect(container.querySelector('[data-screen="play"]')).not.toBeNull()
     stopVoice()
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
     track.mockRestore()
   })
   it('once set, play starts without the question', async () => {
@@ -129,7 +131,7 @@ describe('shell', () => {
     vi.useFakeTimers()
     stopVoice()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    fakeAudio.onVoice((id) => { played.push(id); return Promise.resolve() })
     useDuel2Store.setState({ totalStars: 25, crystals: 3 })
     const cover = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     fireEvent.pointerDown(cover.container.querySelector('[data-info="info-coins"]')!)
@@ -137,7 +139,7 @@ describe('shell', () => {
     fireEvent.pointerDown(cover.container.querySelector('[data-info="info-crystals"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
     cover.unmount()
-    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    fakeAudio.onVoice((id) => { played.push(id); return Promise.resolve() })
     const sum = render(<Summary over={{ score: 9, crystals: 1, best: false }} onAgain={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     fireEvent.pointerDown(sum.container.querySelector('[data-info="info-stars"]')!)
@@ -145,7 +147,7 @@ describe('shell', () => {
     fireEvent.pointerDown(sum.container.querySelector('[data-info="info-best"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
     expect(played.filter((id) => id.startsWith('info-'))).toEqual(['info-coins-1', 'info-crystals-1', 'info-stars-1', 'info-best-1'])
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
   })
 
   it('the cover has a trophy shelf of 4 bosses: a beaten one in a golden frame, the others dark silhouettes', () => {
@@ -174,7 +176,7 @@ describe('shell', () => {
     vi.useFakeTimers()
     stopVoice()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    fakeAudio.onVoice((id) => { played.push(id); return Promise.resolve() })
     const cover = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     fireEvent.pointerDown(cover.container.querySelector('[data-info="info-bosses"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
@@ -184,6 +186,6 @@ describe('shell', () => {
     fireEvent.pointerDown(sum.container.querySelector('[data-info="info-coins"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
     expect(played.filter((id) => id.startsWith('info-'))).toEqual(['info-bosses-1', 'info-coins-1'])
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
   })
 })

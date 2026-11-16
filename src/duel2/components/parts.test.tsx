@@ -5,7 +5,9 @@ import { Orb } from './Orb'
 import { MarkAlone } from './MarkAlone'
 import { ExplainPanel } from './ExplainPanel'
 import { mark } from '../logic/content'
-import { sayParts, setVoicePlayer, stopVoice } from '../audio/duel2Audio'
+import { sayParts, stopVoice } from '../audio/duel2Audio'
+import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
+const fakeAudio = installFakeAudio()
 import { HAND, Merchant, pileLayout } from './screens/Merchant'
 import { stageBox } from '../layout'
 import { COIN_FACE, PriceTag, ValueCoin } from './ValueCoin'
@@ -14,7 +16,7 @@ import type { MerchantView } from '../controller'
 describe('parts', () => {
   afterEach(() => {
     stopVoice()
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
     vi.useRealTimers()
   })
   it('top bar shows hearts as SVG and no text', () => {
@@ -44,7 +46,7 @@ describe('parts', () => {
   it('closing an explanation does not silence what the game says next', async () => {
     vi.useFakeTimers()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 50)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 50)) })
     const { unmount } = render(<ExplainPanel parts={[{ id: 'ln-bet', highlight: 'letter' }]} onNext={() => {}}>{() => null}</ExplainPanel>)
     await act(async () => { await vi.advanceTimersByTimeAsync(200) })
     let started = false
@@ -57,7 +59,7 @@ describe('parts', () => {
   })
   it('a demo goes on by itself when its words end, with no next button', async () => {
     vi.useFakeTimers()
-    setVoicePlayer(() => Promise.resolve())
+    fakeAudio.onVoice(() => Promise.resolve())
     const onNext = vi.fn()
     render(<ExplainPanel parts={[{ id: 'demo-broom-1', highlight: 'none' }]} onNext={onNext} autoNext>{() => null}</ExplainPanel>)
     await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
@@ -66,7 +68,7 @@ describe('parts', () => {
   })
   it('a tap on an explanation ends it at once, while it still speaks (he already knows)', async () => {
     vi.useFakeTimers()
-    setVoicePlayer(() => new Promise((r) => setTimeout(r, 5000)))
+    fakeAudio.onVoice(() => new Promise((r) => setTimeout(r, 5000)))
     const onNext = vi.fn()
     const { container } = render(<ExplainPanel parts={[{ id: 'ln-bet', highlight: 'letter' }]} onNext={onNext} skippable>{() => null}</ExplainPanel>)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
@@ -100,7 +102,7 @@ describe('parts', () => {
   it('explanation stays until next and can be replayed', async () => {
     vi.useFakeTimers()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return Promise.resolve() })
+    fakeAudio.onVoice((id) => { played.push(id); return Promise.resolve() })
     const onNext = vi.fn()
     render(
       <ExplainPanel parts={[{ id: 'ln-bet', highlight: 'letter' }, { id: 'vn-kamatz', highlight: 'vowel' }]} onNext={onNext}>
@@ -160,7 +162,7 @@ describe('parts', () => {
   it('a tap on the hearts, the stars or the coins says what they are, once per tap burst (the parent)', async () => {
     vi.useFakeTimers()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
     const { container } = render(<TopBar hearts={3} score={4} coins={2} />)
     fireEvent.pointerDown(container.querySelector('[data-info="info-hearts"]')!)
     fireEvent.pointerDown(container.querySelector('[data-info="info-hearts"]')!)
@@ -175,7 +177,7 @@ describe('parts', () => {
   it('a tap on the ×2 or ×3 says what it means, once per tap burst (the parent)', async () => {
     vi.useFakeTimers()
     const played: string[] = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1000)) })
     const { container } = render(<TopBar hearts={3} score={4} coins={2} mult={2} />)
     fireEvent.pointerDown(container.querySelector('[data-mult]')!)
     fireEvent.pointerDown(container.querySelector('[data-mult]')!)

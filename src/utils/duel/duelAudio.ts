@@ -3,9 +3,9 @@
 // plays its own). Anything missing, failing or silent resolves via a safety timeout so the game can never stall
 // waiting for audio.
 import { Howler } from 'howler'
-import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
+import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/gameAudio/howlerPlayer'
 
-export { VOICE_RATE } from '../../shared/audioCore'
+export { VOICE_RATE } from '../../shared/gameAudio/howlerPlayer'
 import { SFX_URLS, VOICE_URLS } from '../../assets/duel/audioFiles'
 import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
 import { getGender, voiceFor } from '../../shared/player'

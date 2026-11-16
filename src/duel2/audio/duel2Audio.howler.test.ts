@@ -46,7 +46,7 @@ const { howls, Howler, endAfter } = vi.hoisted(() => {
       if (v !== undefined) { this.vol = v; this.calls.push(`volume ${v}`) }
       return this.vol
     }
-    fade(from: number, to: number, ms: number) { this.vol = to; this.calls.push(`fade ${to} ${ms}`) }
+    fade(_from: number, to: number, ms: number) { this.vol = to; this.calls.push(`fade ${to} ${ms}`) }
     playing() { return this.isPlaying }
     stop() {
       this.calls.push('stop')
@@ -55,12 +55,13 @@ const { howls, Howler, endAfter } = vi.hoisted(() => {
     seek() { return 0 }
     unload() {}
   }
-  const Howler = { mute: (() => {}) as (on: boolean) => void, volume: (() => {}) as (v: number) => void }
+  const Howler = { mute: vi.fn((_on: boolean) => {}), volume: vi.fn((_v: number) => {}) }
   return { howls, Howler: Object.assign(Howler, { FakeHowl }), endAfter }
 })
 vi.mock('howler', () => ({ Howl: Howler.FakeHowl, Howler }))
 
-import { cancelVoice, configureAudio, playSfx, say, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from './duel2Audio'
+import { applySound as configureAudio, holdAudio, setHidden } from '../../shared/gameAudio/output'
+import { cancelVoice, playSfx, say, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from './duel2Audio'
 import { VOICE_URLS } from '../assets/audioFiles'
 
 const howlOf = (url: string) => howls.find((h) => h.src === url)!
@@ -198,5 +199,26 @@ describe('Book 2 audio through Howler', () => {
     expect(done).toBe(false)
     await vi.advanceTimersByTimeAsync(20)
     expect(done).toBe(true)
+  })
+
+  it('test builds log every voice part in order, after the feminine choice, whether or not it has a file', async () => {
+    const w = window as unknown as { __d2audio?: string[] }
+    w.__d2audio = []
+    void say(['q-ghosts-1', 'no-such-line'], 0)
+    await vi.advanceTimersByTimeAsync(200)
+    expect(w.__d2audio).toEqual(['q-ghosts-1', 'no-such-line'])
+    delete w.__d2audio
+  })
+
+  it('the device volume sets Howler\'s; hidden mutes everything until the pause cover lets go', () => {
+    configureAudio({ sfx: true, music: true, volume: 0.6 })
+    expect(Howler.volume).toHaveBeenLastCalledWith(0.6)
+    setHidden(true)
+    expect(Howler.mute).toHaveBeenLastCalledWith(true)
+    holdAudio(true)
+    setHidden(false)
+    expect(Howler.mute).toHaveBeenLastCalledWith(true)
+    holdAudio(false)
+    expect(Howler.mute).toHaveBeenLastCalledWith(false)
   })
 })

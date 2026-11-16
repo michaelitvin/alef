@@ -9,7 +9,9 @@ import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
 import { BROOM_ORB, LANE_Y, flightPath, orbX } from './components/screens/Broom'
-import { setVoicePlayer, stopVoice } from './audio/duel2Audio'
+import { stopVoice } from './audio/duel2Audio'
+import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
+const fakeAudio = installFakeAudio()
 import { wavePos as wp } from './logic/run'
 
 const { sfxLog } = vi.hoisted(() => ({ sfxLog: [] as string[] }))
@@ -112,11 +114,11 @@ describe('run controller', () => {
     // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
     useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
     played = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
   afterEach(() => {
     stopVoice()
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
     vi.useRealTimers()
   })
 
@@ -479,7 +481,7 @@ describe('run controller', () => {
 
   it('a full cycle completes with no audio files', async () => {
     // a missing file resolves at once (duel2Audio playFile): simulate every clip missing
-    setVoicePlayer(() => Promise.resolve())
+    fakeAudio.onVoice(() => Promise.resolve())
     useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
     const c = make()
     c.start()
@@ -564,7 +566,7 @@ describe('run controller', () => {
     c.destroy()
   })
   it('a lock during feedback does not replay the answered round (ladder)', async () => {
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 300)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 300)) })
     const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -714,7 +716,7 @@ describe('run controller', () => {
 
   it('a lock during the crystal gives one crystal', async () => {
     useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 200)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 200)) })
     const c = make()
     c.start()
     for (let guard = 0; guard < 600 && c.view.screen?.screen !== 'crystal'; guard++) {
@@ -731,7 +733,7 @@ describe('run controller', () => {
   })
 
   it('a tap during the cue answers at once', async () => {
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -769,7 +771,7 @@ describe('run controller', () => {
   })
 
   it('the hint comes by itself only when he has not picked for a long time; a pick stops it and counts (he already knows)', async () => {
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1500)) })
     const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -788,7 +790,7 @@ describe('run controller', () => {
     it('a touch on an answer: the hint card, its glow and its voice go away at once; the hint stays counted', async () => {
       duel2Telemetry.clear()
       // the hint's voice takes long; a stop ends it (stopVoice drops what plays)
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
       const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
       c.start()
       await until(c, (v) => v.phase === 'answer' && v.hintAvailable)
@@ -808,7 +810,7 @@ describe('run controller', () => {
     })
 
     it('a pick (a tap on a ghost) also ends a hint from the button', async () => {
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
       const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
       c.start()
       await until(c, (v) => v.phase === 'answer' && v.hintAvailable)
@@ -868,7 +870,7 @@ describe('run controller', () => {
   })
 
   it('a new sound to catch comes only when the orbs on the screen are done, and the flight does not stop for it', async () => {
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1200)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 1200)) })
     const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
@@ -915,7 +917,7 @@ describe('run controller', () => {
   })
 
   it('no two orbs on the screen ever overlap at the parent\'s sizes: a whole flight with mistakes and new sounds, and a boss', async () => {
-    setVoicePlayer(() => new Promise((r) => setTimeout(r, 600)))
+    fakeAudio.onVoice(() => new Promise((r) => setTimeout(r, 600)))
     const sizes = [[780, 360], [740, 360], [915, 412], [1024, 768], [1280, 800]].map(([w, h]) => flightPath({ w, h }))
     for (const force of [{ screen: 'broom', stage: 2, kind: 'syllable' }, { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' }] as Force[]) {
       const c = make({ force })
@@ -975,7 +977,7 @@ describe('run controller', () => {
 
   it('a new sound said just before the last wave: its wave comes and flies to the end before the wizard flies away (the parent: "it said and now something else, and nothing came")', async () => {
     // a session from the path and the gallery; with these misses the last wave sets off on an empty sky
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 900)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 900)) })
     for (const [opts, seed, miss] of [[{ session: { screen: 'broom' } }, 5, 4], [{ session: { screen: 'broom' } }, 1, 3], [{ force: { screen: 'broom', stage: 2, kind: 'syllable' } }, 6, 5]] as const) {
       const c = make({ ...opts, rng: seeded(seed) })
       c.start()
@@ -1157,7 +1159,7 @@ describe('run controller', () => {
 
   it('the sound effect of a right answer rings a moment before the voice goes on (the parent: effects got cut)', async () => {
     const times: { id: string; at: number }[] = []
-    setVoicePlayer((id) => { times.push({ id, at: Date.now() }); return new Promise((r) => setTimeout(r, 10)) })
+    fakeAudio.onVoice((id) => { times.push({ id, at: Date.now() }); return new Promise((r) => setTimeout(r, 10)) })
     useDuel2Store.setState({ tallies: { 'sc:ghosts': { seen: 20, wrong: 10 } } }) // not a confident answer: the sound plays again
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
@@ -1904,7 +1906,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('a child who knows the merchant (bought before) hears only the short offer, and no demo; the ? still replays it all', async () => {
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
       // even with the demo never seen, a purchase means that he knows him
       useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, purchases: 1 } })
       const c = await cauldronThen(2)
@@ -2001,7 +2003,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('the ✗ declines at any moment: his coins go back, the run goes on, the visit counts', async () => {
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-hello') ? 3000 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-hello') ? 3000 : 10)) })
       const c = await cauldronThen(2)
       await playTo(c, (v) => v.merchant?.phase === 'arrive')
       // even while he says his opening line
@@ -2079,7 +2081,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('the ✗ works while the hand shows the undo (it is on the screen then)', async () => {
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
       useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true } })
       const c = await cauldronThen(2)
       await toMerchant(c)
@@ -2093,7 +2095,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('after a lock, the ✗ still lets him say goodbye in full before the run goes on', async () => {
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-bye') ? 3000 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-bye') ? 3000 : 10)) })
       const c = await cauldronThen(2)
       await toMerchant(c)
       c.pause()
@@ -2253,7 +2255,7 @@ describe('run controller', () => {
 
     describe('the first-visit demo, the undo, the hint and the idle line', () => {
       /** the merchant's lines take a moment, so each demo step can be seen */
-      const slowMerchant = () => setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
+      const slowMerchant = () => fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
       it('the first visit shows price, giving, the potion and the ✗, then it is his turn with the same price', async () => {
         slowMerchant()
         useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT } })
@@ -2464,7 +2466,7 @@ describe('run controller', () => {
     const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
 
     it('comes on the second broom visit of a run, never on the first', async () => {
-      setVoicePlayer(() => Promise.resolve())
+      fakeAudio.onVoice(() => Promise.resolve())
       useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
       const c = make()
       c.start()
@@ -2604,7 +2606,7 @@ describe('run controller', () => {
   describe('review fixes: one-time moments, pauses, the win', () => {
     const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
     /** voice ids in `missing` have no file: the player says so */
-    const withMissing = (missing: RegExp, ms = 10) => setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(!missing.test(id)), ms)) })
+    const withMissing = (missing: RegExp, ms = 10) => fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(!missing.test(id)), ms)) })
 
     it('a missing boss-new or boss-win file uses up neither the announcement nor the praise count; the trophy is kept', async () => {
       withMissing(/^boss-(new|win)/)
@@ -2624,7 +2626,7 @@ describe('run controller', () => {
       c.destroy()
       // heard: used up
       stopVoice()
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 10)) })
       const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       d.start()
       for (let i = 0; i < 20_000 && !bv(d)?.finished; i++) { fly(d); await tick(50) }
@@ -2678,7 +2680,7 @@ describe('run controller', () => {
 
     it('a pause during the win does not play its celebration again', async () => {
       sfxLog.length = 0
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 800)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(() => r(true), 800)) })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
       c.start()
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
@@ -2714,11 +2716,11 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     useDuel2Store.getState().resetProgress()
     useDuel2Store.setState({ bookOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
     played = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
   afterEach(() => {
     stopVoice()
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
     vi.useRealTimers()
   })
   const dv = (c: RunController) => c.view.screen as DrawView
@@ -2861,7 +2863,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   for (const script of ['print', 'hand'] as const) for (const order of ['the ש dot first', 'the shuruk first'] as const) {
     it(`שׁוּעָל (${script}): the ש dot and the shuruk in any order, also drawn at once after the letter (the parent: ${order})`, async () => {
       // the voice that asks for the marks takes its real time
-      setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('draw-mark') ? 1800 : 10)) })
+      fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('draw-mark') ? 1800 : 10)) })
       duel2Telemetry.clear()
       const c = await roundOf('fox', script, 3)
       await answering(c)
@@ -2982,7 +2984,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   })
 
   it('the print screen draws in print and the handwriting screen in handwriting, at any stage', async () => {
-    setVoicePlayer(() => Promise.resolve())
+    fakeAudio.onVoice(() => Promise.resolve())
     useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', settings: { ...useDuel2Store.getState().settings, drawing: true } })
     const c = make()
     c.start()
@@ -3053,11 +3055,11 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
     useDuel2Store.getState().resetProgress()
     useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
     played = []
-    setVoicePlayer((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
+    fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
   afterEach(() => {
     stopVoice()
-    setVoicePlayer(null)
+    fakeAudio.onVoice(null)
     vi.useRealTimers()
   })
   /** right answers (or wrong ones while `wrong()` says so) on the calm screens; counts the rounds */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_HTML5, getHowl, peekHowl } from './audioCore'
+import { MAX_HTML5, getHowl, peekHowl } from './howlerPlayer'
 
 describe('getHowl', () => {
   it('keeps at most MAX_HTML5 streamed sounds; the least recently used is unloaded first', () => {

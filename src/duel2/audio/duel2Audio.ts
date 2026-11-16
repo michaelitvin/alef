@@ -1,178 +1,36 @@
-// Book 2 audio: one voice queue (lines and learning sounds never overlap: rule), 0.8 s between parts (rule 0.7–0.9 s),
-// voice on html5 at VOICE_RATE (pitch kept); effects and music on Web Audio; music ducks under every voice. Missing files
-// resolve at once (never stall).
-import { Howler } from 'howler'
-import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
+// Book 2 audio: the shared game-audio kit (src/shared/gameAudio) with Book 2's files and numbers. One voice queue (lines
+// and learning sounds never overlap: rule), 0.8 s between parts (rule 0.7–0.9 s); effects rotate their takes, and a new
+// effect plays an existing one until the sfx pipeline gives it its own; music ducks under every voice.
+import { createGameAudio } from '../../shared/gameAudio/kit'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
 import { FEMININE_IDS } from '../data/lines'
-import { getGender, voiceFor } from '../../shared/player'
 import { duel2Telemetry } from '../telemetry'
 
 export type Duel2Sfx = 'wave' | 'catch' | 'hit' | 'puff' | 'lock' | 'zap' | 'key' | 'door' | 'crystal' | 'streak' | 'spell' | 'potion' | 'boss-win' | 'stroke' | 'drawn' | 'coin' | 'count'
-/** new effects play an existing one until the sfx pipeline gives them their own (boss: spec 2026-11-07; drawing: a right stroke, a letter done) */
-const SFX_FALLBACK: Partial<Record<Duel2Sfx, Duel2Sfx>> = { spell: 'zap', potion: 'crystal', 'boss-win': 'streak', stroke: 'catch', drawn: 'zap', coin: 'lock', count: 'zap' }
-const GAP_MS = 800
-const MUSIC_VOL = 0.35
-const DUCK_VOL = 0.08
-const LINE_TIMEOUT_MS = 9000
-const SFX_TIMEOUT_MS = 4000
+type Duel2Music = 'flight' | 'celebrate' | 'boss'
 
-let cfg = { sfx: true, music: true, volume: 0.8 }
-export function configureAudio(o: { sfx: boolean; music: boolean; volume: number }) {
-  cfg = o
-  Howler.volume(o.volume)
-  if (!o.music) stopMusic()
-}
-export const unlockDuel2Audio = unlockAudio
+const audio = createGameAudio<Duel2Sfx, Duel2Music>({
+  game: 'book2',
+  voices: VOICE_URLS,
+  sfx: SFX_URLS,
+  // boss: spec 2026-11-07; drawing: a right stroke, a letter done
+  sfxFallback: { spell: 'zap', potion: 'crystal', 'boss-win': 'streak', stroke: 'catch', drawn: 'zap', coin: 'lock', count: 'zap' },
+  sfxPick: 'rotate',
+  music: MUSIC_URLS,
+  musicLoops: (kind) => kind !== 'celebrate',
+  feminine: (id) => FEMININE_IDS.has(id),
+  telemetry: duel2Telemetry,
+  // test builds keep the order of everything said, for the QA audio log (rule)
+  onSay: TEST_HOOKS ? (id) => (window as unknown as { __d2audio?: string[] }).__d2audio?.push(id) : undefined,
+  lineTimeoutMs: 9000,
+  sfxTimeoutMs: 4000,
+  gapMs: 800,
+  musicVol: 0.35,
+  duckVol: 0.08,
+  musicFadeInMs: 600,
+})
 
-let hidden = false
-let held = false
-const applyMute = () => Howler.mute(hidden || held)
-export function setHidden(on: boolean) { hidden = on; applyMute() }
-/** The pause cover keeps the audio silent after the page shows again, until play is tapped. */
-export function holdAudio(on: boolean) { held = on; applyMute() }
-
-let current: string | null = null
-let currentSignal: VoiceSignal | null = null
-/** A speaker's own handle: cancelling it stops only that speaker's parts (an explanation closing must not silence the game). */
-export interface VoiceSignal { cancelled: boolean }
-export const voiceSignal = (): VoiceSignal => ({ cancelled: false })
-/** Plays one voice file; false when it has no file (a missing file never stalls, but it was not heard either). */
-function playFile(id: string): Promise<boolean> {
-  const url = VOICE_URLS[id]
-  if (!url) return Promise.resolve(false)
-  current = url
-  duck(true)
-  return playOnce(getHowl(url, false, true), VOICE_RATE, LINE_TIMEOUT_MS).then(() => true).finally(() => {
-    if (current === url) current = null
-    duck(false)
-  })
-}
-/** A player resolves true (or nothing) when the part was heard, false when it had nothing to play. */
-type Player = (id: string) => Promise<void | boolean>
-let player: Player = playFile
-/** Test seam: replace how one voice id is played (null restores the real player). */
-export function setVoicePlayer(p: Player | null) { player = p ?? playFile }
-
-let exists: (id: string) => boolean = (id) => id in VOICE_URLS
-/** Test seam: which voice files exist (null restores the real files). */
-export function setVoiceExists(f: ((id: string) => boolean) | null) { exists = f ?? ((id) => id in VOICE_URLS) }
-const fellBack = new Set<string>()
-/** The take to play: a girl hears the feminine take (`-f`) of a line that speaks to the child; a missing one falls back to
- * the masculine take (never silence) and the fallback is logged once per id (spec 2026-11-07 girls). */
-function resolveVoice(id: string): string {
-  const r = voiceFor(id, getGender(), exists, (x) => FEMININE_IDS.has(x))
-  if (r.fallback && !fellBack.has(id)) { fellBack.add(id); duel2Telemetry.track('voice-fallback', { id }) }
-  return r.id
-}
-
-let queue: Promise<unknown> = Promise.resolve()
-let epoch = 0
-const pending = new Set<object>()
-/** nothing is playing or waiting in the voice queue */
-export const voiceIdle = () => pending.size === 0
-const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms))
-
-/**
- * Plays the parts in order with `gapMs` between them, after anything already queued. A stopVoice drops what is left.
- * Resolves true only when every part was really heard (a one-time moment is used up only then: a missing file or a stop
- * leaves it for next time).
- */
-export function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = GAP_MS, signal?: VoiceSignal): Promise<boolean> {
-  const mine = epoch
-  const token = {}
-  pending.add(token)
-  const run = async (): Promise<boolean> => {
-    let heard = true
-    try {
-      for (let i = 0; i < parts.length; i++) {
-        if (epoch !== mine || signal?.cancelled) return false
-        if (i > 0 && gapMs > 0) await wait(gapMs)
-        if (epoch !== mine || signal?.cancelled) return false
-        currentSignal = signal ?? null
-        parts[i].onStart?.()
-        const id = resolveVoice(parts[i].id)
-        // test builds keep the order of everything said, for the QA audio log (rule)
-        if (TEST_HOOKS) (window as unknown as { __d2audio?: string[] }).__d2audio?.push(id)
-        if ((await player(id)) === false) heard = false
-      }
-      return heard && epoch === mine && !signal?.cancelled
-    } finally {
-      pending.delete(token)
-    }
-  }
-  const p = queue.then(run, run)
-  queue = p.catch(() => {})
-  return p
-}
-export const say = (ids: string[], gapMs = GAP_MS) => sayParts(ids.map((id) => ({ id })), gapMs)
-
-let infoBusy = false
-/** A short explanation of something on the screen; ignored while one already plays or waits (a burst of taps says it once). */
-export function sayInfo(id: string) {
-  if (infoBusy) return
-  infoBusy = true
-  void say([id]).finally(() => { infoBusy = false })
-}
-
-/** Stops one speaker's parts (playing or queued); everything else in the queue goes on. */
-export function cancelVoice(signal: VoiceSignal) {
-  signal.cancelled = true
-  if (currentSignal === signal && current) peekHowl(current)?.stop()
-}
-
-/** Stops the voice now and drops the queued parts (a tap on the cue, leaving the screen). */
-export function stopVoice() {
-  epoch++
-  pending.clear()
-  infoBusy = false
-  queue = Promise.resolve()
-  if (current) peekHowl(current)?.stop()
-}
-
-const lastSfx: Record<string, number> = {}
-export function playSfx(want: Duel2Sfx): Promise<void> {
-  const name = SFX_URLS[want]?.length ? want : (SFX_FALLBACK[want] ?? want)
-  const takes = SFX_URLS[name]
-  if (!cfg.sfx || !takes?.length) return Promise.resolve()
-  const i = ((lastSfx[name] ?? -1) + 1) % takes.length
-  lastSfx[name] = i
-  const h = getHowl(takes[i])
-  h.volume(0.8)
-  return playOnce(h, 1, SFX_TIMEOUT_MS)
-}
-
-let music: ReturnType<typeof getHowl> | null = null
-let ducks = 0
-const lastTrack: Record<string, number> = {}
-/** Music for the broom flight and the celebrations; each start moves to the next track of that kind. */
-export function startMusic(kind: 'flight' | 'celebrate' | 'boss') {
-  const tracks = MUSIC_URLS[kind]
-  if (!cfg.music || !tracks?.length) return
-  const i = ((lastTrack[kind] ?? -1) + 1) % tracks.length
-  lastTrack[kind] = i
-  const h = getHowl(tracks[i], kind !== 'celebrate')
-  if (music === h) return
-  stopMusic()
-  music = h
-  const go = () => {
-    if (music !== h) return
-    if (!h.playing()) { h.volume(0); h.play() }
-    h.fade(h.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 600)
-  }
-  if (h.state() !== 'loaded') h.once('load', go)
-  else go()
-}
-export function stopMusic() {
-  if (!music) return
-  const h = music
-  music = null
-  if (!h.playing()) return
-  h.fade(h.volume(), 0, 300)
-  window.setTimeout(() => { if (music !== h) h.stop() }, 320)
-}
-function duck(on: boolean) {
-  ducks = Math.max(0, ducks + (on ? 1 : -1))
-  if (music?.playing()) music.fade(music.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)
-}
+export const { sayParts, say, sayInfo, voiceSignal, cancelVoice, stopVoice, playSfx, startMusic, stopMusic, preloadSfx } = audio
+export type { VoiceSignal } from '../../shared/gameAudio/kit'
+export { holdAudio } from '../../shared/gameAudio/output'

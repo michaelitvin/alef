@@ -1,7 +1,7 @@
 // Clock audio: voice on html5 audio at VOICE_RATE (pitch kept) with a callback per caption word, timed from the playback
 // position; effects and calm music on Web Audio. Music ducks under every voice line. Missing files resolve at once (never stall).
 import { Howler } from 'howler'
-import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
+import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/gameAudio/howlerPlayer'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS, VOICE_WORDS } from '../assets/audioFiles'
 import type { ClockSfx } from '../logic/workday'
 import { captionTimes, followPlayback } from './wordTiming'

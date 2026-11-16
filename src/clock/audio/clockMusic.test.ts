@@ -14,7 +14,7 @@ const { fake } = vi.hoisted(() => {
   }
   return { fake }
 })
-vi.mock('../../shared/audioCore', async (orig) => ({ ...(await orig<object>()), getHowl: () => fake }))
+vi.mock('../../shared/gameAudio/howlerPlayer', async (orig) => ({ ...(await orig<object>()), getHowl: () => fake }))
 vi.mock('../assets/audioFiles', async (orig) => ({ ...(await orig<object>()), MUSIC_URLS: ['m.mp3'] }))
 import { startMusic, stopMusic } from './clockAudio'
 

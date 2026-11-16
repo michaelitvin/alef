@@ -3,7 +3,7 @@
 // in a print fallback and then changed; cases and customers popped in after the clock.
 // Waits for the fonts and the images (at most READY_MS); then the effects and the narrator and customer lines load in
 // the background. The 576 time phrases are not preloaded here: each round preloads its own.
-import { getHowl } from '../../shared/audioCore'
+import { getHowl } from '../../shared/gameAudio/howlerPlayer'
 import { IMAGES } from './images'
 import { SFX_URLS, VOICE_URLS } from './audioFiles'
 

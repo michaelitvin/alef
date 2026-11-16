@@ -1,8 +1,8 @@
 // Loads what the game shows before the first screen (rule: no font change or late picture while he looks). Waits for the
 // fonts and images (at most READY_MS); then the effects and the lines warm in the background.
-import { getHowl } from '../../shared/audioCore'
 import { IMAGES } from './images'
-import { SFX_URLS, VOICE_URLS } from './audioFiles'
+import { VOICE_URLS } from './audioFiles'
+import { preloadSfx } from '../audio/duel2Audio'
 
 export const READY_MS = 8000
 /** Sigalit (print), Dana Yad (the handwriting words), Ktav Yad (shown on the stroke review page) */
@@ -37,7 +37,7 @@ export function preloadDuel2Assets(): Promise<void> {
   const all = Promise.all([...fonts, ...Object.values(IMAGES).map(loadImage)]).then(() => {})
   ready = Promise.race([all, new Promise<void>((r) => window.setTimeout(r, READY_MS))])
   void ready.then(() => {
-    for (const takes of Object.values(SFX_URLS)) for (const url of takes) getHowl(url)
+    preloadSfx()
     if (typeof fetch === 'function') void warm(Object.entries(VOICE_URLS).filter(([id]) => !id.startsWith('syl-')).map(([, u]) => u))
   })
   return ready
