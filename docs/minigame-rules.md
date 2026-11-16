@@ -328,6 +328,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Then the game had no way out, and the parent (2026-11-14): "there is no way out of the game and back to the main menu".
   Now a held house button is in the top bar's left corner, on the pause cover and on the summary. The parent then:
   "I feel that the home button belongs on the left" (first it was in the right corner, after the counts).
+- Every way into a parent screen (settings, progress, export, developer tools) must need a 2 s hold and then the
+  parent's year of birth on a number pad. Accept any adult year and do not store it. A wrong year goes back to where the
+  child was, with no message. Reason: the parent screens hold reset and the developer tools (also on production), which
+  must stay out of the child's reach, and the child cannot read the question or type a year. Example (all games, 2026-11-16): the settings gear on the home screen opened settings, dev mode and
+  reset with one tap; the parent asked for the hold and the year of birth on all parent screens.
 - Show the child his points: the points of the run in the top bar, the run and his best at the end, and all his points
   so far on the start screen. Digits are allowed; mark them for the no-text scan.
   Example (book 2): the child asked "where can I see my points?".
