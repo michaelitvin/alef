@@ -24,6 +24,18 @@ const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0,
 /** Duel music is on unless explicitly turned off (saves from before the duel have no value). */
 export const duelMusicOn = (s: Settings) => s.duelMusic !== false
 
+/** A fresh record for a node that has no saved progress yet */
+const newNode = (nodeId: string): NodeProgress => ({
+  nodeId,
+  state: 'available',
+  attempts: [],
+  successRate: 0,
+  timeSpentMs: 0,
+  firstAccessedAt: Date.now(),
+  lastAccessedAt: Date.now(),
+  completionCount: 0,
+})
+
 /**
  * Actions for the progress store
  */
@@ -94,27 +106,14 @@ export const useProgressStore = create<ProgressStore>()(
         if (existing) return
 
         set((state) => ({
-          nodes: {
-            ...state.nodes,
-            [nodeId]: {
-              nodeId,
-              state: 'available',
-              attempts: [],
-              successRate: 0,
-              timeSpentMs: 0,
-              firstAccessedAt: Date.now(),
-              lastAccessedAt: Date.now(),
-              completionCount: 0,
-            },
-          },
+          nodes: { ...state.nodes, [nodeId]: newNode(nodeId) },
         }))
       },
 
       // Record an attempt at an activity item
       recordAttempt: (nodeId, attempt) => {
         set((state) => {
-          const node = state.nodes[nodeId]
-          if (!node) return state
+          const node = state.nodes[nodeId] ?? newNode(nodeId)
 
           const attempts = [...node.attempts, attempt]
           const correctCount = attempts.filter((a) => a.correct).length
@@ -144,7 +143,8 @@ export const useProgressStore = create<ProgressStore>()(
                 attempts,
                 successRate,
                 lastAccessedAt: Date.now(),
-                state: successRate >= 0.8 ? 'mastered' : 'in_progress',
+                // A mastered node stays mastered: one wrong answer later does not take it away
+                state: node.state === 'mastered' || successRate >= 0.8 ? 'mastered' : 'in_progress',
               },
             },
             stats: newStats,
@@ -155,8 +155,7 @@ export const useProgressStore = create<ProgressStore>()(
       // Set node state directly
       setNodeState: (nodeId, newState) => {
         set((state) => {
-          const node = state.nodes[nodeId]
-          if (!node) return state
+          const node = state.nodes[nodeId] ?? newNode(nodeId)
 
           return {
             nodes: {

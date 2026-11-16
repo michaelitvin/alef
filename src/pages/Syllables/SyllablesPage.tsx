@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing } from '../../styles/theme'
 import { JourneyPath, type JourneyNode } from '../../components/navigation/JourneyPath'
@@ -22,6 +23,7 @@ export function SyllablesPage() {
   const levelUnlocked = isLevelUnlocked('syllables')
 
   // Convert activities to journey nodes with progress state
+  const toInit: string[] = []
   const journeyNodes: JourneyNode[] = SYLLABLE_NODES.map((activity, index) => {
     const nodeId = `syllables-${activity.id}`
     const progress = nodes[nodeId]
@@ -39,7 +41,7 @@ export function SyllablesPage() {
       // First activity is always available once level is unlocked
       state = progress?.state || 'available'
       if (!progress) {
-        initializeNode(nodeId, 'syllables')
+        toInit.push(nodeId)
       }
     } else {
       // Other activities depend on previous activity's progress
@@ -50,7 +52,7 @@ export function SyllablesPage() {
         // Previous activity started, this one becomes available
         state = progress?.state || 'available'
         if (!progress) {
-          initializeNode(nodeId, 'syllables')
+          toInit.push(nodeId)
         }
       } else if (progress) {
         state = progress.state
@@ -64,6 +66,12 @@ export function SyllablesPage() {
       order: activity.order,
     }
   })
+
+  // Create the saved record of every open node after the render, never during it
+  const toInitKey = toInit.join(',')
+  useEffect(() => {
+    if (toInitKey) toInitKey.split(',').forEach((id) => initializeNode(id, 'syllables'))
+  }, [toInitKey, initializeNode])
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
