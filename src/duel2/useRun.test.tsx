@@ -8,7 +8,7 @@ import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
-import { BROOM_ORB, LANE_Y, flightPath, orbX } from './components/screens/Broom'
+import { BROOM_ORB, LANE_Y, flightPath, orbX } from './broomLayout'
 import { stopVoice } from './audio/duel2Audio'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 const fakeAudio = installFakeAudio()

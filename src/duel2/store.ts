@@ -1,5 +1,5 @@
 // Book 2's own save (localStorage 'alef-duel2'); reset never touches alef's progress or the duel's.
-import { create } from 'zustand'
+import { create, type StateCreator } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { pushRecent, type Tally } from '../shared/adaptive'
 import type { ScreenId } from './logic/predict'
@@ -96,7 +96,7 @@ export interface Duel2Save {
   broomSessions: number
 }
 
-interface Actions {
+export interface Duel2Actions {
   recordAnswer: (a: { features: string[]; miss: boolean; asked?: Choice; tapped?: Choice; newStage: boolean }) => { passed: boolean }
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
@@ -158,104 +158,107 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
 
-export const useDuel2Store = create<Duel2Save & Actions>()(
+/** the save's state and actions, without storage: the persisted store below, and the in-memory one (savePort.ts) */
+export const duel2State: StateCreator<Duel2Save & Duel2Actions> = (set, get) => ({
+  ...fresh(),
+  settings: DEFAULT_SETTINGS,
+  strokeMarks: {},
+  recordAnswer: ({ features, miss, asked, tapped, newStage }) => {
+    const s = get()
+    const tallies = { ...s.tallies }
+    const recent = { ...s.recent }
+    for (const f of features) {
+      const t = tallies[f] ?? {}
+      tallies[f] = { seen: (t.seen ?? 0) + 1, wrong: (t.wrong ?? 0) + (miss ? 1 : 0) }
+      recent[f] = pushRecent(recent[f], miss)
+    }
+    let confusions = s.confusions
+    if (miss && asked && tapped && asked.id !== tapped.id) {
+      let { letters, vowels, syllables } = confusions
+      if (asked.itemId !== tapped.itemId) letters = bump(letters, asked.itemId, tapped.itemId)
+      if (asked.group && tapped.group && asked.group !== tapped.group) vowels = bump(vowels, asked.group, tapped.group)
+      if (asked.group && tapped.group) syllables = bump(syllables, `${asked.itemId}-${asked.group}`, `${tapped.itemId}-${tapped.group}`)
+      confusions = { letters, vowels, syllables }
+    }
+    const mistakes = miss ? [...s.mistakes, { round: s.roundNo, features }].slice(-20) : s.mistakes
+    let stage = s.stage
+    let passed = false
+    if (newStage) ({ progress: stage, passed } = recordStageAnswer(s.stage, !miss))
+    set({ tallies, recent, confusions, mistakes, stage, roundNo: s.roundNo + 1 })
+    return { passed }
+  },
+  setPace: (pace) => set({ pace }),
+  endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), })),
+  addStar: () => set((s) => ({ totalStars: (s.totalStars ?? 0) + 1 })),
+  addStars: (n) => set((s) => ({ totalStars: (s.totalStars ?? 0) + n })),
+  addCoins: (n) => set((s) => ({ coins: (s.coins ?? 0) + n })),
+  spendCoins: (n) => {
+    if (n > (get().coins ?? 0)) return false
+    set((s) => ({ coins: (s.coins ?? 0) - n }))
+    return true
+  },
+  markBossBeaten: (k) => set((s) => ((s.bossesBeaten ?? []).includes(k) ? s : { bossesBeaten: [...(s.bossesBeaten ?? []), k] })),
+  setLastBoss: (k) => set({ lastBoss: k }),
+  markBossNewHeard: (k) => set((s) => ((s.bossNewHeard ?? []).includes(k) ? s : { bossNewHeard: [...(s.bossNewHeard ?? []), k] })),
+  markPotionIntro: () => set({ potionIntroSeen: true }),
+  addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
+  notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),
+  markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),
+  markDotIntro: (pair) => set((s) => (s.dotIntrosSeen.includes(pair) ? s : { dotIntrosSeen: [...s.dotIntrosSeen, pair] })),
+  noteHint: (key) => set((s) => ({ hintsSeen: { ...s.hintsSeen, [key]: (s.hintsSeen[key] ?? 0) + 1 } })),
+  setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
+  markStrokes: (key, mark) => set((s) => {
+    const m = { ...(s.strokeMarks ?? {}) }
+    if (mark) m[key] = mark
+    else delete m[key]
+    return { strokeMarks: m }
+  }),
+  noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
+  noteMerchant: (e) => set((s) => {
+    const m = { ...FRESH_MERCHANT, ...s.merchant }
+    const key = ({ visit: 'visits', purchase: 'purchases', decline: 'declines', short: 'short', over: 'over', hint: 'hints' } as const)[e]
+    return { merchant: { ...m, [key]: m[key] + 1 } }
+  }),
+  setMerchantFlag: (k) => set((s) => ({ merchant: { ...FRESH_MERCHANT, ...s.merchant, [k]: true } })),
+  merchantPaid: (exactNoHint, hinted = false) => set((s) => {
+    const m = { ...FRESH_MERCHANT, ...s.merchant }
+    let { level, cleanRow, hintRow } = m
+    cleanRow = exactNoHint ? cleanRow + 1 : 0
+    hintRow = hinted ? hintRow + 1 : 0
+    if (cleanRow >= LEVEL_UP_ROW) { level = Math.min(LEVEL_MAX, level + 1); cleanRow = 0 }
+    if (hintRow >= LEVEL_DOWN_ROW) { level = Math.max(0, level - 1); hintRow = 0 }
+    return { merchant: { ...m, level, cleanRow, hintRow } }
+  }),
+  noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
+  noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
+  setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
+  oweMonsters: (ids) => set((s) => ({ towerOwed: [...new Set([...(s.towerOwed ?? []), ...ids])] })),
+  monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
+  noteTowerAnswer: (right) => set((s) => ({ towerTail: pushTowerTail(s.towerTail, right) })),
+  openBook: () => set({ bookOpen: true }),
+  nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
+  noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
+  importFirstDuel: (duel) => set((s) => {
+    if (s.firstDuelImported) return s
+    const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
+    const mastered = towerMastered(duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))
+    return {
+      totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
+      bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,
+    }
+  }),
+  resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
+})
+
+export const useDuel2Store = create<Duel2Save & Duel2Actions>()(
   persist(
-    (set, get) => ({
-      ...fresh(),
-      settings: DEFAULT_SETTINGS,
-      strokeMarks: {},
-      recordAnswer: ({ features, miss, asked, tapped, newStage }) => {
-        const s = get()
-        const tallies = { ...s.tallies }
-        const recent = { ...s.recent }
-        for (const f of features) {
-          const t = tallies[f] ?? {}
-          tallies[f] = { seen: (t.seen ?? 0) + 1, wrong: (t.wrong ?? 0) + (miss ? 1 : 0) }
-          recent[f] = pushRecent(recent[f], miss)
-        }
-        let confusions = s.confusions
-        if (miss && asked && tapped && asked.id !== tapped.id) {
-          let { letters, vowels, syllables } = confusions
-          if (asked.itemId !== tapped.itemId) letters = bump(letters, asked.itemId, tapped.itemId)
-          if (asked.group && tapped.group && asked.group !== tapped.group) vowels = bump(vowels, asked.group, tapped.group)
-          if (asked.group && tapped.group) syllables = bump(syllables, `${asked.itemId}-${asked.group}`, `${tapped.itemId}-${tapped.group}`)
-          confusions = { letters, vowels, syllables }
-        }
-        const mistakes = miss ? [...s.mistakes, { round: s.roundNo, features }].slice(-20) : s.mistakes
-        let stage = s.stage
-        let passed = false
-        if (newStage) ({ progress: stage, passed } = recordStageAnswer(s.stage, !miss))
-        set({ tallies, recent, confusions, mistakes, stage, roundNo: s.roundNo + 1 })
-        return { passed }
-      },
-      setPace: (pace) => set({ pace }),
-      endRun: (ended, score) => set((s) => ({ lastEnded: ended, runs: s.runs + 1, bestRun: Math.max(s.bestRun, score), })),
-      addStar: () => set((s) => ({ totalStars: (s.totalStars ?? 0) + 1 })),
-      addStars: (n) => set((s) => ({ totalStars: (s.totalStars ?? 0) + n })),
-      addCoins: (n) => set((s) => ({ coins: (s.coins ?? 0) + n })),
-      spendCoins: (n) => {
-        if (n > (get().coins ?? 0)) return false
-        set((s) => ({ coins: (s.coins ?? 0) - n }))
-        return true
-      },
-      markBossBeaten: (k) => set((s) => ((s.bossesBeaten ?? []).includes(k) ? s : { bossesBeaten: [...(s.bossesBeaten ?? []), k] })),
-      setLastBoss: (k) => set({ lastBoss: k }),
-      markBossNewHeard: (k) => set((s) => ((s.bossNewHeard ?? []).includes(k) ? s : { bossNewHeard: [...(s.bossNewHeard ?? []), k] })),
-      markPotionIntro: () => set({ potionIntroSeen: true }),
-      addCrystal: () => set((s) => ({ crystals: s.crystals + 1 })),
-      notePraise: (kind) => set((s) => ({ praiseHeard: { ...(s.praiseHeard ?? {}), [kind]: ((s.praiseHeard ?? {})[kind] ?? 0) + 1 } })),
-      markDemo: (id) => set((s) => (s.demosSeen.includes(id) ? s : { demosSeen: [...s.demosSeen, id] })),
-      markDotIntro: (pair) => set((s) => (s.dotIntrosSeen.includes(pair) ? s : { dotIntrosSeen: [...s.dotIntrosSeen, pair] })),
-      noteHint: (key) => set((s) => ({ hintsSeen: { ...s.hintsSeen, [key]: (s.hintsSeen[key] ?? 0) + 1 } })),
-      setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
-      markStrokes: (key, mark) => set((s) => {
-        const m = { ...(s.strokeMarks ?? {}) }
-        if (mark) m[key] = mark
-        else delete m[key]
-        return { strokeMarks: m }
-      }),
-      noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
-      noteMerchant: (e) => set((s) => {
-        const m = { ...FRESH_MERCHANT, ...s.merchant }
-        const key = ({ visit: 'visits', purchase: 'purchases', decline: 'declines', short: 'short', over: 'over', hint: 'hints' } as const)[e]
-        return { merchant: { ...m, [key]: m[key] + 1 } }
-      }),
-      setMerchantFlag: (k) => set((s) => ({ merchant: { ...FRESH_MERCHANT, ...s.merchant, [k]: true } })),
-      merchantPaid: (exactNoHint, hinted = false) => set((s) => {
-        const m = { ...FRESH_MERCHANT, ...s.merchant }
-        let { level, cleanRow, hintRow } = m
-        cleanRow = exactNoHint ? cleanRow + 1 : 0
-        hintRow = hinted ? hintRow + 1 : 0
-        if (cleanRow >= LEVEL_UP_ROW) { level = Math.min(LEVEL_MAX, level + 1); cleanRow = 0 }
-        if (hintRow >= LEVEL_DOWN_ROW) { level = Math.max(0, level - 1); hintRow = 0 }
-        return { merchant: { ...m, level, cleanRow, hintRow } }
-      }),
-      noteCheckpoint: (visited) => set((s) => ({ checkpointsSinceVisit: visited ? 0 : Math.min(NEVER_VISITED, (s.checkpointsSinceVisit ?? NEVER_VISITED) + 1) })),
-      noteTowerVisit: () => set((s) => ({ towerVisits: (s.towerVisits ?? 0) + 1 })),
-      setTowerWave: (wave) => set({ towerWave: Math.max(1, wave) }),
-      oweMonsters: (ids) => set((s) => ({ towerOwed: [...new Set([...(s.towerOwed ?? []), ...ids])] })),
-      monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
-      noteTowerAnswer: (right) => set((s) => ({ towerTail: pushTowerTail(s.towerTail, right) })),
-      openBook: () => set({ bookOpen: true }),
-      nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
-      noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
-      importFirstDuel: (duel) => set((s) => {
-        if (s.firstDuelImported) return s
-        const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
-        const mastered = towerMastered(duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))
-        return {
-          totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
-          bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,
-        }
-      }),
-      resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
-    }),
+    duel2State,
     {
       name: 'alef-duel2', version: SAVE_VERSION, storage: createJSONStorage(() => localStorage),
       // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
       // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
       // state over it.
-      migrate: (state, version) => migrateSave(state, version) as Duel2Save & Actions,
+      migrate: (state, version) => migrateSave(state, version) as Duel2Save & Duel2Actions,
     },
   ),
 )

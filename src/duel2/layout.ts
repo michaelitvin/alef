@@ -3,6 +3,9 @@
 // no button, count or heart in the bar can cover the game at any screen size. The background still fills the screen.
 import type { CSSProperties } from 'react'
 
+/** going through a door: the camera's zoom into the doorway (Doors), which the run waits out before the next door */
+export const ZOOM_MS = 1300
+
 /** the band's distance from the screen's top edge (more under a notch: env(safe-area-inset-top)) */
 export const BAR_TOP_PX = 8
 /** the band's height: every item in the bar fits in it */

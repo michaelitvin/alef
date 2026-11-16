@@ -11,6 +11,7 @@ import { Glyph, canvasMeasurer } from '../Glyph'
 import { Plate } from '../Orb'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Stage, type Phase } from './Stage'
+import { ZOOM_MS } from '../../layout'
 
 export const DOOR_GLYPH_PX = 110
 /** the room for the word inside the plate's frame (stage units) */
@@ -48,7 +49,6 @@ const NEXT_TOP = DOOR_BOX.top + GAP.y1 * DH - 10 - NEXT_SCALE * DH
 /** the camera moves toward the middle of the doorway */
 const ZOOM_C = { x: 800, y: DOOR_BOX.top + ((GAP.y0 + GAP.y1) / 2) * DH }
 const ZOOM_K = 2.6
-export const ZOOM_MS = 1300
 const easeIn = (u: number) => u * u * (3 - 2 * u) * (0.4 + 0.6 * u)
 const smooth = (a: number, b: number, u: number) => { const x = Math.min(1, Math.max(0, (u - a) / (b - a))); return x * x * (3 - 2 * x) }
 

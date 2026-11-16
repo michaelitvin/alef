@@ -5,7 +5,7 @@ import type { Choice } from '../logic/rounds'
 import type { Word } from '../data/words'
 import { Glyph, GlyphDefs } from '../components/Glyph'
 import { MarkAlone } from '../components/MarkAlone'
-import type { Highlight } from '../components/ExplainPanel'
+import type { Highlight } from '../viewTypes'
 
 // an explanation hides the top bar and dims the screen under it, so its frame takes the whole screen (larger glyphs on a
 // phone on its side); its go-on and replay buttons are at the bottom, clear of the glyphs

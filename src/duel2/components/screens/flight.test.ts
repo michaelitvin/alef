@@ -2,7 +2,7 @@
 // the wizard 1.5×, "pay attention so orbs don't overlap each other"): the view, where the orbs start, and that no two
 // orbs ever overlap — not in one wave (the lanes) and not between waves (their spacing), at every pace, bosses too.
 import { describe, expect, it } from 'vitest'
-import { BOSS_BOX, BROOM_ORB, BROOM_WIZARD_H, HP, LANE_Y, ORB_FRONT, flightPath, orbX, wizardBox } from './Broom'
+import { BOSS_BOX, BROOM_ORB, BROOM_WIZARD_H, HP, LANE_Y, ORB_FRONT, flightPath, orbX, wizardBox } from '../../broomLayout'
 import { CATCH_AT, ORB_JITTER, PASS_AT, PACE_MAX, PACE_MIN, POPCORN, WAVE_EVERY, travelMs, wavePos } from '../../logic/run'
 import { BOSS_SLOW } from '../../logic/boss'
 import { STAGE_CONTENT_TOP, stageBox } from '../../layout'

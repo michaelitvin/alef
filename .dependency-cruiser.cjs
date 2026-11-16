@@ -48,7 +48,7 @@ module.exports = {
       name: 'duel2-into-first-duel-only-through-its-surface',
       severity: 'error',
       comment:
-        'Book 2 reaches the first duel only through its public surface. progressStore stays until Task 18 takes it out of the controller. ' +
+        'Book 2 reaches the first duel only through its public surface. progressStore: Duel2App, main and the parent part read it; the run reads it only through savePort.ts. ' +
         'components/home/StationPath is a known exception (Book 2 shows the home path wizard).',
       from: { path: '^src/duel2/', pathNot: TEST },
       to: {
@@ -65,6 +65,15 @@ module.exports = {
           '^src/components/home/StationPath\\.tsx$', // known exception: used by Book 2's home-path screen
         ],
       },
+    },
+    {
+      name: 'run-controller-imports-no-view',
+      severity: 'error',
+      comment:
+        'Book 2\'s run (controller.ts) imports no view (components/, screens/) and not the lessons\' store (src/stores): shared types are in viewTypes.ts, ' +
+        'layout numbers in layout.ts and broomLayout.ts, and the saves go through savePort.ts.',
+      from: { path: '^src/duel2/controller\\.ts$' },
+      to: { path: ['^src/duel2/(components|screens)/', '^src/stores/'] },
     },
     {
       name: 'parent-area-reads-games-only-through-their-parent-index',

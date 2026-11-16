@@ -15,13 +15,14 @@ import {
 } from './logic/run'
 import { WORDS, wordLinkFor, type Word } from './data/words'
 import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
-import { ZOOM_MS } from './components/screens/Doors'
+import { ZOOM_MS } from './layout'
 import { lineAudioId, lineById } from './data/lines'
 import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
-import { useDuel2Store } from './store'
+import { readOnlySavePort, storeSavePort, type SavePort } from './savePort'
+import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_HITS, BOSS_SLOW, bossTarget, bossWave, chooseBoss, isBossVisit, type BossKind } from './logic/boss'
 import { duel2Telemetry } from './telemetry'
-import type { Highlight } from './components/ExplainPanel'
+import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
@@ -31,7 +32,6 @@ import { NEVER_VISITED } from './store'
 import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { skippedMonsters } from '../utils/duel/rules'
-import { useProgressStore } from '../stores/progressStore'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }
@@ -184,6 +184,10 @@ export interface RunOpts {
   session?: { screen: ScreenId }
   rng?: Rng
   now?: () => number
+  /** the time the run waits on (default: the window's timers); `now` defaults to its clock */
+  sleeper?: Sleeper
+  /** the saves the run reads and writes (default: the real saves; in the gallery, `sandbox`, they are only read) */
+  save?: SavePort
 }
 
 class Aborted extends Error {}
@@ -252,6 +256,8 @@ export class RunController {
   private token = 0
   private rng: Rng
   private now: () => number
+  private time: Sleeper
+  private save: SavePort
   private pausedAt: number | null = null
   private pausedTotal = 0
   private hearts: Hearts = heartsAtRunStart()
@@ -273,7 +279,8 @@ export class RunController {
   private fxId = 0
   private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
   private doorWords: Word[] = []
-  private broomTimer: number | undefined
+  /** stops the broom's tick */
+  private broomStop: Cancel | undefined
   private waveId = 0
   private running = false
   private resuming = false
@@ -350,8 +357,10 @@ export class RunController {
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
-    this.now = opts.now ?? (() => performance.now())
-    this.stage = opts.force?.stage ?? useDuel2Store.getState().stage.stage
+    this.time = opts.sleeper ?? realSleeper
+    this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(storeSavePort) : storeSavePort)
+    this.now = opts.now ?? (() => this.time.now())
+    this.stage = opts.force?.stage ?? this.save.read().stage.stage
   }
 
   // ---- React bridge
@@ -463,7 +472,7 @@ export class RunController {
   start() {
     if (this.running) return
     this.running = true
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     this.startStars = st.totalStars ?? 0
     // the hearts last the whole run (spec: one duel, Part 1)
     this.hearts = heartsAtRunStart()
@@ -537,9 +546,9 @@ export class RunController {
   }
 
   /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
-  private drawOn() { return !!useDuel2Store.getState().settings.drawing }
+  private drawOn() { return !!this.save.read().settings.drawing }
   /** Book 2's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
-  private bookOpen() { return !!this.opts.force || useDuel2Store.getState().bookOpen !== false }
+  private bookOpen() { return !!this.opts.force || this.save.read().bookOpen !== false }
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
@@ -547,7 +556,7 @@ export class RunController {
   private guard<T>(t: number, p: Promise<T>): Promise<T> {
     return p.then((v) => { if (t !== this.token) throw new Aborted(); return v })
   }
-  private sleep(t: number, ms: number) { return this.guard(t, new Promise<void>((r) => window.setTimeout(r, ms))) }
+  private sleep(t: number, ms: number) { return this.guard(t, this.time.sleep(ms)) }
   private say(t: number, parts: { id: string; onStart?: () => void }[]) {
     for (const p of parts) this.assets.push(p.id)
     return this.guard(t, sayParts(parts))
@@ -567,7 +576,7 @@ export class RunController {
   private sfx(name: Duel2Sfx) { void playSfx(name) }
   private cueId(c: Choice) { return c.soundId }
   private ctx(): RoundCtx {
-    const s = useDuel2Store.getState()
+    const s = this.save.read()
     return { rng: this.rng, stage: this.stage, tallies: s.tallies, recent: s.recent, confusions: { letters: s.confusions.letters, syllables: s.confusions.syllables } }
   }
   private currentTarget(): Choice | null {
@@ -626,7 +635,7 @@ export class RunController {
         if (nx.newCycle) {
           this.passDue = this.passFull && this.bookOpen()
           this.passFull = true
-          if (!this.opts.sandbox) useDuel2Store.getState().nextCycle()
+          this.save.nextCycle()
         }
         this.screenId = nx.screen
         this.roundInScreen = 0
@@ -651,8 +660,8 @@ export class RunController {
     const open = this.bookOpen()
     let nx = nextScreen(this.stage, from, this.drawOn(), open)
     const len = cycleOf(this.stage, this.drawOn(), open).length
-    const st = useDuel2Store.getState()
-    const duelRecent = useProgressStore.getState().duel?.recent ?? {}
+    const st = this.save.read()
+    const duelRecent = this.save.firstDuelRecent()
     for (let k = 0; k < len && !this.opts.session; k++) {
       // a new cycle starts at the tower, which is never skipped
       if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, st.recent, duelRecent), st.cycleNo ?? 0, len)) break
@@ -674,10 +683,10 @@ export class RunController {
     if (this.opts.force) return full
     // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
     if (screen === 'tower' && !this.bookOpen()) return full
-    const r = screenRecent(screen, useDuel2Store.getState().recent, useProgressStore.getState().duel?.recent ?? {})
+    const r = screenRecent(screen, this.save.read().recent, this.save.firstDuelRecent())
     // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
     // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake
-    const tail = useDuel2Store.getState().towerTail ?? ''
+    const tail = this.save.read().towerTail ?? ''
     const scale = screen !== 'tower' ? visitScale(r) : tail.length >= SHORT_AFTER ? visitScale(tail) : r.length >= SHORT_AFTER && !r.includes('x') ? 0.5 : 1
     if (scale === 1) return full
     return Math.max(screen === 'tower' ? 1 : 2, Math.round(full * scale))
@@ -711,7 +720,7 @@ export class RunController {
       if (!adventure || !this.bookOpen()) { this.checkpointDue = false; return }
       // the next screen's boss is decided here, once (runScreen does not decide again): he always comes before a boss
       if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
-      const st = useDuel2Store.getState()
+      const st = this.save.read()
       const range = st.settings.range ?? 100
       const price = priceAt(this.purchasesThisRun, range)
       // the checkpoints since his last visit, this one included (the save counts the ones passed without him): with 2
@@ -721,12 +730,12 @@ export class RunController {
         adventure, hearts: this.hearts.left, coins: st.coins ?? 0, price, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
         bossNext: this.screenId === 'tower' ? this.towerBossNext() : !!this.visitBoss,
       })
-      if (!this.opts.sandbox) st.noteCheckpoint(due)
+      this.save.noteCheckpoint(due)
       if (!due) { this.checkpointDue = false; return }
       // the composition is made once, at his arrival (never during a visit)
       this.newMerchantVisit(price, composeCoins(st.coins ?? 0, price, range, st.merchant?.level ?? 0, this.rng))
       const coins = this.visit!.coins
-      if (!this.opts.sandbox) st.noteMerchant('visit')
+      this.save.noteMerchant('visit')
       this.track('merchant-arrive', { price, coins: st.coins ?? 0, hearts: this.hearts.left, composition: coins })
     }
     await this.runVisit(t)
@@ -752,9 +761,9 @@ export class RunController {
     const GALLERY_COINS = 40
     if (!this.visit) {
       this.hearts = { left: 1, nearMissUsed: false }
-      const range = useDuel2Store.getState().settings.range ?? 100
+      const range = this.save.read().settings.range ?? 100
       const price = priceAt(0, range)
-      this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, useDuel2Store.getState().merchant?.level ?? 0, this.rng))
+      this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, this.save.read().merchant?.level ?? 0, this.rng))
     }
     this.set({ hearts: this.hearts.left, coins: GALLERY_COINS - (this.visit!.bought ? this.visit!.price : 0) })
     await this.runVisit(t)
@@ -779,16 +788,16 @@ export class RunController {
     const v = this.visit!
     v.lastTouch = Math.max(v.lastTouch, this.now())
     // no tap for MERCHANT_IDLE_MS: he asks once more, once per visit (coins given meanwhile count as taps)
-    let timer: number | undefined
+    let cancel: Cancel | undefined
     const arm = (ms: number) => {
-      timer = window.setTimeout(() => {
+      cancel = this.time.after(ms, () => {
         if (t !== this.token || this.view.paused || this.view.merchant?.phase !== 'pay' || v.idleSaid) return
         const idle = this.now() - v.lastTouch
         if (idle < MERCHANT_IDLE_MS) { arm(MERCHANT_IDLE_MS - idle); return }
         v.idleSaid = true
         this.track('merchant-idle', {})
         void sayParts([{ id: this.mLine('m-again') }])
-      }, ms)
+      })
     }
     if (!v.idleSaid) arm(MERCHANT_IDLE_MS - (this.now() - v.lastTouch))
     try {
@@ -798,19 +807,19 @@ export class RunController {
       return g
     } finally {
       this.mWaiter = null
-      window.clearTimeout(timer)
+      cancel?.()
     }
   }
 
   /** he knows the merchant: he has bought a potion from him before (a persisted count; the gallery: never) */
   private knowsMerchant() {
-    return !this.opts.force && (useDuel2Store.getState().merchant?.purchases ?? 0) > 0
+    return !this.opts.force && (this.save.read().merchant?.purchases ?? 0) > 0
   }
 
   /** the first-visit demo: on his first visit ever (the gallery: when it asks for the demo) */
   private merchantDemoDue() {
     if (this.opts.force) return !!this.opts.force.demo
-    return !useDuel2Store.getState().merchant?.demoSeen
+    return !this.save.read().merchant?.demoSeen
   }
 
   /**
@@ -823,7 +832,7 @@ export class RunController {
     this.track('merchant-demo', {})
     await this.walkthrough(t, false)
     this.mv({ demo: undefined, glow: undefined })
-    if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('demoSeen')
+    this.save.setMerchantFlag('demoSeen')
   }
 
   /**
@@ -865,7 +874,7 @@ export class RunController {
     v.lastTouch = this.now()
     this.wrongInRow = 0
     this.set({ hintGlow: false, hintAvailable: false })
-    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('hint')
+    this.save.noteMerchant('hint')
     this.track('merchant-help', { undo: this.undoShown(), given: v.given.length })
     stopVoice()
     try {
@@ -898,7 +907,7 @@ export class RunController {
     if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && !mv.demo.help && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
       v.declined = true
       this.track('merchant-decline', { phase: mv.phase })
-      if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant('decline')
+      this.save.noteMerchant('decline')
       stopVoice()
       v.declineNow()
       return
@@ -1001,7 +1010,7 @@ export class RunController {
     // wrong tries cost nothing; the coins stay in his hand
     v.wrongTries++
     this.wrongInRow++
-    if (!this.opts.sandbox) useDuel2Store.getState().noteMerchant(vd)
+    this.save.noteMerchant(vd)
     // two wrong tries in a row: the hint button (?) glows (it does not open by itself)
     if (this.wrongInRow >= 2) this.set({ hintGlow: true })
     await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
@@ -1015,25 +1024,23 @@ export class RunController {
       this.mv({ given: [...v.given] })
       await this.vsay(t, [{ id: this.mLine('m-undo') }])
       this.mv({ demo: undefined })
-      if (!this.opts.sandbox) useDuel2Store.getState().setMerchantFlag('undoShown')
-      else this.sandboxUndoShown = true
+      this.save.setMerchantFlag('undoShown')
+      this.undoShownHere = true
     }
     return vd
   }
 
-  private sandboxUndoShown = false
-  private undoShown() { return this.opts.sandbox ? this.sandboxUndoShown : !!useDuel2Store.getState().merchant?.undoShown }
+  /** the undo was shown in this run (the gallery's save is read-only, so it remembers it here) */
+  private undoShownHere = false
+  private undoShown() { return this.undoShownHere || !!this.save.read().merchant?.undoShown }
 
   /** The exact price: the coins are spent, the potion flies to the wizard and a heart to the top bar. */
   private async buy(t: number) {
     const v = this.visit!
     v.bought = true
-    const st = useDuel2Store.getState()
-    if (!this.opts.sandbox) {
-      st.spendCoins(v.price)
-      st.noteMerchant('purchase')
-      st.merchantPaid(v.wrongTries === 0 && !v.hinted, v.hinted)
-    }
+    this.save.spendCoins(v.price)
+    this.save.noteMerchant('purchase')
+    this.save.merchantPaid(v.wrongTries === 0 && !v.hinted, v.hinted)
     this.purchasesThisRun++
     this.wrongInRow = 0
     this.set({ hintGlow: false })
@@ -1073,7 +1080,7 @@ export class RunController {
   /** every third tower visit is a boss visit (the run's boss rhythm); the gallery forces it */
   private towerBossNext(): boolean {
     if (this.opts.force) return !!this.opts.force.towerBoss
-    return (useDuel2Store.getState().towerVisits ?? 0) % 3 === 2
+    return (this.save.read().towerVisits ?? 0) % 3 === 2
   }
 
   /**
@@ -1081,17 +1088,15 @@ export class RunController {
    * next multiple of 5). Its answers come in through towerAnswer; the visit ends with towerDone. A pause keeps the visit.
    */
   private async runTower(t: number) {
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     if (!this.tower) {
       const boss = this.towerBossNext()
       const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
       const wave = boss ? Math.ceil(from / 5) * 5 : from
-      if (!this.opts.sandbox) {
-        st.noteTowerVisit()
-        // the boss's wave jumps over the waves from `from`: the new monsters of those waves are introduced later, the
-        // first time each of them appears
-        if (boss && wave > from) st.oweMonsters(skippedMonsters(from, wave))
-      }
+      this.save.noteTowerVisit()
+      // the boss's wave jumps over the waves from `from`: the new monsters of those waves are introduced later, the
+      // first time each of them appears
+      if (boss && wave > from) this.save.oweMonsters(skippedMonsters(from, wave))
       this.tower = { wave, waves: this.visitLen || VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
       this.track('tower-start', { wave, boss, waves: this.tower.waves })
     }
@@ -1105,14 +1110,14 @@ export class RunController {
     this.towerWaiter = null
     // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
     if (this.ending) { await this.endRun(); throw new Aborted() }
-    if (!this.opts.sandbox) st.setTowerWave(last + 1)
+    this.save.setTowerWave(last + 1)
     if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
     if (tw.boss) {
       // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
       this.set({ phase: 'celebrate' })
       while (tw.coins < BOSS_COINS) {
         tw.coins++
-        if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
+        this.save.addCoins(1)
         this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
         this.sfx('lock')
         await this.sleep(t, COIN_POP_MS)
@@ -1122,8 +1127,8 @@ export class RunController {
     // knows them (the fast lane): Book 2's minigames open (once). A pass in the middle of a visit ended it at that wave.
     const lane = this.stage0Passed()
     if (lane) {
-      useDuel2Store.getState().openBook()
-      this.track('book-open', { stars: useDuel2Store.getState().totalStars, towerWave: last + 1, lane })
+      this.save.openBook()
+      this.track('book-open', { stars: this.save.read().totalStars, towerWave: last + 1, lane })
       await this.celebrate(t, 'streak')
     }
   }
@@ -1131,7 +1136,7 @@ export class RunController {
   /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
   private stage0Passed(): 'fast' | 'slow' | null {
     if (this.opts.sandbox || this.bookOpen()) return null
-    return stage0Lane(useProgressStore.getState().duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id), useDuel2Store.getState().towerTail ?? '')
+    return stage0Lane(this.save.firstDuelRecent(), DUEL_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
   }
 
   /**
@@ -1150,7 +1155,7 @@ export class RunController {
     if (this.ending) return 'over'
     if (this.view.screen?.screen !== 'tower') return 'on'
     this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
-    if (!this.opts.sandbox) useDuel2Store.getState().noteTowerAnswer(r === 'right')
+    this.save.noteTowerAnswer(r === 'right')
     if (r === 'right') {
       this.streak++
       this.gainStar()
@@ -1196,11 +1201,11 @@ export class RunController {
   /** Every second broom visit of a run is a boss visit (never the first); the gallery forces its kind. */
   private decideBoss(): BossKind | null {
     if (this.opts.force) return this.opts.force.boss ?? null
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     if (this.opts.session) {
       // every second broom session is a boss fight (the run's rhythm: every second broom visit)
       const n = st.broomSessions ?? 0
-      if (!this.opts.sandbox) st.noteBroomSession()
+      this.save.noteBroomSession()
       if (n % 2 !== 1) return null
     } else {
       this.broomVisits++
@@ -1210,7 +1215,7 @@ export class RunController {
       stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
       beaten: st.bossesBeaten ?? [], last: st.lastBoss ?? null, rng: this.rng,
     })
-    if (kind && !this.opts.sandbox) st.setLastBoss(kind)
+    if (kind) this.save.setLastBoss(kind)
     return kind
   }
 
@@ -1223,7 +1228,7 @@ export class RunController {
     if (this.visitBoss) this.visitKind = 'syllable'
     this.set({ hearts: this.hearts.left, overlay: null, needNext: false })
     const kind = (this.visitKind ??= this.kindFor(screen))
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
       while (this.roundInScreen < this.visitLen) await this.runDrawRound(t, screen)
@@ -1236,7 +1241,8 @@ export class RunController {
       this.prepareView(screen, kind)
       this.demoRound = screen !== 'broom'
       this.set({ phase: 'demo', overlay: { kind: 'demo', line: lineAudioId(demo, 1), demo } })
-      if (!this.opts.sandbox) { st.markDemo(demo); duel2Telemetry.track('demo', { demo }) }
+      this.save.markDemo(demo)
+      this.track('demo', { demo })
       await this.waitNext(t)
       this.set({ overlay: null })
     }
@@ -1273,7 +1279,7 @@ export class RunController {
     if (screen === 'broom') {
       // a new boss never starts with the sound the flight before ended on
       const target = this.boss ? bossTarget(c, this.boss.kind, prev) : broomTarget(c, kind)
-      this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(useDuel2Store.getState().pace), lane: 1, target } })
+      this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(this.save.read().pace), lane: 1, target } })
       return target
     }
     if (screen === 'cauldron') {
@@ -1296,7 +1302,7 @@ export class RunController {
     // doors
     if (!this.doorWords.length) {
       const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(this.stage, 3)))
-      const scored = pool.map((w) => ({ w, p: predict([`w:${w.id}`], useDuel2Store.getState().tallies, useDuel2Store.getState().recent) }))
+      const scored = pool.map((w) => ({ w, p: predict([`w:${w.id}`], this.save.read().tallies, this.save.read().recent) }))
       this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, this.visitLen).map((x) => x.w)
     }
     const word = this.doorWords[this.roundInScreen % this.doorWords.length]
@@ -1304,7 +1310,7 @@ export class RunController {
     const keys = [word, ...others].sort(() => this.rng() - 0.5)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
     const behind = this.roundInScreen === this.visitLen - 1 && !this.opts.session
-      ? { crystal: useDuel2Store.getState().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
+      ? { crystal: this.save.read().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
     this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
     return word
   }
@@ -1312,15 +1318,15 @@ export class RunController {
   private needsDotIntro(target: Choice | Word): string | null {
     if (!('itemId' in target)) return null
     // the gallery's dot-intro entry shows the introduction every round
-    const seen = this.opts.force?.screen === 'dot' ? [] : useDuel2Store.getState().dotIntrosSeen
+    const seen = this.opts.force?.screen === 'dot' ? [] : this.save.read().dotIntrosSeen
     return dotIntroFor(target.itemId, this.stage, seen)
   }
 
   private async dotIntro(t: number, hard: string) {
     // the words only on his very first introduction (the parent: later they are understood from the screen)
-    const d = dotIntroParts(hard, useDuel2Store.getState().dotIntrosSeen.length === 0)
+    const d = dotIntroParts(hard, this.save.read().dotIntrosSeen.length === 0)
     this.set({ phase: 'explain', overlay: { kind: 'dot', parts: d.parts, soft: d.right, hard: d.left } })
-    if (!this.opts.sandbox) useDuel2Store.getState().markDotIntro(hard)
+    this.save.markDotIntro(hard)
     await this.waitNext(t)
     this.set({ overlay: null })
   }
@@ -1378,15 +1384,15 @@ export class RunController {
     let waiting = true
     let spoke = false
     const live = () => waiting && t === this.token && !this.view.paused && this.view.phase === 'answer'
-    const t1 = window.setTimeout(() => {
+    const idle = this.time.after(IDLE_MS, () => {
       if (!live()) return
       spoke = true
       this.track('idle', { screen, target: c?.id ?? null })
       void sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
-    }, IDLE_MS)
-    const t2 = window.setTimeout(() => {
+    })
+    const hint = this.time.after(IDLE_HINT_MS, () => {
       if (live() && c) { spoke = true; void this.playHint(c, true, t).catch(() => {}) }
-    }, IDLE_HINT_MS)
+    })
     try {
       const id = await pick
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
@@ -1394,8 +1400,8 @@ export class RunController {
       return id
     } finally {
       waiting = false
-      window.clearTimeout(t1)
-      window.clearTimeout(t2)
+      idle()
+      hint()
     }
   }
 
@@ -1429,15 +1435,13 @@ export class RunController {
     if (result !== 'near' && screen !== 'broom') this.answered = true
     const feats = 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : sylFeatures(target as Choice, screen)
     const ms = Math.round(this.now() - this.cueStarted)
-    if (!this.opts.sandbox) {
-      const asked = 'soundId' in target ? (target as Choice) : undefined
-      const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-      const newStage = asked ? isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
-      const { passed } = useDuel2Store.getState().recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
-      if (passed) {
-        this.stage = useDuel2Store.getState().stage.stage
-        duel2Telemetry.track('stage', { stage: this.stage })
-      }
+    const asked = 'soundId' in target ? (target as Choice) : undefined
+    const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
+    const newStage = asked ? isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
+    const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
+    if (passed) {
+      this.stage = this.save.read().stage.stage
+      this.track('stage', { stage: this.stage })
     }
     duel2Telemetry.track('answer', {
       screen, stage: this.stage, target: 'id' in target ? target.id : '', tapped: tapped && 'id' in tapped ? tapped.id : null, result, ms,
@@ -1467,7 +1471,7 @@ export class RunController {
       this.streak++
       this.gainStar()
       this.set({ phase: 'feedback' })
-      const confident = predict(sylFeatures(c, screen), useDuel2Store.getState().tallies, useDuel2Store.getState().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
+      const confident = predict(sylFeatures(c, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
       if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
@@ -1576,7 +1580,7 @@ export class RunController {
 
   private explanationDue(screen: ScreenId, c: Choice): boolean {
     if (c.kind !== 'syllable') return false
-    const s = useDuel2Store.getState()
+    const s = this.save.read()
     const lf = `l:${c.itemId}`
     const recent = s.mistakes.filter((m) => m.round > s.roundNo - 8 && m.features.includes(lf)).length
     void screen
@@ -1617,8 +1621,8 @@ export class RunController {
 
   /** The praise words only the first PRAISE_SPOKEN times of each kind; after that its sound is enough (Michael: "he knows it"). */
   private praiseLine(kind: 'streak' | 'ladder-top' | 'crystal' | 'boss-win', note = true): string | null {
-    if ((useDuel2Store.getState().praiseHeard?.[kind] ?? 0) >= PRAISE_SPOKEN) return null
-    if (note && !this.opts.sandbox) useDuel2Store.getState().notePraise(kind)
+    if ((this.save.read().praiseHeard?.[kind] ?? 0) >= PRAISE_SPOKEN) return null
+    if (note) this.save.notePraise(kind)
     return this.variation(kind)
   }
 
@@ -1627,16 +1631,18 @@ export class RunController {
     if (!this.crystalOwed) return
     this.crystalOwed = false
     this.crystalsThisRun++
-    if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind: useDuel2Store.getState().crystals, owed: true }) }
+    this.save.addCrystal()
+    this.track('crystal', { kind: this.save.read().crystals, owed: true })
   }
 
   private async runCrystal(t: number) {
     if (!this.crystalAwarded) {
       this.crystalAwarded = true
       this.crystalsThisRun++
-      if (!this.opts.sandbox) { useDuel2Store.getState().addCrystal(); duel2Telemetry.track('crystal', { kind: useDuel2Store.getState().crystals }) }
+      this.save.addCrystal()
+      this.track('crystal', { kind: this.save.read().crystals })
     }
-    const kind = useDuel2Store.getState().crystals
+    const kind = this.save.read().crystals
     this.set({ screen: { screen: 'crystal', kind }, overlay: null })
     await this.celebrate(t, 'crystal')
     await this.sleep(t, 1200)
@@ -1650,22 +1656,20 @@ export class RunController {
     this.ending = true
     this.stopBroom()
     stopMusic()
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     const best = this.score > st.bestRun
     this.payOwedCrystal()
-    if (!this.opts.sandbox) {
-      st.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
-      duel2Telemetry.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
-    }
+    this.save.endRun(this.screenId === 'crystal' ? 'doors' : this.screenId, this.score)
+    this.track('run-end', { screen: this.screenId, score: this.score, crystals: this.crystalsThisRun })
     if (cue) await sayParts([{ id: cue }])
     this.set({ defeat: true, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false, fixing: false })
     this.sfx('hit')
     this.track('defeat', { screen: this.screenId })
     await Promise.all([
-      new Promise<void>((r) => window.setTimeout(r, DEFEAT_MS)),
-      new Promise<void>((r) => window.setTimeout(r, SFX_RING_MS)).then(() => sayParts([{ id: this.variation('defeat') }])),
+      this.time.sleep(DEFEAT_MS),
+      this.time.sleep(SFX_RING_MS).then(() => sayParts([{ id: this.variation('defeat') }])),
     ])
-    await new Promise<void>((r) => window.setTimeout(r, 300))
+    await this.time.sleep(300)
     this.token++
     this.set({ over: { score: this.score, crystals: this.crystalsThisRun, best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'
@@ -1686,7 +1690,7 @@ export class RunController {
     }
     this.resuming = false
     this.answered = false
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     this.drawPlan ??= drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
     const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
     const split = splitWord(word, script)
@@ -1717,7 +1721,7 @@ export class RunController {
     return this.guard(t, new Promise<Pt[] | null>((r) => {
       const w = (pts: Pt[]) => r(pts)
       this.strokeWaiter = w
-      if (settleMs !== undefined) window.setTimeout(() => { if (this.strokeWaiter === w) { this.strokeWaiter = null; r(null) } }, settleMs)
+      if (settleMs !== undefined) this.time.after(settleMs, () => { if (this.strokeWaiter === w) { this.strokeWaiter = null; r(null) } })
     }))
   }
 
@@ -1739,10 +1743,10 @@ export class RunController {
     const id = ++this.demoNo
     this.setScreen({ demo: { id, strokes, hint: true } } as Partial<DrawView>)
     const t = this.token
-    window.setTimeout(() => {
+    this.time.after(strokeTiming(strokes).total, () => {
       const v = this.view.screen
       if (t === this.token && v?.screen === 'draw' && v.demo?.id === id) this.setScreen({ demo: undefined } as Partial<DrawView>)
-    }, strokeTiming(strokes).total)
+    })
   }
 
   /** Waits for his next stroke; the instruction and the word after IDLE_MS, the hint after IDLE_HINT_MS (rule). */
@@ -1751,21 +1755,21 @@ export class RunController {
     let waiting = true
     let spoke = false
     const live = () => waiting && t === this.token && !this.view.paused && this.view.phase === 'answer'
-    const t1 = window.setTimeout(() => {
+    const idle = this.time.after(IDLE_MS, () => {
       if (!live()) return
       spoke = true
       this.track('idle', { screen: 'draw', target: v.word.id })
       void sayParts(this.dv().mode === 'mark' ? [{ id: lineAudioId('draw-mark', 1) }] : [{ id: this.variation('q-draw') }, { id: `w-${v.word.id}` }])
-    }, IDLE_MS)
-    const t2 = window.setTimeout(() => { if (live()) { spoke = true; this.drawHint(true) } }, IDLE_HINT_MS)
+    })
+    const hint = this.time.after(IDLE_HINT_MS, () => { if (live()) { spoke = true; this.drawHint(true) } })
     try {
       const pts = await this.waitStroke(t, settleMs)
       if (spoke && pts) stopVoice()
       return pts
     } finally {
       waiting = false
-      window.clearTimeout(t1)
-      window.clearTimeout(t2)
+      idle()
+      hint()
     }
   }
 
@@ -1778,7 +1782,7 @@ export class RunController {
     const v0 = this.buildDraw(this.opts.force?.script ?? scriptOf(screen))
     const { letter, script, word } = v0
     const def = strokesOf(letter, script)
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo)
     const firstVisit = screen === 'draw' && (this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw'))
     const checker = new LetterChecker(def)
@@ -1790,7 +1794,8 @@ export class RunController {
     await this.say(t, [{ id: `w-${word.id}` }])
     if (firstVisit) {
       this.demoShown = true
-      if (!this.opts.sandbox) { st.markDemo('demo-draw'); duel2Telemetry.track('demo', { demo: 'demo-draw' }) }
+      this.save.markDemo('demo-draw')
+      this.track('demo', { demo: 'demo-draw' })
       this.set({ phase: 'demo' })
       await this.handDraw(t, checker.remaining(), lineAudioId('demo-draw', 1))
     } else if (needsDemo(letter, script, st.tallies, st.recent)) {
@@ -1865,10 +1870,8 @@ export class RunController {
     this.streak++
     this.gainStar()
     const clean = wrongStrokes === 0 && !helped && !markWrong
-    if (!this.opts.sandbox) {
-      useDuel2Store.getState().recordAnswer({ features: [drawFeature(letter, script), `sc:${screen}`], miss: !clean, newStage: false })
-      useDuel2Store.getState().noteDrawRound()
-    }
+    this.save.recordAnswer({ features: [drawFeature(letter, script), `sc:${screen}`], miss: !clean, newStage: false })
+    this.save.noteDrawRound()
     this.track('draw-done', { letter, script, word: word.id, ms: Math.round(this.now() - started), wrongStrokes, helped })
     await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: `w-${word.id}` }])
@@ -1919,8 +1922,8 @@ export class RunController {
 
   // ---- the broom flight
   private stopBroom() {
-    window.clearInterval(this.broomTimer)
-    this.broomTimer = undefined
+    this.broomStop?.()
+    this.broomStop = undefined
   }
 
   /**
@@ -1954,8 +1957,8 @@ export class RunController {
       await this.say(t, [{ id: this.cueId(target) }])
     }
     this.set({ phase: 'answer' })
-    const travel = travelMs(useDuel2Store.getState().pace) * (this.boss ? BOSS_SLOW : 1)
-    this.track('flight', { kind, travelMs: Math.round(travel), pace: useDuel2Store.getState().pace, boss: this.boss?.kind ?? null })
+    const travel = travelMs(this.save.read().pace) * (this.boss ? BOSS_SLOW : 1)
+    this.track('flight', { kind, travelMs: Math.round(travel), pace: this.save.read().pace, boss: this.boss?.kind ?? null })
     let spawned = 0
     let catches = 0
     let newTargetDue = false
@@ -1989,7 +1992,7 @@ export class RunController {
       nextSpawnAt = now + travel * WAVE_EVERY
     }
     const result = await this.guard(t, new Promise<'done' | 'over' | 'won'>((resolve, reject) => {
-      this.broomTimer = window.setInterval(() => {
+      this.broomStop = this.time.every(50, () => {
         if (t !== this.token) { this.stopBroom(); reject(new Aborted()); return }
         const now = this.broomClock()
         const cur = this.view.screen as BroomView
@@ -2044,7 +2047,7 @@ export class RunController {
         // the visit ends when all its orbs have arrived (Michael: "let me finish"); the screen's waves, not `waves`: a wave
         // spawned in this tick (the last one, after a new sound) is only there
         if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open((this.view.screen as BroomView).waves)) { this.stopBroom(); resolve('done') }
-      }, 50)
+      })
     }))
     if (result === 'over') { await this.endRun(this.cueId(target)); throw new Aborted() }
     this.stopBroom()
@@ -2090,10 +2093,10 @@ export class RunController {
     this.sfx('spell')
     this.track('boss-hit', { kind: b.kind, left: b.hitsLeft })
     if (b.hitsLeft === 0) return 'won'
-    window.setTimeout(() => {
+    this.time.after(BOSS_HIT_MS, () => {
       const s = this.view.screen
       if (t === this.token && s?.screen === 'broom' && s.boss?.bolt?.id === bolt.id && !s.boss.won) this.setScreen({ boss: { ...s.boss, pose: 'fly' } } as Partial<BroomView>)
-    }, BOSS_HIT_MS)
+    })
     return 'on'
   }
 
@@ -2104,12 +2107,12 @@ export class RunController {
    */
   private async bossWin(t: number) {
     const b = this.boss!
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     if (!b.won) {
       b.won = true
       // the trophy is kept at once; the "new in your collection" moment only once its line was heard
       b.first = !(st.bossNewHeard ?? []).includes(b.kind)
-      if (!this.opts.sandbox) st.markBossBeaten(b.kind)
+      this.save.markBossBeaten(b.kind)
       this.bossesWon.push(b.kind)
       this.track('boss-win', { kind: b.kind, ms: Math.round(this.now() - b.startedAt), first: b.first })
     }
@@ -2128,19 +2131,19 @@ export class RunController {
       const praise = this.praiseLine('boss-win', false)
       if (praise) {
         // the praise counts as heard only when it really played (a missing file leaves it for next time)
-        if (await this.say(t, [{ id: praise }]) && !this.opts.sandbox) useDuel2Store.getState().notePraise('boss-win')
+        if (await this.say(t, [{ id: praise }])) this.save.notePraise('boss-win')
       } else await this.sleep(t, PRAISE_SOUND_MS)
     }
     while (b.coins < BOSS_COINS) {
       b.coins++
-      if (!this.opts.sandbox) useDuel2Store.getState().addCoins(1)
+      this.save.addCoins(1)
       this.set({ coinPop: (this.view.coinPop ?? 0) + 1 })
       this.sfx('lock')
       await this.sleep(t, COIN_POP_MS)
     }
     if (b.first && !b.newSaid) {
       b.newSaid = true
-      if (await this.say(t, [{ id: lineAudioId('boss-new', 1) }]) && !this.opts.sandbox) useDuel2Store.getState().markBossNewHeard(b.kind)
+      if (await this.say(t, [{ id: lineAudioId('boss-new', 1) }])) this.save.markBossNewHeard(b.kind)
     }
     await this.sleep(t, 600)
     stopMusic()
@@ -2154,10 +2157,8 @@ export class RunController {
   private gainStar() {
     this.score++
     this.set({ score: this.score, coinPop: (this.view.coinPop ?? 0) + 1 })
-    if (this.opts.sandbox) return
-    const st = useDuel2Store.getState()
-    st.addStar()
-    st.addCoins(coinsFor(this.streak))
+    this.save.addStar()
+    this.save.addCoins(coinsFor(this.streak))
   }
 
   /** The hearts after an answer: in a session from the path no heart is at stake (a mistake costs only the streak). */
@@ -2210,9 +2211,9 @@ export class RunController {
   private multLine(m: 1 | 2 | 3) { return lineAudioId('mult-up', m === 2 ? 1 : 2) }
 
   private onCatch(target: Choice, noPraise = false) {
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     this.record('broom', target, target, 'right')
-    if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'catch'))
+    this.save.setPace(flightPace(st.pace, 'catch'))
     this.streak++
     this.gainStar()
     this.sfx('catch')
@@ -2234,7 +2235,7 @@ export class RunController {
    * right orb of that wave glows a moment and its sound plays again — and the flight goes on.
    */
   private onFlightMistake(t: number, target: Choice, hit: Choice | null, wave: BroomWave): 'on' | 'over' {
-    const st = useDuel2Store.getState()
+    const st = this.save.read()
     const near = !!hit && hit.nearMissOf === target.id
     const outcome = this.answerOutcome(near ? 'near' : 'wrong')
     this.hearts = outcome.hearts
@@ -2245,7 +2246,7 @@ export class RunController {
     }
     this.resetStreak()
     this.record('broom', target, hit, 'wrong')
-    if (!this.opts.sandbox) st.setPace(flightPace(st.pace, 'miss'))
+    this.save.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
     this.sfx(hit ? 'hit' : 'wave')
     const right = wave.choices.find((c) => c.soundId === target.soundId)
@@ -2254,10 +2255,10 @@ export class RunController {
     this.set({ hearts: this.hearts.left })
     if (outcome.over) return 'over'
     void sayParts([{ id: this.cueId(target) }])
-    window.setTimeout(() => {
+    this.time.after(1400, () => {
       const s = this.view.screen
       if (t === this.token && s?.screen === 'broom' && s.fx?.id === fx.id) this.setScreen({ reveal: undefined } as Partial<BroomView>)
-    }, 1400)
+    })
     return 'on'
   }
 
