@@ -1,4 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+// The first duel's audio as it drives Howler: which files play, at which rate and volume, when the cues fire, what a stop
+// stops, the mute and the unlock. Howler itself is faked (its Howl class and the global Howler), so this pins the
+// behaviour through any refactor of the layers above it.
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 type Handler = (...a: unknown[]) => void
 const instances: FakeHowl[] = []
@@ -28,7 +31,8 @@ class FakeHowl {
   state() { return 'loaded' }
   load() { return this }
 }
-vi.mock('howler', () => ({ Howl: FakeHowl, Howler: { mute: vi.fn(), volume: vi.fn(), ctx: { state: 'running', resume: vi.fn() } } }))
+const HowlerG = vi.hoisted(() => ({ mute: vi.fn(), volume: vi.fn(), ctx: { state: 'running', resume: vi.fn() } }))
+vi.mock('howler', () => ({ Howl: FakeHowl, Howler: HowlerG }))
 vi.mock('../../assets/duel/lineCues', () => ({ LINE_CUES: { 'line-mega': [{ at: 1.15, cue: 'lightning' }], nope: [{ at: 0.5, cue: 'pad' }], 'line-intro': [{ at: 2, cue: 'tower' }], 'line-intro-f': [{ at: 3, cue: 'tower' }] } }))
 vi.mock('../../assets/duel/audioFiles', () => ({
   SFX_URLS: { arrival1: 'a1', arrival2: 'a2', arrival3: 'a3', cast: 'c', boom1: 'b1', boom2: 'b2', ouch: 'o', mega: 'm', sparkle: 's' },
@@ -41,6 +45,14 @@ beforeEach(() => {
   vi.useFakeTimers()
   instances.length = 0
   vi.resetModules()
+  HowlerG.mute.mockClear()
+  HowlerG.volume.mockClear()
+  HowlerG.ctx.resume.mockClear()
+  HowlerG.ctx.state = 'running'
+})
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.useRealTimers()
 })
 
 describe('duelAudio', () => {
@@ -142,5 +154,69 @@ describe('duelAudio', () => {
     const p = audio.playSfx('cast')
     byUrl('c').emit('end')
     await expect(p).resolves.toBeUndefined()
+  })
+  it('an effect picks one of its takes at random (not in turn), and every take is a fresh play of its own Howl', async () => {
+    const audio = await import('./duelAudio')
+    const rnd = vi.spyOn(Math, 'random')
+    rnd.mockReturnValue(0.99)
+    void audio.playSfx('arrival')
+    rnd.mockReturnValue(0.99)
+    void audio.playSfx('arrival')
+    rnd.mockReturnValue(0)
+    void audio.playSfx('arrival')
+    expect(byUrl('a3').plays).toBe(2)
+    expect(byUrl('a1').plays).toBe(1)
+    expect(instances.find((i) => i.src[0] === 'a2')).toBeUndefined()
+  })
+  it('the boom grows with the power (0.6 + 0.3 × power, at most 1); the other effects play at 0.8', async () => {
+    const audio = await import('./duelAudio')
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    void audio.playSfx('boom', 0.5)
+    expect(byUrl('b1')._vol).toBeCloseTo(0.75)
+    void audio.playSfx('boom')
+    expect(byUrl('b1')._vol).toBeCloseTo(0.9)
+    void audio.playSfx('boom', 3)
+    expect(byUrl('b1')._vol).toBe(1)
+    void audio.playSfx('sparkle')
+    expect(byUrl('s')._vol).toBe(0.8)
+  })
+  it('an effect that never ends resolves after its safety timeout (3 s)', async () => {
+    const audio = await import('./duelAudio')
+    let done = false
+    void audio.playSfx('cast').then(() => { done = true })
+    await vi.advanceTimersByTimeAsync(2900)
+    expect(done).toBe(false)
+    await vi.advanceTimersByTimeAsync(200)
+    expect(done).toBe(true)
+  })
+  it('stopAllLines stops the line that plays: it resolves, and its cues not yet heard fire', async () => {
+    const audio = await import('./duelAudio')
+    const cues: string[] = []
+    let done = false
+    void audio.playLine('line-mega', (c) => cues.push(c)).then(() => { done = true })
+    expect(byUrl('lm').playing()).toBe(true)
+    audio.stopAllLines()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(byUrl('lm').playing()).toBe(false)
+    expect(done).toBe(true)
+    expect(cues).toEqual(['lightning'])
+  })
+  it('the mute is Howler\'s global mute; the unlock resumes a suspended audio context', async () => {
+    const audio = await import('./duelAudio')
+    audio.muteDuelAudio(true)
+    expect(HowlerG.mute).toHaveBeenLastCalledWith(true)
+    audio.muteDuelAudio(false)
+    expect(HowlerG.mute).toHaveBeenLastCalledWith(false)
+    audio.unlockDuelAudio()
+    expect(HowlerG.ctx.resume).not.toHaveBeenCalled()
+    HowlerG.ctx.state = 'suspended'
+    audio.unlockDuelAudio()
+    expect(HowlerG.ctx.resume).toHaveBeenCalled()
+  })
+  it('a line plays at its own volume (none is set on it), with no duck of anything', async () => {
+    const audio = await import('./duelAudio')
+    void audio.playLine('wiz-kamatz')
+    expect(byUrl('wk')._vol).toBe(1)
+    expect(instances).toHaveLength(1)
   })
 })
