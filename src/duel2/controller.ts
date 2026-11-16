@@ -27,7 +27,8 @@ import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, bbox, type Verdict, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LineKind, type MarkBoxes, type MarkSpec } from './logic/recognizer'
 import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, strokeTiming, type DrawLayout } from './logic/drawLayout'
-import { composeCoins, merchantDue, priceAt, verdict as payVerdict } from './logic/merchant'
+import { composeCoins, merchantDue, priceAt } from './logic/merchant'
+import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, type MerchantState, type MerchantView } from './policies/merchant'
 import { NEVER_VISITED } from './store'
 import { SHORT_AFTER, screenRecent, skipInCycle, stage0Lane, visitScale } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
@@ -98,26 +99,7 @@ export interface TowerView {
 }
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
 
-/** A merchant's visit at a checkpoint (spec: one duel, Part 2): drawn over the stage by `Merchant`. */
-export interface MerchantView {
-  phase: 'arrive' | 'pay' | 'count' | 'leave' | 'sold'
-  price: number
-  /** all his savings for this visit, as composed at arrival (the coins in the merchant's hand included) */
-  coins: number[]
-  /** the coins in the merchant's hand, in giving order */
-  given: number[]
-  /** while the merchant counts: how many of the given coins he has counted (the bubble shows their running total) */
-  counted?: number
-  verdict?: 'exact' | 'short' | 'over'
-  /** he bought the potion: it flew to the wizard and the coins went into the merchant's pouch */
-  bought?: boolean
-  /** the tag lights after counting (both numbers seen together), and flashes when the payment was not right */
-  tag?: 'lit' | 'flash'
-  glow?: { tag?: boolean; hand?: boolean; potion?: boolean; decline?: boolean; piles?: boolean }
-  /** the demo hand shows this step; `t` changes on every new demo move; `help`: the ? replays it while he pays (his coins
-   * stay pickable, and a touch on them ends the replay) */
-  demo?: { step: 'price' | 'give' | 'potion' | 'decline' | 'undo'; t: number; help?: boolean }
-}
+export type { MerchantView } from './policies/merchant'
 
 export type Overlay =
   | { kind: 'demo'; line: string; demo: string }
@@ -161,8 +143,6 @@ export interface View {
   /** the coins the top bar shows instead of his balance (the gallery's merchant visit) */
   coins?: number
 }
-/** the gestures of a merchant's visit */
-type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
 /** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
 type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
 
@@ -191,22 +171,6 @@ export interface RunOpts {
 }
 
 class Aborted extends Error {}
-/** the ✗ ended the visit (it can come at any moment of a visit) */
-class Declined extends Error {}
-/** the merchant walks in this long before his opening line */
-const MERCHANT_ARRIVE_MS = 1200
-/** he counts one coin each this long */
-const COUNT_STEP_MS = 600
-/** he walks away this long */
-const MERCHANT_LEAVE_MS = 1200
-/** no tap for this long while he pays: the merchant asks once more (once per visit; there is no time limit) */
-const MERCHANT_IDLE_MS = 20000
-/** the empty-hand line (first coins) is said at most once in this time */
-const MERCHANT_EMPTY_EVERY_MS = 4000
-/** the demo hand's drag of a coin into the merchant's hand (Merchant.tsx draws it) */
-const MERCHANT_DEMO_DRAG_MS = 1800
-/** the demo hand moves to the merchant's hand before the coin flies back */
-const UNDO_TAP_MS = 700
 /** where the potion's heart rises: the wizard (Merchant.tsx WIZARD) */
 const WIZARD_AT = { x: 260, y: 520 }
 /** no pick for this long: the instruction and the sound play once */
@@ -319,26 +283,21 @@ export class RunController {
   private demoNo = 0
   /** a screen has ended: the checkpoint (maybe the merchant) comes before the next one */
   private checkpointDue = false
-  /** the merchant's visit in progress: it survives a pause (coins in his hand included) */
-  private visit: {
-    price: number; coins: number[]; given: number[]; said: boolean; bought: boolean; declined: boolean; byeSaid: boolean
-    wrongTries: number; hinted: boolean; decline: Promise<void>; declineNow: () => void
-    /** the ? replays the walkthrough now; the glow to put back when it ends */
-    helping: boolean; helpGlow?: MerchantView['glow']
-    /** the first-visit demo has played to its end in this visit; the idle line was said; his last tap (controller clock) */
-    demoDone: boolean; idleSaid: boolean; lastTouch: number
-    /** when the empty-hand line was last said (controller clock): it is said at most once per MERCHANT_EMPTY_EVERY_MS */
-    emptySaidAt: number
-  } | null = null
+  /** the merchant's visit in progress (policies/merchant.ts): it survives a pause (coins in his hand included) */
+  private visit: MerchantState | null = null
+  /** ends the run's wait for the visit (it has ended) */
+  private visitDone: (() => void) | null = null
+  /** the visit's current wait: a new number makes the end of an older one go unheard */
+  private merchantWait = 0
+  /** the idle line's timer */
+  private merchantIdle: Cancel | undefined
+  /** the demo hand's moves so far, in this run (MerchantView.demo.t) */
   private demoMove = 0
-  /** a new number ends the ?'s walkthrough replay that runs */
-  private helpNo = 0
   /** the door's hint (the syllables light again) runs; a new number ends it */
   private doorHint = 0
   private doorHintOn = false
   /** a hint's voice plays (a touch on an answer stops it) */
   private hintVoice = 0
-  private mWaiter: ((g: MerchantGesture) => void) | null = null
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
   private towerNo = 0
@@ -352,8 +311,6 @@ export class RunController {
   /** the next screen after a crystal that came at the cycle's end */
   private afterCrystal: { screen: ScreenId; newCycle: boolean } | null = null
   private purchasesThisRun = 0
-  /** wrong payments in a row in this visit (the hint button glows after two) */
-  private wrongInRow = 0
 
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
@@ -375,7 +332,7 @@ export class RunController {
   gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
     if (this.view.paused) return
     if (g.type === 'touch') { this.dropHint(g.by); return }
-    if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantGesture(g); return }
+    if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantStep(g); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWaiter || this.view.screen?.screen !== 'draw') return
       // a stroke stops a hint's hand at once (he shows that he knows)
@@ -428,7 +385,7 @@ export class RunController {
     void sayParts([{ id: this.cueId(t) }])
   }
   hint() {
-    if (this.view.merchant) { void this.merchantHelp(); return }
+    if (this.view.merchant) { this.merchantStep({ type: 'help' }); return }
     const s = this.view.screen
     if (s?.screen === 'doors' && this.view.phase === 'answer') {
       // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it); a touch on a key ends it
@@ -463,7 +420,7 @@ export class RunController {
       this.setScreen({ lit: 2 } as Partial<DoorsView>)
       cut = true
     }
-    if (this.visit?.helping) { stopVoice(); this.endHelp(); cut = true }
+    if (this.visit?.help) { this.merchantStep({ type: 'touch' }); cut = true }
     if (this.hintVoice) { this.hintVoice = 0; stopVoice(); cut = true }
     if (cut) this.track('hint-stop', { screen: this.view.merchant ? 'merchant' : this.view.screen?.screen ?? null, by })
   }
@@ -516,7 +473,6 @@ export class RunController {
     this.pickWaiter = null
     this.nextWaiter = null
     this.strokeWaiter = null
-    this.mWaiter = null
     if (!done) this.payOwedCrystal()
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'exit' })
     this.exited = true
@@ -531,7 +487,6 @@ export class RunController {
     this.pickWaiter = null
     this.nextWaiter = null
     this.strokeWaiter = null
-    this.mWaiter = null
     this.resuming = true
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
@@ -708,7 +663,7 @@ export class RunController {
     this.sfx('potion')
   }
 
-  // ---- the merchant (spec: one duel, Part 2)
+  // ---- the merchant (spec: one duel, Part 2): policies/merchant.ts decides, the run does what it says
   /**
    * A checkpoint between two screens: the merchant comes when the rules say so (merchantDue). Decided once; a visit in
    * progress goes on after a pause as it was.
@@ -746,14 +701,10 @@ export class RunController {
   }
 
   private newMerchantVisit(price: number, coins: number[]) {
-    let declineNow = () => {}
-    const decline = new Promise<void>((r) => { declineNow = r })
-    // "two wrong tries in a row" are counted within one visit (the hint button's glow ends with the visit too)
-    this.wrongInRow = 0
-    this.visit = {
-      price, coins, given: [], said: false, bought: false, declined: false, byeSaid: false, wrongTries: 0, hinted: false, helping: false, decline, declineNow,
-      demoDone: false, idleSaid: false, lastTouch: this.now(), emptySaidAt: -Infinity,
-    }
+    this.visit = merchantVisit({
+      price, coins, knows: this.knowsMerchant(), demoDue: this.merchantDemoDue(), undoShown: this.undoShown(), hearts: this.hearts.left,
+      moves: this.demoMove, now: this.now(),
+    })
   }
 
   /** The gallery's merchant (the parent reviews him): a visit with 1 heart and 40 coins, its demo first; then the gallery. */
@@ -771,46 +722,6 @@ export class RunController {
     this.set({ over: { score: 0, crystals: 0, best: false } })
   }
 
-  private mv(p: Partial<MerchantView>) { if (this.view.merchant) this.set({ merchant: { ...this.view.merchant, ...p } }) }
-  /** a merchant's line: a variation */
-  private mLine(id: string) { return this.variation(id) }
-  /** say or wait during a visit; the ✗ cuts it at any moment (only in the loop that is current: a pause replaces it) */
-  private async vsay(t: number, parts: { id: string; onStart?: () => void }[]) {
-    await this.guard(t, Promise.race([this.say(t, parts), this.visit!.decline]))
-    if (this.visit!.declined) throw new Declined()
-  }
-  private async vsleep(t: number, ms: number) {
-    await this.guard(t, Promise.race([this.sleep(t, ms), this.visit!.decline]))
-    if (this.visit!.declined) throw new Declined()
-  }
-  /** his next gesture of the visit (the ✗ ends the wait) */
-  private async waitMerchant(t: number): Promise<MerchantGesture> {
-    const v = this.visit!
-    v.lastTouch = Math.max(v.lastTouch, this.now())
-    // no tap for MERCHANT_IDLE_MS: he asks once more, once per visit (coins given meanwhile count as taps)
-    let cancel: Cancel | undefined
-    const arm = (ms: number) => {
-      cancel = this.time.after(ms, () => {
-        if (t !== this.token || this.view.paused || this.view.merchant?.phase !== 'pay' || v.idleSaid) return
-        const idle = this.now() - v.lastTouch
-        if (idle < MERCHANT_IDLE_MS) { arm(MERCHANT_IDLE_MS - idle); return }
-        v.idleSaid = true
-        this.track('merchant-idle', {})
-        void sayParts([{ id: this.mLine('m-again') }])
-      })
-    }
-    if (!v.idleSaid) arm(MERCHANT_IDLE_MS - (this.now() - v.lastTouch))
-    try {
-      // a wait that a pause left behind ends as aborted, never as a decline (the loop after the pause ends the visit)
-      const g = await this.guard(t, Promise.race([new Promise<MerchantGesture>((r) => { this.mWaiter = r }), v.decline.then(() => null)]))
-      if (!g || v.declined) throw new Declined()
-      return g
-    } finally {
-      this.mWaiter = null
-      cancel?.()
-    }
-  }
-
   /** he knows the merchant: he has bought a potion from him before (a persisted count; the gallery: never) */
   private knowsMerchant() {
     return !this.opts.force && (this.save.read().merchant?.purchases ?? 0) > 0
@@ -822,252 +733,72 @@ export class RunController {
     return !this.save.read().merchant?.demoSeen
   }
 
-  /**
-   * The first visit: everything else dims and the game's pointing hand shows each step while he says it — the price tag,
-   * a coin dragged into his hand (and back), the potion, the ✗. Then it is his turn, with the same price and piles. The
-   * ✗ is hidden until its step; the demo counts as seen only when it ends (a pause shows it again).
-   */
-  private async merchantDemo(t: number) {
-    this.set({ phase: 'demo', hintAvailable: false })
-    this.track('merchant-demo', {})
-    await this.walkthrough(t, false)
-    this.mv({ demo: undefined, glow: undefined })
-    this.save.setMerchantFlag('demoSeen')
-  }
-
-  /**
-   * The walkthrough's steps: D1–D4, and with `help` (the ? while he pays) the undo too once it was shown to him. The help's
-   * replay leaves the deal as it is (the coins in the merchant's hand stay) and ends when he touches a coin, the potion or
-   * the merchant's hand. Returns false when it was ended before its last step.
-   */
-  private async walkthrough(t: number, help: boolean): Promise<boolean> {
-    const v = this.visit!
-    const no = this.helpNo
-    const live = () => !help || (v.helping && no === this.helpNo)
-    type Step = NonNullable<MerchantView['demo']>['step']
-    const steps: [Step, MerchantView['glow'], string][] = [
-      ['price', { tag: true }, 'm-price'], ['give', undefined, 'm-give'], ['potion', { potion: true }, 'm-tap'], ['decline', { decline: true }, 'm-decline'],
-      ...(help && this.undoShown() ? [['undo', { hand: true }, 'm-undo'] as [Step, MerchantView['glow'], string]] : []),
-    ]
-    for (const [step, glow, line] of steps) {
-      if (!live()) return false
-      this.mv({ phase: help ? 'pay' : 'arrive', demo: { step, t: ++this.demoMove, ...(help ? { help: true } : {}) }, glow })
-      const say = this.vsay(t, [{ id: this.mLine(line) }])
-      await (step === 'give' ? Promise.all([this.vsleep(t, MERCHANT_DEMO_DRAG_MS), say]) : say)
-    }
-    return live()
-  }
-
-  /**
-   * The help button (?) during a visit: the merchant's walkthrough again (the parent: one button that repeats it). Only
-   * while he pays and nothing else plays; the button is hidden while it runs. It counts as a hint for the parent's money
-   * section and the coins' level.
-   */
-  private async merchantHelp() {
-    const v = this.visit
-    const mv = this.view.merchant
-    if (!v || !mv || mv.phase !== 'pay' || mv.demo || v.bought || v.declined || v.helping || this.view.phase !== 'answer') return
-    const t = this.token
-    v.helping = true
-    v.helpGlow = mv.glow
-    v.hinted = true
-    v.lastTouch = this.now()
-    this.wrongInRow = 0
-    this.set({ hintGlow: false, hintAvailable: false })
-    this.save.noteMerchant('hint')
-    this.track('merchant-help', { undo: this.undoShown(), given: v.given.length })
-    stopVoice()
-    try {
-      if (await this.walkthrough(t, true)) this.endHelp()
-    } catch (e) {
-      // a pause (the visit is drawn again as it was) or the ✗ (the visit ends)
-      if (!(e instanceof Aborted) && !(e instanceof Declined)) throw e
-      v.helping = false
-    }
-  }
-
-  /** the walkthrough replay ends (its last step, or he touched): the deal as it was, his turn again */
-  private endHelp() {
-    const v = this.visit
-    if (!v?.helping) return
-    v.helping = false
-    this.helpNo++
-    v.lastTouch = this.now()
-    this.mv({ demo: undefined, glow: v.helpGlow })
-    if (this.view.merchant?.phase === 'pay') this.set({ hintAvailable: true })
-  }
-
-  private merchantGesture(g: MerchantGesture) {
-    const v = this.visit
-    const mv = this.view.merchant
-    if (!v || !mv || v.bought || v.declined) return
-    if (g.type === 'decline') {
-      // the ✗, at any moment of the visit (it is hidden while the first-visit demo plays)
-      // (the undo's hand shows while the ✗ is on the screen: it works then too)
-    if (mv.phase === 'leave' || mv.phase === 'sold' || (mv.demo && !mv.demo.help && mv.demo.step !== 'decline' && mv.demo.step !== 'undo')) return
-      v.declined = true
-      this.track('merchant-decline', { phase: mv.phase })
-      this.save.noteMerchant('decline')
-      stopVoice()
-      v.declineNow()
-      return
-    }
-    if (mv.phase !== 'pay') return
-    // he acts during the ?'s walkthrough: it ends at once, and his move counts
-    if (v.helping) { stopVoice(); this.endHelp() }
-    v.lastTouch = this.now()
-    if (g.type === 'coin') {
-      // the top coin of that pile jumps into his hand (a coin he no longer has cannot be given)
-      const left = [...v.coins]
-      for (const x of v.given) left.splice(left.indexOf(x), 1)
-      if (!left.includes(g.value)) return
-      v.given.push(g.value)
-      this.sfx('coin')
-      this.mv({ given: [...v.given], glow: undefined })
-      return
-    }
-    if (g.type === 'hand') {
-      // undo: the last coin given goes back to its pile
-      if (!v.given.length) return
-      v.given.pop()
-      this.track('merchant-undo', {})
-      this.sfx('coin')
-      this.mv({ given: [...v.given] })
-      return
-    }
-    // the potion: the merchant counts (the visit's flow goes on)
-    const w = this.mWaiter
-    this.mWaiter = null
-    w?.(g)
-  }
-
-  /** The visit: he walks in and offers the potion; the child pays from his piles, or declines with the ✗. */
-  private async runVisit(t: number) {
-    const v = this.visit!
-    try {
-      if (!v.bought && !v.declined) {
-        if (!v.said) {
-          this.set({ merchant: { phase: 'arrive', price: v.price, coins: v.coins, given: v.given, glow: { piles: true } }, phase: 'feedback', overlay: null, needNext: false, hintAvailable: false })
-          await this.vsleep(t, MERCHANT_ARRIVE_MS)
-          // a child who knows the merchant (he bought from him before) hears only the short offer, and no demo (the parent)
-          await this.vsay(t, [{ id: this.mLine(this.knowsMerchant() ? 'm-offer' : 'm-hello') }])
-          v.said = true
-          this.mv({ glow: undefined })
-        } else {
-          // after a pause: the visit as it was, the coins in his hand included (a walkthrough replay is not resumed)
-          v.helping = false
-          this.set({ merchant: { phase: 'pay', price: v.price, coins: v.coins, given: v.given }, overlay: null, needNext: false, hintAvailable: false })
-        }
-        if (!v.demoDone && !this.knowsMerchant() && this.merchantDemoDue()) await this.merchantDemo(t)
-        v.demoDone = true
-        await this.payLoop(t)
-      }
-    } catch (e) {
-      if (!(e instanceof Declined)) throw e
-    }
-    await this.visitEnd(t)
-  }
-
-  /** He gives coins and takes them back (merchantGesture), and taps the potion; the merchant counts. Returns when he bought it. */
-  private async payLoop(t: number) {
-    const v = this.visit!
-    for (;;) {
-      // a glow (his empty hand, the hint) stays until he gives a coin
-      this.mv({ phase: 'pay', counted: undefined, verdict: undefined, tag: undefined, demo: undefined, given: [...v.given] })
-      this.set({ phase: 'answer', hintAvailable: true })
-      // coins and undo are handled as they come (merchantGesture); the potion goes on here
-      await this.waitMerchant(t)
-      if (!v.given.length) {
-        // the hand glows at every tap; the line only once in a while (a child taps the potion again and again)
-        this.mv({ glow: { hand: true } })
-        if (this.now() - v.emptySaidAt < MERCHANT_EMPTY_EVERY_MS) continue
-        v.emptySaidAt = this.now()
-        this.set({ phase: 'feedback' })
-        await this.vsay(t, [{ id: this.mLine('m-empty') }])
-        continue
-      }
-      if (await this.count(t) === 'exact') return this.buy(t)
-    }
-  }
-
-  /** The merchant counts the coins in his hand one by one (a chime each, the running total in a bubble), then the tag. */
-  private async count(t: number): Promise<'exact' | 'short' | 'over'> {
-    const v = this.visit!
-    const given = [...v.given]
-    const sum = given.reduce((a, b) => a + b, 0)
-    this.set({ phase: 'feedback' })
-    this.mv({ phase: 'count', counted: 0, glow: undefined })
-    for (let i = 0; i < given.length; i++) {
-      await this.vsleep(t, COUNT_STEP_MS)
-      this.mv({ counted: i + 1 })
-      this.sfx('count')
-    }
-    const vd = payVerdict(sum, v.price)
-    this.mv({ verdict: vd, tag: vd === 'exact' ? 'lit' : 'flash' })
-    this.track('merchant-offer', { sum, price: v.price, verdict: vd, coins: given })
-    await this.vsleep(t, COUNT_STEP_MS)
-    if (vd === 'exact') return vd
-    // wrong tries cost nothing; the coins stay in his hand
-    v.wrongTries++
-    this.wrongInRow++
-    this.save.noteMerchant(vd)
-    // two wrong tries in a row: the hint button (?) glows (it does not open by itself)
-    if (this.wrongInRow >= 2) this.set({ hintGlow: true })
-    await this.vsay(t, [{ id: this.mLine(vd === 'short' ? 'm-short' : 'm-over') }])
-    if (vd === 'over' && !this.undoShown()) {
-      // the first time ever he gives too much: the hand taps the merchant's hand and the last coin flies back (rule:
-      // explain a move when he first needs it)
-      this.mv({ demo: { step: 'undo', t: ++this.demoMove } })
-      await this.vsleep(t, UNDO_TAP_MS)
-      v.given.pop()
-      this.sfx('coin')
-      this.mv({ given: [...v.given] })
-      await this.vsay(t, [{ id: this.mLine('m-undo') }])
-      this.mv({ demo: undefined })
-      this.save.setMerchantFlag('undoShown')
-      this.undoShownHere = true
-    }
-    return vd
-  }
-
   /** the undo was shown in this run (the gallery's save is read-only, so it remembers it here) */
   private undoShownHere = false
   private undoShown() { return this.undoShownHere || !!this.save.read().merchant?.undoShown }
 
-  /** The exact price: the coins are spent, the potion flies to the wizard and a heart to the top bar. */
-  private async buy(t: number) {
-    const v = this.visit!
-    v.bought = true
-    this.save.spendCoins(v.price)
-    this.save.noteMerchant('purchase')
-    this.save.merchantPaid(v.wrongTries === 0 && !v.hinted, v.hinted)
-    this.purchasesThisRun++
-    this.wrongInRow = 0
-    this.set({ hintGlow: false })
-    this.hearts = { ...this.hearts, left: Math.min(HEARTS, this.hearts.left + 1) }
-    this.track('merchant-buy', { price: v.price, coins: [...v.given], hearts: this.hearts.left })
-    this.mv({ phase: 'sold', glow: undefined, bought: true })
-    // the heart flies to the top bar and the hearts flash, as at the end of a pass
-    this.set({ phase: 'celebrate', hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, heartFlash: ++heartFlashes,
-      ...(this.view.coins !== undefined ? { coins: this.view.coins - v.price } : {}) })
-    this.sfx('potion')
-    await this.sleep(t, SFX_RING_MS)
-    // then he says that he has a heart back (the parent)
-    await this.say(t, [{ id: this.mLine('m-exact') }, { id: this.mLine('m-heart') }])
+  /** The visit: it starts (or goes on after a pause) and runs until he has walked away. */
+  private async runVisit(t: number) {
+    await this.guard(t, new Promise<void>((r) => {
+      this.visitDone = r
+      this.merchantStep({ type: 'arrive' })
+    }))
   }
 
-  /** He walks away (after the ✗: his coins go back to their piles and he says goodbye). */
-  private async visitEnd(t: number) {
-    const v = this.visit!
-    this.set({ phase: 'feedback', hintAvailable: false, hintGlow: false })
-    if (v.declined) {
-      v.given = []
-      this.mv({ phase: 'leave', given: [], glow: undefined, demo: undefined, tag: undefined, counted: undefined, verdict: undefined })
-      if (!v.byeSaid) { v.byeSaid = true; await this.say(t, [{ id: this.mLine('m-bye') }]) }
-    } else this.mv({ phase: 'leave', glow: undefined })
-    await this.sleep(t, MERCHANT_LEAVE_MS)
-    this.set({ merchant: undefined })
+  /** One step of the visit's policy, done: the views, the sounds, the saves, the telemetry, then its wait. */
+  private merchantStep(e: MerchantInput) {
+    const v = this.visit
+    if (!v) return
+    const r = stepMerchant(v, { ...e, at: this.now() })
+    this.visit = r.state
+    this.demoMove = r.state.moves
+    if (r.hush) stopVoice()
+    if (r.view !== undefined) this.set({ merchant: r.view ?? undefined })
+    if (r.run) this.set(r.run)
+    if (r.bought) {
+      this.purchasesThisRun++
+      this.hearts = { ...this.hearts, left: r.bought.hearts }
+      // the heart flies to the top bar and the hearts flash, as at the end of a pass
+      this.set({ hearts: this.hearts.left, heal: { id: ++this.fxId, at: this.now(), from: WIZARD_AT }, heartFlash: ++heartFlashes,
+        ...(this.view.coins !== undefined ? { coins: this.view.coins - r.bought.price } : {}) })
+    }
+    for (const s of r.sfx) this.sfx(s)
+    for (const op of r.save) {
+      if (op.op === 'noteMerchant') this.save.noteMerchant(op.e)
+      else if (op.op === 'setMerchantFlag') {
+        this.save.setMerchantFlag(op.k)
+        if (op.k === 'undoShown') this.undoShownHere = true
+      } else if (op.op === 'merchantPaid') this.save.merchantPaid(op.exactNoHint, op.hinted)
+      else this.save.spendCoins(op.n)
+    }
+    for (const x of r.track) this.track(x.e, x.data)
+    if (r.idleAt !== undefined) {
+      this.merchantIdle?.()
+      this.merchantIdle = undefined
+      const t = this.token
+      if (r.idleAt !== null) this.merchantIdle = this.time.after(r.idleAt - this.now(), () => {
+        if (t === this.token && !this.view.paused) this.merchantStep({ type: 'idle' })
+      })
+    }
+    const parts = r.say.map((l) => ({ id: this.mLine(l.line) }))
+    if (r.wait) {
+      const no = ++this.merchantWait
+      const t = this.token
+      const done = (type: 'heard' | 'slept') => () => { if (t === this.token && no === this.merchantWait) this.merchantStep({ type }) }
+      if (r.wait.for === 'say') {
+        for (const p of parts) this.assets.push(p.id)
+        const said = sayParts(parts)
+        void (r.wait.min ? Promise.all([said, this.time.sleep(r.wait.min)]) : said).then(done('heard'))
+      } else if (r.wait.for === 'sleep') void this.time.sleep(r.wait.ms).then(done('slept'))
+    } else if (parts.length) void sayParts(parts)
+    if (r.end) {
+      const d = this.visitDone
+      this.visitDone = null
+      d?.()
+    }
   }
+  /** a merchant's line: a variation */
+  private mLine(id: string) { return this.variation(id) }
 
   private newVisit() {
     this.visitBoss = undefined
