@@ -25,5 +25,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // keep local runs light (parallel agents); CI uses the default
+    maxWorkers: process.env.CI ? undefined : 2,
   },
 })

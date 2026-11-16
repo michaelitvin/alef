@@ -47,8 +47,8 @@ jobs:
 
       - name: Build staging (main)
         working-directory: staging
-        # lint only here: release has no eslint until it is fast-forwarded, and it only gets commits that passed this step
-        run: npm ci && npm run lint && npm test && npm run build
+        # lint, boundaries and dead code only here: release has no eslint until it is fast-forwarded, and it only gets commits that passed this step
+        run: npm ci && npm run check && npm test && npm run build
         env:
           VITE_TTS_ENDPOINT: ${{ secrets.VITE_TTS_ENDPOINT }}
           ALEF_STAGING: '1'
