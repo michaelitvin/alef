@@ -32,7 +32,7 @@ parent decided an exception.
 
 ## Anti-goals (a failure even if it works)
 
-- Any text on a child screen. Any way out of the game on a child screen.
+- Any text on a child screen. A way out of the game that a tap opens (the way home needs a 2 s hold; see *The cover*).
 - A game that gets faster until he fails, or that shows him that it got easier.
 - A heart lost for clumsy steering when he knew the answer.
 - A change to the feel of the original: it must stay a fluent arcade game that does not stop at a mistake.
@@ -384,7 +384,7 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
 
 ## Decisions and their owners
 
-The parent decided: sums now and reading later; the wide landscape layout; drag with flick, and a tap also works; the
+The parent decided: a held house button as the way home, on the cover, the top bar, the pause cover and the end screen (the rule on `main`); no boy-or-girl question before play (no line speaks to him); sums now and reading later; the wide landscape layout; drag with flick, and a tap also works; the
 original's art and coded sound; points stay in this game; no narrated numbers; the credit under the home card, in Hebrew; one
 adaptive ladder at 1 mistake in 5; all twelve rule changes listed in the chat of 2026-11-12 (among them: no timer bar,
 lane glide, our pointing hand, zoom taught later, lines that do not address the child). Igor's permission covers this
@@ -395,8 +395,7 @@ half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
 the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
-its line; the current ship shown once on the cover; one first take per voice item; the held house on the cover, the top
-bar, the pause cover and the end screen (from the rule on `main`); no boy-or-girl question before play; the telemetry
+its line; the current ship shown once on the cover; one first take per voice item; the telemetry
 cap's share (proposal: Space Cat 200 k characters, Book 2 600 k, clock 400 k).
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field
