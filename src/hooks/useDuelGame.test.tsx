@@ -40,9 +40,27 @@ beforeEach(() => {
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
 })
 
+type Emb = NonNullable<Parameters<typeof useDuelGame>[0]>['embedded']
+function emb(over: Partial<NonNullable<Emb>> = {}) {
+  const answers: [string, string][] = []
+  const done: number[] = []
+  const seenNow: string[] = []
+  const e: NonNullable<Emb> = {
+    wave: 1, waves: 2, boss: false, seen: ['tower-intro', 'tower-screen-A', 'tower-screen-B', 'tower-screen-C', 'tower-screen-silent'],
+    onSeen: (k) => { seenNow.push(k) }, onAnswer: (r, m) => { answers.push([r, m]); return 'on' }, onDone: (w) => { done.push(w) },
+    ...over,
+  }
+  return { e, answers, done, seenNow }
+}
+/**
+ * The tower's first visit ever: nothing seen yet, so the intro and each screen's explanation play (what the old
+ * standalone page did on every run); three waves from wave 1, so the long tests never reach the visit's end.
+ */
+const firstVisit = (over: Partial<NonNullable<Emb>> = {}) => emb({ seen: [], waves: 3, ...over }).e
+
 describe('useDuelGame', () => {
   it('telemetry: closing or leaving the page mid-run is recorded as an abandon (not only a pause)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     act(() => { window.dispatchEvent(new Event('pagehide')) })
@@ -50,7 +68,7 @@ describe('useDuelGame', () => {
     expect(ev[ev.length - 1]).toMatchObject({ e: 'abandon', reason: 'pagehide', round: result.current.state.round!.id })
   })
   it('telemetry: what was shown where, the tap (position, latency), the outcome, assets used, and quitting mid-round', async () => {
-    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     const r = result.current.state.round!
@@ -75,7 +93,7 @@ describe('useDuelGame', () => {
     for (const e of ev) expect(e.t).toEqual(expect.any(Number))
   })
   it('the lightning appears when "ברק" is spoken; a tap before the next monster casts as soon as it arrives', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-mega'); guard++) {
@@ -98,7 +116,7 @@ describe('useDuelGame', () => {
     expect(result.current.state.outcome?.mega).toBe(true)
   })
   it('every 5 hits in a row is celebrated when the combo line starts', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     for (let guard = 0; guard < 12 && !pending.some((p) => p.id === 'line-combo'); guard++) {
@@ -114,7 +132,7 @@ describe('useDuelGame', () => {
     expect(result.current.celebrate).toMatchObject({ combo: 5 })
   })
   it('a named target lights up while its word is spoken, then fades', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(2600) })
     const how = pending.find((p) => p.id === 'line-how-A')!
@@ -124,14 +142,14 @@ describe('useDuelGame', () => {
     expect(result.current.cue).toBeNull()
   })
   it('no second wizard: the intro shows no banner (the wizard on the tower is the one speaking)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
     expect(pending.map((p) => p.id)).toEqual(['line-intro'])
     expect(result.current.banner).toBeNull()
   })
   it('after a round: the SOUND first, then the mark name, then the picture word — each highlighted while spoken', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     const r = result.current.state.round!
@@ -149,7 +167,7 @@ describe('useDuelGame', () => {
     ])
   })
   it('things appear when they are said: the tower at "המגדל"; the picture and the marks at their words', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     expect(result.current.hidden).toEqual(['tower'])
     await act(async () => { await vi.advanceTimersByTimeAsync(50) })
@@ -174,14 +192,14 @@ describe('useDuelGame', () => {
     expect(result.current.state.walking).toBe(true)
   })
   it('instructions show no look/listen icon banner (the glow cues point at the real things)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(1500) })
     expect(pending.map((p) => p.id)).toEqual(['line-how-A'])
     expect(result.current.banner).toBeNull()
   })
   it('a beat of silence separates consecutive wizard lines (intro → instruction)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await act(async () => { await vi.advanceTimersByTimeAsync(50) })
     await act(async () => { pending.shift()!.resolve(); await vi.advanceTimersByTimeAsync(400) })
@@ -190,16 +208,15 @@ describe('useDuelGame', () => {
     expect(pending.map((p) => p.id)).toEqual(['line-how-A'])
   })
   it('intro and the first-screen instruction play before the monster appears', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     expect(result.current.state.round).toBeNull()
     await flushLines()
     expect(lines().slice(0, 2)).toEqual(['line-intro', 'line-how-A'])
     expect(result.current.state.round?.type).toBe('A')
-    expect(useProgressStore.getState().duel.sessions).toBe(1)
   })
   it('the next round waits for every wizard line (name, sound, word)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     const r = result.current.state.round!
@@ -212,7 +229,7 @@ describe('useDuelGame', () => {
     expect(useProgressStore.getState().duel.byMark[r.target.id].correct).toBe(1)
   })
   it('pausing during an announcement holds the round until resume; exactly one round after resume', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     act(() => result.current.pause())
     await flushLines()
@@ -223,7 +240,7 @@ describe('useDuelGame', () => {
     expect(result.current.state.paused).toBe(false)
   })
   it('a double tap yields one outcome and one stats record', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     const r = result.current.state.round!
@@ -237,7 +254,7 @@ describe('useDuelGame', () => {
   it('a wrong tap is recorded as a confusion, and the next round is built from lifetime stats and confusions', async () => {
     const seen: MakeRoundOpts[] = []
     const mk = (o: MakeRoundOpts) => { seen.push(o); return { ...cRound(), id: o.id } }
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk }))
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.choose({ kind: 'rune', mark: markById('segol') })) // asked kamatz
@@ -251,7 +268,7 @@ describe('useDuelGame', () => {
     expect(last.lifetime.kamatz).toMatchObject({ seen: 1, wrong: 1 })
   })
   it('the forgiven twin tap also counts as a confusion', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: cRound }))
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
@@ -259,7 +276,7 @@ describe('useDuelGame', () => {
   })
   it('adaptive pace: after a monster reaches the tower the next one walks a little slower, and the pace is remembered', async () => {
     const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 3000 })
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk }))
     act(() => result.current.start())
     await flushLines()
     const first = result.current.state.round!
@@ -280,7 +297,7 @@ describe('useDuelGame', () => {
     useProgressStore.setState({ duel: { ...useProgressStore.getState().duel,
       byMark: { kamatz: { seen: 40, correct: 40, wrong: 0, timeout: 0, twin: 0, mega: 0 } }, recent: { kamatz: 'oooooooo' } } })
     const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 60000 })
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk }))
     act(() => result.current.start())
     await flushLines()
     const afterTap = async () => {
@@ -302,7 +319,7 @@ describe('useDuelGame', () => {
   })
   it('a defeated boss is congratulated first, then the usual recap', async () => {
     const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, boss: true, monster: 'dragon', walkMs: 60000 })
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk }))
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
@@ -316,14 +333,6 @@ describe('useDuelGame', () => {
     expect(said[0]).toBe('line-boss-win')
     expect(said[1]).toBe('wiz-vowel-a')
   })
-  it('a monster that reaches the tower costs a heart (timeout)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), walkOverride: 3000 }))
-    act(() => result.current.start())
-    await flushLines()
-    await act(async () => { await vi.advanceTimersByTimeAsync(3100) })
-    expect(result.current.state.outcome).toMatchObject({ kind: 'miss', choiceKey: null })
-    expect(result.current.state.hearts).toBe(2)
-  })
 })
 
 const cRound = (): Round => ({
@@ -333,20 +342,20 @@ const cRound = (): Round => ({
 
 describe('useDuelGame review fixes', () => {
   it('leaving while paused does not leave the app muted; a new run unmutes', async () => {
-    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.pause())
     vi.mocked(muteDuelAudio).mockClear()
     unmount()
     expect(vi.mocked(muteDuelAudio)).toHaveBeenLastCalledWith(false)
-    const second = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const second = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     vi.mocked(muteDuelAudio).mockClear()
     act(() => second.result.current.start())
     expect(vi.mocked(muteDuelAudio)).toHaveBeenCalledWith(false)
   })
   it('resume re-unlocks audio inside the tap', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01) }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit() }))
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.pause())
@@ -355,7 +364,8 @@ describe('useDuelGame review fixes', () => {
     expect(vi.mocked(unlockDuelAudio)).toHaveBeenCalled()
   })
   it('a fast double tap on the forgiven twin costs nothing and records one twin', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    const { e, answers } = emb({ seen: [], waves: 3 })
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: e, makeRound: cRound }))
     act(() => result.current.start())
     await flushLines()
     expect(result.current.state.round?.type).toBe('C')
@@ -363,7 +373,7 @@ describe('useDuelGame review fixes', () => {
       result.current.choose({ kind: 'rune', mark: markById('patach') })
       result.current.choose({ kind: 'rune', mark: markById('patach') })
     })
-    expect(result.current.state.hearts).toBe(3)
+    expect(answers).toEqual([]) // no answer for the run: no heart lost
     expect(result.current.state.outcome).toBeNull()
     expect(useProgressStore.getState().duel.byMark.kamatz.twin).toBe(1)
     // the right answer still works afterwards
@@ -371,7 +381,7 @@ describe('useDuelGame review fixes', () => {
     expect(result.current.state.outcome?.kind).toBe('hit')
   })
   it('the outcome speech waits for the "almost" lines to finish (no overlapping wizard voices)', async () => {
-    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: cRound }))
+    const { result } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: cRound }))
     act(() => result.current.start())
     await flushLines()
     const namesBefore = lines().filter((l) => l === 'wiz-kamatz').length // the clue itself says the name
@@ -392,7 +402,7 @@ describe('clues are spoken once, cleanly, by the narrator (no monster voice)', (
     for (const [mk, expected] of [[cRound, 'wiz-kamatz'], [bRound, 'wiz-vowel-o']] as const) {
       vi.mocked(playLine).mockClear()
       pending.length = 0
-      const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), makeRound: mk }))
+      const { result, unmount } = renderHook(() => useDuelGame({ rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk }))
       act(() => result.current.start())
       await flushLines()
       const calls = vi.mocked(playLine).mock.calls
@@ -404,18 +414,6 @@ describe('clues are spoken once, cleanly, by the narrator (no monster voice)', (
 })
 
 describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
-  type Emb = NonNullable<Parameters<typeof useDuelGame>[0]>['embedded']
-  function emb(over: Partial<NonNullable<Emb>> = {}) {
-    const answers: [string, string][] = []
-    const done: number[] = []
-    const seenNow: string[] = []
-    const e: NonNullable<Emb> = {
-      wave: 1, waves: 2, boss: false, seen: ['tower-intro', 'tower-screen-A', 'tower-screen-B', 'tower-screen-C', 'tower-screen-silent'],
-      onSeen: (k) => { seenNow.push(k) }, onAnswer: (r, m) => { answers.push([r, m]); return 'on' }, onDone: (w) => { done.push(w) },
-      ...over,
-    }
-    return { e, answers, done, seenNow }
-  }
   /** answers every monster right until `n` answers were given or the visit is done */
   async function playRight(result: { current: ReturnType<typeof useDuelGame> }, n: number, done: number[]) {
     await flushLines()
@@ -566,6 +564,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     act(() => result.current.start())
     await flushLines()
     await act(async () => { await vi.advanceTimersByTimeAsync(3100) })
+    expect(result.current.state.outcome).toMatchObject({ kind: 'miss', choiceKey: null })
     expect(answers.map(([r]) => r)).toEqual(['wrong'])
     expect(result.current.state.hearts).toBe(Infinity)
   })
