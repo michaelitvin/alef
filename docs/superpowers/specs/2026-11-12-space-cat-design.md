@@ -63,11 +63,12 @@ layout, also when it lies on its side. *My call:* a screen whose shorter side is
 screen that is wider than it is high and not a phone gets the wide layout; every other screen gets the portrait layout. The
 background fills the whole screen on any shape; the game area keeps its size inside it.
 
-**Top bar.** Left: 7 progress dots for the level. Right: a star with the points of the run, and 3 hearts. All drawn as
-shapes, not emoji. During flight the top bar does not take taps: a touch there steers like a touch anywhere. The hearts
+**Top bar.** Left: the held house button first (the way home, a 2 s hold with a ring that fills; rule), then 7 progress
+dots for the level. Right: a star with the points of the run, and 3 hearts. All drawn as shapes, not emoji. During
+flight the top bar does not take taps, except the house: a touch elsewhere on it steers like a touch anywhere. The hearts
 and the points speak on a tap where the game stands still: the points and his best on the cover, on *level done* and on
-the end screen, the hearts on *level done*, and a locked ship on the cover's shelf (see *Voice*). No home button, no pause
-button, no speaker.
+the end screen, the hearts on *level done*, and a locked ship on the cover's shelf (see *Voice*). No plain home button, no
+pause button, no speaker.
 
 **The sum box**, top centre, the strongest element after the planets. Digits and the signs + − × ÷ =. The place of the
 missing number is an empty dashed ring. There is no "?" and no "_".
@@ -137,8 +138,11 @@ row; they still arrive together.
 ## The cover
 
 The space background with turning planets, the ship shelf with his current ship large in its middle (it is not shown a
-second time), a play triangle, all his points with the star, his best, and the parent button (a 2 s hold, as in Book 2), inset from the
-rounded screen corner (rule: keep things away from the corners). No way home here; it is in the parent area. The fonts and pictures load before the cover shows.
+second time), a play triangle, all his points with the star, his best, the parent button (the shared parent gate: a 2 s
+hold, then the parent's year of birth; rule), and the held house button (as on Book 2's cover), both inset from the
+rounded screen corner (rule: keep things away from the corners). The fonts and pictures load before the cover shows.
+The held house is also on the pause cover and on the end screen, in the same corner (rule: *A way out of the game … must
+need a 2 s hold*; this replaces the older rule "no way out on a child screen" that this design first followed).
 
 **The play triangle** points left on every screen of this game. Reason (rule): the ship moves up, not to a side, so
 the triangle follows the reading direction. *My call.*
@@ -248,8 +252,10 @@ screen before it. No voice line plays while planets move. The tune gets quieter 
 
 - Each event has its own sound, all made by WebAudio code. The original has three: right, wrong (a boom with a siren)
   and the level fanfare; they are ported. Six are new and are coded in the same style: new sum, right with zoom,
-  time-out, heart lost, new ship, end of run. *My call:* the parent hears the six new ones on a small sound page in the
+  time-out, heart lost, new ship, end of run. *My call:* the parent hears the six new ones in Space Cat's section of the
   parent area (a button for each) before the first playtest build, and they change on his notes.
+- The coded sounds follow the device's one sound setting (effects on or off, music on or off, the volume), as every
+  game's sound does.
 - The original's tune plays on the cover, on *level done* and on the end screen.
 - During flight the tune is off. A parent setting turns it on. (The rule for calm games does not bind an action game,
   but the parent chose off as the default.)
@@ -257,19 +263,25 @@ screen before it. No voice line plays while planets move. The tune gets quieter 
 
 ## The parent area
 
-Behind the 2 s hold on the cover, built like Book 2's parent screen. Text is allowed here.
+Space Cat's part of alef's one parent area, behind the parent gate on the cover (a 2 s hold, then the year of birth).
+The area opens at Space Cat's section. Text is allowed here. The area's own sections give boy or girl, the device's
+sound, minutes played and the mix-ups of every game, the one telemetry export, and the way to the alef menu. Space Cat's
+section holds:
 
 - **Where he is:** the ladder with the open rungs, and for each rung the share of right answers.
 - **Sums he finds hard:** a table of items with right of seen, time-outs, the usual time, and his most frequent wrong pick.
 - **Range:** automatic (default), or the parent sets the highest open rung. Switches for times and divide.
 - **Time for one sum:** automatic (default, with the present value shown), or 8, 5, 4 s.
 - **Music during flight:** off (default) or on.
-- **Player:** the shared boy/girl setting (it changes nothing in this game today, but the control is on every game).
-- **Telemetry export**, and **leave the game** (back to the alef menu).
+- **The game's sounds:** a button for each coded effect and the tune.
+- The player (boy/girl; it changes nothing in this game today), the telemetry export and the way back to the alef menu
+  are the area's own sections. The game does not ask boy or girl before play, because no line has a boy or girl form.
 
 ## Tracking
 
-`createTelemetry` from `src/shared/telemetry.ts`, with its own key and the `about` block that names this document.
+`createTelemetry` from `src/shared/telemetry.ts` with `game: 'spacecat'`, its own key and the `about` block that names
+this document. Its cap is a share of the one storage budget of all logs (the parent decides the split). The export is the
+parent area's one export.
 
 - Each round: the item, the four numbers by lane, the ship's lane at the start, the lane and number he ended on, the
   result (right, wrong, time-out), zoom or arrival, the time to his last lane change and to the end, the arrival time
@@ -286,15 +298,19 @@ play triangle hides the game. After the pause the same sum starts again from the
 ## Where it lives in the code
 
 ```
-spacecat/index.html            a new Vite entry (vite.config.ts rollup input), like clock/ and duel2/
+spacecat/index.html            a new Vite entry (vite.config.ts rollup input, knip entry), like clock/ and duel2/
 src/spacecat/
-  logic/     facts and ladder, item choice, wrong answers, speed, round result, levels, points   (pure, tested)
+  main.tsx, SpaceCatApp.tsx  the root on the shared game shell (src/shared/shell); the staging import comes first
+  logic/     facts and ladder, item choice, wrong answers, speed, round result (a pure step), levels, points   (pure, tested)
+  controller.ts, usePlay.ts   the play flow as a framework-free controller (time through a Sleeper), and its thin hook
   canvas/    game loop, planet renderer, ship, particles, top bar, sum box, input
-  screens/   Cover, Play (wraps the canvas), LevelDone, End, Parent, PauseCover
-  audio/     coded effects and tune (ported), voice line table
-  store.ts   Zustand + persist: tallies, open rungs, points, best, ships, tips heard, settings
-  telemetry.ts
+  screens/   Cover, Play (wraps the canvas), LevelDone, End, PauseCover
+  parent/    Space Cat's part of the one parent area (src/parent): index.ts (light), Settings, reset
+  audio/     voice on the shared game-audio kit; coded effects and tune (ported) on the player port's WebAudio output; line table
+  saveFormat.ts, store.ts, savePort.ts   save key and light read; Zustand + persist (tallies, open rungs, points, best, ships, tips heard, settings); the controller's port
+  telemetry.ts, telemetryLog.ts
   assets/    the 9 original pictures, voice files
+  README.md  where things are, tests, known friction
 src/components/home/SpaceCatCard.tsx            the card on the home screen (one duel's layout)
 asset-sources/spacecat/        origin record of the pictures and the tune, voice requests, hub card request
 ```
@@ -343,7 +359,10 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
   because the game shows no Hebrew glyphs on child screens.
 - **Art generation.** The options mock was built from parts and opened on a phone. The home card is built from parts
   too; the image budget is kept for the case that the parent wants a painted card.
-- **Interaction.** No way out and no floating button on child screens. Points are shown in the run, at the end and on
+- **Interaction.** The only way out on a child screen is the held house (2 s, a ring; cover, top bar, pause cover, end
+  screen); the parent button is the parent gate (2 s hold, then the year of birth). No other floating button. The
+  planets of neighbouring lanes never overlap, each is at least about 56 CSS px at the ship's row on a phone on its side,
+  and they glow softly only while he can steer. A touch ends the zoom tip at once. Points are shown in the run, at the end and on
   the cover. Hearts, points, his best and a locked ship speak on a tap. The play triangle points left. The screens are
   built from the original's parts and alef's demo hand. The action is the answer: no confirm button. A place for the answer (the
   ring) is shown; the answer goes there by flight, not by a drag of a number, because the flight is the game. The demo
@@ -376,7 +395,9 @@ half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
 the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
-its line; the current ship shown once on the cover; one first take per voice item.
+its line; the current ship shown once on the cover; one first take per voice item; the held house on the cover, the top
+bar, the pause cover and the end screen (from the rule on `main`); no boy-or-girl question before play; the telemetry
+cap's share (proposal: Space Cat 200 k characters, Book 2 600 k, clock 400 k).
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field
 names, the constants' tuning inside the limits above.
