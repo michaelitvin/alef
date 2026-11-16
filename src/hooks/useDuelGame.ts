@@ -183,7 +183,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     if (r.type === 'C') return say(`wiz-${r.target.id}`)
     if (r.type === 'A' && r.word.he) return say(`wiz-word-${r.word.key}`)
     return Promise.resolve()
-  }, [])
+  },[say])
 
   /** Show the monster; A/D walk at once, B/C after arrival sound → silence → clue. */
   const begin = useCallback(
@@ -307,7 +307,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
       }
       begin(r)
     },
-    [begin, makeRound, rng, store, walkOverride],
+    [begin, makeRound, rng, store, walkOverride, say, onCue],
   )
 
   // React to the reducer asking for the next step.
@@ -510,7 +510,7 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     setFx((nextFx.current ??= makeFxPicker(rng))())
     const effect = pickEffect(rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
     dispatch({ type: 'CHOOSE', choice: c, effect })
-  }, [rng, store])
+  }, [rng, store, say])
 
   const megaCast = useCallback(() => {
     const s = stateRef.current

@@ -10,19 +10,11 @@ const TTS_VERSION = 1
 const CACHE_NAME = `alef-tts-v${TTS_VERSION}`
 
 // Concurrency control for API calls (sequential queue to avoid rate limits)
-let activeRequests = 0
 let requestQueue: Promise<void> = Promise.resolve()
 
 function withSlot<T>(fn: () => Promise<T>): Promise<T> {
   // Chain all requests through a single queue
-  const myTurn = requestQueue.then(async () => {
-    activeRequests++
-    try {
-      return await fn()
-    } finally {
-      activeRequests--
-    }
-  })
+  const myTurn = requestQueue.then(fn)
 
   // Update queue to wait for this request (ignore errors for queue purposes)
   requestQueue = myTurn.then(() => {}, () => {})

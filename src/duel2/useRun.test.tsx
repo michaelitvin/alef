@@ -549,7 +549,6 @@ describe('run controller', () => {
   it('word link never twice in a row', async () => {
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' }, rng: () => 0.01 })
     c.start()
-    let links = 0
     let lastWasLink = false
     let twice = false
     for (let r = 0; r < 4; r++) {
@@ -558,7 +557,6 @@ describe('run controller', () => {
       c.gesture({ type: 'pick', id: rightId(c.view) })
       await tick(2000)
       const link = played.filter((id) => id.startsWith('w-')).length > n0
-      if (link) links++
       if (link && lastWasLink) twice = true
       lastWasLink = link
     }

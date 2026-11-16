@@ -101,7 +101,7 @@ export function SyllableBlend({
         onPlaySyllable(blendWord.syllables[index])
       }
     },
-    [tappedIndices, showBlended, onPlaySyllable, blendWord.syllables]
+    [tappedIndices, showBlended, onPlaySyllable, blendWord.syllables, playError]
   )
 
   return (

@@ -18,16 +18,17 @@ export const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) 
 export const EMBEDDED_LANDSCAPE_QUERY = '(orientation: landscape)'
 
 /** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout (unless `query` says otherwise). */
+const mediaQuery = (query: string) => (typeof window.matchMedia === 'function' ? window.matchMedia(query) : null)
+
 export function useLandscape(query = LANDSCAPE_QUERY) {
-  const mq = () => (typeof window.matchMedia === 'function' ? window.matchMedia(query) : null)
-  const [on, setOn] = useState(() => mq()?.matches ?? false)
+  const [on, setOn] = useState(() => mediaQuery(query)?.matches ?? false)
   useEffect(() => {
-    const m = mq()
+    const m = mediaQuery(query)
     if (!m) return
     const f = () => setOn(m.matches)
     m.addEventListener('change', f)
     return () => m.removeEventListener('change', f)
-  }, [])
+  }, [query])
   return on
 }
 

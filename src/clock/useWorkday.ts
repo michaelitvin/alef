@@ -282,7 +282,11 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
         }
         else if (d.streak % 5 === 0) { await playSfx('wallchime'); live() }
         else if (rng() < 0.3) await say(customerAudioId(customer.id, 'thanks'), [])
-        else if (rng() < 0.3) await say(lineAudioId(`fb-cheer-${1 + (d.served % 3)}`, lang), [])
+        else {
+          // a second, separate draw (not a duplicate condition): a cheer
+          const cheer = rng() < 0.3
+          if (cheer) await say(lineAudioId(`fb-cheer-${1 + (d.served % 3)}`, lang), [])
+        }
       } else {
         d.streak = 0
         patch({
@@ -394,7 +398,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     stopVoices()
     day.current = newDay(day.current.streak)
     setRoundKey((k) => k + 1)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
   const resume = useCallback(() => setPaused(false), [])
   const replay = useCallback((target: 'prompt' | number) => {
     const v = viewRef.current

@@ -126,8 +126,11 @@ export function Glyph(p: {
     fontWaiters.add(f)
     return () => { fontWaiters.delete(f) }
   }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
   const shin = useMemo(() => drawnDots(p.text, p.px, measure), [measure, p.text, p.px, tick])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
   const { dx } = useMemo(() => inkOffset(measure(p.text, p.px), p.px), [measure, p.text, p.px, tick])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
   const { dy } = useMemo(() => inkOffset(measure(p.lineOf ?? p.text, p.px), p.px), [measure, p.text, p.lineOf, p.px, tick])
   const glow = p.glow ?? 'soft'
   const paint = {
