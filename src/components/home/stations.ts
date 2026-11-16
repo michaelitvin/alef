@@ -16,7 +16,7 @@ export interface Station {
   pic: 'img' | 'orb' | 'glyph' | 'hand'
 }
 
-export const STATIONS: Station[] = [
+const STATIONS: Station[] = [
   { id: 'tower', learn: 'ניקוד לפי צליל', pic: 'img' },
   { id: 'broom', learn: 'אותיות והברות לפי צליל', pic: 'orb' },
   { id: 'ghosts', learn: 'אותיות דומות', pic: 'img' },
@@ -49,14 +49,14 @@ const readState = (key: string) => readSaved(key)?.state ?? null
  * Book 2's save, read only (null when he has none, or it cannot be read). An older save is converted here as Book 2 will
  * convert it on its next start (its stations open, drawing on), without writing it.
  */
-export function readDuel2Save(): Partial<Duel2Save> | null {
+function readDuel2Save(): Partial<Duel2Save> | null {
   const saved = readSaved(DUEL2_KEY)
   if (!saved) return null
   return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<Duel2Save>
 }
 
 /** the first duel's recent answers per mark: the saved ones (Book 2's tower writes them on its own page), else the store's */
-export function readDuelRecent(): Record<string, string> {
+function readDuelRecent(): Record<string, string> {
   const d = readState(PROGRESS_KEY)?.duel as { recent?: Record<string, string> } | undefined
   return d?.recent ?? useProgressStore.getState().duel?.recent ?? {}
 }
@@ -68,7 +68,7 @@ export interface StationState { id: ScreenId; learn: string; pic: Station['pic']
  * 0–3 rating from his recent answers there. A missing save reads as a fresh one. Open stations first, then the locked
  * ones, each group in path order.
  */
-export function stationState(save: Partial<Duel2Save> | null, duelRecent: Record<string, string>): StationState[] {
+function stationState(save: Partial<Duel2Save> | null, duelRecent: Record<string, string>): StationState[] {
   const open = openScreens(save as Parameters<typeof openScreens>[0], duelRecent)
   const recent = (save?.recent ?? {}) as Record<string, string>
   const all = STATIONS.map((s) => {

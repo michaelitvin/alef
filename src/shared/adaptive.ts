@@ -4,11 +4,11 @@ export type Rng = () => number
 export interface Tally { seen?: number; wrong?: number; timeout?: number }
 
 /** Desirable difficulty: aim each round at about one mistake in five. */
-export const TARGET_MISTAKE_RATE = 0.2
+const TARGET_MISTAKE_RATE = 0.2
 /** How fast older answers fade: the newest counts 1, the one before 0.75, then 0.56… */
-export const RECENT_DECAY = 0.75
+const RECENT_DECAY = 0.75
 /** The lifetime rate counts like this many recent answers: recent results lead, history is remembered. */
-export const HISTORY_WEIGHT = 3
+const HISTORY_WEIGHT = 3
 /** Answers kept per item (x = wrong or too slow, o = right), newest last. */
 export const RECENT_KEEP = 12
 

@@ -12,7 +12,7 @@ import type { FxStyle } from '../../utils/duel/fxStyle'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
-export const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
+const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
 
 /** Book 2 plays only sideways, so its tower takes the landscape layout on a phone on its side too */
 export const EMBEDDED_LANDSCAPE_QUERY = '(orientation: landscape)'

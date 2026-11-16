@@ -2,10 +2,10 @@ import { motion } from 'framer-motion'
 import { forwardRef, type ReactNode } from 'react'
 import { colors, typography, borderRadius, shadows, transitions } from '../../styles/theme'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'ghost' | 'outline'
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'ghost' | 'outline'
+type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
-export interface ButtonProps {
+interface ButtonProps {
   children: ReactNode
   variant?: ButtonVariant
   size?: ButtonSize
@@ -148,5 +148,3 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 )
 
 Button.displayName = 'Button'
-
-export default Button

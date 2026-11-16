@@ -415,5 +415,3 @@ function LevelProgressBar({
     </div>
   )
 }
-
-export default ProgressPage

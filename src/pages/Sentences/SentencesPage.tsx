@@ -220,5 +220,3 @@ export function SentencesPage() {
     </div>
   )
 }
-
-export default SentencesPage

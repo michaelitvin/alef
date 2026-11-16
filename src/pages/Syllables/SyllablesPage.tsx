@@ -191,5 +191,3 @@ export function SyllablesPage() {
     </div>
   )
 }
-
-export default SyllablesPage

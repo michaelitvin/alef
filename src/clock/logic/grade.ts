@@ -4,7 +4,7 @@ import { phraseMinuteNumber } from './phrases'
 import type { Option, TrickFamily } from './tricks'
 
 /** The short hand passes within this many degrees of its true angle (half past on a number is 15° off: fails). */
-export const HOUR_TOLERANCE = 12
+const HOUR_TOLERANCE = 12
 export type SetError = 'swap' | 'notAdvanced' | 'mirror' | 'numberAsMin' | 'five' | 'hour1' | 'other'
 
 /** The long hand snaps to five-minute marks. */

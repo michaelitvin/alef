@@ -17,7 +17,7 @@ export interface BlendWord {
   wordSound: string
 }
 
-export interface SyllableBlendProps {
+interface SyllableBlendProps {
   /** The word to blend */
   blendWord: BlendWord
   /** Called when blend is complete */
@@ -321,5 +321,3 @@ export function SyllableBlend({
     </div>
   )
 }
-
-export default SyllableBlend

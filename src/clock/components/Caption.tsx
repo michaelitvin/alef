@@ -23,7 +23,7 @@ const FONT: Record<CaptionScript, string> = {
   caps: "'Andika', system-ui, sans-serif",
 }
 
-export interface CaptionProps {
+interface CaptionProps {
   words: string[]
   lang: Lang
   script: CaptionScript

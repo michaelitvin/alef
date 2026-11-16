@@ -15,7 +15,7 @@ export interface FeedbackPlan {
 }
 
 /** How sure the answer was. Without it the plan is the full recap. */
-export interface Confidence {
+interface Confidence {
   /** this mark has not come up yet this game */
   firstThisRun: boolean
   /** predicted mistake rate for the mark, before this round */
@@ -27,9 +27,9 @@ export interface Confidence {
 }
 
 /** A mark is strong below this predicted mistake rate (the round-selection aim is 0.2). */
-export const STRONG_BELOW = 0.2
+const STRONG_BELOW = 0.2
 /** A right answer after this share of the walk counts as slow. */
-export const SLOW_AFTER = 0.6
+const SLOW_AFTER = 0.6
 
 /**
  * Regular rounds teach where he is unsure (miss, first time this game, weak mark, forgiven twin): sound → name → word.

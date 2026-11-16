@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { colors, typography, spacing } from '../../styles/theme'
 
-export interface StarBadgeProps {
+interface StarBadgeProps {
   /** Number of stars to display (1-3) */
   stars: 1 | 2 | 3
   /** Label to show below stars */
@@ -78,5 +78,3 @@ export function StarBadge({ stars, label, size = 'md', animate = false }: StarBa
     </div>
   )
 }
-
-export default StarBadge

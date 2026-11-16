@@ -34,7 +34,7 @@ export interface RoundCtx {
   confusions: { letters: Conf; syllables: Conf }
 }
 
-export const CONFUSION_GROUP_MIN = 3
+const CONFUSION_GROUP_MIN = 3
 
 const pick = <T,>(rng: Rng, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
 function shuffle<T>(rng: Rng, xs: T[]): T[] {
@@ -140,10 +140,10 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
 }
 
 /** share of a dotted target's waves that are only the target and its twin (spec 2026-11-07: about a third) */
-export const TWIN_WAVE_SHARE = 1 / 3
+const TWIN_WAVE_SHARE = 1 / 3
 
 /** The target and its twin (בּ/ב, כּ/כ, פּ/פ, שׁ/שׂ, same vowel) once the twin is opened (stage 3), else null. */
-export function dotTwin(stage: Stage, target: Choice): Choice | null {
+function dotTwin(stage: Stage, target: Choice): Choice | null {
   if (target.kind !== 'syllable' || !target.mark || stage < 3) return null
   const pair = itemOf(target.itemId).pair
   if (!pair || !isAllowed(pair, target.mark)) return null

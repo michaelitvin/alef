@@ -27,7 +27,7 @@ export const WIZARD_GIRL = { idle: wizardIdleGirl, cast: wizardCastGirl, dizzy: 
 export const useWizard = () => (useGender() === 'girl' ? WIZARD_GIRL : WIZARD)
 export const TOWER = tower
 
-export type Faces = 'left' | 'right' | 'front'
+type Faces = 'left' | 'right' | 'front'
 
 export const MONSTERS: Record<string, { src: string; faces: Faces }> = {
   fuzzy: { src: fuzzy, faces: 'right' },

@@ -192,5 +192,3 @@ export function NikkudPage() {
     </div>
   )
 }
-
-export default NikkudPage

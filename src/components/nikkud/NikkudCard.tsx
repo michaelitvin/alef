@@ -2,9 +2,9 @@ import { motion } from 'framer-motion'
 import { forwardRef } from 'react'
 import { colors, typography, borderRadius, shadows } from '../../styles/theme'
 
-export type NikkudCardSize = 'sm' | 'md' | 'lg' | 'xl'
+type NikkudCardSize = 'sm' | 'md' | 'lg' | 'xl'
 
-export interface NikkudCardProps {
+interface NikkudCardProps {
   /** The Hebrew letter to display */
   letter: string
   /** The nikkud (vowel mark) to display */
@@ -153,5 +153,3 @@ export const NikkudCard = forwardRef<HTMLDivElement, NikkudCardProps>(
 )
 
 NikkudCard.displayName = 'NikkudCard'
-
-export default NikkudCard

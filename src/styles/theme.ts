@@ -87,8 +87,6 @@ export const fonts = {
   cursive: "'Dana Yad', 'Guttman Yad-Brush', 'Sigalit', sans-serif",
 } as const
 
-export type FontKey = keyof typeof fonts
-
 // Typography
 export const typography = {
   fontFamily: {
@@ -188,26 +186,3 @@ export const zIndex = {
   tooltip: 50,
   toast: 60,
 }
-
-// Touch targets
-export const touchTargets = {
-  minimum: '44px',
-  comfortable: '48px',
-  large: '56px',
-}
-
-// Complete theme object
-export const theme = {
-  colors,
-  fonts,
-  typography,
-  spacing,
-  borderRadius,
-  shadows,
-  transitions,
-  zIndex,
-  touchTargets,
-}
-
-export type Theme = typeof theme
-export default theme

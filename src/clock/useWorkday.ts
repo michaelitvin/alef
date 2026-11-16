@@ -17,8 +17,8 @@ import { spokenLineText, holdClockAudio, playSfx, playVoice, preloadVoices, stop
 import { scriptFor, type CaptionScript } from './components/Caption'
 import { explainLineId } from './components/ExplainPlayer'
 
-export type Phase = 'enter' | 'explain' | 'ask' | 'answer' | 'feedback' | 'levelup' | 'leave' | 'bonus' | 'summary'
-export interface WorkdayView {
+type Phase = 'enter' | 'explain' | 'ask' | 'answer' | 'feedback' | 'levelup' | 'leave' | 'bonus' | 'summary'
+interface WorkdayView {
   phase: Phase
   plan: RoundPlan
   customer: Customer
@@ -47,8 +47,8 @@ export interface WorkdayView {
   /** after a mistake: the answer stays on the bench until he taps the next button (the parent 2026-10-17) */
   awaitNext: boolean
 }
-export interface Heard { prompt: boolean; cards: number }
-export const HEARD_ALL: Heard = { prompt: true, cards: 3 }
+interface Heard { prompt: boolean; cards: number }
+const HEARD_ALL: Heard = { prompt: true, cards: 3 }
 type Answer = { kind: 'choice'; index: number } | { kind: 'set'; pose: HandPose }
 /** A round that started but is not committed yet: a pause keeps it, and resume asks the same question again. */
 interface OpenRound { plan: RoundPlan; customer: Customer; script: CaptionScript; lang: Lang; real: ClockTime | null; firstOfDay: boolean; today: string }
@@ -57,7 +57,7 @@ const CANCEL = Symbol('cancel')
 const CONFIDENT_MS = 6000
 /** Pauses between the steps of a round (ms). The playtest: "gameplay feels slow" (a round had about 5 s of waiting
  * between his answer and the next question). */
-export const PACE = { doorbell: 350, betweenAnswers: 150, afterBoing: 250, afterFix: 250, leave: 350 }
+const PACE = { doorbell: 350, betweenAnswers: 150, afterBoing: 250, afterFix: 250, leave: 350 }
 
 export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?: Rng; now?: () => Date } = {}) {
   const [view, setView] = useState<WorkdayView | null>(null)
@@ -426,7 +426,7 @@ function grade(plan: RoundPlan, a: Answer, nearMissUsed: boolean): Evaluation {
 }
 
 /** The narrator's question for a round of this exercise. */
-export function askLineFor(e: Exercise): string {
+function askLineFor(e: Exercise): string {
   if (e === 'find' || e === 'what' || e === 'digitalPick' || e === 'digitalSet') return `ask-${e}`
   return 'ask-set'
 }

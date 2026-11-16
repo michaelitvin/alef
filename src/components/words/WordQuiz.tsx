@@ -11,7 +11,7 @@ export interface WordQuizOption {
   isCorrect: boolean
 }
 
-export interface WordQuizProps {
+interface WordQuizProps {
   /** The prompt text (e.g., "בחר את המילה שמתאימה לתמונה") */
   prompt: string
   /** Quiz options */
@@ -227,5 +227,3 @@ export function WordQuiz({
     </div>
   )
 }
-
-export default WordQuiz

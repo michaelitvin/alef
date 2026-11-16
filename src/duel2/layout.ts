@@ -18,13 +18,13 @@ export const NEXT_PULSE = 1.08
 export const BAR_SIDE_PX = 24
 export const BAR_ITEM_GAP_PX = 12
 /** the bar's left side at its widest without the home button: the speaker and the hint button (CSS px from the screen's left edge) */
-export const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX
+const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX
 /**
  * The counts on the bar's right side at their widest (measured 436–437 px): coins up to 999, stars up to 99, the ×2/×3
  * badge (both as wide), three hearts; each more digit adds 21 px, without the badge they are 80 px narrower. CSS px from
  * the screen's right edge's margin (BAR_SIDE_PX). One value for every screen that goes up into the band.
  */
-export const BAR_COUNTS_PX = 438
+const BAR_COUNTS_PX = 438
 /**
  * The home button (a 2 s hold; rule: a way out on a child screen needs a hold) is the bar's first item on the left, in
  * the corner before the speaker (the parent: the home button belongs on the left): its slot (the button and a gap) moves
@@ -39,7 +39,7 @@ export const BAND_AIR_PX = 8
 /** content that goes up into the band starts at least this far below the screen's top */
 export const INTO_BAND_TOP_PX = 14
 /** the content goes up into the band only where that makes it noticeably larger (a phone on its side, not a wide desktop) */
-export const INTO_BAND_MIN_GAIN = 1.05
+const INTO_BAND_MIN_GAIN = 1.05
 
 /** where the stage starts on a screen without a notch (CSS px from the top) */
 export const CONTENT_TOP_PX = BAR_TOP_PX + BAR_H_PX + BAR_GAP_PX
@@ -73,7 +73,7 @@ export function stageBox(w: number, h: number, top = 0): { x: number; y: number;
 
 type Span = [number, number]
 /** the bar's items on a w-wide screen (x from the screen's left, CSS px; all of them in the band) */
-export interface BarItems {
+interface BarItems {
   /** the speaker (none on a screen without it, the doors) */
   speaker?: Span
   /** the hint button (?): after the speaker */
@@ -133,7 +133,7 @@ export function bandGap(w: number, speaker = true, home = false): { left: number
 /** the screens whose content rises into the top band on a phone (layout.ts bandStageBox): its width (stage units) */
 export const BAND_CONTENT_W: Record<string, number> = { doors: 560 * (519 / 600) }
 /** a screen at most this tall is a phone on its side: there the content rises into the band (a tablet keeps its layout) */
-export const BAND_MAX_H = 500
+const BAND_MAX_H = 500
 /** the content's top on a phone, with the content in the band (CSS px from the screen's top) */
 export const BAND_TOP_PX = 10
 
@@ -191,7 +191,7 @@ export function layoutVars(size?: { w: number; h: number }, top = 0, into?: 'ful
  * The screens whose own art rises into the band's empty left end on a phone on its side (BAND_MAX_H): the tower and the
  * wizard of the tower screen use the screen's full height there, up to 10 px below its top (duel.css, the parent's pick).
  */
-export const LEFT_INTO_BAND = ['tower']
+const LEFT_INTO_BAND = ['tower']
 
 /**
  * The held home button shows in the bar unless the screen's content rises into the band (layoutVars' `into`: the ladder's
@@ -208,7 +208,7 @@ export function homeInBar(size: { w: number; h: number }, top = 0, into?: 'full'
 
 
 /** the flight's left edge (stage x): the wizard flies near the screen's left edge (the parent's pick: the flight fills the width) */
-export const FLIGHT_LEFT = -60
+const FLIGHT_LEFT = -60
 
 /**
  * The broom flight's view on a w×h screen: as wide as the screen at the stage's scale (stageBox with its content top),
@@ -264,9 +264,9 @@ export const TOWER_LAYOUT = {
 /** the duel's glyph box (SpellPad) */
 export const DUEL_GLYPH_PX = 60
 /** the monster's feet: 14% of the field above its bottom (duel.css .nd-monster) */
-export const MONSTER_BOTTOM = 0.14
+const MONSTER_BOTTOM = 0.14
 /** the cue bubble's height, its arrow and its gap included (a picture, a sign or a speaker; measured ≤ 62), and a boss's hearts row */
-export const CUE_PX = { bubble: 64, gap: 12, bossGap: 4, bossBubble: 56, hearts: 26 }
+const CUE_PX = { bubble: 64, gap: 12, bossGap: 4, bossBubble: 56, hearts: 26 }
 
 /** The top of the monster's cue bubble (CSS px from the screen's top) on a w×h screen in Book 2's run, the boss's or a monster's. */
 export function towerCueTop(h: number, boss: boolean): number {

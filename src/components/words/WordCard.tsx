@@ -2,9 +2,9 @@ import { motion } from 'framer-motion'
 import { forwardRef } from 'react'
 import { colors, typography, borderRadius, shadows, spacing } from '../../styles/theme'
 
-export type WordCardSize = 'sm' | 'md' | 'lg'
+type WordCardSize = 'sm' | 'md' | 'lg'
 
-export interface WordCardProps {
+interface WordCardProps {
   /** The Hebrew word to display */
   word: string
   /** Optional syllable breakdown */
@@ -194,5 +194,3 @@ export const WordCard = forwardRef<HTMLDivElement, WordCardProps>(
 )
 
 WordCard.displayName = 'WordCard'
-
-export default WordCard

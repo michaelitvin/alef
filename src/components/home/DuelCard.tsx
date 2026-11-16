@@ -10,8 +10,8 @@ import { PlayButton } from './PlayButton'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */
 const ORBS: [string, number, number][] = [['בָּ', 58, -18], ['לִ', 46, 16], ['מוּ', 40, -6]]
-export const DUEL_HREF = () => `${import.meta.env.BASE_URL}duel2/`
-export const DUEL_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
+const DUEL_HREF = () => `${import.meta.env.BASE_URL}duel2/`
+const DUEL_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
 
 export function DuelCard() {
   const card = useGender() === 'girl' ? cardGirl : cardBoy

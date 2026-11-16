@@ -30,7 +30,7 @@ const DUCK_VOL = 0.08
 const LINE_TIMEOUT_MS = 12000
 const SFX_TIMEOUT_MS = 4000
 /** Word spacing assumed when a line has no timings yet (s). */
-export const WORD_ESTIMATE_S = 0.45
+const WORD_ESTIMATE_S = 0.45
 
 let cfg = { sfx: true, music: true, volume: 0.8 }
 export function configureClockAudio(o: { sfx: boolean; music: boolean; volume: number }) {
@@ -39,7 +39,6 @@ export function configureClockAudio(o: { sfx: boolean; music: boolean; volume: n
   if (!o.music) stopMusic()
 }
 export const unlockClockAudio = unlockAudio
-export const muteClockAudio = (on: boolean) => Howler.mute(on)
 
 // Rule: switching apps pauses the game and silences it. All clock audio is muted while the page is hidden, and stays
 // muted while the pause cover holds it, until he taps play.
@@ -65,7 +64,7 @@ export function preloadVoices(ids: string[]) {
  * The start time (s, media time) of each caption word of a voice line: the voice's word timings mapped onto the caption
  * words. When the line has no timings, or they cannot be mapped, the words are spread at an estimated pace.
  */
-export function captionTimesFor(id: string, caption: string[]): number[] {
+function captionTimesFor(id: string, caption: string[]): number[] {
   const spoken = VOICE_WORDS[id]
   const mapped = spoken ? captionTimes(caption, spoken) : null
   if (mapped) return mapped
@@ -164,8 +163,6 @@ export function stopMusic() {
   h.fade(h.volume(), 0, 300)
   window.setTimeout(() => { if (music !== h) h.stop() }, 320)
 }
-/** The music is on (for tests and checks). */
-export const musicPlaying = () => music !== null
 function duck(on: boolean) {
   ducks = Math.max(0, ducks + (on ? 1 : -1))
   if (music?.playing()) music.fade(music.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)

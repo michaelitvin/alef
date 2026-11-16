@@ -11,7 +11,7 @@ import { LockBadge } from './LevelIcons'
 import { useStations, type StationState } from './stations'
 
 const WIZ = { 's-wizard-cast': wizBoy, 's-wizard-cast-girl': wizGirl }
-export const stationHref = (id: string) => `${import.meta.env.BASE_URL}duel2/?station=${id}`
+const stationHref = (id: string) => `${import.meta.env.BASE_URL}duel2/?station=${id}`
 
 function Trail({ n }: { n: number }) {
   const w = (n + 2) * 90

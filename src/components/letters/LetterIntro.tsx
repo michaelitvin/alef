@@ -7,7 +7,7 @@ import { useAudio } from '../../hooks/useAudio'
 import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter, LetterVariant } from '../../types/entities'
 
-export interface LetterIntroProps {
+interface LetterIntroProps {
   /** The letter to introduce */
   letter: Letter
   /** Variants for this letter (if any) */
@@ -256,5 +256,3 @@ export function LetterIntro({ letter, variants, onComplete }: LetterIntroProps) 
     </div>
   )
 }
-
-export default LetterIntro

@@ -6,7 +6,7 @@ import { FeedbackOverlay, type FeedbackType } from '../../components/common/Feed
 import { useSoundEffects } from '../../hooks/useAudio'
 import type { Story } from '../../types/story'
 
-export interface StoryQuizViewProps {
+interface StoryQuizViewProps {
   story: Story
   /** Called with per-question first-try correctness when all questions are answered */
   onComplete: (firstTryCorrect: boolean[]) => void
@@ -201,5 +201,3 @@ export function StoryQuizView({ story, onComplete }: StoryQuizViewProps) {
     </div>
   )
 }
-
-export default StoryQuizView

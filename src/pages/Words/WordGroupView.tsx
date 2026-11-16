@@ -438,5 +438,3 @@ export function WordGroupView() {
     </div>
   )
 }
-
-export default WordGroupView

@@ -137,23 +137,3 @@ export async function preloadTTS(texts: string[]): Promise<void> {
     })
   )
 }
-
-/**
- * Clear all cached TTS audio
- */
-export async function clearTTSCache(): Promise<void> {
-  await caches.delete(CACHE_NAME)
-}
-
-/**
- * Get cache stats (for debugging)
- */
-export async function getTTSCacheStats(): Promise<{ count: number }> {
-  if (!('caches' in window)) {
-    return { count: 0 }
-  }
-
-  const cache = await caches.open(CACHE_NAME)
-  const keys = await cache.keys()
-  return { count: keys.length }
-}

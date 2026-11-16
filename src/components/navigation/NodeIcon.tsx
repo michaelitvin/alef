@@ -3,7 +3,7 @@ import { colors, typography, borderRadius, shadows } from '../../styles/theme'
 
 export type NodeState = 'locked' | 'available' | 'in_progress' | 'mastered'
 
-export interface NodeIconProps {
+interface NodeIconProps {
   /** Label to display (letter character, etc.) */
   label: string
   /** Current state of the node */
@@ -152,5 +152,3 @@ export function NodeIcon({
     </motion.button>
   )
 }
-
-export default NodeIcon

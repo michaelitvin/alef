@@ -26,7 +26,7 @@ import { openScreens, stationFromUrl } from './station'
 type Screen = 'cover' | 'station' | 'ask' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest' | 'leaving'
 
 /** back to the alef home screen (a session from the path ends there by itself) */
-export function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
+function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
 
 /** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
 function RotateHint() {

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 
-export interface SyllableBreakdownProps {
+interface SyllableBreakdownProps {
   /** The full word */
   word: string
   /** Syllables of the word */
@@ -238,5 +238,3 @@ export function SyllableBreakdown({
     </div>
   )
 }
-
-export default SyllableBreakdown

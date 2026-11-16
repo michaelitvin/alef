@@ -65,15 +65,15 @@ export interface BroomView {
   /** the flight is over: its finale (the wizard swoops away) */
   finished?: boolean
 }
-export interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
-export interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
-export interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
-export interface DoorsView {
+interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
+interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
+interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
+interface DoorsView {
   screen: 'doors'; word: Word; lit: 0 | 1 | 2; keys: Word[]; opening: boolean; zooming: boolean; reveal?: Reveal
   /** the last door: the crystal (its kind) waits behind it */
   behind?: { crystal: number }
 }
-export interface CrystalView { screen: 'crystal'; kind: number }
+interface CrystalView { screen: 'crystal'; kind: number }
 /** one of his strokes on the drawing screen (letter units of the slot): live while judged, gold when right */
 export interface DrawStroke { id: number; pts: Pt[]; state: 'live' | 'pending' | 'ok' | 'wrong' | 'helped' | 'mark' }
 export interface DrawView {
@@ -162,9 +162,9 @@ export interface View {
   coins?: number
 }
 /** the gestures of a merchant's visit */
-export type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
+type MerchantGesture = { type: 'coin'; value: number } | { type: 'hand' } | { type: 'potion' } | { type: 'decline' }
 /** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
-export type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
+type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
 
 export interface RunOpts {
   sandbox?: boolean
@@ -200,7 +200,7 @@ const MERCHANT_IDLE_MS = 20000
 /** the empty-hand line (first coins) is said at most once in this time */
 const MERCHANT_EMPTY_EVERY_MS = 4000
 /** the demo hand's drag of a coin into the merchant's hand (Merchant.tsx draws it) */
-export const MERCHANT_DEMO_DRAG_MS = 1800
+const MERCHANT_DEMO_DRAG_MS = 1800
 /** the demo hand moves to the merchant's hand before the coin flies back */
 const UNDO_TAP_MS = 700
 /** where the potion's heart rises: the wizard (Merchant.tsx WIZARD) */

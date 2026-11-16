@@ -2,7 +2,7 @@ import type { DuelMark, Rng, Round, Tally } from '../../types/duel'
 import { DUEL_MARKS, SOUND_GROUPS, twinOf } from './marks'
 import { wordsFor } from './words'
 import { pickNearTarget, predictedMistakeRate } from '../../shared/adaptive'
-export { TARGET_MISTAKE_RATE, RECENT_DECAY, HISTORY_WEIGHT, RECENT_KEEP, predictedMistakeRate } from '../../shared/adaptive'
+export { RECENT_KEEP, predictedMistakeRate } from '../../shared/adaptive'
 import { bossFor, newMonsterAt, padSize, screenTypesFor, unlockedMonsters, walkMs } from './rules'
 
 const pick = <T,>(rng: Rng, xs: T[]) => xs[Math.floor(rng() * xs.length)]
@@ -33,13 +33,13 @@ export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, re
 }
 
 /** A mistake he has made 2+ times is a pattern, not a slip. */
-export const CONFUSION_MIN = 2
+const CONFUSION_MIN = 2
 
 /**
  * The mark he most often taps when `target` is asked (directional: tapping X for Y says nothing about Y for X).
  * Rows are keyed by target id, columns by the tapped mark id.
  */
-export function confusionPartner(target: DuelMark, confusions: Confusions | undefined): DuelMark | undefined {
+function confusionPartner(target: DuelMark, confusions: Confusions | undefined): DuelMark | undefined {
   const row = confusions?.[target.id]
   if (!row) return undefined
   let best: [string, number] | null = null

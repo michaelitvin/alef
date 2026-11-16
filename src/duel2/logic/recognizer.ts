@@ -8,7 +8,7 @@ export type Why = 'start' | 'direction' | 'shape' | 'order'
 export interface Box { left: number; right: number; top: number; bottom: number }
 
 /** points per resampled stroke */
-export const N = 32
+const N = 32
 /** mean point distance (own-normalized: the stroke's longer side = 1) that still counts as the same shape */
 export const SHAPE_TOL = 0.17
 /** how far (in letter units, times the letter's scale) a later stroke may start from where it should */
@@ -85,7 +85,7 @@ function ownNorm(p: Pt[]): Pt[] {
 const meanDist = (a: Pt[], b: Pt[]) => a.reduce((s, q, i) => s + dist(q, b[i]), 0) / a.length
 
 /** where the letter he draws sits: expected point → his point = s·p + t */
-export interface Frame { s: number; tx: number; ty: number }
+interface Frame { s: number; tx: number; ty: number }
 const ID: Frame = { s: 1, tx: 0, ty: 0 }
 const apply = (f: Frame, [x, y]: Pt): Pt => [f.s * x + f.tx, f.s * y + f.ty]
 
@@ -109,7 +109,7 @@ function fit(pairs: { d: Pt[]; e: Pt[] }[], prior = false): Frame {
 /** letters told apart mostly by their height against the lines (ו י ן, ר ך): their one stroke is checked for it */
 const BY_HEIGHT = 'וירךן'
 /** a first stroke shorter than this share of its expected length (letter units, from the lines) is only a piece */
-export const SHORT = 0.55
+const SHORT = 0.55
 const LOOSE = 1.15
 
 /**

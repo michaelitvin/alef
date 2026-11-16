@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Gender } from './player'
 
-export const ASK_AGAIN_MS = 8000
+const ASK_AGAIN_MS = 8000
 /** asks at most this many times in all (the first time and the re-asks), then waits quietly */
 export const MAX_ASKS = 3
 const CSS = `
@@ -23,7 +23,7 @@ const CSS = `
 @keyframes gq-pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1.04)}}
 `
 
-export interface GenderQuestionProps {
+interface GenderQuestionProps {
   boySrc: string
   girlSrc: string
   /** the question's voice id */

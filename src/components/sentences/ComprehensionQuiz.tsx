@@ -9,7 +9,7 @@ export interface ComprehensionOption {
   isCorrect: boolean
 }
 
-export interface ComprehensionQuizProps {
+interface ComprehensionQuizProps {
   /** The sentence that was read */
   sentence: string
   /** The comprehension question */
@@ -222,5 +222,3 @@ export function ComprehensionQuiz({
     </div>
   )
 }
-
-export default ComprehensionQuiz

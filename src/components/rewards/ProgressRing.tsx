@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { colors, typography } from '../../styles/theme'
 
-export interface ProgressRingProps {
+interface ProgressRingProps {
   /** Progress value from 0 to 1 */
   progress: number
   /** Size of the ring in pixels */
@@ -114,5 +114,3 @@ export function ProgressRing({
     </div>
   )
 }
-
-export default ProgressRing

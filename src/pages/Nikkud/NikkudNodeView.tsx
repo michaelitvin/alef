@@ -559,5 +559,3 @@ export function NikkudNodeView() {
     </div>
   )
 }
-
-export default NikkudNodeView

@@ -1,10 +1,10 @@
 // Telemetry: an event log in localStorage (it survives closing the tab) so a parent can export it and analyse play
 // offline. Capped so it can never crowd out the progress save, and it never throws.
-export interface TelemetryEvent { t: number; s: string; run: number; e: string; [field: string]: unknown }
+interface TelemetryEvent { t: number; s: string; run: number; e: string; [field: string]: unknown }
 
 /** What an exported log says about itself: a parent can hand the file to an AI coding tool, which then finds the code and
  * the design documents that explain each event. */
-export interface TelemetryAbout { game: string; docs: string[]; code?: string[] }
+interface TelemetryAbout { game: string; docs: string[]; code?: string[] }
 const REPO = 'https://github.com/michaelitvin/alef'
 
 export function createTelemetry(key: string, maxChars = 1_000_000, about?: TelemetryAbout) {

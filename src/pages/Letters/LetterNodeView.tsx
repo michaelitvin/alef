@@ -401,5 +401,3 @@ export function LetterNodeView() {
     </div>
   )
 }
-
-export default LetterNodeView

@@ -20,7 +20,7 @@ function Frame({ children, dim = true }: { children: React.ReactNode; dim?: bool
 }
 
 /** The syllable split into his two steps: the letter, then the vowel, then the whole. */
-export function TwoSteps({ target, h, small = false }: { target: Choice; h: Highlight | null; small?: boolean }) {
+function TwoSteps({ target, h, small = false }: { target: Choice; h: Highlight | null; small?: boolean }) {
   const it = itemOf(target.itemId)
   const m = target.mark ? markOf(target.mark) : null
   const y = small ? 250 : 430

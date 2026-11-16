@@ -608,5 +608,3 @@ export const useProgressStore = create<ProgressStore>()(
     }
   )
 )
-
-export default useProgressStore

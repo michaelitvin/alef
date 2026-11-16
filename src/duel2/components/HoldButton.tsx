@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 export const HOLD_MS = 2000
 /** how long the ring shows how far a short press got */
-export const HOLD_HINT_MS = 700
+const HOLD_HINT_MS = 700
 const RING_C = 2 * Math.PI * 25
 
 export function HoldButton({ label, className, onHold, children }: {

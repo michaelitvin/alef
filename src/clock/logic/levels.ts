@@ -3,9 +3,9 @@ import { LEVEL_MINUTES, MAX_LEVEL } from './time'
 import type { Exercise, Scaffolds } from './types'
 
 /** Michael chose fast-forward over a placement test: the first 5 rounds on a level's new times all right pass it. */
-export const FAST_FORWARD = 5
-export const PASS_WINDOW = 10
-export const PASS_CORRECT = 8
+const FAST_FORWARD = 5
+const PASS_WINDOW = 10
+const PASS_CORRECT = 8
 
 export interface LevelProgress {
   level: number
@@ -32,7 +32,7 @@ export type ExplainId =
   | 'ex-find' | 'ex-what' | 'ex-set' | 'ex-digital' | 'seconds'
   | 'fix-swap' | 'fix-notAdvanced' | 'fix-mirror' | 'fix-numberAsMin' | 'fix-hour1' | 'fix-five'
 
-export interface ExplainState {
+interface ExplainState {
   /** round number at which each explanation last played */
   explained: Partial<Record<ExplainId, number>>
   roundNo: number
@@ -66,8 +66,8 @@ export function introsFor(
 }
 
 /** Rounds before the same mistake's explanation may play again (the parent 2026-10-17: an explanation from time to time) */
-export const FIX_COOLDOWN = 6
-export const FIX_FOR: Record<string, ExplainId | undefined> = {
+const FIX_COOLDOWN = 6
+const FIX_FOR: Record<string, ExplainId | undefined> = {
   swap: 'fix-swap', notAdvanced: 'fix-notAdvanced', mirror: 'fix-mirror', numberAsMin: 'fix-numberAsMin',
   hour1: 'fix-hour1', five: 'fix-five', seconds: 'seconds',
 }

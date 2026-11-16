@@ -5,7 +5,7 @@ import { LetterCard } from '../letters/LetterCard'
 import { FeedbackOverlay, type FeedbackType } from '../common/FeedbackOverlay'
 import { useSoundEffects } from '../../hooks/useAudio'
 
-export interface CombinationBuilderProps {
+interface CombinationBuilderProps {
   /** Available letters to choose from */
   letters: string[]
   /** Available nikkud marks to choose from */
@@ -314,5 +314,3 @@ export function CombinationBuilder({
     </div>
   )
 }
-
-export default CombinationBuilder

@@ -4,7 +4,7 @@
 import type { Extent } from './ClockFace'
 
 export type Box = { w: number; h: number }
-export type Dir = 'row' | 'column'
+type Dir = 'row' | 'column'
 
 export const GAP = 16
 /** an option card's padding and border, both sides together */
@@ -17,9 +17,9 @@ export const DIGITAL_PROMPT_H = 100
 export const FIND_CLIP = 1.3
 /** a text card with its speaker button beside it; a digital card. Stacked under the clock, text cards may grow
  * to the wide width, so a long phrase stays on one line. */
-export const TEXT_CARD_W = 380
-export const TEXT_CARD_WIDE = 540
-export const DIGITAL_CARD_W = 260
+const TEXT_CARD_W = 380
+const TEXT_CARD_WIDE = 540
+const DIGITAL_CARD_W = 260
 /** the hand buttons beside the face (row) or under it (column) */
 export const BUTTONS_W = 96
 export const BUTTONS_H = 96
@@ -43,24 +43,24 @@ export function findLayout(box: Box, ext: Extent) {
  * as in Find the clock, so that the face itself can grow. Playtest 2026-10-15: "the clock on a phone is much smaller
  * than the answers".
  */
-export const COMPACT_MIN = 520
+const COMPACT_MIN = 520
 export const isCompact = (box: Box) => Math.min(box.w, box.h) < COMPACT_MIN
 /** answer card sizes; `h` is the most a card may grow to (a two-line caption), `wide` the width when stacked under the clock */
-export const CARDS = {
+const CARDS = {
   text: { w: TEXT_CARD_W, wide: TEXT_CARD_WIDE, h: 100, gap: 14 },
   digital: { w: DIGITAL_CARD_W, wide: DIGITAL_CARD_W, h: 100, gap: 14 },
   textCompact: { w: 250, wide: 540, h: 72, gap: 10 },
   digitalCompact: { w: 170, wide: 200, h: 72, gap: 10 },
 } as const
-export type CardKind = 'text' | 'digital'
+type CardKind = 'text' | 'digital'
 /** the minimum tap height of an answer card */
 export const MIN_TAP = 64
 /**
  * A short portrait phone (360x640): the three stacked cards take too much of the height. The cards get the minimum tap
  * height and a smaller gap (QA 2026-10-15: the clock was smaller than the cards).
  */
-export const isTight = (box: Box) => box.h > box.w && box.h < 520
-export const TIGHT_GAP = 8
+const isTight = (box: Box) => box.h > box.w && box.h < 520
+const TIGHT_GAP = 8
 
 /**
  * On a phone the case is shown as fully as the room allows: the whole case if the face still beats the cards, else cut off

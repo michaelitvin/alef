@@ -19,7 +19,7 @@ export interface ClockSettings {
   volume: number
 }
 
-export interface ClockSave {
+interface ClockSave {
   progress: LevelProgress
   tallies: Record<string, Tally>
   recent: Record<string, string>
@@ -53,7 +53,7 @@ interface Actions {
   resetProgress: () => void
 }
 
-export const DEFAULT_SETTINGS: ClockSettings = { langs: ['he', 'en'], heCursiveMix: true, enCapsMix: true, sfx: true, music: true, volume: 0.8 }
+const DEFAULT_SETTINGS: ClockSettings = { langs: ['he', 'en'], heCursiveMix: true, enCapsMix: true, sfx: true, music: true, volume: 0.8 }
 const fresh = (): Omit<ClockSave, 'settings'> => ({
   progress: START_PROGRESS, tallies: {}, recent: {}, confusions: {}, mistakes: [], explained: {}, roundNo: 0,
   gears: 0, workdays: 0, bestStreak: 0, lastRealTimeDay: '', welcomed: false, bonusExplained: false, hintsSeen: {},

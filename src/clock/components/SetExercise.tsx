@@ -25,7 +25,7 @@ export function initialPose(plan: RoundPlan): HandPose {
   return { hour: away * 30, minute: 0 }
 }
 
-export interface SetExerciseProps {
+interface SetExerciseProps {
   plan: RoundPlan
   script: CaptionScript
   locked: boolean

@@ -465,5 +465,3 @@ export function SyllableNodeView() {
     </div>
   )
 }
-
-export default SyllableNodeView

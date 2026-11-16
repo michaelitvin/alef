@@ -177,5 +177,3 @@ export function AgeGate({ onVerified }: AgeGateProps) {
     </div>
   )
 }
-
-export default AgeGate

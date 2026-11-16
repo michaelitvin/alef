@@ -33,7 +33,7 @@ const LINE_GAP_MS = 800
  * it through pause()/resume()). The intro and the screen explanations play once ever: `seen` / `onSeen` keep them
  * (keys 'tower-intro' and 'tower-screen-<key>').
  */
-export interface DuelEmbedded {
+interface DuelEmbedded {
   wave: number
   waves: number
   boss: boolean
@@ -71,7 +71,7 @@ export interface DuelEmbedded {
   onWaveEnd?: (wave: number) => boolean
 }
 
-export interface UseDuelGameOpts {
+interface UseDuelGameOpts {
   rng?: Rng
   /** verify/test builds only: fixed monster walk time */
   walkOverride?: number
@@ -80,8 +80,8 @@ export interface UseDuelGameOpts {
   embedded: DuelEmbedded
 }
 
-export const TOWER_INTRO = 'tower-intro'
-export const towerScreenKey = (key: string) => `tower-screen-${key}`
+const TOWER_INTRO = 'tower-intro'
+const towerScreenKey = (key: string) => `tower-screen-${key}`
 
 export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defaultMakeRound, embedded }: UseDuelGameOpts) {
   /** the current embedded callbacks (the options object is new on every render) */

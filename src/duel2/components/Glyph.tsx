@@ -36,12 +36,12 @@ const MARK = /[\u0591-\u05C7]/
  * edge, y up from the baseline in ascents). Measured on Sigalit at 200 px (spec 2026-11-07: the font puts פּ's dagesh in the
  * curl, where it looks like part of the letter).
  */
-export const DAGESH_AT: Record<string, { x: number; y: number }> = {
+const DAGESH_AT: Record<string, { x: number; y: number }> = {
   'ב': { x: 0.4, y: 0.5 },
   'כ': { x: 0.43, y: 0.5 },
   'פ': { x: 0.45, y: 0.29 },
 }
-export interface DrawnDot { dx: number; dy: number; r: number; kind: 'shin' | 'dagesh' }
+interface DrawnDot { dx: number; dy: number; r: number; kind: 'shin' | 'dagesh' }
 
 /**
  * Dots the game draws itself, apart from the font: (1) Sigalit fuses the shin dot into the top of ש's right arm, so שׁ looked

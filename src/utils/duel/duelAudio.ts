@@ -11,7 +11,7 @@ import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
 import { getGender, voiceFor } from '../../shared/player'
 import { track } from './telemetry'
 
-export type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
+type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
 
 const LINE_TIMEOUT_MS = 9000 // > longest line (~4.2 s) plus a slow first load
 const SFX_TIMEOUT_MS = 3000
@@ -53,7 +53,7 @@ export const DUEL_FEMININE: ReadonlySet<string> = new Set([
 const fellBack = new Set<string>()
 /** The file to play for `id`: the feminine take when a girl plays; a missing one falls back to the masculine take
  * (never silence) and is logged once. */
-export function duelVoiceId(id: string): string {
+function duelVoiceId(id: string): string {
   const r = voiceFor(id, getGender(), (x) => x in VOICE_URLS, (x) => DUEL_FEMININE.has(x))
   if (r.fallback && !fellBack.has(id)) { fellBack.add(id); track('voice-fallback', { id }) }
   return r.id

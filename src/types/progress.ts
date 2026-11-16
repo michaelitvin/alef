@@ -211,7 +211,7 @@ export interface ProgressState {
 /**
  * Default initial state
  */
-export const DEFAULT_SETTINGS: Settings = {
+const DEFAULT_SETTINGS: Settings = {
   soundEffects: true,
   backgroundMusic: false,
   volume: 0.8,
@@ -221,7 +221,7 @@ export const DEFAULT_SETTINGS: Settings = {
   font: 'default',
 }
 
-export const DEFAULT_STATS: Stats = {
+const DEFAULT_STATS: Stats = {
   totalTimeMs: 0,
   sessionCount: 0,
   currentStreak: 0,
@@ -238,7 +238,7 @@ export const DEFAULT_STATS: Stats = {
   daysPlayed: 0,
 }
 
-export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
+const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
   letters: {
     levelId: 'letters',
     unlocked: true, // Letters always unlocked
@@ -276,7 +276,7 @@ export const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
   },
 }
 
-export const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {}, recent: {} }
+const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {}, recent: {} }
 
 export const INITIAL_PROGRESS_STATE: ProgressState = {
   version: 1,

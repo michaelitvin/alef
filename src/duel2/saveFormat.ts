@@ -17,13 +17,13 @@ export const DEFAULT_SETTINGS: Duel2Settings = { sfx: true, music: true, volume:
 
 /** the review marks to clear in version 2: the letters whose strokes changed after the parent's review (2026-11-07) */
 /** version 3: the letters changed after the second review */
-export const STROKES_CHANGED_V3 = [...'בדחטכמםצקרגזוץף'].map((l) => `${l}-hand`)
+const STROKES_CHANGED_V3 = [...'בדחטכמםצקרגזוץף'].map((l) => `${l}-hand`)
 /** version 4: the letters changed after the third review */
-export const STROKES_CHANGED_V4 = [...'הזמ'].map((l) => `${l}-print`).concat([...'םרכדחמ'].map((l) => `${l}-hand`))
-export const STROKES_CHANGED_V2 = [...'הזמנץק'].map((l) => `${l}-print`).concat([...'אבגדוילןצץףר'].map((l) => `${l}-hand`))
+const STROKES_CHANGED_V4 = [...'הזמ'].map((l) => `${l}-print`).concat([...'םרכדחמ'].map((l) => `${l}-hand`))
+const STROKES_CHANGED_V2 = [...'הזמנץק'].map((l) => `${l}-print`).concat([...'אבגדוילןצץףר'].map((l) => `${l}-hand`))
 
 /** the old rule, a coin for every this many stars: kept only for the version-5 migration (his coins become a balance) */
-export const COIN_EVERY = 10
+const COIN_EVERY = 10
 export const coinsOf = (stars: number) => Math.floor((stars ?? 0) / COIN_EVERY)
 
 /**

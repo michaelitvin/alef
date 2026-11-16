@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { sayInfo } from '../audio/duel2Audio'
 import { duel2Telemetry } from '../telemetry'
 
-export type InfoLine = 'info-hearts' | 'info-stars' | 'info-coins' | 'info-crystals' | 'info-best' | 'info-bosses' | 'info-mult'
+type InfoLine = 'info-hearts' | 'info-stars' | 'info-coins' | 'info-crystals' | 'info-best' | 'info-bosses' | 'info-mult'
 
 export function InfoTap(p: { line: InfoLine; children: ReactNode; className?: string }) {
   return (

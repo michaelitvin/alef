@@ -1,7 +1,7 @@
 import type { Choice, DuelState, EffectPreset, Next, Round } from '../../types/duel'
 import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, isTwin, keyOf, newMonsterAt, points } from './rules'
 
-export type DuelAction =
+type DuelAction =
   | { type: 'START' }
   /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
    * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */

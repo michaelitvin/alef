@@ -8,15 +8,15 @@ import { isNewTime } from './levels'
 import { kindInfo, pickKind, type ClockKind } from './workday'
 import type { Exercise, Hint, RoundPlan, Scaffolds } from './types'
 
-export const EXERCISE_PRIOR: Record<Exercise, number> = {
+const EXERCISE_PRIOR: Record<Exercise, number> = {
   find: 0.04, what: 0.06, digitalPick: 0.06, setShort: 0.06, setLong: 0.08, setBoth: 0.12, digitalSet: 0.12,
 }
-export const MINUTE_PRIOR: Record<number, number> = {
+const MINUTE_PRIOR: Record<number, number> = {
   0: 0.02, 30: 0.04, 15: 0.06, 45: 0.1, 5: 0.1, 10: 0.1, 20: 0.1, 25: 0.12, 35: 0.14, 40: 0.14, 50: 0.14, 55: 0.14,
 }
-export const SCAFFOLD_PRIOR: Record<string, number> = { nonum: 0.1, quarters: 0.05, noslice: 0.04, nohint: 0.05, sec: 0.04 }
-export const CANDIDATES = 24
-export const NEW_SHARE = 0.7
+const SCAFFOLD_PRIOR: Record<string, number> = { nonum: 0.1, quarters: 0.05, noslice: 0.04, nohint: 0.05, sec: 0.04 }
+const CANDIDATES = 24
+const NEW_SHARE = 0.7
 
 const pick = <T,>(rng: Rng, xs: T[]) => xs[Math.floor(rng() * xs.length)]
 
@@ -27,8 +27,8 @@ export function exercisesFor(level: number): Exercise[] {
   return out
 }
 /** The short hand follows the long hand on every level (the parent 2026-10-16: unlinked hands made impossible states). */
-export const linkedHands = (_level: number) => true
-export const optionKind = (e: Exercise): OptionKind | null =>
+const linkedHands = (_level: number) => true
+const optionKind = (e: Exercise): OptionKind | null =>
   e === 'find' ? 'clock' : e === 'what' ? 'phrase' : e === 'digitalPick' ? 'digital' : null
 /** Which hands a Set exercise grades. */
 export const checkFor = (e: Exercise) =>
@@ -51,7 +51,7 @@ export function scaffoldsFor(level: number, kind: ClockKind, rng: Rng, time: Clo
   }
 }
 
-export function pickTime(rng: Rng, level: number): { time: ClockTime; isNew: boolean } {
+function pickTime(rng: Rng, level: number): { time: ClockTime; isNew: boolean } {
   const fresh = LEVEL_MINUTES[Math.min(level, MAX_LEVEL)]
   const old = minutesUpTo(level - 1)
   const useNew = level >= MAX_LEVEL || old.length === 0 || rng() < NEW_SHARE
@@ -86,7 +86,7 @@ export function predict(feats: string[], tallies: Record<string, Tally>, recent:
 }
 
 /** The time he most often chose when `t` was asked (2+ times), if any. */
-export function confusionPartner(confusions: Record<string, Record<string, number>>, t: ClockTime): ClockTime | null {
+function confusionPartner(confusions: Record<string, Record<string, number>>, t: ClockTime): ClockTime | null {
   const row = confusions[timeId(t)]
   if (!row) return null
   let best: [string, number] | null = null

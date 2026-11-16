@@ -3,9 +3,9 @@
 import type { Stage } from './content.ts'
 import type { ScreenId } from './predict'
 
-export const FAST_FORWARD = 5
-export const PASS_WINDOW = 10
-export const PASS_CORRECT = 8
+const FAST_FORWARD = 5
+const PASS_WINDOW = 10
+const PASS_CORRECT = 8
 /** share of rounds aimed at the newest stage's items */
 export const NEW_SHARE = 0.6
 

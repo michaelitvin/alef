@@ -10,9 +10,9 @@ import type { NumberRange } from './logic/merchant'
 import { pushTowerTail, towerMastered } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import type { DuelStats } from '../types/duel'
-import { COIN_EVERY, DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, STROKES_CHANGED_V2, STROKES_CHANGED_V3, STROKES_CHANGED_V4, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
+import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
 
-export { COIN_EVERY, DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, STROKES_CHANGED_V2, STROKES_CHANGED_V3, STROKES_CHANGED_V4, SAVE_VERSION, coinsOf, migrateSave }
+export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }
 
 export interface Duel2Settings {
   sfx: boolean; music: boolean; volume: number

@@ -14,7 +14,7 @@ export const COIN_VALUES: Record<NumberRange, number[]> = {
 /** the first price of a run: about six right answers' coins without the multiplier */
 export const FIRST_PRICE = 6
 /** each purchase in a run multiplies the price */
-export const PRICE_GROWTH = 1.5
+const PRICE_GROWTH = 1.5
 /** a pile is drawn up to this many coins; a taller pile is drawn at the cap ("at least this many") */
 export const PILE_CAP = 6
 

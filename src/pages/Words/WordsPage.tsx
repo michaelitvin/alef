@@ -220,5 +220,3 @@ export function WordsPage() {
     </div>
   )
 }
-
-export default WordsPage

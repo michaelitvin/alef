@@ -18,7 +18,7 @@ export interface MinimalPairData {
   contrastDescription: string
 }
 
-export interface MinimalPairProps {
+interface MinimalPairProps {
   /** The minimal pair to practice */
   pair: MinimalPairData
   /** Called when item is complete */
@@ -330,5 +330,3 @@ export function MinimalPair({
     </div>
   )
 }
-
-export default MinimalPair

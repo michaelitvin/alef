@@ -15,7 +15,7 @@ import { CheckIcon, SpeakerIcon } from './icons'
 
 export const explainLineId = (id: ExplainId) => `exp-${id}`
 
-export interface ExplainPlayerProps {
+interface ExplainPlayerProps {
   id: ExplainId
   lang: Lang
   script: CaptionScript

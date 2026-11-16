@@ -4,11 +4,11 @@
 import { useSyncExternalStore } from 'react'
 
 export type Gender = 'boy' | 'girl'
-export interface PlayerSetting { gender: Gender; by: 'child' | 'parent'; at: number }
+interface PlayerSetting { gender: Gender; by: 'child' | 'parent'; at: number }
 export const PLAYER_KEY = 'alef-player'
 /** the suffix of a feminine voice file and of a girl picture */
-export const FEMININE_SUFFIX = '-f'
-export const GIRL_SUFFIX = '-girl'
+const FEMININE_SUFFIX = '-f'
+const GIRL_SUFFIX = '-girl'
 
 const listeners = new Set<() => void>()
 let cache: { raw: string | null; value: PlayerSetting | null } | null = null

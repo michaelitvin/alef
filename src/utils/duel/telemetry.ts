@@ -1,6 +1,5 @@
 // Duel telemetry (see src/shared/telemetry.ts).
 import { createTelemetry } from '../../shared/telemetry'
-export type { TelemetryEvent } from '../../shared/telemetry'
 
 /** ≈2 MB of the origin's ~5 MB localStorage (UTF-16); the progress save needs far less. */
 export const TELEMETRY_MAX_CHARS = 1_000_000

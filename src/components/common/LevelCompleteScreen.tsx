@@ -260,5 +260,3 @@ export function LevelCompleteScreen({
     </motion.div>
   )
 }
-
-export default LevelCompleteScreen

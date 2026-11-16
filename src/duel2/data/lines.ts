@@ -2,7 +2,7 @@
 // carrier phrase — rule). Lines that repeat have 3 variations (rule); no "!" (it makes the voice shout); check every word's
 // nikkud in a dictionary before generating (rule). Loaded by plain Node: erasable TS only.
 
-export interface LineDef {
+interface LineDef {
   id: string
   /** where it plays (shown on the review page) */
   where: string

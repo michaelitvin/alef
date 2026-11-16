@@ -8,7 +8,7 @@ import { MONSTERS } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 import { DEFAULT_FX, PALETTES, type Exit, type FxStyle } from '../../utils/duel/fxStyle'
 
-export interface Juice {
+interface Juice {
   particles: number
   shake: number
   flash: number

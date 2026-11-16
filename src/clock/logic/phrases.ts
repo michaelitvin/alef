@@ -6,7 +6,7 @@ import { type ClockTime, nextHour, timeId } from './time.ts'
 export type Lang = 'he' | 'en'
 export const LANGS: Lang[] = ['he', 'en']
 
-export interface Phrase {
+interface Phrase {
   /** "he-3-45" */
   id: string
   lang: Lang

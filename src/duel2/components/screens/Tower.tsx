@@ -18,7 +18,7 @@ import type { TowerView } from '../../controller'
 import { TEST_HOOKS } from '../../testHooks'
 import '../../../components/duel/duel.css'
 
-export interface TowerProps {
+interface TowerProps {
   view: TowerView
   paused: boolean
   /** the gallery: nothing is recorded */

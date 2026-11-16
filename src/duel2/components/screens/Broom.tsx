@@ -14,7 +14,7 @@ import { flightView } from '../../layout'
 
 /** each lane's centre (stage y): far enough apart that two orbs in neighbouring lanes never overlap (LANE_GAP, ORB_JITTER) */
 export const LANE_Y = [260, 505, 750]
-export const LANE_H = 245
+const LANE_H = 245
 /** the wizard's centre (stage x) */
 export const WIZ_X = 170
 /** the parent: 1.5 times the old 150 (big enough to see; a lane is still higher than he is, so he can dodge) */
@@ -42,13 +42,13 @@ export function flightPath(size?: { w: number; h: number }) {
 export const orbX = (k: number, path = flightPath()) => ORB_FRONT + k * path.span
 /** the boss's box on the right (stage units): it faces the wizard */
 export const BOSS_BOX = { x: 1060, y: 235, w: 460, h: 490 }
-export const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
-export const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
+const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
+const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 /** the health bar above the boss: below the top bar on a phone */
 export const HP = { x: BOSS_BOX.x - 6, y: 168, seg: 46, gap: 8, h: 30 }
 
 /** A wave: 3 orbs, one per lane, each with its own delay (fraction of the travel) and height jitter — popcorn style (Michael). */
-export interface BroomWave {
+interface BroomWave {
   id: number; choices: Choice[]; startMs: number; offsets: number[]; jitter: number[]; resolved: boolean[]
   /** each orb's lane (a two-orb wave uses two of the three lanes); by default an orb's lane is its index */
   lanes?: number[]

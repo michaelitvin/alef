@@ -127,5 +127,3 @@ export function StoriesPage() {
     </div>
   )
 }
-
-export default StoriesPage

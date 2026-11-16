@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  // src/main.tsx is found through index.html; the other two apps' HTML entries are not found on their own
+  "entry": ["src/duel2/main.tsx", "src/clock/main.tsx", "scripts/**/*.ts", "worker/src/index.ts"],
+  "project": ["src/**", "scripts/**/*.ts", "worker/src/**"],
+  "ignoreExportsUsedInFile": true,
+  // wrangler deploys the TTS worker (worker/) by hand; nothing imports it
+  "ignoreDependencies": ["wrangler"]
+}
