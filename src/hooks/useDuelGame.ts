@@ -2,7 +2,6 @@
 // announcements, spoken instructions, clue-then-clock, the outcome's effects and speech, pause, and stats.
 // Pacing rule: the next monster appears only after the effects AND every wizard line have finished (+500 ms).
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { getDeviceSettings } from '../shared/deviceSettings'
 import type { Choice, DuelMark, Next, PictureWord, Rng, Round } from '../types/duel'
 import { duelReducer, initialDuelState } from '../utils/duel/reducer'
 import { makeRound as defaultMakeRound, type MakeRoundOpts } from '../utils/duel/rounds'
@@ -14,7 +13,7 @@ import { flushTelemetry, setTelemetryRun, track } from '../utils/duel/telemetry'
 import { feedbackPlan, nextBossStart, type FeedbackPlan } from '../utils/duel/flow'
 import { predictedMistakeRate } from '../utils/duel/rounds'
 import { makeFxPicker, type FxStyle } from '../utils/duel/fxStyle'
-import { configureDuelAudio, lineAsset, muteDuelAudio, playLine, playSfx, stopAllLines, unlockDuelAudio } from '../utils/duel/duelAudio'
+import { lineAsset, muteDuelAudio, playLine, playSfx, stopAllLines, unlockDuelAudio } from '../utils/duel/duelAudio'
 import { EFFECT_PRESETS } from '../components/duel/Explosion'
 import type { IconName } from '../components/duel/Icon'
 import { useProgressStore } from '../stores/progressStore'
@@ -53,8 +52,6 @@ interface DuelEmbedded {
   onCharge?: (mega: number) => void
   /** the visit is over (its waves, the boss's defeat, or the run's hearts ran out): the last wave played */
   onDone: (lastWave: number) => void
-  /** the duel's sound effects and volume follow the run's settings */
-  audio?: { sfx: boolean; volume: number }
   /** the gallery: nothing is recorded */
   dry?: boolean
   /**
@@ -432,7 +429,6 @@ export function useDuelGame({ rng = Math.random, walkOverride, makeRound = defau
     unlockDuelAudio()
     muteDuelAudio(false) // a run left while paused must not leave everything muted
     const e = emb.current
-    configureDuelAudio({ sfx: e.audio?.sfx ?? true, volume: e.audio?.volume ?? getDeviceSettings().volume })
     runId.current += 1
     setTelemetryRun(runId.current)
     track('run_start', { embedded: true, wave: e.wave, waves: e.waves, boss: e.boss })

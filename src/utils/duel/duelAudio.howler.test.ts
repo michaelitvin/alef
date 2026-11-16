@@ -142,15 +142,16 @@ describe('duelAudio', () => {
     byUrl('wk').emit('loaderror')
     await expect(p).resolves.toBeUndefined()
   })
-  it('sfx off: playSfx resolves without playing', async () => {
+  it('sfx off (the device setting): playSfx resolves without playing', async () => {
     const audio = await import('./duelAudio')
-    audio.configureDuelAudio({ sfx: false, volume: 1 })
+    const out = await import('../../shared/gameAudio/output')
+    out.applySound({ sfx: false, music: true, volume: 1 })
+    expect(HowlerG.volume).toHaveBeenLastCalledWith(1)
     await expect(audio.playSfx('arrival')).resolves.toBeUndefined()
     expect(instances.filter((i) => i.playing())).toHaveLength(0)
   })
   it('playSfx resolves when the effect ends', async () => {
     const audio = await import('./duelAudio')
-    audio.configureDuelAudio({ sfx: true, volume: 1 })
     const p = audio.playSfx('cast')
     byUrl('c').emit('end')
     await expect(p).resolves.toBeUndefined()

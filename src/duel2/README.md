@@ -31,4 +31,3 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 ## Known friction
 
 - `controller.ts` reads the lessons' save (`useProgressStore`, which also holds the first duel's history) and imports `ZOOM_MS` from a view (`components/screens/Doors`).
-- The clock (`src/clock/audio/clockAudio.ts`) and the first duel (`src/utils/duel/duelAudio.ts`) still have their own audio code; they move onto the kit next.

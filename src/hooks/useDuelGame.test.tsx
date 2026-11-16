@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react'
 
 const pending: { id: string; resolve: () => void; onCue?: (c: string) => void }[] = []
 vi.mock('../utils/duel/duelAudio', () => ({
-  unlockDuelAudio: vi.fn(), configureDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
+  unlockDuelAudio: vi.fn(), muteDuelAudio: vi.fn(), stopAllLines: vi.fn(),
   playSfx: vi.fn(() => Promise.resolve()),
   lineAsset: (id: string) => ({ id, file: id, url: `u:${id}` }),
   playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
