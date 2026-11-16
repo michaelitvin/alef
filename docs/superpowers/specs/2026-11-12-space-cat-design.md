@@ -32,7 +32,7 @@ parent decided an exception.
 
 ## Anti-goals (a failure even if it works)
 
-- Any text on a child screen other than the credit line. Any way out of the game on a child screen.
+- Any text on a child screen. Any way out of the game on a child screen.
 - A game that gets faster until he fails, or that shows him that it got easier.
 - A heart lost for clumsy steering when he knew the answer.
 - A change to the feel of the original: it must stay a fluent arcade game that does not stop at a mistake.
@@ -48,9 +48,10 @@ With the author's permission, we reuse:
 - **Numbers of the design:** 4 lanes, 3 hearts, 7 right answers per level, 1 point for a right answer and 2 for an early
   zoom, a new ship at levels 4 and 7.
 
-**Credit (the parent's decision):** the cover screen shows a small line in a lower corner: `Credit: Igor, Ray's dad`.
-It is the one piece of text on a child screen. The child does not need it to play. The no-text scan has an allow-list
-with this one string. *My call:* the line is in English, as the parent wrote it; `asset-sources/spacecat/README.md` (the repository
+**Credit (the parent's decision):** the credit is a line of text on the home screen, under the Space Cat card, in Hebrew:
+`קרדיט: איגור אבא של ריי`. It is the parent's side of the home page; no screen of the game itself shows it, so the game
+has no text at all and the no-text scan needs no exception. *My call:* the line sits below the card's "מה לומדים" text,
+in the same style but smaller and lighter; `asset-sources/spacecat/README.md` (the repository
 has no root README) carries the same credit and says that the pictures, the tune and the mechanic come from
 Space Cat Math by permission of its author. Each ported source file says so in its header comment.
 
@@ -136,9 +137,8 @@ row; they still arrive together.
 ## The cover
 
 The space background with turning planets, the ship shelf with his current ship large in its middle (it is not shown a
-second time), a play triangle, all his points with the star, his best, the credit line (inset from the rounded screen
-corner, rule: keep things away from the corners), and the parent button (a 2 s hold, as in Book 2). No way home here; it is
-in the parent area. The fonts and pictures load before the cover shows.
+second time), a play triangle, all his points with the star, his best, and the parent button (a 2 s hold, as in Book 2), inset from the
+rounded screen corner (rule: keep things away from the corners). No way home here; it is in the parent area. The fonts and pictures load before the cover shows.
 
 **The play triangle** points left on every screen of this game. Reason (rule): the ship moves up, not to a side, so
 the triangle follows the reading direction. *My call.*
@@ -305,7 +305,8 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
   from the game's own parts (rule: build from the game's own parts; non-goal: no art in alef's painted style): the space
   background, the current cat ship, three small planets with digits, and the home's play button pointing left. Under it,
   the line for the parent: "**מה לומדים:** חיבור וחיסור עד 10, מספר חסר בתרגיל, ואחר כך חיבור וחיסור עד 20. המשחק
-  מתאים את עצמו לילד, גם במהירות."
+  מתאים את עצמו לילד, גם במהירות." Below it, the credit line `קרדיט: איגור אבא של ריי`, in the same style, smaller
+  and lighter (see *Credit*).
 - Image budget (the parent approved): a generated card picture, plan 4 attempts, ceiling 8. With the card from the
   game's own parts, it is used only if the parent asks for a painted picture after he sees the card.
 - Voice budget (the parent approved): plan about 12 takes, ceiling about 24. The lines above are 11 items with their
@@ -319,7 +320,7 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
 
 - Unit tests for all of `logic/`: the ladder, the choice (no fact twice in a row, the 0.2 target), the wrong answers
   (different, in range, the confusion included), the speed limits, the three results, the hearts.
-- The no-text scan on all child screens, with digits marked and the credit line on the allow-list.
+- The no-text scan on all child screens, with digits marked and no allow-list.
 - Drag, flick and tap tested with real touch events in the headless browser, at tablet landscape, phone upright and phone-on-its-side sizes.
 - The full QA pass of the rules before the parent gets a build: a fresh start, each rung reached by a seeded store,
   wrong answers and time-outs, the audio order logged, a screenshot of each step.
@@ -329,7 +330,7 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
 
 How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by section.
 
-- **Communication on the screen.** No text but the credit line (the parent's exception). Digits and signs are the
+- **Communication on the screen.** No text at all (the credit is on the home page, not in the game). Digits and signs are the
   learning content. The voice does not say what the screen shows; the sum is never read aloud (the parent's decision,
   and the digits are what he practises). The round "says what to do" by the demo and the ring; the instruction is not
   repeated each round.
@@ -365,12 +366,12 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
 ## Decisions and their owners
 
 The parent decided: sums now and reading later; the wide landscape layout; drag with flick, and a tap also works; the
-original's art and coded sound; points stay in this game; no narrated numbers; the credit line on the cover; one
+original's art and coded sound; points stay in this game; no narrated numbers; the credit under the home card, in Hebrew; one
 adaptive ladder at 1 mistake in 5; all twelve rule changes listed in the chat of 2026-11-12 (among them: no timer bar,
 lane glide, our pointing hand, zoom taught later, lines that do not address the child). Igor's permission covers this
 public repository. The budgets: image plan 4, ceiling 8; voice plan about 12 takes, ceiling about 24.
 
-My calls, for the parent to check: the credit line in English; the ladder's rungs and its numbers; a time-out counts as
+My calls, for the parent to check: the credit's style under the home card; the ladder's rungs and its numbers; a time-out counts as
 half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it; the speed numbers; `1 + 1` as the demo; a tap on the shelf chooses the ship; levels without an end;
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
