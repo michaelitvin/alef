@@ -49,6 +49,12 @@ function NavigationSoundEffect() {
   return null
 }
 
+/**
+ * The devMode URL param and Ctrl+Shift+D switch dev mode on with no parent gate, so they work only outside
+ * production (dev, test and verify builds). On production, dev mode is switched in the parent's settings.
+ */
+const DEV_SHORTCUTS = import.meta.env.MODE !== 'production'
+
 function App() {
   const { settings, setDevMode } = useProgressStore()
 
@@ -58,6 +64,7 @@ function App() {
   // Check URL param for dev mode on mount
   // With HashRouter, params can be in hash (e.g., /#/?devMode=true) or before hash (?devMode=true#/)
   useEffect(() => {
+    if (!DEV_SHORTCUTS) return
     // Check regular search params first
     let params = new URLSearchParams(window.location.search)
     if (params.get('devMode') === 'true') {
@@ -76,6 +83,7 @@ function App() {
 
   // Keyboard shortcut: Ctrl+Shift+D to toggle dev mode
   useEffect(() => {
+    if (!DEV_SHORTCUTS) return
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         e.preventDefault()

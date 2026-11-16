@@ -23,7 +23,8 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
   voice through `setVoicePlayer` / `setVoiceExists`, then drive the run with the helpers at the top of that file
   (`until`, `drain`, `proceed`). Reuse those helpers. Do not write a new harness.
 - `logic/` has plain unit tests. Put a new rule there when it needs no timing.
-- `TEST_HOOKS` (`testHooks.ts`) turns on `data-correct` and the debug routes in tests and in the verify build only.
+- `TEST_HOOKS` (`testHooks.ts`) turns on `data-correct` and the debug routes (`#/glyphs`, `#/tower-glyphs` for the
+  tower's runes and monsters, `#/summary`, `#/strokes`) in tests and in the verify build only.
 - For an end-to-end check, use the `/verify` skill.
 
 ## Known friction

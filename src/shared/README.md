@@ -13,3 +13,6 @@ Code that two or more games use. A game may import from here. Code here never im
 
 Each game still has its own audio layer, preload, pause cover and parent screen. See the *Known friction* section in
 `src/duel2/README.md` and `src/clock/README.md` before you copy one for a new game.
+
+Retired save keys: `alef-settings` (an old settings store that nothing ever read; removed) stays unused for good. Do
+not give the name to a new save, because old browsers can still hold it.
