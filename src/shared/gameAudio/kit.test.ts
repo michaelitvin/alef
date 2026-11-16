@@ -271,6 +271,25 @@ describe('the game-audio kit', () => {
       await p
       expect(audio.log().find((e) => e.id === 'a')?.stopped).toBe(true)
     })
+    it('a line with no file plays the game\'s stand-in first; the follower and the player get the file and the caption', async () => {
+      audio.missing = (id) => id === 'b'
+      const steps: string[] = []
+      const p = kit.playLine('b', {
+        missing: (file) => new Promise((r) => { steps.push(`walk ${file}`); window.setTimeout(r, 500) }),
+        onCue: () => steps.push('cue'), cues: () => [1],
+      })
+      await vi.advanceTimersByTimeAsync(499)
+      expect(steps).toEqual(['walk b'])
+      await vi.advanceTimersByTimeAsync(1)
+      await expect(p).resolves.toBe(false)
+      expect(steps).toEqual(['walk b', 'cue'])
+      setGender('girl', 'child')
+      const files: string[] = []
+      await kit.playLine('q-1', { caption: ['x', 'y'], follow: (_pos, file) => { files.push(file); return { finish: () => {} } } })
+      expect(files).toEqual(['q-1-f'])
+      expect(audio.log().slice(-1)[0]).toMatchObject({ id: 'q-1-f', caption: ['x', 'y'] })
+      clearGender()
+    })
   })
 
   describe('the device output', () => {

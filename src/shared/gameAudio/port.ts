@@ -15,6 +15,8 @@ export interface PlayOptions {
   volume?: number
   /** a one-shot sound (voice, effect) is given up after this long: a missing or silent file never stalls the game */
   timeoutMs?: number
+  /** a voice line's words on screen: the real player ignores them, a test player can wait for them to show */
+  caption?: string[]
   /** the sound has started (music: after its file has loaded) */
   onPlay?: (s: Sound) => void
 }

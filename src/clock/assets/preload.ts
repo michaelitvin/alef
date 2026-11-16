@@ -3,9 +3,9 @@
 // in a print fallback and then changed; cases and customers popped in after the clock.
 // Waits for the fonts and the images (at most READY_MS); then the effects and the narrator and customer lines load in
 // the background. The 576 time phrases are not preloaded here: each round preloads its own.
-import { getHowl } from '../../shared/gameAudio/howlerPlayer'
+import { preloadSfx } from '../audio/clockAudio'
 import { IMAGES } from './images'
-import { SFX_URLS, VOICE_URLS } from './audioFiles'
+import { VOICE_URLS } from './audioFiles'
 
 /** the most play waits (a slow phone connection; the play button shows a turning ring meanwhile) */
 export const READY_MS = 8000
@@ -48,7 +48,7 @@ export function preloadClockAssets(): Promise<void> {
   ready = Promise.race([all, new Promise<void>((r) => window.setTimeout(r, READY_MS))])
   // then the sounds, in the background: the effects (Web Audio, small) and the lines
   void ready.then(() => {
-    for (const takes of Object.values(SFX_URLS)) for (const url of takes) getHowl(url)
+    preloadSfx()
     if (typeof fetch === 'function') void warmLines(Object.entries(VOICE_URLS).filter(([id]) => !id.startsWith('ph-')).map(([, url]) => url))
   })
   return ready

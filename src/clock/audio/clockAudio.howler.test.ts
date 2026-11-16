@@ -64,7 +64,7 @@ const { howls, Howler, endAfter, pos } = vi.hoisted(() => {
 })
 vi.mock('howler', () => ({ Howl: Howler.FakeHowl, Howler }))
 
-import { configureClockAudio as applySound } from './clockAudio'
+import { applySound } from '../../shared/gameAudio/output'
 import { getHowl } from '../../shared/gameAudio/howlerPlayer'
 import { playSfx, playVoice, startMusic, stopMusic, stopVoices } from './clockAudio'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS, VOICE_WORDS } from '../assets/audioFiles'

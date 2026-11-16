@@ -59,11 +59,19 @@ export function useAudioOutput(onHide?: () => void) {
       setHidden(isHidden)
       if (isHidden) hideRef.current?.()
     }
+    // a page that is leaving is silent whatever its visibility says; one shown again from the back/forward cache is
+    // read again (the clock had this before the kit)
+    const leave = () => {
+      vis()
+      setHidden(true)
+    }
     document.addEventListener('visibilitychange', vis)
-    window.addEventListener('pagehide', vis)
+    window.addEventListener('pagehide', leave)
+    window.addEventListener('pageshow', vis)
     return () => {
       document.removeEventListener('visibilitychange', vis)
-      window.removeEventListener('pagehide', vis)
+      window.removeEventListener('pagehide', leave)
+      window.removeEventListener('pageshow', vis)
     }
   }, [])
 }

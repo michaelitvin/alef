@@ -3,17 +3,19 @@
 //
 //   const audio = installFakeAudio()            // in a describe: installs it before each test, resets it, removes it after
 //   audio.voiceMs = 300                     // each voice part lasts 300 ms (default 0: it ends at once)
-//   audio.onVoice((id) => …)                // or the test's own timing per voice part (resolve false: not heard)
+//   audio.onVoice((id, e) => …)             // or the test's own timing per voice part (resolve false: not heard);
+//                                           // `e.caption` is the line's words on screen (playLine's caption)
 //   audio.holdUntil(/^q-/); audio.release() // voice parts that match wait for release (one id, or all)
 //   audio.exists = (id) => …                // which voice files exist (the feminine fallback); null: the game's files
 //   audio.missing = (id) => …               // voice files that are not there: the kit plays nothing for them
+//   audio.onPlay = (e) => …; audio.onStop   // a sound starts; a playing sound is stopped
 //   audio.said(), audio.log()               // the voice ids in order; every sound { kind, id, url, at }
 import { afterEach, beforeEach } from 'vitest'
 import { setAudioPlayer } from './output'
 import type { AudioPlayer, PlayOptions, Sound, SoundKind } from './port'
 
 /** one sound; `volume` follows its fades (music: the duck), `stopped` is set by a stop */
-export interface FakeEntry { kind: SoundKind; id: string; url: string; at: number; volume?: number; stopped?: boolean }
+export interface FakeEntry { kind: SoundKind; id: string; url: string; at: number; volume?: number; stopped?: boolean; caption?: string[] }
 
 export interface FakePlayer extends AudioPlayer {
   voiceMs: number
@@ -21,8 +23,10 @@ export interface FakePlayer extends AudioPlayer {
   missing: ((id: string) => boolean) | null
   /** a sound has started */
   onPlay: ((e: FakeEntry) => void) | null
+  /** a sound that was still playing has been stopped */
+  onStop: ((e: FakeEntry) => void) | null
   /** the test's own player for each voice part (as long as its promise; false: not heard); null: `voiceMs` */
-  onVoice(fn: ((id: string) => Promise<void | boolean>) | null): void
+  onVoice(fn: ((id: string, e: FakeEntry) => Promise<void | boolean>) | null): void
   holdUntil(re: RegExp | null): void
   /** ends the held voice parts with this id (all of them without an id) */
   release(id?: string): void
@@ -37,7 +41,7 @@ export interface FakePlayer extends AudioPlayer {
 
 export function createFakePlayer(): FakePlayer {
   let entries: FakeEntry[] = []
-  let voiceFn: ((id: string) => Promise<void | boolean>) | null = null
+  let voiceFn: ((id: string, e: FakeEntry) => Promise<void | boolean>) | null = null
   let holdRe: RegExp | null = null
   let held: { id: string; end: () => void }[] = []
   const playing = new Map<Sound, FakeEntry>()
@@ -49,10 +53,12 @@ export function createFakePlayer(): FakePlayer {
     exists: null,
     missing: null,
     onPlay: null,
+    onStop: null,
     muted: false,
     volume: 1,
     play(url: string, o: PlayOptions): Sound {
       const entry: FakeEntry = { kind: o.kind, id: o.id, url, at: Date.now(), volume: o.volume }
+      if (o.caption) entry.caption = o.caption
       entries.push(entry)
       let finished = false
       let resolve: (heard: boolean) => void = () => {}
@@ -66,7 +72,12 @@ export function createFakePlayer(): FakePlayer {
       const t0 = Date.now()
       const sound: Sound = {
         done,
-        stop: () => { if (!finished) entry.stopped = true; end() },
+        stop: () => {
+          if (finished) return
+          entry.stopped = true
+          end()
+          fake.onStop?.(entry)
+        },
         pause: () => {},
         resume: () => {},
         fade: (to) => { entry.volume = to },
@@ -77,7 +88,7 @@ export function createFakePlayer(): FakePlayer {
       fake.onPlay?.(entry)
       o.onPlay?.(sound)
       if (o.kind === 'voice') {
-        if (voiceFn) void voiceFn(o.id).then((r) => end(r !== false), () => end(false))
+        if (voiceFn) void voiceFn(o.id, entry).then((r) => end(r !== false), () => end(false))
         else if (holdRe?.test(o.id)) held.push({ id: o.id, end: () => end() })
         else if (fake.voiceMs > 0) window.setTimeout(() => end(), fake.voiceMs)
         else end()
@@ -111,6 +122,7 @@ export function createFakePlayer(): FakePlayer {
       fake.exists = null
       fake.missing = null
       fake.onPlay = null
+      fake.onStop = null
       fake.muted = false
       fake.volume = 1
       fake.voiceUrl = standIn

@@ -1,6 +1,6 @@
 // The Howler adapter of the player port (port.ts): one Howl per file, play-once with a safety timeout, the speech rate.
-// The only module of the games' audio that imports Howler (the clock and the first duel still call getHowl and playOnce
-// directly until they move onto the kit).
+// The only module of the games' audio that imports Howler (the first duel still calls getHowl and playOnce directly
+// until it moves onto the kit).
 import { Howl, Howler } from 'howler'
 import type { AudioPlayer, PlayOptions, Sound } from './port'
 

@@ -54,8 +54,14 @@ export interface PlayLineOptions {
   cues?: (file: string) => number[]
   /** hears cue i as it is spoken; any cue not yet heard fires when the line ends (early, failed or missing) */
   onCue?: (i: number) => void
-  /** follows the sound's playback position once it starts (the clock's caption words); `finish` runs as it ends */
-  follow?: (position: () => number | null) => { finish(): void }
+  /** follows the sound's playback position once it starts (the clock's caption words); `finish` runs as it ends; given
+   * the file that really plays */
+  follow?: (position: () => number | null, file: string) => { finish(): void }
+  /** a line with no file: the game's own stand-in for it (the clock walks the caption at a reading pace) instead of
+   * nothing; the line resolves false after it */
+  missing?: (file: string) => Promise<void>
+  /** the words the line shows on screen, passed to the player (a test player can wait for them to show) */
+  caption?: string[]
 }
 
 export function createGameAudio<S extends string = string, M extends string = string>(o: GameAudioOptions<S, M>) {
@@ -173,7 +179,7 @@ export function createGameAudio<S extends string = string, M extends string = st
 
   /**
    * Plays one voice line now, outside the queue (the first duel, the clock). Resolves when it ends; true when a file
-   * played, false when it has none (every cue has fired by then either way).
+   * played, false when it has none (every cue has fired by then either way). A stopVoice stops it.
    */
   async function playLine(lineId: string, opts: PlayLineOptions = {}): Promise<boolean> {
     const id = voiceFile(lineId)
@@ -187,6 +193,7 @@ export function createGameAudio<S extends string = string, M extends string = st
     const fireRest = () => cues.forEach((_, i) => fire(i))
     const url = urlOf(id)
     if (!url) {
+      if (opts.missing) await opts.missing(id)
       fireRest()
       return false
     }
@@ -194,8 +201,8 @@ export function createGameAudio<S extends string = string, M extends string = st
     let follower: { finish(): void } | null = null
     duck(true)
     const s = audioPlayer().play(url, {
-      kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs,
-      onPlay: (x) => { if (opts.follow) follower = opts.follow(() => x.position()) },
+      kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs, caption: opts.caption,
+      onPlay: (x) => { if (opts.follow) follower = opts.follow(() => x.position(), id) },
     })
     lines.add(s)
     try {

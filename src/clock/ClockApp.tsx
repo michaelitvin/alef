@@ -4,13 +4,13 @@ import { Cover } from './screens/Cover'
 import { Workshop } from './screens/Workshop'
 import { Parent } from './screens/Parent'
 import { useClockStore } from './store'
-import { configureClockAudio, playVoice, stopVoices, setClockHidden, startMusic, stopMusic, unlockClockAudio } from './audio/clockAudio'
+import { playVoice, stopVoices, startMusic, stopMusic } from './audio/clockAudio'
 import { lineAudioId } from './data/lines'
 import { preloadClockAssets } from './assets/preload'
 import { GenderQuestion } from '../shared/GenderQuestion'
 import { getGender, setGender } from '../shared/player'
 import { VOICE_RATE } from '../shared/gameAudio/howlerPlayer'
-import { useDeviceSettings } from '../shared/deviceSettings'
+import { unlockAudioOutput, useAudioOutput } from '../shared/gameAudio/output'
 import { clockTelemetry } from './telemetry'
 import { VOICE_WORDS } from './assets/audioFiles'
 // the clock has no player character: the question shows the wizards the child knows from the other games
@@ -30,22 +30,9 @@ export default function ClockApp() {
   screenRef.current = screen
   // fonts, images, effects and lines load while the door shows; play waits for the fonts and images (at most 4 s)
   useEffect(() => { void preloadClockAssets() }, [])
-  // sound is the device's one setting for every game (src/shared/deviceSettings.ts)
-  const sound = useDeviceSettings()
-  useEffect(() => configureClockAudio(sound), [sound])
-  // switching apps silences all the clock audio, on every screen (rule)
-  useEffect(() => {
-    const vis = () => setClockHidden(document.visibilityState === 'hidden')
-    const hide = () => setClockHidden(true)
-    document.addEventListener('visibilitychange', vis)
-    window.addEventListener('pagehide', hide)
-    window.addEventListener('pageshow', vis)
-    return () => {
-      document.removeEventListener('visibilitychange', vis)
-      window.removeEventListener('pagehide', hide)
-      window.removeEventListener('pageshow', vis)
-    }
-  }, [])
+  // sound is the device's one setting for every game (src/shared/deviceSettings.ts); switching apps silences all the
+  // clock audio, on every screen (rule; the workshop also pauses, and its cover holds the sound: useWorkday)
+  useAudioOutput()
   // the door plays the calm music (the workshop turns it off while customers come); browsers allow sound only after
   // the first tap
   const tapped = useRef(false)
@@ -59,7 +46,7 @@ export default function ClockApp() {
       if (e?.target instanceof Element && e.target.closest('.ck-parent-btn')) return
       window.removeEventListener('pointerdown', start)
       tapped.current = true
-      unlockClockAudio()
+      unlockAudioOutput()
       // the music file waits for the fonts and images, so it does not slow them down
       void preloadClockAssets().then(() => { if (screenRef.current === 'cover') startMusic(useClockStore.getState().workdays) })
     }
@@ -70,7 +57,7 @@ export default function ClockApp() {
   const [loading, setLoading] = useState(false)
   const play = () => {
     if (starting.current) return
-    unlockClockAudio()
+    unlockAudioOutput()
     // boy or girl is not set yet: ask the child before the welcome (spec 2026-11-07 girls)
     // (its pictures load first, with the rest of the workshop: a picture must not appear after the screen)
     if (!getGender()) {
