@@ -34,8 +34,11 @@ export type SpaceCatState = SpaceCatSave & Actions
 export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       ...DEFAULT_SAVE,
       recordRound: (it, res, opts) => {
-        if (opts?.demo || opts?.cut) return {}
         const s = get()
+        const after = { lastFact: it.fact, sinceZero: isZeroFact(it) ? 0 : s.sinceZero + 1 }
+        if (opts?.cut) return {}
+        // the demo round changes no tally, but it is the round before the next pick (never the same fact twice)
+        if (opts?.demo) { set(after); return {} }
         const m = markOf(res.result)
         const old: ItemStats = s.items[it.id] ?? { seen: 0, wrong: 0, timeout: 0, recent: '', times: [], picks: {} }
         const picks = res.result === 'wrong' ? { ...old.picks, [String(res.number)]: (old.picks[String(res.number)] ?? 0) + 1 } : old.picks
@@ -46,7 +49,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         const { state: ladder, opened } = afterAnswer(s.ladder, it, m, s.settings)
         const speed = afterRound(s.speed, { result: res.result, underMs: res.underMs, startedUnder: res.startedUnder, rungOpened: opened !== undefined })
         set({
-          items: { ...s.items, [it.id]: stat }, ladder, speed, lastFact: it.fact, sinceZero: isZeroFact(it) ? 0 : s.sinceZero + 1,
+          items: { ...s.items, [it.id]: stat }, ladder, speed, ...after,
         })
         return { opened }
       },

@@ -69,7 +69,8 @@ export function step(s: RoundState, e: RoundEvent): RoundState {
     case 'touch':
       return { ...s, input: true }
     case 'lane':
-      if (s.zoomAt !== null) return s
+      // during a zoom, and onto the lane the ship is already in, a lane event is a no-op (input comes from 'touch')
+      if (s.zoomAt !== null || e.lane === s.lane) return s
       return { ...s, lane: e.lane, input: true, lastLaneAt: e.t, underAt: e.lane === s.rightLane ? e.t : s.underAt }
     case 'zoom':
       return s.zoomAt !== null ? s : { ...s, zoomAt: e.t, input: true }

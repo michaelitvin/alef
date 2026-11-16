@@ -280,7 +280,7 @@ section holds:
 ## Tracking
 
 `createTelemetry` from `src/shared/telemetry.ts` with `game: 'spacecat'`, its own key and the `about` block that names
-this document. Its cap is a share of the one storage budget of all logs (the parent decides the split). The export is the
+this document. Its cap is a share of the one storage budget of all logs (not decided: the parent decides the split after the refactor's telemetry work). The export is the
 parent area's one export.
 
 - Each round: the item, the four numbers by lane, the ship's lane at the start, the lane and number he ended on, the
@@ -396,7 +396,7 @@ half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
 the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
 its line; the current ship shown once on the cover; one first take per voice item; the telemetry
-cap's share (proposal: Space Cat 200 k characters, Book 2 600 k, clock 400 k).
+cap's share (not decided: the refactor may make telemetry more efficient; an old proposal was Space Cat 200 k characters, Book 2 600 k, clock 400 k).
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field
 names, the constants' tuning inside the limits above.

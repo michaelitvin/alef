@@ -33,6 +33,11 @@ describe('space cat store', () => {
     expect(store().ladder).toEqual(DEFAULT_SAVE.ladder)
     expect(store().speed).toEqual(DEFAULT_SAVE.speed)
   })
+  it('a demo round still counts as the round before for the next pick', () => {
+    store().recordRound(it1, result(), { demo: true })
+    expect(store().lastFact).toBe('+2,3')
+    expect(store().sinceZero).toBe(1)
+  })
   it('a cut round changes no tally', () => {
     store().recordRound(it1, result({ result: 'wrong' }), { cut: true })
     expect(store().items).toEqual({})

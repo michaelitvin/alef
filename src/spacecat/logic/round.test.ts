@@ -60,6 +60,12 @@ describe('the round', () => {
     const done = run(begin(), { type: 'lane', lane: 1, t: 1000 }, { type: 'arrive', t: 8000 })
     expect(run(done, { type: 'lane', lane: 3, t: 8100 }, { type: 'zoom', t: 8200 }, { type: 'hit', t: 8300 }, { type: 'arrive', t: 8400 })).toEqual(done)
   })
+  it('a lane event onto the lane the ship is in changes nothing', () => {
+    const under = run(begin(), { type: 'lane', lane: 1, t: 1000 })
+    expect(step(under, { type: 'lane', lane: 1, t: 2000 })).toBe(under)
+    const fresh = begin()
+    expect(step(fresh, { type: 'lane', lane: 0, t: 500 })).toBe(fresh)
+  })
   it('the last lane change onto the right planet is the under time', () => {
     const r = res(run(begin(), { type: 'lane', lane: 1, t: 1000 }, { type: 'lane', lane: 2, t: 2000 }, { type: 'lane', lane: 1, t: 3000 }, { type: 'arrive', t: 8000 }))
     expect(r).toMatchObject({ underMs: 3000, lastLaneMs: 3000 })

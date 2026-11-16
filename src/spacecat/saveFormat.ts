@@ -20,7 +20,13 @@ export interface SpaceCatSave {
   ship: 1 | 2 | 3
   /** line id → times played */
   heard: Record<string, number>
+  /** the fact of the last tallied or demo round (the next pick is never the same fact) */
   lastFact?: string
+  /**
+   * rounds since the last zero fact (+ 0, − 0), for "at most 1 round in 15" (predict.ts ZERO_EVERY). A fresh save starts
+   * at 0, as if one had just come, so the first zero fact comes at round 15 at the earliest. Not the speed's hold after a
+   * new rung: that is `speed.hold`.
+   */
   sinceZero: number
   runs: number
   settings: Settings
