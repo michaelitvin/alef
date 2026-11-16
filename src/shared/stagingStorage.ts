@@ -28,12 +28,16 @@ export function prefixedStorage(inner: Storage, prefix: string): Storage {
   }
 }
 
-/** Replace the saves under `prefix` with a copy of every save that has no prefix. */
+/** Telemetry logs (`*-telemetry`) are not saves: a copy of them could fill the origin's quota, and then the child's next
+ * save write on production fails. */
+const isTelemetryKey = (k: string) => k.endsWith('-telemetry')
+
+/** Replace the saves under `prefix` with a copy of every save that has no prefix. The telemetry logs are not copied. */
 export function copyUnprefixedOver(storage: Storage, prefix: string) {
   const all: string[] = []
   for (let i = 0; i < storage.length; i++) all.push(storage.key(i)!)
   all.filter((k) => k.startsWith(prefix)).forEach((k) => storage.removeItem(k))
-  all.filter((k) => !k.startsWith(prefix)).forEach((k) => storage.setItem(prefix + k, storage.getItem(k)!))
+  all.filter((k) => !k.startsWith(prefix) && !isTelemetryKey(k)).forEach((k) => storage.setItem(prefix + k, storage.getItem(k)!))
 }
 
 if (isStaging) {

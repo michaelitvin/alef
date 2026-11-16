@@ -29,18 +29,41 @@ describe('duel telemetry', () => {
     t.flushTelemetry()
     expect(stored().events.map((e) => e.s)).toEqual(['old', expect.any(String)])
   })
-  it('never overflows: past the cap the OLDEST events go, the newest stay', async () => {
-    const t = await import('./telemetry')
+  it('never overflows, and never cuts the stored history: past the cap the NEW events are dropped', async () => {
     const pad = 'x'.repeat(2000)
-    for (let i = 0; i < 1200; i++) t.track('round', { i, pad })
+    const history = Array.from({ length: 300 }, (_, i) => ({ t: i, s: 'old', run: 1, e: 'round', i, pad }))
+    const literal = JSON.stringify({ v: 1, events: history })
+    localStorage.setItem(KEY, literal)
+    const t = await import('./telemetry')
+    for (let i = 0; i < 1200; i++) t.track('round', { i: 1000 + i, pad })
     t.flushTelemetry()
     const raw = localStorage.getItem(KEY)!
     expect(raw.length).toBeLessThanOrEqual(t.TELEMETRY_MAX_CHARS)
-    const is = stored().events.map((e) => e.i as number)
-    expect(is[is.length - 1]).toBe(1199)
-    expect(is[0]).toBeGreaterThan(0)
+    const evs = stored().events
+    expect(evs.slice(0, 300)).toEqual(history) // every old event, unchanged and first
+    const is = evs.map((e) => e.i as number)
+    expect(is[300]).toBe(1000) // then the new ones, in order, until the cap
+    expect(is[is.length - 1]).toBeLessThan(2199)
   })
-  it('a full browser storage never breaks the game: it drops old events and retries, else gives up quietly', async () => {
+  it('a log already at its cap is left exactly as it is', async () => {
+    const pad = 'y'.repeat(5000)
+    const literal = JSON.stringify({ v: 1, events: Array.from({ length: 199 }, (_, i) => ({ t: i, s: 'old', run: 1, e: 'round', pad })) })
+    localStorage.setItem(KEY, literal)
+    const t = await import('./telemetry')
+    for (let i = 0; i < 10; i++) t.track('round', { pad })
+    t.flushTelemetry()
+    expect(localStorage.getItem(KEY)).toBe(literal)
+  })
+  it('an unreadable stored log is never overwritten', async () => {
+    localStorage.setItem(KEY, '{"v":1,"events":[{"t":1')
+    const t = await import('./telemetry')
+    t.track('round', {})
+    t.flushTelemetry()
+    expect(localStorage.getItem(KEY)).toBe('{"v":1,"events":[{"t":1')
+  })
+  it('a full browser storage never breaks the game and never cuts the history: it drops the new events quietly', async () => {
+    const old = [{ t: 1, s: 'old', run: 1, e: 'run_start' }, { t: 2, s: 'old', run: 1, e: 'round', key: 'segol' }]
+    localStorage.setItem(KEY, JSON.stringify({ v: 1, events: old }))
     const t = await import('./telemetry')
     for (let i = 0; i < 100; i++) t.track('round', { i })
     const real = Storage.prototype.setItem
@@ -50,12 +73,24 @@ describe('duel telemetry', () => {
       return real.call(this, k, v)
     })
     expect(() => t.flushTelemetry()).not.toThrow()
-    const n = stored().events.length
-    expect(n).toBeGreaterThan(0)
-    expect(n).toBeLessThan(100)
+    expect(stored().events).toEqual(old)
+    t.track('round', { i: 'next' })
+    t.flushTelemetry()
+    expect(stored().events.slice(0, 2)).toEqual(old)
+    expect(stored().events.map((e) => e.i)).toEqual([undefined, undefined, 'next'])
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('full', 'QuotaExceededError') })
     t.track('round', {})
     expect(() => t.flushTelemetry()).not.toThrow()
+    expect(stored().events).toHaveLength(3)
+  })
+  it('new events say their game; old ones are read unchanged', async () => {
+    const old = { t: 1, s: 'old', run: 1, e: 'choice', key: 'segol', pos: 2 }
+    localStorage.setItem(KEY, JSON.stringify({ v: 1, events: [old] }))
+    const t = await import('./telemetry')
+    t.track('choice', { key: 'kamatz' })
+    const evs = JSON.parse(t.exportTelemetry()).events
+    expect(evs[0]).toEqual(old)
+    expect(evs[1]).toMatchObject({ e: 'choice', g: 'duel', key: 'kamatz' })
   })
   it('exports everything as one JSON document (flushing first) and can clear', async () => {
     const t = await import('./telemetry')
