@@ -192,10 +192,6 @@ export class RunController {
   /** the pass: the screen, the hearts, the crystals, the checkpoint (policies/pass.ts) */
   private pass: PassState
   private get hearts() { return this.pass.hearts }
-  // the end-to-end tests set these directly (a low heart, owed doors' crystal)
-  private set hearts(h: PassState['hearts']) { this.pass = { ...this.pass, hearts: h } }
-  protected get crystalOwed() { return this.pass.crystalOwed }
-  protected set crystalOwed(v: boolean) { this.pass = { ...this.pass, crystalOwed: v } }
   private get screenId() { return this.pass.screen }
   private stage: Stage
   private roundInScreen = 0
