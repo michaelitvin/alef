@@ -8,7 +8,7 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 
 | Concern | Module |
 | --- | --- |
-| The whole run's flow (rounds, passes, hearts, merchant, boss, drawing, voice order) | `controller.ts` (`RunController`) |
+| The run's flow: the loop, the screens' rounds, the flight, the tower, the voice order and the time; it does what the policies' steps say | `controller.ts` (`RunController`) |
 | React's view of the run | `useRun.ts` (a thin adapter: `useSyncExternalStore` over the controller) |
 | Pure rules: stages, mastery, prediction, merchant prices, boss, the drawing recognizer | `logic/*.ts` |
 | The save (`alef-duel2`) | `store.ts`; defaults and migrations in `saveFormat.ts` (no side effects, so home can read it) |
@@ -16,7 +16,7 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | The tower | `components/screens/Tower.tsx` embeds Book 1, the first duel (`src/hooks/useDuelGame.ts`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
 | Voice, effects, music | `audio/duel2Audio.ts` (Book 2's files and numbers on the shared kit, `src/shared/gameAudio/`); the line texts in `data/lines.ts` |
 | A station link from home (`?station=`) | `station.ts` |
-| The run's pure policies: the merchant's visit, a drawing round (`step(state, event)` returns what the run does; the controller does it) | `policies/*.ts` (a depcruise rule keeps them pure) |
+| The run's pure policies: the merchant's visit, a drawing round, the flight boss, the pass and its hearts (`step(state, event)` returns what the run does; the controller does it), see [ADR 0005](../../docs/adr/0005-run-policies-and-the-sleeper.md) | `policies/*.ts` (a depcruise rule keeps them pure) |
 | The run's seams: the saves it reads and writes, the time it waits on | `savePort.ts` (`storeSavePort`; the gallery reads it through `readOnlySavePort`; `memorySavePort` for tests), `src/shared/sleeper.ts` (`realSleeper`, `instantSleeper`) |
 | Layout numbers the run and the views share | `layout.ts` (`ZOOM_MS`), `broomLayout.ts` (the flight's geometry), `viewTypes.ts`; the controller imports nothing from `components/` (a depcruise rule) |
 
@@ -36,5 +36,8 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 
 ## Known friction
 
-- `controller.ts` is still one long class: the merchant and the drawing round are out as pure policies
-  (`policies/`); the flight boss and the pass are its next parts to come out.
+- `controller.ts` is still long (about 1700 lines): the merchant, the drawing round, the flight boss and the pass are out
+  as pure policies (`policies/`), but the calm screens' rounds (question, answer, mistake, fix, explanation, hint,
+  word link), the broom flight's tick, the tower's bridge and the doors are still in it, each with its own fields.
+- The run tests in `useRun.test.tsx` are slow (fake timers, the real store). A rule that needs no timing belongs in a
+  policy or `logic/` test.
