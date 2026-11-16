@@ -1,8 +1,7 @@
 import type { Choice, DuelState, EffectPreset, Next, Round } from '../../types/duel'
-import { BOSS_EVERY, BOSS_HP, HEARTS, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, isTwin, keyOf, newMonsterAt, points } from './rules'
+import { BOSS_HP, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, isTwin, keyOf, newMonsterAt, points } from './rules'
 
 export type DuelAction =
-  | { type: 'START' }
   /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
    * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */
   | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[]; mega?: number }
@@ -19,7 +18,7 @@ export type DuelAction =
   | { type: 'RESUME' }
 
 export const initialDuelState: DuelState = {
-  phase: 'idle', paused: false, hearts: HEARTS, score: 0, combo: 0, bestCombo: 0, wave: 1, kills: 0, bossHp: 0, mega: 0,
+  phase: 'idle', paused: false, score: 0, combo: 0, bestCombo: 0, wave: 1, kills: 0, bossHp: 0, mega: 0,
   round: null, preview: false, walking: false, twinTried: null, outcome: null, runMisses: {}, seenScreens: [], next: null,
 }
 
@@ -30,8 +29,8 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
   const dmg = mega ? 2 : 1
   const final = !round.boss || s.bossHp - dmg <= 0
   const pts = points(s.combo, mega)
-  // embedded (Book 2's run): a lightning kill is not reading, so it does not add to the streak (nor break it)
-  const combo = mega && s.embedded ? s.combo : s.combo + 1
+  // a lightning kill is not reading, so it does not add to the streak (nor break it)
+  const combo = mega ? s.combo : s.combo + 1
   return {
     ...s,
     outcome: { kind: 'hit', choiceKey, mega, final, points: pts, effect },
@@ -43,13 +42,12 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
   }
 }
 
-/** A miss costs a heart and the combo; a boss keeps the damage it already took. */
+/** A miss costs the combo (the run owns the hearts); a boss keeps the damage it already took. */
 function miss(s: DuelState, choiceKey: string | null): DuelState {
   const id = s.round!.target.id
   return {
     ...s,
     outcome: { kind: 'miss', choiceKey, mega: false, final: false, points: 0, effect: 'gentle' },
-    hearts: s.hearts - 1,
     combo: 0,
     runMisses: { ...s.runMisses, [id]: (s.runMisses[id] ?? 0) + 1 },
   }
@@ -63,7 +61,6 @@ function newWave(wave: number): { state: Partial<DuelState>; next: Next } {
 function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
   const o = s.outcome!
   const r = s.round!
-  if (s.hearts <= 0) return { state: { phase: 'over' }, next: { kind: 'over' } }
   if (o.kind === 'miss') return { state: {}, next: { kind: 'spawn', wave: s.wave, boss: r.boss, announce: null } }
   if (r.boss) {
     if (s.bossHp > 0) return { state: {}, next: { kind: 'spawn', wave: s.wave, boss: true, announce: null } }
@@ -71,19 +68,16 @@ function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
   }
   const kills = s.kills + 1
   if (kills < MONSTERS_PER_WAVE) return { state: { kills }, next: { kind: 'spawn', wave: s.wave, boss: false, announce: null } }
-  // embedded (Book 2's run): only START_AT makes a boss visit
-  if (!s.embedded && s.wave % BOSS_EVERY === 0) return { state: { kills, bossHp: BOSS_HP }, next: { kind: 'spawn', wave: s.wave, boss: true, announce: 'boss' } }
+  // only START_AT makes a boss visit (Book 2's run)
   return newWave(s.wave + 1)
 }
 
 export function duelReducer(s: DuelState, a: DuelAction): DuelState {
   switch (a.type) {
-    case 'START':
-      return { ...initialDuelState, phase: 'playing', next: { kind: 'spawn', wave: 1, boss: false, announce: null } }
     case 'START_AT': {
       const announce = a.boss ? 'boss' : newMonsterAt(a.wave) ? 'new-monster' : null
       return {
-        ...initialDuelState, phase: 'playing', embedded: true, hearts: Infinity, wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
+        ...initialDuelState, phase: 'playing', wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
         mega: Math.max(0, Math.min(MEGA_MAX, a.mega ?? 0)),
         seenScreens: [...(a.seen ?? [])], next: { kind: 'spawn', wave: a.wave, boss: a.boss, announce },
       }
@@ -111,7 +105,7 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
     case 'ADVANCE': {
       if (!s.outcome || s.phase !== 'playing' || s.next) return s
       const { state, next } = nextAfter(s)
-      return { ...s, ...state, next, round: next.kind === 'over' ? s.round : null }
+      return { ...s, ...state, next, round: null }
     }
     case 'PAUSE':
       return s.phase === 'playing' ? { ...s, paused: true } : s

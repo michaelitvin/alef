@@ -276,9 +276,9 @@ export class DuelController {
     // a lightning tap queued between monsters fires as soon as the next one is on the field
     if ((s.round !== p.round || s.outcome !== p.outcome || s.paused !== p.paused || s.preview !== p.preview)
       && this.megaQueued && s.round && !s.outcome && !s.paused && !s.preview) this.megaCast()
-    if (s.mega !== p.mega || s.phase !== p.phase || s.embedded !== p.embedded) {
+    if (s.mega !== p.mega || s.phase !== p.phase) {
       // Book 2's run keeps the charge for its next visit
-      if (s.phase === 'playing' && s.embedded) this.emb.onCharge?.(s.mega)
+      if (s.phase === 'playing') this.emb.onCharge?.(s.mega)
       if (s.mega < MEGA_MAX) {
         this.set({ lightning: false })
         this.megaQueued = false
@@ -292,11 +292,9 @@ export class DuelController {
     if (!next) return
     const e = this.emb
     // a visit of Book 2's run: its waves are done (or its boss is beaten): no next monster
-    if (next.kind === 'spawn' && next.wave >= e.wave + (e.boss ? 1 : e.waves)) return this.finish(next.wave - 1)
+    if (next.wave >= e.wave + (e.boss ? 1 : e.waves)) return this.finish(next.wave - 1)
     // a wave ended in the middle of the visit: the run may end the visit here
-    if (next.kind === 'spawn' && this.waveStart >= 0 && next.wave > this.waveStart && e.onWaveEnd?.(next.wave - 1)) return this.finish(next.wave - 1)
-    // the run owns the hearts: it ends the visit itself (onAnswer 'over')
-    if (next.kind === 'over') return
+    if (this.waveStart >= 0 && next.wave > this.waveStart && e.onWaveEnd?.(next.wave - 1)) return this.finish(next.wave - 1)
     void this.spawn(next)
   }
   private finish(lastWave: number) {
@@ -372,8 +370,9 @@ export class DuelController {
       this.spawnedAt = this.time.now()
       this.walkStartedAt = this.time.now()
       const s = this.state
+      // `hearts: null` in the events: the run owns the hearts (the log kept the field, which was always empty here)
       this.track('round', {
-        round: r.id, restart, wave: s.wave, kills: s.kills, boss: r.boss, bossHp: s.bossHp, hearts: s.hearts,
+        round: r.id, restart, wave: s.wave, kills: s.kills, boss: r.boss, bossHp: s.bossHp, hearts: null,
         combo: s.combo, type: r.type, target: r.target.id, word: r.word.key, picture: r.type === 'A' ? WORD_PICTURE[r.word.key] : null,
         monster: r.monster, monsterSrc: MONSTERS[r.monster]?.src ?? null, walkMs: r.walkMs,
         pad: r.runes.map((m) => m.id), padWords: r.padWords.map((w) => w.key),
@@ -518,7 +517,7 @@ export class DuelController {
     this.track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
-      hearts: state.hearts, combo: state.combo, score: state.score, bossHp: state.bossHp,
+      hearts: null, combo: state.combo, score: state.score, bossHp: state.bossHp,
       msShown: Math.round(now - this.spawnedAt), msWalk: Math.round(now - this.walkStartedAt),
     })
 
@@ -709,7 +708,7 @@ export class DuelController {
     const s = this.state
     if (s.phase !== 'playing') return
     this.track('abandon', {
-      reason: 'pagehide', round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused,
+      reason: 'pagehide', round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: null, paused: s.paused,
       duringOutcome: !!s.outcome, msShown: s.round ? Math.round(this.time.now() - this.spawnedAt) : null,
     })
     this.flushLog()
@@ -723,7 +722,7 @@ export class DuelController {
       // left mid-run (home button, back): churn
       this.track('abandon', {
         reason: 'unmount',
-        round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: s.hearts, paused: s.paused, duringOutcome: !!s.outcome,
+        round: s.round?.id ?? null, wave: s.wave, score: s.score, hearts: null, paused: s.paused, duringOutcome: !!s.outcome,
         msShown: s.round ? Math.round(this.time.now() - this.spawnedAt) : null,
       })
     }

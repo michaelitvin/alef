@@ -49,13 +49,12 @@ export interface Outcome {
 
 export type Announcement = 'wave' | 'boss' | 'new-monster'
 
-/** What the hook must do after an outcome has played out. */
-export type Next = { kind: 'over' } | { kind: 'spawn'; wave: number; boss: boolean; announce: Announcement | null }
+/** What the flow must do after an outcome has played out: the next monster (or the end of the visit, controller.ts). */
+export type Next = { kind: 'spawn'; wave: number; boss: boolean; announce: Announcement | null }
 
 export interface DuelState {
-  phase: 'idle' | 'playing' | 'over'
+  phase: 'idle' | 'playing'
   paused: boolean
-  hearts: number
   score: number
   combo: number
   bestCombo: number
@@ -72,8 +71,6 @@ export interface DuelState {
   /** the round is on screen while the wizard explains it: no walking, taps ignored */
   preview: boolean
   next: Next | null
-  /** Book 2's run plays the duel (START_AT): the run owns the hearts, a מגה kill keeps the streak, no boss after every 5th wave */
-  embedded?: boolean
 }
 
 export interface Tally {

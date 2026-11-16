@@ -2,9 +2,9 @@
 
 The first duel became Book 2's tower (ADR 0002), but its hook still wrote to its own log, `alef-duel-telemetry`, with
 its own run counter. So one Book 2 run was split over two logs, and every tower visit reset the counter. Now the tower
-writes to Book 2's log, `alef-duel2-telemetry`: `useDuelGame` takes the log it writes to (`telemetry`), adds
-`via: 'tower'` and its own visit counter `visit` to every event, and never sets the log's run number, which stays
-Book 2's run.
+writes to Book 2's log, `alef-duel2-telemetry`: the duel's flow (`DuelController`) takes the log it writes to
+(`telemetry`), adds `via: 'tower'` and its own visit counter `visit` to every event, and never sets the log's run
+number, which stays Book 2's run.
 
 The old `alef-duel-telemetry` is not merged into Book 2's log. Nothing writes it any more, and nothing trims, clears or
 rewrites it (owner decision, 2026-11-16: an update does not delete the child's history). The parent area's Data section

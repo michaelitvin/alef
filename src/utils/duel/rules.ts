@@ -1,7 +1,6 @@
 import type { Choice, EffectPreset, Rng, Round, ScreenType } from '../../types/duel'
 import { twinOf } from './marks'
 
-export const HEARTS = 3
 export const MONSTERS_PER_WAVE = 5 // kills per wave
 export const BOSS_EVERY = 5
 export const BOSS_HP = 8 // more than a wave's 5 kills, so the boss is the climax

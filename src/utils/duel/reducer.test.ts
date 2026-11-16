@@ -9,7 +9,8 @@ const mk = (over: Partial<Round> = {}): Round => ({
   id: 1, type: 'A', target: markById('kamatz'), runes: [markById('kamatz'), markById('segol')], word: wordsFor('a')[0],
   padWords: [], monster: 'fuzzy', boss: false, walkMs: 9000, ...over,
 })
-const start = () => duelReducer(initialDuelState, { type: 'START' })
+/** a visit of Book 2's run from wave 1 (the only way the duel starts) */
+const start = () => duelReducer(initialDuelState, { type: 'START_AT', wave: 1, boss: false })
 const ready = (s: DuelState, r = mk()) => duelReducer(s, { type: 'ROUND_READY', round: r })
 const tap = (s: DuelState, id: string) => duelReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
 const adv = (s: DuelState) => duelReducer(s, { type: 'ADVANCE' })
@@ -36,9 +37,9 @@ describe('boss strength', () => {
 })
 
 describe('duelReducer', () => {
-  it('starts a run and asks for the first spawn', () => {
+  it('starts a visit and asks for the first spawn', () => {
     const s = start()
-    expect(s).toMatchObject({ phase: 'playing', hearts: 3, wave: 1, score: 0, round: null })
+    expect(s).toMatchObject({ phase: 'playing', wave: 1, score: 0, round: null })
     expect(s.next).toEqual({ kind: 'spawn', wave: 1, boss: false, announce: null })
   })
   it('A/D walk at once; B/C wait for WALK_START', () => {
@@ -50,13 +51,13 @@ describe('duelReducer', () => {
   it('hit: score, combo, mega meter; a second tap is ignored', () => {
     const s = tap(ready(start()), 'patach')
     expect(s.outcome).toMatchObject({ kind: 'hit', final: true, points: 100, effect: 'boom' })
-    expect(s).toMatchObject({ score: 100, combo: 1, mega: 1, hearts: 3 })
+    expect(s).toMatchObject({ score: 100, combo: 1, mega: 1 })
     expect(tap(s, 'segol')).toBe(s)
   })
-  it('miss: heart lost, combo reset, miss counted for the target', () => {
+  it('miss: combo reset, miss counted for the target', () => {
     const s = tap(ready(start()), 'segol')
     expect(s.outcome).toMatchObject({ kind: 'miss', choiceKey: 'segol' })
-    expect(s).toMatchObject({ hearts: 2, combo: 0 })
+    expect(s.combo).toBe(0)
     expect(s.runMisses.kamatz).toBe(1)
   })
   it('timeout counts as a miss with no choice', () => {
@@ -66,11 +67,10 @@ describe('duelReducer', () => {
     const c = ready(start(), mk({ type: 'C', runes: [markById('kamatz'), markById('patach'), markById('segol')] }))
     const t1 = tap(c, 'patach')
     expect(t1.outcome).toBeNull()
-    expect(t1).toMatchObject({ twinTried: 'patach', hearts: 3, combo: 0 })
+    expect(t1).toMatchObject({ twinTried: 'patach', combo: 0 })
     expect(tap(t1, 'patach')).toBe(t1)
     const t3 = tap(t1, 'segol')
     expect(t3.outcome).toMatchObject({ kind: 'miss' })
-    expect(t3.hearts).toBe(2)
   })
   it('a wave is 5 kills; misses do not count', () => {
     let s = start()
@@ -83,20 +83,17 @@ describe('duelReducer', () => {
     expect(s.kills).toBe(0)
     expect(s.next).toEqual({ kind: 'spawn', wave: 2, boss: false, announce: 'new-monster' })
   })
-  it('wave 3 announces its new monster (the ghost), not "new spells"; wave 5 ends in a boss that keeps damage through a miss', () => {
+  it('wave 3 announces its new monster (the ghost), not "new spells"; a boss keeps its damage through a miss', () => {
     let s: DuelState = { ...start(), wave: 2, kills: 4, round: mk(), walking: true, next: null }
     s = adv(tap(s, 'kamatz'))
     expect(s.next).toEqual({ kind: 'spawn', wave: 3, boss: false, announce: 'new-monster' })
-    s = { ...s, wave: 5, kills: 4, round: mk(), walking: true, outcome: null, next: null }
-    s = adv(tap(s, 'kamatz'))
+    s = duelReducer(initialDuelState, { type: 'START_AT', wave: 5, boss: true })
     expect(s.bossHp).toBe(BOSS_HP)
-    expect(s.next).toEqual({ kind: 'spawn', wave: 5, boss: true, announce: 'boss' })
     s = tap(ready(s, mk({ boss: true, monster: 'dragon' })), 'kamatz')
     expect(s.outcome).toMatchObject({ final: false })
     expect(s.bossHp).toBe(BOSS_HP - 1)
     s = tap(ready(adv(s), mk({ boss: true, monster: 'dragon', id: 7 })), 'segol')
     expect(s.bossHp).toBe(BOSS_HP - 1)
-    expect(s.hearts).toBe(2)
   })
   it('the last boss hit is final and starts the next wave', () => {
     let s: DuelState = { ...ready(start(), mk({ boss: true, monster: 'dragon' })), wave: 5, bossHp: 1 }
@@ -119,11 +116,6 @@ describe('duelReducer', () => {
     const s = ready(start())
     expect(duelReducer(s, { type: 'MEGA', effect: 'mega' })).toBe(s)
   })
-  it('game over after the last heart', () => {
-    const s = adv(tap({ ...ready(start()), hearts: 1 }, 'segol'))
-    expect(s.phase).toBe('over')
-    expect(s.next).toEqual({ kind: 'over' })
-  })
   it('pause blocks choices and timeouts; resume clears it', () => {
     const p = duelReducer(ready(start()), { type: 'PAUSE' })
     expect(tap(p, 'kamatz')).toBe(p)
@@ -141,7 +133,7 @@ describe('START_AT (Book 2’s run)', () => {
   it('starts at that wave, with the run owning the hearts', () => {
     const s = at(7)
     expect(s.wave).toBe(7)
-    expect(s.hearts).toBe(Infinity)
+    expect(s).not.toHaveProperty('hearts')
     expect(s.mega).toBe(0)
     expect(s.next).toMatchObject({ kind: 'spawn', wave: 7, boss: false })
     // a miss never ends the game: the run decides
@@ -169,7 +161,6 @@ describe('START_AT (Book 2’s run)', () => {
     expect(c.outcome).toMatchObject({ kind: 'hit', mega: true, final: true })
     expect(c.mega).toBe(0)
     expect(c.combo).toBe(4)
-    expect(c.hearts).toBe(Infinity)
     expect(adv(c).kills).toBe(1)
     // not charged yet: no cast
     expect(duelReducer(ready(at(3)), { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
