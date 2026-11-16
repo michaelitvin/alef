@@ -27,12 +27,13 @@ describe('the planet renderer', () => {
   })
   it('render wraps the phase', () => {
     const p = new PlanetRenderer('surface.png', PLANET_AIR[0])
-    p.render(1.25)
-    p.render(0.25)
+    const a = p.render(1.25)
+    expect(p.render(0.25)).toBe(a)
+    expect(p.render(-0.75)).toBe(a)
+    expect(puts).toHaveLength(1)
+    p.render(0.5)
     expect(puts).toHaveLength(2)
-    expect(puts[0]).toEqual(puts[1])
-    p.render(-0.75)
-    expect(puts[2]).toEqual(puts[0])
+    expect(puts[1]).not.toEqual(puts[0])
   })
   it('falls back to a banded texture before the image loads', () => {
     const p = new PlanetRenderer('surface.png', PLANET_AIR[1])

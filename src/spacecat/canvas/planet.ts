@@ -1,6 +1,6 @@
 // Ported from Space Cat Math by Igor (Ray's dad), used by permission. See asset-sources/spacecat/README.md.
 // The turning planet: a flat surface picture wrapped on a lit sphere, one pixel table computed once for all planets.
-// The phase cache (a fixed number of frames per turn) is from the approved mock.
+// The phase cache (a fixed number of frames per turn) is from the approved mock; it is emptied when the picture loads.
 
 /** the size of a rendered planet, in px */
 export const PLANET_TEX = 128
@@ -10,7 +10,7 @@ export const TEX_W = 256, TEX_H = 128
 export const TILT = 0.35
 /** the direction of the light (normalized when used) */
 export const LIGHT: [number, number, number] = [-0.55, -0.5, 0.67]
-/** frames kept per turn once the picture has loaded */
+/** frames kept per turn */
 export const PHASES = 48
 /** the air colour of each of the four planets */
 export const PLANET_AIR = ['#3fa9f5', '#ff9a3c', '#9b59ff', '#ff6fb5'] as const
@@ -78,7 +78,6 @@ export class PlanetRenderer {
   private readonly out: ImageData | null
   private readonly air: [number, number, number]
   private tex: Uint8ClampedArray
-  private loaded = false
   private readonly cache: HTMLCanvasElement[] = []
 
   constructor(surfaceUrl: string, airHex: string) {
@@ -95,7 +94,7 @@ export class PlanetRenderer {
       if (!g) return
       g.drawImage(img, 0, 0, TEX_W, TEX_H)
       this.tex = g.getImageData(0, 0, TEX_W, TEX_H).data
-      this.loaded = true
+      this.cache.length = 0
     }
     img.src = surfaceUrl
   }
@@ -103,7 +102,7 @@ export class PlanetRenderer {
   /** the planet turned to `phase` (one turn per 1; wraps) */
   render(phase: number): HTMLCanvasElement {
     const idx = phaseIndex(phase)
-    if (this.loaded && this.cache[idx]) return this.cache[idx]
+    if (this.cache[idx]) return this.cache[idx]
     if (!this.ctx || !this.out) return this.canvas
     const t = sphereTables(), o = this.out.data, n = this.tex, off = (idx / PHASES) * TEX_W, [ar, ag, ab] = this.air
     for (let k = 0; k < PLANET_TEX * PLANET_TEX; k++) {
@@ -115,7 +114,6 @@ export class PlanetRenderer {
       o[p] = n[q] * l + s + ar * r; o[p + 1] = n[q + 1] * l + s + ag * r; o[p + 2] = n[q + 2] * l + s + ab * r; o[p + 3] = a * 255
     }
     this.ctx.putImageData(this.out, 0, 0)
-    if (!this.loaded) return this.canvas
     const c = document.createElement('canvas')
     c.width = c.height = PLANET_TEX
     c.getContext('2d')?.drawImage(this.canvas, 0, 0)
