@@ -2170,83 +2170,29 @@ describe('run controller', () => {
     }, 60_000)
   })
 
-  describe('the flight boss', () => {
-    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+  describe('the flight boss, end to end (waves, voice order, pauses; policies/broomBoss.test.ts covers the rest)', () => {
     const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
 
-    it('comes on the second broom visit of a run, never on the first', async () => {
-      fakeAudio.onVoice(() => Promise.resolve())
-      useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
-      const c = make()
-      c.start()
-      const visits: (string | null)[] = []
-      let prev: string | undefined
-      for (let i = 0; i < 40_000 && visits.length < 2; i++) {
-        const s = c.view.screen
-        if (s?.screen === 'broom' && prev !== 'broom') visits.push(null)
-        if (s?.screen === 'broom' && s.boss) visits[visits.length - 1] = s.boss.kind
-        prev = s?.screen
-        autoTower(c)
-        if (c.view.needNext || c.view.fixing) proceed(c)
-        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
-        fly(c)
-        await tick(50)
-      }
-      // let the second visit show its boss
-      for (let i = 0; i < 100 && !bv(c)?.boss; i++) await tick(50)
-      visits[1] = bv(c)?.boss?.kind ?? null
-      expect(visits[0]).toBeNull()
-      expect(['mimic', 'bat']).toContain(visits[1])
-      expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
-      c.destroy()
-    }, 60_000)
-
-    it('arrives, throws two-orb waves that fly slower, and 8 catches beat it: 3 bonus coins, the trophy, telemetry', async () => {
+    it('arrives, throws two-orb waves that fly slower, and 8 catches beat it: its lines, 3 bonus coins, the trophy', async () => {
       duel2Telemetry.clear()
       useDuel2Store.setState({ totalStars: 0, bossesBeaten: [] })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       c.start()
-      await until(c, () => !!bv(c)?.boss)
-      expect(bv(c)!.boss).toMatchObject({ kind: 'mimic', hitsLeft: 8, arrived: false })
       await until(c, (v) => v.phase === 'answer')
       const pace0 = useDuel2Store.getState().pace
-      expect(played.some((id) => id.startsWith('boss-arrive-'))).toBe(true)
-      expect(bv(c)!.boss!.arrived).toBe(true)
-      let maxHit = 0
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) {
         const s = bv(c)!
         for (const w of s.waves) expect(w.choices.length).toBe(2)
-        if (s.waves.length && maxHit === 0) expect(s.travelMs).toBeCloseTo(5800 * pace0 * 1.3, 0)
-        maxHit = Math.max(maxHit, 8 - (s.boss?.hitsLeft ?? 8))
+        if (s.waves.length) expect(s.travelMs).toBeCloseTo(5800 * pace0 * 1.3, 0)
         fly(c)
         await tick(50)
       }
       expect(bv(c)!.boss).toMatchObject({ won: true, pose: 'down', first: true, hitsLeft: 0 })
       await until(c, () => !!bv(c)?.finished, 30_000)
-      // 8 catches are 8 stars and 1+1+1+1+2+2+2+2 coins; the win adds 3 coins, not 30 stars
-      expect(useDuel2Store.getState().totalStars).toBe(8)
-      expect(useDuel2Store.getState().coins).toBe(12 + 3)
-      expect(c.view.coinPop).toBeGreaterThanOrEqual(3)
-      expect(useDuel2Store.getState().bossesBeaten).toEqual(['mimic'])
-      expect(played.some((id) => id.startsWith('boss-win-'))).toBe(true)
-      expect(played).toContain('boss-new-1')
-      const ev = events()
-      expect(ev.find((e) => e.e === 'boss-start')).toMatchObject({ kind: 'mimic' })
-      expect(ev.filter((e) => e.e === 'boss-hit').length).toBe(8)
-      expect(ev.find((e) => e.e === 'boss-win')).toMatchObject({ kind: 'mimic', first: true })
-      expect(ev.find((e) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
-      c.destroy()
-    }, 60_000)
-
-    it('a second win against the same kind is no new trophy (no golden frame, no new line)', async () => {
-      // its announcement was heard before (the trophy alone does not use it up)
-      useDuel2Store.setState({ bossesBeaten: ['bat'], bossNewHeard: ['bat'] })
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
-      c.start()
-      for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
-      expect(bv(c)!.boss).toMatchObject({ won: true, first: false })
-      await tick(6000)
-      expect(played).not.toContain('boss-new-1')
+      // 8 catches are 8 stars and 1+1+1+1+2+2+2+2 coins; the win adds 3 coins
+      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 8, coins: 12 + 3, bossesBeaten: ['mimic'] })
+      expect(played.filter((id) => /^boss-/.test(id)).map((id) => id.replace(/-\d+$/, ''))).toEqual(['boss-arrive', 'boss-win', 'boss-new'])
+      expect(JSON.parse(duel2Telemetry.exportJson()).events.find((e: { e: string }) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
       c.destroy()
     }, 60_000)
 
@@ -2255,38 +2201,14 @@ describe('run controller', () => {
       c.start()
       await until(c, (v) => v.phase === 'answer')
       for (let i = 0; i < 20_000 && (bv(c)!.boss!.hitsLeft > 6); i++) { fly(c); await tick(50) }
-      // and one mistake
       for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); await tick(50) }
       const left = bv(c)!.boss!.hitsLeft
-      expect(c.view.hearts).toBe(2)
       c.pause()
       played = []
       c.resume()
       await until(c, (v) => v.phase === 'answer')
-      expect(bv(c)!.boss!.hitsLeft).toBe(left)
-      expect(c.view.hearts).toBe(2)
-      expect(bv(c)!.waves.length).toBe(0)
+      expect([bv(c)!.boss!.hitsLeft, c.view.hearts, bv(c)!.waves.length]).toEqual([left, 2, 0])
       expect(played.some((id) => id.startsWith('boss-arrive-'))).toBe(false)
-      c.destroy()
-    }, 60_000)
-
-    it('the boss can end the run (the parent decided)', async () => {
-      duel2Telemetry.clear()
-      const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'bat' } })
-      c.start()
-      await until(c, (v) => v.phase === 'answer')
-      for (let i = 0; i < 20_000 && !c.view.over; i++) {
-        const s = bv(c)
-        // fly into the wrong orb of the head wave every time (and never take the potion)
-        const head = s?.waves.find((w) => w.resolved.some((r) => !r))
-        if (head) {
-          const j = head.choices.findIndex((x) => x.soundId !== s!.target.soundId)
-          c.gesture({ type: 'lane', lane: (head.lanes?.[j] ?? j) as 0 | 1 | 2 })
-        }
-        await tick(50)
-      }
-      expect(c.view.over).not.toBeNull()
-      expect(events().find((e) => e.e === 'boss-lose')).toMatchObject({ kind: 'bat' })
       c.destroy()
     }, 60_000)
   })
