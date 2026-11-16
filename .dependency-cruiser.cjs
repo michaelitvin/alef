@@ -17,18 +17,7 @@ module.exports = {
       severity: 'error',
       comment: 'Pure logic must not import components or screens.',
       from: { path: '^src/(duel2/logic|clock/logic|utils/duel)/', pathNot: TEST },
-      to: {
-        path: ['^src/(duel2|clock)/(components|screens)/', '^src/components/'],
-        // the one known exception has its own rule below
-        pathNot: '^src/components/duel/Explosion\\.tsx$',
-      },
-    },
-    {
-      name: 'logic-known-exception-explosion',
-      severity: 'error',
-      comment: 'known: only utils/duel/flow.ts may import components/duel/Explosion, until Task 23 empties this.',
-      from: { path: '^src/(duel2/logic|clock/logic|utils/duel)/', pathNot: ['^src/utils/duel/flow\\.ts$', TEST] },
-      to: { path: '^src/components/duel/Explosion\\.tsx$' },
+      to: { path: ['^src/(duel2|clock)/(components|screens)/', '^src/components/'] },
     },
     {
       name: 'shared-is-self-contained',

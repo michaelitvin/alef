@@ -2,9 +2,7 @@
 // (older Android tablets lack some; the headless test browser has none) and don't match the art. Shapes follow the legibility
 // rules: nothing that looks like a nikkud mark (no dot clusters, no short bars in rows).
 import type { CSSProperties } from 'react'
-
-export type IconName =
-  | 'sparkle' | 'flame' | 'bolt' | 'swords' | 'speaker' | 'speakerOff' | 'talk' | 'puff' | 'bonk' | 'bossHeart'
+import type { IconName } from '../../types/duel'
 
 const GOLD = '#ffd34d'
 const CREAM = '#fff6d8'

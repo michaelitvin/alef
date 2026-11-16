@@ -3,24 +3,11 @@
 // per hit (fxStyle.ts), so no two hits in a row look alike.
 import { useMemo } from 'react'
 import { motion, type TargetAndTransition } from 'framer-motion'
-import type { EffectPreset, Outcome, Round } from '../../types/duel'
+import type { Outcome, Round } from '../../types/duel'
 import { MONSTERS } from '../../assets/duel/sprites'
 import { Icon } from './Icon'
 import { DEFAULT_FX, PALETTES, type Exit, type FxStyle } from '../../utils/duel/fxStyle'
-
-interface Juice {
-  particles: number
-  shake: number
-  flash: number
-  hitstopMs: number
-  boom: number
-}
-
-export const EFFECT_PRESETS: Record<EffectPreset, Juice> = {
-  gentle: { particles: 10, shake: 4, flash: 1.6, hitstopMs: 0, boom: 0.6 },
-  boom: { particles: 24, shake: 12, flash: 2.8, hitstopMs: 0, boom: 1 },
-  mega: { particles: 48, shake: 24, flash: 4.2, hitstopMs: 140, boom: 1.5 },
-}
+import { EFFECT_PRESETS } from '../../utils/duel/effects'
 
 export interface Geo {
   start: number

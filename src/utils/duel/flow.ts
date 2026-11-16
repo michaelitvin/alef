@@ -1,7 +1,7 @@
 // Pacing of what happens after a round. Regular rounds teach (sound → name → word); a boss fight flows: a hit that
 // does not finish the boss gets just the sound and the fight goes on, the boss continuing from where it stood.
 import type { Outcome, Round } from '../../types/duel'
-import { EFFECT_PRESETS } from '../../components/duel/Explosion'
+import { EFFECT_PRESETS } from './effects'
 
 export interface FeedbackPlan {
   /** 'full' = sound → name → word; 'sound-name' = no word; 'sound' = only the vowel sound */

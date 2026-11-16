@@ -1,6 +1,9 @@
 export type SoundGroup = 'a' | 'e' | 'i' | 'o' | 'u' | 'silent'
 export type ScreenType = 'A' | 'B' | 'C' | 'D'
 export type EffectPreset = 'gentle' | 'boom' | 'mega'
+/** The duel's drawn icons (components/duel/Icon): the flow names them in an announcement's banner. */
+export type IconName =
+  | 'sparkle' | 'flame' | 'bolt' | 'swords' | 'speaker' | 'speakerOff' | 'talk' | 'puff' | 'bonk' | 'bossHeart'
 export type RoundResult = 'correct' | 'wrong' | 'timeout' | 'mega'
 /** Random source in [0, 1); injectable for tests. */
 export type Rng = () => number
