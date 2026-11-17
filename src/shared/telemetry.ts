@@ -226,12 +226,14 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
         evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
         json = openJson(evs, sealed)
       }
-      // A full storage: the log gives up its own oldest events, never another key's space (a save is never evicted).
+      // A full storage: never another key's space (a save is never evicted). A long open chunk keeps its events in
+      // memory and the stored one stays as it was, until a seal shrinks it; a short one gives up its own oldest events.
       for (let attempt = 0; attempt < 4; attempt++) {
         try {
           localStorage.setItem(key, json)
           break
         } catch {
+          if (json.length > OPEN_SEAL_CHARS) { scheduleSeal(); return }
           if (evs.length <= 1) return
           evs.splice(0, Math.ceil(evs.length / 2))
           json = openJson(evs, sealed)
