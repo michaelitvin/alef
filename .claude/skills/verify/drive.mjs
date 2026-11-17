@@ -125,7 +125,11 @@ async function eachSection(page) {
   if (ids.length < 3) throw new Error(`only ${ids.length} sections in the nav`)
   for (const id of ids) {
     await tap(page, page.locator(`[data-goto="${id}"]`))
-    await page.locator(`[data-section="${id}"]`).waitFor({ state: 'visible' })
+    const section = page.locator(`[data-section="${id}"]`)
+    await section.waitFor({ state: 'visible' })
+    // the nav scrolls each section to the top, under the nav (a short page must not stop it lower down)
+    const y = await section.evaluate((el) => Math.round(el.getBoundingClientRect().top - el.closest('.parent-area').getBoundingClientRect().top))
+    if (y > 100) throw new Error(`the nav left section ${id} ${y} px from the top`)
   }
   return ids
 }

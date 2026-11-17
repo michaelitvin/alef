@@ -36,7 +36,7 @@ and no boy or girl yet. Each check gets its own page.
 | `book2` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
 | `book2Station` | the path's first open station link (`?station=`) → its cover → a session of that screen |
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
-| `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area |
+| `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top) |
 | `clock` | cover → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round |
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes

@@ -12,3 +12,6 @@
 .pa-nav button { padding: 4px 10px; border-radius: 999px; border: 1px solid #c9b48a; background: #fff; cursor: pointer; }
 .pa-section { border-top: 1px solid #e3d5b5; padding: 14px 0; scroll-margin-top: 56px; }
 .pa-danger { color: #a00; }
+/* the last section is at least a screen tall, so the nav can scroll any section to the top, also on a short page (a
+   tablet with few lines) */
+.pa-section:last-child { min-height: calc(100vh - 72px); min-height: calc(100dvh - 72px); box-sizing: border-box; }
