@@ -2,7 +2,7 @@
 // loses or doubles an event.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SESSION, createTelemetry, readLog, type TelemetryEvent } from './telemetry'
-import { OPEN_SEAL_CHARS, chunkKeysOf, openJson, parseOpen } from './telemetryChunks'
+import { OPEN_SEAL_CHARS, chunkKey, chunkKeysOf, openJson, parseOpen } from './telemetryChunks'
 import { GOLDEN_BOOK2, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
 import { BOOK2_LOG } from '../duel2/telemetryLog'
 
@@ -143,6 +143,42 @@ describe('sealing the open chunk', () => {
     const evs = readLog(KEY)
     expect(evs.filter((e) => e.s === 'old-1')).toHaveLength(150)
     expect(str(evs.filter((e) => e.s === 'old-1'))).toBe(str(stale))
+  })
+
+  it('a session that cannot be sealed (a t that is not a safe integer) is skipped once, and the next ones are sealed', async () => {
+    const odd = session('old-1', NOW - 90 * MIN, 60)
+    odd[5] = { ...odd[5]!, t: odd[5]!.t + 0.5 }
+    const next = [session('old-2', NOW - 70 * MIN, 60), session('old-3', NOW - 50 * MIN, 60)]
+    real.setItem(KEY, openJson([...odd, ...next.flat()], []))
+    const t = createTelemetry(KEY, { game: 'book2' })
+    t.track('answer', { i: -1 })
+    await idle()
+    expect(chunkKeysOf(KEY).map((k) => k.split('~')[2])).toEqual(['old-2-telemetry', 'old-3-telemetry'])
+    expect(str(readLog(KEY).filter((e) => e.s === 'old-1'))).toBe(str(odd))
+    const skips = () => readLog(KEY).filter((e) => e.e === 'seal-skipped')
+    expect(skips()).toMatchObject([{ s: SESSION, session: 'old-1', reason: 'time' }])
+    // a later pass on this page does not record it again
+    for (let i = 0; i < 150; i++) t.track('answer', { i, pad })
+    await idle()
+    expect(skips()).toHaveLength(1)
+    t.clear()
+  })
+
+  it('a session whose chunk key already holds an unreadable value is skipped, and the next one is sealed', async () => {
+    const a = session('old-1', NOW - 90 * MIN, 80)
+    const b = session('old-2', NOW - 60 * MIN, 80)
+    real.setItem(KEY, openJson([...a, ...b], []))
+    const taken = chunkKey(KEY, a[0]!.t, 'old-1')
+    real.setItem(taken, 'not a chunk')
+    const t = createTelemetry(KEY, { game: 'book2' })
+    t.track('answer', { i: -1 })
+    await idle()
+    expect(real.getItem(taken)).toBe('not a chunk')
+    expect(chunkKeysOf(KEY)).toContain(chunkKey(KEY, b[0]!.t, 'old-2'))
+    expect(open().events.some((e) => e.s === 'old-2')).toBe(false)
+    expect(str(open().events.filter((e) => e.s === 'old-1'))).toBe(str(a))
+    expect(readLog(KEY).filter((e) => e.e === 'seal-skipped')).toMatchObject([{ session: 'old-1', reason: 'taken' }])
+    t.clear()
   })
 
   it('a throwing storage never throws out of track or flush', () => {

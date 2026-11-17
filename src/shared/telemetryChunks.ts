@@ -309,11 +309,15 @@ export function reconcile(logKey: string, mem: TelemetryEvent[], sealed: string[
   sealed.splice(0, sealed.length, ...keys.filter((k) => known.has(k) || fresh.some((c) => c.key === k)))
 }
 
+/** what a chunk write gives: its key, or why nothing was written (`taken`: the key holds other or unreadable events) */
+export type ChunkWrite = { key: string } | { error: 'taken' | 'write' }
+
 /**
- * Write the events of one session (in order) as a sealed chunk, read it back and compare. Gives the chunk's key, or null
- * when nothing safe was written (a quota error, a key that holds other events, a read-back that differs). Never throws.
+ * Write the events of one session (in order) as a sealed chunk, read it back and compare. Gives the chunk's key, or the
+ * reason nothing safe was written: `taken` when the key already holds another chunk (or one that does not read), else
+ * `write` (a quota error, a read-back that differs). Never throws.
  */
-export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): string | null {
+export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): ChunkWrite {
   try {
     const value = encodeChunk(events)
     const key = chunkKey(logKey, events[0]!.t, events[0]!.s)
@@ -321,15 +325,15 @@ export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): s
     const before = getRaw(key)
     if (before !== null && before !== value) {
       // the same t0 and session: a chunk another tab sealed (same events, so it is ours too) or another one (keep it)
-      return JSON.stringify(decodeChunk(before)) === want ? key : null
+      return JSON.stringify(decodeChunk(before)) === want ? { key } : { error: 'taken' }
     }
     if (before === null) localStorage.setItem(key, value)
     const back = getRaw(key)
-    if (back === value && JSON.stringify(decodeChunk(back)) === want) return key
+    if (back === value && JSON.stringify(decodeChunk(back)) === want) return { key }
     if (before === null && back === value) localStorage.removeItem(key) // our own write, and it does not read back
-    return null
+    return { error: 'write' }
   } catch {
-    return null
+    return { error: 'write' }
   }
 }
 

@@ -286,6 +286,11 @@ callback never firing on a hidden page (the next load seals). **Size:** M.
 > drops such copies first. A tombstone is kept while its chunk exists, while the stored open chunk holds a copy, and for
 > 30 days after the eviction (`TOMB_KEEP_MS`). Limit: a tab that keeps a stale view for more than 30 days after the
 > eviction and then flushes it can still bring the events back once.
+>
+> **Also from the review:** a session that cannot be sealed (a `t` that is not a safe integer, or a chunk key that
+> already holds another or an unreadable chunk) no longer stops the pass: the page skips it, seals the next one, and
+> records the skip once in its own log (`seal-skipped`, with `session` and `reason`: `time` or `taken`). A full storage
+> (`write`) still ends the pass.
 
 ## Task 5: Migration of the live logs
 

@@ -233,6 +233,8 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
   let cancelSeal: (() => void) | null = null
   /** a seal pass began: it seals every complete session, then the own one while the open chunk is too long */
   let sealing = false
+  /** sessions this page cannot seal (an odd `t`, or their chunk key holds another chunk): the pass goes on without them */
+  const skipped = new Set<string>()
 
   if (isFrozenLog(key)) {
     // The frozen log is history: nothing opens it for writing (ADR 0004). A bug in dev, a no-op in production.
@@ -288,7 +290,10 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
     } catch { /* never into a game */ }
   }
 
-  /** the next seal of a pass: the oldest complete session that is not this page's, else this page's past the limit */
+  /**
+   * the next seal of a pass: the oldest complete session that is not this page's, else this page's past the limit. A
+   * session that cannot be sealed is skipped (and recorded once); the pass goes on with the next one.
+   */
   function sealNext(): boolean {
     const evs = all()
     reconcile(key, evs, sealed)
@@ -300,26 +305,43 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
       if (!first.has(e.s)) first.set(e.s, e.t)
       last.set(e.s, Math.max(last.get(e.s) ?? -Infinity, e.t))
     }
-    const complete = [...last].filter(([s, t]) => s !== SESSION && now - t > SESSION_IDLE_MS).map(([s]) => s)
+    const complete = [...last].filter(([s, t]) => s !== SESSION && now - t > SESSION_IDLE_MS && !skipped.has(s)).map(([s]) => s)
       .sort((a, b) => first.get(a)! - first.get(b)!)
-    const own = openJson(evs, sealed).length > OPEN_SEAL_CHARS
-    const s = complete[0] ?? (own && last.has(SESSION) ? SESSION : null)
-    if (s === null || !sealSession(s)) return false
-    flush()
-    enforceBudget(registeredLogs())
-    return complete.length > 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+    const own = openJson(evs, sealed).length > OPEN_SEAL_CHARS && last.has(SESSION) && !skipped.has(SESSION)
+    const candidates = own ? [...complete, SESSION] : complete
+    for (let i = 0; i < candidates.length; i++) {
+      const s = candidates[i]!
+      const r = sealSession(s)
+      if (r === 'write') return false // a full storage: the next flush past the limit starts a new pass
+      if (r !== 'ok') { noteSkip(s, r); continue }
+      flush()
+      enforceBudget(registeredLogs())
+      return i < complete.length - 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+    }
+    return false
   }
 
-  /** seal session `s` of the open events into a chunk; true when it left the open events */
-  function sealSession(s: string): boolean {
+  /** a session this page cannot seal: the pass goes on without it; the log says so once (with why) */
+  function noteSkip(s: string, reason: 'time' | 'taken') {
+    skipped.add(s)
+    if (all().some((e) => e.e === 'seal-skipped' && e.session === s)) return
+    all().push({ t: Date.now(), s: SESSION, run, e: 'seal-skipped', g: game, session: s, reason })
+  }
+
+  /**
+   * seal session `s` of the open events into a chunk: `ok` when they left the open events; `time` (a `t` that is not a
+   * safe integer) or `taken` (its chunk key holds another chunk) when it never can be; `write` when the write failed
+   */
+  function sealSession(s: string): 'ok' | 'time' | 'taken' | 'write' {
     const take = all().filter((e) => e.s === s)
-    if (take.length === 0 || !take.every((e) => Number.isSafeInteger(e.t))) return false // an odd old event: it stays open
-    const k = writeChunk(key, take)
-    if (k === null) return false // nothing safe was written: the open chunk stays as it is
+    if (take.length === 0) return 'write'
+    if (!take.every((e) => Number.isSafeInteger(e.t))) return 'time' // an odd old event: the session stays open
+    const w = writeChunk(key, take)
+    if ('error' in w) return w.error === 'taken' ? 'taken' : 'write' // nothing safe was written: the open chunk stays
     const gone = new Set(take)
     mem = all().filter((e) => !gone.has(e))
-    if (!sealed.includes(k)) sealed.push(k)
-    return true
+    if (!sealed.includes(w.key)) sealed.push(w.key)
+    return 'ok'
   }
 
   /** one seal per idle slot until the pass is done */
