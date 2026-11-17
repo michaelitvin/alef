@@ -120,7 +120,7 @@ export async function run(adapter: GameAdapter, log: DecisionLog, argv: string[]
       return write({ type: 'accept', item: it.id, take: t, source: rest[1] })
     }
     case 'ask':
-      return write({ type: 'ask', item: item(rest[0]).id, text: rest[1] ?? '' })
+      return write({ type: 'ask', item: item(rest[0]).id, text: rest[1] ?? '', take: take ?? null })
     case 'withdraw':
     case 'restore':
     case 'prefer':

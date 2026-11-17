@@ -166,6 +166,39 @@ describe('views and lists', () => {
   })
 })
 
+describe('an open ask surfaces its item', () => {
+  const b = item('b', 4)
+  const events = (...es: Partial<NewEvent>[]) =>
+    log({ item: 'b', take: 'b/v1' }, { item: 'b', by: 'agent', type: 'ask', text: 'new take v4' }, ...es.map((e) => ({ item: 'b', ...e })))
+
+  it('an OK-d take with a newer take and an ask is in needs you, on the newest take, and still ships v1', () => {
+    const s = deriveItem(b, events())
+    expect(s.status).toBe('ok')
+    expect(s.current?.id).toBe('b/v1')
+    expect(inView(s, 'focus')).toBe(true)
+    expect(inView(s, 'open')).toBe(false)
+    expect(s.askTake).toBe('b/v4')
+  })
+
+  it('uses the take named in the ask', () => {
+    const s = deriveItem(b, log({ item: 'b', take: 'b/v1' }, { item: 'b', by: 'agent', type: 'ask', text: 'q', take: 'b/v3' }))
+    expect(s.askTake).toBe('b/v3')
+  })
+
+  it('leaves needs you when he decides on the asked take, or an agent clears the ask', () => {
+    const okd = deriveItem(b, events({ take: 'b/v4' }))
+    expect(okd.askTake).toBeNull()
+    expect(okd.current?.id).toBe('b/v4')
+    expect(inView(okd, 'focus')).toBe(false)
+    expect(deriveItem(b, events({ type: 'reject', take: 'b/v4', text: 'no' })).askTake).toBeNull()
+    expect(deriveItem(b, events({ by: 'agent', type: 'ask', text: '' })).askTake).toBeNull()
+  })
+
+  it('a decision on another take does not close it', () => {
+    expect(deriveItem(b, events({ take: 'b/v2' })).askTake).toBe('b/v4')
+  })
+})
+
 describe('items that left the list', () => {
   it('get a retired stand-in, so their notes stay in the history and close', () => {
     const events = log({ item: 'pic-pan', type: 'note', text: 'could be a skillet' })
