@@ -1,7 +1,9 @@
 // Telemetry: an event log in localStorage (it survives closing the tab) so a parent can export it and analyse play
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
-import { clearLog, getRaw, isFrozenLog, parseOpen } from './telemetryChunks'
+import {
+  OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, readLog, reconcile, writeChunk,
+} from './telemetryChunks'
 
 export {
   FROZEN_LOG_KEYS, chunkKey, clearLog, isChunkKey, logStats, ownsKey, readLog, rollupKey, type LogStats,
@@ -130,11 +132,11 @@ export function exportFileName(games: readonly string[], now = new Date()): stri
  * Drop the oldest events of `evs` (in place) until the log's JSON is at most `maxLen` characters. Gives the JSON, or
  * null when no event is left.
  */
-function trimToLength(evs: TelemetryEvent[], maxLen: number): string | null {
-  let json = JSON.stringify({ v: 1, events: evs })
+function trimToLength(evs: TelemetryEvent[], maxLen: number, sealed: readonly string[]): string | null {
+  let json = openJson(evs, sealed)
   while (json.length > maxLen && evs.length > 0) {
     evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxLen) / json.length + 0.02))))
-    json = JSON.stringify({ v: 1, events: evs })
+    json = openJson(evs, sealed)
   }
   return evs.length > 0 ? json : null
 }
@@ -143,11 +145,11 @@ function trimToLength(evs: TelemetryEvent[], maxLen: number): string | null {
  * Shorten the stored log `key` by at least `chars` characters, oldest events first, from `evs` (the instance's events, or
  * the stored ones). Gives the characters it freed; 0 if it could not write.
  */
-function shrinkStored(key: string, chars: number, evs: TelemetryEvent[]): number {
+function shrinkStored(key: string, chars: number, evs: TelemetryEvent[], sealed: readonly string[]): number {
   let stored = 0
   try { stored = localStorage.getItem(key)?.length ?? 0 } catch { return 0 }
   if (stored === 0) return 0
-  const json = trimToLength(evs, stored - chars)
+  const json = trimToLength(evs, stored - chars, sealed)
   try {
     if (json === null) localStorage.removeItem(key)
     else localStorage.setItem(key, json)
@@ -179,7 +181,8 @@ export function freeTelemetrySpace(chars: number): number {
     others.sort((a, b) => Number(b.startsWith(STAGING_PREFIX)) - Number(a.startsWith(STAGING_PREFIX)))
     for (const k of others) {
       if (freed >= chars) return freed
-      freed += shrinkStored(k, chars - freed, parseOpen(getRaw(k))?.events ?? [])
+      const open = parseOpen(getRaw(k))
+      if (open) freed += shrinkStored(k, chars - freed, open.events, open.sealed)
     }
   } catch { /* no storage */ }
   return freed
@@ -188,44 +191,110 @@ export function freeTelemetrySpace(chars: number): number {
 export function createTelemetry(key: string, { game, maxChars = telemetryCap(game), about }: TelemetryOptions) {
   const FLUSH_MS = 1000
   let run = 0
-  let events: TelemetryEvent[] | null = null
+  /** the open chunk's events as this page sees them (loaded once, then tracked), and its `sealed` list */
+  let mem: TelemetryEvent[] | null = null
+  let sealed: string[] = []
   let timer: number | undefined
+  let tracked = false
+  let cancelSeal: (() => void) | null = null
+  /** a seal pass began: it seals every complete session, then the own one while the open chunk is too long */
+  let sealing = false
 
-  const load = (): TelemetryEvent[] => {
-    let raw: string | null = null
-    try { raw = localStorage.getItem(key) } catch { /* no storage */ }
-    return parseOpen(raw)?.events ?? []
+  if (isFrozenLog(key)) {
+    // The frozen log is history: nothing opens it for writing (ADR 0004). A bug in dev, a no-op in production.
+    if (import.meta.env.DEV) throw new Error(`${key} is frozen: it is never opened for writing`)
+    const none = () => {}
+    return { key, game, about, maxChars, track: none, flush: none, setRun: none, events: () => readLog(key), clear: none }
   }
-  const all = () => (events ??= load())
+
+  const all = (): TelemetryEvent[] => {
+    if (mem === null) {
+      const open = parseOpen(getRaw(key))
+      mem = open?.events ?? []
+      sealed = open?.sealed ?? []
+    }
+    return mem
+  }
 
   function flush() {
-    window.clearTimeout(timer)
-    timer = undefined
-    const evs = all()
-    let json = JSON.stringify({ v: 1, events: evs })
-    while (json.length > maxChars && evs.length > 1) {
-      evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
-      json = JSON.stringify({ v: 1, events: evs })
-    }
-    // A full storage: the log gives up its own oldest events, never another key's space (a save is never evicted).
-    for (let attempt = 0; attempt < 4; attempt++) {
-      try {
-        localStorage.setItem(key, json)
-        return
-      } catch {
-        if (evs.length <= 1) return
-        evs.splice(0, Math.ceil(evs.length / 2))
-        json = JSON.stringify({ v: 1, events: evs })
+    try {
+      window.clearTimeout(timer)
+      timer = undefined
+      const evs = all()
+      let json = openJson(evs, sealed)
+      while (json.length > maxChars && evs.length > 1) {
+        evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
+        json = openJson(evs, sealed)
       }
+      // A full storage: the log gives up its own oldest events, never another key's space (a save is never evicted).
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          localStorage.setItem(key, json)
+          break
+        } catch {
+          if (evs.length <= 1) return
+          evs.splice(0, Math.ceil(evs.length / 2))
+          json = openJson(evs, sealed)
+        }
+      }
+      if (json.length > OPEN_SEAL_CHARS) scheduleSeal()
+    } catch { /* never into a game */ }
+  }
+
+  /** the next seal of a pass: the oldest complete session that is not this page's, else this page's past the limit */
+  function sealNext(): boolean {
+    const evs = all()
+    reconcile(key, evs, sealed)
+    const now = Date.now()
+    const last = new Map<string, number>()
+    const first = new Map<string, number>()
+    for (const e of evs) {
+      if (typeof e.t !== 'number') continue
+      if (!first.has(e.s)) first.set(e.s, e.t)
+      last.set(e.s, Math.max(last.get(e.s) ?? -Infinity, e.t))
     }
+    const complete = [...last].filter(([s, t]) => s !== SESSION && now - t > SESSION_IDLE_MS).map(([s]) => s)
+      .sort((a, b) => first.get(a)! - first.get(b)!)
+    const own = openJson(evs, sealed).length > OPEN_SEAL_CHARS
+    const s = complete[0] ?? (own && last.has(SESSION) ? SESSION : null)
+    if (s === null) return false
+    const take = evs.filter((e) => e.s === s)
+    if (!take.every((e) => Number.isSafeInteger(e.t))) return false // an odd old event: the session stays open
+    const k = writeChunk(key, take)
+    if (k === null) return false // nothing safe was written: the open chunk stays as it is
+    const gone = new Set(take)
+    mem = evs.filter((e) => !gone.has(e))
+    if (!sealed.includes(k)) sealed.push(k)
+    flush()
+    return complete.length > 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+  }
+
+  /** one seal per idle slot until the pass is done */
+  function scheduleSeal() {
+    if (cancelSeal || typeof window === 'undefined') return
+    sealing = true
+    cancelSeal = onIdle(() => {
+      cancelSeal = null
+      let more = false
+      try { more = sealNext() } catch { /* a seal that fails leaves the open chunk as it is */ }
+      if (more) scheduleSeal()
+      else sealing = false
+    })
   }
 
   function track(e: string, data: Record<string, unknown> = {}) {
-    all().push({ t: Date.now(), s: SESSION, run, e, g: game, ...data })
-    if (timer === undefined) timer = window.setTimeout(flush, FLUSH_MS)
+    try {
+      all().push({ t: Date.now(), s: SESSION, run, e, g: game, ...data })
+      if (!tracked) {
+        tracked = true
+        // the page's first event: a large open chunk (an old log, or sessions of earlier pages) starts a seal pass
+        if (!sealing && openJson(all(), sealed).length > OPEN_SEAL_CHARS) scheduleSeal()
+      }
+      if (timer === undefined) timer = window.setTimeout(flush, FLUSH_MS)
+    } catch { /* never into a game */ }
   }
 
-  if (isLiveLog(key)) pageLogs.set(key, (chars) => shrinkStored(key, chars, all()))
+  if (isLiveLog(key)) pageLogs.set(key, (chars) => shrinkStored(key, chars, all(), sealed))
 
   if (typeof window !== 'undefined') {
     window.addEventListener('pagehide', flush)
@@ -242,18 +311,16 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
     track,
     flush,
     setRun: (n: number) => { run = n },
-    count: () => all().length,
-    /** every event, flushed first, so the unflushed ones are in it too */
-    events: (): TelemetryEvent[] => { flush(); return [...all()] },
-    exportJson: () => {
-      flush()
-      const note = about && aboutNote(about)
-      return JSON.stringify({ v: 1, exportedAt: new Date().toISOString(), ...(note ? { about: note } : {}), events: all() }, null, 1)
-    },
+    /** every event (its sealed chunks and the open chunk), flushed first, so the unflushed ones are in it too */
+    events: (): TelemetryEvent[] => { flush(); return readLog(key) },
     clear: () => {
-      events = []
+      mem = []
+      sealed = []
       window.clearTimeout(timer)
       timer = undefined
+      cancelSeal?.()
+      cancelSeal = null
+      sealing = false
       clearLog(key)
     },
   }

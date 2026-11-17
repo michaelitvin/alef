@@ -46,7 +46,7 @@ describe('Tower', () => {
     const { unmount } = render(<Tower view={view} paused={false} dry onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
-    expect(duel2Telemetry.count()).toBe(0)
+    expect(duel2Telemetry.events().length).toBe(0)
     expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
   })
 

@@ -8,7 +8,7 @@
 // are there, as a run of their session that starts with the chunk's first event and matches the chunk event by event.
 // So no state loses or doubles an event (Decision 5 of the compact-telemetry plan).
 import { STAGING_PREFIX } from './stagingStorage'
-import { chunkHeader, decodeChunk, type ChunkHeader } from './telemetryCodec'
+import { chunkHeader, decodeChunk, encodeChunk, type ChunkHeader } from './telemetryCodec'
 import type { TelemetryEvent } from './telemetry'
 
 // ---- keys
@@ -225,4 +225,80 @@ export function clearLog(key: string) {
   for (const k of [key, ...storageKeys().filter((k) => ownsKey(key, k))]) {
     try { localStorage.removeItem(k) } catch { /* no storage */ }
   }
+}
+
+// ---- the write side's pieces (telemetry.ts runs them; each never throws)
+/** the open chunk is sealed past this many characters */
+export const OPEN_SEAL_CHARS = 40_000
+/** a session with no event for this long is complete (a session live in another tab stays open) */
+export const SESSION_IDLE_MS = 30 * 60 * 1000
+
+/**
+ * Take in the sealed chunks of a log that another tab (or an earlier seal cut short) wrote: drop their copies from
+ * `mem` (the instance's open events) and list them in `sealed`. `sealed` keeps only keys that still exist. Mutates both.
+ */
+export function reconcile(logKey: string, mem: TelemetryEvent[], sealed: string[]) {
+  const keys = chunkKeysOf(logKey)
+  const exists = new Set(keys)
+  const known = new Set(sealed.filter((k) => exists.has(k)))
+  const fresh: DecodedChunk[] = []
+  for (const k of keys) {
+    if (known.has(k)) continue
+    const events = decodeChunk(getRaw(k))
+    if (events) fresh.push({ key: k, events })
+  }
+  const rest = fresh.length > 0 ? dropSealedCopies(mem, fresh, known).events : mem
+  if (rest !== mem) mem.splice(0, mem.length, ...rest)
+  sealed.splice(0, sealed.length, ...keys.filter((k) => known.has(k) || fresh.some((c) => c.key === k)))
+}
+
+/**
+ * Write the events of one session (in order) as a sealed chunk, read it back and compare. Gives the chunk's key, or null
+ * when nothing safe was written (a quota error, a key that holds other events, a read-back that differs). Never throws.
+ */
+export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): string | null {
+  try {
+    const value = encodeChunk(events)
+    const key = chunkKey(logKey, events[0]!.t, events[0]!.s)
+    const want = JSON.stringify(JSON.parse(JSON.stringify(events)))
+    const before = getRaw(key)
+    if (before !== null && before !== value) {
+      // the same t0 and session: a chunk another tab sealed (same events, so it is ours too) or another one (keep it)
+      return JSON.stringify(decodeChunk(before)) === want ? key : null
+    }
+    if (before === null) localStorage.setItem(key, value)
+    const back = getRaw(key)
+    if (back === value && JSON.stringify(decodeChunk(back)) === want) return key
+    if (before === null && back === value) localStorage.removeItem(key) // our own write, and it does not read back
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Run `fn` when the page is idle: `requestIdleCallback` (with a 10 s timeout) where it exists, else after 2 s with no
+ * `pointerdown` or `keydown` (each one waits again), never a 0 ms timer during play. Gives a cancel.
+ */
+export function onIdle(fn: () => void): () => void {
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void }
+  if (typeof w.requestIdleCallback === 'function') {
+    const h = w.requestIdleCallback(fn, { timeout: 10_000 })
+    return () => w.cancelIdleCallback?.(h)
+  }
+  const QUIET_MS = 2000
+  let timer: number | undefined
+  const stop = () => {
+    window.clearTimeout(timer)
+    window.removeEventListener('pointerdown', arm, true)
+    window.removeEventListener('keydown', arm, true)
+  }
+  function arm() {
+    window.clearTimeout(timer)
+    timer = window.setTimeout(() => { stop(); fn() }, QUIET_MS)
+  }
+  window.addEventListener('pointerdown', arm, true)
+  window.addEventListener('keydown', arm, true)
+  arm()
+  return stop
 }

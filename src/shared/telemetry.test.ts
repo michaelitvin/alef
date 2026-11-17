@@ -12,7 +12,7 @@ describe('telemetry export', () => {
   it('carries a note on where the code and the docs are, so an analysis tool can find them', () => {
     const t = createTelemetry('t-about', { game: 'book2', maxChars: 100_000, about: { game: 'Test game', docs: ['docs/x.md'] } })
     t.track('run-start')
-    const doc = JSON.parse(t.exportJson())
+    const doc = JSON.parse(exportDoc([{ about: t.about!, events: t.events() }])).games[0]
     expect(doc.about.repo).toBe('https://github.com/michaelitvin/alef')
     expect(doc.about.game).toBe('Test game')
     expect(doc.about.docs).toContain('docs/x.md')
@@ -50,7 +50,7 @@ describe('every event says its game and the page load', () => {
     const t = createTelemetry('t-g', { game: 'clock' })
     t.setRun(4)
     t.track('answer', { ok: true, ms: 900 })
-    const [ev] = JSON.parse(t.exportJson()).events
+    const [ev] = t.events()
     expect(ev).toMatchObject({ s: SESSION, run: 4, e: 'answer', g: 'clock', ok: true, ms: 900 })
     expect(typeof ev.t).toBe('number')
   })

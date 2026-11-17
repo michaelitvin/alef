@@ -75,7 +75,7 @@ const lines = () => audio.playLine.mock.calls.map((c) => c[0])
 const rngConst = (v: number) => () => v
 /** the log the hook writes to (Book 2's in the tower) */
 const tel = createTelemetry('t-tower', { game: 'book2' })
-const exportTelemetry = () => tel.exportJson()
+const exportTelemetry = () => tel.events()
 
 beforeEach(() => {
   live.clear()
@@ -112,7 +112,7 @@ describe('DuelController', () => {
     act(() => result.current.start())
     await flushLines()
     unmount()
-    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    const ev = exportTelemetry() as Record<string, unknown>[]
     expect(ev.length).toBeGreaterThan(1)
     for (const x of ev) expect(x).toMatchObject({ run: 7, via: 'tower', visit: 1, g: 'book2' })
     expect(ev[0]).toMatchObject({ e: 'run_start', embedded: true })
@@ -123,7 +123,7 @@ describe('DuelController', () => {
     act(() => result.current.start())
     await flushLines()
     act(() => c.pageHidden())
-    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    const ev = exportTelemetry() as Record<string, unknown>[]
     expect(ev[ev.length - 1]).toMatchObject({ e: 'abandon', reason: 'pagehide', round: result.current.state.round!.id })
   })
   it('telemetry: what was shown where, the tap (position, latency), the outcome, assets used, and quitting mid-round', async () => {
@@ -137,7 +137,7 @@ describe('DuelController', () => {
     await flushLines()
     const r2 = result.current.state.round!
     unmount() // left mid-round: churn
-    const ev = (JSON.parse(exportTelemetry()).events as Record<string, unknown>[])
+    const ev = (exportTelemetry() as Record<string, unknown>[])
     const names = ev.map((e) => e.e)
     expect(names.slice(0, 3)).toEqual(['run_start', 'line', 'line']) // intro + first instruction
     expect(ev.find((e) => e.e === 'line')).toMatchObject({ id: 'line-intro', url: expect.any(String) })
@@ -564,7 +564,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(3000) })
     await flushLines()
     expect(result.current.state.kills).toBe(kills + 1)
-    const ev = JSON.parse(exportTelemetry()).events as Record<string, unknown>[]
+    const ev = exportTelemetry() as Record<string, unknown>[]
     expect(ev.some((x) => x.e === 'outcome' && x.result === 'mega')).toBe(true)
     expect(ev.some((x) => x.e === 'mega_tap')).toBe(true)
   })
