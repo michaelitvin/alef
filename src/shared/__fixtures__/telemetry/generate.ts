@@ -172,6 +172,18 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
 }
 
+/** how often an event comes, against 1 for the rest (a session is mostly answers, as the child's are) */
+const WEIGHT: Record<string, number> = {
+  answer: 30, 'tower-answer': 4, replay: 4, idle: 2, mult: 2, 'draw-stroke': 6, 'merchant-offer': 2, pause: 1.5, resume: 1.5,
+  round: 25, choice: 10, outcome: 10, line: 14, walk: 8, hint: 3, explain: 1.5,
+}
+function weighted(r: R, names: readonly string[]): string {
+  const w = names.map((n) => WEIGHT[n] ?? 0.3)
+  let x = r.next() * w.reduce((a, b) => a + b, 0)
+  for (let i = 0; i < names.length; i++) if ((x -= w[i]!) < 0) return names[i]!
+  return names[names.length - 1]!
+}
+
 export interface FixtureOpts {
   seed?: number
   days?: number
@@ -190,7 +202,7 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
   const r = rng(o.seed ?? (game === 'book2' ? 7 : 11))
   const days = o.days ?? 45
   const perDay = o.sessionsPerDay ?? 1
-  const perSession = o.eventsPerSession ?? 60
+  const perSession = o.eventsPerSession ?? 150
   const oldDays = o.oldDays ?? 3
   const start = o.start ?? FIXTURE_START
   const out: TelemetryEvent[] = []
@@ -211,7 +223,7 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
         t += r.chance(0.05) ? 0 : r.int(200, 9000) // two events in one millisecond now and then
         if (r.chance(0.03)) run++
         const env: TelemetryEvent = d < oldDays ? { t, s, run, e: '' } : { t, s, run, e: '', g: game }
-        const [towerTurn, name] = cover.shift() ?? (game === 'book2' && r.chance(0.35) ? [true, r.pick(tower)] : [false, r.pick(names)])
+        const [towerTurn, name] = cover.shift() ?? (game === 'book2' && r.chance(0.35) ? [true, weighted(r, tower)] : [false, weighted(r, names)])
         const e = name === 'tower-answer' ? 'answer' : name
         const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : (game === 'book2' ? BOOK2 : CLOCK)[name]!(r, t)
         env.e = e
@@ -241,7 +253,7 @@ export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 
 /** the logs the goldens are made of (small, so the golden files stay small) */
 export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
-export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 10 })
+export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>
