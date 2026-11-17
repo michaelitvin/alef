@@ -22,6 +22,8 @@ export interface LiveLog {
   key: string
   /** every event, flushed first */
   events: () => TelemetryEvent[]
+  /** write its unflushed events, so storage-side counts include them */
+  flush: () => void
   clear: () => void
 }
 

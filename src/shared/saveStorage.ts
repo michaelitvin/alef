@@ -22,6 +22,10 @@ export function isQuotaError(e: unknown): boolean {
  * Write `value` under `key`. On a quota error, trim telemetry to make room and try once more. Gives true when the value
  * is stored. Never throws.
  */
+/** a save write failed even after freeing telemetry, on this page (in memory: the Data section shows it) */
+let saveFailedKey: string | null = null
+export const saveFailed = (): string | null => saveFailedKey
+
 export function safeSetItem(key: string, value: string): boolean {
   try {
     localStorage.setItem(key, value)
@@ -35,6 +39,7 @@ export function safeSetItem(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch {
+    saveFailedKey = key
     return false
   }
 }
@@ -54,6 +59,9 @@ export const saveStorage: StateStorage = {
 export const persistSaveStorage = <S>() => createJSONStorage<S>(() => saveStorage)
 
 let persistRequested = false
+/** the browser's answer to `persist()` on this page: true, false, or null (not asked, or no answer) */
+let persistAnswer: boolean | null = null
+export const persistedAnswer = (): boolean | null => persistAnswer
 
 /**
  * Ask the browser once per page to keep this site's storage under pressure (without it, the browser may clear it).
@@ -66,9 +74,10 @@ export async function requestPersistentStorage(record?: (persisted: boolean) => 
     const storage = typeof navigator === 'undefined' ? undefined : navigator.storage
     if (!storage?.persist) return
     const persisted = (await storage.persisted?.()) || (await storage.persist())
+    persistAnswer = persisted === true
     record?.(persisted === true)
   } catch { /* best-effort */ }
 }
 
 /** for tests: forget that the request was made */
-export function resetPersistRequestForTest() { persistRequested = false }
+export function resetPersistRequestForTest() { persistRequested = false; persistAnswer = null; saveFailedKey = null }

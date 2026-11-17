@@ -3,7 +3,10 @@
 import { fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DataSection } from './Data'
-import { createTelemetry, readLog } from '../../shared/telemetry'
+import { chunkKey, createTelemetry, readLog, rollupKey, type TelemetryEvent } from '../../shared/telemetry'
+import { encodeChunk } from '../../shared/telemetryCodec'
+import { openJson } from '../../shared/telemetryChunks'
+import { emptyRollup, foldEvents } from '../../shared/telemetryRollup'
 
 const NOW = new Date('2026-11-16T12:00:00Z').getTime()
 const DAY = 24 * 60 * 60 * 1000
@@ -91,12 +94,14 @@ describe('the Data section', () => {
 
   it('the counts read the open game’s log once, not on every render: a tick or a period change does not flush it', () => {
     const events = vi.fn(() => [])
-    const live = { key: 'alef-duel2-telemetry', events, clear: vi.fn() }
+    const flush = vi.fn()
+    const live = { key: 'alef-duel2-telemetry', events, flush, clear: vi.fn() }
     const { container } = render(<DataSection game="book2" live={live} />)
-    const reads = events.mock.calls.length
+    const reads = flush.mock.calls.length
+    expect(events).not.toHaveBeenCalled() // the counts come from storage, after a flush
     fireEvent.click(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-pick]')!)
     fireEvent.click(container.querySelector('[data-period="all"]')!)
-    expect(events.mock.calls.length).toBe(reads)
+    expect(flush.mock.calls.length).toBe(reads)
   })
 
   it('a clear of the open game’s log goes through its instance, so the cleared events do not come back on its next flush', () => {
@@ -125,5 +130,76 @@ describe('the Data section', () => {
     fireEvent.click(btn)
     expect(localStorage.getItem('alef-clock-telemetry')).toBeNull()
     expect(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-count]')!.textContent).toBe('0 events')
+  })
+
+  describe('a log of sealed chunks', () => {
+    const KEY = 'alef-clock-telemetry'
+    const ev = (s: string, t: number, e = 'round'): TelemetryEvent => ({ t, s, run: 1, e, g: 'clock' })
+    const seal = (evs: TelemetryEvent[]) => { const k = chunkKey(KEY, evs[0]!.t, evs[0]!.s); localStorage.setItem(k, encodeChunk(evs)); return k }
+
+    it('counts span the chunks and the open chunk; the 30-day count reads across them; the export is the same as for a plain log', async () => {
+      const a = [ev('a', NOW - 50 * DAY), ev('a', NOW - 50 * DAY + 5)]
+      const b = [ev('b', NOW - 31 * DAY), ev('b', NOW - 29 * DAY)] // straddles the cut
+      const c = [ev('c', NOW - 2 * DAY)]
+      const keys = [seal(a), seal(b)]
+      localStorage.setItem(KEY, openJson(c, keys))
+      const { container } = render(<DataSection game="clock" />)
+      expect(container.querySelector(`[data-log="${KEY}"] [data-log-count]`)!.textContent).toBe('5 events')
+      expect(container.querySelector(`[data-log="${KEY}"] [data-log-recent]`)!.textContent).toBe('2 in the last 30 days')
+      fireEvent.click(container.querySelector('[data-period="all"]')!)
+      const chunked = (await downloaded(container)).doc
+      localStorage.clear()
+      put(KEY, [...a, ...b, ...c])
+      const second = render(<DataSection game="clock" />).container
+      fireEvent.click(second.querySelector('[data-period="all"]')!)
+      const plain = (await downloaded(second)).doc
+      expect(chunked.games[0]!.events).toEqual(plain.games[0]!.events)
+    })
+
+    it('opening the section decodes no chunk wholly before the cut (a corrupt one counts as readable until a download)', () => {
+      const old = seal([ev('a', NOW - 60 * DAY), ev('a', NOW - 60 * DAY + 1)])
+      const v = JSON.parse(localStorage.getItem(old)!)
+      localStorage.setItem(old, JSON.stringify({ ...v, d: 'broken' }))
+      localStorage.setItem(KEY, openJson([ev('c', NOW)], [old]))
+      const { container } = render(<DataSection game="clock" />)
+      expect(container.querySelector(`[data-log="${KEY}"] [data-log-unreadable]`)).toBeNull()
+      expect(container.querySelector(`[data-log="${KEY}"] [data-log-count]`)!.textContent).toBe('3 events')
+    })
+
+    it('shows the older days a roll-up summarizes, and exports them only for a period before the raw events', async () => {
+      const r = emptyRollup()
+      const gone = [ev('z', NOW - 120 * DAY), ev('z', NOW - 119 * DAY)]
+      foldEvents(r, gone, [{ item: 'what:3-00', ok: true, t: gone[0]!.t }])
+      localStorage.setItem(rollupKey(KEY), JSON.stringify(r))
+      put(KEY, [ev('c', NOW - 40 * DAY), ev('c', NOW)])
+      const { container } = render(<DataSection game="clock" />)
+      expect(container.querySelector(`[data-log="${KEY}"] [data-log-summarized]`)!.textContent).toMatch(/^2 older days summarized/)
+      expect((await downloaded(container)).doc.games[0]).not.toHaveProperty('rollups')
+      fireEvent.click(container.querySelector('[data-period="all"]')!)
+      const part = (await downloaded(container)).doc.games[0] as unknown as { rollups: Record<string, unknown>; rollupsNote: string }
+      expect(Object.keys(part.rollups)).toHaveLength(2)
+      expect(part.rollupsNote).toMatch(/counted exactly by adding/)
+    })
+
+    it('Clear removes the open chunk, the chunks and the roll-up, and never the frozen log', () => {
+      const k = seal([ev('a', NOW - DAY)])
+      localStorage.setItem(KEY, openJson([], [k]))
+      localStorage.setItem(rollupKey(KEY), JSON.stringify(emptyRollup()))
+      localStorage.setItem('alef-duel-telemetry', HISTORY)
+      vi.spyOn(window, 'confirm').mockReturnValue(true)
+      const { container } = render(<DataSection game="book2" />)
+      fireEvent.click(container.querySelector(`[data-log="${KEY}"] [data-log-clear]`)!)
+      expect(Object.keys(localStorage)).toEqual(['alef-duel-telemetry'])
+      expect(localStorage.getItem('alef-duel-telemetry')).toBe(HISTORY)
+    })
+
+    it('the storage line shows the telemetry against its budget and each frozen log\'s size', () => {
+      localStorage.setItem('alef-duel-telemetry', HISTORY)
+      put(KEY, [ev('c', NOW)])
+      const { container } = render(<DataSection game="clock" />)
+      expect(container.querySelector('[data-storage]')!.textContent).toMatch(/of 800k chars/)
+      expect(container.querySelector('[data-storage-persisted]')!.textContent).toBe('not asked yet')
+      expect(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-size]')!.textContent).toBe(`${((HISTORY.length + 19) / 1000).toFixed(1)}k chars`)
+    })
   })
 })

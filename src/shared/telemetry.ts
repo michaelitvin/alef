@@ -6,6 +6,7 @@ import {
   writeChunk,
 } from './telemetryChunks'
 import { enforceBudget, freeChunks } from './telemetryBudget'
+import { MS_EDGES, readRollup, weekOf } from './telemetryRollup'
 
 export {
   LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, STAGING_SHARE, frozenLogSizes, liveBudget, liveChars, rollupBudget,
@@ -128,16 +129,25 @@ function aboutNote(about: TelemetryAbout) {
   }
 }
 
+/** what the export says about a part's `rollups` (only a part that has them) */
+const ROLLUPS_NOTE = 'rollups: per-day (per ISO week after 90 days) counts of events that were evicted from storage to keep it '
+  + 'small. They hold only evicted events, never the ones under events, so a day that has both is counted exactly by adding '
+  + 'them. Per item: n answers, wrong, near, special (counted apart, never as right or wrong), hints, replays, ms (a latency '
+  + 'histogram, bin edges in msEdges), chosen (the most frequent mix-ups); per day: minutes, runs, abandons.'
+
+/** One part of an export: a log's key, its `about`, its events and, when the period reaches past its raw events, its roll-ups. */
+export interface ExportPart { key?: string; about: TelemetryAbout; events: TelemetryEvent[]; rollups?: Record<string, unknown> }
+
 /** One export document for one or more logs: each part keeps its own key, its `about` and its events. */
-export function exportDoc(
-  parts: { key?: string; about: TelemetryAbout; events: TelemetryEvent[] }[],
-  { since, now = new Date() }: { since?: number; now?: Date } = {},
-): string {
+export function exportDoc(parts: ExportPart[], { since, now = new Date() }: { since?: number; now?: Date } = {}): string {
   return JSON.stringify({
     v: 2,
     exportedAt: now.toISOString(),
     since: since === undefined ? null : new Date(since).toISOString(),
-    games: parts.map((p) => ({ ...(p.key ? { key: p.key } : {}), about: aboutNote(p.about), events: p.events })),
+    games: parts.map((p) => ({
+      ...(p.key ? { key: p.key } : {}), about: aboutNote(p.about), events: p.events,
+      ...(p.rollups ? { rollups: p.rollups, rollupsNote: ROLLUPS_NOTE, msEdges: MS_EDGES } : {}),
+    })),
   }, null, 1)
 }
 
@@ -365,4 +375,20 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
       clearLog(key)
     },
   }
+}
+
+/**
+ * A log's roll-ups for an export from `since`: only when the period starts before the log's oldest raw event (by
+ * default, within the raw floor, never). Gives the days (and weeks) at or after `since`, or undefined.
+ */
+export function rollupsFor(key: string, events: readonly TelemetryEvent[], since?: number): Record<string, unknown> | undefined {
+  if (isFrozenLog(key)) return undefined
+  const r = readRollup(key)
+  const days = Object.keys(r.days)
+  if (days.length === 0) return undefined
+  const oldest = events.reduce((m, e) => (typeof e.t === 'number' && e.t < m ? e.t : m), Infinity)
+  if (since !== undefined && since >= oldest) return undefined
+  const from = since === undefined ? '' : new Date(since).toISOString().slice(0, 10)
+  const keep = Object.fromEntries(Object.entries(r.days).filter(([d]) => !from || (d.includes('W') ? d >= weekOf(from) : d >= from)))
+  return Object.keys(keep).length > 0 ? keep : undefined
 }

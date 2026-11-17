@@ -22,7 +22,8 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`).
+  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `telemetry`). `telemetry` reads the events the play checks
+  left in the same size's storage, so run it with `book2` (and `clock`).
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
@@ -38,6 +39,7 @@ and no boy or girl yet. Each check gets its own page.
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
 | `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top) |
 | `clock` | cover → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round |
+| `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.
