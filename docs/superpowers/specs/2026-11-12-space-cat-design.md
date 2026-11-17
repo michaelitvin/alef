@@ -235,10 +235,10 @@ the role "the game's narrator"; this game has no speaking character.
 | New ship | חֲלָלִית חֲדָשָׁה. | each of the two ships |
 | Hearts run out | נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב. | the first two times |
 | New best | שִׂיא חָדָשׁ. | each time; it is rare. Book 2's approved take `new-best-1` (the same narrator, no gender) is reused: no new take |
-| Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. טָעוּת לוֹקַחַת לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים. | once for a burst of taps |
-| Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר. | once for a burst of taps; no עוֹד (its stress is wrong in this voice) |
+| Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים. | once for a burst of taps |
+| Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת. | once for a burst of taps; no עוֹד (its stress is wrong in this voice) |
 | Tap on his best | זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת. | once for a burst of taps |
-| Tap on a locked ship | אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים בְּטִיסָה אֲרֻכָּה. | once for a burst of taps |
+| Tap on a locked ship | אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק. | once for a burst of taps |
 
 **One symbol, one meaning.** The points icon is a star, and the answers ride on planets. The voice therefore says
 "כּוֹכַב הַלֶּכֶת" for a planet and "נְקֻדּוֹת" for the points, never plain "כּוֹכָב" for either. *My call*; the parent
@@ -325,10 +325,10 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
   and lighter (see *Credit*).
 - Image budget (the parent approved): a generated card picture, plan 4 attempts, ceiling 8. With the card from the
   game's own parts, it is used only if the parent asks for a painted picture after he sees the card.
-- Voice budget (the parent approved): plan about 12 takes, ceiling about 24. The lines above are 11 items with their
-  variations (the new-best line is reused). The first round makes one take of each item; a second take is made only for
-  an item that fails the automatic checks or that the parent rejects. This is a stated exception to "2 or more takes for
-  each item", for the budget.
+- Voice budget (the parent approved): plan 22 takes, ceiling 24 with retakes. The lines above are 11 items with their
+  variations (the new-best line is reused). The first round makes two takes of each item (rule: 2 or more takes for each
+  item; the parent, 2026-11-17); the last 2 takes of the ceiling are for an item that fails the automatic checks or that
+  the parent rejects.
 - The round content sits behind one interface (`makeRound` → the box content, four planet labels, the right lane, the
   feedback content), so a reading galaxy can come later without a change to the canvas.
 
@@ -388,14 +388,14 @@ The parent decided: a held house button as the way home, on the cover, the top b
 original's art and coded sound; points stay in this game; no narrated numbers; the credit under the home card, in Hebrew; one
 adaptive ladder at 1 mistake in 5; all twelve rule changes listed in the chat of 2026-11-12 (among them: no timer bar,
 lane glide, our pointing hand, zoom taught later, lines that do not address the child). Igor's permission covers this
-public repository. The budgets: image plan 4, ceiling 8; voice plan about 12 takes, ceiling about 24.
+public repository. The budgets: image plan 4, ceiling 8; voice plan 22 takes, ceiling 24.
 
 My calls, for the parent to check: the credit's style under the home card; the ladder's rungs and its numbers; a time-out counts as
 half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it; the speed numbers; `1 + 1` as the demo; a tap on the shelf chooses the ship; levels without an end;
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
 the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
-its line; the current ship shown once on the cover; one first take per voice item; the telemetry
+its line; the current ship shown once on the cover; two takes per voice item (the parent, 2026-11-17); the telemetry
 cap's share (not decided: the refactor may make telemetry more efficient; an old proposal was Space Cat 200 k characters, Book 2 600 k, clock 400 k).
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field

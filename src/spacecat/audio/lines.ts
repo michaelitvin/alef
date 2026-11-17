@@ -30,10 +30,10 @@ export const LINES: LineDef[] = [
   line('level-done', 'Level done (the first two times), after the fanfare', ['כָּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב.', 'יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.'], 0, 'excited'),
   line('new-ship', 'Level done: a new ship (each of the two ships)', ['חֲלָלִית חֲדָשָׁה.'], 0, 'excited'),
   line('out', 'End of the run (the first two times)', ['נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב.'], 0.5, 'warmly'),
-  line('info-hearts', 'A tap on the hearts (once for a burst of taps)', ['אֵלֶּה הַלְּבָבוֹת. טָעוּת לוֹקַחַת לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים.'], 0.5, 'playful'),
-  line('info-points', 'A tap on the points (once for a burst of taps)', ['אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר.'], 0.5, 'playful'),
+  line('info-hearts', 'A tap on the hearts (once for a burst of taps)', ['אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים.'], 0.5, 'playful'),
+  line('info-points', 'A tap on the points (once for a burst of taps)', ['אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת.'], 0.5, 'playful'),
   line('info-best', 'A tap on his best (once for a burst of taps)', ['זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת.'], 0.5, 'playful'),
-  line('info-ship-locked', 'A tap on a locked ship on the cover (once for a burst of taps)', ['אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים בְּטִיסָה אֲרֻכָּה.'], 0.5, 'playful'),
+  line('info-ship-locked', 'A tap on a locked ship on the cover (once for a burst of taps)', ['אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק.'], 0.5, 'playful'),
   line('new-best', 'The end screen: a new best (each time; it is rare)', ['שִׂיא חָדָשׁ.'], 0.5, undefined, 'duel2/new-best-1'),
 ]
 
