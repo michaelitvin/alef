@@ -1,5 +1,5 @@
 {
- "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json).",
+ "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json).",
  "files": [
   {
    "id": "demo-1",
@@ -33,8 +33,21 @@
       },
       "seed": 101
      }
+    },
+    {
+     "take": "clips/demo-1/v3.mp3",
+     "request": {
+      "text": "[warmly] צָרִיךְ לָטוּס אֶל כּוֹכַב־הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     }
     }
-   ]
+   ],
+   "note": "Takes 1 and 2 paused inside כּוֹכַב הַלֶּכֶת; take 3 joins the two words with a maqaf in the spoken text."
   },
   {
    "id": "zoom-tip-1",
