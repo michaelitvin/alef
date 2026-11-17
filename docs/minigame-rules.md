@@ -212,6 +212,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): the ear meant "listen" and also suggested "mute" (shva). It was removed.
 - Give each picture word one obvious name. Ask: "What will the child call this?"
   Examples removed (duel): goat (he said "sheep"), car (מכונית), ship (סירה), mom (he said "woman"), hamster (he said "mouse"), a star-shaped cookie (כוכב).
+- Use words for things that the child sees where he lives (Israel), also on the English path. Do not use words for
+  snow, winter or a foreign country's everyday things.
+  Example (English path, 2026-11-17): sled was removed. The parent: "we're in israel. there's no strong sense of what a
+  sled is".
 - Use only words whose first vowel sounds as written.
   Example (duel): תמנון has shva, but people say "ta". Do not use it.
 - Give each sound several picture words. Take them from things that the child knows.
