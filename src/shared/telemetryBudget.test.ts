@@ -195,4 +195,29 @@ describe('the open chunk\'s hard cap and staging\'s frozen copy', () => {
     expect(real.getItem(STAGING_PREFIX + 'alef-duel-telemetry')).toBeNull()
     expect(real.getItem('alef-duel-telemetry')).toBe(FROZEN_HISTORY)
   })
+
+  it('in the staging build, a log\'s first event removes the copy and the log gets one frozen-copy-removed event', async () => {
+    real.setItem('alef-duel-telemetry', FROZEN_HISTORY)
+    real.setItem(STAGING_PREFIX + 'alef-duel-telemetry', FROZEN_HISTORY)
+    vi.resetModules()
+    vi.doMock('./stagingStorage', async (orig) => ({ ...(await orig<typeof import('./stagingStorage')>()), isStaging: true }))
+    try {
+      const staging = await import('./telemetry')
+      Object.defineProperty(window, 'localStorage', { value: prefixedStorage(real, STAGING_PREFIX), configurable: true })
+      const t = staging.createTelemetry('alef-stg-telemetry', { game: 'stg' })
+      t.track('x')
+      t.track('y')
+      const second = staging.createTelemetry('alef-stg2-telemetry', { game: 'stg' })
+      second.track('z')
+      const removed = (evs: TelemetryEvent[]) => evs.filter((e) => e.e === 'frozen-copy-removed')
+      expect(removed(t.events())).toMatchObject([{ s: staging.SESSION, g: 'stg', key: STAGING_PREFIX + 'alef-duel-telemetry', chars: FROZEN_HISTORY.length }])
+      expect(removed(second.events())).toEqual([]) // once per page
+      Object.defineProperty(window, 'localStorage', { value: real, configurable: true })
+      expect(real.getItem(STAGING_PREFIX + 'alef-duel-telemetry')).toBeNull()
+      expect(real.getItem('alef-duel-telemetry')).toBe(FROZEN_HISTORY)
+    } finally {
+      vi.doUnmock('./stagingStorage')
+      vi.resetModules()
+    }
+  })
 })

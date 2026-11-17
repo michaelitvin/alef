@@ -129,7 +129,7 @@ describe('sealing the open chunk', () => {
     expect(open().events).toHaveLength(151)
   })
 
-  it('two instances on one log (one seals, the other flushes its older view after) lose and double nothing', async () => {
+  it('two instances on one log (one seals, the other flushes its older view after): the sealed session is neither lost nor doubled', async () => {
     const stale = session('old-1', NOW - 40 * MIN, 150)
     real.setItem(KEY, openJson(stale, []))
     const b = createTelemetry(KEY, { game: 'book2' })
@@ -147,6 +147,10 @@ describe('sealing the open chunk', () => {
     const evs = readLog(KEY)
     expect(evs.filter((e) => e.s === 'old-1')).toHaveLength(150)
     expect(str(evs.filter((e) => e.s === 'old-1'))).toBe(str(stale))
+    // the accepted limit (last writer wins on the open chunk, as before the chunks): b's older view overwrote a's new,
+    // unsealed event. The plan states it (Task 4b).
+    expect(evs.filter((e) => e.e === 'answer' && e.i === 'a')).toEqual([])
+    expect(evs.filter((e) => e.e === 'answer' && e.i === 'b')).toHaveLength(1)
   })
 
   it('a session that cannot be sealed (a t that is not a safe integer) is skipped once, and the next ones are sealed', async () => {

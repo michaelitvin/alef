@@ -292,6 +292,11 @@ callback never firing on a hidden page (the next load seals). **Size:** M.
 > already holds another or an unreadable chunk) no longer stops the pass: the page skips it, seals the next one, and
 > records the skip once in its own log (`seal-skipped`, with `session` and `reason`: `time` or `taken`). A full storage
 > (`write`) still ends the pass.
+>
+> **Accepted limit: last writer wins on the open chunk** (as before this plan). Each flush writes the instance's whole
+> view of the open chunk. With two tabs on one log, a tab's new events that are not sealed yet are lost when the other
+> tab flushes a view without them. The chunks make sure that a sealed or evicted session is neither lost nor doubled by
+> such a flush; they do not merge two tabs' new events. The two-instance tests check exactly that (and pin the limit).
 
 ## Task 5: Migration of the live logs
 

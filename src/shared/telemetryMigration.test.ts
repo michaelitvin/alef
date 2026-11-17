@@ -137,7 +137,7 @@ describe('the migration of an old log', () => {
     t.clear()
   })
 
-  it('two instances migrating one log at once lose and double nothing', async () => {
+  it('two instances migrating one log at once: the old sessions are neither lost nor doubled (one chunk each)', async () => {
     real.setItem(KEY, LITERAL)
     const a = createTelemetry(KEY, { game: 'book2' })
     const b = createTelemetry(KEY, { game: 'book2' })
