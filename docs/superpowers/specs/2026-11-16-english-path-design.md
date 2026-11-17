@@ -258,10 +258,12 @@ playtest.
   word, it plays the word's blend: a spark moves under the word from left to
   right, each sound unit lights up as the voice reaches it, and the voice says the word slowly, then normally. A unit of
   two letters (`sh`) has one line under it and lights up as one.
-- **The slow word is the word's own recording at half speed, with the pitch kept** (the parent, 2026-11-17: "wouldn't it
-  be better to just halve the speed with pitch correction?"; the voice's own stretched words "sound weird"). It is made
-  from the approved word take, so it needs no recording or review of its own. The units' light times come from the
-  word's alignment, measured on the word take and scaled by 2.
+- **How the slow word is made is open** (the parent, 2026-11-17). The voice's own stretched words "sound weird", and
+  the word take at half speed with the pitch kept "sound[s] baddd". In review now: the word at 0.7× (gentle); only the
+  vowel and the s/f/sh parts stretched, the stop sounds kept (held); the approved unit sounds in a row, then the word
+  (units). If all fail: no slowed audio, the units light in turn while the normal word plays, or each unit's sound plays
+  as it lights. Only the parent's ear judges this: a listening model rated the takes he called bad as perfect.
+  Whatever the method, the units' light times come from the word's measured alignment.
 - **Which word:** on a screen where he hears the target (broom, cauldron, ladder, spell book), the target. On a screen
   where he reads to choose (tower words, doors, ghost words), each word on the screen in turn, left to right; the
   answer then counts as helped. In the placement check there is no hint.
@@ -405,8 +407,7 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
   to a listener ("what is said, how many sounds, any letter names?"), and measured (length, voiced bursts).
 - **Nonsense words:** written so that the voice cannot spell them out ("vap." may become "V, A, P"): the spike finds a
   spelling that works (for example a respelling, or the word inside quotes), checked the same way.
-- **Slow words:** the approved word take at 0.5× with the pitch kept (a time-stretch that keeps the pitch, such as
-  WSOLA). Played at 1.0×, not at the speech rate of 1.15×.
+- **Slow words:** made from approved takes by the method the parent picks (Part 5); not recorded.
 - **Short sounds:** keep them short; a cut of the vowel from a word take is acceptable (the parent found the first
   short-a takes "too prolonged").
 - **Words:** said once, warmly and clearly, with less play than a narrator line (rule).
@@ -416,7 +417,7 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
 
 The ElevenLabs spike (Will) failed the sounds and the stretched words. A second spike with Gemini TTS (Puck) passed:
 the parent approved the nonsense words, the sounds m, s, sh, o, t, b, i, and Puck's words and lines. Short a is being
-shortened. The stretched words are replaced by slow words (Part 5).
+shortened. The stretched words failed, and so did the half-speed word; the slow-word method is open (Part 5).
 
 ### Releases (my call)
 
