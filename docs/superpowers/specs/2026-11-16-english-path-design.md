@@ -45,7 +45,7 @@ What the research found (host-local report, 2026-11-11), and what this design ta
 - English as a foreign language (no oral vocabulary teaching, no Hebrew instructions).
 - Comprehension, sentences longer than a short phrase, and stories.
 - Cursive writing.
-- British English. The voice and the order are American (the parent: "american english and Will are fine").
+- British English. The voice and the order are American.
 
 **Anti-goals** (a failure even if it works)
 - A child who passes stages by remembering word shapes. Nonsense words exist to prevent this.
@@ -256,8 +256,12 @@ playtest.
 
 - The hint button is the game's question mark (rule: not a wand; the mock still shows a wand). On a screen that shows a
   word, it plays the word's blend: a spark moves under the word from left to
-  right, each sound unit lights up as the voice reaches it, and the voice says the word stretched as one sound, then
-  normally: "fffiiish … fish." A unit of two letters (`sh`) has one line under it and lights up as one.
+  right, each sound unit lights up as the voice reaches it, and the voice says the word slowly, then normally. A unit of
+  two letters (`sh`) has one line under it and lights up as one.
+- **The slow word is the word's own recording at half speed, with the pitch kept** (the parent, 2026-11-17: "wouldn't it
+  be better to just halve the speed with pitch correction?"; the voice's own stretched words "sound weird"). It is made
+  from the approved word take, so it needs no recording or review of its own. The units' light times come from the
+  word's alignment, measured on the word take and scaled by 2.
 - **Which word:** on a screen where he hears the target (broom, cauldron, ladder, spell book), the target. On a screen
   where he reads to choose (tower words, doors, ghost words), each word on the screen in turn, left to right; the
   answer then counts as helped. In the placement check there is no hint.
@@ -313,9 +317,14 @@ the Hebrew path does not change. If yes: the same screen, right to left, purple,
 
 ## Part 8 — Language, voice and rewards
 
-- **The wizard speaks English on this path** (the parent decided). Voice: Will, on the newest model that speaks
-  English well, with the language code "en". Look for approved English takes of Will in the clock game first, and
-  reuse their settings. Every Hebrew line of the run has an English counterpart, written as an
+- **The wizard speaks English on this path** (the parent decided). **Voice: Gemini TTS, voice Puck**, one voice for all
+  of the English path: lines, words, sounds and nonsense words (the parent, 2026-11-17: "Puck voice is great", after the
+  ElevenLabs voice Will failed the sounds: letter names, wrong vowels, no clean stretch). Sounds use a bracketed
+  direction before the sound ("[phonics sound only, not the letter name] mmm"). Every clip is screened before review:
+  the glitch at its end trimmed, length and bursts measured, a listener's transcript checked for a direction that leaked
+  into the audio, and a forced-choice vowel check for the sounds. The service allows about one call every 7 seconds, so
+  the full set is a paced run or its batch service. The merchant speaks English in a second Gemini voice (the builder
+  proposes one; the parent picks it on the review page). Every Hebrew line of the run has an English counterpart, written as an
   English-speaking adult says it to a child (rule: write each line as what an adult says). A native reviewer checks the
   lines in sequence.
 - **Girls:** English lines rarely mark gender. Lines with "he/she", "his/her", "wizard/witch" get a girl form. My call:
@@ -381,36 +390,33 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
   book) is one more image. Generated in the game's style from the style sheet, one subject on a flat background (rules:
   art generation).
 - **Transformed images:** the green set (Part 2), no cost.
-- **Voice:** about 45 sound units, about 250 words, about 100 nonsense words, about 250 blends, about 30 heart words, and
+- **Voice:** about 45 sound units, about 300 words, about 100 nonsense words, about 30 heart words, and
   the English lines of the run, the merchant, the bosses, demos and info taps; plus girl forms where marked. Generated
   progressively in stage order (rule), reviewed on the review page with the picture or glyph beside each item. Real
-  words in a large set get one take (rule: the review exception); sound units, nonsense words and blends get two or
-  more.
+  words in a large set get one take (rule: the review exception); sound units and nonsense words get two or more. The
+  slow words for the hint are made from the word takes (Part 5) and are not recorded.
 
 ### Pronunciation (rules: voice, pronunciation)
 
-- **Sound units:** stability 1.0, one short burst (rule: speak a sound one time, short and clear). The spoken text is
+- **Sound units:** one short burst (rule: speak a sound one time, short and clear). The spoken text is
   never the bare letter, which the voice reads as the letter's name (rule: "fi." became "F, I"). Each unit gets a
   written spelling of its sound (for example "mmm.", "sss.", "sh.", and for a stop sound a short syllable that the
   check shows has the least vowel), tried in several spellings in the spike. Each take is checked by an open question
   to a listener ("what is said, how many sounds, any letter names?"), and measured (length, voiced bursts).
 - **Nonsense words:** written so that the voice cannot spell them out ("vap." may become "V, A, P"): the spike finds a
   spelling that works (for example a respelling, or the word inside quotes), checked the same way.
-- **Blends:** a stretched word is not a moan only if each sound is held evenly and the word ends cleanly. Continuant
-  sounds (m, s, f, n, l, sh, the vowels) are held; a stop sound (b, d, t, k, p, g) cannot be held and is said short, at
-  its place in the word ("caaat"). Blends play at 1.0×, not at the speech rate of 1.15×, so the stretch stays even (my
-  call). Each blend is measured (length, the even level of each held part) before review.
+- **Slow words:** the approved word take at 0.5× with the pitch kept (a time-stretch that keeps the pitch, such as
+  WSOLA). Played at 1.0×, not at the speech rate of 1.15×.
+- **Short sounds:** keep them short; a cut of the vowel from a word take is acceptable (the parent found the first
+  short-a takes "too prolonged").
 - **Words:** said once, warmly and clearly, with less play than a narrator line (rule).
 - **Sounds and music:** the Hebrew run's, unchanged.
 
-### The voice spike comes first (my call)
+### The voice spike came first (done, 2026-11-17)
 
-The path stands on two things the voice may not do well: pure short sounds ("mmm", a stop sound with almost no vowel)
-and stretched blends ("fffiiish … fish"), whose units the hint must light up in time. Before any other work, a spike
-makes about 8 sounds, 8 nonsense words and 8 blends, the parent listens to them on the review page, and a check finds each unit's timing
-inside each blend (the TTS API's character timestamps, checked by measurement). If the parent rejects them, fallbacks in
-this order, each shown to the parent before it is used: another voice or model for the sounds only; blends joined from
-the unit recordings with short cross-fades; the parent's own recordings (as for the Hebrew r syllables).
+The ElevenLabs spike (Will) failed the sounds and the stretched words. A second spike with Gemini TTS (Puck) passed:
+the parent approved the nonsense words, the sounds m, s, sh, o, t, b, i, and Puck's words and lines. Short a is being
+shortened. The stretched words are replaced by slow words (Part 5).
 
 ### Releases (my call)
 
