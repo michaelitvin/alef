@@ -343,6 +343,14 @@ chunk of a registered log without its fold; the frozen log is byte-equal after a
 **Risks:** the floor can push production past the budget on a device without the expected ratio; the save path still
 wins. **Size:** M.
 
+> **Done, with notes.** (1) The hard cap seals this page's own session only when its own events are a seal's worth
+> (> 40k): while an old log migrates, the open chunk is long with other sessions, and trimming it would drop history
+> that is about to be sealed. When the sync seal fails, only this page's own oldest events go. (2) Under save pressure a
+> roll-up write can find no room: then the chunk goes first and the fold is written after it (saves come first). Budget
+> eviction never does that. (3) Decision 15 lives in core: on a page's first `track`, the staging build deletes its
+> `alef-duel-telemetry` (the prefixed view, so only `staging:alef-duel-telemetry`) and the log gets one
+> `frozen-copy-removed` event with the key and its size. (4) The 30-day floor looks at a chunk's newest event (`t1`).
+
 ## Task 7: Roll-ups
 
 **Goal:** an evicted chunk leaves per-day, per-item counts that keep what the parent's analyses need.

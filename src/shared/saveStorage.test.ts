@@ -205,7 +205,7 @@ describe('telemetry in a full storage', () => {
     s.setItem(FROZEN, log(100, 'duel'))
     s.limit = s.used() + 3000
     install(s)
-    const t = createTelemetry('alef-test-telemetry', { game: 'book2', maxChars: 1_000_000 })
+    const t = createTelemetry('alef-test-telemetry', { game: 'book2' })
     for (let i = 0; i < 200; i++) t.track('round', { i })
     t.flush()
     expect(s.getItem('alef-duel2')).toBe(JSON.stringify({ state: { totalStars: 9 } }))
@@ -220,7 +220,7 @@ describe('telemetry in a full storage', () => {
   it('this page\'s log is trimmed first, through its instance, so its next flush does not bring the events back', () => {
     const s = fullStorage()
     install(s)
-    const clock = createTelemetry(CLOCK_LOG, { game: 'clock', maxChars: 1_000_000 })
+    const clock = createTelemetry(CLOCK_LOG, { game: 'clock' })
     clock.track('round', { i: 600 })
     const book2Before = s.getItem(BOOK2_LOG)
     useClockStore.getState().addGears(1)

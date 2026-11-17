@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  FROZEN_LOG_KEYS, SESSION, STAGING_CAP_SHARE, TELEMETRY_CAPS, chunkKey, createTelemetry, exportDoc, exportFileName, filterEvents, isChunkKey, ownsKey,
-  readLog, registerTelemetryLogs, registeredLogs, rollupKey, telemetryCap, type TelemetryLog,
+  FROZEN_LOG_KEYS, LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, SESSION, STAGING_SHARE, chunkKey, createTelemetry, exportDoc, exportFileName,
+  filterEvents, isChunkKey, liveBudget, ownsKey, readLog, registerTelemetryLogs, registeredLogs, rollupBudget, rollupKey, type TelemetryLog,
 } from './telemetry'
 import { STAGING_PREFIX, copyUnprefixedOver, isTelemetryKey, prefixedStorage } from './stagingStorage'
 
@@ -10,7 +10,7 @@ afterEach(() => vi.restoreAllMocks())
 
 describe('telemetry export', () => {
   it('carries a note on where the code and the docs are, so an analysis tool can find them', () => {
-    const t = createTelemetry('t-about', { game: 'book2', maxChars: 100_000, about: { game: 'Test game', docs: ['docs/x.md'] } })
+    const t = createTelemetry('t-about', { game: 'book2', about: { game: 'Test game', docs: ['docs/x.md'] } })
     t.track('run-start')
     const doc = JSON.parse(exportDoc([{ about: t.about!, events: t.events() }])).games[0]
     expect(doc.about.repo).toBe('https://github.com/michaelitvin/alef')
@@ -114,23 +114,29 @@ describe('readLog and filterEvents (for logs of games that are not on this page)
 describe('the storage budget', () => {
   // localStorage counts UTF-16 code units; a 5 MB quota is ≈2.5 M of them in the strictest browsers.
   const QUOTA_CHARS = 2_500_000
-  const TODAY_CHARS = 3 * 1_000_000 // three logs of 1 M each, before this change
-  const games = Object.keys(TELEMETRY_CAPS) as (keyof typeof TELEMETRY_CAPS)[]
-  const sum = (staging: boolean) => games.reduce((n, g) => n + telemetryCap(g, staging), 0)
+  const FROZEN_WORST = 1_000_000 // the frozen first-duel log at its old cap, the most it can hold
 
-  it('the caps are Book 2 0.7 M, clock 0.5 M and the frozen duel log at its old 1 M', () => {
-    expect(TELEMETRY_CAPS).toEqual({ book2: 700_000, clock: 500_000, duel: 1_000_000 })
+  it('one live budget of 0.8 M for every game, 0.15 M of roll-ups, and staging keeps a quarter of each', () => {
+    expect(LIVE_BUDGET).toBe(800_000)
+    expect(ROLLUP_BUDGET).toBe(150_000)
+    expect(STAGING_SHARE).toBe(0.25)
+    expect(RAW_FLOOR_DAYS).toBe(30)
+    expect(liveBudget(true)).toBe(200_000)
+    expect(rollupBudget(true)).toBe(37_500)
   })
 
-  it('production\'s logs stay at 2.2 M in all, lower than today, with room for the saves', () => {
-    expect(sum(false)).toBeLessThanOrEqual(2_200_000)
-    expect(sum(false)).toBeLessThan(TODAY_CHARS)
-    expect(QUOTA_CHARS - sum(false)).toBeGreaterThanOrEqual(250_000)
+  it('production 0.8 M + 0.15 M + the frozen log (1 M) = 1.95 M; with staging\'s quarters (0.2 M + 0.0375 M) 2.1875 M, leaving ≥ 0.3 M for the saves', () => {
+    const prod = liveBudget(false) + rollupBudget(false) + FROZEN_WORST
+    expect(prod).toBe(1_950_000)
+    const all = prod + liveBudget(true) + rollupBudget(true)
+    expect(all).toBe(2_187_500)
+    expect(all).toBeLessThanOrEqual(2_200_000)
+    expect(QUOTA_CHARS - all).toBeGreaterThanOrEqual(300_000)
   })
 
-  it('staging shares the quota, so it keeps a quarter of each cap', () => {
-    for (const g of games) expect(telemetryCap(g, true)).toBe(Math.floor(TELEMETRY_CAPS[g] * STAGING_CAP_SHARE))
-    expect(sum(false) + sum(true)).toBeLessThan(TODAY_CHARS)
+  it('staging\'s own frozen copy (up to 0.25 M) is not in that sum: with it the saves still have ≥ 0.05 M (and the staging build deletes it)', () => {
+    const all = liveBudget(false) + rollupBudget(false) + FROZEN_WORST + liveBudget(true) + rollupBudget(true)
+    expect(QUOTA_CHARS - all - 250_000).toBeGreaterThanOrEqual(50_000)
   })
 
   it('the play-time ledger (60 days, 3 games, 10-digit ms) fits in the room left for the saves, with staging\'s copy', async () => {
@@ -139,25 +145,14 @@ describe('the storage budget', () => {
     for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { book2: 86_400_000, clock: 86_400_000, lessons: 86_400_000 }
     const one = JSON.stringify({ v: 1, days }).length
     expect(one).toBeLessThan(6_000)
-    expect(QUOTA_CHARS - sum(false) - 2 * one).toBeGreaterThanOrEqual(240_000)
+    const all = liveBudget(false) + rollupBudget(false) + FROZEN_WORST + liveBudget(true) + rollupBudget(true)
+    expect(QUOTA_CHARS - all - 2 * one).toBeGreaterThanOrEqual(290_000)
   })
 
-  it('a live log past its cap trims its oldest events, as before', () => {
-    const t = createTelemetry('t-cap', { game: 'clock', maxChars: 20_000 })
-    for (let i = 0; i < 200; i++) t.track('x', { i, pad: 'p'.repeat(200) })
-    t.flush()
-    expect(localStorage.getItem('t-cap')!.length).toBeLessThanOrEqual(20_000)
-    const is = readLog('t-cap').map((e) => e.i as number)
-    expect(is[is.length - 1]).toBe(199)
-    expect(is[0]).toBeGreaterThan(0)
-  })
-
-  it('the instances use their caps: Book 2 0.7 M, clock 0.5 M; the frozen duel log counts at 1 M', async () => {
+  it('the budget does not grow with the number of games: the instances have no cap of their own', async () => {
     const { duel2Telemetry } = await import('../duel2/telemetry')
     const { clockTelemetry } = await import('../clock/telemetry')
-    expect(duel2Telemetry.maxChars).toBe(700_000)
-    expect(clockTelemetry.maxChars).toBe(500_000)
-    expect(telemetryCap('duel', false)).toBe(1_000_000)
+    expect('maxChars' in duel2Telemetry).toBe(false)
     expect([duel2Telemetry.game, clockTelemetry.game]).toEqual(['book2', 'clock'])
   })
 })

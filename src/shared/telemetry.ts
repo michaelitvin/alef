@@ -2,9 +2,14 @@
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
 import {
-  OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, readLog, reconcile, writeChunk,
+  FROZEN_LOG_KEYS, OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, readLog, reconcile,
+  writeChunk,
 } from './telemetryChunks'
+import { enforceBudget, freeChunks } from './telemetryBudget'
 
+export {
+  LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, STAGING_SHARE, frozenLogSizes, liveBudget, liveChars, rollupBudget,
+} from './telemetryBudget'
 export {
   FROZEN_LOG_KEYS, chunkKey, clearLog, isChunkKey, logStats, ownsKey, readLog, rollupKey, type LogStats,
 } from './telemetryChunks'
@@ -25,30 +30,17 @@ const REPO = 'https://github.com/michaelitvin/alef'
 /** One id per page load, shared by every log on the page (so a page with two logs still has one session). */
 export const SESSION = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
 
-/**
- * The caps in characters (localStorage counts UTF-16, so ≈2 bytes each). The origin's quota (≈5 MB) is shared by every
- * log and every save of production and of staging (ADR 0001), so the sum stays well under it. The first duel's log is
- * frozen at what it holds (owner decision: an update never deletes the child's history; nothing writes it since its
- * events go to Book 2's log, ADR 0004); 1 M is its old cap, the most it can hold.
- */
-export const TELEMETRY_CAPS: Record<'book2' | 'clock' | 'duel', number> = { book2: 700_000, clock: 500_000, duel: 1_000_000 }
-/** the cap of a game with no entry in TELEMETRY_CAPS */
-const DEFAULT_CAP = 500_000
-/** The staging build shares production's quota, so it keeps a quarter of each cap. */
-export const STAGING_CAP_SHARE = 0.25
-
 /** The logs a save write may trim when the storage is full: every `*-telemetry` key except the frozen ones. */
 const isLiveLog = (k: string) => isTelemetryKey(k) && !isFrozenLog(k)
 
-export function telemetryCap(game: TelemetryGame, staging = isStaging): number {
-  const cap = (TELEMETRY_CAPS as Record<string, number>)[game] ?? DEFAULT_CAP
-  return staging ? Math.floor(cap * STAGING_CAP_SHARE) : cap
-}
+/**
+ * The open chunk's hard cap: a page that never idles seals its own session at a flush past it (one long frame, rare),
+ * and drops its oldest events only when that seal fails.
+ */
+export const OPEN_HARD_CAP = 4 * OPEN_SEAL_CHARS
 
 interface TelemetryOptions {
   game: TelemetryGame
-  /** the cap in characters; default `telemetryCap(game)` */
-  maxChars?: number
   about?: TelemetryAbout
 }
 
@@ -95,6 +87,30 @@ export function registerTelemetryLogs(logs: readonly TelemetryLog[]) {
 }
 
 export const registeredLogs = (): TelemetryLog[] => [...registry.values()]
+
+let frozenCopyChecked = false
+/**
+ * The staging build's copy of the frozen log (`staging:alef-duel-telemetry`, from an old `?copy-prod`) is not the
+ * child's history: the staging build deletes it once per page that finds it (owner decision, 2026-11-17). The production
+ * build never does, and the staging build cannot see production's key (its storage is the prefixed view). Gives what it
+ * removed. Never throws.
+ */
+export function removeStagingFrozenCopy(staging = isStaging): { key: string; chars: number }[] {
+  if (!staging || frozenCopyChecked) return []
+  frozenCopyChecked = true
+  const out: { key: string; chars: number }[] = []
+  for (const k of FROZEN_LOG_KEYS) {
+    try {
+      const v = localStorage.getItem(k)
+      if (v === null) continue
+      localStorage.removeItem(k)
+      out.push({ key: STAGING_PREFIX + k, chars: v.length })
+    } catch { /* no storage */ }
+  }
+  return out
+}
+/** for tests: look for the copy again */
+export const resetFrozenCopyForTest = () => { frozenCopyChecked = false }
 
 export function filterEvents(events: TelemetryEvent[], { since }: { since?: number } = {}): TelemetryEvent[] {
   return since === undefined ? events : events.filter((ev) => typeof ev.t === 'number' && ev.t >= since)
@@ -163,13 +179,16 @@ function shrinkStored(key: string, chars: number, evs: TelemetryEvent[], sealed:
 const pageLogs = new Map<string, (chars: number) => number>()
 
 /**
- * Free at least `chars` characters of localStorage by trimming the live telemetry logs, oldest events first: this page's
- * logs first, then the other live logs in storage (staging's before production's). It never touches a frozen log or
- * any key that is not a log (a save). Gives the characters it freed. Never throws.
+ * Free at least `chars` characters of localStorage for a save: first sealed chunks (staging's first in the production
+ * build, then the oldest of any live log, each folded into its roll-up first; no 30-day floor here, saves come first),
+ * then the open chunks' oldest events (this page's logs first, then the others, staging's before production's). It
+ * never touches a frozen log, an unreadable chunk or any key that is not a log (a save). Gives the characters it freed.
+ * Never throws.
  */
 export function freeTelemetrySpace(chars: number): number {
   let freed = 0
   try {
+    freed += freeChunks(chars, registeredLogs())
     for (const shrink of pageLogs.values()) {
       if (freed >= chars) return freed
       freed += shrink(chars - freed)
@@ -190,7 +209,7 @@ export function freeTelemetrySpace(chars: number): number {
   return freed
 }
 
-export function createTelemetry(key: string, { game, maxChars = telemetryCap(game), about }: TelemetryOptions) {
+export function createTelemetry(key: string, { game, about }: TelemetryOptions) {
   const FLUSH_MS = 1000
   let run = 0
   /** the open chunk's events as this page sees them (loaded once, then tracked), and its `sealed` list */
@@ -206,7 +225,7 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
     // The frozen log is history: nothing opens it for writing (ADR 0004). A bug in dev, a no-op in production.
     if (import.meta.env.DEV) throw new Error(`${key} is frozen: it is never opened for writing`)
     const none = () => {}
-    return { key, game, about, maxChars, track: none, flush: none, setRun: none, events: () => readLog(key), clear: none }
+    return { key, game, about, track: none, flush: none, setRun: none, events: () => readLog(key), clear: none }
   }
 
   const all = (): TelemetryEvent[] => {
@@ -224,10 +243,21 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
       timer = undefined
       const evs = all()
       let json = openJson(evs, sealed)
-      while (json.length > maxChars && evs.length > 1) {
-        evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
-        json = openJson(evs, sealed)
+      const ownCount = () => all().reduce((n, e) => n + (e.s === SESSION ? 1 : 0), 0)
+      // (only when this page's own events are a seal's worth: a long open chunk of other sessions waits for its pass)
+      if (json.length > OPEN_HARD_CAP && JSON.stringify(all().filter((e) => e.s === SESSION)).length > OPEN_SEAL_CHARS) {
+        // a page that never idles: seal its own session now; when that seal fails, drop its own oldest events (never
+        // another session's: those wait for their seal pass, as an old log does while it migrates)
+        try { sealSession(SESSION) } catch { /* the trim below */ }
+        json = openJson(all(), sealed)
+        while (json.length > OPEN_HARD_CAP && ownCount() > 1) {
+          const own = all().filter((e) => e.s === SESSION)
+          const drop = new Set(own.slice(0, Math.max(1, Math.ceil(own.length / 4))))
+          mem = all().filter((e) => !drop.has(e))
+          json = openJson(all(), sealed)
+        }
       }
+      const out = all()
       // A full storage: never another key's space (a save is never evicted). A long open chunk keeps its events in
       // memory and the stored one stays as it was, until a seal shrinks it; a short one gives up its own oldest events.
       for (let attempt = 0; attempt < 4; attempt++) {
@@ -236,9 +266,9 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
           break
         } catch {
           if (json.length > OPEN_SEAL_CHARS) { scheduleSeal(); return }
-          if (evs.length <= 1) return
-          evs.splice(0, Math.ceil(evs.length / 2))
-          json = openJson(evs, sealed)
+          if (out.length <= 1) return
+          out.splice(0, Math.ceil(out.length / 2))
+          json = openJson(out, sealed)
         }
       }
       if (json.length > OPEN_SEAL_CHARS) scheduleSeal()
@@ -261,16 +291,22 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
       .sort((a, b) => first.get(a)! - first.get(b)!)
     const own = openJson(evs, sealed).length > OPEN_SEAL_CHARS
     const s = complete[0] ?? (own && last.has(SESSION) ? SESSION : null)
-    if (s === null) return false
-    const take = evs.filter((e) => e.s === s)
-    if (!take.every((e) => Number.isSafeInteger(e.t))) return false // an odd old event: the session stays open
+    if (s === null || !sealSession(s)) return false
+    flush()
+    enforceBudget(registeredLogs())
+    return complete.length > 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+  }
+
+  /** seal session `s` of the open events into a chunk; true when it left the open events */
+  function sealSession(s: string): boolean {
+    const take = all().filter((e) => e.s === s)
+    if (take.length === 0 || !take.every((e) => Number.isSafeInteger(e.t))) return false // an odd old event: it stays open
     const k = writeChunk(key, take)
     if (k === null) return false // nothing safe was written: the open chunk stays as it is
     const gone = new Set(take)
-    mem = evs.filter((e) => !gone.has(e))
+    mem = all().filter((e) => !gone.has(e))
     if (!sealed.includes(k)) sealed.push(k)
-    flush()
-    return complete.length > 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+    return true
   }
 
   /** one seal per idle slot until the pass is done */
@@ -291,6 +327,8 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
       all().push({ t: Date.now(), s: SESSION, run, e, g: game, ...data })
       if (!tracked) {
         tracked = true
+        // staging's stale copy of the frozen log goes once, and staging's log says so (owner decision, 2026-11-17)
+        for (const r of removeStagingFrozenCopy()) all().push({ t: Date.now(), s: SESSION, run, e: 'frozen-copy-removed', g: game, ...r })
         // the page's first event: a large open chunk (an old log, or sessions of earlier pages) starts a seal pass
         if (!sealing && openJson(all(), sealed).length > OPEN_SEAL_CHARS) scheduleSeal()
       }
@@ -311,7 +349,6 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
     key,
     game,
     about,
-    maxChars,
     track,
     flush,
     setRun: (n: number) => { run = n },
