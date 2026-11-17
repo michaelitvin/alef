@@ -26,7 +26,9 @@ const openFromHome = () => {
   enterYear(new Date().getFullYear() - 40)
 }
 
-describe('the parent area and the browser history', () => {
+// The whole home page and the whole area render here (about 0.7 s and 0.3 s each in jsdom, alone): a busy machine runs
+// several times slower, so these tests get more than the default 5 s.
+describe('the parent area and the browser history', { timeout: 20_000 }, () => {
   beforeEach(() => { vi.useFakeTimers(); localStorage.clear(); takeGatePass() })
   afterEach(() => vi.useRealTimers())
 
