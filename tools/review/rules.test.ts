@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item, NewEvent, ReviewEvent } from './model.ts'
-import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList } from './rules.ts'
+import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
 
 const item = (id: string, n: number, extra: Partial<Item> = {}): Item => ({
   id,
@@ -131,6 +131,12 @@ describe('notes', () => {
     expect(inView(s, 'all')).toBe(false)
   })
 
+  it('a note on an older take counts as answered by the newer take', () => {
+    const s = deriveItem(a, log({ type: 'reject', take: 'a/v1', text: 'flat' }))
+    expect(s.notes[0]).toMatchObject({ state: 'answered', answer: { take: 'a/v2', seq: 0 } })
+    expect(retakeList([s])).toEqual([])
+  })
+
   it('an empty reject is still a request', () => {
     expect(openNotes([deriveItem(a, log({ type: 'reject', take: 'a/v2', text: '' }))])).toHaveLength(1)
   })
@@ -157,5 +163,16 @@ describe('views and lists', () => {
   it('ship list skips retired items', () => {
     const r = item('r', 1, { retired: 'reworded' })
     expect(shipList(deriveAll([items[0], r], []))).toEqual({ a: 'a/v1' })
+  })
+})
+
+describe('items that left the list', () => {
+  it('get a retired stand-in, so their notes stay in the history and close', () => {
+    const events = log({ item: 'pic-pan', type: 'note', text: 'could be a skillet' })
+    const all = withOrphans([item('a', 1)], events)
+    expect(all.map((i) => i.id)).toEqual(['a', 'pic-pan'])
+    const s = deriveAll(all, events)[1]
+    expect(s.status).toBe('retired')
+    expect(s.notes[0]).toMatchObject({ state: 'closed', closedBy: 'retired' })
   })
 })

@@ -176,6 +176,18 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
           ? 'ok'
           : 'open'
   const notes = notesOf(item, events, m.retired)
+  // A note on a take that has a newer live take is answered by that take, even with no answer event: the old pipelines
+  // answered notes only by making new takes.
+  const order = item.takes.map((t) => t.id)
+  const newest = [...item.takes].reverse().find((t) => !isWithdrawn(t.id))
+  for (const n of notes) {
+    if (n.state !== 'open' || !n.take || !newest) continue
+    const at = order.indexOf(n.take)
+    if (at >= 0 && order.indexOf(newest.id) > at) {
+      n.state = 'answered'
+      n.answer = { seq: 0, text: 'a newer take', take: newest.id, at: null }
+    }
+  }
   const live = (kind: NoteKind) => [...notes].reverse().find((n) => n.kind === kind && n.closedBy !== 'edited' && n.closedBy !== 'cleared') ?? null
   return {
     item,
@@ -231,4 +243,20 @@ export function shipList(states: ItemState[]): Record<string, string | null> {
   const out: Record<string, string | null> = {}
   for (const s of states) if (s.status !== 'retired') out[s.item.id] = s.current?.id ?? null
   return out
+}
+
+/**
+ * The adapter's items, plus a retired stand-in for every item that has events in the log but is no longer in the
+ * adapter's list (a picture dropped after a note, an old voice test). Their history stays readable and their notes
+ * close as retired.
+ */
+export function withOrphans(items: Item[], events: ReviewEvent[]): Item[] {
+  const known = new Set(items.map((i) => i.id))
+  const orphans: Item[] = []
+  for (const e of events) {
+    if (known.has(e.item)) continue
+    known.add(e.item)
+    orphans.push({ id: e.item, kind: 'audio', takes: [], retired: "not in the game's item list" })
+  }
+  return [...items, ...orphans]
 }

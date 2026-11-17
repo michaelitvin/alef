@@ -17,7 +17,7 @@ import { pathToFileURL } from 'node:url'
 import { fileLog, validate } from './log.ts'
 import type { DecisionLog } from './log.ts'
 import type { GameAdapter, Item, NewEvent } from './model.ts'
-import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList } from './rules.ts'
+import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
 import type { View } from './rules.ts'
 import { exportChoices, exportQueue, exportVersioned, importChoices, importVersioned, snapshotOrder } from './legacy.ts'
 import type { Choices, RoundTakes, Versioned } from './legacy.ts'
@@ -55,7 +55,7 @@ const now = () => new Date().toISOString()
 export async function run(adapter: GameAdapter, log: DecisionLog, argv: string[]): Promise<unknown> {
   const { pos, opt, flag } = parseArgs(argv)
   const [cmd, ...rest] = pos
-  const items = await adapter.loadItems()
+  const items = withOrphans(await adapter.loadItems(), log.read())
   const byId = new Map(items.map((i) => [i.id, i]))
   const states = () => deriveAll(items, log.read())
   const item = (id: string | undefined): Item => {
