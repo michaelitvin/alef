@@ -1,11 +1,12 @@
 // The shared parent area's frame: its sections in order, every game's lines from the raw saves (no other game's store is
 // created), only the open game's settings, reset and developer tools, and the changes logged as before.
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ParentArea } from './ParentArea'
 import { GAMES, gameParent } from './registry'
 import { getDeviceSettings } from '../shared/deviceSettings'
 import { clearGender, getGender } from '../shared/player'
+import { resetPersistRequestForTest } from '../shared/saveStorage'
 
 const sections = (c: HTMLElement) => [...c.querySelectorAll('[data-section]')].map((s) => s.getAttribute('data-section'))
 /** a lazy section's first load transforms the game's modules: give it time */
@@ -20,6 +21,22 @@ describe('the parent area', () => {
     const { container } = render(<ParentArea game="clock" onClose={() => {}} />)
     expect(sections(container)).toEqual(['child', 'sound', 'progress', 'game', 'data', 'developer'])
     expect(container.querySelector('[data-section="game"] h2')!.textContent).toBe('Clock workshop')
+  })
+
+  it('asks the browser to keep the storage once, when the area opens (never on a child screen), and logs the answer in the open game\'s log', async () => {
+    resetPersistRequestForTest()
+    const persist = vi.fn(async () => true)
+    vi.stubGlobal('navigator', { ...navigator, storage: { persisted: async () => false, persist } })
+    const track = vi.fn()
+    try {
+      const first = render(<ParentArea game="clock" onClose={() => {}} track={track} />)
+      await waitFor(() => expect(track).toHaveBeenCalledWith('storage-persist', { persisted: true }))
+      first.unmount()
+      render(<ParentArea game="clock" onClose={() => {}} track={track} />)
+      await new Promise((r) => setTimeout(r, 0))
+      expect(persist).toHaveBeenCalledTimes(1)
+      expect(track.mock.calls.filter(([e]) => e === 'storage-persist')).toHaveLength(1)
+    } finally { vi.unstubAllGlobals(); resetPersistRequestForTest() }
   })
 
   it('every game registers its part; the registry knows book2, clock and the lessons', () => {

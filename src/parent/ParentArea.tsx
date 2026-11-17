@@ -13,6 +13,7 @@ import { SoundSection } from './sections/Sound'
 import { ProgressSection } from './sections/Progress'
 import { DataSection } from './sections/Data'
 import { DeveloperSection } from './sections/Developer'
+import { requestPersistentStorage } from '../shared/saveStorage'
 import './parentArea.css'
 
 export interface ParentAreaProps {
@@ -47,6 +48,10 @@ export function ParentArea({ game, onClose, section = 'game', track, telemetry, 
   // open at the section asked for, once (the top is the Child section)
   const first = useRef(section)
   useEffect(() => { if (first.current !== 'child') scrollTo(root.current, first.current) }, [])
+  // ask the browser to keep the saves under storage pressure: here, behind the gate, because a browser may show a
+  // prompt for it (never on a child screen). Once per page; the open game's log notes the answer.
+  const trackRef = useRef(track)
+  useEffect(() => { void requestPersistentStorage((persisted) => trackRef.current?.('storage-persist', { persisted })) }, [])
   const Settings = g.Settings
   const reset = () => { if (window.confirm(`Reset all ${g.title} progress?`)) void g.reset() }
   const part = (id: SectionId, title: string, body: ReactNode) => (
