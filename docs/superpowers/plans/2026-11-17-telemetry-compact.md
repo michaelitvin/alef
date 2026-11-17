@@ -232,6 +232,15 @@ of Decision 10; an unreadable chunk is skipped, kept and counted; a roll-up key 
 **Acceptance:** the Task 1 goldens match when their events are stored as chunks + open chunk in several splits.
 **Size:** M.
 
+> **Done, with notes.** (1) The copy of a sealed chunk in the open chunk is found by content, not by `t0`/`t1` alone: the
+> run of its session that starts at the first event equal to the chunk's first event and matches it event by event. A
+> prefix is enough (a tab that loaded the open chunk while the session was still live holds only its start); with the
+> `t1` rule that tab's flush would double those events. A later event of the session never matches the chunk's first
+> event, so the "old build dropped the `sealed` list" state still loses nothing. (2) The open chunk is one merge segment
+> in its stored order (not one per session), so a log with no sealed chunk reads exactly as today, even where two tabs
+> interleaved it. (3) The key helpers and the frozen-key list moved to `telemetryChunks.ts` (`telemetry.ts` imports and
+> re-exports them), so the modules have no import cycle.
+
 ## Task 4b: Sealing in `createTelemetry` (write side)
 
 **Goal:** the open chunk stays small; sealed chunks hold the history; the API games use does not change.

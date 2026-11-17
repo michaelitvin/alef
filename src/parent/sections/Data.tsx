@@ -5,7 +5,7 @@
 // back on the instance's next flush. The other logs are read from storage (`readLog`); nothing of theirs is loaded here.
 // The first duel's history is exported as it is and has no Clear: it is never cleared or rewritten.
 import { useMemo, useState } from 'react'
-import { exportDoc, exportFileName, filterEvents, readLog, type TelemetryEvent, type TelemetryLog } from '../../shared/telemetry'
+import { clearLog, exportDoc, exportFileName, filterEvents, readLog, type TelemetryEvent, type TelemetryLog } from '../../shared/telemetry'
 import { downloadJson } from '../../shared/download'
 import { GAMES } from '../registry'
 import type { GameId, LiveLog } from '../types'
@@ -61,7 +61,7 @@ export function DataSection({ game, live }: DataSectionProps) {
   const clear = (log: TelemetryLog) => {
     if (!window.confirm(`Clear the ${log.label} telemetry log? Its events are deleted on this device.`)) return
     if (live && live.key === log.key) live.clear()
-    else try { localStorage.removeItem(log.key) } catch { /* no storage */ }
+    else clearLog(log.key)
     setVersion((v) => v + 1)
   }
 

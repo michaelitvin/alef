@@ -1,6 +1,11 @@
 // Telemetry: an event log in localStorage (it survives closing the tab) so a parent can export it and analyse play
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
+import { clearLog, getRaw, isFrozenLog, parseOpen } from './telemetryChunks'
+
+export {
+  FROZEN_LOG_KEYS, chunkKey, clearLog, isChunkKey, logStats, ownsKey, readLog, rollupKey, type LogStats,
+} from './telemetryChunks'
 
 /**
  * The game an event belongs to (`book2`, `clock`, `duel`, …). Every event carries it as `g`; events written before it
@@ -30,13 +35,6 @@ const DEFAULT_CAP = 500_000
 /** The staging build shares production's quota, so it keeps a quarter of each cap. */
 export const STAGING_CAP_SHARE = 0.25
 
-/**
- * Logs that are never trimmed, cleared or rewritten: the first duel's old log (owner decision, 2026-11-16, ADR 0004). A
- * key matches with or without the staging prefix.
- */
-export const FROZEN_LOG_KEYS: readonly string[] = ['alef-duel-telemetry']
-const isFrozenLog = (k: string) => FROZEN_LOG_KEYS.some((f) => k === f || k === STAGING_PREFIX + f)
-
 /** The logs a save write may trim when the storage is full: every `*-telemetry` key except the frozen ones. */
 const isLiveLog = (k: string) => isTelemetryKey(k) && !isFrozenLog(k)
 
@@ -44,22 +42,6 @@ export function telemetryCap(game: TelemetryGame, staging = isStaging): number {
   const cap = (TELEMETRY_CAPS as Record<string, number>)[game] ?? DEFAULT_CAP
   return staging ? Math.floor(cap * STAGING_CAP_SHARE) : cap
 }
-
-// ---- keys
-// A log `<base>-telemetry` keeps its open chunk at its own key, its sealed chunks at `<base>~<t0 base36>~<s>-telemetry`
-// and its roll-up at `<base>~sum-telemetry`. Every key ends in `-telemetry`, so `?copy-prod` copies none of them. The `~`
-// keeps the logs apart: `alef-duel~` never matches a key of `alef-duel2`.
-const SUFFIX = '-telemetry'
-const logBase = (logKey: string) => (logKey.endsWith(SUFFIX) ? logKey.slice(0, -SUFFIX.length) : logKey)
-
-/** the key of the sealed chunk of `logKey` that starts at `t0` in session `s` */
-export const chunkKey = (logKey: string, t0: number, s: string) => `${logBase(logKey)}~${t0.toString(36)}~${s}${SUFFIX}`
-/** the key of the roll-up of `logKey` */
-export const rollupKey = (logKey: string) => `${logBase(logKey)}~sum${SUFFIX}`
-/** a sealed chunk or the roll-up of `logKey` (not its open chunk, which is `logKey` itself) */
-export const ownsKey = (logKey: string, k: string) => k.startsWith(`${logBase(logKey)}~`) && k.endsWith(SUFFIX)
-/** a sealed chunk's key (of any log): `<base>~<t0>~<s>-telemetry`; a roll-up key is not one */
-export const isChunkKey = (k: string) => k.endsWith(SUFFIX) && !k.endsWith(`~sum${SUFFIX}`) && k.split('~').length >= 3
 
 interface TelemetryOptions {
   game: TelemetryGame
@@ -109,25 +91,6 @@ export function registerTelemetryLogs(logs: readonly TelemetryLog[]) {
 }
 
 export const registeredLogs = (): TelemetryLog[] => [...registry.values()]
-
-function parseLog(raw: string | null): TelemetryEvent[] | null {
-  if (raw === null) return []
-  try {
-    const doc = JSON.parse(raw)
-    return Array.isArray(doc?.events) ? doc.events : null
-  } catch {
-    return null
-  }
-}
-
-/** Read a stored log without an instance (no listeners, no writes): for logs of games that are not loaded on this page. */
-export function readLog(key: string): TelemetryEvent[] {
-  try {
-    return parseLog(localStorage.getItem(key)) ?? []
-  } catch {
-    return []
-  }
-}
 
 export function filterEvents(events: TelemetryEvent[], { since }: { since?: number } = {}): TelemetryEvent[] {
   return since === undefined ? events : events.filter((ev) => typeof ev.t === 'number' && ev.t >= since)
@@ -210,12 +173,13 @@ export function freeTelemetrySpace(chars: number): number {
     const others: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i)
-      if (k && isLiveLog(k) && !pageLogs.has(k)) others.push(k)
+      // open chunks only: a sealed chunk or a roll-up (a `~` key) is never trimmed here
+      if (k && isLiveLog(k) && !k.includes('~') && !pageLogs.has(k)) others.push(k)
     }
     others.sort((a, b) => Number(b.startsWith(STAGING_PREFIX)) - Number(a.startsWith(STAGING_PREFIX)))
     for (const k of others) {
       if (freed >= chars) return freed
-      freed += shrinkStored(k, chars - freed, readLog(k))
+      freed += shrinkStored(k, chars - freed, parseOpen(getRaw(k))?.events ?? [])
     }
   } catch { /* no storage */ }
   return freed
@@ -230,7 +194,7 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
   const load = (): TelemetryEvent[] => {
     let raw: string | null = null
     try { raw = localStorage.getItem(key) } catch { /* no storage */ }
-    return parseLog(raw) ?? []
+    return parseOpen(raw)?.events ?? []
   }
   const all = () => (events ??= load())
 
@@ -290,7 +254,7 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
       events = []
       window.clearTimeout(timer)
       timer = undefined
-      try { localStorage.removeItem(key) } catch { /* nothing to clear */ }
+      clearLog(key)
     },
   }
 }
