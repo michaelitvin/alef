@@ -543,9 +543,14 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): 144 time phrases for each language.
 - For a large set, check each take automatically (speech-to-text against the text, length, rhythm).
   Let the parent review a sample of each pattern and all flagged takes. Offer a full review as an option.
-- Make audio review fast: large buttons, and a "play all" mode that plays the items in a row with no click.
-  The parent clicks only to stop, replay or reject.
-  Reject stops the playback while the parent types the reason. After OK or a submitted reason, play the next open item. Let the parent continue "play all" from any item.
+- Make review fast: show one item at a time, and let the parent's decision set the pace. After OK, or after Reject
+  and its reason, save in the background and play the next open item at once. Do not play items in a row by
+  themselves, and do not move on by a timer.
+  Reason: the parent asked to drop "play all", because OK and Reject already go to the next item.
+  Open the page on the first open item. Give large OK and Reject buttons, Replay, and a "Later" button that goes on
+  without a decision. A tap on an item makes it the current item and plays it. When no open item is left, say so, with
+  the counts.
+  Example (English path): the parent left a note on the sled and went on without OK or Reject.
   Show the progress of the current visit: items decided out of items that were open when the page loaded.
 - In review, show a visual of the game context next to each sound, and write where the sound is used in the game.
   Example (clock): the clock face that shows the time next to its phrase.

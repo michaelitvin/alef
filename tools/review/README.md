@@ -1,7 +1,7 @@
 # Asset review kit
 
-Shared review for generated sounds and pictures: the parent listens or looks, accepts or rejects with a note, and the
-next item plays. Decisions: [ADR 0006](../../docs/adr/0006-review-decisions-are-an-event-log.md). The parent's rules for
+Shared review for generated sounds and pictures: one item at a time, the parent listens or looks, accepts or rejects
+with a note, and the next open item plays. Nothing plays a row of items by itself; "Later" goes on without a decision. Decisions: [ADR 0006](../../docs/adr/0006-review-decisions-are-an-event-log.md). The parent's rules for
 review: *Review of generated assets* in [docs/minigame-rules.md](../../docs/minigame-rules.md).
 
 | File | What it holds |
@@ -14,7 +14,7 @@ review: *Review of generated assets* in [docs/minigame-rules.md](../../docs/mini
 | `pageData.ts` | The derived state the page gets |
 | `server.ts` | One server for every game: page, `api/state`, `api/event` (parent events only), media |
 | `cli.ts` | The agent CLI (agent events only); usage at the head of the file |
-| `page/` | The page shell (`main.ts`), renderers (`render.ts`: audio take, picture with takes, hidden word shown on a tap, notes per take and per item), sequencing (`flow.ts`), playback (`player.ts`) and saving a decision (`save.ts`: tries again after a blip, ignores a double tap) |
+| `page/` | The page shell (`main.ts`), renderers (`render.ts`: audio take, picture with takes, hidden word shown on a tap, notes per take and per item), sequencing (`flow.ts`: the next open item after a decision or Later, the done state), playback (`player.ts`: one item, a failed load leaves a retry) and saving a decision (`save.ts`: tries again after a blip, ignores a double tap) |
 
 Node runs the TypeScript files directly (type stripping); the server strips the page's types when it serves them. The page's
 files stay erasable TypeScript only (no parameter properties, enums or namespaces). Text goes out gzipped with an ETag and
