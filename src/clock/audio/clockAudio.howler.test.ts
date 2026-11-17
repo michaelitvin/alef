@@ -164,6 +164,14 @@ describe('clock audio through Howler', () => {
     expect(done).toBe(true)
   })
 
+  it('a line given up after 12 s is stopped: a file that starts late never plays on, out of reach of stopVoices', async () => {
+    endAfter.ms = 60_000
+    const id = timed[3]
+    void playVoice(id)
+    await vi.advanceTimersByTimeAsync(12_010)
+    expect(howlOf(VOICE_URLS[id]).playing()).toBe(false)
+  })
+
   it('effects play at volume 0.8 and resolve when they end; effects off or a missing effect resolve at once', async () => {
     let done = false
     void playSfx('ding').then(() => { done = true })

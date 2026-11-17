@@ -35,7 +35,8 @@ export function getHowl(src: string, loop = false, html5 = false): Howl {
 }
 export const peekHowl = (src: string) => howls.get(src)
 
-/** Play once; resolve on end, stop or error, or after `timeout`. `onPlay` gets the sound id at once (to follow its position). */
+/** Play once; resolve on end, stop or error, or after `timeout`, which also stops the sound: a file that loads late
+ * would otherwise start after the game has moved on, where no stop reaches it. `onPlay` gets the sound id at once (to follow its position). */
 export function playOnce(h: Howl, rate: number, timeout: number, onPlay?: (id: number) => void): Promise<void> {
   return new Promise((resolve) => {
     let done = false
@@ -51,7 +52,11 @@ export function playOnce(h: Howl, rate: number, timeout: number, onPlay?: (id: n
     h.once('stop', finish, id)
     h.once('playerror', finish, id)
     h.once('loaderror', finish)
-    window.setTimeout(finish, timeout)
+    window.setTimeout(() => {
+      if (done) return
+      h.stop(id) // Howler queues the stop behind a play that still waits for its file
+      finish()
+    }, timeout)
   })
 }
 

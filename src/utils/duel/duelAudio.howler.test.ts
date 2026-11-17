@@ -136,6 +136,12 @@ describe('duelAudio', () => {
     await vi.advanceTimersByTimeAsync(200)
     expect(done).toBe(true)
   })
+  it('a line given up after its timeout is stopped: a file that starts late never plays on, out of reach of stopAllLines', async () => {
+    const audio = await import('./duelAudio')
+    void audio.playLine('wiz-kamatz')
+    await vi.advanceTimersByTimeAsync(9100)
+    expect(byUrl('wk').playing()).toBe(false)
+  })
   it('a line that fails to load resolves', async () => {
     const audio = await import('./duelAudio')
     const p = audio.playLine('wiz-kamatz')
