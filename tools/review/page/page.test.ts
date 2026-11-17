@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { PageItem, PageState, PageTake } from '../pageData.ts'
-import { firstView, nextOpenAfter, pageOrder, runFrom, shownSections } from './flow.ts'
+import { firstOpen, firstView, keepCurrent, nextOpenAfter, otherViews, pageOrder, shownSections } from './flow.ts'
 import { captionHTML, esc, itemHTML, statusHTML } from './render.ts'
 
 const take = (id: string, extra: Partial<PageTake> = {}): PageTake => ({ id, src: 'media/' + id, label: id, mirror: false, verdict: null, flags: [], current: false, ...extra })
@@ -98,17 +98,37 @@ describe('flow', () => {
     expect(pageOrder(shownSections(state, 'open', new Set()))).toEqual(['c', 'a', 'd'])
   })
 
-  it('plays the next open item after a decision, across sections', () => {
+  it('opens on the first open item: "needs you" items come first', () => {
+    expect(firstOpen(['c', 'a', 'b', 'd'], (id) => id !== 'c')).toBe('a')
+    expect(firstOpen(['b'], () => false)).toBeNull()
+  })
+
+  it('plays the next open item after a decision, across sections, and goes round to the items left for later', () => {
     const order = ['c', 'a', 'b', 'd']
     const open = (id: string) => id !== 'b'
     expect(nextOpenAfter(order, 'a', open)).toBe('d')
-    expect(nextOpenAfter(order, 'd', open)).toBeNull()
+    // at the end: back to the first open item before it (one he left for later, or skipped by a tap further down)
+    expect(nextOpenAfter(order, 'd', open)).toBe('c')
+    // never the item itself: with nothing else open, the view is done
+    expect(nextOpenAfter(order, 'd', (id) => id === 'd')).toBeNull()
+    // a decided item he tapped: the next open item after it
+    expect(nextOpenAfter(order, 'b', open)).toBe('d')
   })
 
-  it('a run goes from the chosen item to the end of its section', () => {
-    const [s] = shownSections(state, 'open', new Set())
-    expect(runFrom(s, 'a')).toEqual(['a'])
-    expect(runFrom(s)).toEqual(['c', 'a'])
+  it('a refresh keeps the current item while it is on the page, else goes to the first open item', () => {
+    const order = ['c', 'a', 'd']
+    const open = (id: string) => id !== 'c'
+    expect(keepCurrent(order, 'd', open)).toBe('d')
+    expect(keepCurrent(order, 'gone', open)).toBe('a')
+    expect(keepCurrent(order, null, open)).toBe('a')
+  })
+
+  it('the done state links the other views, each with its open count', () => {
+    expect(otherViews(state, 'focus')).toEqual([
+      { view: 'open', open: 3 },
+      { view: 'sample', open: 0 },
+      { view: 'all', open: 3 },
+    ])
   })
 
   it('opens on "needs you" only when something is in it', () => {

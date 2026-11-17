@@ -35,49 +35,52 @@ function fakeAudio() {
   return a as typeof a & AudioLike
 }
 
-function setup() {
+function setup(media: PlayerHost['media'] = (id) => ({ kind: 'audio', src: 'media/' + id })) {
   const audio = fakeAudio()
-  const timers: (() => void)[] = []
-  const host: PlayerHost = { media: (id) => ({ kind: 'audio', src: 'media/' + id }), changed: () => {}, scrollTo: () => {} }
-  const p = createPlayer(audio, host, { pictureMs: 1, gapMs: 1, setTimeout: (fn) => timers.push(fn), clearTimeout: () => {} })
+  const host: PlayerHost = { media, changed: () => {}, scrollTo: () => {} }
+  const p = createPlayer(audio, host)
   const flush = () => new Promise((r) => setTimeout(r, 0))
-  const fire = () => timers.splice(0).forEach((f) => f())
-  return { audio, p, flush, fire }
+  return { audio, p, flush }
 }
 
 describe('player', () => {
-  it('a run started while the previous clip still loads goes on to its end', async () => {
-    const { audio, p, flush, fire } = setup()
-    p.playRun(['a', 'b', 'c'])
-    // he taps "play from here" on b before a has loaded: a's play() rejects late, after b started
-    p.playRun(['b', 'c'])
-    await flush()
-    expect(p.playing).toBe(true)
-    expect(p.queue).toEqual(['c'])
+  it('plays one item and nothing after it', async () => {
+    const { audio, p, flush } = setup()
+    p.playItem('a')
     audio.pending[0].resolve()
+    await flush()
     audio.end()
-    fire()
-    expect(audio.played).toEqual(['media/a', 'media/b', 'media/c'])
+    expect(p).toMatchObject({ cur: 'a', playing: false, failed: false })
+    expect(audio.played).toEqual(['media/a'])
   })
 
-  it('a decision during loading: the next item plays and the run goes on', async () => {
+  it('a decision while the clip still loads: the next item plays, and the late rejection of the old play changes nothing', async () => {
     const { audio, p, flush } = setup()
-    p.playRun(['a', 'b', 'c'])
-    // what the page does after OK: stop, then play the next item with the rest of the run
-    p.stop()
-    p.setQueue(['c'])
+    p.playItem('a')
+    // what the page does after OK: play the next item at once; a's play() rejects late, after b started
     p.playItem('b')
     await flush()
-    expect(p).toMatchObject({ playing: true, cur: 'b', queue: ['c'] })
-    expect(audio.played[audio.played.length - 1]).toBe('media/b')
+    expect(p).toMatchObject({ playing: true, cur: 'b', failed: false })
+    expect(audio.played).toEqual(['media/a', 'media/b'])
   })
 
-  it('a play that really fails (not cut short) ends the run', async () => {
+  it('a clip that does not load (a blip) leaves the item current with a retry', async () => {
     const { audio, p, flush } = setup()
-    p.playRun(['a', 'b'])
-    audio.pending[0].reject(Object.assign(new Error('not allowed'), { name: 'NotAllowedError' }))
+    p.playItem('a')
+    audio.pending[0].reject(Object.assign(new Error('no network'), { name: 'NotSupportedError' }))
     await flush()
-    expect(p).toMatchObject({ playing: false, queue: [] })
+    expect(p).toMatchObject({ cur: 'a', playing: false, failed: true })
+    p.playItem('a')
+    expect(p).toMatchObject({ cur: 'a', playing: true, failed: false })
+  })
+
+  it('a picture becomes current with no sound; select makes an item current without playing', () => {
+    const { audio, p } = setup((id) => (id.startsWith('pic') ? { kind: 'image' } : { kind: 'audio', src: 'media/' + id }))
+    p.playItem('pic-cat')
+    expect(p).toMatchObject({ cur: 'pic-cat', playing: false })
+    p.select('b')
+    expect(p).toMatchObject({ cur: 'b', playing: false })
+    expect(audio.played).toEqual([])
   })
 })
 

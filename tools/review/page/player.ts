@@ -1,6 +1,6 @@
-// Playback, apart from the DOM: one item at a time, a run of items with a gap, a picture stays a moment. A play that a
-// newer play or a stop cut short must not change the newer one: its play() promise rejects (AbortError) after the
-// newer play started, so each play carries a number, and a late rejection of an older number does nothing.
+// Playback, apart from the DOM: one item at a time, and nothing plays after it by itself. A play that a newer play or a
+// stop cut short must not change the newer one: its play() promise rejects (AbortError) after the newer play started,
+// so each play carries a number, and a late rejection of an older number does nothing.
 
 /** What the player needs of an audio element. */
 export interface AudioLike {
@@ -13,80 +13,59 @@ export interface AudioLike {
 export interface PlayerHost {
   /** 'image' for a picture (no sound), else the source of the take to play; null when the item is gone. */
   media(id: string, take?: string): { kind: 'image' } | { kind: 'audio'; src: string | null } | null
-  /** Called after each change of the selection or of the playing state. */
+  /** Called after each change of the current item or of the playing state. */
   changed(): void
   scrollTo(id: string): void
 }
 
-export interface PlayerTiming {
-  pictureMs: number
-  gapMs: number
-  setTimeout: (fn: () => void, ms: number) => unknown
-  clearTimeout: (t: unknown) => void
-}
-
 export interface Player {
+  /** The item the buttons act on. */
   readonly cur: string | null
   readonly playing: boolean
-  readonly queue: string[]
+  /** The last play of the current item did not load (a network blip): Replay tries again. */
+  readonly failed: boolean
+  /** Make an item current without a sound (the first item, before his first tap: browsers need a tap before audio). */
   select(id: string | null): void
-  setQueue(ids: string[]): void
   stop(): void
+  /** Make an item current and play it. A picture has no sound: it only becomes current. */
   playItem(id: string, take?: string, scroll?: boolean): void
-  playRun(ids: string[]): void
 }
 
-export function createPlayer(audio: AudioLike, host: PlayerHost, timing: PlayerTiming): Player {
+export function createPlayer(audio: AudioLike, host: PlayerHost): Player {
   let cur: string | null = null
   let playing = false
-  let queue: string[] = []
-  let timer: unknown
+  let failed = false
   let gen = 0
 
-  function stop() {
-    gen++
-    timing.clearTimeout(timer)
+  /** The play numbered `mine` came to its end, or did not load. */
+  function ended(mine: number, ok: boolean) {
+    if (mine !== gen) return // a newer play or a stop cut this one short: not a failure of the newer one
     playing = false
-    queue = []
-    audio.pause()
+    failed = !ok
     host.changed()
   }
+  audio.addEventListener('ended', () => ended(gen, true))
+  audio.addEventListener('error', () => playing && ended(gen, false))
 
-  function onEnded() {
-    if (!playing) return
-    const n = queue.shift()
-    if (n) timer = timing.setTimeout(() => playItem(n), timing.gapMs)
-    else {
-      playing = false
-      host.changed()
-    }
+  function quiet() {
+    gen++
+    playing = false
+    failed = false
+    audio.pause()
   }
-  audio.addEventListener('ended', onEnded)
-  audio.addEventListener('error', onEnded)
 
   function playItem(id: string, take?: string, scroll = true) {
-    timing.clearTimeout(timer)
     const m = host.media(id, take)
     if (!m) return
-    const mine = ++gen
+    quiet()
     cur = id
+    if (scroll) host.scrollTo(id)
+    if (m.kind === 'image' || !m.src) return host.changed()
+    const mine = gen
     playing = true
     host.changed()
-    if (scroll) host.scrollTo(id)
-    // a picture has no sound: it stays selected for a moment, then the run goes on
-    if (m.kind === 'image') {
-      audio.pause()
-      timer = timing.setTimeout(onEnded, timing.pictureMs)
-      return
-    }
-    if (!m.src) return onEnded()
     audio.src = m.src
-    audio.play().catch(() => {
-      if (mine !== gen) return // a newer play or a stop cut this one short: not a failure of the newer one
-      playing = false
-      queue = []
-      host.changed()
-    })
+    audio.play().catch(() => ended(mine, false))
   }
 
   return {
@@ -96,22 +75,18 @@ export function createPlayer(audio: AudioLike, host: PlayerHost, timing: PlayerT
     get playing() {
       return playing
     },
-    get queue() {
-      return queue
+    get failed() {
+      return failed
     },
     select(id) {
+      quiet()
       cur = id
+      host.changed()
     },
-    setQueue(ids) {
-      queue = ids.slice()
+    stop() {
+      quiet()
+      host.changed()
     },
-    stop,
     playItem,
-    playRun(ids) {
-      if (!ids.length) return
-      stop()
-      queue = ids.slice(1)
-      playItem(ids[0])
-    },
   }
 }

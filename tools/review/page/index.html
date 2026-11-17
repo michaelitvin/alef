@@ -14,7 +14,7 @@
 </head>
 <body>
 <header class="top">
-  <h1><span id="title">Review</span><small>OK or Reject each item; a Reject asks for the reason, then the next item plays. Tap a picture to see its word.</small></h1>
+  <h1><span id="title">Review</span><small>One item at a time: OK, or Reject with a reason, and the next item plays. Tap a picture to see its word.</small></h1>
   <div class="tools" role="group" aria-label="Which items to show">
     <button class="tg" data-view="focus" aria-pressed="false">Needs you</button>
     <button class="tg" data-view="open" aria-pressed="false">Open</button>
@@ -26,11 +26,13 @@
 <div class="glance" id="glance"></div>
 <main id="main"><p class="empty">Loading…</p></main>
 <div id="bar">
-  <button class="now" id="now" disabled aria-label="Show the selected item"></button>
+  <button class="now" id="now" disabled aria-label="Show the current item"></button>
   <div id="note"><input id="noteText" aria-label="Note" maxlength="1000"><button class="btn bad" id="noteGo">Reject</button><button class="btn ghost" id="noteNo">Cancel</button></div>
-  <div class="row">
-    <button class="btn" id="b-play">Play all</button>
+  <div class="row aux">
     <button class="btn ghost" id="b-replay">Replay</button>
+    <button class="btn ghost" id="b-later">Later</button>
+  </div>
+  <div class="row decide">
     <button class="btn bad" id="b-rej">Reject</button>
     <button class="btn ok" id="b-ok">OK</button>
   </div>

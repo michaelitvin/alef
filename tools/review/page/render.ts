@@ -105,8 +105,7 @@ export function itemHTML(it: PageItem, opts: { selected?: boolean; revealed?: bo
   <div class="body">${captionHTML(it)}
    ${it.ask ? `<p class="why">Check: ${esc(it.ask)}</p>` : ''}
    ${compare}<p class="where">${esc(it.where ?? '')}</p>${statusHTML(it)}${takes}${itemNotesHTML(it)}
-   <div class="xbtns"><button class="btn ghost" data-from="${esc(it.id)}">▶▶ play from here</button>
-   <button class="btn ghost" data-freenote>${it.itemNote ? 'Edit note' : 'Add a note'}</button>
+   <div class="xbtns"><button class="btn ghost" data-freenote>${it.itemNote ? 'Edit note' : 'Add a note'}</button>
    ${it.nameCheck ? `<button class="btn ghost" data-nameobj>${it.name ? 'Edit name objection' : 'Object to the name'}</button>` : ''}
    ${it.status !== 'open' ? '<button class="btn ghost" data-reset>Change: reset the decision</button>' : ''}</div></div></article>`
 }
