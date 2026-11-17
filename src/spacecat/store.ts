@@ -84,6 +84,5 @@ export const useSpaceCatStore = create<SpaceCatState>()(
   ),
 )
 
-/** the page's restore from the browser's back/forward cache reads the save again; call once at the root (the root is
- * plan Task 2B; @public until it imports this) */
+/** the page's restore from the browser's back/forward cache reads the save again; call once at the root */
 export const rehydrateSpaceCat = () => rehydrateOnRestore(useSpaceCatStore)
