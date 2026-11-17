@@ -3,6 +3,7 @@
 import { lazy } from 'react'
 import { persistedState, type GameParent } from '../../parent/types'
 import type { ProgressState } from '../../types/progress'
+import { lessonsDetails } from './progress'
 
 export const lessonsParent: GameParent = {
   id: 'lessons',
@@ -15,6 +16,8 @@ export const lessonsParent: GameParent = {
     if (!st) return null
     return `Letters learned ${st.lettersLearned ?? 0} · answers ${st.totalAttempts ?? 0} · accuracy ${Math.round((st.accuracy ?? 0) * 100)}% · sessions ${st.sessionCount ?? 0}`
   },
+  // the levels and the achievements (the old child progress page)
+  details: lessonsDetails,
   // the lessons keep no mix-up table
   mixups: () => [],
   reset: async () => { (await import('./reset')).default() },

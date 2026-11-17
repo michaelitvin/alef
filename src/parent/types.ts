@@ -28,6 +28,9 @@ export interface LiveLog {
 /** one mix-up: what was asked, what the child chose, how often */
 export interface Mixup { asked: string; chosen: string; n: number }
 
+/** a short titled list under a game's summary line in the Progress section (the lessons' levels and achievements) */
+export interface ProgressDetail { id: string; title: string; items: string[] }
+
 /** what the area gives the open game's lazy screens */
 export interface SectionProps {
   /** scroll the area to a section (a game section links to Data, say) */
@@ -54,6 +57,8 @@ export interface GameParent {
   DevTools?: LazyExoticComponent<ComponentType<DevToolsProps>>
   /** one line about the child's progress, from the raw save (null: no save yet) */
   summary: (raw: string | null) => string | null
+  /** more about the child's progress, from the raw save: short lists under the summary line (none: no save yet) */
+  details?: (raw: string | null) => ProgressDetail[]
   /** the child's mix-ups, most frequent first, from the raw save */
   mixups: (raw: string | null) => Mixup[]
   /** reset this game's progress (only the open game shows the button); it loads the game's store itself */

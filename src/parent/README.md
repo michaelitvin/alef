@@ -9,7 +9,7 @@ section.
 | Concern | Module |
 | --- | --- |
 | The frame: the sections top to bottom, the history entry that closes it | `ParentArea.tsx`, `parentArea.css` |
-| The contract a game fulfils (`GameParent`: save key, logs, settings, developer tools, summary, mix-ups, reset) | `types.ts`; a game declares it in `src/<game>/parent/index.ts` |
+| The contract a game fulfils (`GameParent`: save key, logs, settings, developer tools, summary, detail lists, mix-ups, reset) | `types.ts`; a game declares it in `src/<game>/parent/index.ts` |
 | The games in the area | `registry.ts` (add a game here) |
 | The sections: Child, Sound, Progress, Data, Developer (the open game's own settings sit between Progress and Data) | `sections/*.tsx` |
 

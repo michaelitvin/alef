@@ -1,4 +1,5 @@
-// The area's Progress section: each game's summary line and its top mix-ups, read from the raw saves (no other game's
+// The area's Progress section: each game's summary line, its short detail lists (the lessons' levels and achievements)
+// and its top mix-ups, read from the raw saves (no other game's
 // store is created). Above them: the minutes played per day per game over the last 7 days (the play-time ledger).
 import { GAMES, rawSave } from '../registry'
 import { lastDays, PLAYTIME_GAMES, type PlaytimeGame } from '../../shared/playtime'
@@ -27,11 +28,18 @@ export function ProgressSection() {
       {GAMES.map((g) => {
         const raw = rawSave(g.saveKey)
         const line = g.summary(raw)
+        const details = g.details?.(raw) ?? []
         const mix = g.mixups(raw).slice(0, TOP)
         return (
           <div key={g.id} data-progress-game={g.id}>
             <h4 style={{ marginBottom: 4 }}>{g.title}</h4>
             <p data-summary style={{ margin: 0 }}>{line ?? 'Not played yet.'}</p>
+            {details.map((d) => (
+              <div key={d.id} data-detail={d.id}>
+                <h5 style={{ margin: '8px 0 2px' }}>{d.title}</h5>
+                <ul style={{ margin: 0 }}>{d.items.map((it) => <li key={it}>{it}</li>)}</ul>
+              </div>
+            ))}
             {mix.length > 0 && <ul data-mixups>{mix.map((m) => <li key={m.asked + '→' + m.chosen}>{m.asked} → {m.chosen}: {m.n}</li>)}</ul>}
           </div>
         )
