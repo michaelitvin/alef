@@ -88,7 +88,12 @@ its own key. *Roll-up* = per-day, per-item counts kept after raw events are evic
     only unprefixed keys. Staging's quarter is kept by the staging build, which sees only its own keys.
 14. **Owner decision (2026-11-17): special clock rounds count apart.** A clock `round` with `real: false` counts in the
     roll-ups as its own counter (`special`), never in the right or wrong tallies. The parent's rule: "Count special
-    results separately. Do not count them as correct."
+    results separately. Do not count them as correct.
+    *Note against the code (2026-11-17):* in `src/clock/useWorkday.ts` `real` is `!!real`, true only for the special
+    round (the real-time "what time is it now?" of the first workday of a day); every ordinary round has
+    `real: false`. Read literally, the decision would set every ordinary round apart and leave the tallies empty. The
+    roll-up follows the parent's rule instead: the round with `real: true` counts in `special`, never as right or
+    wrong; ordinary rounds count as usual. To confirm with the owner."
 15. **Owner decision (2026-11-17): staging's copy of the frozen log goes, once.** `staging:alef-duel-telemetry` is a
     stale copy from an old `?copy-prod`, not the child's history. The staging build deletes it once and records that
     once in staging's own log (an event `frozen-copy-removed` with its size). The production key `alef-duel-telemetry`
@@ -379,6 +384,12 @@ copied by `?copy-prod`; the lessons have no log and no roll-up.
 sections and `aboutNote`'s `howToAnalyse` ask for.
 **Risks:** a wrong item definition loses an analysis for good: review each `rollup` against the design docs' telemetry
 sections before merging. **Size:** M.
+
+> **Done, with notes.** Roll-ups also keep `special`, `hints` and `replays` per item, and `tails` (the last folded
+> event of the 20 most recent sessions), so a session folded in two chunks counts its minutes exactly once. The tower's
+> answer comes from Book 2's `answer` with `screen: 'tower'`; the tower's last `choice` for the same target gives its
+> latency, near and pick (so a tower answer counts once). Weeks share the `days` map under `YYYY-Www` keys. Clock
+> `real`: see Decision 14's note.
 
 ## Task 8: Export and the Data section
 

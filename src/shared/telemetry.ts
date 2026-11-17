@@ -82,6 +82,8 @@ export interface RollupFact {
   chosen?: string
   hint?: boolean
   replay?: boolean
+  /** the time of the event it comes from: its day (else the chunk's first day) */
+  t?: number
 }
 
 /** The logs the games declare, by key: every game page registers them (src/parent/registry.ts). */
