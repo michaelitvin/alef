@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { MS_EDGES, emptyRollup, foldChunk, foldEvents, foldOldDays, msBin, readRollup, trimRollups, weekOf, type Rollup } from './telemetryRollup'
 import { chunkKey, rollupKey } from './telemetryChunks'
-import type { RollupFact, TelemetryEvent } from './telemetry'
+import { rollupsFor, type RollupFact, type TelemetryEvent } from './telemetry'
 import { STAGING_PREFIX, copyUnprefixedOver } from './stagingStorage'
 import { book2Events, clockEvents } from './__fixtures__/telemetry/generate'
 import { BOOK2_LOG, book2Facts } from '../duel2/telemetryLog'
@@ -176,5 +176,23 @@ describe('the roll-up budget', () => {
     trimRollups(logs, BUDGET)
     expect(total()).toBeLessThanOrEqual(BUDGET)
     expect(Object.keys(readRollup(logs[5]!).days)).toContain(newest)
+  })
+})
+
+describe('rollupsFor', () => {
+  const tz = process.env.TZ
+  afterEach(() => { if (tz === undefined) delete process.env.TZ; else process.env.TZ = tz })
+
+  it('picks the days from `since` by the device\'s local date, as the roll-up days are (a timezone east of UTC)', () => {
+    process.env.TZ = 'Asia/Jerusalem'
+    const since = Date.UTC(2026, 10, 9, 22) // local midnight of 2026-11-10 in Jerusalem (UTC+2)
+    expect(new Date(since).getDate()).toBe(10) // the timezone took effect
+    const key = 'alef-tz-telemetry'
+    const r = emptyRollup()
+    const d = (): Rollup['days'][string] => ({ minutes: 1, runs: [], abandons: {}, items: {} })
+    r.days = { '2026-11-09': d(), '2026-11-10': d(), '2026-11-11': d() }
+    localStorage.setItem(rollupKey(key), JSON.stringify(r))
+    const raw: TelemetryEvent[] = [{ t: Date.UTC(2026, 10, 12, 10), s: 'x', run: 1, e: 'answer' }]
+    expect(Object.keys(rollupsFor(key, raw, since) ?? {})).toEqual(['2026-11-10', '2026-11-11'])
   })
 })

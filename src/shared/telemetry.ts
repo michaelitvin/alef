@@ -6,7 +6,7 @@ import {
   writeChunk,
 } from './telemetryChunks'
 import { enforceBudget, freeChunks } from './telemetryBudget'
-import { MS_EDGES, readRollup, weekOf } from './telemetryRollup'
+import { MS_EDGES, dayOf, readRollup, weekOf } from './telemetryRollup'
 
 export {
   LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, STAGING_SHARE, frozenLogSizes, liveBudget, liveChars, rollupBudget,
@@ -413,7 +413,8 @@ export function rollupsFor(key: string, events: readonly TelemetryEvent[], since
   if (days.length === 0) return undefined
   const oldest = events.reduce((m, e) => (typeof e.t === 'number' && e.t < m ? e.t : m), Infinity)
   if (since !== undefined && since >= oldest) return undefined
-  const from = since === undefined ? '' : new Date(since).toISOString().slice(0, 10)
+  // the device's local date, as the roll-up's days are (dayOf), never the UTC one
+  const from = since === undefined ? '' : dayOf(since)
   const keep = Object.fromEntries(Object.entries(r.days).filter(([d]) => !from || (d.includes('W') ? d >= weekOf(from) : d >= from)))
   return Object.keys(keep).length > 0 ? keep : undefined
 }
