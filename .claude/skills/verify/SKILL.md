@@ -37,7 +37,7 @@ and no boy or girl yet. Each check gets its own page.
 | `book2Station` | the path's first open station link (`?station=`) → its cover → a session of that screen |
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
 | `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top) |
-| `clock` | cover → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round |
+| `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.

@@ -12,6 +12,7 @@ vi.mock('../useRun', () => ({
 }))
 import { Play } from './Play'
 import { Summary } from './Summary'
+import { Cover } from './Cover'
 import { HOLD_MS } from '../../shared/HoldButton'
 
 const base: View = { phase: 'answer', hearts: 3, screen: { screen: 'ghosts', signs: [], target: { id: 'x', soundId: 'x' } as never }, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
@@ -123,5 +124,20 @@ describe('the held home button (rule: a way out on a child screen needs a 2 s ho
     expect(onExit).toHaveBeenCalledTimes(1)
     const s = render(<Summary over={{ score: 5, crystals: 0, best: false, session: true }} onAgain={() => {}} onHome={() => {}} onExit={onExit} />)
     expect(s.container.querySelector(HOME)).toBeNull()
+  })
+
+  it('on the cover too, in the same corner as in the clock: a tap does not leave, a 2 s hold does', () => {
+    const onHome = vi.fn()
+    const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} onHome={onHome} />)
+    const btn = container.querySelector(`.d2-cover ${HOME}`)!
+    expect(btn.classList.contains('home-btn')).toBe(true)
+    fireEvent.pointerDown(btn)
+    act(() => { vi.advanceTimersByTime(300) })
+    fireEvent.pointerUp(btn)
+    fireEvent.click(btn)
+    expect(onHome).not.toHaveBeenCalled()
+    fireEvent.pointerDown(btn)
+    act(() => { vi.advanceTimersByTime(HOLD_MS) })
+    expect(onHome).toHaveBeenCalledTimes(1)
   })
 })

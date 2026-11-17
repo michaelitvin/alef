@@ -1,4 +1,4 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const log: string[] = []
@@ -15,6 +15,7 @@ const visibleCaptions = () =>
     .filter((e) => !e.closest('[style*="visibility: hidden"]'))
     .map((e) => [...e.querySelectorAll('span')].map((x) => x.textContent).join(' '))
 import { Workshop } from './Workshop'
+import { useWorkday } from '../useWorkday'
 import { useClockStore } from '../store'
 import { clockTelemetry } from '../telemetry'
 import { dayKey } from '../logic/workday'
@@ -450,4 +451,27 @@ describe('Workshop', () => {
     // no tower anywhere (the parent 2026-10-16: it had no place in the story)
     expect(container.querySelectorAll('.ck-tower')).toHaveLength(0)
   }, 90000)
+
+  it('the way home ends the workday: one \'exit\' event (where he left), and no \'abandon\' when the page then goes', async () => {
+    const track = vi.spyOn(clockTelemetry, 'track')
+    const { result, unmount } = renderHook(() => useWorkday())
+    await waitFor(() => expect(result.current.view).not.toBeNull())
+    act(() => { result.current.exit(); result.current.exit() })
+    window.dispatchEvent(new Event('pagehide'))
+    const names = track.mock.calls.map((c) => c[0])
+    expect(names.filter((n) => n === 'exit')).toHaveLength(1)
+    expect(track).toHaveBeenCalledWith('exit', expect.objectContaining({ served: 0, paused: false }))
+    expect(names).not.toContain('abandon')
+    unmount()
+    track.mockRestore()
+  })
+  it('without the way home, closing the page mid-day is an abandon (as before)', async () => {
+    const track = vi.spyOn(clockTelemetry, 'track')
+    const { result, unmount } = renderHook(() => useWorkday())
+    await waitFor(() => expect(result.current.view).not.toBeNull())
+    window.dispatchEvent(new Event('pagehide'))
+    expect(track.mock.calls.map((c) => c[0])).toContain('abandon')
+    unmount()
+    track.mockRestore()
+  })
 })

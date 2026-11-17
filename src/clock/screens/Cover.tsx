@@ -1,9 +1,10 @@
 // The shop door: one big cuckoo clock showing the real time, its cuckoo popping out to greet him, the play button hanging
-// under it like a weight, two customers waiting. No text (rule). Home to alef, and the parent gate
+// under it like a weight, two customers waiting. No text (rule). The held house home to alef (a 2 s hold, top left), and the parent gate
 // (a 2-second hold, then the year of birth) for the parent area. The playtest: "The initial screen is just pure ugly" (a cropped wall, a small tower, a circle).
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { HomeIcon, PlayIcon, SlidersIcon } from '../components/icons'
+import { PlayIcon, SlidersIcon } from '../components/icons'
+import { HomeButton } from '../../shared/HomeButton'
 import { ClockFace, discExtent } from '../components/ClockFace'
 import { CUSTOMERS } from '../logic/workday'
 import { useClockStore } from '../store'
@@ -36,7 +37,7 @@ function useFaceSize() {
   return size
 }
 
-export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
+export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: () => void; onParent: () => void; onHome: () => void; loading?: boolean }) {
   // the real time, now: the first clock he sees each day is today's
   const [pose, setPose] = useState(nowPose)
   useEffect(() => {
@@ -65,7 +66,7 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
 
   return (
     <div className="ck-root ck-cover" style={IMAGES.workshop ? { ['--ck-workshop' as string]: `url(${IMAGES.workshop})` } : undefined}>
-      <a aria-label="alef" className="ck-home" href={import.meta.env.BASE_URL}><HomeIcon /></a>
+      <HomeButton className="ck-home" onHome={onHome} />
       <div className="ck-cover-stage">
         <button type="button" aria-label="clock" className="ck-cover-clock" onClick={tapClock}>
           <ClockFace pose={pose} kind="cuckoo" size={size} secondsFrom={secondsFrom} />

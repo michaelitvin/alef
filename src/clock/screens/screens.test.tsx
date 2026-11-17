@@ -64,19 +64,19 @@ describe('Bonus', { timeout: 30000 }, () => {
 })
 
 describe('Cover', () => {
-  it('has an SVG home button to alef, with no text', () => {
-    const { getByLabelText } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
-    const home = getByLabelText('alef')
-    expect(home.getAttribute('href')).toBe(import.meta.env.BASE_URL)
+  it('has the held SVG house to alef\'s home (no link, no text): see home.test.tsx', () => {
+    const { getByLabelText } = render(<Cover onPlay={() => {}} onParent={() => {}} onHome={() => {}} />)
+    const home = getByLabelText('home (hold)')
+    expect(home.getAttribute('href')).toBeNull()
     expect(home.querySelector('svg')).not.toBeNull()
     expect(home.textContent).toBe('')
   })
   it('a 2-second press on the gear, then the year of birth, opens the parent area; a tap does not', () => {
     vi.useFakeTimers()
     const onParent = vi.fn()
-    const { getByLabelText, container } = render(<Cover onPlay={() => {}} onParent={onParent} />)
+    const { getByLabelText } = render(<Cover onPlay={() => {}} onParent={onParent} onHome={() => {}} />)
     const gear = getByLabelText('parent settings (hold)')
-    const ring = container.querySelector('[data-hold-ring]')!
+    const ring = gear.querySelector('[data-hold-ring]')!
     expect(ring.getAttribute('data-state')).toBe('idle')
     fireEvent.pointerDown(gear)
     expect(ring.getAttribute('data-state')).toBe('holding')

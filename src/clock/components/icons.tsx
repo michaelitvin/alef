@@ -21,11 +21,6 @@ export const PlayIcon = ({ size = 96 }: P) => (
     <path d="M40 30 L72 50 L40 70 Z" fill="#fff" />
   </svg>
 )
-export const HomeIcon = ({ size = 48 }: P) => (
-  <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
-    <path d="M14 50 L50 18 L86 50 V86 H60 V62 H40 V86 H14 Z" fill="#fff8e7" stroke="#5a3417" strokeWidth="6" strokeLinejoin="round" />
-  </svg>
-)
 /** One gear tooth outline (radius 46), shared by the gold gears. */
 const GEAR_PATH = 'M-9 -46 h18 l3 12 a36 36 0 0 1 10 5 l11 -6 13 13 -6 11 a36 36 0 0 1 5 10 l12 3 v18 l-12 3 a36 36 0 0 1 -5 10 l6 11 -13 13 -11 -6 a36 36 0 0 1 -10 5 l-3 12 h-18 l-3 -12 a36 36 0 0 1 -10 -5 l-11 6 -13 -13 6 -11 a36 36 0 0 1 -5 -10 l-12 -3 v-18 l12 -3 a36 36 0 0 1 5 -10 l-6 -11 13 -13 11 6 a36 36 0 0 1 10 -5 z'
 const GoldGear = ({ fill, shine }: { fill: string; shine?: boolean }) => (

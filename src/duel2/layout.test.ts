@@ -152,9 +152,11 @@ describe('the held home button in the bar\'s left corner (the parent, 2026-11-14
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
     const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(new RegExp(`\\.d2-topbar-side, \\.d2-topbar-mid \\{ display: flex; gap: ${BAR_ITEM_GAP_PX}px;`))
-    expect(css).toMatch(new RegExp(`\\.d2-home-btn \\{ width: ${BAR_ITEMS_PX.home}px; height: ${BAR_ITEMS_PX.home}px;`))
+    // the house's look is shared by every game (src/shared/HomeButton.tsx), in the shared stylesheet
+    const shared = fs.readFileSync('src/shared/holdButton.css', 'utf8').replace(/\s+/g, ' ')
+    expect(shared).toMatch(new RegExp(`\\.home-btn \\{ width: ${BAR_ITEMS_PX.home}px; height: ${BAR_ITEMS_PX.home}px;`))
     // the bar lets taps through (pointer-events: none) except on its items: the button takes them (QA: a hold did nothing)
-    expect(css).toMatch(/\.d2-home-btn \{[^}]*pointer-events: auto;/)
+    expect(shared).toMatch(/\.home-btn \{[^}]*pointer-events: auto;/)
   })
   it('not in the bar where the content rises into the band (a phone on its side: the doors, the ladder, the tower\'s wizard), in it everywhere else', () => {
     for (const [w, h] of [[780, 360], [740, 360], [915, 412]] as const) {

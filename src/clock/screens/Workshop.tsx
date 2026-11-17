@@ -11,7 +11,8 @@ import { ExplainPlayer } from '../components/ExplainPlayer'
 import { Customer } from '../components/Customer'
 import { benchSide } from '../assets/facing'
 import { PauseCover } from '../components/PauseCover'
-import { GearPileIcon, HintIcon, HomeIcon, PlayIcon } from '../components/icons'
+import { GearPileIcon, HintIcon, PlayIcon } from '../components/icons'
+import { HomeButton } from '../../shared/HomeButton'
 import { clockTelemetry } from '../telemetry'
 import type { RoundPlan } from '../logic/types'
 import { StreakBurst } from '../components/StreakBurst'
@@ -48,8 +49,9 @@ function useBenchBox() {
   return { ref, box, portrait: port }
 }
 
+/** `onExit`: the held house (a 2 s hold) was held: the workday has ended (its exit), the game leaves to alef's home */
 export function Workshop({ onExit }: { onExit: () => void }) {
-  const { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume } = useWorkday()
+  const { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume, exit } = useWorkday()
   usePlaytime('clock', !paused)
   const gears = useClockStore((s) => s.gears)
   const workdays = useClockStore((s) => s.workdays)
@@ -76,10 +78,12 @@ export function Workshop({ onExit }: { onExit: () => void }) {
   const hintButton = !!hint && !hintOn && (view.phase === 'ask' || view.phase === 'answer')
   const openHint = () => { setHintPlan(plan); clockTelemetry.track('hint', { hint, time: `${plan.time.h}-${plan.time.m}`, exercise: plan.exercise }) }
   const isSet = !['find', 'what', 'digitalPick'].includes(plan.exercise)
+  // the way home (rule: a 2 s hold, top-left corner): in a round, the bonus game, the day summary and the pause cover
+  const home = () => { exit(); onExit() }
 
   return (
     <div className="ck-root ck-workshop" data-phase={view.phase}>
-      <button aria-label="home" className="ck-home" onClick={onExit}><HomeIcon /></button>
+      {!paused && <HomeButton className="ck-home" onHome={home} />}
       {/* the top bar's right end: the hint button (when there is a hint to ask for) beside the gears, above the bench, so it
           never covers the question (the parent 2026-10-17: under the gears it hid text) */}
       <div className="ck-topright">
@@ -125,7 +129,7 @@ export function Workshop({ onExit }: { onExit: () => void }) {
           <PlayIcon size={88} />
         </motion.button>
       )}
-      {paused && <PauseCover onResume={resume} />}
+      {paused && <PauseCover onResume={resume} onHome={home} />}
     </div>
   )
 }

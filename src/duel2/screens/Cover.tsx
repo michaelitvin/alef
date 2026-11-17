@@ -1,5 +1,6 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
-// orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and a way home to alef.
+// orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and the held house home to alef
+// (a 2 s hold, top left, the same in every game: src/shared/HomeButton.tsx).
 import { IMAGES, useWizardArt } from '../assets/images'
 import { syllable } from '../logic/content'
 import { Glyph, GlyphDefs } from '../components/Glyph'
@@ -10,10 +11,11 @@ import { BossShelf } from '../components/BossShelf'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
 import { SlidersGlyph } from '../components/holdGlyphs'
 import { useDuel2Store } from '../store'
+import { HomeButton } from '../../shared/HomeButton'
 
 const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
-export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => void; onParent: () => void; loading?: boolean }) {
+export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: () => void; onParent: () => void; onHome?: () => void; loading?: boolean }) {
   const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const crystals = useDuel2Store((s) => s.crystals ?? 0)
@@ -33,7 +35,8 @@ export function Cover({ onPlay, onParent, loading = false }: { onPlay: () => voi
           {wiz('s-wizbroom') && <image href={wiz('s-wizbroom')} x={170} y={300} width={380} height={324} />}
         </g>
       </svg>
-      {/* all his stars so far (he asked where to see his points); the way back to the alef menu is in the parent area */}
+      {onHome && <HomeButton className="d2-home-btn" onHome={onHome} />}
+      {/* all his stars so far (he asked where to see his points), right of the house */}
       <div className="d2-cover-stars">
         <InfoTap line="info-coins"><CoinCount n={coins} size="big" /></InfoTap>
         {/* his crystals, by kind (the nth crystal won is kind n % 4, as the crystal screen shows it) */}

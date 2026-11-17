@@ -63,6 +63,10 @@ const PACE = { doorbell: 350, betweenAnswers: 150, afterBoing: 250, afterFix: 25
 export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?: Rng; now?: () => Date } = {}) {
   const [view, setView] = useState<WorkdayView | null>(null)
   const [paused, setPaused] = useState(false)
+  const pausedRef = useRef(paused)
+  pausedRef.current = paused
+  /** he left with the held house (exit) */
+  const exited = useRef(false)
   const [roundKey, setRoundKey] = useState(0)
   const answerRef = useRef<((a: Answer) => void) | null>(null)
   const bonusRef = useRef<((g: number) => void) | null>(null)
@@ -369,7 +373,8 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
         setPaused(true)
       }
     }
-    const onHide = () => clockTelemetry.track('abandon', { served: day.current.served, phase: viewRef.current?.phase })
+    // after the way home (exit) the page goes: that is no abandon
+    const onHide = () => { if (!exited.current) clockTelemetry.track('abandon', { served: day.current.served, phase: viewRef.current?.phase }) }
     document.addEventListener('visibilitychange', onVis)
     window.addEventListener('pagehide', onHide)
     return () => {
@@ -400,6 +405,13 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     setRoundKey((k) => k + 1)
   }, [])
   const resume = useCallback(() => setPaused(false), [])
+  /** the held house: he leaves the workday; an 'exit' says where (once; no 'abandon' after it) */
+  const exit = useCallback(() => {
+    if (exited.current) return
+    exited.current = true
+    stopVoices()
+    clockTelemetry.track('exit', { served: day.current.served, phase: viewRef.current?.phase, paused: pausedRef.current })
+  }, [])
   const replay = useCallback((target: 'prompt' | number) => {
     const v = viewRef.current
     // during the reading the script owns the voice; the speaker buttons work once all the answers are read
@@ -417,7 +429,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     void playVoice(p.audioId, p.words, (w) => { if (viewRef.current?.phase === 'answer') setView((x) => (x ? { ...x, word: { target, index: w } } : x)) })
   }, [])
 
-  return { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume }
+  return { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume, exit }
 }
 
 function grade(plan: RoundPlan, a: Answer, nearMissUsed: boolean): Evaluation {
