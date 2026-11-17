@@ -1,8 +1,9 @@
 # The English path — Asset plan (pictures, sprites, sounds)
 
 **Date:** 2026-11-16
-**Status:** Plan only. Nothing is generated and nothing is spent until the parent approves the word lists, the budget
-and the voice spike.
+**Status:** Updated 2026-11-17. Pictures and recolours are made and reviewed (Part 2); the voice is chosen (Gemini TTS,
+Puck) after three voice tests; no bulk audio until the parent says so (Part 4). Generated files are host-local until a
+stage's assets are approved.
 **Source of truth:** [the English path design](../specs/2026-11-16-english-path-design.md) (Parts 2, 3, 4, 5, 7, 8,
 10). Rules: [docs/minigame-rules.md](../../minigame-rules.md) (Voice, Pronunciation, Visuals, Art generation, Review of
 generated assets). Provenance format: [asset-sources/duel2/README.md](../../../asset-sources/duel2/README.md); this
@@ -22,7 +23,7 @@ In this plan, **"my call"** marks a decision made here that the parent has not c
   (`c·a_e·k` = cake). In stage 5, each consonant of a blend is its own unit; the blend pattern is in brackets
   (`s·t·o·p [st-]`).
 - **A word belongs to the stage of its highest unit.** It uses no unit above that stage. A builder script checks this for
-  every word, chain, set and round in this file, and that every word on a screen is in a list (so it has audio and a blend).
+  every word, chain, set and round in this file, and that every word on a screen is in a list (so it has audio and a slow word).
 - **Default uses.** Every real word (not a heart word) can appear in: the broom (word rounds), the cauldron, the tower's
   word runes, the spell book (at most 5 boxes), the drawing (whole word, from stage 2, only letters he has written alone),
   and the doors' wrong-key pool if it has a picture. The **Uses** column lists only the specific uses:
@@ -43,26 +44,34 @@ In this plan, **"my call"** marks a decision made here that the parent has not c
   already exists (the parent: "look perfectly fine"); `N` = new; `—` = no picture.
 - **Pictures that are not decodable words.** First-sound pictures need not be decodable: the child never reads them, he
   only picks their first (or last) sound's letter. They are listed per stage under "picture-only words". Each needs a
-  word recording (the feedback "fff. fox.") but no blend.
+  word recording (the feedback "fff. fox.") but no slow word.
 
 ### 1.2 Totals
 
+Updated 2026-11-17 after the parent's picture review and the word pass for a child in Israel (1.18).
+
 | Stage | Real words | Picture-only words | Heart words | Nonsense words | Pictures used (R / T / N) |
 |---|---|---|---|---|---|
-| 1 | 24 | 13 | 4 | 12 | 7 / 1 / 8 |
-| 2 | 28 | 12 | 4 | 12 | 9 / 4 / 12 |
-| 3 | 29 | 13 | 4 | 12 | 6 / 0 / 15 |
+| 1 | 24 | 13 | 4 | 12 | 7 / 1 / 7 |
+| 2 | 28 | 11 | 4 | 12 | 9 / 4 / 9 |
+| 3 | 29 | 13 | 4 | 12 | 6 / 0 / 12 |
 | 4 | 34 | 1 | 4 | 12 | 2 / 0 / 9 |
-| 5 | 41 | 0 | 4 | 12 | 1 / 1 / 12 |
-| 6 | 33 | 0 | 4 | 12 | 2 / 0 / 11 |
+| 5 | 40 | 0 | 4 | 12 | 1 / 1 / 9 |
+| 6 | 34 | 0 | 4 | 12 | 2 / 0 / 8 |
 | 7 | 30 | 0 | 3 | 6 | 0 / 0 / 5 |
-| 8 | 33 | 0 | 3 | 12 | 0 / 0 / 12 |
-| 9 | 60 | 0 | 3 | 12 | 2 / 0 / 23 |
-| **All** | **312** | **39** | **33** | **102** | **29 / 6 / 107 = 142** |
+| 8 | 33 | 0 | 3 | 12 | 0 / 0 / 10 |
+| 9 | 61 | 0 | 3 | 12 | 2 / 0 / 22 |
+| **All** | **313** | **38** | **33** | **102** | **29 / 6 / 91 = 126** |
 
-The design asked for about 250 real words. This list has 312, because 70 tracked items (62 units and 8 second readings, Part 3.1) need 3 or more words
+The design asked for about 250 real words. This list has 313, because 70 tracked items (62 units and 8 second readings, Part 3.1) need 3 or more words
 each, and the ladder chains, look-alike sets and placement rounds need their own words. Stage 9 alone has 15 items. The
-parent can trim (open question 2); good trim candidates are the words with no specific use in the tables.
+parent decided to keep them all for now (2026-11-17).
+
+**Coverage after the review** (16 pictures dropped, 2.3): first-sound pictures are now `o` ostrich only, `y` yo-yo
+only, `g` guitar only, `nk` sink only, `th` none (with `i` igloo, `u` umbrella, `qu` queen as before). These units are asked
+by sound and in word rounds. Stage 1 has two picture keys left (map, fan): its doors also use stage-2 pictures as wrong
+keys, and its placement asks two picture rounds and four name rounds. The stage-6 cauldron keeps kit → kite and slid →
+slide with pictures; cap → cape is a word-only round.
 
 ### 1.3 Heart words (33)
 
@@ -98,7 +107,7 @@ or the spell book; never alone on a door.
 | map | m·a·p | Tl m, D, S·pic, P★, L2 | N |
 | nap | n·a·p | L3 | — |
 | man | m·a·n | L2, Pd (map) | — |
-| pan | p·a·n | Tl p, D, S·pic, P★, L4 | N |
+| pan | p·a·n | L4 | — (picture dropped after review: "skillet?") |
 | fan | f·a·n | Tl f, D, S·pic, P★, L2, L4 | N |
 | tan | t·a·n | L4, Pd (fan) | — |
 | pin | p·i·n | L1, L4, Pd (pan) | — |
@@ -131,7 +140,7 @@ R word-mouse), strawberry (`s`, R pw-strawberry), tiger (`t`, N), turtle (`t`, N
 | dig | d·i·g | G (big·dig·pig), Pd (dog) | — |
 | dot | d·o·t | L1, Pd (dog) | — |
 | cup | c·u·p | Tl c, D, S·pic, P★ | N |
-| cap | c·a·p | L4, Pd (cup), C6 (cap → cape) | N (made in stage 6, see 1.9) |
+| cap | c·a·p | L4, Pd (cup), C6 (cap → cape, word only) | — (picture dropped after review: "hat") |
 | cat | c·a·t | Tl c, D, S·pic | R pw-cat |
 | bug | b·u·g | D, S·pic, L2 | N |
 | bus | b·u·s | Tl b, D, S·pic | R word-bus |
@@ -143,17 +152,17 @@ R word-mouse), strawberry (`s`, R pw-strawberry), tiger (`t`, N), turtle (`t`, N
 | pen | p·e·n | L3 | — |
 | ten | t·e·n | G (ten·net) | — |
 | net | n·e·t | Tl n, D, S·pic, G | N |
-| gum | g·u·m | Tl g, D, S·pic, G (gum·mug) | N |
+| gum | g·u·m | G (gum·mug) | — (picture dropped after review: "candy") |
 | mug | m·u·g | G | — |
 | tub | t·u·b | L4 of stage 6 (tub → tube) | — |
 | sun | s·u·n | Tl s, D, S·pic | T |
 | nut | n·u·t | G (hut·nut) | — |
-| mop | m·o·p | D, S·pic, L4 | N |
+| mop | m·o·p | L4 | — (picture dropped after review: "broom") |
 | pot | p·o·t | D, S·pic, G (top·pot), L1 | N |
 | top | t·o·p | G, L4 | — |
 | pig | p·i·g | Tl p, D, S·pic, G, L3 | T |
 
-**Picture-only words (Tl):** ostrich (`o`, N), otter (`o`, N), door (`d`, R word-door; never on the doors screen),
+**Picture-only words (Tl):** ostrich (`o`, N), ~~otter~~ (dropped after review: "not intuitive"), door (`d`, R word-door; never on the doors screen),
 camel (`c`, R word-camel), carrot (`c`, R pw-carrot), cookie (`c`, R word-cookie), umbrella (`u`, T), guitar (`g`, N),
 banana (`b`, R pw-banana), butterfly (`b`, R word-butterfly), egg (`e`, T), elephant (`e`, N).
 **Later-stage sound pictures:** duck (`d`, 4), drum (`d`, 5), book (`b`, 9).
@@ -174,14 +183,14 @@ slang for "body".)
 | hop | h·o·p | L2, C6 (hop → hope) | — |
 | hip | h·i·p | G (hip·nip), L4 | — |
 | red | r·e·d | Dp | — |
-| rug | r·u·g | D, S·pic, P★ | N |
+| rug | r·u·g |  | — (picture dropped after review: "not clear") |
 | leg | l·e·g | | — |
 | let | l·e·t | L3 | — |
 | lip | l·i·p | L4 | — |
 | lot | l·o·t | L3 | — |
 | log | l·o·g | Tl l, D, S·pic, L3 | N |
 | lap | l·a·p | L4 | — |
-| web | w·e·b | D, S·pic, L3 | N |
+| web | w·e·b | L3 | — (picture dropped after review: "net") |
 | wet | w·e·t | L3 | — |
 | wig | w·i·g | | — |
 | jam | j·a·m | | — |
@@ -192,7 +201,7 @@ slang for "body".)
 | fix | f·i·x | L1 | — |
 | ax | a·x | Tl x, D | N |
 | quiz | qu·i·z | | — |
-| van | v·a·n | Tl v, D, S·pic, P★, L1 | N |
+| van | v·a·n | L1 | — (picture dropped after review: "car") |
 | zip | z·i·p | L4 | — |
 | zap | z·a·p | L4 | — |
 
@@ -264,7 +273,7 @@ sound") and in word runes. My call: `th` (/θ/, thin) is the main reading, `th�
 | snack | s·n·a·ck [sn-] | L1 | — |
 | slip | s·l·i·p [sl-] | L1 | — |
 | slap | s·l·a·p [sl-] | L1 | — |
-| sled | s·l·e·d [sl-] | D | N |
+| slug | s·l·u·g [sl-] | | — (replaces sled: a sled is not familiar in Israel, the parent 2026-11-17) |
 | slid | s·l·i·d [sl-] | C6 (slid → slide) | — |
 | smell | s·m·e·ll [sm-] | | — |
 | swim | s·w·i·m [sw-] | | — |
@@ -287,17 +296,17 @@ sound") and in word runes. My call: `th` (/θ/, thin) is the main reading, `th�
 | tent | t·e·n·t [-nt] | Tl t, D, P★, L4 | R word-tent |
 | bent | b·e·n·t [-nt] | L4 | — |
 | best | b·e·s·t [-st] | L4 | — |
-| nest | n·e·s·t [-st] | Tl n, D, L4 | N |
+| nest | n·e·s·t [-st] | L4 | — (picture dropped after review: "eggs / not clear") |
 | pond | p·o·n·d [-nd] | | — |
 | jump | j·u·m·p [-mp] | L1 of stage 7 | — |
 | lamp | l·a·m·p [-mp] | D | N |
-| stamp | s·t·a·m·p [st-, -mp] | | — (a postage stamp is not one obvious picture) |
+| stamp | s·t·a·m·p [st-, -mp] | | — (**parent decides**: a postage stamp is rare for a child now; "stamp your feet" is known) |
 | desk | d·e·s·k [-sk] | | — (he may call it "table") |
 | left | l·e·f·t [-ft] | | — |
 | milk | m·i·l·k [-lk] | D | N |
-| skunk | s·k·u·nk [sk-] | Tl nk, D, Dp | N |
+| skip | s·k·i·p [sk-] | | — (replaces skunk: a North American animal) |
 
-(41 words; every pattern of design Part 3 has at least one word.)
+(40 words; every pattern of design Part 3 has at least one word.)
 
 **Nonsense (12):** sluk, fron, trob, clim, plog, snet, smub, gromp, flisk, dreb, nolk, bresk. (`clom` was dropped: close
 to the heart word `come`.)
@@ -313,8 +322,9 @@ My call: `u_e` is read /uː/ first (tube, tune, rule) and /juː/ second (cube, c
 | name | n·a_e·m | | — |
 | game | g·a_e·m | | — |
 | tape | t·a_e·p | C6 (tap → tape) | — |
-| cape | c·a_e·p | D, P★, C6 (cap → cape, both pictures), L1 | N |
-| cane | c·a_e·n | L1 | — |
+| cape | c·a_e·p | C6 (cap → cape, word only) | — (picture dropped after review: "not intuitive") |
+| pine | p·i_e·n | L1 | — (replaces cane: "cane" is a candy cane or a walking stick; pine trees grow in Israel) |
+| lime | l·i_e·m | L1 | — |
 | cone | c·o_e·n | D, L1 | N |
 | bone | b·o_e·n | D, P★, L1, Dp | N |
 | wave | w·a_e·v | | — |
@@ -336,7 +346,7 @@ My call: `u_e` is read /uː/ first (tube, tune, rule) and /juː/ second (cube, c
 | rope | r·o_e·p | D | N |
 | note | n·o_e·t | C6 (not → note) | — |
 | globe | g·l·o_e·b | D | N |
-| cube | c·u_e₂·b | D | N |
+| cube | c·u_e₂·b |  | — (picture dropped after review: "ice or dice") |
 | cute | c·u_e₂·t | | — |
 | tube | t·u_e·b | L4 | — |
 | tune | t·u_e·n | L4 | — |
@@ -400,17 +410,17 @@ the placement's name rounds need some: the wizard says "gromping", and only read
 | jar | j·ar | Tl j, D | N |
 | star | s·t·ar | | — (the star is the reward symbol) |
 | park | p·ar·k | | — |
-| barn | b·ar·n | D, L3, Dp | N |
-| yarn | y·ar·n | Tl y, D | N |
+| barn | b·ar·n | D, L3, Dp | N (approved; **parent decides** whether a child in Israel knows the word) |
+| yarn | y·ar·n |  | — (picture dropped after review: "too hard") |
 | farm | f·ar·m | L1 | — |
 | harm | h·ar·m | L1 | — |
 | hard | h·ar·d | L1 | — |
 | card | c·ar·d | L1 | — |
-| arm | ar·m | D | N |
+| arm | ar·m |  | — (picture dropped after review: "muscle") |
 | shark | sh·ar·k | Tl sh, D | N |
 | for | f·or | L2 | — |
 | fork | f·or·k | D, P★, L2 | N |
-| cork | c·or·k | L2 | — |
+| fort | f·or·t | L2 | — (replaces cork: a wine cork is not a child's word) |
 | corn | c·or·n | D, L2 | N |
 | born | b·or·n | L2, L3 | — |
 | short | sh·or·t | L4 | — |
@@ -458,15 +468,16 @@ book, `ow₂` cow, `ea₂` bread) are their own items, later in the stage, in ro
 | green | g·r·ee·n | Dp | — |
 | queen | qu·ee·n | Tl qu, D | N |
 | wheel | wh·ee·l | Tl wh, D | N |
-| teeth | t·ee·th | Tl th, D | N |
+| teeth | t·ee·th |  | — (picture dropped after review: "smile") |
 | eat | ea·t | | — |
 | leaf | l·ea·f | D | N |
 | seal | s·ea·l | D | N |
 | boat | b·oa·t | D, P★, L1, Dp | N |
 | coat | c·oa·t | L1 | — (he may call it "jacket") |
-| coal | c·oa·l | L1 | — |
+| goat | g·oa·t | L1 | — (replaces coal: not a thing a child in Israel sees; no picture: he called a goat "sheep" in the Hebrew duel) |
+| goal | g·oa·l | L1 | — |
 | soap | s·oa·p | D | N |
-| snow | s·n·ow | | — |
+| snow | s·n·ow | | — (**parent decides**: snow is rare in Israel, but children know it) |
 | grow | g·r·ow | | — |
 | bowl | b·ow·l | D | N |
 | night | n·igh·t | L3 | — |
@@ -478,7 +489,7 @@ book, `ow₂` cow, `ea₂` bread) are their own items, later in the stage, in ro
 | spoon | s·p·oo·n | D | N |
 | food | f·oo·d | | — |
 | boot | b·oo·t | | — |
-| cool | c·oo·l | L1 | — |
+| cool | c·oo·l | | — |
 | out | ou·t | | — |
 | cloud | c·l·ou·d | D | N |
 | mouth | m·ou·th | | — |
@@ -537,10 +548,10 @@ consonant (`lip → slip`): my call, because that is how a blend is built. Every
 | 3 | fox → fix → fin → fan → van | hat → hot → hop → top → tip | web → wet → let → lot → log | zip → zap → lap → lip → hip |
 | 4 | ship → shop → chop → chip | duck → luck → lock → sock | king → sing → sink → pink → pick | bell → well → will → fill |
 | 5 | lip → slip → slap → snap → snack | top → stop → spot → spit → spin | cap → clap → clip → flip | ten → tent → bent → best → nest |
-| 6 | cap → cape → cane → cone → bone | kit → kite → bite → bike → like | hop → hope → hole → home | tub → tube → tune |
+| 6 | pin → pine → line → lime → time | kit → kite → bite → bike → like | hop → hope → hole → home | tub → tube → tune |
 | 7 | jump → jumps → jumped → bumped | kick → kicks → kicked → licked → licking | fish → wish → wishes → wished → wishing | cat → cats → hats |
-| 8 | car → card → hard → harm → farm | for → fork → cork → corn → born | turn → burn → barn → born | shirt → short → sort → sport |
-| 9 | boat → coat → coal → cool | day → pay → say → stay | night → light → right → fight | boy → toy → joy |
+| 8 | car → card → hard → harm → farm | for → fork → fort → sort → sport | turn → burn → barn → born | shirt → short → sort → sport |
+| 9 | boat → coat → goat → goal | day → pay → say → stay | night → light → right → fight | boy → toy → joy |
 
 The run's ladder takes rungs from these chains (a shorter ladder uses the start of a chain). No chain asks the same word
 twice (rule).
@@ -554,7 +565,7 @@ green tree). A phrase's wrong keys are other nouns' pictures, never a picture of
 | Stage | Phrases |
 |---|---|
 | 4 | a big duck · the red sock · what a fish |
-| 5 | a red crab · a big drum · the black skunk |
+| 5 | a red crab · a big drum · a wet frog |
 | 6 | a white bone · the big snake · one big cake |
 | 7 | my cats · big boxes · I am fishing |
 | 8 | a red car · your skirt · a big barn |
@@ -570,12 +581,12 @@ in the lists (marked °) needs no audio: the placement has no hint, and after a 
 
 | Stage | Picture rounds (target first) | Name rounds (target first) |
 |---|---|---|
-| 1 | map · mat · man — fan · fin · tan — pan · pin · pat | mip · map · nip — tif · taf · tip — nif · naf · mif |
+| 1 | map · mat · man — fan · fin · tan (only 2: the pan picture was dropped; stage 1 asks 4 name rounds) | mip · map · nip — tif · taf · tip — nif · naf · mif — pim · pam° · tim° |
 | 2 | dog · dig · dot — cup · cap · cop° — bed · bad · bid° | gub · gab° · dub° — bem · bim° · dem° — dop · dap° · bop° |
-| 3 | hat · rat° · vat° — van · ran° · wan° — rug · hug° · jug° | vap · zap · lap — zim · vim° · rim° — jex · yex° · hex° |
+| 3 | hat · rat° · vat° — log · hog° · jog° — fox · foz° · fov° | vap · zap · lap — zim · vim° · rim° — jex · yex° · hex° |
 | 4 | duck · dull° · duff° — ring · rink° · rich° — fish · fill · fizz° | chim · shim° · thim° — shap · chap° · thap° — thog · shog° · chog° |
 | 5 | frog · fog° · grog° — drum · dum° · trum° — tent · ten · test° | sluk · suk° · snuk° — clim · cim° · flim° — snet · set° · spet° |
-| 6 | cape · cap · cope° — kite · kit · kote° — bone · bun° · bane° | pove · pov° · pave° — dape · dap° · dipe° — fime · fim · fame° |
+| 6 | snake · snack · snoke° — kite · kit · kote° — bone · bun° · bane° | pove · pov° · pave° — dape · dap° · dipe° — fime · fim · fame° |
 | 7 | cats · cat · cast° — boxes · box · fox — ducks · duck · dusk° | gromping · gromped · gromps — jishes · jish · jishing° — nolked · nolking · nolks° |
 | 8 | car · cur° · cor° — bird · bard° · bid° — fork · fark° · ferk° | zarn · zan° · zorn° — murt · mut° · mart° — virp · vip° · varp° |
 | 9 | boat · bait° · bet° — sheep · ship · shape° — moon · man · moan° | voam · vam° · veam° — baip · bap° · beep° — sloy · slay° · slee° |
@@ -593,13 +604,32 @@ the broom's no-overlap geometry test included.
 | 1–2 | 3 letters (sat, dog) | 3 letters | 3 | 3 (tam, gub) |
 | 3 | 4 (quiz) | 3 | 3 | 4 (quab) |
 | 4 | 5 (chick, shell) | 5; phrase "the red sock" (12) | 3 (ch·i·ck) | 5 (wheck) |
-| 5 | 5 (stamp, skunk, snack) | 5; phrase "the black skunk" (15) | 5 (s·t·a·m·p) | 5 (gromp, flisk, bresk) |
+| 5 | 5 (stamp, snack, smell) | 5; phrase "a big drum" (10) | 5 (s·t·a·m·p) | 5 (gromp, flisk, bresk) |
 | 6 | 5 (smile, slide, globe, white) | 5; phrase "one big cake" (12) | 4 (s·m·i_e·l) | 5 (flobe, bline) |
 | 7 | 7 (jumping, kicking, licking, fishing, wishing, singing) | 7; phrase "I am fishing" (12) | 5 (j·u·m·p·ing) | **8 (gromping), the longest of the path** |
 | 8 | 6 (sister, winter) | 5; phrase "your skirt" (10) | 5 (s·i·s·t·er) | 5 (plorn, charp, skurn) |
 | 9 | 5 (spoon, cloud, crown, wheel, teeth, night) | 5; phrase "the white sheep" (15) | 4 (c·l·ou·d) | 5 (dreeb, broid, snigh) |
 
 ---
+
+### 1.18 Word pass for a child in Israel (2026-11-17)
+
+The child lives in Israel and speaks English (the parent, on the sled: "we're in israel. there's no strong sense of what
+a sled is"). I checked every word and picture for winter or snow-country things, US-only animals, food and school words.
+
+| Was | Now | Why | Same units kept |
+|---|---|---|---|
+| sled | slug | a sled is not familiar in Israel | `sl-` (with slip, slap, slid) |
+| skunk | skip | a North American animal | `sk-`; `-nk` keeps sink, pink |
+| cane | pine, lime | "cane" is a candy cane or a walking stick | `i_e`; the stage-6 chain is now pin → pine → line → lime → time |
+| cork | fort | a wine cork is not a child's word | `or`; chain for → fork → fort → sort → sport |
+| coal | goat, goal | coal is not seen; goal is every child's football word | `oa`; chain boat → coat → goat → goal |
+| the black skunk (door) | a wet frog | skunk dropped | a stage-5 picture noun |
+
+**For the parent to decide** (kept in the list until he says): **snow** (rare in Israel, but known), **stamp** (a postage
+stamp is rare now; "stamp your feet" is known), **barn** (its picture is approved; is the word known?), **igloo** (the
+`i` picture, approved; snow-country). Checked and kept: corn, plum, jam, chip, quiz, desk, seal, owl, cow, sheep,
+winter, fur (all known to a child in Israel); the US spelling `ax` (the course is American).
 
 ## Part 2 — Pictures and sprites
 
@@ -649,7 +679,21 @@ octopus picture would repeat the octopus monster).
 apple, egg, frog, pig, sun, umbrella (the test's book duplicates word-book). Each gets one more take so the parent can
 pick between two (rule: 2 takes), unless the parent keeps them as they are.
 
-### 2.3 New pictures (107)
+### 2.3 New pictures (107 made, 91 kept)
+
+**Made and reviewed (2026-11-17).** All 107 and the spell book were made with gemini-2.5-flash-image through the Gemini
+Batch API, 1 take each (the parent's decision), and cut out host-locally. Flash paints a magenta glow around most
+subjects; the cut-out removes it in two steps (strong key colour flooded from outside, then the pale fringe outside the
+subject's dark outline) and clears background trapped inside a subject. Redraws ask for "no glow, no halo" and use a
+green background (magenta for subjects with green in them). After the parent's review:
+- **Dropped, 16** (the name is not one obvious name, or the picture is not clear; the word stays, with no picture): pan,
+  otter, gum, mop, rug, web, van, skunk, cape, cube, cap, arm, yarn, teeth, nest, sled. Struck through below.
+- **Redrawn and picked, 19** (2 takes each, he picked one): rocket (a toy rocket, not a missile), yo-yo, duck and ducks
+  (adult mallards, not chicks), doll (a rag doll, not a princess), crab (orange, round: not a lobster), milk (a carton,
+  not a glass), kite, slide, rope, cats (grown-up cats, not kittens), boxes, bee, queen (grown-up, robe, not a princess),
+  wheel, boat (a rowboat with oars, not a ship), boy, train.
+- Every other picture: approved. The bug stays ("could be a beetle, but both start with b").
+
 
 Every prompt uses the pw-* template of `asset-sources/duel2/images.json` ("Single game icon drawn in EXACTLY the art
 style … of the reference image: <subject>. Exactly ONE subject … on a perfectly flat solid pure magenta background
@@ -662,7 +706,7 @@ Names marked **?** are uncertain; they are review items (2.6).
 | # | Name | Stage | Subject |
 |---|---|---|---|
 | 1 | map | 1 | an unfolded cartoon paper map with green land, blue water and a winding red path, no writing, no X mark |
-| 2 | pan | 1 | a black cartoon frying pan with a handle, top-side view, empty |
+| 2 | ~~pan~~ (dropped) | 1 | a black cartoon frying pan with a handle, top-side view, empty |
 | 3 | fan | 1 | a cartoon electric desk fan with round blades in a cage, on a stand |
 | 4 | ant | 1 | a cute cartoon red ant, side view, six legs, two antennae |
 | 5 | astronaut **?** | 1 | a cute cartoon kid astronaut in a white space suit and round helmet, waving |
@@ -674,20 +718,20 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 11 | bag | 2 | a brown cartoon paper shopping bag with handles |
 | 12 | bed | 2 | a cartoon bed with a pillow and blanket, side view |
 | 13 | net **?** | 2 | a cartoon butterfly net on a long handle |
-| 14 | gum | 2 | a pink stick of chewing gum, half unwrapped |
-| 15 | mop | 2 | a cartoon mop with a wooden handle and a stringy head |
+| 14 | ~~gum~~ (dropped) | 2 | a pink stick of chewing gum, half unwrapped |
+| 15 | ~~mop~~ (dropped) | 2 | a cartoon mop with a wooden handle and a stringy head |
 | 16 | pot | 2 | a cartoon cooking pot with two handles and a lid |
 | 17 | ostrich **?** | 2 | a cute cartoon ostrich standing, long neck and legs |
-| 18 | otter **?** | 2 | a cute cartoon otter floating on its back |
+| 18 | ~~otter~~ **?** (dropped) | 2 | a cute cartoon otter floating on its back |
 | 19 | guitar | 2 | a cartoon acoustic guitar, front view |
 | 20 | elephant | 2 | a cute cartoon grey elephant, side view, trunk up |
 | 21 | hat | 3 | a cartoon brown hat with a brim and a band (not a wizard hat) |
-| 22 | rug | 3 | a cartoon oval rug with stripes, on its own, top-side view |
+| 22 | ~~rug~~ (dropped) | 3 | a cartoon oval rug with stripes, on its own, top-side view |
 | 23 | log | 3 | a cartoon wooden log, side view, rings on the end |
-| 24 | web | 3 | a cartoon spider web, round, no spider |
+| 24 | ~~web~~ (dropped) | 3 | a cartoon spider web, round, no spider |
 | 25 | box | 3 | a cartoon closed cardboard box with tape |
 | 26 | ax | 3 | a cartoon wood ax with a wooden handle |
-| 27 | van | 3 | a cartoon delivery van, side view, clearly a van, not a bus or a car |
+| 27 | ~~van~~ (dropped) | 3 | a cartoon delivery van, side view, clearly a van, not a bus or a car |
 | 28 | robot | 3 | a cute cartoon toy robot, square head, antenna |
 | 29 | rocket | 3 | a cartoon space rocket with fins and a flame |
 | 30 | worm | 3 | a cute cartoon pink worm, curvy |
@@ -705,7 +749,7 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 42 | king | 4 | a cartoon king with a crown, a red cape, smiling |
 | 43 | sink | 4 | a cartoon kitchen sink with a tap |
 | 44 | cheese | 4 | a cartoon wedge of yellow cheese with holes (big holes, not dots) |
-| 45 | sled | 5 | a cartoon wooden sled, side view |
+| 45 | ~~sled~~ (dropped) | 5 | a cartoon wooden sled, side view |
 | 46 | swing | 5 | a cartoon playground swing hanging from a frame |
 | 47 | flag | 5 | a cartoon flag on a pole, plain colours, no symbol |
 | 48 | crab | 5 | a cute cartoon red crab (red: "a red crab") |
@@ -713,12 +757,12 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 50 | dress | 5 | a cartoon girl's dress on its own |
 | 51 | grass | 5 | a cartoon tuft of green grass |
 | 52 | clock | 5 | a cartoon alarm clock with two bells on top |
-| 53 | nest | 5 | a cartoon bird nest with three eggs |
+| 53 | ~~nest~~ (dropped) | 5 | a cartoon bird nest with three eggs |
 | 54 | lamp | 5 | a cartoon table lamp with a shade |
 | 55 | milk | 5 | a cartoon glass of milk |
-| 56 | skunk | 5 | a cute cartoon black and white skunk |
-| 57 | cape | 6 | a cartoon red superhero cape on its own, flowing |
-| 58 | cap | 6 | a cartoon baseball cap, side view |
+| 56 | ~~skunk~~ (dropped) | 5 | a cute cartoon black and white skunk |
+| 57 | ~~cape~~ (dropped) | 6 | a cartoon red superhero cape on its own, flowing |
+| 58 | ~~cap~~ (dropped) | 6 | a cartoon baseball cap, side view |
 | 59 | cone | 6 | an orange cartoon traffic cone (not an ice cream cone: he would say "ice cream") |
 | 60 | bone | 6 | a white cartoon dog bone |
 | 61 | snake | 6 | a cute cartoon green snake, coiled |
@@ -727,7 +771,7 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 64 | slide | 6 | a cartoon playground slide with a ladder |
 | 65 | rope | 6 | a cartoon coil of rope |
 | 66 | globe | 6 | a cartoon globe on a stand |
-| 67 | cube **?** | 6 | a big plain toy cube in one colour, three faces seen, no letters, no dots |
+| 67 | ~~cube~~ **?** (dropped) | 6 | a big plain toy cube in one colour, three faces seen, no letters, no dots |
 | 68 | cats | 7 | three cute cartoon cats in a row (the same style as pw-cat) |
 | 69 | ducks | 7 | three cute cartoon ducks in a row (the same style as duck) |
 | 70 | boxes | 7 | three cartoon cardboard boxes in a pile |
@@ -736,8 +780,8 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 73 | car | 8 | a red cartoon car, side view (red: "a red car") |
 | 74 | jar | 8 | a cartoon glass jar with a lid, empty |
 | 75 | barn | 8 | a red cartoon barn |
-| 76 | yarn | 8 | a cartoon ball of yarn with a loose end |
-| 77 | arm **?** | 8 | a cartoon arm making a muscle |
+| 76 | ~~yarn~~ (dropped) | 8 | a cartoon ball of yarn with a loose end |
+| 77 | ~~arm~~ **?** (dropped) | 8 | a cartoon arm making a muscle |
 | 78 | shark | 8 | a cartoon grey shark, side view, friendly |
 | 79 | fork | 8 | a cartoon fork |
 | 80 | corn | 8 | a cartoon ear of corn with green leaves |
@@ -752,7 +796,7 @@ Names marked **?** are uncertain; they are review items (2.6).
 | 89 | sheep | 9 | a white fluffy cartoon sheep (white: "the white sheep") |
 | 90 | queen | 9 | a cartoon queen with a crown and a gown |
 | 91 | wheel | 9 | a cartoon wheel with a tire and spokes, on its own |
-| 92 | teeth | 9 | a cartoon smile showing clean white teeth |
+| 92 | ~~teeth~~ (dropped) | 9 | a cartoon smile showing clean white teeth |
 | 93 | leaf | 9 | a green cartoon leaf |
 | 94 | seal | 9 | a cute cartoon grey seal |
 | 95 | boat | 9 | a cartoon toy sailboat ("a toy boat") |
@@ -798,15 +842,14 @@ wizard sprite, the girl's included (rule: look at one walking frame of each spri
 | | Count |
 |---|---|
 | Reused as they are | 29 |
-| Test takes (one more take each) | 6 |
-| New pictures | 107 |
+| Test takes from the cheaper model | 6 |
+| New pictures kept (107 made, 16 dropped) | 91 |
 | New sprite (spell book) | 1 |
-| Recoloured (no cost) | 31 |
-| **Pictures used in the English path** | **142** + the spell book |
+| Recoloured (no cost; all approved) | 31 + the two home cards mirrored |
+| **Pictures used in the English path** | **126** + the spell book |
 
-Review items besides the usual ones: every name marked **?** (astronaut, net, ostrich, otter, shell, cube, arm) and
-chick, cake; the parent (or the child) names each picture with no caption shown (rule: no word under a picture), and a
-picture whose name does not match is dropped or changed, not re-taken.
+Spent on pictures: about $3.3 (156 Flash images: 148 by batch at about $0.02, 8 interactive at about $0.04). Review lessons, now in `docs/minigame-rules.md` and applied: the word appears only on hover or tap; a note on a
+name means "a child may call it something else", so the picture is dropped or redrawn, never argued for.
 
 ---
 
@@ -816,63 +859,66 @@ picture whose name does not match is dropped or changed, not re-taken.
 
 The design counts "about 45 sound units". The game has 62 units (stages 1–4: 37, stage 6: 4, stage 7: 4, stage 8: 5,
 stage 9: 12) and 8 second readings (`th₂ u_e₂ -s₂ -ed₂ -ed₃ oo₂ ow₂ ea₂`): 70 tracked items. The stage-5 blend
-patterns are skills, not units. Items with the same sound share one recording
-(`c k ck` → /k/), so there are **47 sound recordings**. Each is short, said once (rule), at stability 1.0, never the bare
-letter (the voice reads it as the letter's name).
+patterns are skills, not units. Items with the same sound share one recording (`c k ck` → /k/), so there are **47 sound
+recordings**. Each is short, said once (rule), never the letter's name.
 
-Candidates: two spellings for the spike or the stage's first batch, and a third route, **cut**: the sound cut out of an
-approved word or blend take (rule: to remove a part of an approved take, cut the audio). IPA is not a candidate for a
-vowel (rule: "/a/." gave 5–6 bursts). The spike (Part 4.1) finds which kind of spelling works; the rest follow it.
+**How (found in the voice tests, 2026-11-17; the parent approved the voice).** Gemini TTS (`gemini-3.8-flash-tts`, voice
+**Puck**) with a short spoken direction in brackets that the voice does not read: `[phonics sound only, not the letter
+name, said once] mmm`, or with the sample word for vowels: `[phonics sound: the short vowel in "cat"; not the letter name]
+aa`. ElevenLabs failed here: doubled letters became letter names (`mm.` → "millimeters", `ss.` → "ess"), and IPA phoneme
+tags were ignored. **Route C, cut:** a sound cut out of an approved take, or an approved take cut shorter (rule: cut, do
+not re-record); short `a` is being solved this way. Three candidates per sound (2 directions, plus a cut where it helps);
+only the ones that pass the screen (3.6) reach the parent, at most 2 per item.
 
-| # | Sound | Items | Candidate A | Candidate B | Route C |
+| # | Sound | Items | Text after the direction | Sample word in the direction | Status |
 |---|---|---|---|---|---|
-| 1 | /æ/ | a | `aah.` | `aeh.` | cut from "at" |
-| 2 | /ɛ/ | e, ea₂ | `eh.` | `ehh.` | cut from "egg" |
-| 3 | /ɪ/ | i | `ih.` | `ihh.` | cut from "it" |
-| 4 | /ɑ/ | o | `ah.` | `ahh.` | cut from "on" |
-| 5 | /ʌ/ | u | `uh.` | `uhh.` | cut from "up" |
-| 6 | /m/ | m | `mmm.` | `mm.` | cut from "am" |
-| 7 | /s/ | s, ss, -s | `sss.` | `ss.` | cut from "sat" |
-| 8 | /t/ | t, -ed | `tuh.` | `tt.` | cut from "tap" |
-| 9 | /p/ | p | `puh.` | `pp.` | cut from "pan" |
-| 10 | /f/ | f, ff | `fff.` | `ff.` | cut from "fan" |
-| 11 | /n/ | n | `nnn.` | `nn.` | cut from "in" |
-| 12 | /d/ | d, -ed₂ | `duh.` | `dd.` | cut from "dog" |
-| 13 | /k/ | c, k, ck | `kuh.` | `kk.` | cut from "cat" |
-| 14 | /g/ | g | `guh.` | `gg.` | cut from "gum" |
-| 15 | /b/ | b | `buh.` | `bb.` | cut from "bed" |
-| 16 | /h/ | h | `hh.` | `hhh.` | cut from "hat" |
-| 17 | /r/ | r | `rrr.` | `rr.` | cut from "red" |
-| 18 | /l/ | l, ll | `lll.` | `luh.` | cut from "log" |
-| 19 | /w/ | w, wh | `wuh.` | `ww.` | cut from "wet" |
-| 20 | /dʒ/ | j | `juh.` | `jj.` | cut from "jam" |
-| 21 | /j/ | y | `yuh.` | `yy.` | cut from "yes" |
-| 22 | /ks/ | x | `ks.` | `kss.` | cut from "fox" |
-| 23 | /kw/ | qu | `kw.` | `kwuh.` | cut from "quiz" |
-| 24 | /v/ | v | `vvv.` | `vv.` | cut from "van" |
-| 25 | /z/ | z, zz, -s₂ | `zzz.` | `zz.` | cut from "zip" |
-| 26 | /ʃ/ | sh | `shh.` | `sh.` | cut from "ship" |
-| 27 | /tʃ/ | ch | `ch.` | `chuh.` | cut from "chip" |
-| 28 | /θ/ | th | `thh.` | `th.` | cut from "thin" |
-| 29 | /ð/ | th₂ | `dhh.` | `thhh.` (voiced) | cut from "this" |
-| 30 | /ŋ/ | ng | `ng.` | `nng.` | cut from "ring" |
-| 31 | /ŋk/ | nk | `nk.` | `ngk.` | cut from "sink" |
-| 32 | /eɪ/ | a_e, ai, ay | `ay.` | `aay.` | (the letter name of `a` is this sound: allowed) |
-| 33 | /aɪ/ | i_e, igh | `eye.` | `aye.` | |
-| 34 | /oʊ/ | o_e, oa, ow | `oh.` | `owe.` | |
-| 35 | /uː/ | u_e, oo | `oo.` | `ooh.` | |
-| 36 | /juː/ | u_e₂ | `you.` | `yoo.` | |
-| 37 | /iː/ | ee, ea | `ee.` | `eee.` | |
-| 38 | /ɪz/ | -es | `iz.` | `uz.` | cut from "boxes" |
-| 39 | /ɪd/ | -ed₃ | `id.` | `ud.` | cut from "landed" |
-| 40 | /ɪŋ/ | -ing | `ing.` | `ihng.` | cut from "singing" |
-| 41 | /ɑr/ | ar | `ar.` | `arr.` | (the letter name of `r` is this sound) |
-| 42 | /ɔr/ | or | `or.` | `orr.` | |
-| 43 | /ɝ/ | er, ir, ur | `er.` | `ur.` | |
-| 44 | /aʊ/ | ou, ow₂ | `ow.` | `ou.` | |
-| 45 | /ɔɪ/ | oi, oy | `oy.` | `oi.` | |
-| 46 | /ɔ/ | aw | `aw.` | `awe.` | |
-| 47 | /ʊ/ | oo₂ | `uu.` | `uuh.` | cut from "book" (expect this one to be hard) |
+| 1 | /æ/ | a | `aa` | cat | said too long; shortened cuts (0.22 / 0.30 s) in review |
+| 2 | /ɛ/ | e, ea₂ | `eh` | bed | to make (a cut from a word is the fallback) |
+| 3 | /ɪ/ | i | `ih` | sit | approved (take B) |
+| 4 | /ɑ/ | o | `ah` | hot | approved |
+| 5 | /ʌ/ | u | `uh` | up | to make (a cut from a word is the fallback) |
+| 6 | /m/ | m | `mmm` | map | approved |
+| 7 | /s/ | s, ss, -s | `sss` | sun | approved |
+| 8 | /t/ | t, -ed | `t` | top | approved |
+| 9 | /p/ | p | `puh` | pan | to make (a cut from a word is the fallback) |
+| 10 | /f/ | f, ff | `fff` | fan | to make (a cut from a word is the fallback) |
+| 11 | /n/ | n | `nnn` | net | to make (a cut from a word is the fallback) |
+| 12 | /d/ | d, -ed₂ | `duh` | dog | to make (a cut from a word is the fallback) |
+| 13 | /k/ | c, k, ck | `kuh` | cat | to make (a cut from a word is the fallback) |
+| 14 | /g/ | g | `guh` | gum | to make (a cut from a word is the fallback) |
+| 15 | /b/ | b | `b` | bed | approved (a small "uh" after it) |
+| 16 | /h/ | h | `hh` | hat | to make (a cut from a word is the fallback) |
+| 17 | /r/ | r | `rrr` | red | to make (a cut from a word is the fallback) |
+| 18 | /l/ | l, ll | `lll` | log | to make (a cut from a word is the fallback) |
+| 19 | /w/ | w, wh | `wuh` | wet | to make (a cut from a word is the fallback) |
+| 20 | /dʒ/ | j | `juh` | jam | to make (a cut from a word is the fallback) |
+| 21 | /j/ | y | `yuh` | yes | to make (a cut from a word is the fallback) |
+| 22 | /ks/ | x | `ks` | fox (at the end) | to make (a cut from a word is the fallback) |
+| 23 | /kw/ | qu | `kw` | quiz | to make (a cut from a word is the fallback) |
+| 24 | /v/ | v | `vvv` | van | to make (a cut from a word is the fallback) |
+| 25 | /z/ | z, zz, -s₂ | `zzz` | zip | to make (a cut from a word is the fallback) |
+| 26 | /ʃ/ | sh | `shh` | ship | approved |
+| 27 | /tʃ/ | ch | `ch` | chip | to make (a cut from a word is the fallback) |
+| 28 | /θ/ | th | `thh` | thin | to make (a cut from a word is the fallback) |
+| 29 | /ð/ | th₂ | `dhh` | this | to make (a cut from a word is the fallback) |
+| 30 | /ŋ/ | ng | `ng` | ring (at the end) | to make (a cut from a word is the fallback) |
+| 31 | /ŋk/ | nk | `nk` | sink (at the end) | to make (a cut from a word is the fallback) |
+| 32 | /eɪ/ | a_e, ai, ay | `ay` | cake | to make |
+| 33 | /aɪ/ | i_e, igh | `eye` | kite | to make |
+| 34 | /oʊ/ | o_e, oa, ow | `oh` | boat | to make |
+| 35 | /uː/ | u_e, oo | `oo` | moon | to make |
+| 36 | /juː/ | u_e₂ | `you` | cute | to make |
+| 37 | /iː/ | ee, ea | `ee` | tree | to make |
+| 38 | /ɪz/ | -es | `iz` | boxes (the ending) | to make (a cut from a word is the fallback) |
+| 39 | /ɪd/ | -ed₃ | `id` | landed (the ending) | to make (a cut from a word is the fallback) |
+| 40 | /ɪŋ/ | -ing | `ing` | singing (the ending) | to make (a cut from a word is the fallback) |
+| 41 | /ɑr/ | ar | `ar` | car | to make |
+| 42 | /ɔr/ | or | `or` | fork | to make |
+| 43 | /ɝ/ | er, ir, ur | `er` | bird | to make |
+| 44 | /aʊ/ | ou, ow₂ | `ow` | cow | to make |
+| 45 | /ɔɪ/ | oi, oy | `oy` | boy | to make |
+| 46 | /ɔ/ | aw | `aw` | saw | to make |
+| 47 | /ʊ/ | oo₂ | `uu` | book | to make (a cut from a word is the fallback) |
 
 A stop sound (rows 8, 9, 12–15, 20, 21, 27) cannot be held;
 its take is a short burst with the least vowel (design Part 10), measured for length and voiced bursts.
@@ -882,36 +928,32 @@ and a full stop ("B."), where the letter name is wanted.
 
 ### 3.2 Words, heart words, phrases
 
-- **Real words (312)** and **picture-only words (39)**: one take each (rule: the review exception for large sets of real
-  words). Text: the word and a full stop (`fish.`), never in a carrier phrase.
-- **Heart words (33)**: one take each. `I` is spoken from `I.`; `a` from `a.` may give the letter name /eɪ/: in the
-  spike, also try `uh.` and keep the take that says the word as in "a cat" (/ə/), or reword around it.
-- **Door phrases (18)**: one take each, played when the door opens (as Book 2's door words).
+- **Real words (313)** and **picture-only words (38)**: one take each (rule: the review exception for large sets of real
+  words), text `[warm, clear] fish`, never in a carrier phrase. The longer direction `[warmly and clearly, said once]` leaked
+  into the audio in 2 of 9 tests, so the direction is kept short and the screen checks the transcript.
+- **Heart words (33)**: one take each, the same direction. `a` is said as in "a cat" (/ə/), never the letter name: try `a`
+  and `uh` and keep the one the listener hears as "uh".
+- **Door phrases (18)**: one take each, `[warm, clear] a big duck`, played when the door opens (as Book 2's door words).
 - **Two-syllable words** (sister, winter, under, jumping…): check the stress by measurement (rule).
+- **The approved word take is also the hint's slow word** (3.4): one take serves both.
 
 ### 3.3 Nonsense words (102)
 
-The voice may spell a nonsense word out ("vap." → "V, A, P"). Candidates, tried in the spike on 8 words:
-1. as a name, with a capital: `Vap.` (a name is read as a word);
-2. a respelling that is still one syllable and only one way to read it: `vapp.`, `chimm.`, `slukk.`;
-3. inside quotes: `"vap."`.
-Each take is checked by an open question to a listener ("what is said, how many syllables, any letter names?") and
-measured. Two takes each. Text on the screen stays the lowercase spelling (rule: change the spoken text, not the screen).
+Text: `[one made-up word, read as a word that rhymes with map, not spelled out] vap`: the direction names a real word that
+rhymes, so the vowel and the ending are clear. The parent approved all 8 of the test (tam, nif, vap, chim, pove, zarn,
+voam, sluk). Each of the 102 gets a rhyme word in its request (the builder picks it from the word lists; for a vowel team,
+a word with the same team: voam → foam). One take each, a second only if the screen fails it. Text on the screen stays the
+lowercase spelling (rule: change the spoken text, not the screen).
 
-### 3.4 Blends (414)
+### 3.4 The hint's slow word (no recordings of its own)
 
-A blend is the hint's stretched word ("fffiiish"). My call: the blend clip holds only the stretched part; the normal
-word plays from the word's own take right after it, so each word has one approved normal take. There is one blend for
-each real word (312) and each nonsense word (102), because the tower's name rounds show nonsense words, and the hint on a
-read-to-choose screen reads each word on the screen (design Part 5). The design counted about 250 blends.
-
-- Continuants are held evenly, stops are short at their place: `sssaaat.`, `fffiiishhh.`, `caaat.`, `dooog.`
-- Candidates for the spike: A `fffiiishhh.` (letters repeated), B the same with each part longer, C `[slowly] fish.` if
-  the model's tag gives an even stretch (check that it adds no decoration: rule).
-- Each blend is measured (length, the even level of each held part) and its unit timings are found from the TTS
-  character timestamps, checked by measurement (design Part 10). Two takes each. Played at 1.0×.
-- Fallbacks if the spike fails (design Part 10): joined from unit recordings with short cross-fades, or the parent's own
-  recordings.
+The parent's method (2026-11-17: "wouldn't it be better to just halve the speed with pitch correction?"), now in the
+design: the hint plays the approved word take at **0.5× with the pitch kept**. It is made from the word's file (WSOLA
+time stretch, host-local `slow_blend.py`), so it needs no TTS request and no review of its own beyond a sample. The unit
+light times are the word's own times scaled by 2: Gemini TTS returns no character timestamps, so the builder finds them
+by a forced alignment of each word take (or by measurement), once per word. This replaces the 414 stretched recordings of
+the first plan. Six slow words (sat, fish, map, cat, frog, pin) in two stretch settings are in the parent's review now; a
+listener hears each as the natural word.
 
 ### 3.5 Voice lines
 
@@ -923,17 +965,18 @@ Every Hebrew line of the run that the English run uses, as an English-speaking a
 "wizard" too. No line says he/she or his/her. (If the parent wants "witch" or "sorceress", every line with "wizard" gets a
 girl form: about 8 lines.)
 
-**Voice:** Will on eleven_v4, language code `en` (the parent: "american english and Will are fine"). **Finding:** the
-clock game has no English takes by Will. Its narrator was changed to Charlotte in the style test (2026-10-15), so its
-257 English takes are Charlotte's (and the animal customers'). Their settings are the only English reference: lines at
-stability 0.4 with `[warmly]`, and 0 with `[playful]`. Will's English is first heard in the spike (Part 4.1). The
-merchant has his own voice in Hebrew; the spike checks whether it speaks English well, and if not, the parent picks an
-English voice for him.
+**Voice: Puck** (Gemini TTS `gemini-3.8-flash-tts`), for every line, word, sound and nonsense word of the English path
+(the parent, 2026-11-17: "puck voice is great"; it replaces Will). One voice for every role except the merchant.
 
-Stability and tags (rules: Voice):
-- **D** dramatic: stability 0, `[excited]`, `[amazed]` or `[booming]`.
-- **I** instruction and content: stability 0.5 or lower, one tag per sentence (`[warmly]`, `[playful]`).
-- **M** merchant: his voice, 0.5, `[playful]`.
+**The merchant** keeps a voice of his own (rule: each voice one role): a second Gemini voice, for the parent to pick, each
+heard saying m-hello-1 and m-short-1: **Algenib** (gravelly, a market trader), **Gacrux** (mature, warm), **Umbriel**
+(easy-going), **Sadachbia** (lively). My pick: Algenib, the most unlike Puck.
+
+**Directions** (the bracket at the start is not read aloud; no "!" in the text):
+- dramatic lines (D): `[excited, to a 7-year-old]`, `[amazed, to a 7-year-old]`, `[booming]`;
+- instructions and content (I): `[warmly, to a 7-year-old]` or `[playfully, to a 7-year-old]`;
+- the merchant (M): `[playful, a friendly market trader]`.
+A line with two sentences keeps one direction; a pause of 0.7–0.9 s between sentences is an audio edit if needed.
 
 #### From Book 2's `lines.ts` (74 texts)
 
@@ -952,7 +995,7 @@ Stability and tags (rules: Voice):
 | run-end | out of hearts (no praise, not sad) | Out of hearts. Play again? · That's it for this time. Want to play again? · The round is over. One more? | I warmly |
 | defeat | the dizzy wizard falls | Oops, they won this time. · Oh no, the magic ran out this time. | I playful |
 | new-best | summary: a new best | A new record. · You beat your record. | D excited |
-| explain-lead | after a mistake, before the blend | Let's read it slowly. | I warmly |
+| explain-lead | after a mistake, before the slow word | Let's read it slowly. | I warmly |
 | boss-arrive | a flight boss; then the first target | Here comes a monster. To beat it, catch what I say: · A monster in the sky. Let's beat it. Catch: · Oh, a monster's here. Catch what I say: | D excited |
 | boss-win | the boss is beaten | You beat the monster. · Wow, you scared the monster away. · What a spell. You beat it. | D excited |
 | boss-new | first win against a kind of boss | You beat a new monster. Now it's on your shelf. | D amazed |
@@ -1054,156 +1097,135 @@ spelling's tile glows while the line plays. The "heart word" and "magic e" names
 **Line totals:** 74 + 27 + 13 + 25 = **139 texts**, 0 girl forms. A native reviewer (a person, or a model told to act
 as a US kindergarten teacher) checks each line in its sequence before generation (rule). Sequences to read aloud as a
 whole, at least: tower picture round (new monster → how-A → tap → unit sound → word); broom start (demo-broom-sound →
-sound); cauldron miss (right tile glows → word → every second miss: explain-lead → blend → word); door wait (q-door, then
+sound); cauldron miss (right tile glows → word → every second miss: explain-lead → slow word → word); door wait (q-door, then
 no word); spell book (demo-spell → word → each drop's unit sound → word); merchant first visit (m-hello → D1–D4).
 
-### 3.6 Voice settings per kind
+### 3.6 Voice settings, screening and pacing
 
-| Kind | Stability | Tag | Text form | Takes |
-|---|---|---|---|---|
-| Sound unit | 1.0 | none (rule: no tag on a single sound) | spelling + "." | 2 spellings × 2 takes, then 2 takes of the chosen spelling |
-| Letter name | 1.0 | none | "B." | 2 |
-| Word, picture-only word, heart word | 1.0, no tag (Book 2's approved words) **or** 0.5 `[warmly]`: the spike decides | — | "fish." | 1 |
-| Door phrase | 0.5 | `[warmly]` | "a big duck." | 1 |
-| Nonsense word | 1.0 | none | the spelling that the spike chooses | 2 |
-| Blend | 1.0 (an even hold) | none, or `[slowly]` if the spike keeps it | "fffiiishhh." | 2 |
-| Instruction / content line | 0.5 (try 0.4, the clock's English value) | one per sentence | as in 3.5 | 2 |
-| Dramatic line | 0 | `[excited]` `[amazed]` `[booming]` | as in 3.5 | 2 |
-| Merchant | 0.5 | `[playful]` | as in 3.5 | 2 |
+| Kind | Request text (Gemini TTS, voice Puck) | Candidates | To the parent |
+|---|---|---|---|
+| Sound unit | `[phonics sound only, not the letter name, said once] mmm` and `[phonics sound: the short vowel in "cat"; not the letter name] aa` | 2 directions + a cut where it helps | the best 1–2 that pass |
+| Letter name | `[clearly, the letter name] B` | 2 | 1–2 |
+| Word, picture-only word, heart word | `[warm, clear] fish` | 1 (a second only if the screen fails it) | 1 (sample review) |
+| Door phrase | `[warm, clear] a big duck` | 1 | 1 |
+| Nonsense word | `[one made-up word, read as a word that rhymes with map, not spelled out] vap` | 1 | 1 |
+| Slow word (hint) | none: the word take at 0.5×, pitch kept (3.4) | — | a sample |
+| Instruction / content line | `[warmly, to a 7-year-old] …` | 2 | the best 1–2 |
+| Dramatic line | `[excited, to a 7-year-old] …` | 2 | the best 1–2 |
+| Merchant | his voice, `[playful, a friendly market trader] …` | 2 | the best 1–2 |
 
-All: eleven_v4, `language_code: "en"`, speech played at 1.15× except blends (1.0×), silence cut at both ends, 0.7–0.9 s
-between two sentences (an audio edit is allowed), every take measured (length, voiced bursts) before review.
+**Screening** (the parent: "why did you give it to me for review?" about a take my own check had failed; only takes that
+pass reach him):
+1. **Trim.** Every Gemini TTS clip ends with a full-scale glitch after a short silence; cut it, and the silence at both
+   ends (host-local `screen3.py`: a last short segment near the end, after a gap, with a peak above 0.85).
+2. **Measure:** length and voiced bursts (a sound: 1 burst; a stop sound about 0.2 s; a vowel or held sound at most about
+   0.3 s: the parent found 0.5 s "too prolonged").
+3. **Open listener:** a model hears the clip with no expected answer: what is said, how many syllables, any letter name,
+   an "uh" after a consonant, smooth or broken.
+4. **Vowel check** for vowel sounds: which of `cat, cot, cut, kit, get, kite, coat` has the same vowel.
+5. **Leak check:** the transcript must not hold words of the direction (2 of 9 word tests said "warmly and clearly").
+The listener is unsure on lone stop sounds (t heard as t, p or "kuh" across runs): those go to the parent with a note.
+
+**Pacing.** The interactive Gemini TTS endpoint answered 429 (quota) after a few parallel calls; about one call in 7 s
+works (about 500 an hour). For the bulk, use the Batch API (`batchGenerateContent` is listed for
+`gemini-3.8-flash-tts`; the pictures' batch of 108 finished in under an hour), then screen, then retake the failures
+interactively. Speech plays at 1.15× in the game (rule), slow words at 0.5× of the word take.
 
 ### 3.7 Sound totals
 
-| Kind | Items | Takes per item | Clips |
+| Kind | Items | Requests | To review |
 |---|---|---|---|
-| Sound recordings | 47 | 4 (2 spellings × 2), cuts are free | 188 |
-| Letter names | 8 | 2 | 16 |
-| Real words | 312 | 1 | 312 |
-| Picture-only words | 39 | 1 | 39 |
-| Heart words | 33 | 1 | 33 |
-| Door phrases | 18 | 1 | 18 |
-| Nonsense words | 102 | 2 | 204 |
-| Blends | 414 | 2 | 828 |
-| Voice lines | 139 | 2 | 278 |
-| **Total (before retakes)** | **1,112 items** | | **1,916 clips** |
+| Sound recordings | 47 (8 done or in review) | about 120 (39 × 3) | 1–2 each |
+| Letter names | 8 | 16 | 1–2 each |
+| Real words | 313 | 313 | a sample + all flagged |
+| Picture-only words | 38 | 38 | a sample + all flagged |
+| Heart words | 33 | 33 | all |
+| Door phrases | 18 | 18 | all |
+| Nonsense words | 102 (8 approved) | 94 | all |
+| Slow words | 313 + 102 | none (derived) | a sample |
+| Voice lines | 139 (5 approved) | about 270 (2 each) | the best 1–2 each |
+| Merchant voice audition | 4 voices | 8 | all |
+| **Total** | **about 1,100 items** | **about 910 requests**, plus about 25 % retakes | |
 
-Plus the spike (Part 4.1, about 150 clips) and retakes of rejected items. Sound effects and music: the Hebrew run's,
-unchanged (no new ones).
+Sound effects and music: the Hebrew run's, unchanged.
 
 ---
 
 ## Part 4 — Order of generation and review
 
-### 4.1 Step 0: recolour (no cost) and the voice spike (first, design Part 10)
+### 4.1 What is done (2026-11-17)
 
-1. **Recolour** the 31 files (2.5) and show the sheet. No API.
-2. **Voice spike** (about 150 clips, about 1,800 characters):
+1. **Recolour**: the 31 files, approved.
+2. **Pictures**: 107 + the spell book made and reviewed; 91 kept, 16 dropped, 19 redrawn (2.3).
+3. **Voice tests**:
+   - Test 1, ElevenLabs Will (v4), 144 clips: doubled-letter spellings read as letter names, nonsense words became real
+     words ("vape"), stretched blends broke or moaned. The parent: "the audio is garbage".
+   - Test 2, ElevenLabs IPA phoneme tags (flash/turbo v2): tags ignored. Never shown to the parent (it failed the screen).
+   - Test 3, Gemini TTS Puck with bracket directions: 28 takes passed the screen. The parent approved the voice ("puck
+     voice is great"), all 8 nonsense words, the sounds m, s, sh, o, t, b, i, and the test words and lines. Short a was
+     "too prolonged"; the stretched blends "sound weird".
+   - Now in review: short a cut to 0.22 / 0.30 s, and six slow words at 0.5× (his method).
 
-   | Group | Items | Clips |
-   |---|---|---|
-   | Sounds | m, s, a, i, o (continuants and vowels), t, b (stops), sh | 8 × 3 routes × 2 takes = 48 (cuts made from the word takes below) |
-   | Nonsense | tam, nif, vap, chim, sluk, pove, zarn, voam | 8 × 3 spellings × 2 = 48 |
-   | Blends | sat, map, fish, pin, cat, dog, frog, cake | 8 × 2 spellings × 2 = 32, plus `[slowly]` on 4 = 4 |
-   | Words | sat, map, fish, pin, cat, dog, frog, cake | 8 × 2 settings (1.0 none, 0.5 warmly) = 16 |
-   | Lines | q-door-1, streak-1, demo-broom-sound, m-hello-1 (merchant voice) | 4 × 2 = 8 |
-   | Heart word `a` | `a.` and `uh.` | 2 × 2 = 4 |
+### 4.2 Next, in this order
 
-   The parent listens on the review page; a check finds each unit's timing inside each blend from the character
-   timestamps, checked by measurement. Nothing else is generated until the parent accepts the spike or a fallback.
-
-### 4.2 Then by stage
-
-Each stage is one batch, generated in the order the game needs it (rule), and reviewed before the next stage's batch is
-heard (generation can run ahead: rule "do not stop work while a review is open").
-
-| Batch | Contents |
-|---|---|
-| Stage 1 | the spell book sprite; the 8 stage-1 sounds; 24 words, 13 picture-only words, 4 heart words, 12 nonsense, 36 blends; pictures: stage-1 new (8) + the later-stage pictures that stage 1 needs (sun, sock, tent, pig, fish, fox, nest, net) + the test takes' second takes; **all 139 voice lines** (every screen opens at stage 1 except the ghosts); placement stage 1 |
-| Stage 2 | 7 sounds, letter names b d p n u, words, nonsense, blends, heart words, pictures, placement |
-| Stage 3 | 11 sounds, letter names m w h, … |
-| Stage 4 | 11 sounds + th₂, phrases of stage 4, … |
-| Stages 5–9 | the same; stage 7 adds the second readings `-s₂ -ed₂ -ed₃`, stage 9 `oo₂ ow₂ ea₂`, stage 6 `u_e₂` |
-
-On staging the placement walk uses only the stages whose content exists (design), so each stage's batch includes its
-placement items.
+1. The parent decides short a and the slow words (in review now).
+2. **The merchant's voice**: 4 Gemini voices × 2 lines (3.5); the parent picks.
+3. **Stage 1 batch**: the stage-1 sounds still to make (p, f, n); 24 words, 13 picture-only words, 4 heart words, 12
+   nonsense words, their slow words; **all 139 lines** (every screen opens at stage 1 except the ghosts); the stage-1
+   placement words. Batch request, screen, then the review page.
+4. **Stages 2–9**, one batch per stage, in the order the game needs them (rule), each reviewed before the next is heard
+   (generation can run ahead: rule "do not stop work while a review is open"). Stage 2 adds the letter names b d p n u,
+   stage 3 m w h; stage 4 `th₂` and the stage-4 phrases; stage 6 `u_e₂`; stage 7 `-s₂ -ed₂ -ed₃`; stage 9 `oo₂ ow₂ ea₂`.
+No bulk audio before the parent says so.
 
 ### 4.3 The review page
 
-The Book 2 review page layout, one section per stage, the same controls in every section (rule):
-- **Needs you** first: the flagged takes and the items in 2.6, each with one line on what to check.
-- **Sounds:** the unit in Andika beside its picture words (rule: a visual of the game context); the label shows the
-  spelling route ("Will · v4 · en · `mmm.` · take 1").
-- **Pictures:** no caption (rule); a field for the name the parent (or the child) says; also shown inside their round
-  (the monster's cape with the three runes) where that is ambiguous.
-- **Words / heart words / phrases:** with the picture, or the word in Andika (phrases on a door plate). Large set: checked
-  automatically (speech-to-text against the text, length); the parent hears a sample of each pattern and all flagged
-  takes, with "play all".
-- **Nonsense:** the word in Andika; the listener's open-question answer shown.
-- **Blends:** the word in Andika with its unit underlines lighting up from the measured timings, as the hint will show
-  them.
-- **Lines:** in their sequences (what plays before and after), so the parent hears each in context.
-
-**One take** (rule exception: real words in a large set): real words, picture-only words, heart words, phrases. **Two
-or more:** sounds, letter names, nonsense, blends, voice lines, pictures (2 each, the spell book 4). New takes only for
-an item the parent rejects; the current pick stays the first option (rule).
+The alef review kit (one server for all games). The builder writes
+`manifest.json` (items and takes), `checks.json` (the screen's results by file) and `focus.json` (the "Check:" line of
+each item that needs him); the kit's log holds his decisions, and agents answer, retire and withdraw through its CLI,
+never by editing a decision file. Sections per stage and kind. Pictures show their word only on hover or tap. Each take's
+label names the model and voice ("Gemini 3.8 Flash TTS · Puck · trimmed"). One take: real words, picture-only words,
+heart words, phrases, nonsense words. Up to two: sounds, letter names, lines. New takes only for an item he rejects; the
+current pick stays the first option (rule).
 
 ---
 
 ## Part 5 — Totals and cost
 
-### 5.1 Images
+### 5.1 Images (spent)
 
-| Item | Count | Takes | Images |
+| Item | Images | Route | Cost |
 |---|---|---|---|
-| New pictures | 107 | 2 | 214 |
-| Made again after review (about 20 %, the design's figure) | 21 | 2 | 42 |
-| Test takes: one more take each | 6 | 1 | 6 |
-| Spell book sprite | 1 | 4 | 4 |
-| **Total** | | | **266 × P_img** |
+| 107 pictures + the spell book, 1 take | 108 | Batch API (half price) | about $2.1 |
+| Redraws after the first review, 20 × 2 | 40 | Batch API | about $0.8 |
+| Retakes for leftover magenta, and cats and sled after the second review | 8 | interactive | about $0.3 |
+| **Total** | **156** | | **about $3.3 of the $10 cap** |
 
-| P_img | $0.04 | $0.08 | $0.15 |
+### 5.2 Voice (to spend)
+
+Gemini TTS bills audio output tokens (about 25 per second of speech; the tests used about 46 tokens per short clip,
+including silence and the end glitch).
+
+| Kind | Requests | Seconds each | Output tokens |
 |---|---|---|---|
-| 2 takes (266 images) | $10.6 | $21.3 | $39.9 |
-| 1 take (107 + 21 redo + 4 = 132 images; the test takes kept as they are) | $5.3 | $10.6 | $19.8 |
+| Sounds, letter names | about 136 | 0.5–1.5 | about 6,000 |
+| Words, heart words, picture-only words, phrases, nonsense | about 500 | 1–2 | about 23,000 |
+| Lines and the merchant audition | about 280 | 3–5 | about 28,000 |
+| Retakes (about 25 %) | about 230 | | about 14,000 |
+| **Total** | **about 1,150** | | **about 71,000** |
 
-A batch mode at half price, if the chosen route has one, halves each figure. The recolour costs nothing.
-
-### 5.2 Voice
-
-Characters per take are estimates from the texts in this plan (Book 2's shipped lines average 49 characters with their
-tags and nikkud).
-
-| Kind | Clips | Characters per clip | Characters |
-|---|---|---|---|
-| Sounds | 188 | 6 | 1,128 |
-| Letter names | 16 | 3 | 48 |
-| Words, picture-only words, heart words | 384 | 7 (16 with a `[warmly]` tag) | 2,688 (6,144) |
-| Phrases | 18 | 22 | 396 |
-| Nonsense | 204 | 7 | 1,428 |
-| Blends | 828 | 13 | 10,764 |
-| Lines | 278 | 62 | 17,236 |
-| Spike | 150 | 12 | 1,800 |
-| **Subtotal** | **2,066** | | **35,488** (38,944 with tags on words) |
-| Retakes (about 20 %) | | | 7,100–7,800 |
-| **Total** | | | **about 43,000–47,000 characters** |
-
-Cost = characters / 1,000 × P_kc. At P_kc = $0.15, $0.30 or $0.50: about $7, $14 or $23. If the plan bills one credit
-per character, it is about 45,000 credits.
+Cost = 71,000 / 1,000,000 × P_tok (the price per million audio output tokens), halved on the Batch API. At $10, $20 or $40
+per million: about $0.70, $1.40 or $2.80 (half on batch). The listener screen adds about 1,500 short audio-input calls to a
+flash model: cents. Spent so far on voice: 314 ElevenLabs credits (tests 1–2) and well under $0.10 of Gemini TTS.
 
 ### 5.3 Assumptions
 
-- The image price is per image, the same for every subject; no free retries.
-- 20 % of the new pictures are made again (the design's figure); a picture whose name fails review is replaced by another
-  word, not re-taken, so this may be lower.
-- Voice is billed per character of the spoken text, tags included; a failed request is not billed. eleven_v4's rate per
-  character is not known here: check it before the spike.
-- The blend count assumes one blend per nonsense word (the hint on name rounds). Without it: 312 blends, about 2,650
-  characters less.
-- The merchant keeps his Hebrew voice in English (no extra cost either way).
-- The sound recordings' route C (cuts) costs nothing.
-- The test takes (6) are kept as one of the two takes.
+- P_tok for `gemini-3.8-flash-tts` is not known here: check the price page before the stage-1 batch. Even at four times
+  the estimate, the voice stays under $12.
+- About 25 % of requests fail the screen and are made again (the tests: 2 of 9 words leaked a direction, 4 of 16 sounds
+  failed).
+- Slow words cost nothing (made from the word takes); their unit times come from a forced alignment of each word take.
+- The merchant's second Gemini voice costs the same as Puck.
 
 ---
 
@@ -1211,26 +1233,21 @@ per character, it is about 45,000 credits.
 
 ### 6.1 Open questions (each changes what is made)
 
-1. **The image budget.** 266 images with 2 takes each (about $11–$40 by the model's price), or 132 with 1 take each
-   (about $5–$20), since the cheaper-model test "looks perfectly fine"? What is the spending limit (rule: agree before a
-   paid API)? Recommendation: 1 take for the plain objects and animals, 2 for the names marked **?** in 2.3 and the
-   new sprite.
-2. **The word list size.** It has 312 real words, not about 250 (62 tracked units, the chains, sets and placement need
-   them). Keep it, or trim to about 250 (the words with no specific use in Part 1 go first; about 60 words and 60 blends
-   fewer)? Recommendation: keep it; the cost difference is about $2.
-3. **The Hebrew spell book** (design Part 7): in this build? If yes, the same sprite serves (it is generated purple) and
-   the Hebrew lines `demo-spell`, `q-spell` (3) and their girl forms are added (about 8 Hebrew texts).
-4. **Phrase doors.** The key shows only the noun's picture, so he can find it by reading the noun alone. Keep it, or add
-   colour pairs of the same noun (a red car and a blue car) so that the whole phrase must be read (about 12 more
-   pictures)? Recommendation: keep it for the first version.
+Answered: the image route and budget (Flash, Batch API, 1 take, $10 cap), the word list size (keep it), phrase doors
+(the noun's picture only), the voice (Puck), the hint's slow word (half speed, pitch kept). Still open:
+1. **Short a and the slow words** (in review now).
+2. **The merchant's voice**: Algenib, Gacrux, Umbriel or Sadachbia (3.5).
+3. **Words for a child in Israel** (1.18): keep or replace snow, stamp, barn, igloo?
+4. **The Hebrew spell book** (design Part 7): in this build? If yes, the same sprite serves, and the Hebrew lines
+   `demo-spell`, `q-spell` (3) and their girl forms are added (about 8 Hebrew texts).
 
 ### 6.2 Calls made here (not confirmed by the parent)
 
 - Second readings beyond the design's list: `th` /θ/ first and /ð/ second; `u_e` /uː/ first and /juː/ second; `-s` /s/
   first and /z/ second; `-ed` /t/, then /d/, then /ɪd/. Each second reading is its own item, later in its stage.
 - `no` is a heart word (stage 2), so the ghosts can use `on · no`.
-- Units with one picture or none (`i`, `u`, `qu`, `th`; `ff`, `zz`, `th₂`, `er`) are asked by sound and in word rounds;
-  no weak picture is forced on them. `o` has two uncertain names (ostrich, otter).
+- Units with one picture or none (`i`, `u`, `qu`, `o`, `y`, `g`, `nk`; `th`, `ff`, `zz`, `th₂`, `er`) are asked by sound and
+  in word rounds; no weak picture is forced on them.
 - Pictures rejected: soccer ball, eye, island, the "shh" face, rose (he may say "flower"), and the octopus (the tower has
   an octopus monster).
 - The design's nonsense examples `bod` (slang) replaced, and nonsense words that sound like real words (`taip` "tape",
@@ -1240,18 +1257,18 @@ per character, it is about 45,000 credits.
 - In stage 5 a ladder rung may add or remove one consonant (`lip → slip`).
 - Placement choices that differ only in a unit of the stage: the design's `vap · vip · map` became `vap · zap · lap`.
 - The spell book shows its picture in stages 1–3 only.
-- The blend clip is the stretched part only; the normal word take follows it.
-- One blend per nonsense word (because the hint reads the tower's name runes).
+- Nonsense words get slow words too (the hint reads the tower's name runes); they are derived, so they cost nothing.
 - No girl forms in English (a girl is a "wizard" too, as the design says).
 - `spell-near` does not name letters; the other spelling's tile glows instead.
-- **The crystals are recoloured**, as the design's props list says, though the design also says rewards look the same in
-  both paths. If the parent wants the crystals the same in both paths, 4 files drop from the recolour list (no cost).
-- The spell book sprite is generated purple and recoloured, so it serves the Hebrew spell book too.
+- The crystals are recoloured (the parent approved all recolours, 2026-11-17).
+- The spell book sprite uses the test's brown leather book, so it needs no recolour and serves a Hebrew spell book too.
+- Word swaps for a child in Israel (1.18): sled, skunk, cane, cork, coal replaced.
 
 ### 6.3 For the builder
 
 - A script checks every word, chain, set, round and phrase in Part 1: units only of the stage or below, every on-screen
   word in a list, no chain asks a word twice, nonsense not in a dictionary and not a homophone of a word in one.
-- Look again for Will takes in any English material before the spike (none found in the clock game; its narrator is
-  Charlotte).
+- Gemini TTS gives no character timestamps: find each word take's unit times by a forced alignment, for the hint's
+  lights (scaled by 2 for the slow word).
+- Keep the screen strict: the parent sees only takes that pass it.
 - The first duel's tower lines: confirm which ones the run's tower still plays (13 are drafted).
