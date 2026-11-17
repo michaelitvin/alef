@@ -170,13 +170,16 @@ function trimToLength(evs: TelemetryEvent[], maxLen: number, sealed: readonly st
 }
 
 /**
- * Shorten the stored log `key` by at least `chars` characters, oldest events first, from `evs` (the instance's events, or
- * the stored ones). Gives the characters it freed; 0 if it could not write.
+ * Shorten the stored log `key` by at least `chars` characters, from `evs` (the instance's events, or the stored ones):
+ * first the copies of chunks it still holds, then its oldest events. Gives the characters it freed; 0 if it could not
+ * write.
  */
-function shrinkStored(key: string, chars: number, evs: TelemetryEvent[], sealed: readonly string[]): number {
+function shrinkStored(key: string, chars: number, evs: TelemetryEvent[], sealed: string[]): number {
   let stored = 0
   try { stored = localStorage.getItem(key)?.length ?? 0 } catch { return 0 }
   if (stored === 0) return 0
+  // first the copies of sealed and evicted chunks: they are not history to lose (and a trimmed copy no longer matches)
+  reconcile(key, evs, sealed)
   const json = trimToLength(evs, stored - chars, sealed)
   try {
     if (json === null) localStorage.removeItem(key)

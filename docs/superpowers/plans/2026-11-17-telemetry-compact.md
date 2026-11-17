@@ -272,9 +272,20 @@ sealed write, then after the open rewrite) loses and doubles nothing; two instan
 flushes its older view after) lose and double nothing; a throwing Storage never throws out of `track`/`flush`.
 
 **Acceptance:** the Task 1 goldens match through the chunked path; the Data section tests pass unchanged except Clear.
-**Risks:** two tabs on one log (today's last-writer-wins stays; Decision 5 prevents doubles; a tab that flushes an
-older view after a chunk was evicted brings those events back into the open chunk, which costs space, not data); idle
+**Risks:** two tabs on one log (today's last-writer-wins stays; Decision 5 prevents doubles; idle
 callback never firing on a hidden page (the next load seals). **Size:** M.
+
+> **Correction (review, 2026-11-17).** The first risk note said that a tab that flushes an older view after a chunk was
+> evicted "costs space, not data". That was wrong: the events came back raw while the roll-up already counted them (a
+> double), and the next seal sealed them again under the same key and folded them a second time (`folded` had been
+> pruned to keys that exist). The same happened when the open-chunk rewrite after a seal failed on a full storage and the
+> budget (or a save's `freeChunks`) evicted the chunk anyway. Now: (1) a chunk is evicted only when the STORED open
+> chunk holds no copy of it (its `sealed` lists the chunk, or no run matches); (2) an evicted chunk leaves a tombstone
+> in the roll-up's `folded` (`k`, `s`, `t0`, `t1`, `n`, `at`), and `readLog`, `logStats` and `reconcile` drop an open
+> run that matches one, so the events count once and are never sealed or folded again; (3) a save's open-chunk trim
+> drops such copies first. A tombstone is kept while its chunk exists, while the stored open chunk holds a copy, and for
+> 30 days after the eviction (`TOMB_KEEP_MS`). Limit: a tab that keeps a stale view for more than 30 days after the
+> eviction and then flushes it can still bring the events back once.
 
 ## Task 5: Migration of the live logs
 
@@ -316,8 +327,8 @@ spreads the work over more idle slots. **Size:** M.
       roll-up keys count in `ROLLUP_BUDGET`, not here; never a frozen key). Past the budget, evict the oldest sealed
       chunk by `t0` across all logs, folding it first (Task 7). Production never evicts a chunk younger than 30 days in
       budget eviction; staging may. Unreadable chunks are never evicted.
-- [ ] Fold and evict are idempotent: the roll-up records the keys it folded (`folded`, pruned to keys that still
-      exist). Order: write the roll-up with the key in `folded`, then remove the chunk. A crash between the two folds
+- [ ] Fold and evict are idempotent: the roll-up records the chunks it folded (`folded`: tombstones since the review,
+      see the correction under Task 4b). Order: write the roll-up with the key in `folded`, then remove the chunk. A crash between the two folds
       nothing twice (the next run sees the key and only removes the chunk).
 - [ ] The open chunk keeps a hard cap (`4 × OPEN_SEAL_CHARS`), a guard for a page that never idles: at the cap,
       `flush` seals the own session synchronously (one long frame, rare) instead of dropping events; it drops the

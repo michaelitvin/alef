@@ -131,23 +131,24 @@ describe('folding chunks into a roll-up', () => {
 describe('foldChunk', () => {
   const evs = bySession(book2Events({ days: 2 }))[0]!
   const k = chunkKey(BOOK2_LOG.key, evs[0]!.t, evs[0]!.s)
+  const span = { s: evs[0]!.s, t0: evs[0]!.t, t1: evs[evs.length - 1]!.t, n: evs.length }
 
   it('folds once: a second fold of the same chunk counts nothing', () => {
     localStorage.setItem(k, 'x')
-    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, evs, evs.length)).toBe(true)
+    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, span, evs)).toBe(true)
     const once = localStorage.getItem(rollupKey(BOOK2_LOG.key))
-    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, evs, evs.length)).toBe(true)
+    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, span, evs)).toBe(true)
     expect(localStorage.getItem(rollupKey(BOOK2_LOG.key))).toBe(once)
-    expect(readRollup(BOOK2_LOG.key).folded).toEqual([k])
+    expect(readRollup(BOOK2_LOG.key).folded.map((t) => t.k)).toEqual([k])
   })
 
   it('a chunk of an unregistered log only adds its count to dropped', () => {
-    expect(foldChunk('alef-gone-telemetry', undefined, 'alef-gone~1~s-telemetry', null, 12)).toBe(true)
+    expect(foldChunk('alef-gone-telemetry', undefined, 'alef-gone~1~s-telemetry', { s: 's', t0: 1, t1: 2, n: 12 }, null)).toBe(true)
     expect(readRollup('alef-gone-telemetry')).toMatchObject({ dropped: 12, days: {} })
   })
 
   it('a roll-up key is never copied by ?copy-prod', () => {
-    foldChunk(CLOCK_LOG.key, CLOCK_LOG, 'c', [], 0)
+    foldChunk(CLOCK_LOG.key, CLOCK_LOG, 'c', { s: 's', t0: 1, t1: 1, n: 0 }, [])
     localStorage.setItem(rollupKey(CLOCK_LOG.key), '{}')
     copyUnprefixedOver(localStorage, STAGING_PREFIX)
     expect(localStorage.getItem(STAGING_PREFIX + rollupKey(CLOCK_LOG.key))).toBeNull()

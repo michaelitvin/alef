@@ -61,7 +61,7 @@ describe('one shared budget', () => {
     expect(real.getItem(old)).toBeNull()
     expect(real.getItem(mid)).not.toBeNull()
     expect(real.getItem(young)).not.toBeNull()
-    expect(readRollup(a.key).folded).toEqual([old])
+    expect(readRollup(a.key).folded.map((t) => t.k)).toEqual([old])
   })
 
   it('production keeps every chunk of the last 30 days, even past the budget; staging may evict them', () => {
@@ -91,12 +91,12 @@ describe('one shared budget', () => {
     expect(evictChunk(k, [a])).toBe(0)
     remove.mockRestore()
     expect(real.getItem(k)).not.toBeNull()
-    expect(readRollup(a.key).folded).toEqual([k])
+    expect(readRollup(a.key).folded.map((t) => t.k)).toEqual([k])
     const once = real.getItem(rollupKey(a.key))
     expect(evictChunk(k, [a])).toBeGreaterThan(0)
     expect(real.getItem(k)).toBeNull()
     const r = readRollup(a.key)
-    expect(r.folded).toEqual([k]) // pruned at the next fold
+    expect(r.folded.map((t) => t.k)).toEqual([k]) // its tombstone stays (TOMB_KEEP_MS)
     expect(JSON.stringify(r.days)).toBe(JSON.stringify(JSON.parse(once!).days))
     const n = Object.values(r.days).reduce((m, d) => m + Object.values(d.items).reduce((x, i) => x + i.n, 0), 0)
     expect(n).toBe(evs.length)

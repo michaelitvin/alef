@@ -7,6 +7,11 @@
 // a build that rewrote the open chunk without the list): then those events are dropped from the open chunk when they
 // are there, as a run of their session that starts with the chunk's first event and matches the chunk event by event.
 // So no state loses or doubles an event (Decision 5 of the compact-telemetry plan).
+//
+// An evicted chunk leaves a tombstone in its log's roll-up (its session, first and last `t` and count). A chunk is
+// evicted only when the stored open chunk no longer holds its events, but a stale view (a second tab) can still write
+// them back: the reader and `reconcile` drop an open-chunk run that matches a tombstone, so the events count once (in
+// the roll-up) and are never sealed or folded again.
 import { STAGING_PREFIX } from './stagingStorage'
 import { chunkHeader, decodeChunk, encodeChunk, type ChunkHeader } from './telemetryCodec'
 import type { TelemetryEvent } from './telemetry'
@@ -79,6 +84,50 @@ export function parseOpen(raw: string | null): OpenChunk | null {
 export const openJson = (events: readonly TelemetryEvent[], sealed: readonly string[]) =>
   JSON.stringify(sealed.length > 0 ? { v: 1, events, sealed } : { v: 1, events })
 
+// ---- tombstones
+/** what an evicted chunk leaves in its log's roll-up: its key, session, first and last `t`, count, and when it went */
+export interface Tomb { k: string; s: string; t0: number; t1: number; n: number; at: number }
+
+const isTomb = (x: unknown): x is Tomb => {
+  const t = x as Tomb
+  return !!t && typeof t === 'object' && typeof t.k === 'string' && typeof t.s === 'string' && typeof t.t0 === 'number'
+    && typeof t.t1 === 'number' && typeof t.n === 'number' && typeof t.at === 'number'
+}
+/** the tombstones in a roll-up's `folded` (anything else in it is skipped) */
+export const tombsIn = (folded: unknown): Tomb[] => (Array.isArray(folded) ? folded.filter(isTomb) : [])
+
+/** the tombstones of a log (its roll-up's `folded`); none when there is no roll-up or it does not parse. Never throws. */
+export function readTombs(logKey: string): Tomb[] {
+  try { return tombsIn(JSON.parse(getRaw(rollupKey(logKey)) ?? 'null')?.folded) } catch { return [] }
+}
+
+/**
+ * The open events without the runs that match a tombstone: a run of the tombstone's session that starts at an event
+ * with `t === t0` and goes on, over that session's events, either for `n` events ending at `t1` (the whole chunk), or
+ * for fewer events, none after `t1`, up to the session's end or its first event after `t1` (a stale view held only the
+ * chunk's start). Gives `open` itself when nothing matches.
+ */
+export function dropTombstoned(open: TelemetryEvent[], tombs: readonly Tomb[]): TelemetryEvent[] {
+  if (tombs.length === 0 || open.length === 0) return open
+  const drop = new Set<number>()
+  for (const tb of tombs) {
+    const start = open.findIndex((e, i) => e.s === tb.s && e.t === tb.t0 && !drop.has(i))
+    if (start < 0) continue
+    const run = [start]
+    let ok = true
+    for (let i = start + 1; i < open.length && run.length < tb.n; i++) {
+      const e = open[i]!
+      if (e.s !== tb.s || drop.has(i)) continue
+      if (typeof e.t !== 'number' || e.t < (open[run[run.length - 1]!]!.t as number)) { ok = false; break }
+      if (e.t > tb.t1) break
+      run.push(i)
+    }
+    if (!ok || (run.length === tb.n && open[run[run.length - 1]!]!.t !== tb.t1)) continue
+    for (const i of run) drop.add(i)
+  }
+  return drop.size > 0 ? open.filter((_, i) => !drop.has(i)) : open
+}
+
 // ---- the dedupe and the merge
 export interface DecodedChunk { key: string; events: TelemetryEvent[] }
 
@@ -150,20 +199,23 @@ export const chunksOf = (logKey: string, keys = storageKeys()): ChunkInfo[] =>
 
 /**
  * Every event of a stored log, without an instance and without a write: its sealed chunks (an unreadable one is skipped)
- * and its open chunk, without the open chunk's copies of sealed chunks, merged by `t`. A frozen log is read as it is
+ * and its open chunk, without the open chunk's copies of sealed chunks and of evicted ones (tombstones), merged by `t`. A frozen log is read as it is
  * stored. Never throws.
  */
 export function readLog(key: string): TelemetryEvent[] {
   try {
     const open = parseOpen(getRaw(key)) ?? { events: [], sealed: [] }
     if (isFrozenLog(key)) return open.events
+    const tombs = readTombs(key)
+    const gone = new Set(tombs.map((t) => t.k))
     const chunks: DecodedChunk[] = []
     for (const c of chunksOf(key)) {
+      if (gone.has(c.key)) continue // folded already (an eviction cut before the removal): the roll-up counts it
       const events = decodeChunk(c.value)
       if (events) chunks.push({ key: c.key, events })
     }
-    if (chunks.length === 0) return open.events
-    const rest = dropSealedCopies(open.events, chunks, new Set(open.sealed)).events
+    const rest = dropTombstoned(chunks.length > 0 ? dropSealedCopies(open.events, chunks, new Set(open.sealed)).events : open.events, tombs)
+    if (chunks.length === 0) return rest
     return mergeByT([...chunks.map((c) => c.events), rest])
   } catch {
     return []
@@ -195,11 +247,14 @@ export function logStats(key: string, since?: number): LogStats {
     const open = parseOpen(raw) ?? { events: [], sealed: [] }
     const sealed = new Set(open.sealed)
     const unsealed: DecodedChunk[] = []
+    const tombs = isFrozenLog(key) ? [] : readTombs(key)
+    const gone = new Set(tombs.map((t) => t.k))
     if (!isFrozenLog(key)) {
       for (const c of chunksOf(key)) {
         stats.chunks++
         stats.chars += c.key.length + (c.value?.length ?? 0)
         if (!c.head) { stats.unreadable++; continue }
+        if (gone.has(c.key)) continue // folded already: the roll-up counts its events
         const straddles = since !== undefined && c.head.t0 < since && c.head.t1 >= since
         let events: TelemetryEvent[] | null = null
         if (straddles || !sealed.has(c.key)) {
@@ -212,7 +267,7 @@ export function logStats(key: string, since?: number): LogStats {
           : c.head.t1 < since ? 0 : events!.filter((e) => e.t >= since).length
       }
     }
-    const rest = unsealed.length > 0 ? dropSealedCopies(open.events, unsealed, sealed).events : open.events
+    const rest = dropTombstoned(unsealed.length > 0 ? dropSealedCopies(open.events, unsealed, sealed).events : open.events, tombs)
     stats.events += rest.length
     stats.recent += since === undefined ? rest.length : rest.filter((e) => typeof e.t === 'number' && e.t >= since).length
   } catch { /* no storage */ }
@@ -235,9 +290,11 @@ export const SESSION_IDLE_MS = 30 * 60 * 1000
 
 /**
  * Take in the sealed chunks of a log that another tab (or an earlier seal cut short) wrote: drop their copies from
- * `mem` (the instance's open events) and list them in `sealed`. `sealed` keeps only keys that still exist. Mutates both.
+ * `mem` (the instance's open events) and list them in `sealed`; drop the runs of evicted chunks (tombstones) too.
+ * `sealed` keeps only keys that still exist. Mutates both.
  */
 export function reconcile(logKey: string, mem: TelemetryEvent[], sealed: string[]) {
+  const tombs = readTombs(logKey)
   const keys = chunkKeysOf(logKey)
   const exists = new Set(keys)
   const known = new Set(sealed.filter((k) => exists.has(k)))
@@ -247,7 +304,7 @@ export function reconcile(logKey: string, mem: TelemetryEvent[], sealed: string[
     const events = decodeChunk(getRaw(k))
     if (events) fresh.push({ key: k, events })
   }
-  const rest = fresh.length > 0 ? dropSealedCopies(mem, fresh, known).events : mem
+  const rest = dropTombstoned(fresh.length > 0 ? dropSealedCopies(mem, fresh, known).events : mem, tombs)
   if (rest !== mem) mem.splice(0, mem.length, ...rest)
   sealed.splice(0, sealed.length, ...keys.filter((k) => known.has(k) || fresh.some((c) => c.key === k)))
 }

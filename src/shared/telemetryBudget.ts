@@ -6,7 +6,7 @@
 // and leaves them out of its sum; the staging build sees only its own keys and keeps a quarter of each budget.
 import { STAGING_PREFIX, isStaging, isTelemetryKey } from './stagingStorage'
 import { chunkHeader, decodeChunk } from './telemetryCodec'
-import { chunkT0, getRaw, isChunkKey, isFrozenLog, storageKeys } from './telemetryChunks'
+import { chunkT0, dropSealedCopies, getRaw, isChunkKey, isFrozenLog, parseOpen, storageKeys } from './telemetryChunks'
 import { foldChunk, trimRollups } from './telemetryRollup'
 import type { TelemetryLog } from './telemetry'
 
@@ -42,10 +42,12 @@ const logOf = (logKey: string, logs: readonly TelemetryLog[]) =>
   logs.find((l) => l.key === logKey || STAGING_PREFIX + l.key === logKey)
 
 /**
- * Evict one sealed chunk: fold it into its log's roll-up, then remove it. A chunk that does not read is never evicted.
+ * Evict one sealed chunk: fold it into its log's roll-up (with its tombstone), then remove it. A chunk that does not
+ * read is never evicted, nor one whose events the stored open chunk still holds (its `sealed` lacks the chunk: an open
+ * rewrite that failed after the seal, or a tab that flushed an older view): those would come back as raw events.
  * For a save (`forSave`), a roll-up write that finds no room comes after the removal.
- * Gives the characters freed (0 when it stays). A crash between the two steps folds nothing twice (the roll-up records the
- * key). Never throws.
+ * Gives the characters freed (0 when it stays). A crash between the two steps folds nothing twice (the roll-up holds the
+ * tombstone). Never throws.
  */
 export function evictChunk(k: string, logs: readonly TelemetryLog[], now = Date.now(), { forSave = false } = {}): number {
   try {
@@ -54,12 +56,14 @@ export function evictChunk(k: string, logs: readonly TelemetryLog[], now = Date.
     const events = decodeChunk(value)
     if (!head || !events) return 0
     const logKey = logKeyOf(k)
+    const open = parseOpen(getRaw(logKey))
+    if (open && dropSealedCopies(open.events, [{ key: k, events }], new Set(open.sealed)).removed.length > 0) return 0
     const log = logOf(logKey, logs)
-    if (!foldChunk(logKey, log, k, log ? events : null, head.n, now)) {
+    if (!foldChunk(logKey, log, k, head, log ? events : null, now)) {
       // a full storage has no room for the roll-up: for a save, the chunk goes first, then the fold gets its room
       if (!forSave) return 0
       localStorage.removeItem(k)
-      foldChunk(logKey, log, k, log ? events : null, head.n, now)
+      foldChunk(logKey, log, k, head, log ? events : null, now)
       return k.length + value!.length
     }
     localStorage.removeItem(k)

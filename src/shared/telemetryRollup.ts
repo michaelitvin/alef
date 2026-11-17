@@ -4,7 +4,7 @@
 //
 // The roll-up holds only folded (evicted) events, never the raw events still in storage, so a day with both a roll-up
 // and raw events is counted exactly by adding them. Stored at `<base>~sum-telemetry`.
-import { getRaw, ownsKey, rollupKey, storageKeys } from './telemetryChunks'
+import { dropTombstoned, getRaw, parseOpen, rollupKey, storageKeys, tombsIn, type Tomb } from './telemetryChunks'
 import type { RollupFact, TelemetryEvent, TelemetryLog } from './telemetry'
 
 /** the latency histogram's bin edges in ms: bin i holds `EDGES[i-1] <= ms < EDGES[i]`, the last bin the rest */
@@ -17,6 +17,8 @@ export const ROLLUP_DAYS = 90
 const MAX_CHOSEN = 5
 /** the sessions whose last folded event is kept, so a session split over chunks counts its minutes once */
 const MAX_TAILS = 20
+/** a tombstone is kept at least this long after its eviction (a stale tab may write the chunk's events back) */
+export const TOMB_KEEP_MS = 30 * 24 * 60 * 60 * 1000
 
 export interface ItemStats {
   /** real answers (not special) */
@@ -42,8 +44,11 @@ export interface DayStats {
 
 export interface Rollup {
   v: 1
-  /** the chunk keys folded in (so a fold that runs twice counts once); only keys that still exist */
-  folded: string[]
+  /**
+   * a tombstone per chunk folded in (so a fold that runs twice counts once, and a copy of its events that comes back is
+   * dropped): kept while its chunk still exists, while the stored open chunk holds a copy, and TOMB_KEEP_MS after it
+   */
+  folded: Tomb[]
   /** events dropped with no fold (a chunk of a log that no page registered) */
   dropped: number
   /** per day `YYYY-MM-DD`, or per ISO week `YYYY-Www` after ROLLUP_DAYS */
@@ -57,7 +62,7 @@ export const emptyRollup = (): Rollup => ({ v: 1, folded: [], dropped: 0, days: 
 export function readRollup(logKey: string): Rollup {
   try {
     const r = JSON.parse(getRaw(rollupKey(logKey)) ?? 'null') as Rollup | null
-    if (r && r.v === 1 && Array.isArray(r.folded) && r.days && typeof r.days === 'object') return { ...emptyRollup(), ...r }
+    if (r && r.v === 1 && Array.isArray(r.folded) && r.days && typeof r.days === 'object') return { ...emptyRollup(), ...r, folded: tombsIn(r.folded) }
   } catch { /* a broken roll-up reads as empty; the next fold rewrites it */ }
   return emptyRollup()
 }
@@ -155,19 +160,26 @@ export function factsOf(log: TelemetryLog | undefined, events: TelemetryEvent[])
   try { return log?.rollup?.(events) ?? [] } catch { return [] }
 }
 
+/** a chunk's span: its session, first and last `t`, and count (its header) */
+export interface ChunkSpan { s: string; t0: number; t1: number; n: number }
+
 /**
- * Fold one evicted chunk into its log's roll-up and write it, with the chunk's key in `folded`. A chunk already folded
- * counts once (the key is there). A log with no registration only adds the chunk's count to `dropped`. Gives true when
- * the roll-up holds the chunk (so the chunk may go); false when the write failed. Never throws.
+ * Fold one evicted chunk into its log's roll-up and write it, with the chunk's tombstone in `folded`. A chunk already
+ * folded counts once (its tombstone is there). A log with no registration only adds the chunk's count to `dropped`.
+ * Tombstones are pruned here: one goes when its chunk is gone, the stored open chunk holds no copy, and it is older than
+ * TOMB_KEEP_MS. Gives true when the roll-up holds the chunk (so the chunk may go); false when the write failed. Never
+ * throws.
  */
-export function foldChunk(logKey: string, log: TelemetryLog | undefined, chunk: string, events: TelemetryEvent[] | null, n: number, now = Date.now()): boolean {
+export function foldChunk(logKey: string, log: TelemetryLog | undefined, chunk: string, span: ChunkSpan, events: TelemetryEvent[] | null, now = Date.now()): boolean {
   try {
     const r = readRollup(logKey)
-    if (r.folded.includes(chunk)) return true
+    if (r.folded.some((t) => t.k === chunk)) return true
     if (log && events) foldEvents(r, events, factsOf(log, events))
-    else r.dropped += n
-    const exists = new Set(storageKeys().filter((k) => ownsKey(logKey, k)))
-    r.folded = [...r.folded.filter((k) => exists.has(k)), chunk]
+    else r.dropped += span.n
+    const exists = new Set(storageKeys())
+    const open = parseOpen(getRaw(logKey))?.events ?? []
+    const keep = (t: Tomb) => exists.has(t.k) || now - t.at < TOMB_KEEP_MS || dropTombstoned(open, [t]) !== open
+    r.folded = [...r.folded.filter(keep), { k: chunk, s: span.s, t0: span.t0, t1: span.t1, n: span.n, at: now }]
     foldOldDays(r, now)
     localStorage.setItem(rollupKey(logKey), JSON.stringify(r))
     return true
