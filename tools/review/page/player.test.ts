@@ -84,6 +84,59 @@ describe('player', () => {
   })
 })
 
+describe('pause and play', () => {
+  it('pauses at the position, resumes without a new load, and Replay starts again', async () => {
+    const { audio, p, flush } = setup()
+    p.playItem('a')
+    audio.pending[0].resolve()
+    await flush()
+    p.toggle()
+    expect(p).toMatchObject({ cur: 'a', playing: false, paused: true, failed: false })
+    audio.end() // a stray ended event after a pause is not a finish of a newer play
+    expect(p.paused).toBe(true)
+    p.toggle()
+    expect(p).toMatchObject({ playing: true, paused: false })
+    expect(audio.played).toEqual(['media/a', 'media/a']) // play() again, same src: the element resumes
+    audio.pending[0].resolve()
+    await flush()
+    audio.end()
+    expect(p).toMatchObject({ playing: false, paused: false })
+    p.toggle() // after the end: from the start
+    expect(p.playing).toBe(true)
+  })
+
+  it('a pause while the clip loads fails nothing', async () => {
+    const { p, flush } = setup()
+    p.playItem('a')
+    p.toggle()
+    await flush()
+    expect(p).toMatchObject({ playing: false, paused: true, failed: false })
+  })
+
+  it('a paused sound is dropped by another item, a stop or a select, and never restarts by itself', async () => {
+    const { audio, p, flush } = setup()
+    p.playItem('a')
+    p.toggle()
+    p.playItem('b')
+    expect(p).toMatchObject({ cur: 'b', playing: true, paused: false })
+    p.toggle()
+    p.select('c')
+    expect(p).toMatchObject({ cur: 'c', playing: false, paused: false })
+    p.playItem('a')
+    p.toggle()
+    p.stop()
+    await flush()
+    expect(p).toMatchObject({ playing: false, paused: false })
+    expect(audio.played).toEqual(['media/a', 'media/b', 'media/a'])
+  })
+
+  it('toggle with nothing current does nothing', () => {
+    const { audio, p } = setup()
+    p.toggle()
+    expect(audio.played).toEqual([])
+  })
+})
+
 describe('saving a decision', () => {
   const noSleep = async () => {}
 

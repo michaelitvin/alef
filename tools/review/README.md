@@ -1,7 +1,7 @@
 # Asset review kit
 
 Shared review for generated sounds and pictures: one item at a time, the parent listens or looks, accepts or rejects
-with a note, and the next open item plays. Nothing plays a row of items by itself; "Later" goes on without a decision. Decisions: [ADR 0006](../../docs/adr/0006-review-decisions-are-an-event-log.md). The parent's rules for
+with a note, and the next open item plays. Nothing plays a row of items by itself; "Later" goes on without a decision. The Play button turns into Pause while a sound plays (Pause keeps the position, Play resumes, Replay starts again; Space toggles, R replays). Decisions: [ADR 0006](../../docs/adr/0006-review-decisions-are-an-event-log.md). The parent's rules for
 review: *Review of generated assets* in [docs/minigame-rules.md](../../docs/minigame-rules.md).
 
 | File | What it holds |

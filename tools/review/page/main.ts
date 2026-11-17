@@ -133,6 +133,7 @@ function showDone() {
 
 function markNow() {
   const { cur, playing, failed } = player
+  const paused = player.paused
   for (const e of document.querySelectorAll('.item.sel,.item.playing')) e.classList.remove('sel', 'playing')
   const it = itemOf(cur)
   const el = cur ? document.getElementById('i-' + cur) : null
@@ -141,10 +142,12 @@ function markNow() {
     if (playing) el.classList.add('playing')
   }
   const pic = it?.kind === 'image'
-  const pb = $<HTMLButtonElement>('#b-replay')
-  pb.textContent = pic ? (it.hidden ? (revealed.has(it.id) ? 'Hide word' : 'Show word') : 'Replay') : failed ? 'Try again' : tapped ? 'Replay' : '▶ Play'
+  const pb = $<HTMLButtonElement>('#b-play')
+  pb.textContent = pic ? (it.hidden ? (revealed.has(it.id) ? 'Hide word' : 'Show word') : '–') : failed ? 'Try again' : playing ? '⏸ Pause' : '▶ Play'
   pb.disabled = !it || (pic && !it.hidden)
   pb.classList.toggle('first', !!it && !pic && !tapped)
+  pb.setAttribute('aria-label', playing ? 'Pause' : paused ? 'Resume' : 'Play')
+  $<HTMLButtonElement>('#b-replay').disabled = !it || pic
   $<HTMLButtonElement>('#b-later').disabled = !it || !cur || !nextOpenAfter(order, cur, isOpen)
   for (const b of ['#b-rej', '#b-ok']) $<HTMLButtonElement>(b).disabled = !it || saving.has(it.id)
   const now = $<HTMLButtonElement>('#now')
@@ -299,11 +302,16 @@ function setView(v: View) {
 }
 
 $('#now').onclick = () => player.cur && document.getElementById('i-' + player.cur)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-$('#b-replay').onclick = () => {
+$('#b-play').onclick = () => {
   const it = itemOf(player.cur)
   if (!it) return
   if (it.kind === 'image') return toggleWord(it.id)
-  play(it.id)
+  tapped = true
+  player.toggle()
+}
+$('#b-replay').onclick = () => {
+  const it = itemOf(player.cur)
+  if (it && it.kind !== 'image') play(it.id)
 }
 $('#b-later').onclick = later
 $('#b-rej').onclick = () => {
@@ -320,7 +328,10 @@ $('#noteText').addEventListener('keydown', (e) => {
 })
 document.addEventListener('keydown', (e) => {
   if ((e.target as HTMLElement).tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return
-  if (e.code === 'Space' || e.key === 'r' || e.key === 'R') {
+  if (e.code === 'Space') {
+    e.preventDefault()
+    $('#b-play').click()
+  } else if (e.key === 'r' || e.key === 'R') {
     e.preventDefault()
     $('#b-replay').click()
   } else if (e.key === 'x' || e.key === 'X') {

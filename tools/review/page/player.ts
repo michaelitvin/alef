@@ -22,11 +22,15 @@ export interface Player {
   /** The item the buttons act on. */
   readonly cur: string | null
   readonly playing: boolean
+  /** The sound of the current item is paused at its position: Play resumes it, Replay starts it again. */
+  readonly paused: boolean
   /** The last play of the current item did not load (a network blip): Replay tries again. */
   readonly failed: boolean
   /** Make an item current without a sound (the first item, before his first tap: browsers need a tap before audio). */
   select(id: string | null): void
   stop(): void
+  /** Pause a playing sound at its position; resume a paused one; else play the current item from the start. */
+  toggle(): void
   /** Make an item current and play it. A picture has no sound: it only becomes current. */
   playItem(id: string, take?: string, scroll?: boolean): void
 }
@@ -35,6 +39,7 @@ export function createPlayer(audio: AudioLike, host: PlayerHost): Player {
   let cur: string | null = null
   let playing = false
   let failed = false
+  let paused = false
   let gen = 0
 
   /** The play numbered `mine` came to its end, or did not load. */
@@ -51,6 +56,7 @@ export function createPlayer(audio: AudioLike, host: PlayerHost): Player {
     gen++
     playing = false
     failed = false
+    paused = false
     audio.pause()
   }
 
@@ -68,12 +74,36 @@ export function createPlayer(audio: AudioLike, host: PlayerHost): Player {
     audio.play().catch(() => ended(mine, false))
   }
 
+  /** Pause keeps the position and the source. The number moves on, so the play() it cuts short fails nothing. */
+  function toggle() {
+    if (!cur) return
+    if (playing) {
+      gen++
+      playing = false
+      paused = true
+      audio.pause()
+      return host.changed()
+    }
+    if (paused) {
+      const mine = gen
+      paused = false
+      playing = true
+      host.changed()
+      audio.play().catch(() => ended(mine, false))
+      return
+    }
+    playItem(cur)
+  }
+
   return {
     get cur() {
       return cur
     },
     get playing() {
       return playing
+    },
+    get paused() {
+      return paused
     },
     get failed() {
       return failed
@@ -87,6 +117,7 @@ export function createPlayer(audio: AudioLike, host: PlayerHost): Player {
       quiet()
       host.changed()
     },
+    toggle,
     playItem,
   }
 }
