@@ -198,7 +198,7 @@ describe('the Data section', () => {
       put(KEY, [ev('c', NOW)])
       const { container } = render(<DataSection game="clock" />)
       expect(container.querySelector('[data-storage]')!.textContent).toMatch(/of 800k chars/)
-      expect(container.querySelector('[data-storage-persisted]')!.textContent).toBe('not asked yet')
+      expect(container.querySelector('[data-storage-persisted]')!.textContent).toBe('not known')
       expect(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-size]')!.textContent).toBe(`${((HISTORY.length + 19) / 1000).toFixed(1)}k chars`)
     })
   })

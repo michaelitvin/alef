@@ -467,3 +467,22 @@ link ADR 0007. **Risks:** none. **Size:** S.
       seal and during each migration slot (Performance long tasks). Report them with the measured ratio, the seal
       times and the build size change. A long task over 100 ms during play is a finding to fix before release.
 - [ ] Put browser URLs, addresses and ports only in environment variables, never in the repo or the report committed.
+
+> **Final check results (2026-11-17, a shared headless Chromium on a slow ARM board).**
+> - `/verify`: every check PASS at both sizes, the new `telemetry` one included (Book 2's events counted, the storage
+>   line shown, a Download with Book 2's events). No page left open.
+> - Migration: a synthetic 697k Book 2 log, a 499k clock log and the frozen log seeded; Book 2 loaded and played at 4×
+>   CPU throttling. 21 sessions became 21 chunks in ≈3 min of play; Book 2's keys went from 697k to 151k characters
+>   (with the open chunk); the export of the seeded events after migration equals the export before; the frozen value is
+>   byte-identical.
+> - Storage full (a filler to the quota): Book 2 and a clock round played; both saves survived a reload, telemetry was
+>   evicted (never the frozen log), no console error, and the Data section showed the storage line.
+> - Main-thread cost at 4× throttling, longest tasks from the play screen on: main build 0.7–1.1 s, this branch with
+>   nothing to seal 0.8–0.85 s (the same), this branch while migrating 1.1–1.3 s. So on this board each migration slot
+>   adds ≈0.3–0.5 s to the worst task; the game alone is already far over 100 ms here, so the 100 ms line cannot be
+>   judged on this board. **Open finding:** measure a migration slot on a real low-end tablet before release; if it is
+>   long, split a session's seal (encode, then write and read back) over two idle slots.
+> - Build: `fflate` adds ≈4.5 kB gzipped (within the ≤ 6 kB check); with the new telemetry modules the shared
+>   ParentArea chunk grows by 11.4 kB gzipped (119.7 → 131.2 kB).
+> - The Data section reads `navigator.storage.persisted()` itself, so the line shows the browser's answer even when the
+>   area's `persist()` request answers after the section rendered.

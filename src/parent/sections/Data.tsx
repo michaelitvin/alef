@@ -7,7 +7,7 @@
 // shows the live telemetry against its budget, the frozen log's size, the browser's answer to `persist()` and a save
 // that failed on this page.
 // The first duel's history is exported as it is and has no Clear: it is never cleared or rewritten.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   clearLog, exportDoc, exportFileName, filterEvents, frozenLogSizes, liveBudget, liveChars, logStats, readLog, rollupKey, rollupsFor,
   type TelemetryEvent, type TelemetryLog,
@@ -60,9 +60,18 @@ export function DataSection({ game, live }: DataSectionProps) {
       return { log, all: st.events, recent: st.recent, unreadable: st.unreadable, summarized, chars: st.chars + rollupChars }
     })
   }, [live, version])
+  // the browser's answer to persist() (the area asks once, behind the gate): read it here too, so a late answer shows
+  const [persisted, setPersisted] = useState<boolean | null>(persistedAnswer)
+  useEffect(() => {
+    let alive = true
+    try {
+      void navigator.storage?.persisted?.().then((p) => { if (alive) setPersisted(p) }, () => {})
+    } catch { /* no API */ }
+    return () => { alive = false }
+  }, [version])
   const storage = useMemo(() => {
     void version
-    return { used: liveChars(), budget: liveBudget(), frozen: frozenLogSizes(), persisted: persistedAnswer(), failed: saveFailed() }
+    return { used: liveChars(), budget: liveBudget(), frozen: frozenLogSizes(), failed: saveFailed() }
   }, [version])
 
   const toggle = (key: string) => setPicked((p) => {
@@ -126,7 +135,7 @@ export function DataSection({ game, live }: DataSectionProps) {
         {Object.entries(storage.frozen).map(([k, n]) => (
           <span key={k} data-storage-frozen={k}> · {k.startsWith(STAGING_PREFIX) ? 'staging’s copy of the first duel’s history' : 'first duel’s history'} {kchars(n)} chars</span>
         ))}
-        {' · '}kept by the browser: <span data-storage-persisted>{storage.persisted === null ? 'not asked yet' : storage.persisted ? 'yes' : 'no'}</span>
+        {' · '}kept by the browser: <span data-storage-persisted>{persisted === null ? 'not known' : persisted ? 'yes' : 'no'}</span>
         {storage.failed !== null && <span data-storage-save-failed> · a save failed on this page ({storage.failed})</span>}
       </p>
       <p>
