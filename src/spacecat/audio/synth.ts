@@ -1,16 +1,16 @@
 // Ported from Space Cat Math by Igor (Ray's dad), used by permission. See asset-sources/spacecat/README.md.
 // Space Cat's coded sound effects (WebAudio: oscillators, a noise buffer, envelopes). Right, wrong and the level fanfare
 // are the original's; new sum, right with zoom, time-out, heart lost, new ship and end of run are new, in its style.
-// No Howler import: every node is made on the output it is given and ends in its `out` node (never ctx.destination),
-// so the device's volume, the mute on hide and the pause hold reach it.
+// Each is a coded source (src/shared/gameAudio/coded.ts): the kit plays it behind the player port as a `coded:` url
+// (coded.ts here). No Howler import: every node is made on the output it is given and ends in its `out` node (never
+// ctx.destination), so the device's volume, the mute on hide and the pause hold reach it.
+import type { CodedPlay, CodedSource, WebAudioOut } from '../../shared/gameAudio/coded'
 import type { SfxName } from './sfx'
 
 export type { SfxName } from './sfx'
 export { SFX_NAMES } from './sfx'
 
-export interface WebAudioOut { ctx: AudioContext; out: AudioNode }
-
-/** the effects' own level under the output (the original's effects bus) */
+/** the effects' own level (the original's effects bus): the kit's sfxVolume */
 export const SFX_GAIN = 0.5
 /** a sound starts this long after it is asked for (s), so that its first envelope point is in the future */
 const LEAD = 0.01
@@ -31,7 +31,13 @@ export function noiseBuffer(ctx: BaseAudioContext): AudioBuffer {
 /** one effect being built: its nodes go to `bus`; `end` is the time its last envelope ends */
 class Voice {
   end: number
+  /** what it started: a stop ends them all */
+  readonly started: AudioScheduledSourceNode[] = []
   constructor(readonly ctx: AudioContext, readonly bus: AudioNode, readonly t0: number) { this.end = t0 }
+
+  stop(): void {
+    for (const n of this.started) { try { n.stop() } catch { /* already ended */ } }
+  }
 
   /** an exponential envelope: up to `peak` in `attack` s, down by `until` s after `t` (the original's N) */
   env(t: number, attack: number, until: number, peak: number): GainNode {
@@ -51,6 +57,7 @@ class Voice {
     o.connect(to)
     o.start(t)
     o.stop(t + stop)
+    this.started.push(o)
     return o
   }
 
@@ -73,6 +80,7 @@ class Voice {
     s.connect(f).connect(to)
     s.start(t)
     s.stop(t + d)
+    this.started.push(s)
     return f
   }
 
@@ -164,24 +172,12 @@ const PLAY: Record<SfxName, (v: Voice, t: number) => void> = {
   end: (v) => { ;[523, 440, 349].forEach((f, i) => v.tone(f, i * 0.28, 0.45, 'triangle', 0.26)) },
 }
 
-export function createSynth(output: () => WebAudioOut | null): { play(name: SfxName): number } {
-  const buses = new WeakMap<AudioNode, GainNode>()
-  return {
-    /** plays an effect now; returns its length in ms (0 when there is no output) */
-    play(name) {
-      const o = output()
-      if (!o) return 0
-      let bus = buses.get(o.out)
-      if (!bus) {
-        bus = o.ctx.createGain()
-        bus.gain.value = SFX_GAIN
-        bus.connect(o.out)
-        buses.set(o.out, bus)
-      }
-      const t0 = o.ctx.currentTime + LEAD
-      const v = new Voice(o.ctx, bus, t0)
-      PLAY[name](v, t0)
-      return Math.round((v.end - o.ctx.currentTime) * 1000)
-    },
+/** the coded source of one effect: it plays at once into the given output; its length is its last envelope's end */
+export function sfxSource(name: SfxName): CodedSource {
+  return (o: WebAudioOut): CodedPlay => {
+    const t0 = o.ctx.currentTime + LEAD
+    const v = new Voice(o.ctx, o.out, t0)
+    PLAY[name](v, t0)
+    return { lengthMs: Math.round((v.end - o.ctx.currentTime) * 1000), stop: () => v.stop() }
   }
 }

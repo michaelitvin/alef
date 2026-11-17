@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { SFX_NAMES, createSynth, type WebAudioOut } from './synth'
-import { TUNE_DUCK, TUNE_GAIN, createTune } from './tune'
+import type { WebAudioOut } from '../../shared/gameAudio/coded'
+import { SFX_NAMES, sfxSource } from './synth'
+import { createTuneSource } from './tune'
 
 // a minimal recording AudioContext: every node records where it connects; envelopes record their ramps
 function fakeAudio(now = 2) {
@@ -42,10 +43,10 @@ function fakeAudio(now = 2) {
 }
 
 describe('the coded effects', () => {
-  it('each effect connects only to the given output', () => {
+  it('each source connects only to the output it is given', () => {
     for (const name of SFX_NAMES) {
       const a = fakeAudio()
-      createSynth(() => a.o).play(name)
+      sfxSource(name)(a.o)
       expect(a.edges.length).toBeGreaterThan(0)
       for (const [, to] of a.edges) {
         expect(to).not.toBe(a.destination)
@@ -53,20 +54,25 @@ describe('the coded effects', () => {
         const ok = to === a.out || a.nodes.has(to) || [...a.nodes].some((n) => Object.values(n).includes(to))
         expect(ok).toBe(true)
       }
-      expect(a.edges.filter(([, to]) => to === a.out)).toHaveLength(1)
+      expect(a.edges.some(([, to]) => to === a.out)).toBe(true)
     }
-  })
-  it('no output plays nothing and returns 0', () => {
-    const s = createSynth(() => null)
-    for (const name of SFX_NAMES) expect(s.play(name)).toBe(0)
   })
   it('each effect\'s length is its last envelope\'s end', () => {
     for (const name of SFX_NAMES) {
       const a = fakeAudio(2)
-      const ms = createSynth(() => a.o).play(name)
-      expect(ms).toBeGreaterThan(50)
-      expect(ms).toBe(Math.round((Math.max(...a.ramps) - 2) * 1000))
+      const { lengthMs } = sfxSource(name)(a.o)
+      expect(lengthMs).toBeGreaterThan(50)
+      expect(lengthMs).toBe(Math.round((Math.max(...a.ramps) - 2) * 1000))
     }
+  })
+  it('stop ends every node it started', () => {
+    const a = fakeAudio()
+    const play = sfxSource('wrong')(a.o)
+    let stops = 0
+    const sources = [...a.nodes].filter((n) => !('Q' in n) && ('frequency' in n || 'buffer' in n)) as unknown as { stop: () => void }[]
+    for (const n of sources) n.stop = () => { stops++ }
+    play.stop()
+    expect(stops).toBe(sources.length)
   })
 })
 
@@ -75,49 +81,30 @@ describe('the tune', () => {
     const fns = new Set<() => void>()
     return { every: (_ms: number, fn: () => void) => { fns.add(fn); return () => fns.delete(fn) }, run: () => fns.forEach((f) => f()), count: () => fns.size }
   }
-  it('plays into the given output only', () => {
+  it('plays into the given output only, at full level', () => {
     const a = fakeAudio()
-    const ev = manualEvery()
-    const t = createTune(() => a.o, ev.every)
-    t.start()
-    expect(t.playing()).toBe(true)
+    const play = createTuneSource(manualEvery().every)(a.o)
     expect(a.edges.some(([, to]) => to === a.out)).toBe(true)
     expect(a.edges.some(([, to]) => to === a.destination)).toBe(false)
-    t.stop()
-  })
-  it('duck lowers and restores its gain', () => {
-    const a = fakeAudio()
-    const t = createTune(() => a.o, manualEvery().every)
-    t.start()
     const [bus] = a.edges.find(([, to]) => to === a.out)! as [{ gain: { value: number } }, object]
-    expect(bus.gain.value).toBe(TUNE_GAIN)
-    t.duck(true)
-    expect(bus.gain.value).toBe(TUNE_DUCK)
-    t.duck(false)
-    expect(bus.gain.value).toBe(TUNE_GAIN)
-    t.stop()
+    expect(bus.gain.value).toBe(1)
+    play.stop()
   })
-  it('stop ends its scheduler', () => {
+  it('a tune source runs until stopped', () => {
     const a = fakeAudio()
     const ev = manualEvery()
-    const t = createTune(() => a.o, ev.every)
-    t.start()
+    const play = createTuneSource(ev.every)(a.o)
+    expect(play.lengthMs).toBeNull()
     expect(ev.count()).toBe(1)
     a.ctx.currentTime += 3
     const before = a.nodes.size
     ev.run()
     expect(a.nodes.size).toBeGreaterThan(before)
-    t.stop()
+    play.stop()
     expect(ev.count()).toBe(0)
-    expect(t.playing()).toBe(false)
     const after = a.nodes.size
     a.ctx.currentTime += 3
     ev.run()
     expect(a.nodes.size).toBe(after)
-  })
-  it('no output: the tune does not start', () => {
-    const t = createTune(() => null, manualEvery().every)
-    t.start()
-    expect(t.playing()).toBe(false)
   })
 })
