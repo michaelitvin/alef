@@ -1798,6 +1798,27 @@ describe('run controller', () => {
       c.destroy()
     }, 60_000)
 
+    for (const when of ['as he walks in', 'during his hello', 'during the demo'] as const) {
+      it(`a pause on the first visit ${when}: on resume he says his hello again only if it was cut, and the demo starts again from its first step`, async () => {
+        slowMerchant()
+        useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT } })
+        const c = await cauldronThen(2)
+        await playTo(c, (v) => !!v.merchant)
+        if (when === 'during his hello') await until(c, () => played.some((id) => id.startsWith('m-hello-')))
+        if (when === 'during the demo') await until(c, (v) => v.merchant?.demo?.step === 'give')
+        c.pause()
+        await tick(2000)
+        c.resume()
+        for (let i = 0; i < 2000 && !(mv(c).phase === 'pay' && !mv(c).demo); i++) await tick(50)
+        const ids = played.filter((id) => id.startsWith('m-')).map((id) => id.replace(/-\d+$/, ''))
+        expect(ids).toEqual(
+          when === 'as he walks in' ? ['m-hello', 'm-price', 'm-give', 'm-tap', 'm-decline']
+            : when === 'during his hello' ? ['m-hello', 'm-hello', 'm-price', 'm-give', 'm-tap', 'm-decline']
+              : ['m-hello', 'm-price', 'm-give', 'm-price', 'm-give', 'm-tap', 'm-decline'])
+        c.destroy()
+      }, 60_000)
+    }
+
     it('after a lock, the ✗ still lets him say goodbye in full before the run goes on', async () => {
       fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-bye') ? 3000 : 10)) })
       const c = await cauldronThen(2)
