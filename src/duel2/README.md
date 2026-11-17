@@ -21,6 +21,12 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | The run's seams: the saves it reads and writes, the time it waits on | `savePort.ts` (`storeSavePort`; the gallery reads it through `readOnlySavePort`; `memorySavePort` for tests), `src/shared/sleeper.ts` (`realSleeper`, `instantSleeper`) |
 | Layout numbers the run and the views share | `layout.ts` (`ZOOM_MS`), `broomLayout.ts` (the flight's geometry), `viewTypes.ts`; the controller imports nothing from `components/` (a depcruise rule) |
 
+## Terms
+
+- **Policy**: a pure rule of the run for one visit (the merchant, a drawing round, the flight boss, the pass):
+  `step(state, event)` says what the run does, and the controller does it ([ADR 0005](../../docs/adr/0005-run-policies-and-the-sleeper.md)).
+  The time it waits on is the **sleeper** (see `src/shared/README.md`).
+
 ## Tests
 
 - Run tests construct `RunController` directly (`useRun.test.tsx`), on fake timers. They reset the store and play

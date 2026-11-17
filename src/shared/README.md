@@ -24,6 +24,16 @@ Every game plays through `gameAudio/` (Book 2, the clock, and the first duel as 
 Retired save keys: `alef-settings` (an old settings store that nothing ever read; removed) stays unused for good. Do
 not give the name to a new save, because old browsers can still hold it.
 
+## Terms
+
+These are code words, not words of the games (those are in [GLOSSARY.md](../../GLOSSARY.md)).
+
+- **Game kit**: the code a game takes from here: the audio kit, the shell, the gate, device settings.
+- **Page session**: one page load of a game, and the id `s` its telemetry events carry. _Avoid_: session (in the
+  glossary, that is a path session).
+- **Joined log**: the one export of the parent area's Data section: a file with one part per game's telemetry log.
+- **Sleeper**: the seam for the time a flow waits on (`sleeper.ts`). Tests use a virtual one that never waits.
+
 ## Known friction
 
 - The lessons' voice (`src/hooks/useAudio.ts`) uses Howler outside the audio kit, so it has its own mute and volume
