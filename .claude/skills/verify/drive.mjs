@@ -264,6 +264,10 @@ const CHECKS = {
     await page.goto(`${base}clock/`, { waitUntil: 'domcontentloaded' })
     await page.locator('.ck-play').waitFor()
     await shot(page, vp, 'clock-cover')
+    // the held house on the door: a tap leaves nothing
+    await tap(page, page.locator('.ck-cover [aria-label="home (hold)"]'))
+    await page.waitForTimeout(400)
+    if (!(await page.locator('.ck-cover').count())) throw new Error('a tap on the door\'s house left the door')
     await tap(page, page.locator('.ck-play'))
     await passGender(page, '.ck-workshop')
     // the first customer may bring explanations first: each waits for a tap on next
@@ -283,6 +287,14 @@ const CHECKS = {
     await page.locator('.ck-workshop:not([data-phase="answer"])').waitFor({ timeout: 10_000 })
     note(`after the answer: ${await page.locator('.ck-workshop').getAttribute('data-phase')}`)
     await shot(page, vp, 'clock-answered')
+    // the way home: a short hold on the house stays in the workshop, a 2 s hold goes to alef's home (not the door)
+    const house = page.locator('.ck-workshop > [aria-label="home (hold)"]')
+    await hold(page, house, 600)
+    await page.waitForTimeout(400)
+    if (!(await page.locator('.ck-workshop').count())) throw new Error('a short hold on the house left the workshop')
+    await hold(page, house, 2300)
+    await page.waitForURL((u) => !u.pathname.includes('/clock/'), { timeout: 20_000 })
+    note(`after the house: ${new URL(page.url()).pathname}`)
   },
 
   async clockArea(page, base, vp, note) {

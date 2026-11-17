@@ -328,6 +328,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Then the game had no way out, and the parent (2026-11-14): "there is no way out of the game and back to the main menu".
   Now a held house button is in the top bar's left corner, on the pause cover and on the summary. The parent then:
   "I feel that the home button belongs on the left" (first it was in the right corner, after the counts).
+- Every game has one way home, and it goes to alef's home screen, not to the game's own cover. Use the shared house
+  (`src/shared/HomeButton.tsx`): same look, same hold, same top-left corner, on the cover, each play screen, the pause
+  cover and the end screen (a session from the home screen's path has none: it goes home by itself). Reason: alef's home screen is the hub of all the games, and one way home is one thing to
+  learn. Example (2026-11-17, the parent: "make consistent between games"): the clock's home button was a plain tap and
+  went back to the clock's own door, and its door had a plain link to alef; now both games use the held house to alef.
 - Every way into a parent screen (settings, progress, export, developer tools) must need a 2 s hold and then the
   parent's year of birth on a number pad. Accept any adult year and do not store it. A wrong year goes back to where the
   child was, with no message. Reason: the parent screens hold reset and the developer tools (also on production), which
