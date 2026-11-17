@@ -8,9 +8,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint src tools --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
-    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
+    "depcruise": "depcruise src tools --config .dependency-cruiser.cjs",
     "knip": "knip",
     "check": "npm run lint && npm run depcruise && npm run knip"
   },

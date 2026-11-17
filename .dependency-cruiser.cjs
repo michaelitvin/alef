@@ -109,11 +109,34 @@ module.exports = {
         ],
       },
     },
+    {
+      name: 'review-kit-is-host-and-game-free',
+      severity: 'error',
+      comment: 'The review kit (tools/review) knows no game: a host-local adapter gives it the items. It never imports src/.',
+      from: { path: '^tools/review/' },
+      to: { path: '^src/' },
+    },
+    {
+      name: 'games-never-import-the-review-kit',
+      severity: 'error',
+      comment: 'The games do not ship review code.',
+      from: { path: '^src/' },
+      to: { path: '^tools/' },
+    },
+    {
+      name: 'review-page-is-browser-only',
+      severity: 'error',
+      comment:
+        'The review page runs in the browser: it imports only its own modules, and types (free) from the kit. The rules stay ' +
+        'on the server, which sends derived state.',
+      from: { path: '^tools/review/page/', pathNot: TEST },
+      to: { path: '^tools/review/', pathNot: '^tools/review/page/' },
+    },
   ],
   options: {
     tsConfig: { fileName: 'tsconfig.json' },
     doNotFollow: { path: 'node_modules' },
     exclude: { path: ['\\.(webp|png|jpe?g|svg|mp3|ogg|woff2?|yaml|yml|css)$'] },
-    includeOnly: '^src/',
+    includeOnly: '^(src|tools)/',
   },
 }
