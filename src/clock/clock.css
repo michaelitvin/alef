@@ -82,7 +82,9 @@ html, body, #root { margin: 0; height: 100%; }
 }
 /* away from the corners: a tablet's rounded screen corners cut into the first ~16px (the parent 2026-10-17: the home button
    was a bit outside the screen) */
-.ck-home { position: absolute; top: calc(20px + env(safe-area-inset-top)); left: calc(22px + env(safe-area-inset-left)); background: none; border: 0; z-index: 5; }
+/* the held house (src/shared/HomeButton.tsx, its look in holdButton.css): the top-left corner, as in Book 2, on the door,
+   the workshop and the pause cover */
+.ck-root .home-btn { position: absolute; top: calc(12px + env(safe-area-inset-top)); left: calc(24px + env(safe-area-inset-left)); z-index: 7; }
 /* the top bar's right end: the hint button, then the gear counter; clear of the corner */
 .ck-topright { position: absolute; top: calc(12px + env(safe-area-inset-top)); right: calc(24px + env(safe-area-inset-right)); display: flex; align-items: center; gap: 14px; z-index: 6; }
 .ck-hint-btn { width: 52px; height: 52px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; background: #fff8e7; box-shadow: 0 4px 10px rgba(48, 24, 8, 0.35); z-index: 6; }

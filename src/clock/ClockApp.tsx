@@ -22,8 +22,11 @@ function askCues(id: string) {
   return { boy: at(/^(בן|boy)/i, 1.2), girl: at(/^(בת|girl)/i, 1.7) }
 }
 
-export default function ClockApp() {
-  const [screen, setScreen] = useState<'cover' | 'work' | 'parent'>('cover')
+/** back to alef's home screen, the hub of all the games (Book 2 leaves the same way) */
+function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
+
+export default function ClockApp({ goHome = defaultGoHome }: { goHome?: () => void } = {}) {
+  const [screen, setScreen] = useState<'cover' | 'work' | 'parent' | 'leaving'>('cover')
   /** the door shows (not the boy/girl question over it) */
   const onDoor = useRef(true)
   const lang = useClockStore((s) => s.settings.langs[0])
@@ -63,8 +66,8 @@ export default function ClockApp() {
       return
     }
     const start = (e?: PointerEvent) => {
-      // the parent-settings button and its number pad lead away from the door: their presses start no music
-      if (e?.target instanceof Element && e.target.closest('.ck-parent-btn, [data-parent-gate]')) return
+      // the parent-settings button, its number pad and the held house lead away from the door: their presses start no music
+      if (e?.target instanceof Element && e.target.closest('.ck-parent-btn, [data-parent-gate], .home-btn')) return
       window.removeEventListener('pointerdown', start)
       tapped.current = true
       unlockAudioOutput()
@@ -75,8 +78,19 @@ export default function ClockApp() {
     window.addEventListener('pointerdown', start)
     return () => window.removeEventListener('pointerdown', start)
   }, [door, screen])
+  // the held house (the door, the workshop, its pause cover): the workday has ended (Workshop: its exit), the game leaves
+  // to alef's home screen, as Book 2 does; nothing of the game stays mounted meanwhile (the workshop's play time is
+  // written as it unmounts)
+  const leave = () => {
+    stopVoices()
+    stopMusic()
+    clockTelemetry.flush()
+    setScreen('leaving')
+    goHome()
+  }
+  if (screen === 'leaving') return <div className="ck-root" data-screen="leaving" />
   if (shell.asking) return shell.question
-  if (screen === 'work') return <Workshop onExit={() => setScreen('cover')} />
+  if (screen === 'work') return <Workshop onExit={leave} />
   if (screen === 'parent') return <ParentArea game="clock" onClose={() => setScreen('cover')} track={(e, f) => clockTelemetry.track(e, f)} telemetry={clockTelemetry} homeHref={import.meta.env.BASE_URL} />
-  return <Cover onPlay={shell.play} onParent={() => setScreen('parent')} loading={shell.loading} />
+  return <Cover onPlay={shell.play} onParent={() => setScreen('parent')} onHome={leave} loading={shell.loading} />
 }
