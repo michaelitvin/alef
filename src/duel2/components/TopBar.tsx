@@ -9,8 +9,7 @@ import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
-import { HoldButton } from '../../shared/HoldButton'
-import { HouseGlyph } from './holdGlyphs'
+import { HomeButton as SharedHomeButton } from '../../shared/HomeButton'
 
 /** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (duel2.css) */
 const FLASH_MS = 1700
@@ -81,5 +80,5 @@ export function TopBar(p: {
 
 /** the way home (a 2 s hold): in the bar's left corner, on the pause cover and on the run's summary */
 export function HomeButton({ onHome }: { onHome: () => void }) {
-  return <HoldButton label="home (hold)" className="d2-home-btn" onHold={onHome}><HouseGlyph /></HoldButton>
+  return <SharedHomeButton className="d2-home-btn" onHome={onHome} />
 }

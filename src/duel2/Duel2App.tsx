@@ -119,7 +119,7 @@ export default function Duel2App({ goHome = defaultGoHome }: { goHome?: () => vo
       </>
     )
   }
-  return <Cover onPlay={play} onParent={() => { setAreaAt('game'); setScreen('parent') }} loading={loading} />
+  return <Cover onPlay={play} onParent={() => { setAreaAt('game'); setScreen('parent') }} onHome={leave} loading={loading} />
   })()
   return <>{view}{screen !== 'parent' && screen !== 'gallery' && screen !== 'strokes' && <RotateHint />}</>
 }
