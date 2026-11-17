@@ -2040,6 +2040,33 @@ describe('run controller', () => {
   describe('the flight boss, end to end (waves, voice order, pauses; policies/broomBoss.test.ts covers the rest)', () => {
     const bv = (c: RunController) => (c.view.screen?.screen === 'broom' ? c.view.screen : null)
 
+    it('comes on the second broom visit of a run, never on the first (the controller counts each visit once)', async () => {
+      fakeAudio.onVoice(() => Promise.resolve())
+      useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
+      const c = make()
+      c.start()
+      const visits: (string | null)[] = []
+      let prev: string | undefined
+      for (let i = 0; i < 40_000 && visits.length < 2; i++) {
+        const s = c.view.screen
+        if (s?.screen === 'broom' && prev !== 'broom') visits.push(null)
+        if (s?.screen === 'broom' && s.boss) visits[visits.length - 1] = s.boss.kind
+        prev = s?.screen
+        autoTower(c)
+        if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
+        fly(c)
+        await tick(50)
+      }
+      // let the second visit show its boss
+      for (let i = 0; i < 100 && !bv(c)?.boss; i++) await tick(50)
+      visits[1] = bv(c)?.boss?.kind ?? null
+      expect(visits[0]).toBeNull()
+      expect(['mimic', 'bat']).toContain(visits[1])
+      expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
+      c.destroy()
+    }, 60_000)
+
     it('arrives, throws two-orb waves that fly slower, and 8 catches beat it: its lines, 3 bonus coins, the trophy', async () => {
       duel2Telemetry.clear()
       useDuel2Store.setState({ totalStars: 0, bossesBeaten: [] })
@@ -2231,7 +2258,12 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
       await tick(20)
     }
   }
-
+  async function drawMarks(c: RunController) {
+    await until(c, (v) => dv(c).mode === 'mark' && v.phase === 'answer')
+    const v = dv(c)
+    const ink = bbox(v.strokes.filter((x) => x.state === 'ok' || x.state === 'helped').flatMap((x) => x.pts))
+    for (const m of markTargets(v.marks, { letter: ink, vav: v.layout.vav?.box })) { c.gesture({ type: 'stroke', pts: m }); await tick(20) }
+  }
 
   it('a round: the word, the demo (a letter not drawn yet), he draws, each right stroke turns gold, the word again, a star', async () => {
     const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
@@ -2339,6 +2371,64 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     await until(d, (v) => !!v.screen)
     expect(d.view.screen!.screen).not.toBe('draw')
     d.destroy()
+  })
+
+  it('handwriting is shown in its own script; the gallery can force it', async () => {
+    const c = make({ force: { screen: 'draw', stage: 3, script: 'hand' } })
+    c.start()
+    await answering(c)
+    expect(dv(c).script).toBe('hand')
+    expect(dv(c).layout.rest.font).toMatch(/Dana Yad/)
+    c.destroy()
+  })
+
+  it('the print screen draws in print and the handwriting screen in handwriting, at any stage', async () => {
+    fakeAudio.onVoice(() => Promise.resolve())
+    useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+    const c = make()
+    c.start()
+    const seen: { screen: string; script: string }[] = []
+    for (let guard = 0; guard < 6000 && c.view.screen?.screen !== 'broom'; guard++) {
+      const s = c.view.screen
+      if (s?.screen === 'draw' && c.view.phase === 'answer' && !s.demo && s.mode === 'letter' && s.strokes.length === 0) {
+        const id = (c as unknown as { screenId: string }).screenId
+        seen.push({ screen: id, script: s.script })
+        await drawLetter(c)
+        if (dv(c).marks.length) await drawMarks(c)
+        await until(c, () => dv(c).mode === 'done' || c.view.screen?.screen !== 'draw')
+        continue
+      }
+      autoTower(c)
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.phase === 'answer' && s && s.screen === 'ghosts') c.gesture({ type: 'pick', id: rightId(c.view) })
+      await tick(50)
+    }
+    expect(seen.map((x) => x.screen)).toEqual(['draw', 'draw', 'draw', 'draw-hand', 'draw-hand', 'draw-hand'])
+    expect(seen.map((x) => x.script)).toEqual(['print', 'print', 'print', 'hand', 'hand', 'hand'])
+    expect(c.view.screen?.screen).toBe('broom')
+    c.destroy()
+  }, 60_000)
+
+  it('strokes are accepted on the handwriting screen, and a pause resumes it in handwriting', async () => {
+    const c = make({ force: { screen: 'draw-hand', stage: 1 } })
+    c.start()
+    await answering(c)
+    expect(dv(c).screen).toBe('draw')
+    expect(dv(c).script).toBe('hand')
+    const id = dv(c).word.id
+    c.gesture({ type: 'stroke', pts: strokesFor(c)[0] })
+    await tick(20)
+    c.pause()
+    c.resume()
+    await answering(c)
+    expect(dv(c).word.id).toBe(id)
+    expect(dv(c).script).toBe('hand')
+    await drawLetter(c)
+    if (dv(c).marks.length) await drawMarks(c)
+    await until(c, () => dv(c).mode === 'done')
+    expect(useDuel2Store.getState().tallies['sc:draw-hand']?.seen).toBe(1)
+    expect(useDuel2Store.getState().tallies['sc:draw']).toBeUndefined()
+    c.destroy()
   })
 
   it('a pause restarts the same word from the start', async () => {
