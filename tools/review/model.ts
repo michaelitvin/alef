@@ -105,6 +105,22 @@ export interface Section {
   order?: number
 }
 
+/**
+ * The old review files that tools outside the kit still read (sync, provenance, agents). The server writes them again
+ * from the log after each of the parent's decisions; see legacyFiles.ts. Paths are host facts: adapter only.
+ */
+export interface LegacyFiles {
+  /** The old choices file: the "choices" format, or the "versioned" format when `rounds` is given. */
+  choices: string
+  /** The old retake queue ("choices" format only). */
+  queue?: string
+  /** Where the pre-switch choices file is kept before the kit first writes over it. */
+  frozenChoices: string
+  frozenQueue?: string
+  /** The versioned format's takes of each item's round (the first nikkud duel). */
+  rounds?: () => Record<string, { version: number; takes: string[] }>
+}
+
 /** What a game adapter gives the kit. Host facts (paths, ports) live only in the adapter, never in the repo. */
 export interface GameAdapter {
   id: string
@@ -115,4 +131,6 @@ export interface GameAdapter {
   media: Record<string, string>
   loadItems(): Item[] | Promise<Item[]>
   sections?: Section[]
+  /** The old files to keep up to date for tools that still read them. */
+  legacy?: LegacyFiles
 }

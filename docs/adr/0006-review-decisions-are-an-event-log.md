@@ -24,6 +24,10 @@ in one module (`rules.ts`). The page, the sync and the agent CLI all ask that mo
 
 ## Consequences
 
+- Until the sync and provenance tools read the CLI, the server writes the old files again from the log after each of
+  the parent's decisions (atomically, and only while a file still holds the log's previous export, so a hand edit is
+  never overwritten). The old pages added an item to the retake queue with every new Reject; the old queue file keeps
+  doing so.
 - The old stores import without loss: the importers replay the backups in time order, so notes that the live file lost
   come back as history, and the exporters write the live files back unchanged (a round-trip test, which runs on copies
   of the real files when `REVIEW_LEGACY_DIR` is set).

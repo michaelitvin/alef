@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -27,6 +27,15 @@ const game: GameAdapter = {
     { id: 'old', kind: 'audio', retired: 'reworded', takes: [{ id: 'cut/old.mp3' }] },
   ],
 }
+const hlog = memoryLog()
+/** A game whose old files tools still read. */
+const legacyGame: GameAdapter = {
+  id: 'h',
+  title: 'Old files',
+  log: 'unused',
+  media: {},
+  loadItems: () => [{ id: 'v', kind: 'audio', takes: [{ id: 'v/a.mp3', round: 2 }] }],
+}
 
 beforeAll(async () => {
   dir = mkdtempSync(join(tmpdir(), 'review-srv-'))
@@ -34,7 +43,8 @@ beforeAll(async () => {
   writeFileSync(join(dir, 'cut', 'snd.mp3'), Buffer.from('0123456789'))
   writeFileSync(join(dir, 'secret.txt'), 'no')
   game.media = { cut: join(dir, 'cut') }
-  server = startServer({ port: 0, games: [game] }, new Map([['g', log]]))
+  legacyGame.legacy = { choices: join(dir, 'choices.json'), queue: join(dir, 'queue.json'), frozenChoices: join(dir, 'choices.pre-kit.json') }
+  server = startServer({ port: 0, games: [game, legacyGame] }, new Map([['g', log], ['h', hlog]]))
   await new Promise((r) => server.once('listening', r))
   base = `http://localhost:${(server.address() as AddressInfo).port}/g/`
 })
@@ -70,6 +80,15 @@ describe('review server', () => {
     expect((await post({ type: 'accept', item: 'snd', take: 'cut/snd.mp3', source: 'x' })).status).toBe(400)
     expect((await post({ type: 'ok', item: 'nope', take: 'x' })).status).toBe(400)
     expect((await post({ type: 'ok', item: 'snd', take: 'cut/other.mp3' })).status).toBe(400)
+  })
+
+  it("keeps the round of the take, and writes a game's old files again after a decision", async () => {
+    const r = await fetch(base.replace(/g\/$/, 'h/api/event'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'reject', item: 'v', take: 'v/a.mp3', text: 'flat' }) })
+    expect(r.status).toBe(200)
+    expect(hlog.read()[0]).toMatchObject({ type: 'reject', round: 2 })
+    const choices = JSON.parse(readFileSync(join(dir, 'choices.json'), 'utf8')) as unknown
+    expect(choices).toMatchObject({ v: { ok: [], rejected: [{ file: 'v/a.mp3', note: 'flat' }] } })
+    expect(JSON.parse(readFileSync(join(dir, 'queue.json'), 'utf8'))).toEqual(['v'])
   })
 
   it('serves media with ranges and never outside a media root', async () => {

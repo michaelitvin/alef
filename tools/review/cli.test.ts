@@ -75,4 +75,13 @@ describe('agent CLI', () => {
       'ph-2-15': { ok: ['v1.mp3'], rejected: [] },
     })
   })
+
+  it('checks that the old files hold what the log exports', async () => {
+    const legacy = { choices, frozenChoices: join(dir, 'frozen.json'), queue: file('queue.json', ['pic-duck']) }
+    expect(await run({ ...adapter, legacy }, log, ['legacy-check'])).toEqual([
+      { file: choices, same: true },
+      { file: legacy.queue, same: false },
+    ])
+    await expect(run(adapter, log, ['legacy-check'])).rejects.toThrow(/no legacy files/)
+  })
 })

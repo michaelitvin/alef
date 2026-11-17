@@ -5,13 +5,14 @@
 //
 // Read:   status | open [view] | notes [--all] | retakes | current <item> | ship [--compare <file.json>]
 //         export-choices | export-queue | export-versioned <rounds.json>
+//         legacy-check (does each of the adapter's old files hold what the log exports?)
 // Write (agent events only):
 //         answer <item> <note-seq|all> <text> [--take T]   accept <item> <source> [--take T]   ask <item> <text>
 //         withdraw <item> <take> <reason>   restore <item> <take>   retire <item> <reason>   unretire <item>
 //         prefer <item> <take>
 // Import (into an empty log only): import-choices <live.json> [--backup F]... [--queue Q] [--accepted] [--focus F]
 //         import-versioned <live.json> <rounds.json> [--backup F]...
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { fileLog, validate } from './log.ts'
@@ -19,7 +20,7 @@ import type { DecisionLog } from './log.ts'
 import type { GameAdapter, Item, NewEvent } from './model.ts'
 import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
 import type { View } from './rules.ts'
-import { exportChoices, exportQueue, exportVersioned, importChoices, importVersioned, snapshotOrder } from './legacy.ts'
+import { exportChoices, exportQueue, exportVersioned, importChoices, importVersioned, legacyViews, sameJson, snapshotOrder } from './legacy.ts'
 import type { Choices, RoundTakes, Versioned } from './legacy.ts'
 
 export async function loadAdapter(path: string): Promise<GameAdapter> {
@@ -103,6 +104,10 @@ export async function run(adapter: GameAdapter, log: DecisionLog, argv: string[]
       return exportQueue(log.read())
     case 'export-versioned':
       return exportVersioned(log.read(), readJson<RoundTakes>(rest[0]))
+    case 'legacy-check': {
+      if (!adapter.legacy) throw new Error(`${adapter.id} has no legacy files`)
+      return legacyViews(adapter.legacy, log.read()).map((v) => ({ file: v.path, same: existsSync(v.path) && sameJson(readJson(v.path), v.data) }))
+    }
     case 'answer': {
       const s = deriveItem(item(rest[0]), log.read())
       const open = s.notes.filter((n) => n.state === 'open' && (rest[1] === 'all' || n.seq === Number(rest[1])))

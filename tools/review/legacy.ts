@@ -9,7 +9,7 @@
 //
 // Old stores kept only the latest state. Their backups (snapshots) are replayed in time order, so a note that was
 // overwritten in the live file comes back as history.
-import type { NewEvent, ReviewEvent } from './model.ts'
+import type { LegacyFiles, NewEvent, ReviewEvent } from './model.ts'
 
 export interface ChoiceEntry {
   ok?: string[]
@@ -112,6 +112,63 @@ export function exportQueue(events: ReviewEvent[]): string[] {
   const out: string[] = []
   for (const e of events) if (e.by === 'parent' && e.type === 'retake' && !out.includes(e.item)) out.push(e.item)
   return out
+}
+
+/**
+ * The old retake queue as the old pages kept it: they added the item with every new Reject (not with an edit of a
+ * note). The kit's page sends no retake request, so a new Reject made after the import (an event with no `src`) adds
+ * its item here. On a freshly imported log this equals `exportQueue`.
+ */
+export function exportLegacyQueue(events: ReviewEvent[]): string[] {
+  const out: string[] = []
+  const add = (id: string) => {
+    if (!out.includes(id)) out.push(id)
+  }
+  const last = new Map<string, Map<string | null, string>>()
+  for (const e of [...events].sort((a, b) => a.seq - b.seq)) {
+    if (e.by !== 'parent') continue
+    if (e.type === 'retake') add(e.item)
+    if (e.type !== 'ok' && e.type !== 'reject' && e.type !== 'reset') continue
+    const takes = last.get(e.item) ?? new Map<string | null, string>()
+    last.set(e.item, takes)
+    const take = e.take ?? null
+    if (e.type === 'reject' && !e.src && takes.get(take) !== 'reject') add(e.item)
+    if (e.type === 'reset' && take == null) takes.clear()
+    else takes.set(take, e.type)
+  }
+  return out
+}
+
+/** One old file and its contents from the log. */
+export interface LegacyView {
+  path: string
+  /** Where the file is kept before the kit first writes it. */
+  frozen: string
+  data: unknown
+  /** Contents of a missing file. */
+  empty: unknown
+}
+
+/** The old files a game keeps for tools outside the kit, from the log (parent events only). */
+export function legacyViews(v: LegacyFiles, events: ReviewEvent[]): LegacyView[] {
+  if (v.rounds) return [{ path: v.choices, frozen: v.frozenChoices, data: exportVersioned(events, v.rounds()), empty: {} }]
+  const out: LegacyView[] = [{ path: v.choices, frozen: v.frozenChoices, data: exportChoices(events), empty: {} }]
+  if (v.queue) out.push({ path: v.queue, frozen: v.frozenQueue ?? v.queue + '.pre-kit', data: exportLegacyQueue(events), empty: [] })
+  return out
+}
+
+/** Deep equality as JSON sees it: key order of objects does not count, order of lists does. */
+export function sameJson(a: unknown, b: unknown): boolean {
+  if (a === b) return true
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false
+  if (Array.isArray(a) !== Array.isArray(b)) return false
+  if (Array.isArray(a)) {
+    const bb = b as unknown[]
+    return a.length === bb.length && a.every((x, i) => sameJson(x, bb[i]))
+  }
+  const ka = Object.keys(a)
+  const ob = b as Record<string, unknown>
+  return ka.length === Object.keys(ob).length && ka.every((k) => k in ob && sameJson((a as Record<string, unknown>)[k], ob[k]))
 }
 
 // ---- versioned (the first nikkud duel) -------------------------------------------------------------------------------

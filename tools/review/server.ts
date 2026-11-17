@@ -5,6 +5,7 @@
 //
 // config.mjs: export default { host, port, games: [adapter, ...] } (see model.ts GameAdapter). Each game is served
 // under /<game id>/: the page at /<id>/, GET /<id>/api/state, POST /<id>/api/event, files under /<id>/media/<root>/.
+// A game with `legacy` files gets them written again from the log after each decision (legacyFiles.ts).
 import { createReadStream, existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
@@ -14,6 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { fileLog, validate } from './log.ts'
 import type { DecisionLog } from './log.ts'
 import type { GameAdapter, NewEvent } from './model.ts'
+import { writeLegacyFiles } from './legacyFiles.ts'
 import { deriveAll, deriveItem } from './rules.ts'
 import { toPageItem, toPageState } from './pageData.ts'
 
@@ -115,7 +117,8 @@ export function handler(games: GameAdapter[], logs: Map<string, DecisionLog>) {
         const items = await game.loadItems()
         const it = items.find((i) => i.id === b.item)
         if (!it) return json(res, { error: 'no such item' }, 400)
-        if (b.take != null && !it.takes.some((t) => t.id === b.take)) return json(res, { error: 'no such take' }, 400)
+        const tk = b.take != null ? it.takes.find((t) => t.id === b.take) : undefined
+        if (b.take != null && !tk) return json(res, { error: 'no such take' }, 400)
         const ev: NewEvent = {
           by: 'parent',
           at: new Date().toISOString(),
@@ -124,14 +127,21 @@ export function handler(games: GameAdapter[], logs: Map<string, DecisionLog>) {
           ...(b.take != null ? { take: b.take } : {}),
           ...(typeof b.text === 'string' ? { text: b.text.trim() } : {}),
           ...(b.only ? { only: true } : {}),
+          ...(tk?.round != null ? { round: tk.round } : {}),
         }
         try {
           validate(ev, 'parent')
         } catch (err) {
           return json(res, { error: (err as Error).message }, 400)
         }
+        const before = log.read()
         log.append([ev])
-        return json(res, { item: toPageItem(deriveItem(it, log.read())) })
+        const after = log.read()
+        if (game.legacy) {
+          const { skipped } = writeLegacyFiles(game.legacy, before, after)
+          for (const s of skipped) console.warn(`${game.id}: legacy file ${s}`)
+        }
+        return json(res, { item: toPageItem(deriveItem(it, after)) })
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'method')
       if (rest.join('/') === 'api/state') return json(res, toPageState(game, deriveAll(await game.loadItems(), log.read())))

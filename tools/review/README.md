@@ -10,6 +10,7 @@ review: *Review of generated assets* in [docs/minigame-rules.md](../../docs/mini
 | `rules.ts` | The take to ship, item state, notes and their states, views, the retake work list (pure) |
 | `log.ts` | The append-only decision log (JSON lines, one per game), and who may write which event |
 | `legacy.ts` | Import from the old `choices.json`, `retake-queue.json` and the first duel's versioned picks; export back |
+| `legacyFiles.ts` | Writes the old files again from the log after each decision, for tools that still read them |
 | `pageData.ts` | The derived state the page gets |
 | `server.ts` | One server for every game: page, `api/state`, `api/event` (parent events only), media |
 | `cli.ts` | The agent CLI (agent events only); usage at the head of the file |
@@ -20,7 +21,9 @@ Node runs the TypeScript files directly (type stripping); the server strips the 
 ## A game adapter (host-local, never committed)
 
 A `.mjs` file that exports a `GameAdapter` (see `model.ts`): `id`, `title`, `log` (path of the game's log), `media`
-(URL prefix to folder), `loadItems()` and optional `sections`. Each item gives its takes in order, oldest first. Mark
+(URL prefix to folder), `loadItems()` and optional `sections`. Optional `legacy` names the game's old files (choices, retake queue, and where
+to keep the pre-switch copies): the server writes them again after each of the parent's decisions, atomically, and only
+while each file still holds what the log exported before the decision; `cli.ts <adapter> legacy-check` compares them. Each item gives its takes in order, oldest first. Mark
 `hidden: true` for a picture whose word the game does not show, and `nameCheck: true` to offer a name objection.
 
 ```
