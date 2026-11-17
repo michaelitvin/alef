@@ -195,6 +195,19 @@ encode/decode of their events.
 **Acceptance:** byte round trip holds; ratio on fixtures improves vs Task 2 (record both).
 **Risks:** an over-clever rule that is not exact; the byte round trip on all fixtures is the guard. **Size:** S.
 
+> **Done, with notes (2026-11-17).** Ratios against today's JSON, one chunk per session:
+>
+> | | Task 2 | Task 3 (+ column-major rows) |
+> | --- | --- | --- |
+> | synthetic Book 2 (150 events/session) | 5.0× | 5.5× |
+> | synthetic clock | 8.6× | 9.5× |
+> | a real first-duel export (local check, 926 events, 5 sessions) | 7.3× (largest session 9.0×) | 9.0× (largest session 11.6×) |
+>
+> Deviation: the synthetic data compresses *worse* than real data (its values are uniform random picks), not 2× better,
+> so the CI guard is ≥ 5× for synthetic Book 2 and ≥ 6× for the clock; the real check passes the ≥ 8× gate of Task 2.
+> Added beyond the plan: the rows are stored column by column inside each schema (like values together), which took
+> the real export from 7.8× to 9.0×.
+
 ## Task 4a: The chunk store (read side)
 
 **Goal:** core can read, count and clear a log made of an open chunk and sealed chunks. Nothing writes chunks yet.

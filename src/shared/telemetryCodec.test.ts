@@ -75,11 +75,13 @@ describe('the codec', () => {
     expect(() => encodeChunk([{ ...ev(1, 'a'), t: 1.5 }])).toThrow()
   })
 
-  it('compresses the synthetic logs at least 6× against today\'s JSON', () => {
+  it('compresses the synthetic logs against today\'s JSON: Book 2 at least 5×, the clock at least 6×', () => {
     const r = { book2: ratio(GOLDEN_BOOK2()), clock: ratio(GOLDEN_CLOCK()), book2Big: ratio(book2Events()), clockBig: ratio(clockEvents()) }
     process.stderr.write('codec ratio ' + JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k, Math.round(v * 10) / 10]))) + '\n')
     // the synthetic values are more random than a child's play (uniform picks, wide ranges), so they compress worse
-    expect(r.book2Big).toBeGreaterThanOrEqual(4.5)
+    // The synthetic Book 2 values are more random than a child's play (uniform picks over wide ranges), so they compress
+    // worse than a real log, not better: this is only a guard. A real export (the local check below) gives ≈9×.
+    expect(r.book2Big).toBeGreaterThanOrEqual(5)
     expect(r.clockBig).toBeGreaterThanOrEqual(6)
   })
 })
@@ -96,5 +98,35 @@ describe.skipIf(!SAMPLE)('the codec on a real export (local only)', () => {
     const per = sessions.map((s) => JSON.stringify(s).length / encodeChunk(s).length)
     process.stderr.write('real export ' + JSON.stringify({ events: evs.length, sessions: sessions.length, ratio: Math.round(ratio(evs) * 10) / 10,
       biggestSession: Math.round(per[sessions.map((s) => s.length).indexOf(Math.max(...sessions.map((s) => s.length)))]! * 10) / 10 }) + '\n')
+  })
+})
+
+describe('exact trimming (time fields, constant columns, run)', () => {
+  const T = 1_760_000_000_000
+  it('a clock equal to t, behind, ahead, missing, null or a float rebuilds byte-equal', () => {
+    roundTrip([
+      ev(T, 'answer', { clock: T }), ev(T + 5, 'answer', { clock: T + 2 }), ev(T + 9, 'answer', { clock: T + 10 }),
+      ev(T + 11, 'answer'), ev(T + 12, 'answer', { clock: null }), ev(T + 13, 'answer', { clock: T + 0.5 }),
+      ev(T + 14, 'answer', { clock: T + 11 }),
+    ])
+  })
+  it('a schema with a time and a non-time value falls back to plain', () => {
+    const evs = [ev(T, 'x', { at: T - 3 }), ev(T + 1, 'x', { at: 42 }), ev(T + 2, 'x', { at: '2026' })]
+    roundTrip(evs)
+  })
+  it('a time field before t in the key order is kept plain', () => {
+    roundTrip([{ clock: T, t: T + 1, s: S, run: 1, e: 'x' }, { clock: T + 3, t: T + 4, s: S, run: 1, e: 'x' }])
+  })
+  it('constant columns (g, via) and run deltas rebuild, nested constants are not shared', () => {
+    const evs = [1, 2, 3, 4].map((i) => ev(T + i, 'round', { via: 'tower', visit: 2, pad: ['a'], run: 7 + (i > 2 ? 1 : 0) }))
+    const out = decodeChunk(encodeChunk(evs))!
+    expect(JSON.stringify(out)).toBe(JSON.stringify(evs))
+    expect(out[0]!.pad).not.toBe(out[1]!.pad)
+  })
+  it('the goldens still match after an encode/decode of their sessions', () => {
+    for (const evs of [GOLDEN_BOOK2(), GOLDEN_CLOCK()]) {
+      const back = bySession(evs).flatMap((s) => decodeChunk(encodeChunk(s))!)
+      expect(JSON.stringify(back.sort((a, b) => a.t - b.t))).toBe(JSON.stringify(evs))
+    }
   })
 })
