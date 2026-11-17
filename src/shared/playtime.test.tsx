@@ -74,7 +74,7 @@ describe('the play-time ledger', () => {
     const rows = lastDays(7, at('2026-11-16T12:00:00'))
     expect(rows).toHaveLength(7)
     expect(rows[0]!.day).toBe('2026-11-10')
-    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { book2: 0, clock: 2 * MIN, lessons: 0 } })
+    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { book2: 0, clock: 2 * MIN, lessons: 0, spacecat: 0 } })
     expect(dayKey(at('2026-11-16T00:00:00'))).toBe('2026-11-16')
   })
 

@@ -12,7 +12,7 @@ export interface SpaceCatSavePort {
   markHeard: Actions['markHeard']
 }
 
-/** the app's port (the play controller is plan Task 15; @public until it imports this) */
+/** the app's port */
 export const storeSavePort: SpaceCatSavePort = {
   get: () => useSpaceCatStore.getState(),
   recordRound: (...a) => useSpaceCatStore.getState().recordRound(...a),

@@ -50,16 +50,22 @@ function fileOf(id: string): string | undefined {
   return lineAudioId(id, i + 1)
 }
 
+let lastVoice: Promise<unknown> = Promise.resolve()
 /** says a line (after anything queued); true when it was heard. An unknown line or a missing file: at once, false. */
 export function say(id: string): Promise<boolean> {
   const file = fileOf(id)
-  return file ? kit.say([file]) : Promise.resolve(false)
+  if (!file) return Promise.resolve(false)
+  const p = kit.say([file])
+  lastVoice = Promise.all([lastVoice, p])
+  return p
 }
 
+let infoBusy = false
 /** a short explanation (a tap on the hearts, the points, his best, a locked ship): once for a burst of taps */
 export function sayInfo(id: string): void {
-  const file = fileOf(id)
-  if (file) kit.sayInfo(file)
+  if (infoBusy || !fileOf(id)) return
+  infoBusy = true
+  void say(id).finally(() => { infoBusy = false })
 }
 
 let lastEffect: Promise<void> = Promise.resolve()
@@ -98,12 +104,11 @@ export function stopAll(): void {
 /** stops the voice now (a touch ends a tip) */
 export const stopVoice = (): void => kit.stopVoice()
 
-/** resolves when the voice queue is idle and the last effect has ended */
+/** resolves when every line asked for so far and the last effect have ended (a stop ends them too) */
 export async function quiet(): Promise<void> {
   for (;;) {
-    const effect = lastEffect
-    await effect
-    await kit.say([]) // resolves after everything queued before it
-    if (kit.voiceIdle() && effect === lastEffect) return
+    const voice = lastVoice, effect = lastEffect
+    await Promise.all([voice, effect])
+    if (voice === lastVoice && effect === lastEffect) return
   }
 }

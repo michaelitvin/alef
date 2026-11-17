@@ -100,6 +100,16 @@ describe('Space Cat on the audio kit', () => {
     expect(done).toBe(true)
   })
 
+  it('two quiet() calls at once both end', async () => {
+    audio.voiceMs = 20
+    void say('demo')
+    const both = Promise.all([quiet(), quiet()])
+    let done = false
+    void both.then(() => { done = true })
+    await new Promise((r) => setTimeout(r, 60))
+    expect(done).toBe(true)
+  })
+
   it('effects off on the device: no coded effect plays', async () => {
     applySound({ sfx: false, music: true, volume: 0.8 })
     await playSfx('right')
