@@ -5,9 +5,12 @@ import App from './App'
 import './styles/global.css'
 import { useProgressStore } from './stores/progressStore'
 import { rehydrateOnRestore } from './shared/rehydrateOnRestore'
+import { requestPersistentStorage } from './shared/saveStorage'
 
 // Book 2's page also writes the progress save (its tower): coming back with the back button reads it again
 rehydrateOnRestore(useProgressStore)
+// ask the browser to keep the saves under storage pressure (best-effort; the lessons have no log to record it in)
+void requestPersistentStorage()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

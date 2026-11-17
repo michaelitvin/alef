@@ -1,6 +1,7 @@
 // Book 2's own save (localStorage 'alef-duel2'); reset never touches alef's progress or the duel's.
 import { create, type StateCreator } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+import { persistSaveStorage } from '../shared/saveStorage'
 import { pushRecent, type Tally } from '../shared/adaptive'
 import type { ScreenId } from './logic/predict'
 import type { Choice, Conf } from './logic/rounds'
@@ -254,7 +255,7 @@ export const useDuel2Store = create<Duel2Save & Duel2Actions>()(
   persist(
     duel2State,
     {
-      name: 'alef-duel2', version: SAVE_VERSION, storage: createJSONStorage(() => localStorage),
+      name: 'alef-duel2', version: SAVE_VERSION, storage: persistSaveStorage(),
       // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
       // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
       // state over it.

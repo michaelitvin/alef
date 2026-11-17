@@ -21,4 +21,7 @@ exports it as it is, as "First duel (history)".
 - One export (the Data section) writes one file with one part per log, each with its own `about`. The open game's log
   is read and cleared through its instance, so its unflushed events are in the file and a cleared log does not come back
   on its next flush; the other logs are read from storage.
+- When the storage is full, a save write trims the live logs to make room (`src/shared/saveStorage.ts`), never the
+  frozen log. So the frozen log keeps its size even when the child's saves need the space; the live logs lose their
+  oldest events first.
 - The tower in Book 2's screen gallery records nothing (no log), as the gallery records nothing else.

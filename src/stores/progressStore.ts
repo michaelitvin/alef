@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+import { persistSaveStorage } from '../shared/saveStorage'
 import type {
   ProgressState,
   NodeProgress,
@@ -586,7 +587,7 @@ export const useProgressStore = create<ProgressStore>()(
     }),
     {
       name: 'alef-progress',
-      storage: createJSONStorage(() => localStorage),
+      storage: persistSaveStorage(),
       partialize: (state) => ({
         // Only persist these fields
         version: state.version,

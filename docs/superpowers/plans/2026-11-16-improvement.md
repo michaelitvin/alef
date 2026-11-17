@@ -38,6 +38,7 @@ Duel, the home's shelf). *The area* = the shared parent area. *The gate* = 2 s h
 | 2 | 18 seams · 19 merchant · 20 draw · 21 broom boss · 22 pass and hearts | starts after all of Phase 1 is in (Task 9 and 17 edit `useRun.test.tsx` and `Tower.tsx`); serial (all edit `controller.ts`) |
 | 3 | 23 duel controller · 24 duel hook and tests | after 18; may run beside 19–22 (they never touch `controller.ts` or `useRun.test.tsx`) |
 | — | 25 verify skill · 26 docs sweep · 27 final QA | 25 after 15, 16 and 17 (any time beside Phase 2/3); 26 after all others; 27 last |
+| — | 28 saves in a full storage | after 7, 8, 16 and 17 (it edits the telemetry, device settings and play time); before 27 |
 
 Shared files that several tasks touch (`src/shared/README.md`, `GLOSSARY.md`, `package.json`, the CI workflow): edit
 them only at the end of a task, in small hunks, so parallel tasks rebase cleanly.
@@ -559,6 +560,28 @@ the audio log (rule: *Verification*; QA before any playtest build):
   before the release (the caps trim old events); one sound setting now (the clock may play music where it was off);
   filter tower events by `via`; the year-of-birth gate.
 **Accept:** every item checked, with screenshots; any difference from `main` is either fixed or listed for the parent.
+
+### Task 28: Child saves survive a full storage (M)
+
+**Goal:** a full origin quota never loses a save. Zustand's `persist` does not catch `QuotaExceededError`: the write
+throws inside the child's game action and the save is lost. The telemetry logs share the localStorage with the saves,
+and staging shares the origin (ADR 0001).
+**Files:** `src/shared/saveStorage.ts` + test, `src/shared/telemetry.ts`, the three `persist` stores, `player.ts`,
+`deviceSettings.ts`, `playtime.ts`, the three `main.tsx`.
+- [ ] One storage adapter for every child save (`persistSaveStorage()`, over `safeSetItem`): on a quota error it frees
+  space by trimming telemetry, then retries once. It trims the live logs, oldest events first: this page's logs (through
+  their instances, so a flush does not bring the events back), then the others in storage (staging's first). It never
+  touches the frozen `alef-duel-telemetry` (owner decision) and never another save. If the retry fails, the state stays
+  in memory and nothing throws into the game. It uses `localStorage` at each call, so the staging prefix still applies.
+  The small direct writers (player, device settings, play time) write through it too.
+- [ ] Telemetry's own flush already backs off on a quota error: it drops its own oldest events and never frees another
+  key. Test it.
+- [ ] Each entry calls `navigator.storage.persist()` once at startup, best-effort and guarded (not when the storage is
+  already kept). Book 2 and the clock record the answer once in their log (`storage-persist`, `{ persisted }`); the
+  lessons have no log.
+**Accept:** with a fake localStorage that throws past N characters: a Book 2, a clock and a lessons save each survive by
+trimming a live log; the frozen log is untouched; telemetry never evicts a save; staging keys keep their prefix; a
+persistent failure keeps the game running.
 
 ## Open risks
 

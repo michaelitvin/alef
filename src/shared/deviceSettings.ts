@@ -6,6 +6,7 @@
 // clock's, else the defaults. The old fields stay in those saves, unread (no save migration).
 // The lessons' voice follows the volume only: `sfx` never silences a voice line (the child cannot read).
 import { useSyncExternalStore } from 'react'
+import { safeSetItem } from './saveStorage'
 
 export interface DeviceSettings { v: 1; sfx: boolean; music: boolean; volume: number }
 export const DEVICE_KEY = 'alef-device'
@@ -60,7 +61,7 @@ const listeners = new Set<() => void>()
 let cache: { raw: string | null; value: DeviceSettings } | null = null
 
 function write(value: DeviceSettings) {
-  try { localStorage.setItem(DEVICE_KEY, JSON.stringify(value)) } catch { /* storage full: this page only */ }
+  safeSetItem(DEVICE_KEY, JSON.stringify(value)) // storage still full: this page only
   cache = { raw: getRaw(DEVICE_KEY), value }
 }
 

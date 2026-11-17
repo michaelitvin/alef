@@ -1,6 +1,6 @@
 // Telemetry: an event log in localStorage (it survives closing the tab) so a parent can export it and analyse play
 // offline. Capped so it can never crowd out the progress save, and it never throws.
-import { isStaging } from './stagingStorage'
+import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
 
 /** The game an event belongs to. Every event carries it as `g`; events written before it existed have none. */
 export type TelemetryGame = 'book2' | 'clock' | 'duel'
@@ -24,6 +24,16 @@ export const SESSION = `${Date.now().toString(36)}-${Math.random().toString(36).
 export const TELEMETRY_CAPS: Record<TelemetryGame, number> = { book2: 700_000, clock: 500_000, duel: 1_000_000 }
 /** The staging build shares production's quota, so it keeps a quarter of each cap. */
 export const STAGING_CAP_SHARE = 0.25
+
+/**
+ * Logs that are never trimmed, cleared or rewritten: the first duel's old log (owner decision, 2026-11-16, ADR 0004). A
+ * key matches with or without the staging prefix.
+ */
+export const FROZEN_LOG_KEYS: readonly string[] = ['alef-duel-telemetry']
+const isFrozenLog = (k: string) => FROZEN_LOG_KEYS.some((f) => k === f || k === STAGING_PREFIX + f)
+
+/** The logs a save write may trim when the storage is full: every `*-telemetry` key except the frozen ones. */
+const isLiveLog = (k: string) => isTelemetryKey(k) && !isFrozenLog(k)
 
 export function telemetryCap(game: TelemetryGame, staging = isStaging): number {
   return staging ? Math.floor(TELEMETRY_CAPS[game] * STAGING_CAP_SHARE) : TELEMETRY_CAPS[game]
@@ -101,6 +111,64 @@ export function exportFileName(games: readonly string[], now = new Date()): stri
   return `alef-telemetry-${games.join('-')}-${now.toISOString().slice(0, 10)}.json`
 }
 
+/**
+ * Drop the oldest events of `evs` (in place) until the log's JSON is at most `maxLen` characters. Gives the JSON, or
+ * null when no event is left.
+ */
+function trimToLength(evs: TelemetryEvent[], maxLen: number): string | null {
+  let json = JSON.stringify({ v: 1, events: evs })
+  while (json.length > maxLen && evs.length > 0) {
+    evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxLen) / json.length + 0.02))))
+    json = JSON.stringify({ v: 1, events: evs })
+  }
+  return evs.length > 0 ? json : null
+}
+
+/**
+ * Shorten the stored log `key` by at least `chars` characters, oldest events first, from `evs` (the instance's events, or
+ * the stored ones). Gives the characters it freed; 0 if it could not write.
+ */
+function shrinkStored(key: string, chars: number, evs: TelemetryEvent[]): number {
+  let stored = 0
+  try { stored = localStorage.getItem(key)?.length ?? 0 } catch { return 0 }
+  if (stored === 0) return 0
+  const json = trimToLength(evs, stored - chars)
+  try {
+    if (json === null) localStorage.removeItem(key)
+    else localStorage.setItem(key, json)
+  } catch { return 0 }
+  return stored - (json?.length ?? 0)
+}
+
+/** This page's logs (the games loaded here), in the order they were made: a save write trims them first. */
+const pageLogs = new Map<string, (chars: number) => number>()
+
+/**
+ * Free at least `chars` characters of localStorage by trimming the live telemetry logs, oldest events first: this page's
+ * logs first, then the other live logs in storage (staging's before production's). It never touches a frozen log or
+ * any key that is not a log (a save). Gives the characters it freed. Never throws.
+ */
+export function freeTelemetrySpace(chars: number): number {
+  let freed = 0
+  try {
+    for (const shrink of pageLogs.values()) {
+      if (freed >= chars) return freed
+      freed += shrink(chars - freed)
+    }
+    const others: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && isLiveLog(k) && !pageLogs.has(k)) others.push(k)
+    }
+    others.sort((a, b) => Number(b.startsWith(STAGING_PREFIX)) - Number(a.startsWith(STAGING_PREFIX)))
+    for (const k of others) {
+      if (freed >= chars) return freed
+      freed += shrinkStored(k, chars - freed, readLog(k))
+    }
+  } catch { /* no storage */ }
+  return freed
+}
+
 export function createTelemetry(key: string, { game, maxChars = telemetryCap(game), about }: TelemetryOptions) {
   const FLUSH_MS = 1000
   let run = 0
@@ -123,6 +191,7 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
       evs.splice(0, Math.max(1, Math.ceil(evs.length * ((json.length - maxChars) / json.length + 0.02))))
       json = JSON.stringify({ v: 1, events: evs })
     }
+    // A full storage: the log gives up its own oldest events, never another key's space (a save is never evicted).
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
         localStorage.setItem(key, json)
@@ -139,6 +208,8 @@ export function createTelemetry(key: string, { game, maxChars = telemetryCap(gam
     all().push({ t: Date.now(), s: SESSION, run, e, g: game, ...data })
     if (timer === undefined) timer = window.setTimeout(flush, FLUSH_MS)
   }
+
+  if (isLiveLog(key)) pageLogs.set(key, (chars) => shrinkStored(key, chars, all()))
 
   if (typeof window !== 'undefined') {
     window.addEventListener('pagehide', flush)

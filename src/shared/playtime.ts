@@ -5,6 +5,7 @@
 // flush always reads the key, adds its own span and writes: no copy in memory is ever written back. It is a save-like
 // key: `?copy-prod` copies it (it is a few hundred bytes), and the staging build keeps its own under `staging:`.
 import { useEffect, useRef } from 'react'
+import { safeSetItem } from './saveStorage'
 
 export type PlaytimeGame = 'book2' | 'clock' | 'lessons'
 export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['book2', 'clock', 'lessons']
@@ -46,7 +47,7 @@ export function addPlaytime(game: PlaytimeGame, from: number, to: number, now = 
     }
     const oldest = dayKey(now - PLAYTIME_KEEP_DAYS * 86_400_000)
     for (const k of Object.keys(doc.days)) if (k < oldest) delete doc.days[k]
-    localStorage.setItem(PLAYTIME_KEY, JSON.stringify(doc))
+    safeSetItem(PLAYTIME_KEY, JSON.stringify(doc))
   } catch { /* storage full or missing: the ledger is a convenience */ }
 }
 

@@ -1,6 +1,7 @@
 // The clock game's own save (localStorage 'alef-clock'); reset never touches alef's progress.
 import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
+import { persistSaveStorage } from '../shared/saveStorage'
 import { pushRecent, type Tally } from '../shared/adaptive'
 import { sameTime, timeId } from './logic/time'
 import type { Lang } from './logic/phrases'
@@ -99,7 +100,7 @@ export const useClockStore = create<ClockSave & Actions>()(
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings })),
     }),
     {
-      name: 'alef-clock', version: 1, storage: createJSONStorage(() => localStorage),
+      name: 'alef-clock', version: 1, storage: persistSaveStorage(),
       // Version 1 is the first save shape. When ClockSave changes, raise `version` and convert older saves here
       // (never drop his progress: rule). Until then a save passes through unchanged.
       migrate: (state) => state as ClockSave & Actions,
