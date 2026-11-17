@@ -4,7 +4,7 @@
 // cleared through its instance (`live`): its unflushed events are then in the export, and a cleared log does not come
 // back on the instance's next flush. The other logs are read from storage (`readLog`); nothing of theirs is loaded here.
 // The first duel's history is exported as it is and has no Clear: it is never cleared or rewritten.
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { exportDoc, exportFileName, filterEvents, readLog, type TelemetryEvent, type TelemetryLog } from '../../shared/telemetry'
 import { downloadJson } from '../../shared/download'
 import { GAMES } from '../registry'
@@ -21,21 +21,29 @@ export interface DataSectionProps {
   live?: LiveLog
 }
 
+const logs = GAMES.flatMap((g) => (g.logs ?? []).map((log) => ({ log, game: g.id })))
+
+const readFrom = (live: LiveLog | undefined, log: TelemetryLog): TelemetryEvent[] =>
+  (live && live.key === log.key ? live.events() : readLog(log.key))
+
 export function DataSection({ game, live }: DataSectionProps) {
-  const logs = GAMES.flatMap((g) => (g.logs ?? []).map((log) => ({ log, game: g.id })))
   const [picked, setPicked] = useState<ReadonlySet<string>>(
     () => new Set(logs.filter((l) => l.game === game && !l.log.history).map((l) => l.log.key)),
   )
   const [period, setPeriod] = useState<Period>('recent')
   /** bumps after a clear or a download, so the counts are read again */
-  const [, setVersion] = useState(0)
+  const [version, setVersion] = useState(0)
 
-  const read = (log: TelemetryLog): TelemetryEvent[] => (live && live.key === log.key ? live.events() : readLog(log.key))
-  const recentFrom = Date.now() - PERIOD_DAYS * DAY_MS
-  const rows = logs.map(({ log }) => {
-    const evs = read(log)
-    return { log, all: evs.length, recent: filterEvents(evs, { since: recentFrom }).length }
-  })
+  const read = (log: TelemetryLog) => readFrom(live, log)
+  // the counts: read once per version (reading the open game's log flushes it), not on every render
+  const rows = useMemo(() => {
+    void version // a clear or a download bumps it: read again
+    const recentFrom = Date.now() - PERIOD_DAYS * DAY_MS
+    return logs.map(({ log }) => {
+      const evs = readFrom(live, log)
+      return { log, all: evs.length, recent: filterEvents(evs, { since: recentFrom }).length }
+    })
+  }, [live, version])
 
   const toggle = (key: string) => setPicked((p) => {
     const next = new Set(p)

@@ -89,6 +89,16 @@ describe('the Data section', () => {
     live.clear()
   })
 
+  it('the counts read the open game’s log once, not on every render: a tick or a period change does not flush it', () => {
+    const events = vi.fn(() => [])
+    const live = { key: 'alef-duel2-telemetry', events, clear: vi.fn() }
+    const { container } = render(<DataSection game="book2" live={live} />)
+    const reads = events.mock.calls.length
+    fireEvent.click(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-pick]')!)
+    fireEvent.click(container.querySelector('[data-period="all"]')!)
+    expect(events.mock.calls.length).toBe(reads)
+  })
+
   it('a clear of the open game’s log goes through its instance, so the cleared events do not come back on its next flush', () => {
     const live = createTelemetry('alef-duel2-telemetry', { game: 'book2' })
     live.track('round', { n: 1 })
