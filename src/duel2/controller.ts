@@ -644,9 +644,9 @@ export class RunController {
     return !this.save.read().merchant?.demoSeen
   }
 
-  /** the undo was shown in this run (the gallery's save is read-only, so it remembers it here) */
+  /** the undo was shown in this run (the gallery: only here; it never reads the child's flag, as its save is read-only) */
   private undoShownHere = false
-  private undoShown() { return this.undoShownHere || !!this.save.read().merchant?.undoShown }
+  private undoShown() { return this.opts.sandbox ? this.undoShownHere : this.undoShownHere || !!this.save.read().merchant?.undoShown }
 
   /** The visit: it starts (or goes on after a pause) and runs until he has walked away. */
   private async runVisit(t: number) {

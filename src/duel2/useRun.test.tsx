@@ -1900,6 +1900,21 @@ describe('run controller', () => {
       expect(useDuel2Store.getState().merchant).toEqual(FRESH_MERCHANT)
       c.destroy()
     }, 60_000)
+
+    it('the gallery’s merchant does not read the child’s own undo flag: his first too-much there shows the undo', async () => {
+      useDuel2Store.setState({ coins: 7, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+      const c = make({ force: { screen: 'merchant', stage: 2 }, sandbox: true })
+      c.start()
+      await until(c, arrived)
+      const price = mv(c).price
+      const over: number[] = []
+      for (const v of [...mv(c).coins].sort((a, b) => b - a)) { over.push(v); if (over.reduce((a, b) => a + b, 0) > price) break }
+      give(c, over)
+      c.gesture({ type: 'potion' })
+      await until(c, () => played.some((id) => id.startsWith('m-undo')))
+      expect(useDuel2Store.getState().merchant.undoShown).toBe(true)
+      c.destroy()
+    }, 60_000)
   })
 
   describe('the checkpoint: when the merchant comes, and his price', () => {
