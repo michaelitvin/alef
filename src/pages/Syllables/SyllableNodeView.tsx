@@ -234,16 +234,6 @@ export function SyllableNodeView() {
     }
   }, [shuffledItems, activityType, currentItemIndex, currentStep])
 
-  // Handle unknown activity
-  if (!activityConfig || !drillId) {
-    return (
-      <div style={{ padding: spacing[4] }}>
-        <p>פעילות לא נמצאה</p>
-        <button onClick={() => navigate('/syllables')}>חזרה</button>
-      </div>
-    )
-  }
-
   const nodeId = `syllables-${drillId}`
   const totalItems = shuffledItems.length
 
@@ -346,6 +336,16 @@ export function SyllableNodeView() {
     const extraOptions = SYLLABLES.slice(0, 6).map((s) => ({ id: s.id, display: s.display, sound: s.sound }))
     return [...word.syllables, ...extraOptions.filter((o) => !word.syllables.some((w) => w.id === o.id))].sort(() => Math.random() - 0.5).slice(0, 6)
   }, [shuffledItems, currentItemIndex, activityType])
+
+  // Handle unknown activity
+  if (!activityConfig || !drillId) {
+    return (
+      <div style={{ padding: spacing[4] }}>
+        <p>פעילות לא נמצאה</p>
+        <button onClick={() => navigate('/syllables')}>חזרה</button>
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: colors.background, display: 'flex', flexDirection: 'column' }}>
@@ -465,5 +465,3 @@ export function SyllableNodeView() {
     </div>
   )
 }
-
-export default SyllableNodeView

@@ -10,8 +10,8 @@ import { Glyph } from '../Glyph'
 import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
 import { Stage, type Phase } from './Stage'
 
-export const RUNG_W = 300
-export const LADDER_GLYPH_PX = 96
+const RUNG_W = 300
+const LADDER_GLYPH_PX = 96
 const RUNG_Y = (k: number) => 790 - k * 150
 const PLATE_X = 1260
 const PLATE_W = 300
@@ -20,8 +20,8 @@ const PLATE_STEP = 170
 /** a plate's hit area's half height (its box on the screen) */
 const PLATE_HALF = (PLATE_W * PLATE_ASPECT * HIT) / 2
 /** the wizard's height, and where he stands before the first rung: his feet on the stage (it ends at 900) */
-export const LADDER_WIZ_H = 230
-export const WIZ_START_Y = 855
+const LADDER_WIZ_H = 230
+const WIZ_START_Y = 855
 export const LADDER_CX = 800
 export const LADDER_PLATE_X = PLATE_X
 

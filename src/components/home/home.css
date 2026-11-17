@@ -124,3 +124,10 @@
   .home-level-glyph { font-size: 30px; }
   .home-sl { font-size: 13px; }
 }
+
+/* the settings gear (HomePage): the parent gate's held button, top left; its ring fills in 2 s */
+.home-gear-box { position: absolute; top: 16px; left: 16px; z-index: 10; }
+.home-gear { width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: #f5f5f5; color: #636e72;
+  display: grid; place-items: center; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.home-gear > * { grid-area: 1 / 1; pointer-events: none; }
+.home-gear > svg:first-child { width: 48px; height: 48px; }

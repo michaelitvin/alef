@@ -19,7 +19,8 @@ import Duel2App from '../Duel2App'
 import { Summary, HOME_AFTER_MS } from './Summary'
 import { stationFromUrl } from '../station'
 import { useDuel2Store } from '../store'
-import { setVoicePlayer } from '../audio/duel2Audio'
+import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
+const fakeAudio = installFakeAudio()
 import { clearGender, setGender } from '../../shared/player'
 
 let vis: DocumentVisibilityState = 'visible'
@@ -34,9 +35,9 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     useDuel2Store.getState().resetProgress()
     useDuel2Store.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' } })
     setGender('boy', 'parent')
-    setVoicePlayer(() => Promise.resolve(true))
+    fakeAudio.onVoice(() => Promise.resolve(true))
   })
-  afterEach(() => { vi.useRealTimers(); clearGender(); setVoicePlayer(null); at('') })
+  afterEach(() => { vi.useRealTimers(); clearGender(); fakeAudio.onVoice(null); at('') })
 
   it('stationFromUrl: only an open screen', () => {
     expect(stationFromUrl('?station=ghosts', ['tower', 'broom', 'ghosts'])).toBe('ghosts')

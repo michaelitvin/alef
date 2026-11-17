@@ -10,7 +10,7 @@ export type ClockSfx =
   | 'tick' | 'chime' | 'cuckoo' | 'alarm' | 'bong' | 'beep' | 'gear' | 'boing' | 'doorbell' | 'snap'
   | 'fanfare' | 'ding' | 'wallchime'
 
-export interface KindInfo {
+interface KindInfo {
   id: ClockKind
   /** the level that brings it */
   level: number
@@ -20,7 +20,7 @@ export interface KindInfo {
   sound: ClockSfx
 }
 
-export const KINDS: KindInfo[] = [
+const KINDS: KindInfo[] = [
   { id: 'wall', level: 1, seconds: false, sound: 'chime' },
   { id: 'alarm', level: 1, seconds: false, sound: 'alarm' },
   { id: 'cuckoo', level: 2, seconds: false, sound: 'cuckoo' },
@@ -32,7 +32,6 @@ export const KINDS: KindInfo[] = [
 ]
 export const kindInfo = (k: ClockKind) => KINDS.find((x) => x.id === k)!
 export const kindsUpTo = (level: number) => KINDS.filter((k) => k.level <= level)
-export const newKindsAt = (level: number) => KINDS.filter((k) => k.level === level)
 
 export interface Customer {
   id: string

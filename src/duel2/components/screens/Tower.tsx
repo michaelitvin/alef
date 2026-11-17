@@ -14,11 +14,12 @@ import { Banner, Starfield } from '../../../components/duel/Starfield'
 import { Icon } from '../../../components/duel/Icon'
 import { MEGA_MAX } from '../../../utils/duel/rules'
 import { useDuel2Store } from '../../store'
+import { duel2Telemetry } from '../../telemetry'
 import type { TowerView } from '../../controller'
 import { TEST_HOOKS } from '../../testHooks'
 import '../../../components/duel/duel.css'
 
-export interface TowerProps {
+interface TowerProps {
   view: TowerView
   paused: boolean
   /** the gallery: nothing is recorded */
@@ -33,18 +34,22 @@ export interface TowerProps {
   onCharge?: (mega: number) => void
 }
 
+/** the gallery records nothing, its events neither */
+const NO_TELEMETRY = { track: () => {}, flush: () => {} }
+
 export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge }: TowerProps) {
-  const settings = useDuel2Store((s) => s.settings)
   const game = useDuelGame({
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: useDuel2Store.getState().demosSeen,
       onSeen: (key) => { if (!dry) useDuel2Store.getState().markDemo(key) },
       owed: dry ? [] : useDuel2Store.getState().towerOwed ?? [],
       onIntroduced: (id) => { if (!dry) useDuel2Store.getState().monsterIntroduced(id) },
-      onAnswer, onDone, audio: { sfx: settings.sfx, volume: settings.volume }, dry,
+      onAnswer, onDone, dry,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge,
     },
+    // the duel's events go to Book 2's log (via: 'tower'), in Book 2's run (ADR 0004)
+    telemetry: dry ? NO_TELEMETRY : duel2Telemetry,
   })
   const { state } = game
   // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)

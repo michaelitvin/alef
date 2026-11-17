@@ -3,7 +3,7 @@ import { colors, typography, spacing, borderRadius, shadows } from '../../styles
 import { TappableText } from '../../components/stories'
 import type { Story } from '../../types/story'
 
-export interface StoryReadViewProps {
+interface StoryReadViewProps {
   story: Story
   onFinished: () => void
 }
@@ -95,5 +95,3 @@ export function StoryReadView({ story, onFinished }: StoryReadViewProps) {
     </div>
   )
 }
-
-export default StoryReadView

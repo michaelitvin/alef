@@ -15,7 +15,7 @@ const PAD = 0.18
 /** the gap between the slot and the rest of the word (letter units) */
 const GAP = 0.28
 
-export type TextMeasure = (text: string, font: string, px: number) => { width: number; ascent: number; descent: number } | null
+type TextMeasure = (text: string, font: string, px: number) => { width: number; ascent: number; descent: number } | null
 let ctx: CanvasRenderingContext2D | null | undefined
 export const canvasTextMeasure: TextMeasure = (text, font, px) => {
   if (ctx === undefined) {
@@ -96,7 +96,7 @@ export const toNorm = (L: DrawLayout, [x, y]: Pt): Pt => [(x - L.x0) / L.u, (y -
 export const toStagePt = (L: DrawLayout, [x, y]: Pt): Pt => [L.x0 + x * L.u, L.top + y * L.u]
 
 /** The hand's pace: each stroke takes time by its length; a tap is a short press. Shared by the screen and the controller. */
-export const STROKE_GAP_MS = 260
+const STROKE_GAP_MS = 260
 export const DEMO_FADE_MS = 500
 export function strokeTiming(strokes: Pt[][]): { start: number[]; dur: number[]; total: number } {
   const start: number[] = []

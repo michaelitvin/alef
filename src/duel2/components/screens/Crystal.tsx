@@ -4,7 +4,7 @@ import { IMAGES } from '../../assets/images'
 import { Stage } from './Stage'
 import { ArriveLight, takeArrivedThroughLight } from './Doors'
 
-export const CRYSTAL_MS = 3200
+const CRYSTAL_MS = 3200
 const COLORS = [['#f4f7ff', '#b9c7ff'], ['#e6c8ff', '#8a4fd8'], ['#ffd6ea', '#d86fa8'], ['#e8ddd2', '#8a7660']]
 
 export function Crystal(p: { kind: number; onDone: () => void }) {

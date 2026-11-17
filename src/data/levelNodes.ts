@@ -61,5 +61,3 @@ export const LEVEL_NODE_COUNTS = {
   words: WORD_NODES.length,
   sentences: SENTENCE_NODES.length,
 } as const
-
-export type LevelId = keyof typeof LEVEL_NODE_COUNTS

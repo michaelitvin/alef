@@ -13,12 +13,13 @@ import { checkFor, planRound } from './logic/rounds'
 import { WORKDAY_LENGTH, dayKey, kindInfo, langForRound, pickCustomer, realTimeFor, type ClockKind, type Customer } from './logic/workday'
 import type { Exercise, RoundPlan } from './logic/types'
 import { CUSTOMER_LINES, REQUEST_ASKS, customerAudioId, lineAudioId, lineById, parseLine, requestFor, type Cue, type Request } from './data/lines'
-import { spokenLineText, holdClockAudio, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
+import { spokenLineText, playSfx, playVoice, preloadVoices, stopVoices } from './audio/clockAudio'
+import { usePauseHold } from '../shared/shell/usePauseHold'
 import { scriptFor, type CaptionScript } from './components/Caption'
 import { explainLineId } from './components/ExplainPlayer'
 
-export type Phase = 'enter' | 'explain' | 'ask' | 'answer' | 'feedback' | 'levelup' | 'leave' | 'bonus' | 'summary'
-export interface WorkdayView {
+type Phase = 'enter' | 'explain' | 'ask' | 'answer' | 'feedback' | 'levelup' | 'leave' | 'bonus' | 'summary'
+interface WorkdayView {
   phase: Phase
   plan: RoundPlan
   customer: Customer
@@ -47,8 +48,8 @@ export interface WorkdayView {
   /** after a mistake: the answer stays on the bench until he taps the next button (the parent 2026-10-17) */
   awaitNext: boolean
 }
-export interface Heard { prompt: boolean; cards: number }
-export const HEARD_ALL: Heard = { prompt: true, cards: 3 }
+interface Heard { prompt: boolean; cards: number }
+const HEARD_ALL: Heard = { prompt: true, cards: 3 }
 type Answer = { kind: 'choice'; index: number } | { kind: 'set'; pose: HandPose }
 /** A round that started but is not committed yet: a pause keeps it, and resume asks the same question again. */
 interface OpenRound { plan: RoundPlan; customer: Customer; script: CaptionScript; lang: Lang; real: ClockTime | null; firstOfDay: boolean; today: string }
@@ -57,7 +58,7 @@ const CANCEL = Symbol('cancel')
 const CONFIDENT_MS = 6000
 /** Pauses between the steps of a round (ms). The playtest: "gameplay feels slow" (a round had about 5 s of waiting
  * between his answer and the next question). */
-export const PACE = { doorbell: 350, betweenAnswers: 150, afterBoing: 250, afterFix: 250, leave: 350 }
+const PACE = { doorbell: 350, betweenAnswers: 150, afterBoing: 250, afterFix: 250, leave: 350 }
 
 export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?: Rng; now?: () => Date } = {}) {
   const [view, setView] = useState<WorkdayView | null>(null)
@@ -282,7 +283,11 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
         }
         else if (d.streak % 5 === 0) { await playSfx('wallchime'); live() }
         else if (rng() < 0.3) await say(customerAudioId(customer.id, 'thanks'), [])
-        else if (rng() < 0.3) await say(lineAudioId(`fb-cheer-${1 + (d.served % 3)}`, lang), [])
+        else {
+          // a second, separate draw (not a duplicate condition): a cheer
+          const cheer = rng() < 0.3
+          if (cheer) await say(lineAudioId(`fb-cheer-${1 + (d.served % 3)}`, lang), [])
+        }
       } else {
         d.streak = 0
         patch({
@@ -352,8 +357,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
   }, [roundKey, paused]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // the pause cover keeps all audio silent until he taps play (rule)
-  useEffect(() => { holdClockAudio(paused) }, [paused])
-  useEffect(() => () => holdClockAudio(false), [])
+  usePauseHold(paused)
 
   // pause when the tablet locks (rule); resume asks the same question again (or, after the answer was counted, brings
   // the next customer)
@@ -394,7 +398,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     stopVoices()
     day.current = newDay(day.current.streak)
     setRoundKey((k) => k + 1)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
   const resume = useCallback(() => setPaused(false), [])
   const replay = useCallback((target: 'prompt' | number) => {
     const v = viewRef.current
@@ -422,7 +426,7 @@ function grade(plan: RoundPlan, a: Answer, nearMissUsed: boolean): Evaluation {
 }
 
 /** The narrator's question for a round of this exercise. */
-export function askLineFor(e: Exercise): string {
+function askLineFor(e: Exercise): string {
   if (e === 'find' || e === 'what' || e === 'digitalPick' || e === 'digitalSet') return `ask-${e}`
   return 'ask-set'
 }

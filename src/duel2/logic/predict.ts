@@ -7,7 +7,7 @@ import type { Item, Mark } from './content.ts'
 /** 'draw' is drawing in print, 'draw-hand' drawing in handwriting; 'tower' is the first duel's screen (its own rules:
  * `features()` is not called for it, its adaptive data stays in the first duel's save) */
 export type ScreenId = 'tower' | 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'doors' | 'draw' | 'draw-hand'
-export type Target = { item: Item; mark?: Mark } | { wordId: string }
+type Target = { item: Item; mark?: Mark } | { wordId: string }
 
 export function features(target: Target, screen: ScreenId): string[] {
   if ('wordId' in target) return [`w:${target.wordId}`, `sc:${screen}`]
@@ -17,7 +17,7 @@ export function features(target: Target, screen: ScreenId): string[] {
 }
 
 const SCREEN_PRIOR: Record<string, number> = { broom: 0.05, doors: 0.1 }
-export function featurePrior(f: string): number {
+function featurePrior(f: string): number {
   const [k, v] = f.split(':')
   if (k === 'l') return 0.1
   if (k === 'v') return 0.08

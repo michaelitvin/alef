@@ -95,14 +95,6 @@ export const HandLongIcon = ({ size = 64 }: P) => (
     <circle cx="50" cy="88" r="7" fill="#333" />
   </svg>
 )
-/** A small wall clock (the summary's "clocks fixed today"). */
-export const ClockIcon = ({ size = 48 }: P) => (
-  <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden>
-    <circle cx="50" cy="50" r="44" fill="#fff8e7" stroke="#8a5a2b" strokeWidth="8" />
-    <line x1="50" y1="50" x2="50" y2="28" stroke={HAND_COLORS.hour} strokeWidth="8" strokeLinecap="round" />
-    <line x1="50" y1="50" x2="72" y2="50" stroke={HAND_COLORS.minute} strokeWidth="5" strokeLinecap="round" />
-  </svg>
-)
 
 /** A light bulb: the hint button (shows the clock hint that fits this time). */
 export const HintIcon = ({ size = 40 }: P) => (

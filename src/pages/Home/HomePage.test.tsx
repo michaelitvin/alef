@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react'
+import { act, fireEvent, render } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
@@ -6,6 +6,9 @@ vi.mock('react-router-dom', async (orig) => ({ ...(await orig<typeof import('rea
 import { HomePage } from './HomePage'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
+import { HOLD_MS } from '../../shared/HoldButton'
+import { enterYear } from '../../shared/parentGate/testing'
+import { hasGatePass, takeGatePass } from '../../parent/gateToken'
 
 const page = () => render(<MemoryRouter><HomePage /></MemoryRouter>).container
 
@@ -25,9 +28,8 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(c.querySelectorAll('[aria-label="clock"]').length).toBe(1)
     expect(c.querySelector('a[href$="clock/"]')).not.toBeNull()
     expect(c.querySelectorAll('h3').length).toBe(0)
-    // the settings button stays
-    fireEvent.click(c.querySelector('button')!)
-    expect(navigate).toHaveBeenCalledWith('/settings')
+    // the settings button stays (the parent gate: see below)
+    expect(c.querySelector('[data-home-settings] [aria-label="settings (hold)"]')).not.toBeNull()
   })
 
   it('the clock card: its art, three small faces 3:00 3:30 3:15, the brass play button and its parent line', () => {
@@ -86,8 +88,6 @@ describe('the home page (spec: one duel, Part 4)', () => {
     const c = page()
     const settings = c.querySelector('[data-home-settings]')!
     expect(settings.querySelector('svg')).not.toBeNull()
-    fireEvent.click(settings)
-    expect(navigate).toHaveBeenLastCalledWith('/settings')
     const stats = c.querySelector('[data-home-stats]')!
     expect(stats.querySelectorAll('svg').length).toBe(2)
     expect(stats.textContent).toContain('3 אותיות נלמדו')
@@ -95,5 +95,33 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(stats.textContent).toContain('לחץ לצפייה בהישגים')
     fireEvent.click(stats)
     expect(navigate).toHaveBeenLastCalledWith('/progress')
+  })
+
+  it('the settings gear is the parent gate: a tap does nothing; a 2 s hold and the year of birth open the area at once', () => {
+    vi.useFakeTimers()
+    try {
+      const c = page()
+      const gear = c.querySelector('[data-home-settings] [aria-label="settings (hold)"]')!
+      fireEvent.click(gear)
+      fireEvent.pointerDown(gear)
+      act(() => { vi.advanceTimersByTime(HOLD_MS - 500) })
+      fireEvent.pointerUp(gear)
+      expect(document.querySelector('[data-year-pad]')).toBeNull()
+      expect(navigate).not.toHaveBeenCalled()
+      // a wrong year: no area, no message, still home
+      fireEvent.pointerDown(gear)
+      act(() => { vi.advanceTimersByTime(HOLD_MS) })
+      enterYear(new Date().getFullYear() - 6)
+      expect(navigate).not.toHaveBeenCalled()
+      expect(hasGatePass()).toBe(false)
+      fireEvent.pointerDown(gear)
+      act(() => { vi.advanceTimersByTime(HOLD_MS) })
+      enterYear(new Date().getFullYear() - 40)
+      expect(navigate).toHaveBeenCalledWith('/settings')
+      expect(hasGatePass()).toBe(true)
+    } finally {
+      takeGatePass()
+      vi.useRealTimers()
+    }
   })
 })

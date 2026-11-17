@@ -1,4 +1,5 @@
 // The workshop screen: the bench, with the customer at the door (spec: Screens and layout).
+import { usePlaytime } from '../../shared/playtime'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useWorkday } from '../useWorkday'
@@ -49,6 +50,7 @@ function useBenchBox() {
 
 export function Workshop({ onExit }: { onExit: () => void }) {
   const { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume } = useWorkday()
+  usePlaytime('clock', !paused)
   const gears = useClockStore((s) => s.gears)
   const workdays = useClockStore((s) => s.workdays)
   const { ref: benchRef, box, portrait: port } = useBenchBox()

@@ -1,26 +1,23 @@
-import { Suspense, lazy, useEffect, useRef } from 'react'
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { usePlaytime } from './shared/playtime'
+import { useEffect, useRef } from 'react'
+import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { useSoundEffects } from './hooks/useAudio'
-import HomePage from './pages/Home/HomePage'
-import LettersPage from './pages/Letters/LettersPage'
-import LetterNodeView from './pages/Letters/LetterNodeView'
-import NikkudPage from './pages/Nikkud/NikkudPage'
-import NikkudNodeView from './pages/Nikkud/NikkudNodeView'
-import SyllablesPage from './pages/Syllables/SyllablesPage'
-import SyllableNodeView from './pages/Syllables/SyllableNodeView'
-import WordsPage from './pages/Words/WordsPage'
-import WordGroupView from './pages/Words/WordGroupView'
-import SentencesPage from './pages/Sentences/SentencesPage'
-import SentenceGroupView from './pages/Sentences/SentenceGroupView'
-import StoriesPage from './pages/Stories/StoriesPage'
-import StoryView from './pages/Stories/StoryView'
-import ProgressPage from './pages/Progress/ProgressPage'
-import SettingsPage from './pages/Settings/SettingsPage'
-import RoutesPage from './pages/Debug/RoutesPage'
-
-const DuelPage = lazy(() => import('./pages/Duel/DuelPage'))
-const DuelGlyphSheet = lazy(() => import('./pages/Duel/DuelGlyphSheet'))
-const DUEL_TEST_HOOKS = import.meta.env.MODE === 'verify' || import.meta.env.MODE === 'test'
+import { HomePage } from './pages/Home/HomePage'
+import { LettersPage } from './pages/Letters/LettersPage'
+import { LetterNodeView } from './pages/Letters/LetterNodeView'
+import { NikkudPage } from './pages/Nikkud/NikkudPage'
+import { NikkudNodeView } from './pages/Nikkud/NikkudNodeView'
+import { SyllablesPage } from './pages/Syllables/SyllablesPage'
+import { SyllableNodeView } from './pages/Syllables/SyllableNodeView'
+import { WordsPage } from './pages/Words/WordsPage'
+import { WordGroupView } from './pages/Words/WordGroupView'
+import { SentencesPage } from './pages/Sentences/SentencesPage'
+import { SentenceGroupView } from './pages/Sentences/SentenceGroupView'
+import { StoriesPage } from './pages/Stories/StoriesPage'
+import { StoryView } from './pages/Stories/StoryView'
+import { ProgressPage } from './pages/Progress/ProgressPage'
+import { ParentPage } from './pages/Parent/ParentPage'
+import { RoutesPage } from './pages/Debug/RoutesPage'
 import { useProgressStore } from './stores/progressStore'
 import { useFontEffect } from './hooks/useFont'
 
@@ -53,6 +50,20 @@ function NavigationSoundEffect() {
   return null
 }
 
+/**
+ * The devMode URL param and Ctrl+Shift+D switch dev mode on with no parent gate, so they work only outside
+ * production (dev, test and verify builds). On production, dev mode is switched in the parent's settings.
+ */
+const DEV_SHORTCUTS = import.meta.env.MODE !== 'production'
+
+/** counts the time on a lesson route (the reading course) for the parent's Progress section */
+const LESSON_ROUTE = /^\/(letters|nikkud|syllables|words|sentences|stories)(\/|$)/
+function LessonPlaytime() {
+  const { pathname } = useLocation()
+  usePlaytime('lessons', LESSON_ROUTE.test(pathname))
+  return null
+}
+
 function App() {
   const { settings, setDevMode } = useProgressStore()
 
@@ -62,6 +73,7 @@ function App() {
   // Check URL param for dev mode on mount
   // With HashRouter, params can be in hash (e.g., /#/?devMode=true) or before hash (?devMode=true#/)
   useEffect(() => {
+    if (!DEV_SHORTCUTS) return
     // Check regular search params first
     let params = new URLSearchParams(window.location.search)
     if (params.get('devMode') === 'true') {
@@ -80,6 +92,7 @@ function App() {
 
   // Keyboard shortcut: Ctrl+Shift+D to toggle dev mode
   useEffect(() => {
+    if (!DEV_SHORTCUTS) return
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         e.preventDefault()
@@ -94,6 +107,7 @@ function App() {
   return (
     <HashRouter>
       <NavigationSoundEffect />
+      <LessonPlaytime />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/letters" element={<LettersPage />} />
@@ -109,26 +123,11 @@ function App() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/stories/:storyId" element={<StoryView />} />
         <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        {/* the shared parent area, behind the gate on every visit */}
+        <Route path="/settings" element={<ParentPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
-        {DUEL_TEST_HOOKS && (
-          <Route
-            path="/duel/glyphs"
-            element={
-              <Suspense fallback={null}>
-                <DuelGlyphSheet />
-              </Suspense>
-            }
-          />
-        )}
-        <Route
-          path="/duel"
-          element={
-            <Suspense fallback={null}>
-              <DuelPage />
-            </Suspense>
-          }
-        />
+        {/* the first duel's own page is gone (it is Book 2's tower now): an old link or bookmark goes home, not to a blank page */}
+        <Route path="/duel/*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
   )

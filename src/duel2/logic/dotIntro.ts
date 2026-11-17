@@ -3,7 +3,7 @@
 import { item as itemOf, syllable } from './content'
 import { lineAudioId } from '../data/lines'
 
-export type Side = 'right' | 'left'
+type Side = 'right' | 'left'
 /** `words`: say "without/with a dot" (or right/left) before each sound — only on his first introduction; after that the
  *  screen shows the difference and the words only slow him down (the parent). */
 export function dotIntroParts(hard: string, words = true): { parts: { id: string; highlight: Side }[]; right: string; left: string } {

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { cancelVoice, sayParts, voiceSignal, type VoiceSignal } from '../audio/duel2Audio'
 import { NextIcon, SpeakerIcon } from './icons'
+import type { Highlight } from '../viewTypes'
 
-export type Highlight = 'letter' | 'vowel' | 'all' | 'left' | 'right' | 'none'
 /** `skippable`: a tap anywhere on the explanation (it covers the screen) ends it at once; he tries to pick because he
  *  already knows (Michael: explanations got him stuck). */
 /** `autoNext`: a demo goes straight on into play when its words end (Michael: stopping there on a next button was unnatural). */

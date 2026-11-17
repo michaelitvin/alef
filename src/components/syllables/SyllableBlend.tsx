@@ -17,7 +17,7 @@ export interface BlendWord {
   wordSound: string
 }
 
-export interface SyllableBlendProps {
+interface SyllableBlendProps {
   /** The word to blend */
   blendWord: BlendWord
   /** Called when blend is complete */
@@ -101,7 +101,7 @@ export function SyllableBlend({
         onPlaySyllable(blendWord.syllables[index])
       }
     },
-    [tappedIndices, showBlended, onPlaySyllable, blendWord.syllables]
+    [tappedIndices, showBlended, onPlaySyllable, blendWord.syllables, playError]
   )
 
   return (
@@ -321,5 +321,3 @@ export function SyllableBlend({
     </div>
   )
 }
-
-export default SyllableBlend

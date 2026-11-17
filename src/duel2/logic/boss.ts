@@ -15,7 +15,7 @@ export const BOSS_SLOW = 1.3
 /** the bonus of a win: 3 coins, kept as stars (coins stay stars / 10: one source of truth) */
 export const BOSS_COINS = 3
 /** a kind he has not beaten yet wins when the scores are this close */
-export const UNBEATEN_BONUS = 3
+const UNBEATEN_BONUS = 3
 
 /** a boss on broom visits 2, 4, … of a run; never on the first */
 export const isBossVisit = (broomVisit: number) => broomVisit >= 2 && broomVisit % 2 === 0
@@ -95,7 +95,7 @@ export function bossTarget(ctx: RoundCtx, kind: BossKind, avoid?: string): Choic
 }
 
 /** The twin of a boss target: the other form (dot, shin), its look-alike (mimic: his own mix-up first), or o ↔ u (bat). */
-export function bossTwin(ctx: RoundCtx, kind: BossKind, target: Choice): Choice {
+function bossTwin(ctx: RoundCtx, kind: BossKind, target: Choice): Choice {
   const m = target.mark!
   if (kind === 'bat') {
     const other: VowelGroup = target.group === 'o' ? 'u' : 'o'

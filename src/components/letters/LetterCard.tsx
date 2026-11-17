@@ -2,9 +2,9 @@ import { motion } from 'framer-motion'
 import { forwardRef } from 'react'
 import { colors, typography, borderRadius, shadows } from '../../styles/theme'
 
-export type LetterCardSize = 'sm' | 'md' | 'lg' | 'xl'
+type LetterCardSize = 'sm' | 'md' | 'lg' | 'xl'
 
-export interface LetterCardProps {
+interface LetterCardProps {
   /** The Hebrew letter character */
   letter: string
   /** Optional nikkud (vowel mark) to display with the letter */
@@ -153,5 +153,3 @@ export const LetterCard = forwardRef<HTMLDivElement, LetterCardProps>(
 )
 
 LetterCard.displayName = 'LetterCard'
-
-export default LetterCard

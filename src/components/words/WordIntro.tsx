@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { WordCard } from './WordCard'
 
-export interface WordIntroProps {
+interface WordIntroProps {
   /** The Hebrew word to introduce */
   word: string
   /** Syllable breakdown of the word */
@@ -144,5 +144,3 @@ export function WordIntro({
     </div>
   )
 }
-
-export default WordIntro

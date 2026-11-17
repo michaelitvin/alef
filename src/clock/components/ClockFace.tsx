@@ -35,7 +35,7 @@ function useContinuous(angle: number, forward = false) {
   return ref.current
 }
 
-export type Disc = { cx: number; cy: number; r: number; aspect?: number }
+type Disc = { cx: number; cy: number; r: number; aspect?: number }
 
 /**
  * The box a clock needs, in face sizes: the face plus its whole case (so a case never covers other UI).
@@ -74,7 +74,7 @@ export function caseImgStyle(disc: Disc, size: number) {
   }
 }
 
-export interface ClockFaceProps {
+interface ClockFaceProps {
   pose: HandPose
   numbers?: 'all' | 'quarters' | 'none'
   /** the minutes hint: true or 'minutes' = the minutes at every number; 'quarters' = the quarters only */

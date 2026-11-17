@@ -1,14 +1,12 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-const { playVoice } = vi.hoisted(() => ({ playVoice: vi.fn(() => Promise.resolve()) }))
-vi.mock('../audio/clockAudio', () => ({
-  spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
-  playVoice, playSfx: () => Promise.resolve(), stopVoices: () => {}, startMusic: () => {}, stopMusic: () => {},
-  preloadVoices: () => {}, configureClockAudio: () => {}, unlockClockAudio: () => {}, muteClockAudio: () => {},
-}))
 import { Bonus } from './Bonus'
 import { Cover } from './Cover'
 import { useClockStore } from '../store'
+import { enterYear } from '../../shared/parentGate/testing'
+import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
+
+const audio = installFakeAudio()
 
 const handAngle = (c: HTMLElement) => Number(/rotate\(([^)]+)\)/.exec(c.querySelector('line[stroke="#e67e22"]')!.getAttribute('transform')!)![1])
 
@@ -55,13 +53,12 @@ describe('Bonus', { timeout: 30000 }, () => {
     vi.useRealTimers()
   })
   it('plays the intro line only when it has not been explained', () => {
-    playVoice.mockClear()
     useClockStore.setState({ bonusExplained: true })
     render(<Bonus onDone={() => {}} />).unmount()
-    expect(playVoice).not.toHaveBeenCalled()
+    expect(audio.said()).toHaveLength(0)
     useClockStore.setState({ bonusExplained: false })
     render(<Bonus onDone={() => {}} />).unmount()
-    expect(playVoice).toHaveBeenCalledTimes(1)
+    expect(audio.said()).toHaveLength(1)
     expect(useClockStore.getState().bonusExplained).toBe(true)
   })
 })
@@ -74,12 +71,12 @@ describe('Cover', () => {
     expect(home.querySelector('svg')).not.toBeNull()
     expect(home.textContent).toBe('')
   })
-  it('a 2-second press on the gear opens the parent area; a tap does not', () => {
+  it('a 2-second press on the gear, then the year of birth, opens the parent area; a tap does not', () => {
     vi.useFakeTimers()
     const onParent = vi.fn()
-    const { getByLabelText, getByTestId } = render(<Cover onPlay={() => {}} onParent={onParent} />)
+    const { getByLabelText, container } = render(<Cover onPlay={() => {}} onParent={onParent} />)
     const gear = getByLabelText('parent settings (hold)')
-    const ring = getByTestId('parent-ring')
+    const ring = container.querySelector('[data-hold-ring]')!
     expect(ring.getAttribute('data-state')).toBe('idle')
     fireEvent.pointerDown(gear)
     expect(ring.getAttribute('data-state')).toBe('holding')
@@ -91,6 +88,8 @@ describe('Cover', () => {
     expect(ring.getAttribute('data-state')).toBe('idle')
     fireEvent.pointerDown(gear)
     act(() => { vi.advanceTimersByTime(2100) })
+    expect(onParent).not.toHaveBeenCalled()
+    enterYear(new Date().getFullYear() - 40)
     expect(onParent).toHaveBeenCalled()
     vi.useRealTimers()
   })

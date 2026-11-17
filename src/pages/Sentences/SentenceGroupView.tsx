@@ -469,5 +469,3 @@ export function SentenceGroupView() {
     </div>
   )
 }
-
-export default SentenceGroupView

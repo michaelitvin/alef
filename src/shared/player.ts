@@ -2,13 +2,14 @@
 // on the device in one key that every entry reads (they share the origin). Unset → the game asks the child before the
 // first round. A girl hears the feminine take of each line that speaks to the child (`<id>-f`) and sees the girl wizard.
 import { useSyncExternalStore } from 'react'
+import { safeSetItem } from './saveStorage'
 
 export type Gender = 'boy' | 'girl'
-export interface PlayerSetting { gender: Gender; by: 'child' | 'parent'; at: number }
+interface PlayerSetting { gender: Gender; by: 'child' | 'parent'; at: number }
 export const PLAYER_KEY = 'alef-player'
 /** the suffix of a feminine voice file and of a girl picture */
-export const FEMININE_SUFFIX = '-f'
-export const GIRL_SUFFIX = '-girl'
+const FEMININE_SUFFIX = '-f'
+const GIRL_SUFFIX = '-girl'
 
 const listeners = new Set<() => void>()
 let cache: { raw: string | null; value: PlayerSetting | null } | null = null
@@ -32,7 +33,7 @@ export const getPlayer = (): PlayerSetting | null => read()
 export const getGender = (): Gender | null => read()?.gender ?? null
 
 export function setGender(gender: Gender, by: 'child' | 'parent') {
-  try { localStorage.setItem(PLAYER_KEY, JSON.stringify({ gender, by, at: Date.now() })) } catch { /* storage full: this session only */ }
+  safeSetItem(PLAYER_KEY, JSON.stringify({ gender, by, at: Date.now() })) // storage still full: this session only
   notify()
 }
 /** The parent's "ask again": the next start shows the question. */

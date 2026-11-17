@@ -60,15 +60,9 @@ export const WORDS: Word[] = [
   link('horse', 'סוּס', 'samech', 'shuruk', 'pw-horse'),
 ]
 
-const SOUND: Record<string, string> = {
-  alef: '0', bet: 'b', vet: 'v', gimel: 'g', dalet: 'd', he: 'h', vav: 'v', zayin: 'z', het: 'ch', tet: 't', yod: 'y', kaf: 'k',
-  khaf: 'ch', lamed: 'l', mem: 'm', nun: 'n', samech: 's', ayin: '0', pe: 'p', fe: 'f', tsadi: 'ts', qof: 'k', resh: 'r', shin: 'sh',
-  sin: 's', tav: 't',
-}
 const GROUP: Record<MarkId, string> = {
   kamatz: 'a', patach: 'a', tsere: 'e', segol: 'e', chirik: 'i', cholam: 'o', 'cholam-male': 'o', kubutz: 'u', shuruk: 'u',
 }
-export const firstSoundId = (w: Word) => `syl-${SOUND[w.first.item]}-${GROUP[w.first.mark]}`
 
 /**
  * A word that starts with this letter and a vowel of the same sound (for the word link), or undefined. Match the letter,

@@ -49,11 +49,7 @@ html, body, #root { margin: 0; height: 100%; }
   border: 0; border-radius: 50%; background: #f3e6c8; color: #5b4a33; cursor: pointer;
   touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 .ck-parent-btn > * { grid-area: 1 / 1; pointer-events: none; }
-.ck-parent-ring-bg { fill: none; stroke: #c9b48a; stroke-width: 4; }
-.ck-parent-ring-fg { fill: none; stroke: #3c8d2f; stroke-width: 5; stroke-linecap: round; stroke-dashoffset: 160; }
-.ck-parent-holding .ck-parent-ring-fg { animation: ck-parent-fill 2s linear forwards; }
-.ck-parent-hint { animation: ck-parent-wiggle 0.5s ease-in-out; }
-@keyframes ck-parent-fill { from { stroke-dashoffset: 160; } to { stroke-dashoffset: 0; } }
+.ck-parent-btn.hold-hint { animation: ck-parent-wiggle 0.5s ease-in-out; }
 @keyframes ck-parent-wiggle { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 50% { transform: rotate(12deg); } 80% { transform: rotate(-6deg); } }
 /* the bench and the customer's corner; the tower and the fixed clocks have their own moments (the parent 2026-10-16) */
 .ck-workshop { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, 20vw);

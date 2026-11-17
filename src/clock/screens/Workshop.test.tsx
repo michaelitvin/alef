@@ -1,14 +1,11 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { log, voices, hold, music } = vi.hoisted(() => ({
-  log: [] as string[],
-  voices: [] as { id: string; caption: string[]; phase: string | null; visible: string[]; exercise: boolean; burst: boolean }[],
-  /** voice ids matching `re`, read while the question is asked, play until stopVoices (a long reading) */
-  hold: { re: null as RegExp | null, pending: [] as (() => void)[] },
-  music: { on: false, held: false },
-}))
-/** caption text compared without nikkud and case (as plain() below; the mock runs before the imports) */
+const log: string[] = []
+const voices: { id: string; caption: string[]; phase: string | null; visible: string[]; exercise: boolean; burst: boolean }[] = []
+/** voice ids matching `re`, read while the question is asked, play until stopVoices (a long reading) */
+const hold = { re: null as RegExp | null, pending: [] as (() => void)[] }
+/** caption text compared without nikkud and case (as plain() below) */
 const plainOf = (s: string) => s.normalize('NFC').replace(/[\u0591-\u05C7]/g, '').toLowerCase()
 /** something to answer is on the bench */
 const exerciseShown = () => !!document.querySelector('[data-option], [data-face-input]')
@@ -17,10 +14,34 @@ const visibleCaptions = () =>
   [...document.querySelectorAll<HTMLElement>('[data-caption]')]
     .filter((e) => !e.closest('[style*="visibility: hidden"]'))
     .map((e) => [...e.querySelectorAll('span')].map((x) => x.textContent).join(' '))
-vi.mock('../audio/clockAudio', () => ({
-  spokenLineText: (l: { he: string; en: string }, lang: 'he' | 'en') => l[lang],
-  playVoice: (id: string, caption: string[] = [], onWord?: (i: number) => void) => {
-    log.push(`v:${id}`)
+import { Workshop } from './Workshop'
+import { useClockStore } from '../store'
+import { clockTelemetry } from '../telemetry'
+import { dayKey } from '../logic/workday'
+import { stripNikkud } from '../logic/phrases'
+import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
+
+const plain = (s: string) => stripNikkud(s).toLowerCase()
+
+const audio = installFakeAudio()
+/** music is on: a track plays and has not faded out; held: the pause cover keeps all audio silent */
+const music = {
+  get on() { return audio.live().some((e) => e.kind === 'music' && (e.volume ?? 0) > 0) },
+  get held() { return audio.muted },
+}
+beforeEach(() => {
+  // the log of the round: each voice (`v:<id>`) and effect (`s:<name>`) as it starts, and each voice stopped
+  audio.onPlay = (e) => {
+    if (e.kind === 'voice') log.push(`v:${e.id}`)
+    else if (e.kind === 'sfx') log.push(`s:${e.id}`)
+  }
+  audio.onStop = (e) => {
+    if (e.kind !== 'voice') return
+    log.push('stop')
+    hold.pending.splice(0).forEach((r) => r())
+  }
+  audio.onVoice((id, e) => {
+    const caption = e.caption ?? []
     // the voice is heard a moment after the call (the file loads); React has rendered the state set before the call by then
     // (20 ms: a 0 ms timer can run before React's scheduled render in jsdom, and 5 ms did too in a loaded full run; a real
     // voice file takes longer than that to start)
@@ -32,30 +53,13 @@ vi.mock('../audio/clockAudio', () => ({
         await new Promise((r) => setTimeout(r, 10))
       const phase = document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? null
       voices.push({ id, caption, phase, visible: visibleCaptions(), exercise: exerciseShown(), burst: !!document.querySelector('[data-burst]') })
+      // a held reading ends on stopVoices (the fake ends a stopped sound itself)
       if (hold.re?.test(id) && phase === 'ask') { hold.pending.push(resolve); return }
-      for (let i = 0; i < caption.length; i++) onWord?.(i)
+      // the caption's last words fire as the line ends (the kit's follower)
       resolve()
     }, 20))
-  },
-  playSfx: (name: string) => { log.push(`s:${name}`); return Promise.resolve() },
-  stopVoices: () => { log.push('stop'); hold.pending.splice(0).forEach((r) => r()) },
-  startMusic: () => { music.on = true },
-  stopMusic: () => { music.on = false },
-  holdClockAudio: (on: boolean) => { music.held = on },
-  setClockHidden: () => {},
-  preloadVoices: () => {},
-  configureClockAudio: () => {},
-  unlockClockAudio: () => {},
-  muteClockAudio: () => {},
-}))
-
-import { Workshop } from './Workshop'
-import { useClockStore } from '../store'
-import { clockTelemetry } from '../telemetry'
-import { dayKey } from '../logic/workday'
-import { stripNikkud } from '../logic/phrases'
-
-const plain = (s: string) => stripNikkud(s).toLowerCase()
+  })
+})
 
 const answerCorrectly = async (container: HTMLElement) => {
   // first rounds play several explanations (0.7 s each after its voice); the full suite runs files in parallel
@@ -89,8 +93,6 @@ describe('Workshop', () => {
     voices.length = 0
     hold.re = null
     hold.pending.length = 0
-    music.on = false
-    music.held = false
   })
   const playBonus = async (container: HTMLElement) => {
     await waitFor(() => expect(container.querySelector('[aria-label="stop"]')).not.toBeNull(), { timeout: 6000 })

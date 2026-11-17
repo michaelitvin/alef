@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 
-export interface SentenceReaderProps {
+interface SentenceReaderProps {
   /** The Hebrew sentence to read */
   sentence: string
   /** Individual words in the sentence */
@@ -209,5 +209,3 @@ export function SentenceReader({
     </div>
   )
 }
-
-export default SentenceReader

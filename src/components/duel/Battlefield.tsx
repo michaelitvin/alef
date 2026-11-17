@@ -12,22 +12,23 @@ import type { FxStyle } from '../../utils/duel/fxStyle'
 
 const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
-export const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
+const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
 
 /** Book 2 plays only sideways, so its tower takes the landscape layout on a phone on its side too */
 export const EMBEDDED_LANDSCAPE_QUERY = '(orientation: landscape)'
 
 /** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout (unless `query` says otherwise). */
+const mediaQuery = (query: string) => (typeof window.matchMedia === 'function' ? window.matchMedia(query) : null)
+
 export function useLandscape(query = LANDSCAPE_QUERY) {
-  const mq = () => (typeof window.matchMedia === 'function' ? window.matchMedia(query) : null)
-  const [on, setOn] = useState(() => mq()?.matches ?? false)
+  const [on, setOn] = useState(() => mediaQuery(query)?.matches ?? false)
   useEffect(() => {
-    const m = mq()
+    const m = mediaQuery(query)
     if (!m) return
     const f = () => setOn(m.matches)
     m.addEventListener('change', f)
     return () => m.removeEventListener('change', f)
-  }, [])
+  }, [query])
   return on
 }
 

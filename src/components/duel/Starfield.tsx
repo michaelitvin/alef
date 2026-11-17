@@ -1,6 +1,6 @@
 // The duel's night sky and its announcement banner (shared by the duel's page and Book 2's tower screen).
 import { useMemo } from 'react'
-import type { BannerVisual } from '../../hooks/useDuelGame'
+import type { BannerVisual } from '../../utils/duel/controller'
 import { Icon } from './Icon'
 import { MonsterImg } from './Explosion'
 

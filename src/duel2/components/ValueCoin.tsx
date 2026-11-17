@@ -39,8 +39,8 @@ function PlainCoin({ x, y, s }: { x: number; y: number; s: number }) {
   return <svg x={x} y={y} width={s} height={s} overflow="visible"><CoinIcon /></svg>
 }
 
-export const TAG_W = 200
-export const TAG_H = 113
+const TAG_W = 200
+const TAG_H = 113
 
 /**
  * The price tag: parchment, tied with a string to the bottle's neck at its right end; the game's coin and the price as a

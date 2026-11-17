@@ -17,7 +17,7 @@ export interface SegmentWord {
   syllables: SegmentSyllable[]
 }
 
-export interface SyllableSegmentProps {
+interface SyllableSegmentProps {
   /** The word to segment */
   segmentWord: SegmentWord
   /** All available syllable options */
@@ -347,5 +347,3 @@ export function SyllableSegment({
     </div>
   )
 }
-
-export default SyllableSegment

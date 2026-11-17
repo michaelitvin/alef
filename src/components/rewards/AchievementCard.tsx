@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { colors, typography, spacing, borderRadius, shadows } from '../../styles/theme'
 import { StarBadge } from './StarBadge'
 
-export interface AchievementCardProps {
+interface AchievementCardProps {
   /** Title of the achievement */
   title: string
   /** Description text */
@@ -137,5 +137,3 @@ export function AchievementCard({
     </motion.div>
   )
 }
-
-export default AchievementCard

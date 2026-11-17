@@ -26,11 +26,6 @@ export const NextIcon = () => (
 export const PlayIcon = () => (
   <svg viewBox="0 0 24 24" width="55%" height="55%" aria-hidden><path fill="#2a0f00" d="M8 5v14l11-7z" /></svg>
 )
-export const HomeIcon = () => (
-  <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden>
-    <path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="#fff6d8" />
-  </svg>
-)
 export const TrophyIcon = () => (
   <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden>
     <path fill="#ffd34d" d="M7 3h10v4a5 5 0 0 1-10 0zM4 4h3v2a3 3 0 0 1-3-2zm16 0h-3v2a3 3 0 0 0 3-2zM10 13h4v4h3v3H7v-3h3z" />

@@ -10,19 +10,11 @@ const TTS_VERSION = 1
 const CACHE_NAME = `alef-tts-v${TTS_VERSION}`
 
 // Concurrency control for API calls (sequential queue to avoid rate limits)
-let activeRequests = 0
 let requestQueue: Promise<void> = Promise.resolve()
 
 function withSlot<T>(fn: () => Promise<T>): Promise<T> {
   // Chain all requests through a single queue
-  const myTurn = requestQueue.then(async () => {
-    activeRequests++
-    try {
-      return await fn()
-    } finally {
-      activeRequests--
-    }
-  })
+  const myTurn = requestQueue.then(fn)
 
   // Update queue to wait for this request (ignore errors for queue purposes)
   requestQueue = myTurn.then(() => {}, () => {})
@@ -144,24 +136,4 @@ export async function preloadTTS(texts: string[]): Promise<void> {
       }
     })
   )
-}
-
-/**
- * Clear all cached TTS audio
- */
-export async function clearTTSCache(): Promise<void> {
-  await caches.delete(CACHE_NAME)
-}
-
-/**
- * Get cache stats (for debugging)
- */
-export async function getTTSCacheStats(): Promise<{ count: number }> {
-  if (!('caches' in window)) {
-    return { count: 0 }
-  }
-
-  const cache = await caches.open(CACHE_NAME)
-  const keys = await cache.keys()
-  return { count: keys.length }
 }

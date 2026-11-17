@@ -8,11 +8,11 @@ import type { ScreenId } from './predict'
  * in five, so some mark always sits near 80 %, and a simulated 80 %-right player needed thousands of answers. With this
  * rule he needs about 95 (mastery.test), about ten tower visits of two waves (tune in playtest).
  */
-export const TOWER_MASTER = { minAnswers: 3, rate: 0.75 }
+const TOWER_MASTER = { minAnswers: 3, rate: 0.75 }
 /** a visit is about half when the last this many answers (at least this many) have no mistake */
 export const SHORT_AFTER = 8
 /** a screen is skipped in every other cycle when the last this many answers (at least this many) are all right */
-export const SKIP_AFTER = 12
+const SKIP_AFTER = 12
 
 /**
  * The fast lane of stage 0 (the parent, 2026-11-13: a child who already knows nikkud is placed fast): every mark has a

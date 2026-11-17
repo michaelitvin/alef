@@ -9,7 +9,7 @@ export interface JourneyNode {
   order: number
 }
 
-export interface JourneyPathProps {
+interface JourneyPathProps {
   /** Array of nodes to display */
   nodes: JourneyNode[]
   /** ID of the next node to complete (shows prominent glow) - if not provided, computed automatically */
@@ -208,5 +208,3 @@ export function JourneyPath({
     </div>
   )
 }
-
-export default JourneyPath

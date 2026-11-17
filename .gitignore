@@ -8,6 +8,7 @@ node_modules/
 
 # Build output
 dist/
+dist-verify/
 .vite/
 
 # IDE
@@ -26,3 +27,8 @@ npm-debug.log*
 
 # Audio samples (generated for testing)
 samples/
+
+# TypeScript build output (tsc emits into node_modules/.tmp; never commit these)
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

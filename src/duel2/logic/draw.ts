@@ -8,7 +8,7 @@ import { item, type MarkId, type Stage } from './content'
 import { predict } from './predict'
 import type { Conf } from './rounds'
 
-export const DRAW_WORDS = 3
+const DRAW_WORDS = 3
 /** the tally of one letter drawn in one script */
 export const drawFeature = (letter: string, script: Script) => `dr:${letter}:${script}`
 
@@ -61,7 +61,7 @@ export function marksFor(w: Word, stage: Stage): MarkSpec[] {
 /** Print and handwriting are two drawing minigames (spec: one duel, Part 5): the screen decides the script. */
 export const scriptOf = (screen: 'draw' | 'draw-hand'): Script => (screen === 'draw-hand' ? 'hand' : 'print')
 
-export interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; avoid?: string }
+interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; avoid?: string }
 
 /**
  * The words of a visit: from WORDS (each has a picture and its spoken word), more often those whose first letter he mixes

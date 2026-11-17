@@ -8,8 +8,11 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest run"
+    "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
+    "test": "vitest run",
+    "depcruise": "depcruise src --config .dependency-cruiser.cjs",
+    "knip": "knip",
+    "check": "npm run lint && npm run depcruise && npm run knip"
   },
   "dependencies": {
     "@types/howler": "^2.2.12",
@@ -28,11 +31,18 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
-    "@modyfi/vite-plugin-yaml": "^1.1.1",
+    "@eslint/js": "^9.39.5",
     "@rollup/plugin-yaml": "^4.1.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
+    "dependency-cruiser": "^18.7.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.14.0",
     "jsdom": "^29.1.1",
+    "knip": "^5.88.1",
+    "playwright": "^1.65.1",
+    "typescript-eslint": "^8.72.2",
     "vitest": "^4.1.10",
     "wrangler": "^4.54.0"
   }

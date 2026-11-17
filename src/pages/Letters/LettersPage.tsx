@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing } from '../../styles/theme'
 import { JourneyPath, type JourneyNode } from '../../components/navigation/JourneyPath'
@@ -49,6 +50,7 @@ export function LettersPage() {
   const devMode = useProgressStore((state) => state.settings.devMode)
 
   // Convert letters to journey nodes with progress state
+  const toInit: string[] = []
   const journeyNodes: JourneyNode[] = LETTERS.map((letter, index) => {
     const nodeId = `letters-${letter.id}`
     const progress = nodes[nodeId]
@@ -63,7 +65,7 @@ export function LettersPage() {
       // First letter is always available
       state = progress?.state || 'available'
       if (!progress) {
-        initializeNode(nodeId, 'letters')
+        toInit.push(nodeId)
       }
     } else {
       // Other letters depend on previous letter's progress
@@ -74,7 +76,7 @@ export function LettersPage() {
         // Previous letter started, this one becomes available
         state = progress?.state || 'available'
         if (!progress) {
-          initializeNode(nodeId, 'letters')
+          toInit.push(nodeId)
         }
       } else if (progress) {
         state = progress.state
@@ -88,6 +90,12 @@ export function LettersPage() {
       order: index + 1,
     }
   })
+
+  // Create the saved record of every open node after the render, never during it
+  const toInitKey = toInit.join(',')
+  useEffect(() => {
+    if (toInitKey) toInitKey.split(',').forEach((id) => initializeNode(id, 'letters'))
+  }, [toInitKey, initializeNode])
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -167,5 +175,3 @@ export function LettersPage() {
     </div>
   )
 }
-
-export default LettersPage

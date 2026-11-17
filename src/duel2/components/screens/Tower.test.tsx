@@ -4,13 +4,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../../utils/duel/duelAudio', async (orig) => {
   const m = await orig<typeof import('../../../utils/duel/duelAudio')>()
   // "tap the lightning": its cue fires as the line is said (as the real player does by the line's end)
-  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), playMusic: vi.fn(), muteDuelAudio: vi.fn() }
+  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), muteDuelAudio: vi.fn() }
 })
 import { Tower } from './Tower'
-import { muteDuelAudio, playMusic } from '../../../utils/duel/duelAudio'
+import { muteDuelAudio } from '../../../utils/duel/duelAudio'
 import { useDuel2Store } from '../../store'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'
+import { duel2Telemetry } from '../../telemetry'
+import { SESSION, readLog } from '../../../shared/telemetry'
 
 const view = { screen: 'tower' as const, wave: 1, waves: 2, boss: false, visit: 1 }
 
@@ -19,10 +21,34 @@ describe('Tower', () => {
     vi.useFakeTimers()
     useDuel2Store.getState().resetProgress()
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-    vi.mocked(playMusic).mockClear()
     vi.mocked(muteDuelAudio).mockClear()
   })
   afterEach(() => vi.useRealTimers())
+
+  it('the duel’s events go to Book 2’s log: g book2, via tower, the page’s one session, Book 2’s run; none in the old log (ADR 0004)', async () => {
+    localStorage.clear()
+    duel2Telemetry.clear()
+    duel2Telemetry.setRun(5)
+    const { unmount } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
+    await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
+    unmount()
+    duel2Telemetry.flush()
+    const rounds = readLog('alef-duel2-telemetry').filter((e) => e.e === 'round')
+    expect(rounds.length).toBeGreaterThan(0)
+    for (const r of rounds) expect(r).toMatchObject({ g: 'book2', via: 'tower', s: SESSION, run: 5, visit: 1 })
+    expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
+    duel2Telemetry.setRun(0)
+  })
+
+  it('the gallery’s tower (dry) records no event', async () => {
+    localStorage.clear()
+    duel2Telemetry.clear()
+    const { unmount } = render(<Tower view={view} paused={false} dry onAnswer={() => 'on'} onDone={() => {}} />)
+    await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
+    unmount()
+    expect(duel2Telemetry.count()).toBe(0)
+    expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
+  })
 
   it('draws the duel’s board with no HUD, no מגה button before the charge, and none of the duel’s covers', async () => {
     const { container } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
@@ -32,7 +58,6 @@ describe('Tower', () => {
     expect(container.querySelector('.nd-mega-btn')).toBeNull()
     expect(container.querySelector('.nd-pause-cover')).toBeNull()
     expect(container.querySelector('.nd-pad')).not.toBeNull()
-    expect(vi.mocked(playMusic)).not.toHaveBeenCalled()
   })
 
   it('a phone on its side gets the landscape board (Book 2 plays only sideways; the portrait board left no room for the field)', async () => {

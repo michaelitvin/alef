@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 
 /** how long the heart flies to the top bar */
-export const HEAL_MS = 800
+const HEAL_MS = 800
 /** the hearts in the top bar (stage units): the bar is above the stage (layout.ts), so the heart flies past its top edge */
 const TO = { x: 1500, y: -80 }
 
 /** The heart at `k` (0 = at `from`, 1 = at the top bar). */
-export function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
+function Heal({ from, k }: { from: { x: number; y: number }; k: number }) {
   const e = 1 - (1 - k) * (1 - k)
   const x = from.x + (TO.x - from.x) * e
   const y = from.y + (TO.y - from.y) * e - Math.sin(Math.PI * e) * 120

@@ -10,7 +10,7 @@ let cachedLetters: Letter[] | null = null
 /**
  * Load all letters from YAML file
  */
-export async function loadLetters(): Promise<Letter[]> {
+async function loadLetters(): Promise<Letter[]> {
   if (cachedLetters) {
     return cachedLetters
   }
@@ -50,16 +50,6 @@ export async function getLetterQuizOptions(
   const options = [target, ...distractors].sort(() => Math.random() - 0.5)
 
   return options
-}
-
-/**
- * Get letters for matching activity
- */
-export async function getLettersForMatch(
-  letterIds: string[]
-): Promise<Letter[]> {
-  const letters = await loadLetters()
-  return letters.filter(l => letterIds.includes(l.id))
 }
 
 /**

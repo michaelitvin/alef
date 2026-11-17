@@ -2,7 +2,7 @@
 // Judged by eye from src/clock/assets/img/<id>-idle.webp and <id>-happy.webp (2026-10-15): the direction of the snout or
 // beak and the turn of the head and body; 'front' = the face looks at the viewer, with no clear side. Check this map
 // again when a picture is regenerated.
-export type Facing = 'left' | 'right' | 'front'
+type Facing = 'left' | 'right' | 'front'
 
 export const FACING: Record<string, { idle: Facing; happy: Facing }> = {
   bear: { idle: 'left', happy: 'left' }, // snout to the left (happy: arms up, head turned left; the parent 2026-10-16)

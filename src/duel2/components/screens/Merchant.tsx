@@ -14,28 +14,28 @@ import { Stage, faceTransform } from './Stage'
 
 // The coins are the screen's choices, so they get the bottom of the stage, across its whole width, at a size a finger can
 // pick on a phone on its side (the parent: the coins were too small); the wizard and the merchant stand behind them.
-export const WIZARD = { x: 40, y: 310, h: 380 }
-export const GNOME = { right: 1570, bottom: 700, h: 480 }
-export const POTION = { x: 1175, y: 374, w: 130 }
-export const TAG = { x: POTION.x - 210, y: 316 }
+const WIZARD = { x: 40, y: 310, h: 380 }
+const GNOME = { right: 1570, bottom: 700, h: 480 }
+const POTION = { x: 1175, y: 374, w: 130 }
+const TAG = { x: POTION.x - 210, y: 316 }
 /** his open hand: where the coins go (DROP_R: the drop zone around it, generous: a child's drop is not precise) */
 export const HAND = { x: 1355, y: 508, r: 85 }
-export const DROP_R = HAND.r * 2.4
+const DROP_R = HAND.r * 2.4
 /** the piles' row: from x to right, standing on bottom; gap between columns; each coin of a pile shows `step` of the one under it */
-export const PILES = { x: 20, right: 1580, bottom: 885, gap: 36, step: 0.1 }
-export const DECLINE = { x: 560, y: 220, size: 200 }
-export const BUBBLE = { x: 1355, y: 409 }
+const PILES = { x: 20, right: 1580, bottom: 885, gap: 36, step: 0.1 }
+const DECLINE = { x: 560, y: 220, size: 200 }
+const BUBBLE = { x: 1355, y: 409 }
 
 /** a pile's coin size in stage units, by value: a bigger value is a bigger coin; the 1's drawn coin (COIN_FACE of it) is at least ~56 CSS px on a phone on its side */
-export function pileCoinSize(value: number): number {
+function pileCoinSize(value: number): number {
   return ({ 1: 216, 2: 220, 5: 226, 10: 232, 20: 238, 50: 244, 100: 250, 200: 256, 500: 262 } as Record<number, number>)[value] ?? 226
 }
 
 /** a dragged coin let go here goes into his hand */
-export const inHand = (q: { x: number; y: number }) => Math.hypot(q.x - HAND.x, q.y - HAND.y) < DROP_R
+const inHand = (q: { x: number; y: number }) => Math.hypot(q.x - HAND.x, q.y - HAND.y) < DROP_R
 
 /** his coins that are not in the merchant's hand */
-export function remaining(coins: number[], given: number[]): number[] {
+function remaining(coins: number[], given: number[]): number[] {
   const left = [...coins]
   for (const g of given) { const i = left.indexOf(g); if (i >= 0) left.splice(i, 1) }
   return left

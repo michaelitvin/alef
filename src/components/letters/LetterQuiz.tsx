@@ -9,7 +9,7 @@ import { useSoundEffects } from '../../hooks/useAudio'
 import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
-export interface LetterQuizProps {
+interface LetterQuizProps {
   /** The target letter to identify */
   targetLetter: Letter
   /** Array of letter options (including the target) */
@@ -220,5 +220,3 @@ export function LetterQuiz({
     </div>
   )
 }
-
-export default LetterQuiz

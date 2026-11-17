@@ -10,7 +10,7 @@ export interface SyllableDrillOption {
   isCorrect: boolean
 }
 
-export interface SyllableDrillProps {
+interface SyllableDrillProps {
   /** The target syllable to identify */
   targetSyllable: CVSyllable
   /** Quiz options (4 syllables including the correct one) */
@@ -254,5 +254,3 @@ export function SyllableDrill({
     </div>
   )
 }
-
-export default SyllableDrill

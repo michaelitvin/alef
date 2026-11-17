@@ -8,7 +8,7 @@ import { useAudio, useSoundEffects } from '../../hooks/useAudio'
 import { getLetterNameAudio, preloadLetterNamesByIds } from '../../utils/audio'
 import type { Letter } from '../../types/entities'
 
-export interface LetterMatchProps {
+interface LetterMatchProps {
   /** Array of letters to match */
   letters: Letter[]
   /** Called when a match attempt is made */
@@ -405,5 +405,3 @@ function shuffleArray<T>(array: T[]): T[] {
   }
   return shuffled
 }
-
-export default LetterMatch

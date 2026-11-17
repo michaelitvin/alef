@@ -9,7 +9,7 @@ import type { ClockKind } from '../logic/workday'
 import { ClockFace, angleFromPointer } from './ClockFace'
 import { CheckIcon, HandLongIcon, HandShortIcon } from './icons'
 
-export interface HandSetterProps {
+interface HandSetterProps {
   mode: 'short' | 'long' | 'both'
   linked: boolean
   initial: HandPose

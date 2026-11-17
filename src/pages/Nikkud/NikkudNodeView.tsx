@@ -142,20 +142,11 @@ export function NikkudNodeView() {
 
   const exampleLetters = generateExampleLetters()
 
-  // Handle unknown nikkud
-  if (!nikkudData) {
-    return (
-      <div style={{ padding: spacing[4] }}>
-        <p>Nikkud not found</p>
-        <button onClick={() => navigate('/nikkud')}>חזרה</button>
-      </div>
-    )
-  }
-
   const nodeId = `nikkud-${nikkudId}`
 
   // Generate quiz options - stable across re-renders for same nikkud
   const quizOptions = useMemo((): NikkudQuizOption[] => {
+    if (!nikkudData) return []
     const targetSoundGroup = nikkudData.soundGroup
 
     // Filter out nikkud with the same sound group (to avoid confusing similar sounds)
@@ -185,10 +176,11 @@ export function NikkudNodeView() {
 
     // Shuffle final options so correct answer is in random position
     return shuffle(options)
-  }, [nikkudId, nikkudData.soundGroup, nikkudData.mark])
+  }, [nikkudId, nikkudData])
 
   // Generate nikkud options for combination builder
   const nikkudOptions = useMemo(() => {
+    if (!nikkudData) return []
     // Include current nikkud and 2-3 others (shuffled)
     const otherNikkud = shuffle(NIKKUD.filter((n) => n.id !== nikkudId)).slice(0, 3)
     const allOptions = shuffle([nikkudData, ...otherNikkud])
@@ -201,12 +193,13 @@ export function NikkudNodeView() {
 
   // Generate random target letter for combination builder (stable per nikkud)
   const builderTarget = useMemo(() => {
+    if (!nikkudData) return { letter: '', sound: '' }
     const letterConfig = EXAMPLE_LETTERS_CONFIG[Math.floor(Math.random() * EXAMPLE_LETTERS_CONFIG.length)]
     const dagesh = letterConfig.hasDagesh ? 'ּ' : ''
     const letter = letterConfig.letter + dagesh
     const sound = letter + nikkudData.mark
     return { letter, sound }
-  }, [nikkudData.mark])
+  }, [nikkudData])
 
   // Preload sounds for current step only
   useEffect(() => {
@@ -330,6 +323,16 @@ export function NikkudNodeView() {
 
   const handleBack = () => {
     navigate('/nikkud')
+  }
+
+  // Handle unknown nikkud
+  if (!nikkudData) {
+    return (
+      <div style={{ padding: spacing[4] }}>
+        <p>Nikkud not found</p>
+        <button onClick={() => navigate('/nikkud')}>חזרה</button>
+      </div>
+    )
   }
 
   return (
@@ -556,5 +559,3 @@ export function NikkudNodeView() {
     </div>
   )
 }
-
-export default NikkudNodeView

@@ -7,11 +7,11 @@ import cuckoo from '../../clock/assets/img/cuckoo-idle.webp'
 import bear from '../../clock/assets/img/bear-happy.webp'
 import { PlayButton } from './PlayButton'
 
-export const CLOCK_HREF = () => `${import.meta.env.BASE_URL}clock/`
-export const CLOCK_LEARN = 'לקרוא שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.'
+const CLOCK_HREF = () => `${import.meta.env.BASE_URL}clock/`
+const CLOCK_LEARN = 'לקרוא שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.'
 
 /** a clock face: the red short hand, the blue long hand, the numbers 12, 3, 6, 9 (the clock game's colours) */
-export function Face({ h, m, size, numbers = true, rim = true }: { h: number; m: number; size?: number; numbers?: boolean; rim?: boolean }) {
+function Face({ h, m, size, numbers = true, rim = true }: { h: number; m: number; size?: number; numbers?: boolean; rim?: boolean }) {
   const ha = ((h % 12) + m / 60) * 30
   const ma = m * 6
   return (

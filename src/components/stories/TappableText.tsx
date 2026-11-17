@@ -7,7 +7,7 @@ const HIGHLIGHT_SPEAKING = 'rgba(255, 213, 79, 0.65)'
 /** Softer shade left on the last-tapped word, inviting the decode tap */
 const HIGHLIGHT_INVITE = 'rgba(255, 213, 79, 0.35)'
 
-export interface TappableTextProps {
+interface TappableTextProps {
   /** Text to render; split into tappable words on whitespace */
   text: string
   /** Unique per text block on screen; word keys are `${blockId}:${index}` */
@@ -119,5 +119,3 @@ export function TappableText({
     </span>
   )
 }
-
-export default TappableText

@@ -280,5 +280,3 @@ export function RoutesPage() {
     </div>
   )
 }
-
-export default RoutesPage

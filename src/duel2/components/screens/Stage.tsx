@@ -4,7 +4,7 @@ import type { ReactNode, SVGProps } from 'react'
 import { IMAGES } from '../../assets/images'
 import { GlyphDefs } from '../Glyph'
 
-export const W = 1600
+const W = 1600
 export const H = 900
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 

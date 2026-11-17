@@ -1,9 +1,11 @@
 // The play screen: the current screen, the top bar, the overlays and the pause cover, driven by the run controller.
+import { usePlaytime } from '../../shared/playtime'
 import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
 import { item as itemOf, mark as markOf } from '../logic/content'
-import { Broom, LANE_Y, WIZ_X, flightPath } from '../components/screens/Broom'
+import { Broom } from '../components/screens/Broom'
+import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
 import { Cauldron, ORB_X, ORB_Y } from '../components/screens/Cauldron'
 import { Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
@@ -121,6 +123,8 @@ export function Play({ opts, onOver, onExit }: {
   const wiz = useWizardArt()
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const v = run.view
+  // play time for the parent's Progress section: not in the gallery's sandbox, not under the pause cover
+  usePlaytime('book2', !opts.sandbox && !v.paused && !v.over)
   const size = useWindowSize()
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)

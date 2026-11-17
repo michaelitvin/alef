@@ -4,7 +4,7 @@ import { colors, typography, zIndex } from '../../styles/theme'
 
 export type FeedbackType = 'success' | 'error' | 'celebration'
 
-export interface FeedbackOverlayProps {
+interface FeedbackOverlayProps {
   /** Whether the overlay is visible */
   visible: boolean
   /** Type of feedback to show */
@@ -155,49 +155,3 @@ export function FeedbackOverlay({
     </AnimatePresence>
   )
 }
-
-/**
- * Hook for managing feedback overlay state
- */
-export function useFeedback() {
-  const [state, setState] = useState<{
-    visible: boolean
-    type: FeedbackType
-    message?: string
-  }>({
-    visible: false,
-    type: 'success',
-  })
-
-  const show = (type: FeedbackType, message?: string) => {
-    setState({ visible: true, type, message })
-  }
-
-  const hide = () => {
-    setState((prev) => ({ ...prev, visible: false }))
-  }
-
-  const showSuccess = (message?: string) => show('success', message)
-  const showError = (message?: string) => show('error', message)
-  const showCelebration = (message?: string) => show('celebration', message)
-
-  return {
-    ...state,
-    show,
-    hide,
-    showSuccess,
-    showError,
-    showCelebration,
-    overlayProps: {
-      visible: state.visible,
-      type: state.type,
-      message: state.message,
-      onHide: hide,
-    },
-  }
-}
-
-// Need to import useState for the hook
-import { useState } from 'react'
-
-export default FeedbackOverlay

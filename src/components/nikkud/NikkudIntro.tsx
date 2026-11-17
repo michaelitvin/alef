@@ -12,7 +12,7 @@ export interface ExampleLetter {
   sound: string
 }
 
-export interface NikkudIntroProps {
+interface NikkudIntroProps {
   /** The nikkud mark to introduce */
   nikkud: string
   /** The name of the nikkud in Hebrew */
@@ -309,5 +309,3 @@ export function NikkudIntro({
     </div>
   )
 }
-
-export default NikkudIntro

@@ -14,3 +14,13 @@ describe('stroke review link', () => {
     location.hash = ''
   })
 })
+
+describe('the tower glyph sheet link', () => {
+  it('#/tower-glyphs is only a test-build page: a child build shows the cover', () => {
+    location.hash = '#/tower-glyphs'
+    const { container } = render(<Duel2App />)
+    expect(container.querySelector('.nd-glyphs')).toBeNull()
+    expect(container.querySelector('[data-screen="cover"]')).not.toBeNull()
+    location.hash = ''
+  })
+})

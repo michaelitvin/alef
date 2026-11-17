@@ -11,8 +11,8 @@ import { Stage, type Phase } from './Stage'
 
 export const ORB_X = [450, 800, 1150]
 export const ORB_Y = 200
-export const ORB_SIZE = 180
-export const CAULDRON_GLYPH_PX = 190
+const ORB_SIZE = 180
+const CAULDRON_GLYPH_PX = 190
 const POT = { x: 800, top: 480, w: 330 }
 
 export function Cauldron(p: {

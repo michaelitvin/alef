@@ -15,7 +15,7 @@ import {
   type TapState,
 } from '../../utils/speech/tapCycle'
 import { decodeWord, stripPunctuation } from '../../utils/decodeWord'
-import { useProgressStore } from '../../stores/progressStore'
+import { getDeviceSettings } from '../../shared/deviceSettings'
 
 /** Taps must visibly highlight even when speech resolves instantly (no Hebrew voice) */
 const MIN_HIGHLIGHT_MS = 400
@@ -69,7 +69,8 @@ export function SpeechProvider({
   }, [])
 
   const speakText = useCallback(async (key: string | null, text: string) => {
-    const volume = useProgressStore.getState().settings.volume
+    // the voice follows the device's volume only (never the effects switch: the child cannot read)
+    const volume = getDeviceSettings().volume
     setSpeakingKey(key)
     setPendingKey(key)
     const clearPending = () =>

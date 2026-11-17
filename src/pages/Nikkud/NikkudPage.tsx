@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing } from '../../styles/theme'
 import { JourneyPath, type JourneyNode } from '../../components/navigation/JourneyPath'
@@ -22,6 +23,7 @@ export function NikkudPage() {
   const levelUnlocked = isLevelUnlocked('nikkud')
 
   // Convert nikkud to journey nodes with progress state
+  const toInit: string[] = []
   const journeyNodes: JourneyNode[] = NIKKUD_NODES.map((nikkud, index) => {
     const nodeId = `nikkud-${nikkud.id}`
     const progress = nodes[nodeId]
@@ -39,7 +41,7 @@ export function NikkudPage() {
       // First nikkud is always available once level is unlocked
       state = progress?.state || 'available'
       if (!progress) {
-        initializeNode(nodeId, 'nikkud')
+        toInit.push(nodeId)
       }
     } else {
       // Other nikkud depend on previous nikkud's progress
@@ -50,7 +52,7 @@ export function NikkudPage() {
         // Previous nikkud started, this one becomes available
         state = progress?.state || 'available'
         if (!progress) {
-          initializeNode(nodeId, 'nikkud')
+          toInit.push(nodeId)
         }
       } else if (progress) {
         state = progress.state
@@ -65,6 +67,12 @@ export function NikkudPage() {
       order: index + 1,
     }
   })
+
+  // Create the saved record of every open node after the render, never during it
+  const toInitKey = toInit.join(',')
+  useEffect(() => {
+    if (toInitKey) toInitKey.split(',').forEach((id) => initializeNode(id, 'nikkud'))
+  }, [toInitKey, initializeNode])
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -184,5 +192,3 @@ export function NikkudPage() {
     </div>
   )
 }
-
-export default NikkudPage

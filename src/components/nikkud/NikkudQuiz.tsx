@@ -11,7 +11,7 @@ export interface NikkudQuizOption {
   isCorrect: boolean
 }
 
-export interface NikkudQuizProps {
+interface NikkudQuizProps {
   /** The target sound to match */
   targetSound: string
   /** The nikkud name being quizzed */
@@ -194,5 +194,3 @@ export function NikkudQuiz({
     </div>
   )
 }
-
-export default NikkudQuiz

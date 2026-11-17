@@ -11,7 +11,7 @@ import { SpeakerIcon } from './icons'
 
 export const TEST_HOOKS = import.meta.env.MODE === 'test' || import.meta.env.VITE_CLOCK_TEST === '1'
 
-export interface ChoiceExerciseProps {
+interface ChoiceExerciseProps {
   plan: RoundPlan
   script: CaptionScript
   locked: boolean

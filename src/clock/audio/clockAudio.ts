@@ -1,71 +1,51 @@
-// Clock audio: voice on html5 audio at VOICE_RATE (pitch kept) with a callback per caption word, timed from the playback
-// position; effects and calm music on Web Audio. Music ducks under every voice line. Missing files resolve at once (never stall).
-import { Howler } from 'howler'
-import { VOICE_RATE, getHowl, peekHowl, playOnce, unlockAudio } from '../../shared/audioCore'
+// Clock audio: the shared game-audio kit (src/shared/gameAudio) with the clock's files and numbers. Each voice line plays
+// on its own (`playLine`, no queue: the round script awaits each one) on html5 at VOICE_RATE (pitch kept), with a callback
+// per caption word timed from the playback position; effects and calm music on Web Audio. Music ducks under every voice
+// line. Missing files never stall: a line with no file walks its caption at a reading pace.
+import { createGameAudio } from '../../shared/gameAudio/kit'
+import { VOICE_RATE } from '../../shared/gameAudio/howlerPlayer'
 import { MUSIC_URLS, SFX_URLS, VOICE_URLS, VOICE_WORDS } from '../assets/audioFiles'
 import type { ClockSfx } from '../logic/workday'
 import { captionTimes, followPlayback } from './wordTiming'
-import { getGender, voiceFor } from '../../shared/player'
 import { hasFeminine, lineAudioId, type LineDef } from '../data/lines'
 import type { Lang } from '../logic/phrases'
 import { CUSTOMERS } from '../logic/workday'
 import { clockTelemetry } from '../telemetry'
 
 const HE_CUSTOMERS = new Set(CUSTOMERS.filter((c) => c.lang === 'he').map((c) => c.id))
-let exists: (id: string) => boolean = (id) => id in VOICE_URLS
-/** Test seam: which voice files exist (null restores the real files). */
-export function setClockVoiceExists(f: ((id: string) => boolean) | null) { exists = f ?? ((id) => id in VOICE_URLS) }
-const fellBack = new Set<string>()
-/** The file to play: the feminine Hebrew take (`-f`) for a girl, for a line or a Hebrew customer's request that speaks to
- * the child (spec 2026-11-07 girls). A missing one falls back to the masculine take (never silence), logged once. */
-export function clockVoiceId(id: string): string {
-  const gendered = (x: string) => hasFeminine(x) && (!x.startsWith('cust-') || HE_CUSTOMERS.has(x.split('-')[1]))
-  const r = voiceFor(id, getGender(), exists, gendered)
-  if (r.fallback && !fellBack.has(id)) { fellBack.add(id); clockTelemetry.track('voice-fallback', { id }) }
-  return r.id
-}
-
-const MUSIC_VOL = 0.3
-const DUCK_VOL = 0.08
-const LINE_TIMEOUT_MS = 12000
-const SFX_TIMEOUT_MS = 4000
 /** Word spacing assumed when a line has no timings yet (s). */
-export const WORD_ESTIMATE_S = 0.45
+const WORD_ESTIMATE_S = 0.45
 
-let cfg = { sfx: true, music: true, volume: 0.8 }
-export function configureClockAudio(o: { sfx: boolean; music: boolean; volume: number }) {
-  cfg = o
-  Howler.volume(o.volume)
-  if (!o.music) stopMusic()
-}
-export const unlockClockAudio = unlockAudio
-export const muteClockAudio = (on: boolean) => Howler.mute(on)
+const audio = createGameAudio<ClockSfx, 'calm'>({
+  game: 'clock',
+  voices: VOICE_URLS,
+  sfx: SFX_URLS,
+  sfxPick: 'rotate',
+  // the parent: no music while customers and questions are on; it plays only on the door, in the bonus game and on
+  // the day summary
+  music: { calm: MUSIC_URLS },
+  // the feminine Hebrew take (`-f`) for a girl, for a line or a Hebrew customer's request that speaks to the child
+  // (spec 2026-11-07 girls)
+  feminine: (x) => hasFeminine(x) && (!x.startsWith('cust-') || HE_CUSTOMERS.has(x.split('-')[1])),
+  telemetry: clockTelemetry,
+  lineTimeoutMs: 12000,
+  sfxTimeoutMs: 4000,
+  // the clock has no voice queue: the round script plays one line at a time
+  gapMs: 0,
+  musicVol: 0.3,
+  duckVol: 0.08,
+  musicFadeInMs: 800,
+})
 
-// Rule: switching apps pauses the game and silences it. All clock audio is muted while the page is hidden, and stays
-// muted while the pause cover holds it, until he taps play.
-let hidden = false
-let held = false
-const applyMute = () => Howler.mute(hidden || held)
-/** The page was hidden (another app, the tablet locked) or shown again. */
-export function setClockHidden(on: boolean) {
-  hidden = on
-  applyMute()
-}
-/** The pause cover keeps the audio silent after the page is shown again, until play is tapped. */
-export function holdClockAudio(on: boolean) {
-  held = on
-  applyMute()
-}
-
-export function preloadVoices(ids: string[]) {
-  for (const id of ids) if (VOICE_URLS[id]) getHowl(VOICE_URLS[id], false, true)
-}
+/** The file to play: the feminine take for a girl when the line has one; a missing one falls back to the masculine take
+ * (never silence), logged once. */
+export const clockVoiceId = audio.voiceFile
 
 /**
  * The start time (s, media time) of each caption word of a voice line: the voice's word timings mapped onto the caption
  * words. When the line has no timings, or they cannot be mapped, the words are spread at an estimated pace.
  */
-export function captionTimesFor(id: string, caption: string[]): number[] {
+function captionTimesFor(id: string, caption: string[]): number[] {
   const spoken = VOICE_WORDS[id]
   const mapped = spoken ? captionTimes(caption, spoken) : null
   if (mapped) return mapped
@@ -76,97 +56,53 @@ export function captionTimesFor(id: string, caption: string[]): number[] {
   return caption.map((_, i) => i * WORD_ESTIMATE_S)
 }
 
-/**
- * Plays a voice line; `onWord(i)` fires as caption word i is spoken. The highlight follows the audio's real playback
- * position (rule), so load latency and the speech rate cannot put it out of step. Every word fires by the end, even if
- * the file is missing.
- */
+/** No file yet: walks the caption at the estimated pace so the child still sees it read. */
+function walkCaption(times: number[], report: (i: number) => void): Promise<void> {
+  return new Promise((resolve) => {
+    let i = 0
+    const step = () => {
+      if (i < times.length) report(i++)
+      if (i < times.length) window.setTimeout(step, ((times[i] - times[i - 1]) / VOICE_RATE) * 1000)
+      else window.setTimeout(resolve, 300)
+    }
+    if (times.length) window.setTimeout(step, (times[0] / VOICE_RATE) * 1000)
+    else resolve()
+  })
+}
+
 /** The caption of a line: the feminine text only when the feminine file is the one that plays (a missing file falls back
  * to the masculine take, and the caption must say what the voice says). */
 export function spokenLineText(l: LineDef, lang: Lang): string {
   return lang === 'he' && l.heF && clockVoiceId(lineAudioId(l.id, lang)).endsWith('-f') ? l.heF : l[lang]
 }
 
-export function playVoice(lineId: string, caption: string[] = [], onWord?: (i: number) => void): Promise<void> {
-  const id = clockVoiceId(lineId)
-  const times = captionTimesFor(id, caption)
-  const report = (i: number) => onWord?.(i)
-  const url = VOICE_URLS[id]
-  if (!url) {
-    // no file yet: walk the caption at the estimated pace so the child still sees it read
-    return new Promise((resolve) => {
-      let i = 0
-      const step = () => {
-        if (i < times.length) report(i++)
-        if (i < times.length) window.setTimeout(step, ((times[i] - times[i - 1]) / VOICE_RATE) * 1000)
-        else window.setTimeout(resolve, 300)
-      }
-      if (times.length) window.setTimeout(step, (times[0] / VOICE_RATE) * 1000)
-      else resolve()
-    })
-  }
-  duck(true)
-  const h = getHowl(url, false, true)
-  let follower: ReturnType<typeof followPlayback> | null = null
-  return playOnce(h, VOICE_RATE, LINE_TIMEOUT_MS, (sound) => {
-    follower = followPlayback(times, () => (h.playing(sound) ? (h.seek(sound) as number) : null), report)
-  }).finally(() => {
-    follower?.finish()
-    duck(false)
-  })
-}
-
-export function stopVoices() {
-  Object.values(VOICE_URLS).forEach((u) => peekHowl(u)?.stop())
-}
-
-const lastSfx: Record<string, number> = {}
-/** Plays an effect; approved takes rotate. */
-export function playSfx(name: ClockSfx): Promise<void> {
-  const takes = SFX_URLS[name]
-  if (!cfg.sfx || !takes?.length) return Promise.resolve()
-  const i = ((lastSfx[name] ?? -1) + 1) % takes.length
-  lastSfx[name] = i
-  const h = getHowl(takes[i])
-  h.volume(0.8)
-  return playOnce(h, 1, SFX_TIMEOUT_MS)
-}
-
-let music: ReturnType<typeof getHowl> | null = null
-let ducks = 0
 /**
- * Starts the calm music (the parent: no music while customers and questions are on; it plays only on the door, in the
- * bonus game and on the day summary). Each workday moves to the next track. Already playing that track: nothing changes.
+ * Plays a voice line; `onWord(i)` fires as caption word i is spoken. The highlight follows the audio's real playback
+ * position (rule), so load latency and the speech rate cannot put it out of step. Every word fires by the end, even if
+ * the file is missing or the line is stopped.
  */
-export function startMusic(day: number) {
-  if (!cfg.music || MUSIC_URLS.length === 0) return
-  const h = getHowl(MUSIC_URLS[day % MUSIC_URLS.length], true)
-  if (music === h) return
-  stopMusic()
-  music = h
-  // while the file loads, Howler queues every call and a stop can land behind the play; wait for the load instead
-  if (h.state() !== 'loaded') h.once('load', () => { if (music === h) fadeIn(h) })
-  else fadeIn(h)
+export function playVoice(lineId: string, caption: string[] = [], onWord?: (i: number) => void): Promise<void> {
+  const report = (i: number) => onWord?.(i)
+  return audio
+    .playLine(lineId, {
+      caption,
+      follow: (position, file) => followPlayback(captionTimesFor(file, caption), position, report),
+      missing: (file) => walkCaption(captionTimesFor(file, caption), report),
+    })
+    .then(() => {})
 }
-function fadeIn(h: ReturnType<typeof getHowl>) {
-  if (!h.playing()) {
-    h.volume(0)
-    h.play()
-  }
-  h.fade(h.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 800)
-}
+
+/** Stops the voice line that plays now. */
+export const stopVoices = audio.stopVoice
+
+/** Plays an effect; approved takes rotate. */
+export const playSfx = (name: ClockSfx): Promise<void> => audio.playSfx(name)
+
+/** Starts the calm music; each workday moves to the next track. Already playing that track: nothing changes. */
+export const startMusic = (day: number) => audio.startMusic('calm', { track: day })
 /** Fades the music out. */
-export function stopMusic() {
-  if (!music) return
-  const h = music
-  music = null
-  if (!h.playing()) return
-  h.fade(h.volume(), 0, 300)
-  window.setTimeout(() => { if (music !== h) h.stop() }, 320)
-}
-/** The music is on (for tests and checks). */
-export const musicPlaying = () => music !== null
-function duck(on: boolean) {
-  ducks = Math.max(0, ducks + (on ? 1 : -1))
-  if (music?.playing()) music.fade(music.volume(), ducks > 0 ? DUCK_VOL : MUSIC_VOL, 200)
-}
+export const stopMusic = audio.stopMusic
+export const preloadVoices = audio.preloadVoices
+/** Starts loading every effect take (Web Audio). */
+export const preloadSfx = audio.preloadSfx
+export { holdAudio } from '../../shared/gameAudio/output'

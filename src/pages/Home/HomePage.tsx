@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { colors, typography, spacing, borderRadius } from '../../styles/theme'
+import { colors, typography, spacing } from '../../styles/theme'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
 import { DuelCard } from '../../components/home/DuelCard'
@@ -9,6 +9,8 @@ import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
 import { LevelShelf } from '../../components/home/LevelShelf'
 import { GearIcon, StarIcon, TargetIcon, ChartIcon } from '../../components/home/HomeIcons'
+import { ParentGate } from '../../shared/parentGate/ParentGate'
+import { passGate } from '../../parent/gateToken'
 import '../../components/home/home.css'
 
 /**
@@ -38,36 +40,13 @@ export function HomePage() {
         position: 'relative',
       }}
     >
-      {/* Settings Button */}
-      <motion.button
-        data-home-settings
-        aria-label="settings"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        onClick={() => navigate('/settings')}
-        style={{
-          position: 'absolute',
-          top: spacing[4],
-          left: spacing[4],
-          width: '44px',
-          height: '44px',
-          borderRadius: borderRadius.full,
-          border: 'none',
-          backgroundColor: colors.neutral[100],
-          color: colors.text.secondary,
-          fontSize: '1.25rem',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10,
-        }}
-        whileHover={{ scale: 1.1, backgroundColor: colors.neutral[200] }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <GearIcon />
-      </motion.button>
+      {/* the settings gear is the parent gate (rule: a 2 s hold, then the year of birth); it opens the parent area at once,
+          and the area's route asks again on any other way in (Back, Forward, a reload) */}
+      <div data-home-settings className="home-gear-box">
+        <ParentGate label="settings (hold)" className="home-gear" onOpen={() => { passGate(); navigate('/settings') }}
+          ring={{ track: colors.neutral[200], fill: colors.primary[500], width: 4, trackWidth: 4 }}
+          overlay={<GearIcon />} />
+      </div>
 
       {/* Header */}
       <motion.header
@@ -167,5 +146,3 @@ export function HomePage() {
     </div>
   )
 }
-
-export default HomePage

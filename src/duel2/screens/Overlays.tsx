@@ -5,7 +5,7 @@ import type { Choice } from '../logic/rounds'
 import type { Word } from '../data/words'
 import { Glyph, GlyphDefs } from '../components/Glyph'
 import { MarkAlone } from '../components/MarkAlone'
-import type { Highlight } from '../components/ExplainPanel'
+import type { Highlight } from '../viewTypes'
 
 // an explanation hides the top bar and dims the screen under it, so its frame takes the whole screen (larger glyphs on a
 // phone on its side); its go-on and replay buttons are at the bottom, clear of the glyphs
@@ -20,7 +20,7 @@ function Frame({ children, dim = true }: { children: React.ReactNode; dim?: bool
 }
 
 /** The syllable split into his two steps: the letter, then the vowel, then the whole. */
-export function TwoSteps({ target, h, small = false }: { target: Choice; h: Highlight | null; small?: boolean }) {
+function TwoSteps({ target, h, small = false }: { target: Choice; h: Highlight | null; small?: boolean }) {
   const it = itemOf(target.itemId)
   const m = target.mark ? markOf(target.mark) : null
   const y = small ? 250 : 430

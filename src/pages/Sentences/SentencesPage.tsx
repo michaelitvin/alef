@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing } from '../../styles/theme'
 import { JourneyPath, type JourneyNode } from '../../components/navigation/JourneyPath'
@@ -22,6 +23,7 @@ export function SentencesPage() {
   const levelUnlocked = isLevelUnlocked('sentences')
 
   // Convert sentence groups to journey nodes with progress state
+  const toInit: string[] = []
   const journeyNodes: JourneyNode[] = SENTENCE_NODES.map((group, index) => {
     const nodeId = `sentences-${group.id}`
     const progress = nodes[nodeId]
@@ -39,7 +41,7 @@ export function SentencesPage() {
       // First group is always available once level is unlocked
       state = progress?.state || 'available'
       if (!progress) {
-        initializeNode(nodeId, 'sentences')
+        toInit.push(nodeId)
       }
     } else {
       // Other groups depend on previous group's progress
@@ -50,7 +52,7 @@ export function SentencesPage() {
         // Previous group started, this one becomes available
         state = progress?.state || 'available'
         if (!progress) {
-          initializeNode(nodeId, 'sentences')
+          toInit.push(nodeId)
         }
       } else if (progress) {
         state = progress.state
@@ -64,6 +66,12 @@ export function SentencesPage() {
       order: index + 1,
     }
   })
+
+  // Create the saved record of every open node after the render, never during it
+  const toInitKey = toInit.join(',')
+  useEffect(() => {
+    if (toInitKey) toInitKey.split(',').forEach((id) => initializeNode(id, 'sentences'))
+  }, [toInitKey, initializeNode])
 
   const handleNodeClick = (nodeId: string) => {
     const node = journeyNodes.find((n) => n.id === nodeId)
@@ -212,5 +220,3 @@ export function SentencesPage() {
     </div>
   )
 }
-
-export default SentencesPage
