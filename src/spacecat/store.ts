@@ -1,8 +1,9 @@
 // Space Cat's own save (localStorage 'alef-spacecat'); reset never touches alef's progress.
 import { create, type StateCreator } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 import { RECENT_KEEP } from '../shared/adaptive'
 import { rehydrateOnRestore } from '../shared/rehydrateOnRestore'
+import { persistSaveStorage } from '../shared/saveStorage'
 import { isZeroFact, type Item, type RungId } from './logic/facts'
 import { afterAnswer } from './logic/ladder'
 import type { ItemStats, Mark } from './logic/predict'
@@ -75,7 +76,7 @@ export const useSpaceCatStore = create<SpaceCatState>()(
   persist(
     spaceCatCreator,
     {
-      name: SAVE_KEY, version: 1, storage: createJSONStorage(() => localStorage),
+      name: SAVE_KEY, version: 1, storage: persistSaveStorage(),
       // Version 1 is the first save shape. When SpaceCatSave changes, raise `version` and convert older saves here
       // (never drop his progress: rule). Fields added later take their defaults from the initial state (persist merges).
       migrate: (state) => state as SpaceCatState,
@@ -83,5 +84,6 @@ export const useSpaceCatStore = create<SpaceCatState>()(
   ),
 )
 
-/** the page's restore from the browser's back/forward cache reads the save again; call once at the root */
+/** the page's restore from the browser's back/forward cache reads the save again; call once at the root (the root is
+ * plan Task 2B; @public until it imports this) */
 export const rehydrateSpaceCat = () => rehydrateOnRestore(useSpaceCatStore)

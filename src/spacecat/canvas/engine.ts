@@ -1,6 +1,7 @@
 // The play screen's game loop: one round at a time on the canvas. It turns the child's intents into round events
 // (logic/round.ts), keeps the flight time (frozen time is not counted), draws the round and its mark, and reports the
 // result once the screen has cleared. The controller (Task 15) decides what comes next.
+import type { Sleeper } from '../../shared/sleeper'
 import type { SfxName } from '../audio/sfx'
 import { IMAGES } from '../assets/images'
 import type { RoundContent } from '../content'
@@ -13,8 +14,8 @@ import { CLEAR_MS, Effects, MARK_MS, drawFlyNumber, drawRightRing } from './effe
 import { attachInput, type Intent } from './input'
 import { PLANET_AIR, PlanetRenderer } from './planet'
 
-/** The engine's time seam; the same shape as the refactor's Sleeper `frame` and `now` (Task 1 swaps it in). */
-export interface EngineClock { frame(fn: () => void): () => void; now(): number }
+/** The engine's time seam: the shared Sleeper's `frame` and `now` (a test steps the frames by hand). */
+export type EngineClock = Pick<Sleeper, 'frame' | 'now'>
 
 export interface Hud { dots: number; points: number; hearts: number }
 
