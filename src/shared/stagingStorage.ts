@@ -40,17 +40,23 @@ export function copyUnprefixedOver(storage: Storage, prefix: string) {
   all.filter((k) => !k.startsWith(prefix) && !isTelemetryKey(k)).forEach((k) => storage.setItem(prefix + k, storage.getItem(k)!))
 }
 
-if (isStaging) {
+/** Put a prefixed view of `win.localStorage` in its place (and do a requested ?copy-prod first). The view is installed
+ * even when the copy fails (for example on a full storage): otherwise staging would read and write the child's real
+ * saves. */
+export function installStagingStorage(win: Window) {
+  let storage: Storage
+  try { storage = win.localStorage } catch { return /* no storage: nothing to keep apart */ }
   try {
-    const url = new URL(window.location.href)
+    const url = new URL(win.location.href)
     if (url.searchParams.has('copy-prod')) {
-      if (window.confirm('Replace all staging saves with a copy of the production saves?')) {
-        copyUnprefixedOver(window.localStorage, STAGING_PREFIX)
-      }
       url.searchParams.delete('copy-prod')
-      window.history.replaceState(null, '', url)
+      win.history.replaceState(null, '', url)
+      if (win.confirm('Replace all staging saves with a copy of the production saves?')) {
+        copyUnprefixedOver(storage, STAGING_PREFIX)
+      }
     }
-    const prefixed = prefixedStorage(window.localStorage, STAGING_PREFIX)
-    Object.defineProperty(window, 'localStorage', { value: prefixed, configurable: true })
-  } catch { /* no storage: nothing to keep apart */ }
+  } catch { /* the copy failed part way: staging keeps what it got */ }
+  Object.defineProperty(win, 'localStorage', { value: prefixedStorage(storage, STAGING_PREFIX), configurable: true })
 }
+
+if (isStaging) installStagingStorage(window)

@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest'
-import { STAGING_PREFIX, copyUnprefixedOver, isStaging, prefixedStorage } from './stagingStorage'
+import { STAGING_PREFIX, copyUnprefixedOver, installStagingStorage, isStaging, prefixedStorage } from './stagingStorage'
 
 describe('staging storage (keeps staging saves apart from production saves)', () => {
   beforeEach(() => localStorage.clear())
@@ -58,5 +58,28 @@ describe('staging storage (keeps staging saves apart from production saves)', ()
     expect(localStorage.getItem('alef-duel-telemetry')).toBe(big)
     expect(localStorage.getItem('alef-duel2-telemetry')).toBe(big)
     expect(localStorage.getItem('alef-clock-telemetry')).toBe(big)
+  })
+
+  it('installs the prefixed storage even when the copy fails (a full storage): staging never writes a real save', () => {
+    localStorage.setItem('alef-progress', 'real')
+    const real = localStorage
+    const failing: Storage = {
+      get length() { return real.length },
+      key: (i) => real.key(i),
+      getItem: (k) => real.getItem(k),
+      setItem: () => { throw new DOMException('full', 'QuotaExceededError') },
+      removeItem: (k) => real.removeItem(k),
+      clear: () => real.clear(),
+    }
+    const win = {
+      location: { href: 'https://example.test/alef/staging/?copy-prod' },
+      localStorage: failing,
+      confirm: () => true,
+      history: { replaceState: () => {} },
+    } as unknown as Window
+    installStagingStorage(win)
+    expect(win.localStorage).not.toBe(failing)
+    expect(win.localStorage.getItem('alef-progress')).toBeNull()
+    expect(real.getItem('alef-progress')).toBe('real')
   })
 })
