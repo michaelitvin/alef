@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-  SESSION, STAGING_CAP_SHARE, TELEMETRY_CAPS, createTelemetry, exportDoc, exportFileName, filterEvents, readLog, telemetryCap,
+  FROZEN_LOG_KEYS, SESSION, STAGING_CAP_SHARE, TELEMETRY_CAPS, chunkKey, createTelemetry, exportDoc, exportFileName, filterEvents, isChunkKey, ownsKey,
+  readLog, registerTelemetryLogs, registeredLogs, rollupKey, telemetryCap, type TelemetryLog,
 } from './telemetry'
-import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
+import { STAGING_PREFIX, copyUnprefixedOver, isTelemetryKey, prefixedStorage } from './stagingStorage'
 
 beforeEach(() => localStorage.clear())
 afterEach(() => vi.restoreAllMocks())
@@ -158,5 +159,61 @@ describe('the storage budget', () => {
     expect(clockTelemetry.maxChars).toBe(500_000)
     expect(telemetryCap('duel', false)).toBe(1_000_000)
     expect([duel2Telemetry.game, clockTelemetry.game]).toEqual(['book2', 'clock'])
+  })
+})
+
+describe('the keys of a log\'s chunks and roll-up', () => {
+  it('chunk and roll-up keys sit under the log\'s base and end in -telemetry', () => {
+    expect(chunkKey('alef-duel2-telemetry', 1_760_000_000_000, 'mf1abc-x1y2z')).toBe(`alef-duel2~${(1_760_000_000_000).toString(36)}~mf1abc-x1y2z-telemetry`)
+    expect(rollupKey('alef-clock-telemetry')).toBe('alef-clock~sum-telemetry')
+  })
+
+  it('a key belongs to its own log only: alef-duel~ never matches alef-duel2~', () => {
+    const c2 = chunkKey('alef-duel2-telemetry', 5, 'a-b')
+    expect(ownsKey('alef-duel2-telemetry', c2)).toBe(true)
+    expect(ownsKey('alef-duel-telemetry', c2)).toBe(false)
+    expect(ownsKey('alef-duel-telemetry', 'alef-duel2~x~y-telemetry')).toBe(false)
+    expect(ownsKey('alef-duel2-telemetry', 'alef-duel2-telemetry')).toBe(false)
+    expect(ownsKey('alef-duel2-telemetry', rollupKey('alef-duel2-telemetry'))).toBe(true)
+    expect(ownsKey('alef-duel2-telemetry', STAGING_PREFIX + c2)).toBe(false)
+  })
+
+  it('a roll-up key is not a chunk key', () => {
+    expect(isChunkKey(chunkKey('alef-clock-telemetry', 1, 's-1'))).toBe(true)
+    expect(isChunkKey(rollupKey('alef-clock-telemetry'))).toBe(false)
+    expect(isChunkKey('alef-clock-telemetry')).toBe(false)
+    expect(isChunkKey('alef-duel2')).toBe(false)
+  })
+
+  it('every new key shape is a telemetry key, with and without the staging prefix, so ?copy-prod copies none', () => {
+    const keys = [chunkKey('alef-duel2-telemetry', 9, 'q-w'), rollupKey('alef-duel2-telemetry'), 'alef-clock-telemetry']
+    for (const k of keys) {
+      expect(isTelemetryKey(k)).toBe(true)
+      expect(isTelemetryKey(STAGING_PREFIX + k)).toBe(true)
+    }
+    for (const k of keys) localStorage.setItem(k, 'x')
+    localStorage.setItem('alef-duel2', '{"save":1}')
+    copyUnprefixedOver(localStorage, STAGING_PREFIX)
+    expect(localStorage.getItem(STAGING_PREFIX + 'alef-duel2')).toBe('{"save":1}')
+    for (const k of keys) expect(localStorage.getItem(STAGING_PREFIX + k)).toBeNull()
+  })
+})
+
+describe('the log registry', () => {
+  it('a new game registers its log with no change in core (a string game, its own key)', () => {
+    const spacecat: TelemetryLog = { key: 'alef-spacecat-telemetry', label: 'Space Cat', game: 'spacecat', about: { game: 'Space Cat', docs: [] } }
+    registerTelemetryLogs([spacecat])
+    expect(registeredLogs()).toContainEqual(spacecat)
+    const t = createTelemetry(spacecat.key, { game: spacecat.game })
+    t.track('answer', { ok: true })
+    expect(t.events()[0]).toMatchObject({ g: 'spacecat', e: 'answer' })
+    t.clear()
+  })
+
+  it('the parent registry registers every game\'s logs, the frozen one too', async () => {
+    await import('../parent/registry')
+    const keys = registeredLogs().map((l) => l.key)
+    expect(keys).toEqual(expect.arrayContaining(['alef-duel2-telemetry', 'alef-clock-telemetry', 'alef-duel-telemetry']))
+    expect(FROZEN_LOG_KEYS).toContain('alef-duel-telemetry')
   })
 })

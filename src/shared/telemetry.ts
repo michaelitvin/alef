@@ -2,8 +2,11 @@
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
 
-/** The game an event belongs to. Every event carries it as `g`; events written before it existed have none. */
-export type TelemetryGame = 'book2' | 'clock' | 'duel'
+/**
+ * The game an event belongs to (`book2`, `clock`, `duel`, …). Every event carries it as `g`; events written before it
+ * existed have none. A string, so a new game declares its log without a change here.
+ */
+export type TelemetryGame = string
 
 export interface TelemetryEvent { t: number; s: string; run: number; e: string; g?: TelemetryGame; [field: string]: unknown }
 
@@ -21,7 +24,9 @@ export const SESSION = `${Date.now().toString(36)}-${Math.random().toString(36).
  * frozen at what it holds (owner decision: an update never deletes the child's history; nothing writes it since its
  * events go to Book 2's log, ADR 0004); 1 M is its old cap, the most it can hold.
  */
-export const TELEMETRY_CAPS: Record<TelemetryGame, number> = { book2: 700_000, clock: 500_000, duel: 1_000_000 }
+export const TELEMETRY_CAPS: Record<'book2' | 'clock' | 'duel', number> = { book2: 700_000, clock: 500_000, duel: 1_000_000 }
+/** the cap of a game with no entry in TELEMETRY_CAPS */
+const DEFAULT_CAP = 500_000
 /** The staging build shares production's quota, so it keeps a quarter of each cap. */
 export const STAGING_CAP_SHARE = 0.25
 
@@ -36,8 +41,25 @@ const isFrozenLog = (k: string) => FROZEN_LOG_KEYS.some((f) => k === f || k === 
 const isLiveLog = (k: string) => isTelemetryKey(k) && !isFrozenLog(k)
 
 export function telemetryCap(game: TelemetryGame, staging = isStaging): number {
-  return staging ? Math.floor(TELEMETRY_CAPS[game] * STAGING_CAP_SHARE) : TELEMETRY_CAPS[game]
+  const cap = (TELEMETRY_CAPS as Record<string, number>)[game] ?? DEFAULT_CAP
+  return staging ? Math.floor(cap * STAGING_CAP_SHARE) : cap
 }
+
+// ---- keys
+// A log `<base>-telemetry` keeps its open chunk at its own key, its sealed chunks at `<base>~<t0 base36>~<s>-telemetry`
+// and its roll-up at `<base>~sum-telemetry`. Every key ends in `-telemetry`, so `?copy-prod` copies none of them. The `~`
+// keeps the logs apart: `alef-duel~` never matches a key of `alef-duel2`.
+const SUFFIX = '-telemetry'
+const logBase = (logKey: string) => (logKey.endsWith(SUFFIX) ? logKey.slice(0, -SUFFIX.length) : logKey)
+
+/** the key of the sealed chunk of `logKey` that starts at `t0` in session `s` */
+export const chunkKey = (logKey: string, t0: number, s: string) => `${logBase(logKey)}~${t0.toString(36)}~${s}${SUFFIX}`
+/** the key of the roll-up of `logKey` */
+export const rollupKey = (logKey: string) => `${logBase(logKey)}~sum${SUFFIX}`
+/** a sealed chunk or the roll-up of `logKey` (not its open chunk, which is `logKey` itself) */
+export const ownsKey = (logKey: string, k: string) => k.startsWith(`${logBase(logKey)}~`) && k.endsWith(SUFFIX)
+/** a sealed chunk's key (of any log): `<base>~<t0>~<s>-telemetry`; a roll-up key is not one */
+export const isChunkKey = (k: string) => k.endsWith(SUFFIX) && !k.endsWith(`~sum${SUFFIX}`) && k.split('~').length >= 3
 
 interface TelemetryOptions {
   game: TelemetryGame
@@ -59,7 +81,34 @@ export interface TelemetryLog {
   about: TelemetryAbout
   /** history: nothing writes it any more, and it is never cleared or rewritten (the first duel's old log) */
   history?: boolean
+  /** what an evicted chunk of this log leaves behind: the facts of one chunk's events (one page session, in order) */
+  rollup?: (events: TelemetryEvent[]) => RollupFact[]
 }
+
+/** One answer-like fact a game's `rollup` gives for an evicted chunk; core folds them per day and item. */
+export interface RollupFact {
+  /** what was asked (the game decides: `screen:target`, `exercise:time`, …) */
+  item: string
+  ok?: boolean
+  near?: boolean
+  /** a special result (not a real round): counted apart, never as right or wrong */
+  special?: boolean
+  ms?: number
+  /** what the child chose, when it was wrong */
+  chosen?: string
+  hint?: boolean
+  replay?: boolean
+}
+
+/** The logs the games declare, by key: every game page registers them (src/parent/registry.ts). */
+const registry = new Map<string, TelemetryLog>()
+
+/** Register the games' logs. Core looks them up when it seals, folds or evicts; an instance may exist before this runs. */
+export function registerTelemetryLogs(logs: readonly TelemetryLog[]) {
+  for (const log of logs) registry.set(log.key, log)
+}
+
+export const registeredLogs = (): TelemetryLog[] => [...registry.values()]
 
 function parseLog(raw: string | null): TelemetryEvent[] | null {
   if (raw === null) return []
@@ -97,10 +146,13 @@ function aboutNote(about: TelemetryAbout) {
 }
 
 /** One export document for one or more logs: each part keeps its own key, its `about` and its events. */
-export function exportDoc(parts: { key?: string; about: TelemetryAbout; events: TelemetryEvent[] }[], { since }: { since?: number } = {}): string {
+export function exportDoc(
+  parts: { key?: string; about: TelemetryAbout; events: TelemetryEvent[] }[],
+  { since, now = new Date() }: { since?: number; now?: Date } = {},
+): string {
   return JSON.stringify({
     v: 2,
-    exportedAt: new Date().toISOString(),
+    exportedAt: now.toISOString(),
     since: since === undefined ? null : new Date(since).toISOString(),
     games: parts.map((p) => ({ ...(p.key ? { key: p.key } : {}), about: aboutNote(p.about), events: p.events })),
   }, null, 1)
