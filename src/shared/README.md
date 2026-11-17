@@ -15,6 +15,7 @@ Code that two or more games use. A game may import from here. Code here never im
 | `shell/` | A game's root. `useGameShell({ preload, askGender, canStart, onPlay, welcome?, onAsk?, onHide? })` starts the preload on mount, follows the device's sound, mutes while the page is hidden (`usePageHidden`), and runs the play gate (unlock inside the tap, wait for the preload and the welcome, check the cover, ask boy or girl, play); it gives `{ play, loading, asking, question }`. `createPreloader({ fonts, images, voices, skipVoice, sfx })` is a game's preload (`READY_MS`). `usePauseHold(paused)` keeps the audio silent under a pause cover. |
 | `HoldButton.tsx`, `parentGate/` | The held button (a 2 s hold, its ring fills; a tap only shows the hint). `<ParentGate label className onOpen onCancel? ring? overlay?>`: the gate of every parent screen: the held button, then the year of birth on a number pad under one written question for the parent (`acceptYear`: 18 to 100 years before now). Nothing is stored; a wrong year or a tap beside the pad closes it with no message (`onCancel`). Tests type a year with `parentGate/testing.ts`. |
 | `sleeper.ts` | The time a game's flow waits on (`Sleeper`: `sleep`, `after`, `every`, `frame`, `now`). `realSleeper` is the window's timers (fake timers drive it); `instantSleeper()` is a virtual clock that never waits (callbacks in time order, `now` jumps). Book 2's run takes it as `RunOpts.sleeper`. |
+| `playtime.ts` | The play-time ledger (`alef-playtime`: milliseconds per game per day, kept 60 days) for the parent area's Progress section. `usePlaytime(game, active)` flushes every 15 s while a screen is visible and running. |
 | `rehydrateOnRestore.ts` | Reload a persisted store when the browser restores a page from its back/forward cache, so the page does not write back an old copy of a save that another page changed |
 
 Every game plays through `gameAudio/` (Book 2, the clock, and the first duel as Book 2's tower); only `gameAudio/howlerPlayer.ts` imports Howler. The lessons' voice (`src/hooks/useAudio.ts`) still uses Howler directly, outside the kit. Each game has its own preload config and pause cover; the root goes through `shell/`, and every parent screen is the one area in `src/parent/`. See the *Known friction* section in
@@ -22,3 +23,8 @@ Every game plays through `gameAudio/` (Book 2, the clock, and the first duel as 
 
 Retired save keys: `alef-settings` (an old settings store that nothing ever read; removed) stays unused for good. Do
 not give the name to a new save, because old browsers can still hold it.
+
+## Known friction
+
+- The lessons' voice (`src/hooks/useAudio.ts`) uses Howler outside the audio kit, so it has its own mute and volume
+  path (it follows the device's `volume` only).

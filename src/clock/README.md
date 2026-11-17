@@ -9,9 +9,10 @@ Spec: `docs/superpowers/specs/2026-10-15-clock-workshop-design.md`.
 | --- | --- |
 | A workday's flow (one async script per round, phases, pause) | `useWorkday.ts` (a hook) |
 | Pure rules: times, phrases, levels, grading, round choice | `logic/*.ts` |
-| The save (`alef-clock`) | `store.ts` |
+| The save (`alef-clock`); its telemetry log | `store.ts`; `telemetry.ts`, `telemetryLog.ts` |
 | Screens (cover, workshop, bonus, summary) | `screens/`; its part in the shared parent area in `parent/` |
 | The clock face, the hands, the customer, the captions | `components/` |
+| The root: the shell and the screens' routing | `ClockApp.tsx` (on `useGameShell`, `src/shared/shell/`) |
 | Voice with word-timed captions, effects, music | `audio/clockAudio.ts` (the shared kit, `src/shared/gameAudio`); the line texts in `data/lines.ts`, time phrases in `logic/phrases.ts` |
 
 ## Tests

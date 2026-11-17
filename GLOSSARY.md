@@ -152,5 +152,34 @@ The person who sets the rules, reviews every asset and reads the parent report.
 One screen for every game (`src/parent/`), behind the parent gate (a 2-second hold, then the parent's year of birth). Each
 entry page opens it at its own game's section; each game declares its part in `src/<game>/parent/index.ts`.
 
+**Gate**:
+How a parent enters a parent screen: a 2-second hold on the held button, then the parent's year of birth on a number pad. Nothing is stored; a wrong year closes it with no message.
+_Avoid_: age gate, login
+
+**Parent area sections**:
+Child, Sound, Progress, the open game's own settings and reset, Data, Developer, top to bottom.
+
+**Device settings**:
+The one sound setting of the device (effects, music, volume) for every game. It is not a save of one game.
+
+**Play time**:
+Minutes the child played each game per day, kept in a small ledger for the Progress section.
+
+**Joined log**:
+The one export of the Data section: a file with one part per game's telemetry log.
+
+**Page session**:
+One page load of a game, and the id its telemetry events carry.
+_Avoid_: session (that is a path session, above)
+
+**Game kit**:
+The code a game takes from `src/shared/`: the audio kit, the shell, the gate, device settings.
+
+**Policy**:
+A pure rule of Book 2's run for one visit (merchant, drawing round, flight boss, pass): `step(state, event)` says what the run does, and the controller does it.
+
+**Sleeper**:
+The seam for the time a flow waits on. Tests use a virtual one that never waits.
+
 **Production / staging**:
 What the child plays, and the merged work before it is released. They share one origin, but never one save.

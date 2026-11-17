@@ -11,8 +11,12 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 | Book 1, the first duel (Book 2's tower) | the tower screen of Book 2; no page of its own | `src/utils/duel/controller.ts` (the flow; `src/hooks/useDuelGame.ts` is its React bridge), `src/utils/duel/`, `src/components/duel/` |
 | Book 2 (the run; the first duel is its tower) | `duel2/index.html` → `src/duel2/main.tsx` | [src/duel2/README.md](src/duel2/README.md) |
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
-| Code two or more games share | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
+| Code two or more games share (`gameAudio/`, `shell/`, `parentGate/`, device settings, telemetry, saves) | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
+| The parent area: one screen for every game, behind the gate | `src/parent/`; each game's part in `src/<game>/parent/index.ts` | [src/parent/README.md](src/parent/README.md) |
 
+- Decisions: [ADR 0001](docs/adr/0001-staging-shares-the-origin.md) staging, [0002](docs/adr/0002-first-duel-is-book-2s-tower.md)
+  the tower, [0003](docs/adr/0003-audio-through-a-player-port.md) audio, [0004](docs/adr/0004-one-telemetry-log-per-game.md)
+  telemetry, [0005](docs/adr/0005-run-policies-and-the-sleeper.md) run policies.
 - Designs and build plans: `docs/superpowers/specs/` and `docs/superpowers/plans/`, newest date wins. `specs/` (speckit,
   2025) is history only.
 - The TTS worker: `worker/` (deployed by hand with `wrangler deploy`). Audio catalog exports: `scripts/<game>/`.
@@ -36,7 +40,9 @@ When you ship a generated asset (voice, sound, music, image), record the request
 
 ## Checks
 
-`npm test && npm run lint` before every commit. To see a change work in the real build, use the `/verify` skill.
+`npm run check && npm test` before every commit. `npm run check` is lint, dependency-cruiser (the boundary rules in
+`.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
+real build, use the `/verify` skill (it drives the verify build in a browser with touch on).
 
 ## Deployment (GitHub Pages: production and staging)
 
