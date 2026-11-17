@@ -569,11 +569,15 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (clock): the first review page had shared controls with no highlight and no way to find the item they acted on.
 - Show the model and settings in each take's label. Example (duel): "Will · v4 · take 1".
 - When you make new takes, keep the current pick as the first option. Write why you made new takes.
-- In review, hide the word of a picture by default. Show it only when the parent taps the picture.
+- In review, hide the word of a picture by default. Show it only when the parent hovers over the picture or taps it.
   Reason: a visible caption tells the reviewer the name, and the child does not get this help. The parent first looks
-  at the picture as the child does. Then he taps to check the word, and objects to the name if a child would say
+  at the picture as the child does. Then he checks the word, and objects to the name if a child would say
   something else.
   Example (English path): "could be a skillet", "could be a chick".
+- Give every review page the controls to decide each item: OK, reject with a typed reason, a note, and a way to change
+  a decision, saved on the server. A static page that only shows the items is not a review page.
+  Example (English path, 2026-11-17): the parent: "there is no way for me to write down my rejects and notes, and
+  register approvals. see how you made the review page for duel 2".
 - Put items that can be ambiguous in the review.
   Examples (duel): picture names, look-alike symbols, pronunciation, the direction a sprite faces (show it walking).
 - Ship the take that the parent approved. Do not let a newer take that he has not reviewed replace an approved take.
