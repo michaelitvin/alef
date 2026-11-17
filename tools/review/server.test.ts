@@ -99,12 +99,45 @@ describe('review server', () => {
     expect((await fetch(base + 'media/nope/snd.mp3')).status).toBe(404)
   })
 
+  it('gzips big text, and answers an unchanged state with a 304', async () => {
+    // enough items for the state to be worth compressing
+    const items = game.loadItems
+    const pads = Array.from({ length: 40 }, (_, i) => ({ id: 'pad' + i, kind: 'audio' as const, takes: [{ id: 'cut/snd.mp3' }] }))
+    game.loadItems = async () => [...(await items()), ...pads]
+    const r = await fetch(base + 'api/state')
+    expect(r.headers.get('content-encoding')).toBe('gzip')
+    const etag = r.headers.get('etag')!
+    expect(etag).toBeTruthy()
+    const body = await r.text()
+    const again = await fetch(base + 'api/state', { headers: { 'If-None-Match': etag } })
+    expect(again.status).toBe(304)
+    expect(await again.text()).toBe('')
+    await post({ type: 'note', item: 'snd', text: 'changed' })
+    const changed = await fetch(base + 'api/state', { headers: { 'If-None-Match': etag } })
+    expect(changed.status).toBe(200)
+    expect(await changed.text()).not.toBe(body)
+  })
+
+  it('media: a replay is a 304, also for a range request, and a file made again under its name is sent again', async () => {
+    const r = await fetch(base + 'media/cut/snd.mp3')
+    const etag = r.headers.get('etag')!
+    expect(r.headers.get('last-modified')).toBeTruthy()
+    expect((await fetch(base + 'media/cut/snd.mp3', { headers: { 'If-None-Match': etag } })).status).toBe(304)
+    expect((await fetch(base + 'media/cut/snd.mp3', { headers: { 'If-None-Match': etag, Range: 'bytes=0-' } })).status).toBe(304)
+    writeFileSync(join(dir, 'cut', 'snd.mp3'), Buffer.from('a new take, longer'))
+    const n = await fetch(base + 'media/cut/snd.mp3', { headers: { 'If-None-Match': etag } })
+    expect(n.status).toBe(200)
+    expect(await n.text()).toBe('a new take, longer')
+  })
+
   it('serves the page with its modules as plain JavaScript', async () => {
     const html = await (await fetch(base)).text()
     expect(html).toContain('<script type="module" src="main.ts">')
     const js = await fetch(base + 'render.ts')
     expect(js.headers.get('content-type')).toMatch(/javascript/)
     expect(await js.text()).not.toMatch(/import type|: PageItem/)
+    for (const m of ['main.ts', 'flow.ts', 'player.ts', 'save.ts']) expect((await fetch(base + m)).status).toBe(200)
+    expect(html).toContain("fetch('api/state'")
     expect((await fetch(base + '../server.ts')).status).toBe(404)
   })
 })

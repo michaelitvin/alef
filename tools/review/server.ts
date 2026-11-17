@@ -6,12 +6,14 @@
 // config.mjs: export default { host, port, games: [adapter, ...] } (see model.ts GameAdapter). Each game is served
 // under /<game id>/: the page at /<id>/, GET /<id>/api/state, POST /<id>/api/event, files under /<id>/media/<root>/.
 // A game with `legacy` files gets them written again from the log after each decision (legacyFiles.ts).
+import { createHash } from 'node:crypto'
 import { createReadStream, existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { stripTypeScriptTypes } from 'node:module'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { gzipSync } from 'node:zlib'
 import { fileLog, validate } from './log.ts'
 import type { DecisionLog } from './log.ts'
 import type { GameAdapter, NewEvent } from './model.ts'
@@ -40,7 +42,9 @@ const TYPES: Record<string, string> = {
   '.json': 'application/json; charset=utf-8',
   '.woff2': 'font/woff2',
 }
-const PAGE_FILES = new Set(['index.html', 'main.ts', 'render.ts', 'flow.ts', 'page.css'])
+const PAGE_FILES = new Set(['index.html', 'main.ts', 'render.ts', 'flow.ts', 'player.ts', 'save.ts', 'page.css'])
+/** Text smaller than this goes out as it is: compressing it saves less than it costs. */
+const GZIP_MIN = 1024
 
 /** The real path of `rel` under `root`, or null when it leaves the root. */
 export function safeUnder(root: string, rel: string): string | null {
@@ -55,31 +59,74 @@ export function safeUnder(root: string, rel: string): string | null {
   return p === base || p.startsWith(base + sep) ? p : null
 }
 
-function send(res: ServerResponse, code: number, body: string | Buffer, type = 'text/plain; charset=utf-8') {
-  res.writeHead(code, { 'Content-Type': type, 'Content-Length': Buffer.byteLength(body), 'Cache-Control': 'no-cache' })
-  res.end(body)
+/** True when the browser's copy (If-None-Match) is still `etag`: it then gets a 304 with no body. */
+function fresh(req: IncomingMessage, etag: string): boolean {
+  const inm = req.headers['if-none-match']
+  return !!inm && inm.split(',').some((t) => t.trim() === etag)
 }
-const json = (res: ServerResponse, obj: unknown, code = 200) => send(res, code, JSON.stringify(obj), TYPES['.json'])
 
+/**
+ * Text out: always checked again by the browser (no-cache), but with an ETag, so an unchanged state or page file costs
+ * a 304 and no body; gzip when the browser takes it (the state of a big game is ~0.5 MB of JSON, ~40 kB gzipped).
+ */
+function send(req: IncomingMessage, res: ServerResponse, code: number, body: string | Buffer, type = 'text/plain; charset=utf-8') {
+  const buf = typeof body === 'string' ? Buffer.from(body) : body
+  const headers: Record<string, string | number> = { 'Content-Type': type, 'Cache-Control': 'no-cache', Vary: 'Accept-Encoding' }
+  if (code === 200) {
+    headers.ETag = `W/"${createHash('sha1').update(buf).digest('base64url')}"`
+    if (fresh(req, headers.ETag as string)) {
+      res.writeHead(304, headers)
+      return res.end()
+    }
+  }
+  let out = buf
+  if (buf.length >= GZIP_MIN && /\bgzip\b/.test(String(req.headers['accept-encoding'] ?? ''))) {
+    out = gzipSync(buf)
+    headers['Content-Encoding'] = 'gzip'
+  }
+  headers['Content-Length'] = out.length
+  res.writeHead(code, headers)
+  res.end(req.method === 'HEAD' ? undefined : out)
+}
+
+/**
+ * A media file, streamed, with ranges. The browser checks it again before each use (a take can be made again under the
+ * same name), but the ETag turns a replay into a 304 with no body instead of a new download.
+ */
 function sendFile(req: IncomingMessage, res: ServerResponse, path: string) {
-  const size = statSync(path).size
+  const st = statSync(path)
+  const size = st.size
   const type = TYPES[extname(path).toLowerCase()] ?? 'application/octet-stream'
+  const etag = `W/"${size.toString(36)}-${Math.floor(st.mtimeMs).toString(36)}"`
+  const cache = { ETag: etag, 'Last-Modified': st.mtime.toUTCString(), 'Cache-Control': 'no-cache' }
+  if (fresh(req, etag)) {
+    res.writeHead(304, cache)
+    return res.end()
+  }
   const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '')
   let start = 0
   let end = size - 1
   if (m && (m[1] || m[2])) {
     start = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]))
     end = m[1] && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1
-    if (start > end) return send(res, 416, 'range')
-    res.writeHead(206, { 'Content-Type': type, 'Content-Length': end - start + 1, 'Content-Range': `bytes ${start}-${end}/${size}`, 'Accept-Ranges': 'bytes', 'Cache-Control': 'no-cache' })
-  } else res.writeHead(200, { 'Content-Type': type, 'Content-Length': size, 'Accept-Ranges': 'bytes', 'Cache-Control': 'no-cache' })
+    if (start > end) return send(req, res, 416, 'range')
+    res.writeHead(206, { 'Content-Type': type, 'Content-Length': end - start + 1, 'Content-Range': `bytes ${start}-${end}/${size}`, 'Accept-Ranges': 'bytes', ...cache })
+  } else res.writeHead(200, { 'Content-Type': type, 'Content-Length': size, 'Accept-Ranges': 'bytes', ...cache })
   if (req.method === 'HEAD') return res.end()
   createReadStream(path, { start, end }).pipe(res)
 }
 
+const pageCache = new Map<string, { mtimeMs: number; text: string }>()
+/** A page file, its types stripped once per change of the file. */
 function pageFile(name: string): string {
-  const text = readFileSync(join(PAGE_DIR, name), 'utf8')
-  return name.endsWith('.ts') ? stripTypeScriptTypes(text) : text
+  const path = join(PAGE_DIR, name)
+  const mtimeMs = statSync(path).mtimeMs
+  const hit = pageCache.get(name)
+  if (hit?.mtimeMs === mtimeMs) return hit.text
+  const raw = readFileSync(path, 'utf8')
+  const text = name.endsWith('.ts') ? stripTypeScriptTypes(raw) : raw
+  pageCache.set(name, { mtimeMs, text })
+  return text
 }
 
 async function body(req: IncomingMessage): Promise<unknown> {
@@ -97,15 +144,16 @@ async function body(req: IncomingMessage): Promise<unknown> {
 export function handler(games: GameAdapter[], logs: Map<string, DecisionLog>) {
   const byId = new Map(games.map((g) => [g.id, g]))
   return async (req: IncomingMessage, res: ServerResponse) => {
+    const json = (obj: unknown, code = 200) => send(req, res, code, JSON.stringify(obj), TYPES['.json'])
     try {
       const url = new URL(req.url ?? '/', 'http://x')
       const parts = url.pathname.split('/').slice(1).map(decodeURIComponent)
       if (parts.length === 1 && !parts[0]) {
         const links = games.map((g) => `<li><a href="${g.id}/">${g.title.replace(/</g, '&lt;')}</a></li>`).join('')
-        return send(res, 200, `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Review</title><ul>${links}</ul>`, TYPES['.html'])
+        return send(req, res, 200, `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Review</title><ul>${links}</ul>`, TYPES['.html'])
       }
       const game = byId.get(parts[0])
-      if (!game) return send(res, 404, 'no such game')
+      if (!game) return send(req, res, 404, 'no such game')
       if (parts.length === 1) {
         res.writeHead(308, { Location: url.pathname + '/' })
         return res.end()
@@ -116,9 +164,9 @@ export function handler(games: GameAdapter[], logs: Map<string, DecisionLog>) {
         const b = (await body(req)) as Partial<NewEvent>
         const items = await game.loadItems()
         const it = items.find((i) => i.id === b.item)
-        if (!it) return json(res, { error: 'no such item' }, 400)
+        if (!it) return json({ error: 'no such item' }, 400)
         const tk = b.take != null ? it.takes.find((t) => t.id === b.take) : undefined
-        if (b.take != null && !tk) return json(res, { error: 'no such take' }, 400)
+        if (b.take != null && !tk) return json({ error: 'no such take' }, 400)
         const ev: NewEvent = {
           by: 'parent',
           at: new Date().toISOString(),
@@ -132,29 +180,29 @@ export function handler(games: GameAdapter[], logs: Map<string, DecisionLog>) {
         try {
           validate(ev, 'parent')
         } catch (err) {
-          return json(res, { error: (err as Error).message }, 400)
+          return json({ error: (err as Error).message }, 400)
         }
-        const before = log.read()
-        log.append([ev])
+        const [added] = log.append([ev])
         const after = log.read()
+        const before = after.filter((e) => e.seq !== added.seq)
         if (game.legacy) {
           const { skipped } = writeLegacyFiles(game.legacy, before, after)
           for (const s of skipped) console.warn(`${game.id}: legacy file ${s}`)
         }
-        return json(res, { item: toPageItem(deriveItem(it, after)) })
+        return json({ item: toPageItem(deriveItem(it, after)) })
       }
-      if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'method')
-      if (rest.join('/') === 'api/state') return json(res, toPageState(game, deriveAll(await game.loadItems(), log.read())))
+      if (req.method !== 'GET' && req.method !== 'HEAD') return send(req, res, 405, 'method')
+      if (rest.join('/') === 'api/state') return json(toPageState(game, deriveAll(await game.loadItems(), log.read())))
       if (rest[0] === 'media' && rest.length > 2) {
         const root = game.media[rest[1]]
         const p = root ? safeUnder(root, rest.slice(2).join('/')) : null
-        return p && existsSync(p) && statSync(p).isFile() ? sendFile(req, res, p) : send(res, 404, 'not found')
+        return p && existsSync(p) && statSync(p).isFile() ? sendFile(req, res, p) : send(req, res, 404, 'not found')
       }
       const name = rest.join('/') || 'index.html'
-      if (PAGE_FILES.has(name)) return send(res, 200, pageFile(name), TYPES[extname(name)])
-      return send(res, 404, 'not found')
+      if (PAGE_FILES.has(name)) return send(req, res, 200, pageFile(name), TYPES[extname(name)])
+      return send(req, res, 404, 'not found')
     } catch (err) {
-      return json(res, { error: (err as Error).message }, 500)
+      return json({ error: (err as Error).message }, 500)
     }
   }
 }

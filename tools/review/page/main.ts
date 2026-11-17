@@ -5,10 +5,16 @@ import type { View } from '../rules.ts'
 import { countsHTML, esc, itemHTML, visualHTML } from './render.ts'
 import { firstView, nextOpenAfter, pageOrder, runFrom, shownSections } from './flow.ts'
 import type { ShownSection } from './flow.ts'
+import { createPlayer } from './player.ts'
+import { HttpError, sendWithRetry, tapGuard } from './save.ts'
 
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector(s) as T
 const PICTURE_PAUSE_MS = 2200
 const GAP_MS = 600
+/** Waits before each new try of a decision that did not reach the server. */
+const RETRY_MS = [1000, 3000, 6000]
+/** A second decision tap within this time is the rest of a double tap. */
+const DOUBLE_TAP_MS = 600
 
 let state: PageState = { title: '', sections: [], items: [] }
 let view: View = 'open'
@@ -18,11 +24,28 @@ const revealed = new Set<string>()
 const collapsed = new Set<string>()
 let openAtLoad: Set<string> | null = null
 
-let cur: string | null = null
-let playing = false
-let queue: string[] = []
-let timer: ReturnType<typeof setTimeout> | undefined
-const player = new Audio()
+const player = createPlayer(
+  new Audio(),
+  {
+    media(id, take) {
+      const it = itemOf(id)
+      if (!it) return null
+      if (it.kind === 'image') return { kind: 'image' }
+      return { kind: 'audio', src: (it.takes.find((x) => x.id === take) ?? curTake(it))?.src ?? null }
+    },
+    changed: () => markNow(),
+    scrollTo: (id) => document.getElementById('i-' + id)?.scrollIntoView({ block: 'center', behavior: 'smooth' }),
+  },
+  { pictureMs: PICTURE_PAUSE_MS, gapMs: GAP_MS, setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (t) => clearTimeout(t as number) },
+)
+const stop = () => player.stop()
+const playItem = (id: string, take?: string, scroll = true) => player.playItem(id, take, scroll)
+const playRun = (ids: string[]) => player.playRun(ids)
+/** Items whose decision is on its way to the server. */
+const saving = new Set<string>()
+/** Counts the decisions sent, so that a state fetched before one of them is not shown. */
+let sent = 0
+const decisionTap = tapGuard(() => Date.now(), DOUBLE_TAP_MS)
 
 type SheetMode = 'reject' | 'note' | 'name'
 let sheet: { mode: SheetMode; id: string; take: string | null; run: string[] | null; edit: boolean } | null = null
@@ -31,9 +54,10 @@ const itemOf = (id: string | null) => state.items.find((i) => i.id === id)
 const curTake = (it: PageItem) => it.takes.find((t) => t.current) ?? it.takes[0]
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const r = await fetch(path, { cache: 'no-store', ...init })
-  const j = await r.json()
-  if (!r.ok) throw new Error(j.error ?? r.statusText)
+  // no-cache: the browser asks again each time, and an unchanged state comes back as a short 304
+  const r = await fetch(path, { cache: 'no-cache', ...init })
+  const j = await r.json().catch(() => ({}))
+  if (!r.ok) throw new HttpError(j.error ?? r.statusText, r.status)
   return j as T
 }
 
@@ -84,6 +108,7 @@ function rerenderItem(id: string) {
 }
 
 function markNow() {
+  const { cur, playing } = player
   for (const e of document.querySelectorAll('.item.sel,.item.playing')) e.classList.remove('sel', 'playing')
   const it = itemOf(cur)
   const el = cur ? document.getElementById('i-' + cur) : null
@@ -107,58 +132,8 @@ function markNow() {
 
 // ---- playback --------------------------------------------------------------------------------------------------------
 
-function stop() {
-  clearTimeout(timer)
-  playing = false
-  queue = []
-  player.pause()
-  markNow()
-}
-
-function playItem(id: string, take?: string, scroll = true) {
-  clearTimeout(timer)
-  const it = itemOf(id)
-  if (!it) return
-  cur = id
-  playing = true
-  markNow()
-  if (scroll) document.getElementById('i-' + id)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  // a picture has no sound: it stays selected for a moment, then the run goes on
-  if (it.kind === 'image') {
-    player.pause()
-    timer = setTimeout(onEnded, PICTURE_PAUSE_MS)
-    return
-  }
-  const t = it.takes.find((x) => x.id === take) ?? curTake(it)
-  if (!t) return onEnded()
-  player.src = t.src
-  player.play().catch(() => {
-    playing = false
-    queue = []
-    markNow()
-  })
-}
-
-function onEnded() {
-  if (!playing) return
-  const n = queue.shift()
-  if (n) timer = setTimeout(() => playItem(n), GAP_MS)
-  else {
-    playing = false
-    markNow()
-  }
-}
-player.addEventListener('ended', onEnded)
-player.addEventListener('error', onEnded)
-
-function playRun(ids: string[]) {
-  if (!ids.length) return
-  stop()
-  queue = ids.slice(1)
-  playItem(ids[0])
-}
-
 function resume() {
+  const cur = player.cur
   if (cur) {
     const s = secs.find((x) => x.shown.some((i) => i.id === cur))
     if (s) return playRun(runFrom(s, cur))
@@ -170,41 +145,52 @@ function resume() {
 
 // ---- decisions -------------------------------------------------------------------------------------------------------
 
-async function post(body: Record<string, unknown>): Promise<PageItem | null> {
+/** Send a decision, trying again after a blip. The page has moved on already; a decision that never arrives is said. */
+async function post(body: { item: string } & Record<string, unknown>): Promise<PageItem | null> {
+  const id = body.item
+  saving.add(id)
+  sent++
   try {
-    const r = await api<{ item: PageItem }>('api/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const send = () => api<{ item: PageItem }>('api/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const r = await sendWithRetry(send, RETRY_MS, (ms) => new Promise((ok) => setTimeout(ok, ms)))
     state.items = state.items.map((i) => (i.id === r.item.id ? r.item : i))
     touched.add(r.item.id)
     rerenderItem(r.item.id)
     return r.item
   } catch (err) {
-    alert('Not saved: ' + (err as Error).message)
+    alert(`Not saved (${itemOf(id)?.caption ?? id}): ${(err as Error).message}`)
     return null
+  } finally {
+    saving.delete(id)
   }
 }
 
-/** After OK or a submitted Reject: play the next open item, and carry on with the run if one was going. */
+/**
+ * After OK or a submitted Reject: play the next open item at once (the decision goes to the server meanwhile), and
+ * carry on with the run if one was going.
+ */
 function advance(id: string, run: string[] | null) {
-  const n = nextOpenAfter(pageOrder(secs), id, (x) => itemOf(x)?.status === 'open' && !touched.has(x))
+  const n = nextOpenAfter(pageOrder(secs), id, (x) => x !== id && itemOf(x)?.status === 'open' && !touched.has(x) && !saving.has(x))
   stop()
   if (!n) return
   const i = run ? run.indexOf(n) : -1
-  queue = i >= 0 ? run!.slice(i + 1) : []
+  player.setQueue(i >= 0 ? run!.slice(i + 1) : [])
   playItem(n)
 }
 
-async function ok(id: string, take?: string, only = false) {
+function ok(id: string, take?: string, only = false) {
   const it = itemOf(id)
   const t = take ?? (it && curTake(it)?.id)
-  if (!it || !t) return
-  const run = playing || queue.length ? queue.slice() : null
-  if (await post({ type: 'ok', item: id, take: t, ...(only ? { only: true } : {}) })) advance(id, run)
+  if (!it || !t || saving.has(id) || !decisionTap.take()) return
+  const run = player.playing || player.queue.length ? player.queue.slice() : null
+  void post({ type: 'ok', item: id, take: t, ...(only ? { only: true } : {}) })
+  advance(id, run)
 }
 
 function openSheet(mode: SheetMode, id: string, take: string | null, text = '', edit = false) {
-  const run = mode === 'reject' && !edit && (playing || queue.length) ? queue.slice() : null
+  const run = mode === 'reject' && !edit && (player.playing || player.queue.length) ? player.queue.slice() : null
   stop()
-  cur = id
+  player.select(id)
   markNow()
   sheet = { mode, id, take, run, edit }
   const input = $<HTMLInputElement>('#noteText')
@@ -230,7 +216,13 @@ async function submitSheet() {
   closeSheet()
   const it = itemOf(id)
   if (mode === 'reject') {
-    if ((await post({ type: 'reject', item: id, take, text })) && !edit) advance(id, run)
+    if (saving.has(id)) return
+    const p = post({ type: 'reject', item: id, take, text })
+    if (!edit) {
+      decisionTap.take()
+      advance(id, run)
+    }
+    await p
   } else await post({ type: mode, item: id, text, take: it ? (curTake(it)?.id ?? null) : null })
 }
 
@@ -248,7 +240,7 @@ document.addEventListener('click', (e) => {
     return s && playRun(runFrom(s))
   }
   if (!id) return
-  cur = id
+  player.select(id)
   const it = itemOf(id)!
   if ((b = hit('[data-from]'))) {
     const s = secs.find((x) => x.shown.some((i) => i.id === id))
@@ -275,19 +267,19 @@ document.addEventListener('click', (e) => {
   markNow()
 })
 
-$('#now').onclick = () => cur && document.getElementById('i-' + cur)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-$('#b-play').onclick = () => (playing || queue.length ? stop() : resume())
+$('#now').onclick = () => player.cur && document.getElementById('i-' + player.cur)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+$('#b-play').onclick = () => (player.playing || player.queue.length ? stop() : resume())
 $('#b-replay').onclick = () => {
-  if (cur) {
+  if (player.cur) {
     stop()
-    playItem(cur)
+    playItem(player.cur)
   }
 }
 $('#b-rej').onclick = () => {
-  const it = itemOf(cur)
-  if (it) openSheet('reject', it.id, curTake(it)?.id ?? null)
+  const it = itemOf(player.cur)
+  if (it && !saving.has(it.id)) openSheet('reject', it.id, curTake(it)?.id ?? null)
 }
-$('#b-ok').onclick = () => cur && void ok(cur)
+$('#b-ok').onclick = () => player.cur && ok(player.cur)
 $('#noteGo').onclick = () => void submitSheet()
 $('#noteNo').onclick = closeSheet
 $('#noteText').addEventListener('keydown', (e) => {
@@ -329,12 +321,17 @@ document.addEventListener(
 let lastSig = ''
 async function load(first: boolean) {
   let s: PageState
+  const at = sent
   try {
-    s = await api<PageState>('api/state')
+    // the first state: the page's head fetched it while the modules still loaded
+    const early = first ? (window as unknown as { __state?: Promise<Response> }).__state : undefined
+    s = early ? await early.then((r) => (r.ok ? (r.json() as Promise<PageState>) : Promise.reject(new HttpError(r.statusText, r.status)))) : await api<PageState>('api/state')
   } catch (err) {
     if (first) $('#main').innerHTML = `<p class="empty">Could not load: ${esc((err as Error).message)}</p>`
     return
   }
+  // a decision sent while this state was on its way is not in it: keep the page as it is, the next refresh has it
+  if (!first && (sent !== at || saving.size)) return
   const sig = JSON.stringify(s)
   if (sig === lastSig) return
   lastSig = sig
@@ -345,7 +342,7 @@ async function load(first: boolean) {
   render()
 }
 const refresh = () => {
-  if (!playing && !sheet && !document.hidden) void load(false)
+  if (!player.playing && !sheet && !saving.size && !document.hidden) void load(false)
 }
 document.addEventListener('visibilitychange', refresh)
 window.addEventListener('focus', refresh)

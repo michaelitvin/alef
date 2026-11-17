@@ -14,9 +14,11 @@ review: *Review of generated assets* in [docs/minigame-rules.md](../../docs/mini
 | `pageData.ts` | The derived state the page gets |
 | `server.ts` | One server for every game: page, `api/state`, `api/event` (parent events only), media |
 | `cli.ts` | The agent CLI (agent events only); usage at the head of the file |
-| `page/` | The page shell (`main.ts`), renderers (`render.ts`: audio take, picture with takes, hidden word shown on a tap, notes per take and per item) and sequencing (`flow.ts`) |
+| `page/` | The page shell (`main.ts`), renderers (`render.ts`: audio take, picture with takes, hidden word shown on a tap, notes per take and per item), sequencing (`flow.ts`), playback (`player.ts`) and saving a decision (`save.ts`: tries again after a blip, ignores a double tap) |
 
-Node runs the TypeScript files directly (type stripping); the server strips the page's types when it serves them.
+Node runs the TypeScript files directly (type stripping); the server strips the page's types when it serves them. The page's
+files stay erasable TypeScript only (no parameter properties, enums or namespaces). Text goes out gzipped with an ETag and
+media with an ETag, so an unchanged state, page file or take costs a 304, not a new download.
 
 ## A game adapter (host-local, never committed)
 
