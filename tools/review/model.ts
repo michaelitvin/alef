@@ -25,7 +25,8 @@ export type EventType = ParentEventType | AgentEventType
  * - retake: an explicit retake request (the old pages sent one with every Reject).
  * - accept: the parent approved in a message, relayed by an agent; `take`, `source` = his words.
  * - answer: an agent answered a note; `note` = the note's seq, `text` = what was done, optional `take` (the new take).
- * - ask: the "needs you" line for the item; `text` ('' clears it).
+ * - ask: the "needs you" line for the item; `text` ('' clears it), optional `take` = the take it asks about (default: the
+ *   newest). The item stays in "needs you" until he decides on that take or an agent clears the ask.
  * - withdraw / restore: the pipeline took a take back (failed check, reverted spelling); `take`, `text` = why.
  * - retire / unretire: the item left the game; `text` = why.
  * - prefer: the agent's choice among takes the parent has not decided; `take`.

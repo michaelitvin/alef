@@ -48,9 +48,12 @@ type SheetMode = 'reject' | 'note' | 'name'
 let sheet: { mode: SheetMode; id: string; take: string | null; edit: boolean } | null = null
 
 const itemOf = (id: string | null) => state.items.find((i) => i.id === id)
-const curTake = (it: PageItem) => it.takes.find((t) => t.current) ?? it.takes[0]
+const curTake = (it: PageItem) => it.takes.find((t) => t.id === it.askTake) ?? it.takes.find((t) => t.current) ?? it.takes[0]
 /** Open, and no decision on its way: an item the next decision can move on to. */
-const isOpen = (id: string) => itemOf(id)?.status === 'open' && !saving.has(id)
+const isOpen = (id: string) => {
+  const it = itemOf(id)
+  return (it?.status === 'open' || !!it?.askTake) && !saving.has(id)
+}
 const done = () => !order.some(isOpen)
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {

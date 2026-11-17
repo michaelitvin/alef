@@ -9,7 +9,7 @@ export const esc = (s: unknown): string =>
 const img = (src: string, mirror: boolean, cls = '') =>
   `<img class="${cls}" src="${esc(src)}" alt=""${mirror ? ' style="transform:scaleX(-1)"' : ''} loading="lazy">`
 
-const currentTake = (it: PageItem): PageTake | undefined => it.takes.find((t) => t.current) ?? it.takes[0]
+const currentTake = (it: PageItem): PageTake | undefined => it.takes.find((t) => t.id === it.askTake) ?? it.takes.find((t) => t.current) ?? it.takes[0]
 
 /** The context visual at the left of the card. */
 export function visualHTML(it: PageItem): string {
@@ -90,7 +90,7 @@ export function itemNotesHTML(it: PageItem): string {
 export function itemHTML(it: PageItem, opts: { selected?: boolean; revealed?: boolean } = {}): string {
   const pic = it.kind === 'image'
   const cur = currentTake(it)
-  const cls = ['item', pic ? 'picitem' : '', it.status === 'open' ? '' : 'decided', it.hidden ? 'hidecap' : '', opts.revealed ? 'reveal' : '', opts.selected ? 'sel' : '']
+  const cls = ['item', pic ? 'picitem' : '', it.status === 'open' || it.askTake ? '' : 'decided', it.hidden ? 'hidecap' : '', opts.revealed ? 'reveal' : '', opts.selected ? 'sel' : '']
   const compare = it.compare ? `<div class="src">${img(it.compare.src, it.compare.mirror)} ${esc(it.compare.label ?? 'to compare')}</div>` : ''
   const takes = pic
     ? it.takes.length > 1

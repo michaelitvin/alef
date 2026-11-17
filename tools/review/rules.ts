@@ -43,6 +43,8 @@ export interface ItemState {
   itemNote: Note | null
   name: Note | null
   ask: string | null
+  /** The open ask's take: the take named in the ask, else the newest. Null when there is no open ask. */
+  askTake: string | null
   retired: string | null
   /** The current take has a failed automatic check. */
   flagged: boolean
@@ -57,15 +59,21 @@ function marks(item: Item, events: ReviewEvent[]) {
   let retired = reason(item.retired)
   let prefer: string | null = null
   let ask = item.ask || null
+  let askTake: string | null = null
+  let askSeq = 0
   for (const e of events) {
     if (e.type === 'withdraw' && e.take) withdrawn.set(e.take, e.text || 'withdrawn')
     else if (e.type === 'restore' && e.take) withdrawn.set(e.take, null)
     else if (e.type === 'retire') retired = e.text || 'retired'
     else if (e.type === 'unretire') retired = null
     else if (e.type === 'prefer') prefer = e.take ?? null
-    else if (e.type === 'ask') ask = e.text || null
+    else if (e.type === 'ask') {
+      ask = e.text || null
+      askTake = e.take ?? null
+      askSeq = e.seq
+    }
   }
-  return { withdrawn, retired, prefer, ask }
+  return { withdrawn, retired, prefer, ask, askTake, askSeq }
 }
 
 /** Fold the take decisions: the last ok / accept / reject / reset on a take decides it. */
@@ -175,6 +183,13 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
         : cv
           ? 'ok'
           : 'open'
+  // An open ask surfaces the item whatever its status, on the asked-about take (the newest, or the one the ask names),
+  // until the parent decides on that take or an agent clears the ask. The take to ship does not change.
+  const newestLive = [...item.takes].reverse().find((t) => !isWithdrawn(t.id))
+  const named = m.askTake && !isWithdrawn(m.askTake) && item.takes.some((t) => t.id === m.askTake) ? m.askTake : null
+  const askedId = named ?? newestLive?.id ?? null
+  const decidedAsked = events.some((e) => e.seq > m.askSeq && e.by === 'parent' && (e.type === 'ok' || e.type === 'reject') && (e.take == null || e.take === askedId))
+  const askTake = m.ask && !m.retired && askedId && !decidedAsked ? askedId : null
   const notes = notesOf(item, events, m.retired)
   // A note on a take that has a newer live take is answered by that take, even with no answer event: the old pipelines
   // answered notes only by making new takes.
@@ -198,6 +213,7 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
     itemNote: live('note'),
     name: live('name'),
     ask: m.ask,
+    askTake,
     retired: m.retired,
     flagged: !!current?.flags?.length,
   }
@@ -232,6 +248,7 @@ export type View = 'focus' | 'open' | 'sample' | 'all'
 export function inView(s: ItemState, view: View): boolean {
   if (s.status === 'retired') return false
   if (view === 'all') return true
+  if (view === 'focus' && s.askTake) return true
   if (s.status !== 'open') return false
   if (view === 'open') return true
   if (view === 'focus') return !!s.ask || s.flagged

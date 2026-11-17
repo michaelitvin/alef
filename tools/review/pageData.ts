@@ -38,6 +38,8 @@ export interface PageItem {
   /** Notes an agent answered, waiting for him to look again. */
   answered: Note[]
   ask: string | null
+  /** The take an open ask is about: OK and Reject act on it. */
+  askTake: string | null
   flagged: boolean
   views: View[]
 }
@@ -93,6 +95,7 @@ export function toPageItem(s: ItemState): PageItem {
     name: s.name,
     answered: s.notes.filter((n) => n.state === 'answered'),
     ask: s.ask,
+    askTake: s.askTake,
     flagged: s.flagged,
     views: VIEWS.filter((v) => inView(s, v)),
   }

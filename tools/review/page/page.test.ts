@@ -18,6 +18,7 @@ const pi = (id: string, extra: Partial<PageItem> = {}): PageItem => ({
   name: null,
   answered: [],
   ask: null,
+  askTake: null,
   flagged: false,
   views: ['open', 'all'],
   ...extra,
