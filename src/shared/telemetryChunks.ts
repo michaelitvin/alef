@@ -312,16 +312,29 @@ export function reconcile(logKey: string, mem: TelemetryEvent[], sealed: string[
 /** what a chunk write gives: its key, or why nothing was written (`taken`: the key holds other or unreadable events) */
 export type ChunkWrite = { key: string } | { error: 'taken' | 'write' }
 
+/** a chunk encoded and not yet written: its key, its value, and its events' JSON for the read-back check */
+export interface PreparedChunk { key: string; value: string; want: string }
+
 /**
- * Write the events of one session (in order) as a sealed chunk, read it back and compare. Gives the chunk's key, or the
- * reason nothing safe was written: `taken` when the key already holds another chunk (or one that does not read), else
- * `write` (a quota error, a read-back that differs). Never throws.
+ * Encode the events of one session (in order) as a chunk, with no storage access: the long half of a seal, so it can
+ * run in an idle slot of its own. Null when they do not encode (a `t` that is not an integer). Never throws.
  */
-export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): ChunkWrite {
+export function prepareChunk(logKey: string, events: readonly TelemetryEvent[]): PreparedChunk | null {
   try {
-    const value = encodeChunk(events)
-    const key = chunkKey(logKey, events[0]!.t, events[0]!.s)
-    const want = JSON.stringify(JSON.parse(JSON.stringify(events)))
+    return { key: chunkKey(logKey, events[0]!.t, events[0]!.s), value: encodeChunk(events), want: JSON.stringify(JSON.parse(JSON.stringify(events))) }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Write a prepared chunk (`prepareChunk`), read it back and compare. Gives the chunk's key, or the reason nothing safe
+ * was written: `taken` when the key already holds another chunk (or one that does not read), else `write` (a quota
+ * error, a read-back that differs). Never throws.
+ */
+export function writeChunk(p: PreparedChunk): ChunkWrite {
+  try {
+    const { key, value, want } = p
     const before = getRaw(key)
     if (before !== null && before !== value) {
       // the same t0 and session: a chunk another tab sealed (same events, so it is ours too) or another one (keep it)
@@ -337,12 +350,19 @@ export function writeChunk(logKey: string, events: readonly TelemetryEvent[]): C
   }
 }
 
+/** what an idle slot gives its work: how long it may run (ms), and whether it came from the timeout */
+export interface IdleDeadline { timeRemaining(): number; didTimeout: boolean }
+
+/** the longest idle period a browser gives (and what the fallback's quiet slot offers) */
+const IDLE_PERIOD_MS = 50
+
 /**
- * Run `fn` when the page is idle: `requestIdleCallback` (with a 10 s timeout) where it exists, else after 2 s with no
- * `pointerdown` or `keydown` (each one waits again), never a 0 ms timer during play. Gives a cancel.
+ * Run `fn` when the page is idle, with the slot's deadline: `requestIdleCallback` (with a 10 s timeout) where it
+ * exists, else after 2 s with no `pointerdown` or `keydown` (each one waits again), never a 0 ms timer during play. The
+ * caller checks `timeRemaining()` before it works. Gives a cancel.
  */
-export function onIdle(fn: () => void): () => void {
-  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void }
+export function onIdle(fn: (deadline: IdleDeadline) => void): () => void {
+  const w = window as Window & { requestIdleCallback?: (cb: (d: IdleDeadline) => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void }
   if (typeof w.requestIdleCallback === 'function') {
     const h = w.requestIdleCallback(fn, { timeout: 10_000 })
     return () => w.cancelIdleCallback?.(h)
@@ -356,7 +376,11 @@ export function onIdle(fn: () => void): () => void {
   }
   function arm() {
     window.clearTimeout(timer)
-    timer = window.setTimeout(() => { stop(); fn() }, QUIET_MS)
+    timer = window.setTimeout(() => {
+      stop()
+      const start = Date.now()
+      fn({ timeRemaining: () => Math.max(0, start + IDLE_PERIOD_MS - Date.now()), didTimeout: false })
+    }, QUIET_MS)
   }
   window.addEventListener('pointerdown', arm, true)
   window.addEventListener('keydown', arm, true)

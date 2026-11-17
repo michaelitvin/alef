@@ -17,7 +17,8 @@ const OLD = book2Events({ days: 27, eventsPerSession: 180 })
 const LITERAL = JSON.stringify({ v: 1, events: OLD })
 const str = (x: unknown) => JSON.stringify(x)
 const theirs = () => readLog(KEY).filter((e) => e.s !== SESSION)
-const idle = async (slots = 40) => { for (let i = 0; i < slots; i++) await vi.advanceTimersByTimeAsync(2100) }
+/** let the idle slots run (three per session: encode, write, budget) */
+const idle = async (slots = 80) => { for (let i = 0; i < slots; i++) await vi.advanceTimersByTimeAsync(2100) }
 const use = (s: Storage) => Object.defineProperty(window, 'localStorage', { value: s, configurable: true })
 
 /** a Storage over `inner` whose setItem throws a quota error when `fail(key, n)` says so (n counts the writes) */
@@ -142,7 +143,7 @@ describe('the migration of an old log', () => {
     const b = createTelemetry(KEY, { game: 'book2' })
     a.track('x', { by: 'a' })
     b.track('x', { by: 'b' })
-    await idle(60)
+    await idle(120)
     a.flush()
     b.flush()
     expect(str(theirs())).toBe(str(OLD))

@@ -2,7 +2,9 @@
 // loses or doubles an event.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SESSION, createTelemetry, readLog, type TelemetryEvent } from './telemetry'
-import { OPEN_SEAL_CHARS, chunkKey, chunkKeysOf, openJson, parseOpen } from './telemetryChunks'
+import { OPEN_SEAL_CHARS, chunkKey, chunkKeysOf, openJson, parseOpen, rollupKey } from './telemetryChunks'
+import { encodeChunk } from './telemetryCodec'
+import { LIVE_BUDGET } from './telemetryBudget'
 import { GOLDEN_BOOK2, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
 import { BOOK2_LOG } from '../duel2/telemetryLog'
 
@@ -79,7 +81,9 @@ describe('sealing the open chunk', () => {
       await vi.advanceTimersByTimeAsync(1500)
     }
     expect(chunkKeysOf(KEY)).toHaveLength(0)
-    await vi.advanceTimersByTimeAsync(2100)
+    await vi.advanceTimersByTimeAsync(2100) // a quiet slot: the encode
+    expect(chunkKeysOf(KEY)).toHaveLength(0)
+    await vi.advanceTimersByTimeAsync(2100) // the next one: the write
     expect(chunkKeysOf(KEY)).toHaveLength(1)
   })
 
@@ -201,6 +205,71 @@ describe('sealing the open chunk', () => {
     await idle(80)
     expect(chunkKeysOf(BOOK2_LOG.key).length).toBeGreaterThan(5)
     expect(goldenExport(BOOK2_LOG, readLog(BOOK2_LOG.key).filter((e) => e.s !== SESSION))).toBe(pre)
+    t.clear()
+  })
+})
+
+describe('the seal pass and the main thread', () => {
+  type Cb = (d: { timeRemaining(): number; didTimeout: boolean }) => void
+  let queue: Cb[] = []
+  beforeEach(() => {
+    queue = []
+    Object.assign(window, { requestIdleCallback: (cb: Cb) => { queue.push(cb); return queue.length }, cancelIdleCallback: () => {} })
+  })
+  afterEach(() => {
+    delete (window as { requestIdleCallback?: unknown }).requestIdleCallback
+    delete (window as { cancelIdleCallback?: unknown }).cancelIdleCallback
+  })
+  /** run the waiting idle callback with `ms` of idle time left (a short slot, or a timeout, during a round) */
+  const slot = (ms: number, didTimeout = false) => { const cb = queue.shift(); expect(cb).toBeDefined(); cb!({ timeRemaining: () => ms, didTimeout }) }
+
+  it('a slot with little idle time left (a frame during a round, or a timeout) does no seal work and waits for the next', () => {
+    real.setItem(KEY, openJson(session('old-1', NOW - 40 * MIN, 150), []))
+    const t = createTelemetry(KEY, { game: 'book2' })
+    t.track('answer', { i: -1 })
+    const set = vi.spyOn(Storage.prototype, 'setItem')
+    for (let i = 0; i < 5; i++) slot(3, i % 2 === 1)
+    expect(set).not.toHaveBeenCalled()
+    expect(queue).toHaveLength(1) // it asked again
+    t.clear()
+  })
+
+  it('encode, write and the budget run in idle slots of their own', () => {
+    const fill = 'alef-sealfill-telemetry'
+    const noise = () => Array.from({ length: 100 }, () => Math.random().toString(36).slice(2, 6)).join('')
+    const old = Array.from({ length: 2600 }, (_, i): TelemetryEvent => ({ t: NOW - 90 * 24 * 60 * MIN + i, s: 'f', run: 1, e: 'answer', g: 'x', pad: noise() }))
+    real.setItem(chunkKey(fill, old[0]!.t, 'f'), encodeChunk(old))
+    expect(real.getItem(chunkKey(fill, old[0]!.t, 'f'))!.length).toBeGreaterThan(LIVE_BUDGET)
+    real.setItem(KEY, openJson(session('old-1', NOW - 40 * MIN, 150), []))
+    const t = createTelemetry(KEY, { game: 'book2' })
+    t.track('answer', { i: -1 })
+    const set = vi.spyOn(Storage.prototype, 'setItem')
+    const remove = vi.spyOn(Storage.prototype, 'removeItem')
+    slot(50) // encode only
+    expect(set).not.toHaveBeenCalled()
+    expect(remove).not.toHaveBeenCalled()
+    slot(50) // write, read back, rewrite the open chunk
+    expect(chunkKeysOf(KEY)).toHaveLength(1)
+    expect(set.mock.calls.map((c) => c[0])).toEqual([chunkKeysOf(KEY)[0], KEY])
+    expect(remove).not.toHaveBeenCalled()
+    set.mockClear()
+    slot(50) // the budget: the old filler goes, folded first
+    expect(real.getItem(chunkKey(fill, old[0]!.t, 'f'))).toBeNull()
+    expect(set.mock.calls.map((c) => c[0])).toEqual([rollupKey(fill)])
+    t.clear()
+  })
+
+  it('at the hard cap, a flush encodes its own session and the next flush writes it (never both in one task)', () => {
+    const t = createTelemetry(KEY, { game: 'book2' })
+    for (let i = 0; i < 700; i++) t.track('answer', { i, pad })
+    const set = vi.spyOn(Storage.prototype, 'setItem')
+    t.flush()
+    expect(set.mock.calls.map((c) => c[0])).toEqual([KEY]) // encoded, not written
+    expect(chunkKeysOf(KEY)).toHaveLength(0)
+    t.flush()
+    expect(chunkKeysOf(KEY)).toHaveLength(1)
+    expect(real.getItem(KEY)!.length).toBeLessThan(OPEN_SEAL_CHARS)
+    expect(t.events().map((e) => e.i)).toEqual(Array.from({ length: 700 }, (_, i) => i))
     t.clear()
   })
 })

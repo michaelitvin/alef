@@ -2,8 +2,8 @@
 // offline. Capped so it can never crowd out the progress save, and it never throws.
 import { isStaging, isTelemetryKey, STAGING_PREFIX } from './stagingStorage'
 import {
-  FROZEN_LOG_KEYS, OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, readLog, reconcile,
-  writeChunk,
+  FROZEN_LOG_KEYS, OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, prepareChunk, readLog,
+  reconcile, writeChunk, type PreparedChunk,
 } from './telemetryChunks'
 import { enforceBudget, freeChunks } from './telemetryBudget'
 import { MS_EDGES, dayOf, readRollup, weekOf } from './telemetryRollup'
@@ -235,6 +235,10 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
   let sealing = false
   /** sessions this page cannot seal (an odd `t`, or their chunk key holds another chunk): the pass goes on without them */
   const skipped = new Set<string>()
+  /** a session's chunk, encoded in one slot and written in the next (a seal never encodes and writes in one task) */
+  let pending: { s: string; take: TelemetryEvent[]; chunk: PreparedChunk } | null = null
+  /** a chunk was written: the budget runs in the next slot */
+  let budgetDue = false
 
   if (isFrozenLog(key)) {
     // The frozen log is history: nothing opens it for writing (ADR 0004). A bug in dev, a no-op in production.
@@ -261,11 +265,27 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
       const ownCount = () => all().reduce((n, e) => n + (e.s === SESSION ? 1 : 0), 0)
       // (only when this page's own events are a seal's worth: a long open chunk of other sessions waits for its pass)
       if (json.length > OPEN_HARD_CAP && JSON.stringify(all().filter((e) => e.s === SESSION)).length > OPEN_SEAL_CHARS) {
-        // a page that never idles: seal its own session now; when that seal fails, drop its own oldest events (never
+        // a page that never idles: seal its own session from the flushes, one half per flush (this one encodes, the
+        // next one writes, the budget waits for an idle slot); when that seal fails, drop its own oldest events (never
         // another session's: those wait for their seal pass, as an old log does while it migrates)
-        try { sealSession(SESSION) } catch { /* the trim below */ }
+        let failed = false
+        try {
+          if (pending) {
+            const p = pending
+            pending = null
+            const r = commit(p)
+            if (r === 'ok') budgetDue = true
+            else failed = p.s === SESSION
+            if (r === 'taken') noteSkip(p.s, r)
+          } else {
+            const p = prepare(SESSION)
+            if (p && p !== 'time') pending = p
+            else failed = true
+          }
+        } catch { failed = true }
+        if (pending || budgetDue) scheduleSeal()
         json = openJson(all(), sealed)
-        while (json.length > OPEN_HARD_CAP && ownCount() > 1) {
+        while (failed && json.length > OPEN_HARD_CAP && ownCount() > 1) {
           const own = all().filter((e) => e.s === SESSION)
           const drop = new Set(own.slice(0, Math.max(1, Math.ceil(own.length / 4))))
           mem = all().filter((e) => !drop.has(e))
@@ -291,10 +311,26 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
   }
 
   /**
-   * the next seal of a pass: the oldest complete session that is not this page's, else this page's past the limit. A
-   * session that cannot be sealed is skipped (and recorded once); the pass goes on with the next one.
+   * One step of a seal pass, the work of one idle slot. A chunk written: the budget (its own slot). A chunk encoded:
+   * write it. Else pick the next session (the oldest complete session that is not this page's, else this page's past
+   * the limit) and encode it. A session that cannot be sealed is skipped (and recorded once); the pass goes on with the
+   * next one. Gives true while there is more to do.
    */
-  function sealNext(): boolean {
+  function step(): boolean {
+    if (budgetDue) {
+      budgetDue = false
+      enforceBudget(registeredLogs())
+      return true // the next slot picks the next session, if there is one
+    }
+    if (pending) {
+      const p = pending
+      pending = null
+      const r = commit(p)
+      if (r === 'write') return false // a full storage: the next flush past the limit starts a new pass
+      if (r === 'taken') noteSkip(p.s, r)
+      if (r === 'ok') { flush(); budgetDue = true }
+      return true
+    }
     const evs = all()
     reconcile(key, evs, sealed)
     const now = Date.now()
@@ -308,15 +344,12 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
     const complete = [...last].filter(([s, t]) => s !== SESSION && now - t > SESSION_IDLE_MS && !skipped.has(s)).map(([s]) => s)
       .sort((a, b) => first.get(a)! - first.get(b)!)
     const own = openJson(evs, sealed).length > OPEN_SEAL_CHARS && last.has(SESSION) && !skipped.has(SESSION)
-    const candidates = own ? [...complete, SESSION] : complete
-    for (let i = 0; i < candidates.length; i++) {
-      const s = candidates[i]!
-      const r = sealSession(s)
-      if (r === 'write') return false // a full storage: the next flush past the limit starts a new pass
-      if (r !== 'ok') { noteSkip(s, r); continue }
-      flush()
-      enforceBudget(registeredLogs())
-      return i < complete.length - 1 || openJson(all(), sealed).length > OPEN_SEAL_CHARS
+    for (const s of own ? [...complete, SESSION] : complete) {
+      const p = prepare(s)
+      if (p === 'time') { noteSkip(s, p); continue }
+      if (p === null) return false
+      pending = p
+      return true
     }
     return false
   }
@@ -329,29 +362,45 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
   }
 
   /**
-   * seal session `s` of the open events into a chunk: `ok` when they left the open events; `time` (a `t` that is not a
-   * safe integer) or `taken` (its chunk key holds another chunk) when it never can be; `write` when the write failed
+   * encode session `s` of the open events as a chunk (no storage access); `time` when it never can be sealed (a `t`
+   * that is not a safe integer), null when there is nothing to seal
    */
-  function sealSession(s: string): 'ok' | 'time' | 'taken' | 'write' {
+  function prepare(s: string): NonNullable<typeof pending> | 'time' | null {
     const take = all().filter((e) => e.s === s)
-    if (take.length === 0) return 'write'
+    if (take.length === 0) return null
     if (!take.every((e) => Number.isSafeInteger(e.t))) return 'time' // an odd old event: the session stays open
-    const w = writeChunk(key, take)
-    if ('error' in w) return w.error === 'taken' ? 'taken' : 'write' // nothing safe was written: the open chunk stays
-    const gone = new Set(take)
+    const chunk = prepareChunk(key, take)
+    return chunk ? { s, take, chunk } : 'time'
+  }
+
+  /**
+   * write an encoded chunk, read it back, then drop its events from the open events: `ok`; `taken` (its key holds
+   * another chunk); `write` (nothing safe was written: the open events stay as they are); `stale` (its events left
+   * the open events since it was encoded: it is not written)
+   */
+  function commit(p: NonNullable<typeof pending>): 'ok' | 'taken' | 'write' | 'stale' {
+    const now = new Set(all())
+    if (!p.take.every((e) => now.has(e))) return 'stale'
+    const w = writeChunk(p.chunk)
+    if ('error' in w) return w.error
+    const gone = new Set(p.take)
     mem = all().filter((e) => !gone.has(e))
     if (!sealed.includes(w.key)) sealed.push(w.key)
     return 'ok'
   }
 
-  /** one seal per idle slot until the pass is done */
+  /** an idle slot with less time than this left (a frame's rest during a round, or a timeout) does no seal work */
+  const MIN_IDLE_MS = 12
+
+  /** one step per idle slot, and only in a slot with time left, until the pass is done */
   function scheduleSeal() {
     if (cancelSeal || typeof window === 'undefined') return
     sealing = true
-    cancelSeal = onIdle(() => {
+    cancelSeal = onIdle((deadline) => {
       cancelSeal = null
+      if (deadline.timeRemaining() < MIN_IDLE_MS) { scheduleSeal(); return }
       let more = false
-      try { more = sealNext() } catch { /* a seal that fails leaves the open chunk as it is */ }
+      try { more = step() } catch { pending = null } // a step that fails leaves the open chunk as it is
       if (more) scheduleSeal()
       else sealing = false
     })
@@ -397,6 +446,8 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
       cancelSeal?.()
       cancelSeal = null
       sealing = false
+      pending = null
+      budgetDue = false
       clearLog(key)
     },
   }

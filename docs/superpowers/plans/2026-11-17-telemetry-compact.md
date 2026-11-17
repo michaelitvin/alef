@@ -83,7 +83,8 @@ its own key. *Roll-up* = per-day, per-item counts kept after raw events are evic
 12. **The main thread during play.** A seal (compact + deflate + read-back decode of ≈40k chars) is ≈5–30 ms here and
     plausibly 2–4× that on a low-end tablet. It runs in `requestIdleCallback` (with `{timeout: 10_000}`) where it
     exists. iPadOS Safari may not have it: then the fallback is a timer that fires after 2 s with no `pointerdown` or
-    `keydown` (re-armed by each), never a 0 ms timeout during play. One chunk per slot.
+    `keydown` (re-armed by each), never a 0 ms timeout during play. One chunk per slot. (Since the review: one step per
+    slot, encode, write, budget, and only in a slot with at least 12 ms of idle time left.)
 13. **Each build budgets its own keys.** The production build sees `staging:` keys too (raw storage); its budget sums
     only unprefixed keys. Staging's quarter is kept by the staging build, which sees only its own keys.
 14. **Owner decision (2026-11-17): special clock rounds count apart.** A clock `round` with `real: false` counts in the
@@ -502,3 +503,15 @@ link ADR 0007. **Risks:** none. **Size:** S.
 >   ParentArea chunk grows by 11.4 kB gzipped (119.7 → 131.2 kB).
 > - The Data section reads `navigator.storage.persisted()` itself, so the line shows the browser's answer even when the
 >   area's `persist()` request answers after the section rendered.
+>
+> **The open finding, fixed after the review (2026-11-18).** A seal pass is now three idle slots per session: encode
+> (no storage access), then write, read back and rewrite the open chunk, then the budget. A slot with less than 12 ms of
+> idle time left (`deadline.timeRemaining()`), which is a frame's rest during a round or a timeout, does no seal work
+> and asks again. The hard-cap path of a page that never idles encodes at one flush and writes at the next. Measured
+> on the same board, 4× CPU throttling, the verify build, a synthetic 697k Book 2 log and a 510k clock log, Book 2
+> played for up to 8 minutes, each idle callback timed: before, all 21 seal slots ran on the idle timeout with under
+> 12 ms left (that is, during play), the longest 2.4–3.7 s; after, the longest seal slot was 0.44–1.3 s (two runs; the
+> board was shared and loaded), and no slot that did seal work ran on a timeout. The game's own longest tasks were
+> 1.4–2.7 s in the same runs, so the 100 ms line still cannot be judged on this board. The cost: on a play screen with
+> few quiet moments the migration waits for them (one run sealed 9 of 21 sessions in 8 minutes, another all 21), and
+> until it ends each flush still writes the long open chunk, as before.
