@@ -1,7 +1,8 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  // the /verify skill's driver (.claude/skills/verify/) imports playwright
   // src/main.tsx is found through index.html; the other two apps' HTML entries are not found on their own
-  "entry": ["src/duel2/main.tsx", "src/clock/main.tsx", "scripts/**/*.ts", "worker/src/index.ts"],
+  "entry": ["src/duel2/main.tsx", "src/clock/main.tsx", "scripts/**/*.ts", "worker/src/index.ts", ".claude/skills/verify/drive.mjs"],
   "project": ["src/**", "scripts/**/*.ts", "worker/src/**"],
   "ignoreExportsUsedInFile": true,
   // wrangler deploys the TTS worker (worker/) by hand; nothing imports it
