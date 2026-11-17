@@ -13,10 +13,12 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
 | Code two or more games share (`gameAudio/`, `shell/`, `parentGate/`, device settings, telemetry, saves) | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
 | The parent area: one screen for every game, behind the gate | `src/parent/`; each game's part in `src/<game>/parent/index.ts` | [src/parent/README.md](src/parent/README.md) |
+| Asset review kit (not a game: node tools and the review page; host adapters give it the items) | `tools/review/` (`server.ts`, `cli.ts`) | [tools/review/README.md](tools/review/README.md) |
 
 - Decisions: [ADR 0001](docs/adr/0001-staging-shares-the-origin.md) staging, [0002](docs/adr/0002-first-duel-is-book-2s-tower.md)
   the tower, [0003](docs/adr/0003-audio-through-a-player-port.md) audio, [0004](docs/adr/0004-one-telemetry-log-per-game.md)
-  telemetry, [0005](docs/adr/0005-run-policies-and-the-sleeper.md) run policies.
+  telemetry, [0005](docs/adr/0005-run-policies-and-the-sleeper.md) run policies, [0006](docs/adr/0006-review-decisions-are-an-event-log.md)
+  asset review.
 - Designs and build plans: `docs/superpowers/specs/` and `docs/superpowers/plans/`, newest date wins. `specs/` (speckit,
   2025) is history only.
 - The TTS worker: `worker/` (deployed by hand with `wrangler deploy`). Audio catalog exports: `scripts/<game>/`.
