@@ -8,7 +8,7 @@ import { StationPath } from '../../components/home/StationPath'
 import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
 import { LevelShelf } from '../../components/home/LevelShelf'
-import { GearIcon, StarIcon, TargetIcon, ChartIcon } from '../../components/home/HomeIcons'
+import { GearIcon } from '../../components/home/HomeIcons'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
 import { passGate } from '../../parent/gateToken'
 import '../../components/home/home.css'
@@ -91,58 +91,6 @@ export function HomePage() {
         <LevelShelf />
       </main>
 
-      {/* Stats summary - clickable to go to progress page */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        style={{
-          marginTop: spacing[8],
-          textAlign: 'center',
-        }}
-      >
-        <motion.button
-          data-home-stats
-          onClick={() => navigate('/progress')}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: spacing[3],
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <p
-            style={{
-              fontFamily: typography.fontFamily.hebrew,
-              fontSize: typography.fontSize.base,
-              color: colors.text.secondary,
-              margin: 0,
-            }}
-          >
-            {stats.totalAttempts > 0 ? (
-              <>
-                <StarIcon /> {stats.lettersLearned} אותיות נלמדו | <TargetIcon />{' '}
-                {Math.round(stats.accuracy * 100)}% דיוק
-              </>
-            ) : (
-              <><ChartIcon /> צפה בהתקדמות</>
-            )}
-          </p>
-          <p
-            style={{
-              fontFamily: typography.fontFamily.hebrew,
-              fontSize: typography.fontSize.xs,
-              color: colors.primary[500],
-              margin: 0,
-              marginTop: spacing[1],
-            }}
-          >
-            לחץ לצפייה בהישגים ←
-          </p>
-        </motion.button>
-      </motion.div>
     </div>
   )
 }

@@ -74,7 +74,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(main.textContent ?? '').not.toMatch(/\p{Extended_Pictographic}/u)
   })
 
-  it('the whole rendered home (settings button and stats link too) has no emoji, before and after the first attempts', () => {
+  it('the whole rendered home (the settings button too) has no emoji, before and after the first attempts', () => {
     for (const stats of [{}, { totalAttempts: 12, lettersLearned: 3, accuracy: 0.75 }]) {
       useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, stats: { ...INITIAL_PROGRESS_STATE.stats, ...stats } })
       const { container, unmount } = render(<MemoryRouter><HomePage /></MemoryRouter>)
@@ -83,18 +83,16 @@ describe('the home page (spec: one duel, Part 4)', () => {
     }
   })
 
-  it('the settings button and the stats link draw SVG icons, keep their actions, and the stats link keeps its text', () => {
+  it('the home shows no stats text and no progress link (the stats are the parent\'s, in the parent area)', () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, stats: { ...INITIAL_PROGRESS_STATE.stats, totalAttempts: 12, lettersLearned: 3, accuracy: 0.75 } })
     const c = page()
-    const settings = c.querySelector('[data-home-settings]')!
-    expect(settings.querySelector('svg')).not.toBeNull()
-    const stats = c.querySelector('[data-home-stats]')!
-    expect(stats.querySelectorAll('svg').length).toBe(2)
-    expect(stats.textContent).toContain('3 אותיות נלמדו')
-    expect(stats.textContent).toContain('75% דיוק')
-    expect(stats.textContent).toContain('לחץ לצפייה בהישגים')
-    fireEvent.click(stats)
-    expect(navigate).toHaveBeenLastCalledWith('/progress')
+    expect(c.querySelector('[data-home-stats]')).toBeNull()
+    expect(c.textContent).not.toContain('אותיות נלמדו')
+    expect(c.textContent).not.toContain('דיוק')
+    expect(c.textContent).not.toContain('צפה בהתקדמות')
+    expect(c.querySelector('[data-home-settings] svg')).not.toBeNull()
+    for (const el of c.querySelectorAll('button, a, [role="button"]')) fireEvent.click(el)
+    expect(navigate).not.toHaveBeenCalledWith('/progress')
   })
 
   it('the settings gear is the parent gate: a tap does nothing; a 2 s hold and the year of birth open the area at once', () => {
