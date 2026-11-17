@@ -90,6 +90,28 @@ describe('the game shell', () => {
     expect(at(container)).toBe('play')
   })
 
+  it('with no askGender the gate plays without the question, also when boy or girl is unset', async () => {
+    clearGender()
+    const onAsk = vi.fn()
+    const welcome = vi.fn(() => Promise.resolve())
+    const { container } = render(<Game preload={() => Promise.resolve()} askGender={undefined} onAsk={onAsk} welcome={welcome} />)
+    fireEvent.click(container.querySelector('[aria-label="play"]')!)
+    await act(async () => {})
+    expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
+    expect(onAsk).not.toHaveBeenCalled()
+    expect(welcome).toHaveBeenCalledTimes(1)
+    expect(at(container)).toBe('play')
+    expect(getPlayer()?.gender).toBeUndefined()
+  })
+
+  it('a game that asks still asks when boy or girl is unset', async () => {
+    clearGender()
+    const { container } = render(<Game preload={() => Promise.resolve()} />)
+    fireEvent.click(container.querySelector('[aria-label="play"]')!)
+    await act(async () => {})
+    expect(container.querySelector('[data-screen="gender-question"]')).not.toBeNull()
+  })
+
   it('a welcome plays while the preload waits; play waits for both; after the question the gate runs again with it', async () => {
     const w = deferred()
     const welcome = vi.fn(() => w.p)
