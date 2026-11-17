@@ -139,7 +139,7 @@ row; they still arrive together.
 
 The space background with turning planets, the ship shelf with his current ship large in its middle (it is not shown a
 second time), a play triangle, all his points with the star, his best, the parent button (the shared parent gate: a 2 s
-hold, then the parent's year of birth; rule), and the held house button (as on Book 2's cover), both inset from the
+hold, then the parent's year of birth; rule), and the held house button (the shared house of every game, to alef's home screen), both inset from the
 rounded screen corner (rule: keep things away from the corners). The fonts and pictures load before the cover shows.
 The held house is also on the pause cover and on the end screen, in the same corner (rule: *A way out of the game … must
 need a 2 s hold*; this replaces the older rule "no way out on a child screen" that this design first followed).
@@ -222,7 +222,7 @@ shows the change.
 ## Voice
 
 No line says a number, and no line addresses the child with a verb, a pronoun or an adjective, so one take serves boys
-and girls. The words below are a first draft; the parent approves the takes on the usual review page. The request text has no
+and girls. The words below are a first draft; the parent approves the takes on the shared review kit. The request text has no
 "!" (it makes the voice shout); excitement comes from tags. *My call:* the lines use the narrator voice of Book 2, in
 the role "the game's narrator"; this game has no speaking character.
 
@@ -244,7 +244,7 @@ the role "the game's narrator"; this game has no speaking character.
 "כּוֹכַב הַלֶּכֶת" for a planet and "נְקֻדּוֹת" for the points, never plain "כּוֹכָב" for either. *My call*; the parent
 can ask for another points icon.
 
-Voice lines play through `src/shared/audioCore.ts` at the shared voice rate. Two audio events never overlap or touch:
+Voice lines play through the shared game-audio kit (`src/shared/gameAudio/`, `createGameAudio`) at the shared voice rate. Two audio events never overlap or touch:
 a voice line waits for the effect before it (about 0.4 s), and a round's arrival sound waits for a voice line of the
 screen before it. No voice line plays while planets move. The tune gets quieter under every voice line (rule).
 
@@ -254,11 +254,14 @@ screen before it. No voice line plays while planets move. The tune gets quieter 
   and the level fanfare; they are ported. Six are new and are coded in the same style: new sum, right with zoom,
   time-out, heart lost, new ship, end of run. *My call:* the parent hears the six new ones in Space Cat's section of the
   parent area (a button for each) before the first playtest build, and they change on his notes.
-- The coded sounds follow the device's one sound setting (effects on or off, music on or off, the volume), as every
-  game's sound does.
+- The coded sounds are takes of the same audio kit as the voice: the kit plays them through the player port, which
+  plays coded sound on the same output as every file. So they follow the device's one sound setting (effects on or off,
+  music on or off, the volume), the mute while the page is hidden and the pause, and the tune gets quieter under every
+  voice line, as every game's sound does.
 - The original's tune plays on the cover, on *level done* and on the end screen.
 - During flight the tune is off. A parent setting turns it on. (The rule for calm games does not bind an action game,
-  but the parent chose off as the default.)
+  but the parent chose off as the default.) The device's music setting is above it: with the device's music off, no
+  tune plays anywhere, and the flight setting changes nothing.
 - *My call:* one tune only in this version. More tracks come if the parent finds it repetitive.
 
 ## The parent area
@@ -272,7 +275,7 @@ section holds:
 - **Sums he finds hard:** a table of items with right of seen, time-outs, the usual time, and his most frequent wrong pick.
 - **Range:** automatic (default), or the parent sets the highest open rung. Switches for times and divide.
 - **Time for one sum:** automatic (default, with the present value shown), or 8, 5, 4 s.
-- **Music during flight:** off (default) or on.
+- **Music during flight:** off (default) or on (only while the device's music is on).
 - **The game's sounds:** a button for each coded effect and the tune.
 - The player (boy/girl; it changes nothing in this game today), the telemetry export and the way back to the alef menu
   are the area's own sections. The game does not ask boy or girl before play, because no line has a boy or girl form.
@@ -280,8 +283,9 @@ section holds:
 ## Tracking
 
 `createTelemetry` from `src/shared/telemetry.ts` with `game: 'spacecat'`, its own key and the `about` block that names
-this document. Its cap is a share of the one storage budget of all logs (not decided: the parent decides the split after the refactor's telemetry work). The export is the
-parent area's one export.
+this document. The game declares its log (and what an evicted part of it keeps, per day and sum) in its part of the
+parent area; it has no cap of its own: every game's logs share one storage budget, and past it the oldest part of any
+log goes, folded into a summary first (compact telemetry, in review). The export is the parent area's one export.
 
 - Each round: the item, the four numbers by lane, the ship's lane at the start, the lane and number he ended on, the
   result (right, wrong, time-out), zoom or arrival, the time to his last lane change and to the end, the arrival time
@@ -306,9 +310,9 @@ src/spacecat/
   canvas/    game loop, planet renderer, ship, particles, top bar, sum box, input
   screens/   Cover, Play (wraps the canvas), LevelDone, End, PauseCover
   parent/    Space Cat's part of the one parent area (src/parent): index.ts (light), Settings, reset
-  audio/     voice on the shared game-audio kit; coded effects and tune (ported) on the player port's WebAudio output; line table
+  audio/     one instance of the shared game-audio kit: the voice, and the coded effects and tune (ported) as its coded takes behind the player port; line table
   saveFormat.ts, store.ts, savePort.ts   save key and light read; Zustand + persist (tallies, open rungs, points, best, ships, tips heard, settings); the controller's port
-  telemetry.ts, telemetryLog.ts
+  telemetry.ts, telemetryLog.ts   the log instance; the log as the parent area and the telemetry registry see it
   assets/    the 9 original pictures, voice files
   README.md  where things are, tests, known friction
 src/components/home/SpaceCatCard.tsx            the card on the home screen (one duel's layout)
@@ -340,7 +344,7 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
 - Drag, flick and tap tested with real touch events in the headless browser, at tablet landscape, phone upright and phone-on-its-side sizes.
 - The full QA pass of the rules before the parent gets a build: a fresh start, each rung reached by a seeded store,
   wrong answers and time-outs, the audio order logged, a screenshot of each step.
-- `npm test && npm run lint`, and the build of all four entries.
+- `npm run check` (lint, the boundary rules of `.dependency-cruiser.cjs`, knip) and `npm test`, and the build of all four entries.
 
 ## Rule review
 
@@ -351,7 +355,7 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
   and the digits are what he practises). The round "says what to do" by the demo and the ring; the instruction is not
   repeated each round.
 - **Voice lines: wording, delivery, pronunciation.** No number in any line, no line that addresses the child, three
-  variations of the one line that repeats, praise words only the first two times. Takes go through the review page.
+  variations of the one line that repeats, praise words only the first two times. Takes go through the shared review kit (one page for every game).
 - **Music and sound effects.** See above; one tune is a stated limit of this version.
 - **Visuals.** Each symbol has one meaning (star = points, planet = answer, heart = life; burst particles are not
   heart-shaped). A time-out and a wrong hit look different (the true cause). A wrong answer is dramatic. Planets do not
@@ -377,7 +381,7 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
   *Near miss:* the rule "forgive a near miss one time" is met by the lane glide (no heart for parking between two
   planets). A number that is one away from the answer is a real mistake and is not forgiven.
 - **Parent tracking.** See *Tracking* and *The parent area*.
-- **Review of generated assets.** Voice takes on the review page; the chosen requests go to `asset-sources/spacecat/`.
+- **Review of generated assets.** Voice takes on the shared review kit (two takes per line); the take to ship is the kit's rule; the chosen requests go to `asset-sources/spacecat/`.
 - **Working with the parent.** The work is on its own branch and worktree. No host address, route or password is in
   any committed file.
 - **Verification.** See above.
@@ -395,8 +399,8 @@ half a mistake; a rung opens at 2 mistakes or fewer in his last 12 answers on it
 "כּוֹכַב הַלֶּכֶת" and "נְקֻדּוֹת" as the spoken names; one tune; the draft wording of every voice line; the narrator voice;
 the six new coded sounds; hearts and points speak only where the game stands still; the planets stop for the zoom tip;
 the phone test (shorter side under 600 px); the play triangle points left; the home card from the game's own parts and
-its line; the current ship shown once on the cover; two takes per voice item (the parent, 2026-11-17); the telemetry
-cap's share (not decided: the refactor may make telemetry more efficient; an old proposal was Space Cat 200 k characters, Book 2 600 k, clock 400 k).
+its line; the current ship shown once on the cover; two takes per voice item (the parent, 2026-11-17). (The telemetry
+cap's share is no longer a question: compact telemetry gives all games one budget.)
 
 Left to the builder: the canvas structure, the exact sizes and timings of effects, the store shape, the telemetry field
 names, the constants' tuning inside the limits above.
