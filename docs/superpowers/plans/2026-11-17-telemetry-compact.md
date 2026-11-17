@@ -430,7 +430,7 @@ exports and clears with no core change.
 
 **Goal:** record why IndexedDB is not needed now, and update the docs.
 
-**Files:** new `docs/adr/0006-compact-telemetry-in-localstorage.md`; `docs/adr/0004-one-telemetry-log-per-game.md`
+**Files:** new `docs/adr/0007-compact-telemetry-in-localstorage.md`; `docs/adr/0004-one-telemetry-log-per-game.md`
 (consequences: the budget counts the frozen log at its measured size); `src/shared/README.md`; the comments of
 `src/duel2/telemetry.ts` and `src/clock/telemetry.ts`; `CLAUDE.md` only if a rule changes (a new entry point still
 imports `stagingStorage.ts` first; a new game declares its log with an optional `rollup`).
@@ -448,7 +448,7 @@ imports `stagingStorage.ts` first; a new game declares its log with an optional 
   budget; or the Data section reports `save-failed` on a real device.
 
 **Acceptance:** docs say how a new game joins (declare a log, optionally a `rollup`), name the budget constants, and
-link ADR 0006. **Risks:** none. **Size:** S.
+link ADR 0007. **Risks:** none. **Size:** S.
 
 ## Final check
 
