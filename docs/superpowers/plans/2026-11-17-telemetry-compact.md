@@ -86,6 +86,14 @@ its own key. *Roll-up* = per-day, per-item counts kept after raw events are evic
     `keydown` (re-armed by each), never a 0 ms timeout during play. One chunk per slot.
 13. **Each build budgets its own keys.** The production build sees `staging:` keys too (raw storage); its budget sums
     only unprefixed keys. Staging's quarter is kept by the staging build, which sees only its own keys.
+14. **Owner decision (2026-11-17): special clock rounds count apart.** A clock `round` with `real: false` counts in the
+    roll-ups as its own counter (`special`), never in the right or wrong tallies. The parent's rule: "Count special
+    results separately. Do not count them as correct."
+15. **Owner decision (2026-11-17): staging's copy of the frozen log goes, once.** `staging:alef-duel-telemetry` is a
+    stale copy from an old `?copy-prod`, not the child's history. The staging build deletes it once and records that
+    once in staging's own log (an event `frozen-copy-removed` with its size). The production key `alef-duel-telemetry`
+    stays untouched and byte-identical forever (the production build never deletes it, and the staging build cannot
+    see it). The Data section shows each log's size.
 
 ## Order and parallel work
 
@@ -328,8 +336,8 @@ wins. **Size:** M.
       `choice` (`via: 'tower'`) joined to its `round`'s `target` gives the tower's latency (`msShown`) and near
       (`twin`); `replay`/`idle`/`hint`/`explain` as hints. Clock: `round` (item = `exercise:time`, ok = `correct`, near
       = `forgiven`, `ms`, chosen = the picked option, `scaffolds` as hint). Skip `gallery: true` events (the screen
-      gallery) and check whether clock rounds with `real: false` belong in the counts (ask the owner if the design doc
-      does not say). Check each field against its call site before writing it.
+      gallery). A clock round with `real: false` counts only in its item's `special` counter (Decision 14). Check each
+      field against its call site before writing it.
 - [ ] Stored at `<base>~sum-telemetry`: `{v:1, folded:[keys], dropped, days:{"YYYY-MM-DD":{minutes,runs:[…],abandons,
       items:{id:{n,wrong,near,ms:[…],chosen:{id:n}}}}}}}`. `chosen` keeps the mix-ups (the analyses ask for "his real
       mix-ups"), at most 5 per item. Latency is a small fixed histogram (median and p90 come from it, exact enough and
