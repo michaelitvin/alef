@@ -1067,7 +1067,8 @@ export class RunController {
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-    const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
+    // a word (the doors) counts towards the stage from stage 4: Hebrew's last stage (the words), English's 4–9
+    const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
       this.stage = this.save.read().stage.stage
