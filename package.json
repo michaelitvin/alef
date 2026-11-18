@@ -12,7 +12,8 @@
     "test": "vitest run",
     "depcruise": "depcruise src tools --config .dependency-cruiser.cjs",
     "knip": "knip",
-    "check": "npm run lint && npm run depcruise && npm run knip"
+    "typecheck": "tsc --noEmit -p .",
+    "check": "npm run typecheck && npm run lint && npm run depcruise && npm run knip"
   },
   "dependencies": {
     "@types/howler": "^2.2.12",

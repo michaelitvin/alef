@@ -1,0 +1,2904 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the Hebrew baseline > Hebrew broom at stage 1 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "broom",
+    },
+    {
+      "e": "flight",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "session-end",
+      "screen": "broom",
+    },
+  ],
+  "views": [
+    "broom:question:",
+    "broom:answer:",
+    "broom:answer:alef,bet,tav",
+    "broom:answer:alef,bet,tav|fe,alef,dalet",
+    "broom:answer:fe,alef,dalet",
+    "broom:answer:fe,alef,dalet|resh,dalet,alef",
+    "broom:answer:fe,alef,dalet|resh,dalet,alef|alef,samech,ayin",
+    "broom:answer:resh,dalet,alef|alef,samech,ayin",
+    "broom:answer:resh,dalet,alef|alef,samech,ayin|fe,alef,vet",
+    "broom:answer:alef,samech,ayin|fe,alef,vet",
+    "broom:answer:alef,samech,ayin|fe,alef,vet|gimel,shin,alef",
+    "broom:answer:fe,alef,vet|gimel,shin,alef",
+    "broom:answer:gimel,shin,alef",
+    "broom:answer:",
+    "broom:answer:qof,gimel,shin",
+    "broom:answer:qof,gimel,shin|alef,qof,mem",
+    "broom:answer:qof,gimel,shin|alef,qof,mem|qof,kaf,samech",
+    "broom:answer:alef,qof,mem|qof,kaf,samech",
+    "broom:answer:alef,qof,mem|qof,kaf,samech|qof,alef,samech",
+    "broom:answer:qof,kaf,samech|qof,alef,samech",
+    "broom:answer:qof,alef,samech",
+    "broom:celebrate:",
+  ],
+  "voice": [
+    "ln-alef",
+    "ln-alef",
+    "ln-alef",
+    "ln-alef",
+    "target-new-2",
+    "ln-qof",
+    "ln-qof",
+    "ln-qof",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew broom at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "broom",
+    },
+    {
+      "e": "flight",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "qof",
+    },
+    {
+      "e": "session-end",
+      "screen": "broom",
+    },
+  ],
+  "views": [
+    "broom:question:",
+    "broom:answer:",
+    "broom:answer:ayin,bet,tav",
+    "broom:answer:ayin,bet,tav|pe,lamed,bet",
+    "broom:answer:ayin,bet,tav|pe,lamed,bet|he,dalet,bet",
+    "broom:answer:pe,lamed,bet|he,dalet,bet",
+    "broom:answer:pe,lamed,bet|he,dalet,bet|bet,tav,samech",
+    "broom:answer:he,dalet,bet|bet,tav,samech",
+    "broom:answer:he,dalet,bet|bet,tav,samech|tet,bet,pe",
+    "broom:answer:bet,tav,samech|tet,bet,pe",
+    "broom:answer:bet,tav,samech|tet,bet,pe|gimel,shin,bet",
+    "broom:answer:tet,bet,pe|gimel,shin,bet",
+    "broom:answer:gimel,shin,bet",
+    "broom:answer:",
+    "broom:answer:qof,gimel,shin",
+    "broom:answer:qof,gimel,shin|alef,qof,mem",
+    "broom:answer:qof,gimel,shin|alef,qof,mem|qof,yod,samech",
+    "broom:answer:alef,qof,mem|qof,yod,samech",
+    "broom:answer:alef,qof,mem|qof,yod,samech|qof,alef,nun",
+    "broom:answer:qof,yod,samech|qof,alef,nun",
+    "broom:answer:qof,alef,nun",
+    "broom:celebrate:",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "target-new-2",
+    "ln-qof",
+    "ln-qof",
+    "ln-qof",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew broom at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "broom",
+    },
+    {
+      "e": "flight",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "session-end",
+      "screen": "broom",
+    },
+  ],
+  "views": [
+    "broom:question:",
+    "broom:answer:",
+    "broom:answer:bet,khaf,tav",
+    "broom:answer:bet,khaf,tav|bet,khaf,dalet",
+    "broom:answer:bet,khaf,dalet",
+    "broom:answer:bet,khaf,dalet|khaf,bet,vav",
+    "broom:answer:khaf,bet,vav",
+    "broom:answer:khaf,bet,vav|bet,shin,khaf",
+    "broom:answer:khaf,bet,vav|bet,shin,khaf|dalet,bet,khaf",
+    "broom:answer:bet,shin,khaf|dalet,bet,khaf",
+    "broom:answer:bet,shin,khaf|dalet,bet,khaf|bet,khaf,sin",
+    "broom:answer:dalet,bet,khaf|bet,khaf,sin",
+    "broom:answer:bet,khaf,sin",
+    "broom:answer:",
+    "broom:answer:het,tav,he",
+    "broom:answer:het,tav,he|he,tav,het",
+    "broom:answer:het,tav,he|he,tav,het|tav,het,he",
+    "broom:answer:he,tav,het|tav,het,he",
+    "broom:answer:he,tav,het|tav,het,he|he,tav,het",
+    "broom:answer:tav,het,he|he,tav,het",
+    "broom:answer:he,tav,het",
+    "broom:celebrate:",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "target-new-2",
+    "ln-he",
+    "ln-he",
+    "ln-he",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew broom at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "broom",
+    },
+    {
+      "e": "flight",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "answer",
+      "screen": "broom",
+      "target": "he",
+    },
+    {
+      "e": "session-end",
+      "screen": "broom",
+    },
+  ],
+  "views": [
+    "broom:question:",
+    "broom:answer:",
+    "broom:answer:bet,khaf,tav",
+    "broom:answer:bet,khaf,tav|bet,khaf,dalet",
+    "broom:answer:bet,khaf,dalet",
+    "broom:answer:bet,khaf,dalet|khaf,bet,vav",
+    "broom:answer:khaf,bet,vav",
+    "broom:answer:khaf,bet,vav|bet,shin,khaf",
+    "broom:answer:khaf,bet,vav|bet,shin,khaf|dalet,bet,khaf",
+    "broom:answer:bet,shin,khaf|dalet,bet,khaf",
+    "broom:answer:bet,shin,khaf|dalet,bet,khaf|bet,khaf,sin",
+    "broom:answer:dalet,bet,khaf|bet,khaf,sin",
+    "broom:answer:bet,khaf,sin",
+    "broom:answer:",
+    "broom:answer:het,tav,he",
+    "broom:answer:het,tav,he|he,tav,het",
+    "broom:answer:het,tav,he|he,tav,het|tav,het,he",
+    "broom:answer:he,tav,het|tav,het,he",
+    "broom:answer:he,tav,het|tav,het,he|he,tav,het",
+    "broom:answer:tav,het,he|he,tav,het",
+    "broom:answer:he,tav,het",
+    "broom:celebrate:",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "ln-bet",
+    "target-new-2",
+    "ln-he",
+    "ln-he",
+    "ln-he",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew cauldron at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "cauldron",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tet-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tav-tsere",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "shin-shuruk",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-sh-u",
+    },
+    {
+      "e": "explain",
+      "target": "shin-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "shin-cholam",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "shin-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "mem-segol",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-m-e",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "mem-patach",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tav-cholam-male",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "pe-chirik",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-p-i",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "lamed-chirik",
+    },
+    {
+      "e": "session-end",
+      "screen": "cauldron",
+    },
+  ],
+  "views": [
+    "cauldron:question:tet:cholam,chirik,shuruk",
+    "cauldron:answer:tet:cholam,chirik,shuruk",
+    "cauldron:feedback:tet:cholam,chirik,shuruk",
+    "cauldron:answer:tav:kubutz,chirik,tsere",
+    "cauldron:feedback:tav:kubutz,chirik,tsere",
+    "cauldron:answer:shin:tsere,shuruk,kamatz",
+    "cauldron:mistake:shin:tsere,shuruk,kamatz",
+    "cauldron:feedback:shin:tsere,shuruk,kamatz",
+    "cauldron:explain:shin:tsere,shuruk,kamatz",
+    "cauldron:answer:shin:kamatz,tsere,cholam",
+    "cauldron:feedback:shin:kamatz,tsere,cholam",
+    "cauldron:answer:shin:shuruk,tsere,patach",
+    "cauldron:feedback:shin:shuruk,tsere,patach",
+    "cauldron:answer:mem:segol,chirik,cholam",
+    "cauldron:mistake:mem:segol,chirik,cholam",
+    "cauldron:feedback:mem:segol,chirik,cholam",
+    "cauldron:answer:mem:patach,kubutz,cholam-male",
+    "cauldron:feedback:mem:patach,kubutz,cholam-male",
+    "cauldron:answer:tav:cholam-male,patach,tsere",
+    "cauldron:feedback:tav:cholam-male,patach,tsere",
+    "cauldron:answer:pe:segol,chirik,patach",
+    "cauldron:mistake:pe:segol,chirik,patach",
+    "cauldron:feedback:pe:segol,chirik,patach",
+    "cauldron:answer:lamed:tsere,cholam,chirik",
+    "cauldron:feedback:lamed:tsere,cholam,chirik",
+  ],
+  "voice": [
+    "syl-t-u",
+    "syl-t-e",
+    "syl-sh-u",
+    "syl-sh-u",
+    "syl-sh-o",
+    "syl-sh-o",
+    "syl-sh-u",
+    "syl-sh-u",
+    "syl-m-e",
+    "syl-m-e",
+    "syl-m-a",
+    "syl-m-a",
+    "syl-t-o",
+    "syl-t-o",
+    "syl-p-i",
+    "syl-p-i",
+    "syl-l-i",
+    "syl-l-i",
+    "w-lemon",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew cauldron at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "cauldron",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "khaf-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "qof-segol",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-k-e",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "khaf-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "gimel-segol",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "khaf-kubutz",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-ch-u",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "samech-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "fe-patach",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-chirik",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-s-i",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-tsere",
+    },
+    {
+      "e": "session-end",
+      "screen": "cauldron",
+    },
+  ],
+  "views": [
+    "cauldron:question:khaf:shuruk,cholam,chirik",
+    "cauldron:answer:khaf:shuruk,cholam,chirik",
+    "cauldron:feedback:khaf:shuruk,cholam,chirik",
+    "cauldron:answer:sin:tsere,chirik,cholam-male",
+    "cauldron:feedback:sin:tsere,chirik,cholam-male",
+    "cauldron:answer:qof:cholam,chirik,segol",
+    "cauldron:mistake:qof:cholam,chirik,segol",
+    "cauldron:feedback:qof:cholam,chirik,segol",
+    "cauldron:answer:khaf:tsere,chirik,cholam",
+    "cauldron:feedback:khaf:tsere,chirik,cholam",
+    "cauldron:answer:gimel:segol,shuruk,patach",
+    "cauldron:feedback:gimel:segol,shuruk,patach",
+    "cauldron:answer:khaf:kubutz,tsere,patach",
+    "cauldron:mistake:khaf:kubutz,tsere,patach",
+    "cauldron:feedback:khaf:kubutz,tsere,patach",
+    "cauldron:answer:samech:cholam-male,shuruk,chirik",
+    "cauldron:feedback:samech:cholam-male,shuruk,chirik",
+    "cauldron:answer:fe:patach,cholam-male,shuruk",
+    "cauldron:feedback:fe:patach,cholam-male,shuruk",
+    "cauldron:answer:sin:cholam,segol,chirik",
+    "cauldron:mistake:sin:cholam,segol,chirik",
+    "cauldron:feedback:sin:cholam,segol,chirik",
+    "cauldron:answer:sin:chirik,tsere,cholam",
+    "cauldron:feedback:sin:chirik,tsere,cholam",
+  ],
+  "voice": [
+    "syl-ch-u",
+    "syl-s-i",
+    "syl-k-e",
+    "syl-k-e",
+    "syl-ch-i",
+    "syl-ch-i",
+    "syl-g-e",
+    "syl-g-e",
+    "syl-ch-u",
+    "syl-ch-u",
+    "syl-s-i",
+    "syl-s-i",
+    "syl-f-a",
+    "syl-f-a",
+    "syl-s-i",
+    "syl-s-i",
+    "syl-s-e",
+    "syl-s-e",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew cauldron at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "cauldron",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "yod-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tav-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-shuruk",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-s-u",
+    },
+    {
+      "e": "explain",
+      "target": "sin-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "sin-shuruk",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "mem-patach",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-m-a",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "mem-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tav-cholam-male",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "tsadi-kamatz",
+    },
+    {
+      "e": "fix",
+      "screen": "cauldron",
+      "target": "syl-ts-a",
+    },
+    {
+      "e": "answer",
+      "screen": "cauldron",
+      "target": "lamed-chirik",
+    },
+    {
+      "e": "session-end",
+      "screen": "cauldron",
+    },
+  ],
+  "views": [
+    "cauldron:question:yod:kubutz,cholam-male,chirik",
+    "cauldron:answer:yod:kubutz,cholam-male,chirik",
+    "cauldron:feedback:yod:kubutz,cholam-male,chirik",
+    "cauldron:answer:tav:kubutz,tsere,chirik",
+    "cauldron:feedback:tav:kubutz,tsere,chirik",
+    "cauldron:answer:sin:tsere,shuruk,kamatz",
+    "cauldron:mistake:sin:tsere,shuruk,kamatz",
+    "cauldron:feedback:sin:tsere,shuruk,kamatz",
+    "cauldron:explain:sin:tsere,shuruk,kamatz",
+    "cauldron:answer:sin:kamatz,tsere,chirik",
+    "cauldron:feedback:sin:kamatz,tsere,chirik",
+    "cauldron:answer:sin:shuruk,tsere,patach",
+    "cauldron:feedback:sin:shuruk,tsere,patach",
+    "cauldron:answer:mem:patach,chirik,cholam",
+    "cauldron:mistake:mem:patach,chirik,cholam",
+    "cauldron:feedback:mem:patach,chirik,cholam",
+    "cauldron:answer:mem:chirik,kubutz,cholam-male",
+    "cauldron:feedback:mem:chirik,kubutz,cholam-male",
+    "cauldron:answer:tav:cholam-male,patach,tsere",
+    "cauldron:feedback:tav:cholam-male,patach,tsere",
+    "cauldron:answer:tsadi:chirik,kamatz,segol",
+    "cauldron:mistake:tsadi:chirik,kamatz,segol",
+    "cauldron:feedback:tsadi:chirik,kamatz,segol",
+    "cauldron:answer:lamed:tsere,cholam,chirik",
+    "cauldron:feedback:lamed:tsere,cholam,chirik",
+  ],
+  "voice": [
+    "syl-y-i",
+    "syl-t-i",
+    "syl-s-u",
+    "syl-s-u",
+    "syl-s-i",
+    "syl-s-i",
+    "syl-s-u",
+    "syl-s-u",
+    "syl-m-a",
+    "syl-m-a",
+    "syl-m-i",
+    "syl-m-i",
+    "syl-t-o",
+    "syl-t-o",
+    "syl-ts-a",
+    "syl-ts-a",
+    "syl-l-i",
+    "syl-l-i",
+    "w-lemon",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew doors at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "doors",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "book",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "fox",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "cake",
+    },
+    {
+      "e": "fix",
+      "screen": "doors",
+      "target": "w-cake",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "ball",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "rose",
+    },
+    {
+      "e": "answer",
+      "screen": "doors",
+      "target": "camel",
+    },
+    {
+      "e": "fix",
+      "screen": "doors",
+      "target": "w-camel",
+    },
+    {
+      "e": "session-end",
+      "screen": "doors",
+    },
+  ],
+  "views": [
+    "doors:question:book:book,house,dog",
+    "doors:answer:book:book,house,dog",
+    "doors:feedback:book:book,house,dog",
+    "doors:question:fox:fox,carrot,house",
+    "doors:answer:fox:fox,carrot,house",
+    "doors:feedback:fox:fox,carrot,house",
+    "doors:question:cake:camel,tent,cake",
+    "doors:answer:cake:camel,tent,cake",
+    "doors:mistake:cake:camel,tent,cake",
+    "doors:feedback:cake:camel,tent,cake",
+    "doors:question:ball:camel,cat,ball",
+    "doors:answer:ball:camel,cat,ball",
+    "doors:feedback:ball:camel,cat,ball",
+    "doors:question:rose:rose,tent,camel",
+    "doors:answer:rose:rose,tent,camel",
+    "doors:feedback:rose:rose,tent,camel",
+    "doors:question:camel:camel,carrot,rose",
+    "doors:answer:camel:camel,carrot,rose",
+    "doors:mistake:camel:camel,carrot,rose",
+    "doors:feedback:camel:camel,carrot,rose",
+  ],
+  "voice": [
+    "w-book",
+    "w-fox",
+    "w-cake",
+    "w-cake",
+    "w-ball",
+    "w-rose",
+    "w-camel",
+    "w-camel",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw at stage 1 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:feedback:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:feedback:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:feedback:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:feedback:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "w-tent",
+    "w-ball",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "w-horse",
+    "w-tent",
+    "w-tent",
+    "w-ball",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw-hand at stage 1 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw-hand",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:feedback:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:feedback:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:feedback:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:feedback:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "w-tent",
+    "w-ball",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "w-horse",
+    "w-tent",
+    "w-tent",
+    "w-ball",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw-hand at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw-hand",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw-hand at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw-hand",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew draw-hand at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "mult",
+    },
+    {
+      "e": "draw-start",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-stroke",
+    },
+    {
+      "e": "draw-mark",
+    },
+    {
+      "e": "draw-done",
+    },
+    {
+      "e": "session-end",
+      "screen": "draw-hand",
+    },
+  ],
+  "views": [
+    "draw:question:tent:א:letter",
+    "draw:demo:tent:א:letter",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:demo:ball:כ:letter",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+    "draw:answer:tent:א:letter",
+    "draw:answer:tent:א:mark",
+    "draw:answer:tent:א:done",
+    "draw:answer:ball:כ:letter",
+    "draw:answer:ball:כ:mark",
+    "draw:answer:ball:כ:done",
+    "draw:celebrate:ball:כ:done",
+    "draw:demo:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:feedback:horse:ס:letter",
+    "draw:answer:horse:ס:letter",
+    "draw:answer:horse:ס:mark",
+    "draw:answer:horse:ס:done",
+  ],
+  "voice": [
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "w-horse",
+    "draw-again-3",
+    "draw-mark-1",
+    "w-horse",
+    "w-tent",
+    "draw-mark-1",
+    "w-tent",
+    "w-ball",
+    "draw-mark-1",
+    "w-ball",
+    "mult-up-1",
+    "w-horse",
+    "draw-again-2",
+    "draw-mark-1",
+    "w-horse",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ghosts at stage 1 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "alef",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "zayin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-zayin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "het",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "mem",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "shin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-shin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "yod",
+    },
+    {
+      "e": "session-end",
+      "screen": "ghosts",
+    },
+  ],
+  "views": [
+    "ghosts:question:alef,bet,tav",
+    "ghosts:answer:alef,bet,tav",
+    "ghosts:feedback:alef,bet,tav",
+    "ghosts:answer:kaf,vav,khaf",
+    "ghosts:feedback:kaf,vav,khaf",
+    "ghosts:answer:zayin,vav,dalet",
+    "ghosts:mistake:zayin,vav,dalet",
+    "ghosts:feedback:zayin,vav,dalet",
+    "ghosts:answer:tet,resh,dalet",
+    "ghosts:feedback:tet,resh,dalet",
+    "ghosts:answer:tav,he,het",
+    "ghosts:feedback:tav,he,het",
+    "ghosts:answer:resh,gimel,dalet",
+    "ghosts:mistake:resh,gimel,dalet",
+    "ghosts:feedback:resh,gimel,dalet",
+    "ghosts:answer:fe,tet,mem",
+    "ghosts:feedback:fe,tet,mem",
+    "ghosts:answer:kaf,samech,ayin",
+    "ghosts:feedback:kaf,samech,ayin",
+    "ghosts:answer:qof,bet,shin",
+    "ghosts:mistake:qof,bet,shin",
+    "ghosts:feedback:qof,bet,shin",
+    "ghosts:answer:alef,vav,yod",
+    "ghosts:feedback:alef,vav,yod",
+  ],
+  "voice": [
+    "ln-alef",
+    "ln-kaf",
+    "ln-zayin",
+    "ln-zayin",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-het",
+    "ln-het",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-mem",
+    "ln-mem",
+    "ln-kaf",
+    "ln-kaf",
+    "ln-shin",
+    "ln-shin",
+    "ln-yod",
+    "ln-yod",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ghosts at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "tet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "tav",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "gimel",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-gimel",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "tsadi",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "mem",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "tav",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-tav",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "het",
+    },
+    {
+      "e": "session-end",
+      "screen": "ghosts",
+    },
+  ],
+  "views": [
+    "ghosts:question:ayin,bet,tav",
+    "ghosts:answer:ayin,bet,tav",
+    "ghosts:feedback:ayin,bet,tav",
+    "ghosts:answer:vav,kaf,mem",
+    "ghosts:feedback:vav,kaf,mem",
+    "ghosts:answer:pe,dalet,resh",
+    "ghosts:mistake:pe,dalet,resh",
+    "ghosts:feedback:pe,dalet,resh",
+    "ghosts:answer:zayin,tet,mem",
+    "ghosts:feedback:zayin,tet,mem",
+    "ghosts:answer:het,tav,he",
+    "ghosts:feedback:het,tav,he",
+    "ghosts:answer:dalet,nun,gimel",
+    "ghosts:mistake:dalet,nun,gimel",
+    "ghosts:feedback:dalet,nun,gimel",
+    "ghosts:answer:tsadi,ayin,bet",
+    "ghosts:feedback:tsadi,ayin,bet",
+    "ghosts:answer:mem,tet,samech",
+    "ghosts:feedback:mem,tet,samech",
+    "ghosts:answer:he,het,tav",
+    "ghosts:mistake:he,het,tav",
+    "ghosts:feedback:he,het,tav",
+    "ghosts:answer:tav,he,het",
+    "ghosts:feedback:tav,he,het",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-kaf",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-tet",
+    "ln-tet",
+    "ln-tav",
+    "ln-tav",
+    "ln-gimel",
+    "ln-gimel",
+    "ln-tsadi",
+    "ln-tsadi",
+    "ln-mem",
+    "ln-mem",
+    "ln-tav",
+    "ln-tav",
+    "ln-het",
+    "ln-het",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ghosts at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "zayin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-zayin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "het",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "mem",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "shin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-shin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "yod",
+    },
+    {
+      "e": "session-end",
+      "screen": "ghosts",
+    },
+  ],
+  "views": [
+    "ghosts:question:bet,khaf,tav",
+    "ghosts:answer:bet,khaf,tav",
+    "ghosts:feedback:bet,khaf,tav",
+    "ghosts:answer:kaf,vav,khaf",
+    "ghosts:feedback:kaf,vav,khaf",
+    "ghosts:answer:zayin,vav,dalet",
+    "ghosts:mistake:zayin,vav,dalet",
+    "ghosts:feedback:zayin,vav,dalet",
+    "ghosts:answer:tet,resh,dalet",
+    "ghosts:feedback:tet,resh,dalet",
+    "ghosts:answer:tav,he,het",
+    "ghosts:feedback:tav,he,het",
+    "ghosts:answer:resh,gimel,dalet",
+    "ghosts:mistake:resh,gimel,dalet",
+    "ghosts:feedback:resh,gimel,dalet",
+    "ghosts:answer:fe,tet,mem",
+    "ghosts:feedback:fe,tet,mem",
+    "ghosts:answer:kaf,samech,ayin",
+    "ghosts:feedback:kaf,samech,ayin",
+    "ghosts:answer:qof,bet,shin",
+    "ghosts:mistake:qof,bet,shin",
+    "ghosts:feedback:qof,bet,shin",
+    "ghosts:answer:alef,vav,yod",
+    "ghosts:feedback:alef,vav,yod",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-kaf",
+    "ln-zayin",
+    "ln-zayin",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-het",
+    "ln-het",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-mem",
+    "ln-mem",
+    "ln-kaf",
+    "ln-kaf",
+    "ln-shin",
+    "ln-shin",
+    "ln-yod",
+    "ln-yod",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ghosts at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "bet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "zayin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-zayin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "het",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "dalet",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-dalet",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "mem",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "kaf",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "shin",
+    },
+    {
+      "e": "fix",
+      "screen": "ghosts",
+      "target": "ln-shin",
+    },
+    {
+      "e": "answer",
+      "screen": "ghosts",
+      "target": "yod",
+    },
+    {
+      "e": "session-end",
+      "screen": "ghosts",
+    },
+  ],
+  "views": [
+    "ghosts:question:bet,khaf,tav",
+    "ghosts:answer:bet,khaf,tav",
+    "ghosts:feedback:bet,khaf,tav",
+    "ghosts:answer:kaf,vav,khaf",
+    "ghosts:feedback:kaf,vav,khaf",
+    "ghosts:answer:zayin,vav,dalet",
+    "ghosts:mistake:zayin,vav,dalet",
+    "ghosts:feedback:zayin,vav,dalet",
+    "ghosts:answer:tet,resh,dalet",
+    "ghosts:feedback:tet,resh,dalet",
+    "ghosts:answer:tav,he,het",
+    "ghosts:feedback:tav,he,het",
+    "ghosts:answer:resh,gimel,dalet",
+    "ghosts:mistake:resh,gimel,dalet",
+    "ghosts:feedback:resh,gimel,dalet",
+    "ghosts:answer:fe,tet,mem",
+    "ghosts:feedback:fe,tet,mem",
+    "ghosts:answer:kaf,samech,ayin",
+    "ghosts:feedback:kaf,samech,ayin",
+    "ghosts:answer:qof,bet,shin",
+    "ghosts:mistake:qof,bet,shin",
+    "ghosts:feedback:qof,bet,shin",
+    "ghosts:answer:alef,vav,yod",
+    "ghosts:feedback:alef,vav,yod",
+  ],
+  "voice": [
+    "ln-bet",
+    "ln-kaf",
+    "ln-zayin",
+    "ln-zayin",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-het",
+    "ln-het",
+    "ln-dalet",
+    "ln-dalet",
+    "ln-mem",
+    "ln-mem",
+    "ln-kaf",
+    "ln-kaf",
+    "ln-shin",
+    "ln-shin",
+    "ln-yod",
+    "ln-yod",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ladder at stage 2 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ladder",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "kaf-kubutz",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "kaf-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "kaf-cholam-male",
+    },
+    {
+      "e": "fix",
+      "screen": "ladder",
+      "target": "syl-k-o",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "kaf-tsere",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "kaf-kamatz",
+    },
+    {
+      "e": "session-end",
+      "screen": "ladder",
+    },
+  ],
+  "views": [
+    "ladder:question:|kaf-kamatz,kaf-kubutz,kaf-segol",
+    "ladder:answer:|kaf-kamatz,kaf-kubutz,kaf-segol",
+    "ladder:feedback:kaf-kubutz|",
+    "ladder:answer:kaf-kubutz|kaf-chirik,kaf-kubutz,kaf-cholam",
+    "ladder:feedback:kaf-kubutz,kaf-chirik|",
+    "ladder:answer:kaf-kubutz,kaf-chirik|kaf-segol,kaf-chirik,kaf-cholam-male",
+    "ladder:mistake:kaf-kubutz,kaf-chirik|kaf-segol,kaf-chirik,kaf-cholam-male",
+    "ladder:feedback:kaf-kubutz,kaf-chirik,kaf-cholam-male|",
+    "ladder:answer:kaf-kubutz,kaf-chirik,kaf-cholam-male|kaf-patach,kaf-shuruk,kaf-tsere",
+    "ladder:feedback:kaf-kubutz,kaf-chirik,kaf-cholam-male,kaf-tsere|",
+    "ladder:answer:kaf-kubutz,kaf-chirik,kaf-cholam-male,kaf-tsere|kaf-chirik,kaf-kamatz,kaf-tsere",
+    "ladder:feedback:kaf-kubutz,kaf-chirik,kaf-cholam-male,kaf-tsere,kaf-kamatz|",
+    "ladder:celebrate:kaf-kubutz,kaf-chirik,kaf-cholam-male,kaf-tsere,kaf-kamatz|",
+  ],
+  "voice": [
+    "syl-k-u",
+    "syl-k-i",
+    "syl-k-o",
+    "syl-k-o",
+    "syl-k-e",
+    "syl-k-e",
+    "syl-k-a",
+    "syl-k-a",
+    "ladder-top-2",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ladder at stage 3 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ladder",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "fe-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "vet-cholam-male",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "sin-segol",
+    },
+    {
+      "e": "fix",
+      "screen": "ladder",
+      "target": "syl-s-e",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "shin-patach",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "sin-kubutz",
+    },
+    {
+      "e": "session-end",
+      "screen": "ladder",
+    },
+  ],
+  "views": [
+    "ladder:question:|khaf-chirik,pe-chirik,fe-chirik",
+    "ladder:answer:|khaf-chirik,pe-chirik,fe-chirik",
+    "ladder:feedback:fe-chirik|",
+    "ladder:answer:fe-chirik|he-cholam-male,vet-cholam-male,bet-cholam-male",
+    "ladder:feedback:fe-chirik,vet-cholam-male|",
+    "ladder:answer:fe-chirik,vet-cholam-male|shin-segol,dalet-segol,sin-segol",
+    "ladder:mistake:fe-chirik,vet-cholam-male|shin-segol,dalet-segol,sin-segol",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol|",
+    "ladder:answer:fe-chirik,vet-cholam-male,sin-segol|shin-patach,mem-patach,sin-patach",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol,shin-patach|",
+    "ladder:answer:fe-chirik,vet-cholam-male,sin-segol,shin-patach|dalet-kubutz,sin-kubutz,shin-kubutz",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol,shin-patach,sin-kubutz|",
+    "ladder:celebrate:fe-chirik,vet-cholam-male,sin-segol,shin-patach,sin-kubutz|",
+  ],
+  "voice": [
+    "syl-f-i",
+    "syl-v-o",
+    "syl-s-e",
+    "syl-s-e",
+    "syl-sh-a",
+    "syl-sh-a",
+    "syl-s-u",
+    "syl-s-u",
+    "ladder-top-2",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > Hebrew ladder at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "ladder",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "fe-chirik",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "vet-cholam-male",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "sin-segol",
+    },
+    {
+      "e": "fix",
+      "screen": "ladder",
+      "target": "syl-s-e",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "shin-patach",
+    },
+    {
+      "e": "answer",
+      "screen": "ladder",
+      "target": "sin-kubutz",
+    },
+    {
+      "e": "session-end",
+      "screen": "ladder",
+    },
+  ],
+  "views": [
+    "ladder:question:|khaf-chirik,pe-chirik,fe-chirik",
+    "ladder:answer:|khaf-chirik,pe-chirik,fe-chirik",
+    "ladder:feedback:fe-chirik|",
+    "ladder:answer:fe-chirik|he-cholam-male,vet-cholam-male,bet-cholam-male",
+    "ladder:feedback:fe-chirik,vet-cholam-male|",
+    "ladder:answer:fe-chirik,vet-cholam-male|shin-segol,dalet-segol,sin-segol",
+    "ladder:mistake:fe-chirik,vet-cholam-male|shin-segol,dalet-segol,sin-segol",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol|",
+    "ladder:answer:fe-chirik,vet-cholam-male,sin-segol|shin-patach,mem-patach,sin-patach",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol,shin-patach|",
+    "ladder:answer:fe-chirik,vet-cholam-male,sin-segol,shin-patach|dalet-kubutz,sin-kubutz,shin-kubutz",
+    "ladder:feedback:fe-chirik,vet-cholam-male,sin-segol,shin-patach,sin-kubutz|",
+    "ladder:celebrate:fe-chirik,vet-cholam-male,sin-segol,shin-patach,sin-kubutz|",
+  ],
+  "voice": [
+    "syl-f-i",
+    "syl-v-o",
+    "syl-s-e",
+    "syl-s-e",
+    "syl-sh-a",
+    "syl-sh-a",
+    "syl-s-u",
+    "syl-s-u",
+    "ladder-top-2",
+  ],
+}
+`;
+
+exports[`the Hebrew baseline > a fresh Hebrew save 1`] = `"{"stage":{"stage":1,"newAnswers":""},"tallies":{},"recent":{},"confusions":{"letters":{},"vowels":{},"syllables":{}},"pace":1,"lastEnded":null,"demosSeen":[],"dotIntrosSeen":[],"hintsSeen":{},"mistakes":[],"roundNo":0,"runs":0,"bestRun":0,"crystals":0,"totalStars":0,"coins":0,"praiseHeard":{},"drawRounds":0,"bossesBeaten":[],"bossNewHeard":[],"lastBoss":null,"potionIntroSeen":false,"merchant":{"visits":0,"purchases":0,"declines":0,"short":0,"over":0,"hints":0,"level":0,"demoSeen":false,"undoShown":false,"cleanRow":0,"hintRow":0},"checkpointsSinceVisit":999,"towerWave":1,"towerVisits":0,"towerOwed":[],"bookOpen":false,"towerTail":"","firstDuelImported":false,"cycleNo":0,"broomSessions":0,"settings":{"sfx":true,"music":true,"volume":0.8,"drawing":true,"range":100},"strokeMarks":{}}"`;
+
+exports[`the Hebrew baseline > the cycle at stage 1 1`] = `
+[
+  "tower",
+  "broom",
+  "ghosts",
+  "draw",
+  "draw-hand",
+]
+`;
+
+exports[`the Hebrew baseline > the cycle at stage 2 1`] = `
+[
+  "tower",
+  "broom",
+  "cauldron",
+  "ladder",
+  "ghosts",
+  "draw",
+  "draw-hand",
+]
+`;
+
+exports[`the Hebrew baseline > the cycle at stage 3 1`] = `
+[
+  "tower",
+  "broom",
+  "cauldron",
+  "ladder",
+  "ghosts",
+  "draw",
+  "draw-hand",
+]
+`;
+
+exports[`the Hebrew baseline > the cycle at stage 4 1`] = `
+[
+  "tower",
+  "broom",
+  "cauldron",
+  "ladder",
+  "ghosts",
+  "doors",
+  "draw",
+  "draw-hand",
+]
+`;
