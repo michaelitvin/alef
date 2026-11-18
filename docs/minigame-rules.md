@@ -412,7 +412,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   need to press the left arrow". Use the play triangle for every next button (the clock game does).
 - Make the background fill the whole screen on any shape of screen. Keep the game area fixed and extend the background
   around it. Example (book 2): wide phones showed black bars on both sides.
-- Target device: an older Android tablet in landscape. A phone on its side keeps the portrait layout.
+- Target device: an older Android tablet in landscape. Choose the layout by the screen's current shape: a phone on its
+  side gets the landscape layout, as the tablet does; a phone held upright gets the portrait layout. When the screen
+  turns, change the layout and keep the round.
+  Reason: the parent (2026-11-18): the portrait layout shrunk into a phone on its side made the planets too small to tap.
 
 ## Game play and learning
 
