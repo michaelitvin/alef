@@ -2,7 +2,7 @@
 // parent approved in the plan mock; the planets' scale curve is the original's. Every string drawn on the canvas goes
 // through drawText(), so that the no-text scan sees it.
 import type { Layout } from '../layout'
-import { LOGICAL } from '../layout'
+import { LOGICAL, layoutFor } from '../layout'
 import { TEST_HOOKS } from '../testHooks'
 import { HAND_CUFF, HAND_PATH } from './handPath'
 
@@ -52,9 +52,27 @@ export const GEOM: Record<Layout, Geom> = {
   },
   portrait: {
     W: LOGICAL.portrait.w, H: LOGICAL.portrait.h, lanes: [0.125, 0.375, 0.625, 0.875].map((f) => f * LOGICAL.portrait.w), shipY: portShipY, shipS: portShipS,
-    R: portR, y0: 300, yArr: portShipY - portShipS * 0.5 - portR, topY: 50, dotX: 84, dotStep: 21, dotR: 8, heartS: 0.62,
-    heartX: 503, heartStep: 41, pointsSize: 50, starGap: 70, houseW: 70, box: { cy: 160, h: 104, font: 68, gap: 18 }, k: 0.62,
+    R: portR, y0: 300, yArr: portShipY - portShipS * 0.5 - portR, topY: 50, dotX: 108, dotStep: 17, dotR: 7, heartS: 0.62,
+    heartX: 503, heartStep: 41, pointsSize: 50, starGap: 70, houseW: 96, box: { cy: 160, h: 104, font: 68, gap: 18 }, k: 0.62,
   },
+}
+
+/** the held house's size and its inset from the screen's edge (CSS px; src/shared/HomeButton.tsx) */
+export const HOUSE_PX = 56, HOUSE_INSET = 8
+
+/**
+ * Where the held house sits on a screen of w × h CSS px: on the top bar's row, in the corner the bar keeps free, and
+ * always clear of the first progress dot. A phone on its side letterboxes the game area: the house then sits just left
+ * of the area.
+ */
+export function housePlace(w: number, h: number): { left: number; top: number } {
+  const G = GEOM[layoutFor(w, h)], f = fit(G, w, h)
+  const centred = f.ox + (G.houseW / 2) * f.scale - HOUSE_PX / 2
+  const beforeDots = f.ox + (G.dotX - G.dotR) * f.scale - HOUSE_PX - 4
+  const top = Math.max(HOUSE_INSET, f.oy + G.topY * f.scale - HOUSE_PX / 2)
+  // a letterboxed area with room beside it: the house just left of the area, clear of the bar and the sum box
+  if (f.ox >= HOUSE_PX + 2 * HOUSE_INSET) return { left: f.ox - HOUSE_PX - HOUSE_INSET, top }
+  return { left: Math.max(HOUSE_INSET, Math.min(centred, beforeDots)), top }
 }
 
 /** A planet's centre and radius at progress p (0 = start, 1 = at the ship's row), with its vertical offset. */

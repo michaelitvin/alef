@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { layoutFor } from '../layout'
-import { GEOM, MAX_OFFSET, drawText, fit, planetPos } from './draw'
+import { GEOM, HOUSE_INSET, HOUSE_PX, MAX_OFFSET, drawText, fit, housePlace, planetPos } from './draw'
 import { recordingContext } from './testCanvas'
 
 const SCREENS: [number, number][] = [[1280, 800], [412, 915], [915, 412]]
@@ -43,6 +43,14 @@ describe('drawing', () => {
     for (const G of [GEOM.wide, GEOM.portrait]) {
       expect(G.yArr + G.R).toBeLessThanOrEqual(G.shipY - G.shipS * 0.5)
       expect(G.dotX - G.dotR).toBeGreaterThanOrEqual(G.houseW)
+    }
+  })
+  it('the held house sits clear of the progress dots on phones and tablets, either way up', () => {
+    for (const [w, h] of [[360, 780], [412, 915], [780, 360], [915, 412], [1024, 600], [1280, 800], [800, 1280]]) {
+      const G = GEOM[layoutFor(w, h)], f = fit(G, w, h), at = housePlace(w, h)
+      expect(at.left).toBeGreaterThanOrEqual(HOUSE_INSET)
+      expect(at.top).toBeGreaterThanOrEqual(HOUSE_INSET)
+      expect(at.left + HOUSE_PX).toBeLessThanOrEqual(f.ox + (G.dotX - G.dotR) * f.scale)
     }
   })
 })
