@@ -1,5 +1,6 @@
-// Book 2 telemetry (localStorage 'alef-duel2-telemetry', see ./telemetryLog.ts), exported from the parent area. Its cap
-// is TELEMETRY_CAPS.book2 (a quarter of it in the staging build); past it the oldest events go.
+// Book 2 telemetry (localStorage 'alef-duel2-telemetry' and its sealed chunks, see ./telemetryLog.ts), exported from the parent area.
+// Every game's live logs share one budget (LIVE_BUDGET in src/shared/telemetryBudget.ts); past it the oldest sealed
+// chunk of any log goes, folded into its log's roll-up first.
 import { createTelemetry } from '../shared/telemetry'
 import { BOOK2_LOG } from './telemetryLog'
 

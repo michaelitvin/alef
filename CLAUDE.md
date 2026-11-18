@@ -18,7 +18,7 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 - Decisions: [ADR 0001](docs/adr/0001-staging-shares-the-origin.md) staging, [0002](docs/adr/0002-first-duel-is-book-2s-tower.md)
   the tower, [0003](docs/adr/0003-audio-through-a-player-port.md) audio, [0004](docs/adr/0004-one-telemetry-log-per-game.md)
   telemetry, [0005](docs/adr/0005-run-policies-and-the-sleeper.md) run policies, [0006](docs/adr/0006-review-decisions-are-an-event-log.md)
-  asset review.
+  asset review, [0007](docs/adr/0007-compact-telemetry-in-localstorage.md) compact telemetry and its one budget.
 - Designs and build plans: `docs/superpowers/specs/` and `docs/superpowers/plans/`, newest date wins. `specs/` (speckit,
   2025) is history only.
 - The TTS worker: `worker/` (deployed by hand with `wrangler deploy`). Audio catalog exports: `scripts/<game>/`.

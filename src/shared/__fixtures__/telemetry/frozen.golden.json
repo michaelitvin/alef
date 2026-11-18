@@ -1,0 +1,34 @@
+{
+ "v": 2,
+ "exportedAt": "2026-11-20T08:00:00.000Z",
+ "since": null,
+ "games": [
+  {
+   "key": "alef-duel-telemetry",
+   "about": {
+    "game": "Nikkud Wizard Duel (vowel marks): its log from before it became the tower of Book 2",
+    "repo": "https://github.com/michaelitvin/alef",
+    "docs": [
+     "docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md",
+     "docs/adr/0004-one-telemetry-log-per-game.md",
+     "docs/minigame-rules.md"
+    ],
+    "code": [
+     "src/hooks/useDuelGame.ts"
+    ],
+    "howToAnalyse": "Clone https://github.com/michaelitvin/alef, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the docs above (the telemetry section of each design says what every event means) and the code that sends the events, then analyse the child's progress: accuracy per screen and over time, his real mix-ups, where runs end, and what to change."
+   },
+   "events": [
+    {
+     "t": 1760000000000,
+     "s": "mf1abc-x1y2z",
+     "run": 2,
+     "e": "choice",
+     "key": "segol",
+     "pos": 2,
+     "ms": 1840
+    }
+   ]
+  }
+ ]
+}

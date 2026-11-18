@@ -3,9 +3,13 @@
 import { book2Parent } from '../duel2/parent'
 import { clockParent } from '../clock/parent'
 import { lessonsParent } from '../lessons/parent'
+import { registerTelemetryLogs } from '../shared/telemetry'
 import type { GameId, GameParent } from './types'
 
 export const GAMES: readonly GameParent[] = [book2Parent, clockParent, lessonsParent]
+
+// Core seals, folds and evicts every game's log, so it must know them all on every page (each game page loads this).
+registerTelemetryLogs(GAMES.flatMap((g) => g.logs ?? []))
 
 export const gameParent = (id: GameId): GameParent => GAMES.find((g) => g.id === id)!
 

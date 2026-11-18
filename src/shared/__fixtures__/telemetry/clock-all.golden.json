@@ -1,0 +1,5014 @@
+{
+ "v": 2,
+ "exportedAt": "2026-11-20T08:00:00.000Z",
+ "since": null,
+ "games": [
+  {
+   "key": "alef-clock-telemetry",
+   "about": {
+    "game": "Clock workshop (reading an analogue clock), at /clock/",
+    "repo": "https://github.com/michaelitvin/alef",
+    "docs": [
+     "docs/superpowers/specs/2026-10-15-clock-workshop-design.md",
+     "docs/minigame-rules.md"
+    ],
+    "code": [
+     "src/clock/telemetry.ts"
+    ],
+    "howToAnalyse": "Clone https://github.com/michaelitvin/alef, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the docs above (the telemetry section of each design says what every event means) and the code that sends the events, then analyse the child's progress: accuracy per screen and over time, his real mix-ups, where runs end, and what to change."
+   },
+   "events": [
+    {
+     "t": 1790870220904,
+     "s": "muppw1k0-lw4do",
+     "run": 3,
+     "e": "round",
+     "exercise": "find",
+     "lang": "he",
+     "time": "4-30",
+     "level": 4,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 5.67,
+       "minute": 40
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 4969,
+     "script": "small",
+     "audio": [
+      "he-4-00"
+     ],
+     "resumed": false,
+     "predicted": 0.98,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1790870224159,
+     "s": "muppw1k0-lw4do",
+     "run": 3,
+     "e": "hint",
+     "hint": "arrow",
+     "time": "11-8",
+     "exercise": "digitalSet"
+    },
+    {
+     "t": 1790870227744,
+     "s": "muppw1k0-lw4do",
+     "run": 4,
+     "e": "explain",
+     "id": "hour-hand",
+     "trigger": "new",
+     "lang": "he"
+    },
+    {
+     "t": 1790870230324,
+     "s": "muppw1k0-lw4do",
+     "run": 4,
+     "e": "explain-again",
+     "id": "half-past",
+     "lang": "he"
+    },
+    {
+     "t": 1790870236192,
+     "s": "muppw1k0-lw4do",
+     "run": 4,
+     "e": "levelup",
+     "to": 5
+    },
+    {
+     "t": 1790959803891,
+     "s": "mur781xc-gs5s7",
+     "run": 2,
+     "e": "workday",
+     "gears": 3,
+     "bonus": 3
+    },
+    {
+     "t": 1790959811504,
+     "s": "mur781xc-gs5s7",
+     "run": 2,
+     "e": "pause",
+     "phase": "ask"
+    },
+    {
+     "t": 1790959817192,
+     "s": "mur781xc-gs5s7",
+     "run": 2,
+     "e": "abandon",
+     "served": 4,
+     "phase": "bonus"
+    },
+    {
+     "t": 1791042544728,
+     "s": "muskhgio-x2qkt",
+     "run": 4,
+     "e": "bonus",
+     "try": 3,
+     "angle": -71.6,
+     "gears": 0
+    },
+    {
+     "t": 1791042551485,
+     "s": "muskhgio-x2qkt",
+     "run": 4,
+     "e": "player",
+     "gender": "girl",
+     "by": "child"
+    },
+    {
+     "t": 1791042557159,
+     "s": "muskhgio-x2qkt",
+     "run": 4,
+     "e": "settings",
+     "keys": [
+      "langs",
+      "sfx"
+     ],
+     "langs": [
+      "he",
+      "en"
+     ],
+     "sfx": false
+    },
+    {
+     "t": 1791042562672,
+     "s": "muskhgio-x2qkt",
+     "run": 4,
+     "e": "voice-fallback",
+     "id": "he-6-00"
+    },
+    {
+     "t": 1791217808755,
+     "s": "muvgtw00-pkuv6",
+     "run": 1,
+     "e": "storage-persist",
+     "g": "clock",
+     "persisted": false
+    },
+    {
+     "t": 1791217815649,
+     "s": "muvgtw00-pkuv6",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "5-15",
+     "level": 7,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "7-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.7199999999999998,
+       "minute": 18
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 311,
+     "script": "cursive",
+     "audio": [
+      "he-6-00"
+     ],
+     "resumed": false,
+     "predicted": 0.06,
+     "real": true,
+     "customer": "robot"
+    },
+    {
+     "t": 1791217822044,
+     "s": "muvgtw00-pkuv6",
+     "run": 1,
+     "e": "pause",
+     "g": "clock",
+     "phase": "feedback"
+    },
+    {
+     "t": 1791295320736,
+     "s": "muwqzetc-e7tpn",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "4-30",
+     "level": 2,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 2294,
+     "script": "caps",
+     "audio": [
+      "he-3-45"
+     ],
+     "resumed": false,
+     "predicted": 0.74,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791295327484,
+     "s": "muwqzetc-e7tpn",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "10-15",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "11-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 8.58,
+       "minute": 45
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 1123,
+     "script": "small",
+     "audio": [
+      "he-10-15"
+     ],
+     "resumed": false,
+     "predicted": 0.14,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1791295336400,
+     "s": "muwqzetc-e7tpn",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "7-15",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "4-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 2235,
+     "script": "caps",
+     "audio": [
+      "he-7-30"
+     ],
+     "resumed": false,
+     "predicted": 0.35,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1791295341034,
+     "s": "muwqzetc-e7tpn",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "9-00",
+     "level": 2,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "5-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5136,
+     "script": "small",
+     "audio": [
+      "he-2-00"
+     ],
+     "resumed": false,
+     "predicted": 0.68,
+     "real": true,
+     "customer": "robot"
+    },
+    {
+     "t": 1791382988701,
+     "s": "muy769pc-dssfv",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "10-30",
+     "level": 8,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "12-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 4593,
+     "script": "cursive",
+     "audio": [
+      "he-9-40"
+     ],
+     "resumed": false,
+     "predicted": 0.97,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1791382992355,
+     "s": "muy769pc-dssfv",
+     "run": 4,
+     "e": "workday",
+     "g": "clock",
+     "gears": 1,
+     "bonus": 3
+    },
+    {
+     "t": 1791382998466,
+     "s": "muy769pc-dssfv",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "7-30",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 9253,
+     "script": "print",
+     "audio": [
+      "he-5-45"
+     ],
+     "resumed": false,
+     "predicted": 0.71,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1791383000111,
+     "s": "muy769pc-dssfv",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "1-30",
+     "level": 1,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 13052,
+     "script": "caps",
+     "audio": [
+      "he-3-30"
+     ],
+     "resumed": false,
+     "predicted": 0.16,
+     "real": true,
+     "customer": "pilot"
+    },
+    {
+     "t": 1791564485948,
+     "s": "mv178g00-uvk56",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "1-45",
+     "level": 2,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "12-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3398,
+     "script": "print",
+     "audio": [
+      "he-11-00"
+     ],
+     "resumed": false,
+     "predicted": 0.86,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791564489663,
+     "s": "mv178g00-uvk56",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "6-15",
+     "level": 5,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 2619,
+     "script": "small",
+     "audio": [
+      "he-4-00"
+     ],
+     "early": true,
+     "msFromAsk": 2011,
+     "resumed": false,
+     "predicted": 0.24,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791564490369,
+     "s": "mv178g00-uvk56",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "he",
+     "time": "10-15",
+     "level": 2,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "4-00",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.67,
+       "minute": 25
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 886,
+     "script": "small",
+     "audio": [
+      "he-9-40"
+     ],
+     "resumed": false,
+     "predicted": 0.21,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1791639780692,
+     "s": "mv2g2duo-b6cpa",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "he",
+     "time": "11-30",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "4-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 12570,
+     "script": "caps",
+     "audio": [
+      "he-4-30"
+     ],
+     "resumed": false,
+     "predicted": 0.4,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1791639783757,
+     "s": "mv2g2duo-b6cpa",
+     "run": 3,
+     "e": "abandon",
+     "g": "clock",
+     "served": 1,
+     "phase": "bonus"
+    },
+    {
+     "t": 1791639783999,
+     "s": "mv2g2duo-b6cpa",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "12-05",
+     "level": 7,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "5-00",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 4453,
+     "script": "print",
+     "audio": [
+      "he-11-30"
+     ],
+     "early": true,
+     "msFromAsk": 2646,
+     "resumed": false,
+     "predicted": 0.14,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1791639783999,
+     "s": "mv2g2duo-b6cpa",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "3-00",
+     "level": 3,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 6712,
+     "script": "cursive",
+     "audio": [
+      "he-2-00"
+     ],
+     "resumed": false,
+     "predicted": 0.2,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1791639791623,
+     "s": "mv2g2duo-b6cpa",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "9-30",
+     "level": 4,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "9-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "8-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.57,
+       "minute": 5
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 10477,
+     "script": "print",
+     "audio": [
+      "he-4-30"
+     ],
+     "resumed": false,
+     "predicted": 0.38,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1791735601823,
+     "s": "mv41451c-qq5yo",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "8-05",
+     "level": 1,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "3-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 1567,
+     "script": "cursive",
+     "audio": [
+      "he-11-30"
+     ],
+     "resumed": false,
+     "predicted": 0.08,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1791735605100,
+     "s": "mv41451c-qq5yo",
+     "run": 4,
+     "e": "pause",
+     "g": "clock",
+     "phase": "answer"
+    },
+    {
+     "t": 1791735607080,
+     "s": "mv41451c-qq5yo",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "7-05",
+     "level": 3,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "confusion",
+     "ms": 5966,
+     "script": "small",
+     "audio": [
+      "he-8-40"
+     ],
+     "resumed": false,
+     "predicted": 0.08,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791735615497,
+     "s": "mv41451c-qq5yo",
+     "run": 4,
+     "e": "storage-persist",
+     "g": "clock",
+     "persisted": true
+    },
+    {
+     "t": 1791911526086,
+     "s": "mv6xups0-qswi3",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "8-05",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "9-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5104,
+     "script": "cursive",
+     "audio": [
+      "he-2-00"
+     ],
+     "resumed": false,
+     "predicted": 0.14,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1791911529811,
+     "s": "mv6xups0-qswi3",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "1-45",
+     "level": 1,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "10-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 13259,
+     "script": "print",
+     "audio": [
+      "he-9-45"
+     ],
+     "resumed": false,
+     "predicted": 0.29,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791911535446,
+     "s": "mv6xups0-qswi3",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "1-45",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-30",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-15",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 9230,
+     "script": "caps",
+     "audio": [
+      "he-8-00"
+     ],
+     "resumed": false,
+     "predicted": 0.06,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1791984301420,
+     "s": "mv856n6o-y9z0w",
+     "run": 1,
+     "e": "storage-persist",
+     "g": "clock",
+     "persisted": true
+    },
+    {
+     "t": 1791984309038,
+     "s": "mv856n6o-y9z0w",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "he",
+     "time": "1-40",
+     "level": 4,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-30",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.41,
+       "minute": 20
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 2586,
+     "script": "caps",
+     "audio": [
+      "he-2-45"
+     ],
+     "resumed": false,
+     "predicted": 0.81,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1791984309336,
+     "s": "mv856n6o-y9z0w",
+     "run": 1,
+     "e": "player",
+     "g": "clock",
+     "gender": "boy",
+     "by": "child"
+    },
+    {
+     "t": 1792079827286,
+     "s": "mv9q1yw0-kmb3u",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "8-40",
+     "level": 5,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "1-00",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 11007,
+     "script": "cursive",
+     "audio": [
+      "he-3-40"
+     ],
+     "resumed": false,
+     "predicted": 0.95,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792079827286,
+     "s": "mv9q1yw0-kmb3u",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "1-05",
+     "level": 7,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "9-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "9-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 10.78,
+       "minute": 33
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3547,
+     "script": "caps",
+     "audio": [
+      "he-3-05"
+     ],
+     "resumed": false,
+     "predicted": 0.11,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1792079834400,
+     "s": "mv9q1yw0-kmb3u",
+     "run": 4,
+     "e": "pause",
+     "g": "clock",
+     "phase": "answer"
+    },
+    {
+     "t": 1792079842669,
+     "s": "mv9q1yw0-kmb3u",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "4-45",
+     "level": 4,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "4-40",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-15",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 14112,
+     "script": "print",
+     "audio": [
+      "he-4-40"
+     ],
+     "resumed": false,
+     "predicted": 0.87,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1792253404302,
+     "s": "mvclee2o-8iw0a",
+     "run": 4,
+     "e": "storage-persist",
+     "g": "clock",
+     "persisted": false
+    },
+    {
+     "t": 1792253407551,
+     "s": "mvclee2o-8iw0a",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "2-45",
+     "level": 1,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 9.47,
+       "minute": 19
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 13849,
+     "script": "cursive",
+     "audio": [
+      "he-9-05"
+     ],
+     "resumed": false,
+     "predicted": 0.35,
+     "real": true,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792253415263,
+     "s": "mvclee2o-8iw0a",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "6-40",
+     "level": 7,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-15",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 11.01,
+       "minute": 19
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5987,
+     "script": "print",
+     "audio": [
+      "he-11-00"
+     ],
+     "early": true,
+     "msFromAsk": 927,
+     "resumed": false,
+     "predicted": 0.26,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792253420413,
+     "s": "mvclee2o-8iw0a",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "1-05",
+     "level": 1,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "3-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "8-05",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 14793,
+     "script": "print",
+     "audio": [
+      "he-8-05"
+     ],
+     "resumed": false,
+     "predicted": 0.87,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1792343401593,
+     "s": "mve2zeio-82oo7",
+     "run": 4,
+     "e": "explain",
+     "g": "clock",
+     "id": "half-past",
+     "trigger": "new",
+     "lang": "he"
+    },
+    {
+     "t": 1792343405717,
+     "s": "mve2zeio-82oo7",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "he",
+     "time": "9-00",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-45",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 11909,
+     "script": "print",
+     "audio": [
+      "he-6-05"
+     ],
+     "resumed": false,
+     "predicted": 0.52,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792343407134,
+     "s": "mve2zeio-82oo7",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "7-30",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "4-30",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "3-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 5.98,
+       "minute": 11
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 13710,
+     "script": "cursive",
+     "audio": [
+      "he-12-00"
+     ],
+     "resumed": false,
+     "predicted": 0.47,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792343414109,
+     "s": "mve2zeio-82oo7",
+     "run": 4,
+     "e": "player",
+     "g": "clock",
+     "gender": "girl",
+     "by": "child"
+    },
+    {
+     "t": 1792423504798,
+     "s": "mvfeo82o-dtf9j",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "1-15",
+     "level": 1,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-00",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "10-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5172,
+     "script": "small",
+     "audio": [
+      "he-11-40"
+     ],
+     "resumed": false,
+     "predicted": 0.37,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792423510622,
+     "s": "mvfeo82o-dtf9j",
+     "run": 1,
+     "e": "pause",
+     "g": "clock",
+     "phase": "feedback"
+    },
+    {
+     "t": 1792423518431,
+     "s": "mvfeo82o-dtf9j",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "he",
+     "time": "8-05",
+     "level": 3,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "10-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": true,
+     "tag": "mirror",
+     "ms": 6532,
+     "script": "caps",
+     "audio": [
+      "he-8-00"
+     ],
+     "resumed": false,
+     "predicted": 0.46,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792593124828,
+     "s": "mvi7nrpc-5pla7",
+     "run": 2,
+     "e": "abandon",
+     "g": "clock",
+     "served": 8
+    },
+    {
+     "t": 1792593131844,
+     "s": "mvi7nrpc-5pla7",
+     "run": 2,
+     "e": "explain",
+     "g": "clock",
+     "id": "hour-hand",
+     "trigger": "new",
+     "lang": "en"
+    },
+    {
+     "t": 1792593134525,
+     "s": "mvi7nrpc-5pla7",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "9-15",
+     "level": 5,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "11-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.15,
+       "minute": 12
+      }
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": false,
+     "forgiven": true,
+     "tag": "mirror",
+     "ms": 1020,
+     "script": "caps",
+     "audio": [
+      "he-2-30"
+     ],
+     "resumed": false,
+     "predicted": 0.78,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1792593135382,
+     "s": "mvi7nrpc-5pla7",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "2-45",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "9-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "3-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3255,
+     "script": "small",
+     "audio": [
+      "he-3-15"
+     ],
+     "resumed": false,
+     "predicted": 0.52,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792593138619,
+     "s": "mvi7nrpc-5pla7",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "6-00",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-00",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 8673,
+     "script": "print",
+     "audio": [
+      "he-4-00"
+     ],
+     "resumed": false,
+     "predicted": 1,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792678502350,
+     "s": "mvjmhrc0-bo082",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "6-40",
+     "level": 3,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "3-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "12-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.9699999999999998,
+       "minute": 47
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3309,
+     "script": "print",
+     "audio": [
+      "he-3-45"
+     ],
+     "resumed": false,
+     "predicted": 0.05,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792678505593,
+     "s": "mvjmhrc0-bo082",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "10-40",
+     "level": 1,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "7-30",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 1.43,
+       "minute": 4
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 8935,
+     "script": "print",
+     "audio": [
+      "he-3-05"
+     ],
+     "resumed": false,
+     "predicted": 0.75,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792678509536,
+     "s": "mvjmhrc0-bo082",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "4-15",
+     "level": 6,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "2-45",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": true,
+     "tag": "mirror",
+     "ms": 8721,
+     "script": "small",
+     "audio": [
+      "he-8-05"
+     ],
+     "resumed": false,
+     "predicted": 0.99,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1792764428303,
+     "s": "mvl1nbmo-2t5sf",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "1-15",
+     "level": 5,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "12-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 11951,
+     "script": "cursive",
+     "audio": [
+      "he-12-00"
+     ],
+     "early": true,
+     "msFromAsk": 530,
+     "resumed": false,
+     "predicted": 0.29,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792764429691,
+     "s": "mvl1nbmo-2t5sf",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "he",
+     "time": "11-05",
+     "level": 1,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "4-30",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 9.86,
+       "minute": 16
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 6685,
+     "script": "cursive",
+     "audio": [
+      "he-10-40"
+     ],
+     "resumed": false,
+     "predicted": 0.55,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1792764431284,
+     "s": "mvl1nbmo-2t5sf",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "10-05",
+     "level": 2,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-15",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 8401,
+     "script": "caps",
+     "audio": [
+      "he-7-00"
+     ],
+     "resumed": false,
+     "predicted": 0.47,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792764437857,
+     "s": "mvl1nbmo-2t5sf",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "7-45",
+     "level": 7,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-40",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 2350,
+     "script": "small",
+     "audio": [
+      "he-3-45"
+     ],
+     "resumed": false,
+     "predicted": 0.73,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1792764444412,
+     "s": "mvl1nbmo-2t5sf",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "7-40",
+     "level": 5,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "7-15",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": true,
+     "tag": null,
+     "ms": 786,
+     "script": "caps",
+     "audio": [
+      "he-9-45"
+     ],
+     "resumed": false,
+     "predicted": 0.43,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1792945264032,
+     "s": "mvo1bco0-jxv40",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "2-00",
+     "level": 5,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 14249,
+     "script": "caps",
+     "audio": [
+      "he-4-05"
+     ],
+     "resumed": false,
+     "predicted": 0.54,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792945264635,
+     "s": "mvo1bco0-jxv40",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "11-05",
+     "level": 7,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "3-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-40",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 14278,
+     "script": "small",
+     "audio": [
+      "he-12-00"
+     ],
+     "resumed": false,
+     "predicted": 0.41,
+     "real": true,
+     "customer": "robot"
+    },
+    {
+     "t": 1792945264946,
+     "s": "mvo1bco0-jxv40",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "5-45",
+     "level": 4,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "12-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 8725,
+     "script": "print",
+     "audio": [
+      "he-10-15"
+     ],
+     "resumed": false,
+     "predicted": 0.03,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1792945271661,
+     "s": "mvo1bco0-jxv40",
+     "run": 2,
+     "e": "hint",
+     "g": "clock",
+     "hint": "numbers",
+     "time": "11-16",
+     "exercise": "digitalPick"
+    },
+    {
+     "t": 1792945274652,
+     "s": "mvo1bco0-jxv40",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "2-00",
+     "level": 3,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "8-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "confusion",
+     "ms": 9027,
+     "script": "print",
+     "audio": [
+      "he-9-05"
+     ],
+     "early": true,
+     "msFromAsk": 758,
+     "resumed": false,
+     "predicted": 0.16,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1793023084320,
+     "s": "mvpbnayo-ij7ic",
+     "run": 3,
+     "e": "hint",
+     "g": "clock",
+     "hint": "arrow",
+     "time": "4-18",
+     "exercise": "set"
+    },
+    {
+     "t": 1793023088556,
+     "s": "mvpbnayo-ij7ic",
+     "run": 3,
+     "e": "pause",
+     "g": "clock",
+     "phase": "feedback"
+    },
+    {
+     "t": 1793023092515,
+     "s": "mvpbnayo-ij7ic",
+     "run": 3,
+     "e": "explain-again",
+     "g": "clock",
+     "id": "hour-hand",
+     "lang": "he"
+    },
+    {
+     "t": 1793023095262,
+     "s": "mvpbnayo-ij7ic",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "6-15",
+     "level": 1,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "2-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.49,
+       "minute": 20
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 12716,
+     "script": "cursive",
+     "audio": [
+      "he-2-40"
+     ],
+     "resumed": false,
+     "predicted": 0.22,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1793023097932,
+     "s": "mvpbnayo-ij7ic",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "11-15",
+     "level": 6,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "5-05",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "confusion",
+     "ms": 10997,
+     "script": "print",
+     "audio": [
+      "he-10-00"
+     ],
+     "resumed": false,
+     "predicted": 0.23,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1793120465251,
+     "s": "mvqxmhuo-wu8kc",
+     "run": 2,
+     "e": "levelup",
+     "g": "clock",
+     "to": 2
+    },
+    {
+     "t": 1793120470755,
+     "s": "mvqxmhuo-wu8kc",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "7-15",
+     "level": 4,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "8-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 12395,
+     "script": "small",
+     "audio": [
+      "he-11-40"
+     ],
+     "resumed": false,
+     "predicted": 0.82,
+     "real": true,
+     "customer": "nurse"
+    },
+    {
+     "t": 1793120479175,
+     "s": "mvqxmhuo-wu8kc",
+     "run": 2,
+     "e": "levelup",
+     "g": "clock",
+     "to": 6
+    },
+    {
+     "t": 1793283781744,
+     "s": "mvtmv0dc-dw34w",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "4-15",
+     "level": 7,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 10.72,
+       "minute": 33
+      }
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": true,
+     "tag": null,
+     "ms": 6267,
+     "script": "caps",
+     "audio": [
+      "he-12-30"
+     ],
+     "resumed": false,
+     "predicted": 0.32,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1793283787338,
+     "s": "mvtmv0dc-dw34w",
+     "run": 3,
+     "e": "explain",
+     "g": "clock",
+     "id": "half-past",
+     "trigger": "new",
+     "lang": "en"
+    },
+    {
+     "t": 1793283789937,
+     "s": "mvtmv0dc-dw34w",
+     "run": 3,
+     "e": "explain-again",
+     "g": "clock",
+     "id": "half-past",
+     "lang": "he"
+    },
+    {
+     "t": 1793283795755,
+     "s": "mvtmv0dc-dw34w",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "10-45",
+     "level": 6,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 9257,
+     "script": "caps",
+     "audio": [
+      "he-1-15"
+     ],
+     "resumed": false,
+     "predicted": 0.84,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793370060000,
+     "s": "mvv28ag0-dzuqk",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "10-40",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "3-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "1-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 565,
+     "script": "cursive",
+     "audio": [
+      "he-2-30"
+     ],
+     "resumed": false,
+     "predicted": 0.83,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793370063401,
+     "s": "mvv28ag0-dzuqk",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "3-30",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "3-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "10-45",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 1.6600000000000001,
+       "minute": 51
+      }
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": true,
+     "tag": "mirror",
+     "ms": 5105,
+     "script": "print",
+     "audio": [
+      "he-7-45"
+     ],
+     "early": true,
+     "msFromAsk": 2221,
+     "resumed": false,
+     "predicted": 0.34,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1793370067708,
+     "s": "mvv28ag0-dzuqk",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "12-05",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "5-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "confusion",
+     "ms": 13279,
+     "script": "small",
+     "audio": [
+      "he-12-40"
+     ],
+     "resumed": false,
+     "predicted": 0.12,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793462581025,
+     "s": "mvwlbbc0-fswlf",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "11-45",
+     "level": 7,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "11-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 6.06,
+       "minute": 44
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5756,
+     "script": "cursive",
+     "audio": [
+      "he-8-30"
+     ],
+     "resumed": false,
+     "predicted": 0.38,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1793462589817,
+     "s": "mvwlbbc0-fswlf",
+     "run": 1,
+     "e": "hint",
+     "g": "clock",
+     "hint": "numbers",
+     "time": "4-41",
+     "exercise": "set"
+    },
+    {
+     "t": 1793462591797,
+     "s": "mvwlbbc0-fswlf",
+     "run": 1,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "11-30",
+     "level": 7,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "3-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 11729,
+     "script": "small",
+     "audio": [
+      "he-12-30"
+     ],
+     "resumed": false,
+     "predicted": 0.64,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793638620000,
+     "s": "mvzi4go0-4jrqv",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "10-30",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "6-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.39,
+       "minute": 5
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 8479,
+     "script": "cursive",
+     "audio": [
+      "he-4-00"
+     ],
+     "resumed": false,
+     "predicted": 0.73,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1793638623326,
+     "s": "mvzi4go0-4jrqv",
+     "run": 4,
+     "e": "hint",
+     "g": "clock",
+     "hint": "numbers",
+     "time": "5-17",
+     "exercise": "what"
+    },
+    {
+     "t": 1793638628365,
+     "s": "mvzi4go0-4jrqv",
+     "run": 4,
+     "e": "pause",
+     "g": "clock",
+     "phase": "feedback"
+    },
+    {
+     "t": 1793720045238,
+     "s": "mw0ulkqo-vktpt",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "5-05",
+     "level": 8,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "7-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 2698,
+     "script": "small",
+     "audio": [
+      "he-4-05"
+     ],
+     "resumed": false,
+     "predicted": 0.33,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1793720047807,
+     "s": "mw0ulkqo-vktpt",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "2-40",
+     "level": 2,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "9-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 8.31,
+       "minute": 11
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 5636,
+     "script": "print",
+     "audio": [
+      "he-7-30"
+     ],
+     "resumed": false,
+     "predicted": 0.1,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793720051672,
+     "s": "mw0ulkqo-vktpt",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "2-15",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "5-30",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3422,
+     "script": "small",
+     "audio": [
+      "he-4-40"
+     ],
+     "resumed": false,
+     "predicted": 0.62,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1793720053455,
+     "s": "mw0ulkqo-vktpt",
+     "run": 3,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "1-40",
+     "level": 7,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "10-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 7632,
+     "script": "cursive",
+     "audio": [
+      "he-3-30"
+     ],
+     "early": true,
+     "msFromAsk": 2257,
+     "resumed": false,
+     "predicted": 0.69,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793806628730,
+     "s": "mw2a5aao-2ik5p",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "he",
+     "time": "1-45",
+     "level": 2,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 1786,
+     "script": "small",
+     "audio": [
+      "he-2-40"
+     ],
+     "resumed": false,
+     "predicted": 0.64,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793806636080,
+     "s": "mw2a5aao-2ik5p",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "11-30",
+     "level": 3,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-15",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "5-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 10862,
+     "script": "cursive",
+     "audio": [
+      "he-6-40"
+     ],
+     "resumed": false,
+     "predicted": 0.02,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1793806643489,
+     "s": "mw2a5aao-2ik5p",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "11-15",
+     "level": 8,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-05",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "9-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 8994,
+     "script": "cursive",
+     "audio": [
+      "he-5-15"
+     ],
+     "resumed": false,
+     "predicted": 0.9,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793806644840,
+     "s": "mw2a5aao-2ik5p",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "1-30",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-30",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "9-30",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "firstAnswer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": true,
+     "forgiven": true,
+     "tag": null,
+     "ms": 8840,
+     "script": "print",
+     "audio": [
+      "he-7-05"
+     ],
+     "resumed": false,
+     "predicted": 0.73,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793806650248,
+     "s": "mw2a5aao-2ik5p",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "en",
+     "time": "10-15",
+     "level": 7,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-45",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 10.98,
+       "minute": 2
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 11897,
+     "script": "caps",
+     "audio": [
+      "he-10-30"
+     ],
+     "resumed": false,
+     "predicted": 0.36,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1793982361537,
+     "s": "mw56s05c-3y40c",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "10-15",
+     "level": 6,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "4-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-40",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 6.61,
+       "minute": 9
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 9746,
+     "script": "cursive",
+     "audio": [
+      "he-9-05"
+     ],
+     "resumed": false,
+     "predicted": 0.84,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793982364659,
+     "s": "mw56s05c-3y40c",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "5-00",
+     "level": 7,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "12-40",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "11-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.26,
+       "minute": 27
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3471,
+     "script": "small",
+     "audio": [
+      "he-5-00"
+     ],
+     "resumed": false,
+     "predicted": 0.41,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1793982373132,
+     "s": "mw56s05c-3y40c",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "6-00",
+     "level": 5,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "9-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-05",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 6.51,
+       "minute": 6
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 13455,
+     "script": "caps",
+     "audio": [
+      "he-6-00"
+     ],
+     "resumed": false,
+     "predicted": 0.56,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1794068941560,
+     "s": "mw6mbppc-yol0s",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "6-40",
+     "level": 5,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "10-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "4-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 1
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 616,
+     "script": "small",
+     "audio": [
+      "he-2-30"
+     ],
+     "resumed": false,
+     "predicted": 0.05,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1794068942756,
+     "s": "mw6mbppc-yol0s",
+     "run": 5,
+     "e": "hint",
+     "g": "clock",
+     "hint": "arrow",
+     "time": "11-54",
+     "exercise": "what"
+    },
+    {
+     "t": 1794068950788,
+     "s": "mw6mbppc-yol0s",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "6-40",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-00",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "11-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.51,
+       "minute": 5
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 7965,
+     "script": "small",
+     "audio": [
+      "he-10-30"
+     ],
+     "resumed": false,
+     "predicted": 0.31,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1794068950788,
+     "s": "mw6mbppc-yol0s",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "en",
+     "time": "4-15",
+     "level": 8,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "4-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 4918,
+     "script": "cursive",
+     "audio": [
+      "he-7-40"
+     ],
+     "resumed": false,
+     "predicted": 0.55,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1794156844288,
+     "s": "mw82nps0-g8d3s",
+     "run": 1,
+     "e": "explain",
+     "g": "clock",
+     "id": "half-past",
+     "trigger": "new",
+     "lang": "en"
+    },
+    {
+     "t": 1794156846552,
+     "s": "mw82nps0-g8d3s",
+     "run": 2,
+     "e": "explain",
+     "g": "clock",
+     "id": "hour-hand",
+     "trigger": "new",
+     "lang": "en"
+    },
+    {
+     "t": 1794156855368,
+     "s": "mw82nps0-g8d3s",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "7-30",
+     "level": 4,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "2-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3672,
+     "script": "print",
+     "audio": [
+      "he-10-45"
+     ],
+     "resumed": false,
+     "predicted": 0.48,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1794156857751,
+     "s": "mw82nps0-g8d3s",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalSet",
+     "lang": "en",
+     "time": "3-00",
+     "level": 4,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 6115,
+     "script": "cursive",
+     "audio": [
+      "he-11-05"
+     ],
+     "resumed": false,
+     "predicted": 0.54,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1794319565151,
+     "s": "mwarjdc0-ocnip",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "he",
+     "time": "8-00",
+     "level": 2,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "5-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "11-05",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 3.17,
+       "minute": 21
+      }
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "confusion",
+     "ms": 11685,
+     "script": "caps",
+     "audio": [
+      "he-8-00"
+     ],
+     "resumed": false,
+     "predicted": 0.21,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1794319567149,
+     "s": "mwarjdc0-ocnip",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "2-30",
+     "level": 3,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-30",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "9-00",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 3037,
+     "script": "caps",
+     "audio": [
+      "he-3-40"
+     ],
+     "resumed": false,
+     "predicted": 0.03,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1794319572719,
+     "s": "mwarjdc0-ocnip",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "1-30",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "8-40",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "12-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 0.92,
+       "minute": 39
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 1829,
+     "script": "small",
+     "audio": [
+      "he-8-00"
+     ],
+     "resumed": false,
+     "predicted": 0.09,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1794414783622,
+     "s": "mwcc89k0-s7bq2",
+     "run": 4,
+     "e": "explain",
+     "g": "clock",
+     "id": "hour-hand",
+     "trigger": "mistake",
+     "lang": "en"
+    },
+    {
+     "t": 1794414792356,
+     "s": "mwcc89k0-s7bq2",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "7-40",
+     "level": 4,
+     "kind": "trick",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "11-00",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "6-05",
+       "d": true
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 6.76,
+       "minute": 0
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 11782,
+     "script": "small",
+     "audio": [
+      "he-2-30"
+     ],
+     "resumed": false,
+     "predicted": 0.35,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1794414795805,
+     "s": "mwcc89k0-s7bq2",
+     "run": 4,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "5-45",
+     "level": 4,
+     "kind": "new",
+     "scaffolds": [],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-00",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "8-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "mirror",
+     "ms": 5687,
+     "script": "small",
+     "audio": [
+      "he-6-00"
+     ],
+     "resumed": false,
+     "predicted": 0.45,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1794414804283,
+     "s": "mwcc89k0-s7bq2",
+     "run": 4,
+     "e": "explain-again",
+     "g": "clock",
+     "id": "hour-hand",
+     "lang": "he"
+    },
+    {
+     "t": 1794500524032,
+     "s": "mwdr9yyo-hosg1",
+     "run": 2,
+     "e": "hint",
+     "g": "clock",
+     "hint": "arrow",
+     "time": "11-38",
+     "exercise": "find"
+    },
+    {
+     "t": 1794500526123,
+     "s": "mwdr9yyo-hosg1",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "what",
+     "lang": "he",
+     "time": "6-30",
+     "level": 6,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "1-45",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "1-15",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 2296,
+     "script": "small",
+     "audio": [
+      "he-1-15"
+     ],
+     "resumed": false,
+     "predicted": 0.06,
+     "real": false,
+     "customer": "nurse"
+    },
+    {
+     "t": 1794500526744,
+     "s": "mwdr9yyo-hosg1",
+     "run": 2,
+     "e": "explain",
+     "g": "clock",
+     "id": "half-past",
+     "trigger": "new",
+     "lang": "he"
+    },
+    {
+     "t": 1794500531353,
+     "s": "mwdr9yyo-hosg1",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "digitalPick",
+     "lang": "en",
+     "time": "3-40",
+     "level": 1,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-05",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "10-05",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 2
+     },
+     "correct": false,
+     "forgiven": false,
+     "tag": "hour1",
+     "ms": 5167,
+     "script": "cursive",
+     "audio": [
+      "he-5-00"
+     ],
+     "resumed": false,
+     "predicted": 0.38,
+     "real": false,
+     "customer": "farmer"
+    },
+    {
+     "t": 1794500539017,
+     "s": "mwdr9yyo-hosg1",
+     "run": 2,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "he",
+     "time": "5-45",
+     "level": 8,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "7-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "11-45",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 2.81,
+       "minute": 40
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 538,
+     "script": "cursive",
+     "audio": [
+      "he-7-00"
+     ],
+     "resumed": false,
+     "predicted": 0.18,
+     "real": false,
+     "customer": "robot"
+    },
+    {
+     "t": 1794663602500,
+     "s": "mwggdcao-vt8cb",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "he",
+     "time": "1-00",
+     "level": 3,
+     "kind": "review",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-15",
+       "d": false
+      },
+      {
+       "f": "hour1",
+       "t": "5-00",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 7.5600000000000005,
+       "minute": 35
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 13507,
+     "script": "caps",
+     "audio": [
+      "he-11-45"
+     ],
+     "early": true,
+     "msFromAsk": 2520,
+     "resumed": false,
+     "predicted": 0.76,
+     "real": false,
+     "customer": "baker"
+    },
+    {
+     "t": 1794663611370,
+     "s": "mwggdcao-vt8cb",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "set",
+     "lang": "en",
+     "time": "11-05",
+     "level": 2,
+     "kind": "new",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "6-30",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "9-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "set",
+      "pose": {
+       "hour": 8.14,
+       "minute": 44
+      }
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 13364,
+     "script": "small",
+     "audio": [
+      "he-11-15"
+     ],
+     "resumed": false,
+     "predicted": 0.13,
+     "real": false,
+     "customer": "pilot"
+    },
+    {
+     "t": 1794663613550,
+     "s": "mwggdcao-vt8cb",
+     "run": 5,
+     "e": "round",
+     "g": "clock",
+     "exercise": "find",
+     "lang": "he",
+     "time": "6-30",
+     "level": 1,
+     "kind": "trick",
+     "scaffolds": [
+      "numbers",
+      "hand-colors"
+     ],
+     "options": [
+      {
+       "f": "right",
+       "t": "2-45",
+       "d": false
+      },
+      {
+       "f": "mirror",
+       "t": "2-30",
+       "d": false
+      },
+      {
+       "f": null,
+       "t": null,
+       "d": true
+      }
+     ],
+     "families": [
+      "hour1",
+      "mirror"
+     ],
+     "answer": {
+      "kind": "choice",
+      "index": 0
+     },
+     "correct": true,
+     "forgiven": false,
+     "tag": null,
+     "ms": 9521,
+     "script": "caps",
+     "audio": [
+      "he-10-05"
+     ],
+     "resumed": false,
+     "predicted": 0.32,
+     "real": false,
+     "customer": "baker"
+    }
+   ]
+  }
+ ]
+}

@@ -304,6 +304,37 @@ const CHECKS = {
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
     await shot(page, vp, 'clock-area')
   },
+
+  async telemetry(page, base, vp, note) {
+    // after the play checks (one context per size, so their events are in this storage): the Data section of Book 2's
+    // area counts them, shows the storage line, and a Download gives the export
+    await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
+    await page.locator('[data-screen="cover"]').waitFor()
+    await page.evaluate(() => {
+      window.__downloads = []
+      const make = URL.createObjectURL.bind(URL)
+      URL.createObjectURL = (b) => { void b.text().then((t) => window.__downloads.push(t)); return make(b) }
+    })
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="book2"]')
+    const data = page.locator('[data-telemetry-export]')
+    await data.scrollIntoViewIfNeeded()
+    const count = (key) => data.locator(`[data-log="${key}"] [data-log-count]`).textContent()
+    const book2 = await count('alef-duel2-telemetry')
+    const clock = await count('alef-clock-telemetry')
+    if (!/^[1-9]\d* events$/.test(book2)) throw new Error(`Book 2's log: ${book2}`)
+    if (!/^\d+ events$/.test(clock)) throw new Error(`the clock's log: ${clock}`)
+    const storage = await data.locator('[data-storage]').textContent()
+    if (!/telemetry .* of \d+k chars/.test(storage)) throw new Error(`no storage line: ${storage}`)
+    note(`Book 2 ${book2}, clock ${clock}; ${storage.trim()}`)
+    await shot(page, vp, 'telemetry-data')
+    await tap(page, data.locator('[data-telemetry-download]'))
+    await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
+    const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
+    const part = doc.games?.find((g) => g.key === 'alef-duel2-telemetry')
+    if (doc.v !== 2 || !part || !part.events.length) throw new Error('the download has no Book 2 events')
+    const names = [...new Set(part.events.map((e) => e.e))]
+    note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)
+  },
 }
 
 // ---- the run ----

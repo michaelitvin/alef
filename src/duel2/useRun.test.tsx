@@ -180,7 +180,7 @@ describe('run controller', () => {
 
   it('telemetry records his fix after a mistake, the replay button, a pause, and the flight speed (the parent: add what is missing)', async () => {
     duel2Telemetry.clear()
-    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -306,7 +306,7 @@ describe('run controller', () => {
   })
 
   describe('the end of a pass, end to end (policies/pass.test.ts covers the rules)', () => {
-    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
     /** plays on (right answers, a careful flight, the fix and next when asked) until `pred` holds */
     async function playTo(c: RunController, pred: (v: View) => boolean, onTick?: () => void) {
       for (let guard = 0; guard < 8000 && !pred(c.view); guard++) {
@@ -597,7 +597,7 @@ describe('run controller', () => {
     c.gesture({ type: 'pick', id: wrongId(c.view) })
     await until(c, (v) => !!v.defeat)
     c.destroy()
-    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+    const ev = duel2Telemetry.events() as { e: string }[]
     expect(ev.some((e) => e.e === 'run-end')).toBe(true)
     expect(ev.some((e) => e.e === 'abandon')).toBe(false)
   })
@@ -628,7 +628,7 @@ describe('run controller', () => {
     expect(st.lastEnded).toBe('cauldron')
     expect(st.runs).toBe(5)
     expect(st.bestRun).toBe(0)
-    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; score?: number; paused?: boolean }[]
+    const ev = duel2Telemetry.events() as { e: string; screen?: string; score?: number; paused?: boolean }[]
     expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ e: 'run-exit', screen: 'ladder', score: 1, paused: false })])
     expect(ev.some((e) => e.e === 'abandon' || e.e === 'run-end')).toBe(false)
   })
@@ -642,7 +642,7 @@ describe('run controller', () => {
     c.exit()
     c.exit()
     c.destroy()
-    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; paused?: boolean }[]
+    const ev = duel2Telemetry.events() as { e: string; screen?: string; paused?: boolean }[]
     expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ screen: 'ghosts', paused: true })])
   })
 
@@ -735,7 +735,7 @@ describe('run controller', () => {
   })
 
   describe('a hint goes away when he acts (the parent)', () => {
-    const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
     it('a touch on an answer: the hint card, its glow and its voice go away at once; the hint stays counted', async () => {
       duel2Telemetry.clear()
       // the hint's voice takes long; a stop ends it (stopVoice drops what plays)
@@ -1377,7 +1377,7 @@ describe('run controller', () => {
       // the streak goes on from where it was: the fifth right answer gives ×2
       c.towerAnswer('right', 'kamatz')
       expect(c.view.mult).toBe(2)
-      const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; screen?: string; target?: string }[]
+      const ev = duel2Telemetry.events() as { e: string; screen?: string; target?: string }[]
       expect(ev.filter((e) => e.e === 'tower-mega')).toEqual([expect.objectContaining({ target: 'segol' })])
       expect(ev.filter((e) => e.e === 'answer' && e.screen === 'tower').length).toBe(5)
       c.destroy()
@@ -1421,7 +1421,7 @@ describe('run controller', () => {
         c.towerDone(4)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
         expect(useDuel2Store.getState().bookOpen).toBe(true)
-        const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+        const ev = duel2Telemetry.events() as { e: string }[]
         expect(ev.filter((e) => e.e === 'book-open').length).toBe(1)
         expect(sfxLog).toContain('streak')
         c.destroy()
@@ -1470,7 +1470,7 @@ describe('run controller', () => {
         c.towerDone(2)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
         expect(useDuel2Store.getState()).toMatchObject({ bookOpen: true, towerWave: 3 })
-        const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; lane?: string }[]
+        const ev = duel2Telemetry.events() as { e: string; lane?: string }[]
         expect(ev.filter((e) => e.e === 'book-open').map((e) => e.lane)).toEqual(['fast'])
         expect(ev.filter((e) => e.e === 'tower-placed').length).toBe(1)
         expect(sfxLog).toContain('streak')
@@ -1670,7 +1670,7 @@ describe('run controller', () => {
   })
 
   // the merchant (spec: one duel, Part 2): the visit's rules are tested in policies/merchant.test.ts; here, the run end to end
-  const events = () => (JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[])
+  const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
   const mv = (c: RunController) => c.view.merchant!
   const coins = () => useDuel2Store.getState().coins
   /** plays on (right answers, a careful flight, fixes) until `pred`; the merchant is declined unless `pred` waits for him */
@@ -2107,7 +2107,7 @@ describe('run controller', () => {
       // 8 catches are 8 stars and 1+1+1+1+2+2+2+2 coins; the win adds 3 coins
       expect(useDuel2Store.getState()).toMatchObject({ totalStars: 8, coins: 12 + 3, bossesBeaten: ['mimic'] })
       expect(played.filter((id) => /^boss-/.test(id)).map((id) => id.replace(/-\d+$/, ''))).toEqual(['boss-arrive', 'boss-win', 'boss-new'])
-      expect(JSON.parse(duel2Telemetry.exportJson()).events.find((e: { e: string }) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
+      expect(duel2Telemetry.events().find((e: { e: string }) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
       c.destroy()
     }, 60_000)
 
@@ -2144,7 +2144,7 @@ describe('run controller', () => {
       await tick(50)
     }
     expect((c.view.screen as BroomView).finished).toBe(true)
-    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string }[]
+    const ev = duel2Telemetry.events() as { e: string }[]
     expect(ev.some((e) => e.e === 'potion-show')).toBe(false)
     c.destroy()
   }, 60_000)
@@ -2313,7 +2313,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     expect(dv(c).demo?.hint).toBe(true)
     c.gesture({ type: 'touch', by: 'pen' })
     expect(dv(c).demo).toBeUndefined()
-    const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+    const ev = duel2Telemetry.events() as { e: string; [k: string]: unknown }[]
     expect(ev.filter((e) => e.e === 'hint').length).toBe(1)
     expect(ev.find((e) => e.e === 'hint-stop')).toMatchObject({ screen: 'draw', by: 'pen' })
     // his stroke still counts
@@ -2356,7 +2356,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
       expect(dv(c).strokes.filter((x) => x.state === 'wrong').length).toBe(0)
       await tick(3000)
       c.destroy()
-      const ev = JSON.parse(duel2Telemetry.exportJson()).events as { e: string; [k: string]: unknown }[]
+      const ev = duel2Telemetry.events() as { e: string; [k: string]: unknown }[]
       expect(ev.filter((e) => e.e === 'draw-mark').map((e) => e.ok)).toEqual([true])
     })
   }
