@@ -38,6 +38,6 @@ describe('play', () => {
     const b = render(<Play opts={{}} onOver={() => {}} />)
     const he = b.container.querySelector('[data-screen="play"]')!
     expect(he.getAttribute('data-course')).toBe('he')
-    expect(he.getAttribute('dir')).toBe('rtl')
+    expect(he.hasAttribute('dir')).toBe(false)
   })
 })

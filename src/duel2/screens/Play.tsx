@@ -156,7 +156,7 @@ export function Play({ opts, onOver, onExit }: {
   const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <TouchAnswer.Provider value={touch}>
-    <div dir={v.course.dir} data-course={v.course.id} className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
+    <div {...(v.course.dir === 'ltr' ? { dir: 'ltr' } : {})} data-course={v.course.id} className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
       style={layoutVars(size, contentTop(v), into)}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>

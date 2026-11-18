@@ -31,12 +31,12 @@ function Backdrop({ bg }: { bg: string }) {
   )
 }
 
-/** The course's direction: English runs left to right, Hebrew right to left (positions of the wizard, monsters and orbs do not change). */
+/** The course's direction: English runs left to right; Hebrew renders as before, with no `dir` attribute (positions of the wizard, monsters and orbs do not change). */
 export type Dir = 'rtl' | 'ltr'
 
 export function Stage({ bg, children, style, dir = 'rtl', ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode; dir?: Dir } & Omit<SVGProps<SVGSVGElement>, 'dir'>) {
   return (
-    <svg data-stage {...{ dir }} className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}
+    <svg data-stage {...(dir === 'ltr' ? { dir } : {})} className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}
       // no screen scrolls; without this the browser takes a drag as a pan and cancels it (touch-action on inner SVG parts is ignored)
       style={{ touchAction: 'none', ...style }}>
       <GlyphDefs />

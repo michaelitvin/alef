@@ -6,6 +6,7 @@ import { Stage } from './Stage'
 import { Glyph } from '../Glyph'
 import { syllable } from '../../logic/content'
 import { syllableChoice } from '../../logic/rounds'
+import type { Measurer } from '../Glyph'
 import { WORDS } from '../../data/words'
 
 const plates = [syllableChoice(syllable('bet', 'chirik')), syllableChoice(syllable('kaf', 'chirik')), syllableChoice(syllable('bet', 'kamatz'))]
@@ -27,7 +28,7 @@ describe('the screens follow the course direction', () => {
   })
   it('a ladder in rtl is as before', () => {
     const c = ladder('rtl')
-    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+    expect(c.querySelector('[data-stage]')!.hasAttribute('dir')).toBe(false)
     expect(c.querySelector('[data-rung] text')!.getAttribute('direction')).toBe('rtl')
   })
   it('the door plate lays its syllables left to right in ltr', () => {
@@ -39,7 +40,7 @@ describe('the screens follow the course direction', () => {
   })
   it('the door plate lays its syllables right to left in rtl', () => {
     const c = doors('rtl')
-    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+    expect(c.querySelector('[data-stage]')!.hasAttribute('dir')).toBe(false)
     const x = cxs(c)
     expect(x).toEqual([...x].sort((a, b) => b - a))
   })
@@ -50,7 +51,17 @@ describe('the screens follow the course direction', () => {
     expect(latin.getAttribute('style')).toContain('Andika')
     expect(hebrew.getAttribute('direction')).toBe('rtl')
   })
-  it('the stage defaults to rtl', () => {
-    expect(render(<Stage bg="bg-ground">{null}</Stage>).container.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+  it('the stage has no dir attribute by default (Hebrew renders as before)', () => {
+    expect(render(<Stage bg="bg-ground">{null}</Stage>).container.querySelector('[data-stage]')!.hasAttribute('dir')).toBe(false)
+  })
+  it('a Latin glyph never draws dots, even for a shin text; a Hebrew one does', () => {
+    const fake: Measurer = (t, px) => ({ left: px / 2, right: px / 2, ascent: px * 0.7, descent: 0, width: t.length * px * 0.6 })
+    const shin = '\u05E9\u05C1'
+    const he = render(<svg><Glyph text={shin} px={100} x={0} y={0} measurer={fake} /></svg>).container
+    expect(he.querySelector('[data-glyph-group]')).not.toBeNull()
+    const la = render(<svg><Glyph text={shin} alphabet="latin" px={100} x={0} y={0} measurer={fake} /></svg>).container
+    expect(la.querySelector('[data-glyph-group]')).toBeNull()
+    expect(la.querySelectorAll('text')).toHaveLength(1)
+    expect(la.querySelector('circle')).toBeNull()
   })
 })
