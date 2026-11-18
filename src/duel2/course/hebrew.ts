@@ -5,12 +5,12 @@ import { preloadDuel2Assets } from '../assets/preload'
 import { lineAudioId, lineById } from '../data/lines'
 import { wordLinkFor } from '../data/words'
 import { bossTarget, bossWave } from '../logic/boss'
-import { item as itemOf, mark as markOf } from '../logic/content'
+import { item as itemOf, mark as markOf, syllable } from '../logic/content'
 import { dotIntroFor } from '../logic/dotIntro'
 import { drawWords } from '../logic/draw'
 import { features, type ScreenId } from '../logic/predict'
 import {
-  broomTarget, broomWave, cauldronRound, doorKeys, doorWords, ghostRound, isNewStageChoice, ladderPlan, letterChoice, type Choice,
+  broomTarget, broomWave, cauldronRound, doorKeys, doorWords, ghostRound, isNewStageChoice, ladderPlan, letterChoice, syllableChoice, type Choice, type RoundCtx,
 } from '../logic/rounds'
 import { HEBREW_STAGES } from '../logic/run'
 import { storeSavePort } from '../savePort'
@@ -19,12 +19,18 @@ import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
 import { progressTallies } from '../../utils/duel/tallies'
-import type { Course } from './types'
+import type { CauldronRound, Course } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */
 const sylFeatures = (c: Choice, screen: ScreenId) => {
   const it = itemOf(c.itemId)
   return features(c.mark ? { item: it, mark: markOf(c.mark) } : { item: it }, screen)
+}
+
+/** today's cauldron round as the neutral one: the letter is the one box, its mark the gap; each vowel orb a syllable of it */
+function hebrewCauldron(ctx: RoundCtx, avoid?: string): CauldronRound {
+  const r = cauldronRound(ctx, avoid)
+  return { target: syllableChoice(r.target), boxes: [letterChoice(r.letter)], gap: 0, orbs: r.orbs.map((m) => syllableChoice(syllable(r.letter.id, m.id))) }
 }
 
 export const HEBREW: Course = {
@@ -33,7 +39,7 @@ export const HEBREW: Course = {
   dir: 'rtl',
   stages: HEBREW_STAGES,
   rounds: {
-    broomTarget, broomWave, cauldronRound, ghostRound, ladderPlan, isNewStageChoice, letterChoice, features: sylFeatures,
+    broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan, isNewStageChoice, features: sylFeatures,
     doorWords, doorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name

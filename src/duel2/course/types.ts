@@ -8,7 +8,7 @@ import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { Word } from '../data/words'
 import type { BossKind, BossKinds } from '../logic/boss'
-import type { Item, Mark, MarkId, Syllable } from '../logic/content'
+import type { MarkId } from '../logic/content'
 import type { drawWords } from '../logic/draw'
 import type { ScreenId } from '../logic/predict'
 import type { Choice, Kind, LadderStep, RoundCtx } from '../logic/rounds'
@@ -47,11 +47,11 @@ export interface CourseRounds {
    * before its introduction), its step saved: lines (the run picks a take) and voice ids. Hebrew: unset, none
    */
   introAfter?: (save: SavePort, c: Choice, right: boolean) => ({ line: string } | { id: string })[]
-  cauldronRound: (ctx: RoundCtx, avoid?: string) => { letter: Item; target: Syllable; orbs: Mark[] }
+  /** the cauldron's round (`avoid`: the sound heard the round before) */
+  cauldronRound: (ctx: RoundCtx, avoid?: string) => CauldronRound
   ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
   ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => { fixed: LadderFixed; steps: LadderStep[] }
   isNewStageChoice: (stage: number, c: Choice) => boolean
-  letterChoice: (it: Item) => Choice
   /** the features of an answer (logic/predict): what its tallies are kept under */
   features: (c: Choice, screen: ScreenId) => string[]
   /** the doors' words of a visit */
@@ -71,6 +71,14 @@ export interface CourseRounds {
   bossWave: (ctx: RoundCtx, kind: BossKind, target: Choice) => Choice[]
 }
 type LadderFixed = 'letter' | 'vowel' | 'dot'
+
+/**
+ * A cauldron round, for both courses. `boxes`: the parts of the word shown, `boxes[gap]` the one missing (the right
+ * tile); `orbs`: the tiles, the right one among them; `target`: the word shown and heard; `becomes`: the word the right
+ * tile makes of it (English stage 6: `cap` and a thrown `e` make `cape`; then he hears `becomes`). A picture is its file.
+ * Hebrew: one box, the letter, with `gap` 0 on its mark; the orbs are syllables of that letter, the target one of them.
+ */
+export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice }
 type DrawCtx = Parameters<typeof drawWords>[0]
 
 /** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */

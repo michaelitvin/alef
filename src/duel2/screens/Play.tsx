@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
 import type { Course } from '../course/types'
-import { item as itemOf, mark as markOf } from '../logic/content'
+import { item as itemOf, mark as markOf, type MarkId } from '../logic/content'
 import { Broom } from '../components/screens/Broom'
 import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
-import { Cauldron, ORB_X, ORB_Y } from '../components/screens/Cauldron'
+import { Cauldron, CauldronWord, ORB_X, ORB_Y, TILE_X } from '../components/screens/Cauldron'
 import { Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
@@ -46,7 +46,12 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
       return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} boss={s.boss} clock={run.clock}
         correctId={TEST_HOOKS ? s.target.id : undefined} size={size} dir={dir} />
     case 'cauldron':
-      return <Cauldron dir={dir} letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
+      if (s.tiles) {
+        const answer = s.boxes![s.gap!]
+        return <CauldronWord dir={dir} boxes={s.boxes!} gap={s.gap!} tiles={s.tiles} target={s.target} shown={s.shown} onPick={pick} phase={v.phase} reveal={s.reveal}
+          joined={s.joined} correct={test ? answer.id : undefined} demo={demoT !== undefined ? { id: answer.id, t: demoT } : undefined} />
+      }
+      return <Cauldron dir={dir} letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal as { right: MarkId; wrong?: MarkId } | undefined}
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
@@ -73,6 +78,7 @@ function demoPath(v: View, size: { w: number; h: number }): { from: { x: number;
   const s = v.screen
   if (!s) return null
   if (s.screen === 'broom') return { from: { x: WIZ_X, y: LANE_Y[1] }, to: { x: WIZ_X, y: LANE_Y[0] } }
+  if (s.screen === 'cauldron' && s.tiles) { const i = s.tiles.findIndex((x) => x.id === s.boxes![s.gap!].id); return { from: { x: TILE_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
   if (s.screen === 'cauldron') { const i = s.orbs.indexOf(s.target.mark!); return { from: { x: ORB_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
   if (s.screen === 'ladder') {
     const i = s.plates.findIndex((p) => p.id === s.target.id)

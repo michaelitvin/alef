@@ -2,7 +2,8 @@
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
-// logic/rounds/broom.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
+// logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts. The other screens' rounds are built by the later English
+// tasks, and until then calling one throws.
 import type { Course, CourseRounds } from '../duel2/course/types'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
@@ -12,6 +13,7 @@ import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placeme
 import { enLine } from './data/lines'
 import { enBroomTarget, enBroomWave } from './logic/rounds/broom'
 import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
+import { enCauldronRound } from './logic/rounds/cauldron'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -33,7 +35,7 @@ const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), pic
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
-/** the English screens' rounds: the broom's so far (the other screens come with the later English tasks) */
+/** the English screens' rounds: the broom's and the cauldron's so far (the other screens come with the later English tasks) */
 const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
@@ -42,10 +44,9 @@ const EN_ROUNDS: CourseRounds = {
   // a new unit or heart word, asked once before its introduction (the gallery's read-only save: none, nothing written)
   introAfter: (save, c, right) => ('setIntro' in save ? introAfter(en(save), itemOfChoice(c), right).map((id) => (enLine(id) ? { line: id } : { id })) : []),
   dotIntroFor: () => null,
-  cauldronRound: () => notBuilt('cauldron'),
+  cauldronRound: (ctx, avoid) => enCauldronRound(ctx, avoid, { picture: wordPicture, voice: hasVoice }),
   ghostRound: () => notBuilt('ghosts'),
   ladderPlan: () => notBuilt('ladder'),
-  letterChoice: () => notBuilt('letter choice'),
   doorWords: () => notBuilt('doors'),
   doorKeys: () => notBuilt('doors'),
   wordLinkFor: () => notBuilt('word link'),

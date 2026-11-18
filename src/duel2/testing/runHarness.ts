@@ -100,7 +100,7 @@ export function choiceIdsOf(v: View): string {
   if (!s) return ''
   switch (s.screen) {
     case 'broom': return s.waves.map((w) => w.choices.map((x) => x.id).join(',')).join('|')
-    case 'cauldron': return `${s.letterId}:${s.orbs.join(',')}`
+    case 'cauldron': return s.tiles ? `${s.boxes!.map((x) => x.id).join(',')}/${s.gap}:${s.tiles.map((x) => x.id).join(',')}` : `${s.letterId}:${s.orbs.join(',')}`
     case 'ladder': return `${s.built.map((x) => x.id).join(',')}|${s.plates.map((x) => x.id).join(',')}`
     case 'ghosts': return s.signs.map((x) => x.id).join(',')
     case 'doors': return `${s.word.id}:${s.keys.map((k) => k.id).join(',')}`
@@ -112,6 +112,7 @@ export function choiceIdsOf(v: View): string {
 
 function pickId(v: View, right: boolean): string | null {
   const s = v.screen!
+  if (s.screen === 'cauldron' && s.tiles) { const a = s.boxes![s.gap!]; return right ? a.id : s.tiles.find((x) => x.id !== a.id)?.id ?? null }
   if (s.screen === 'cauldron') return right ? s.target.mark! : s.orbs.find((m) => m !== s.target.mark) ?? null
   if (s.screen === 'doors') return right ? s.word.id : s.keys.find((k) => k.id !== s.word.id)?.id ?? null
   if (s.screen === 'ghosts') return right ? s.target.id : s.signs.find((x) => x.id !== s.target.id && x.nearMissOf !== s.target.id)?.id ?? null

@@ -52,7 +52,16 @@ export interface BroomView {
   /** the flight is over: its finale (the wizard swoops away) */
   finished?: boolean
 }
-interface CauldronView { screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean; reveal?: { right: MarkId; wrong?: MarkId } }
+interface CauldronView {
+  /** `target`: what he hears; Hebrew: the letter and its vowel orbs (English leaves them empty: it has boxes and tiles) */
+  screen: 'cauldron'; letterId: string; orbs: MarkId[]; target: Choice; joined?: boolean
+  /** Hebrew: the vowel orbs' marks; English: the tiles' ids */
+  reveal?: { right: string; wrong?: string }
+  /** English: the word's parts, `boxes[gap]` the missing one (the right tile), and the tiles */
+  boxes?: Choice[]; gap?: number; tiles?: Choice[]
+  /** English stage 6: the word shown before the thrown `e` turns it into `target` (cap → cape) */
+  shown?: Choice
+}
 interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
 interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
 interface DoorsView {
@@ -968,8 +977,14 @@ export class RunController {
     }
     if (screen === 'cauldron') {
       const r = this.course.rounds.cauldronRound(c, prev)
-      const target = { ...this.course.rounds.letterChoice(r.letter), kind: 'syllable' as Kind, id: r.target.id, text: r.target.text, soundId: r.target.soundId, group: r.target.mark.group, mark: r.target.mark.id }
-      this.set({ screen: { screen: 'cauldron', letterId: r.letter.id, orbs: r.orbs.map((m) => m.id), target } })
+      if (r.target.kind === 'syllable') {
+        // Hebrew: the letter (the one box) and the vowel orbs' marks
+        this.set({ screen: { screen: 'cauldron', letterId: r.boxes[0].itemId, orbs: r.orbs.map((o) => o.mark!), target: r.target } })
+        return r.target
+      }
+      // English: he hears the word to make (after a thrown e, the word it becomes)
+      const target = r.becomes ?? r.target
+      this.set({ screen: { screen: 'cauldron', letterId: '', orbs: [], target, boxes: r.boxes, gap: r.gap, tiles: r.orbs, ...(r.becomes ? { shown: r.target } : {}) } })
       return target
     }
     if (screen === 'ladder') {
@@ -1135,45 +1150,55 @@ export class RunController {
     const c = target as Choice
     const s = this.view.screen!
     let tapped: Choice | undefined
-    if (s.screen === 'cauldron') {
+    // what the answer counts for: the target; on the English cauldron the missing part (he heard the word)
+    let answer = c
+    const tiles = s.screen === 'cauldron' ? s.tiles : undefined
+    if (s.screen === 'cauldron' && tiles) {
+      tapped = tiles.find((x) => x.id === pickedId)
+      answer = s.boxes![s.gap!]
+    } else if (s.screen === 'cauldron') {
       const m = markOf(pickedId as MarkId)
       tapped = { ...c, id: `${c.itemId}-${m.id}`, group: m.group, mark: m.id, soundId: syllable(c.itemId, m.id).soundId }
       if (m.group === c.group) tapped = c
     } else tapped = this.choicesOf(screen).find((x) => x.id === pickedId)
     if (!tapped) return 'near'
-    const right = tapped.id === c.id || tapped.soundId === c.soundId
-    const near = !right && tapped.nearMissOf === c.id
+    const right = tapped.id === answer.id || tapped.soundId === answer.soundId
+    const near = !right && tapped.nearMissOf === answer.id
     const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
+    // a new unit's introduction (the English cauldron), asked before the answer is recorded; a run-ending miss keeps it due
+    const intro = tiles && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
     if (right) {
-      this.record(screen, c, tapped, 'right')
+      this.record(screen, answer, tapped, 'right')
       this.roundInScreen++
       // the streak counts this answer before its coins (the fifth right answer pays 2)
       this.streak++
       this.gainStar()
       this.set({ phase: 'feedback' })
-      const confident = predict(this.course.rounds.features(c, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
+      const confident = predict(this.course.rounds.features(answer, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
       if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
       // let the effect ring a moment before the voice goes on (Michael: effects got cut)
       await this.sleep(t, SFX_RING_MS)
       await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
+      if (tiles) await this.wordBlend(t, c)
+      if (intro.length) await this.say(t, intro)
       await this.maybeWordLink(t, c)
       await this.streakMoment(t)
       await this.sleep(t, 300)
       return 'next'
     }
     if (outcome.forgiven) {
-      this.record(screen, c, tapped, 'near')
+      this.record(screen, answer, tapped, 'near')
       await this.say(t, [{ id: this.variation('almost') }])
       return 'near'
     }
     // a mistake
     this.resetStreak()
-    this.record(screen, c, tapped, 'wrong')
+    this.record(screen, answer, tapped, 'wrong')
     this.roundInScreen++
     this.sfx('hit')
-    const reveal = s.screen === 'cauldron' ? { right: c.mark!, wrong: tapped.mark } : { right: c.id, wrong: tapped.id }
+    const reveal = s.screen === 'cauldron' && !tiles ? { right: c.mark!, wrong: tapped.mark } : { right: answer.id, wrong: tapped.id }
     this.setScreen({ reveal } as Partial<ScreenView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
     if (outcome.over) return this.endRun(this.cueId(c))
@@ -1185,6 +1210,8 @@ export class RunController {
     if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ reveal: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
     if (s.screen === 'ghosts') { this.setScreen({ reveal: undefined, zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
     await this.sleep(t, FIX_DONE_MS)
+    if (tiles) await this.wordBlend(t, c)
+    if (intro.length) await this.say(t, intro)
     if (this.explanationDue(screen, c)) await this.explain(t, c)
     return 'next'
   }
@@ -1273,6 +1300,15 @@ export class RunController {
     this.set({ phase: 'explain', overlay: { kind: 'explain', parts, target: c } })
     await this.waitNext(t)
     this.set({ overlay: null })
+  }
+
+  /**
+   * After the English cauldron's word is made (right, or after the fix), the word's blend plays: "caaat … cat" (design
+   * Part 5). The blend comes with Task 21 (the hint that blends a word); until then nothing plays here.
+   */
+  private async wordBlend(t: number, word: Choice) {
+    void t
+    void word
   }
 
   private async maybeWordLink(t: number, c: Choice) {

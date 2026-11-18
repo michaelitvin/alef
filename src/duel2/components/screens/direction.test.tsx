@@ -2,10 +2,11 @@ import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Ladder } from './Ladder'
 import { Doors } from './Doors'
+import { CauldronWord } from './Cauldron'
 import { Stage } from './Stage'
 import { Glyph } from '../Glyph'
 import { syllable } from '../../logic/content'
-import { syllableChoice } from '../../logic/rounds'
+import { syllableChoice, type Choice } from '../../logic/rounds'
 import type { Measurer } from '../Glyph'
 import { WORDS } from '../../data/words'
 
@@ -43,6 +44,19 @@ describe('the screens follow the course direction', () => {
     expect(c.querySelector('[data-stage]')!.hasAttribute('dir')).toBe(false)
     const x = cxs(c)
     expect(x).toEqual([...x].sort((a, b) => b - a))
+  })
+  it('the English cauldron lays its boxes c _ t left to right in ltr', () => {
+    const part = (id: string): Choice => ({ kind: 'unit', id, text: id, soundId: `snd-${id}`, itemId: id })
+    const cat: Choice = { kind: 'word', id: 'cat', text: 'cat', soundId: 'w-cat', itemId: 'cat', units: ['c', 'a', 't'] }
+    const c = render(<CauldronWord boxes={['c', 'a', 't'].map(part)} gap={1} tiles={['o', 'a', 'i', 'u'].map(part)} target={cat}
+      onPick={() => {}} phase="answer" dir="ltr" />).container
+    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('ltr')
+    const boxes = [...c.querySelectorAll('[data-box]')]
+    expect(boxes.map((e) => e.getAttribute('data-box'))).toEqual(['c', '_', 't'])
+    const x = boxes.map((e) => Number(e.querySelector('rect')!.getAttribute('x')))
+    expect(x).toEqual([...x].sort((a, b) => a - b))
+    expect([...c.querySelectorAll('[data-tile]')].map((e) => e.getAttribute('data-tile'))).toEqual(['o', 'a', 'i', 'u'])
+    expect(c.querySelector('[data-box="c"] text')!.getAttribute('direction')).toBe('ltr')
   })
   it('a Latin glyph is drawn ltr in Andika, a Hebrew one rtl', () => {
     const { container } = render(<svg><Glyph text="cat" alphabet="latin" px={100} x={0} y={0} /><Glyph text="בּ" px={100} x={0} y={0} /></svg>)
