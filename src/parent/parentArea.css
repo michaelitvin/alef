@@ -1,12 +1,20 @@
 /* the shared parent area: one plain page for every game (a parent screen; text allowed) */
 .parent-area { position: fixed; inset: 0; z-index: 50; overflow: auto; background: #fff8e7; color: #222; padding: 16px 24px 48px;
-  font-family: system-ui, sans-serif; font-size: 16px; line-height: 1.4; text-align: left; }
+  font-family: system-ui, sans-serif; font-size: 16px; line-height: 1.4; text-align: left;
+  /* a long unbroken string (a save key, a file name, JSON) breaks instead of widening the page on a phone */
+  overflow-wrap: anywhere; }
+/* a table sits in its own box that scrolls sideways on a narrow phone, so the page itself never does. Every table in the
+   area (also a game's section) goes in one: <div className="pa-wide"><table>…</table></div>. Its cells keep whole
+   words (it scrolls instead). */
+.pa-wide { overflow-x: auto; max-width: 100%; }
+.pa-wide table { overflow-wrap: normal; }
 .parent-area h1 { font-size: 24px; margin: 0; }
 .parent-area h2 { font-size: 20px; margin: 0 0 8px; }
 .parent-area h3 { font-size: 17px; margin: 14px 0 6px; }
 .parent-area table td, .parent-area table th { padding: 2px 8px; }
 .parent-area button { font: inherit; }
 .pa-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pa-head > * { min-width: 0; }
 .pa-actions { display: flex; align-items: center; gap: 16px; font-size: 18px; }
 .pa-nav { position: sticky; top: -16px; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; background: #fff8e7; z-index: 1; }
 .pa-nav button { padding: 4px 10px; border-radius: 999px; border: 1px solid #c9b48a; background: #fff; cursor: pointer; }

@@ -9,6 +9,7 @@
 //   ALEF_VERIFY_URL  the app's base URL (ends in /alef/), as the browser reaches it. Not set: start `vite preview` of
 //                    dist-verify/ here and stop it at the end.
 //   ALEF_VERIFY_ONLY a comma-separated list of checks to run (default: all; the names are in CHECKS below)
+//   ALEF_VERIFY_SIZES a comma-separated list of sizes to run (default: all; the names are in VIEWPORTS below)
 //
 // Every run opens its own browser context and closes it in a finally, also when a check fails or throws, on Ctrl-C
 // and at the deadline: a tab left open on a shared browser keeps animating and eats its CPU. It never closes a browser
@@ -21,8 +22,12 @@ import { join } from 'node:path'
 
 const DEADLINE_MS = 45 * 60 * 1000
 const VIEWPORTS = [
-  { name: 'phone', width: 844, height: 390 },
+  { name: 'phone', width: 844, height: 390, mobile: true },
   { name: 'tablet', width: 1180, height: 820 },
+  // a phone held upright: only the parent area's checks (the games are played sideways), which assert at each section
+  // that nothing scrolls sideways
+  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea'] },
+  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea'] },
 ]
 /** the parent gate's year: any year 18 to 100 years back opens it (src/shared/parentGate/acceptYear.ts) */
 const YEAR_OK = new Date().getFullYear() - 40
@@ -90,6 +95,31 @@ async function typeYear(page, year) {
   for (const d of String(year)) await tap(page, page.locator(`[data-year-pad] [data-digit="${d}"]`))
 }
 
+/** nothing scrolls sideways: the page, and the parent area (its own scroll box), are no wider than the screen. On a
+ * failure, the elements whose right edge passes the screen's (the outermost of each). */
+async function noSideScroll(page, where) {
+  const bad = await page.evaluate(() => {
+    const W = innerWidth
+    const out = []
+    if (document.documentElement.scrollWidth > W + 1) out.push(`page ${document.documentElement.scrollWidth} > ${W}`)
+    const area = document.querySelector('.parent-area')
+    if (area && area.scrollWidth > area.clientWidth + 1) out.push(`area ${area.scrollWidth} > ${area.clientWidth}`)
+    if (!out.length) return null
+    const edge = area ? area.getBoundingClientRect().left + area.clientWidth : W
+    // inside a box that scrolls sideways on purpose (a wide table's), an element may pass the edge
+    const scrollsInside = (el) => { for (let p = el.parentElement; p && p !== area; p = p.parentElement) if (/auto|scroll/.test(getComputedStyle(p).overflowX)) return true; return false }
+    for (const el of (area ?? document.body).querySelectorAll('*')) {
+      const r = el.getBoundingClientRect()
+      if (!r.width || r.right <= edge + 1 || scrollsInside(el)) continue
+      if (el.parentElement && el.parentElement.getBoundingClientRect().right > edge + 1) continue
+      out.push(`<${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? `.${el.className.trim().split(/\s+/).join('.')}` : ''}> ends at ${Math.round(r.right)}: "${(el.textContent ?? '').trim().slice(0, 30)}"`)
+      if (out.length > 5) break
+    }
+    return out.join('; ')
+  })
+  if (bad) throw new Error(`${where} scrolls sideways at ${page.viewportSize().width} px: ${bad}`)
+}
+
 /** the gate: a hold under 2 s opens nothing, a child's year goes back, an adult's year opens the area */
 async function passGate(page, button, area) {
   // a short hold: the page's own clock says how long the finger stayed (a busy shared browser can stretch the wait)
@@ -115,11 +145,12 @@ async function passGate(page, button, area) {
   if (await page.locator('[data-parent-area]').count()) throw new Error('a child\'s year opened the parent area')
   await hold(page, button, 2300)
   await page.locator('[data-year-pad]').waitFor()
+  await noSideScroll(page, 'the year pad')
   await typeYear(page, YEAR_OK)
   await page.locator(area).waitFor({ timeout: 10_000 })
 }
 
-/** every section of the area opens: each nav button scrolls to its section */
+/** every section of the area opens: each nav button scrolls to its section, and nothing there scrolls sideways */
 async function eachSection(page) {
   const ids = await page.locator('[data-goto]').evaluateAll((bs) => bs.map((b) => b.getAttribute('data-goto')))
   if (ids.length < 3) throw new Error(`only ${ids.length} sections in the nav`)
@@ -130,6 +161,9 @@ async function eachSection(page) {
     // the nav scrolls each section to the top, under the nav (a short page must not stop it lower down)
     const y = await section.evaluate((el) => Math.round(el.getBoundingClientRect().top - el.closest('.parent-area').getBoundingClientRect().top))
     if (y > 100) throw new Error(`the nav left section ${id} ${y} px from the top`)
+    // a lazy section (a game's settings, its developer tools) loads after the tap: wait for its fallback to go
+    await page.waitForFunction((s) => !document.querySelector(`[data-section="${s}"]`)?.textContent.includes('Loading…'), id)
+    await noSideScroll(page, `section ${id}`)
   }
   return ids
 }
@@ -253,11 +287,27 @@ const CHECKS = {
   },
 
   async book2Area(page, base, vp, note) {
+    // Book 2 is played sideways: upright, the "turn the phone" picture covers its cover. Pass the gate sideways, then turn
+    // the phone upright (the area and the developer screens show no picture)
+    if (vp.upright) await page.setViewportSize({ width: vp.height, height: vp.width })
     await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="book2"]')
+    if (vp.upright) await page.setViewportSize({ width: vp.width, height: vp.height })
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
     await shot(page, vp, 'book2-area')
+    // the developer screens the area opens (gallery, stroke review): their Back goes back to the area
+    for (const dev of ['gallery', 'strokes']) {
+      await tap(page, page.locator(`[data-dev="${dev}"]`))
+      const back = page.getByRole('button', { name: 'Back', exact: true })
+      await back.waitFor()
+      await page.waitForTimeout(500)
+      await noSideScroll(page, `the ${dev} screen`)
+      await shot(page, vp, `book2-${dev}`)
+      await tap(page, back)
+      await page.locator('[data-parent-area="book2"]').waitFor()
+    }
+    note('gallery, strokes')
   },
 
   async clock(page, base, vp, note) {
@@ -374,17 +424,19 @@ async function run() {
   else { browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); launched = true }
   const only = process.env.ALEF_VERIFY_ONLY?.split(',').map((s) => s.trim())
   const names = Object.keys(CHECKS).filter((n) => !only || only.includes(n))
+  // ALEF_VERIFY_SIZES: a comma-separated list of the sizes to run (default: all)
+  const sizes = process.env.ALEF_VERIFY_SIZES?.split(',').map((s) => s.trim())
   console.log(`base ${base}  browser ${cdp ? 'connected' : 'launched'}  shots ${shots}`)
   let failed = 0
-  for (const vp of VIEWPORTS) {
+  for (const vp of VIEWPORTS.filter((v) => !sizes || sizes.includes(v.name))) {
     // one context per size: its own storage (a fresh save, boy or girl not set yet), touch on
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: true, isMobile: vp.name === 'phone', locale: 'he-IL' })
+    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: true, isMobile: !!vp.mobile, locale: 'he-IL' })
     contexts.add(context)
     try {
       // a shared browser may be busy: generous waits (a screenshot can take tens of seconds)
       context.setDefaultTimeout(60_000)
       await context.addInitScript(INIT, !!cdp)
-      for (const name of names) {
+      for (const name of names.filter((n) => !vp.only || vp.only.includes(n))) {
         const page = await context.newPage()
         const notes = []
         const errors = []

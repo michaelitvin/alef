@@ -137,4 +137,23 @@ describe('the parent area', () => {
     expect(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-count]')!.textContent).toBe('2 events')
     expect(container.querySelector('[data-log="alef-duel-telemetry"]')).not.toBeNull()
   })
+
+  // jsdom has no layout, so the width itself is checked by the /verify driver on an upright phone; here: the structure
+  it('every table, in every game\'s area, sits in its own sideways-scrolling box (a phone upright never pans the page)', async () => {
+    // the first duel's history shows its tables only with marks played (the module is loaded here, not at the top: the
+    // other tests check that the area creates no other game's store)
+    const { useProgressStore } = await import('../stores/progressStore')
+    const { INITIAL_PROGRESS_STATE } = await import('../types/progress')
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel,
+      byMark: { kamatz: { seen: 3, correct: 2, wrong: 1, timeout: 0, twin: 0, mega: 0 } } } })
+    for (const [game, lazyText] of [['lessons', /Dev mode/], ['book2', /Mark \(most misses first\)/], ['clock', /Predicted miss/]] as const) {
+      const { container, unmount } = render(<ParentArea game={game} onClose={() => {}} />)
+      await screen.findByText(lazyText, {}, LAZY)
+      const tables = [...container.querySelectorAll('table')]
+      expect(tables.length).toBeGreaterThan(game === 'lessons' ? 1 : 2)
+      for (const t of tables) expect(t.parentElement!.classList.contains('pa-wide'), `${game}: ${t.outerHTML.slice(0, 60)}`).toBe(true)
+      unmount()
+    }
+    useProgressStore.setState(INITIAL_PROGRESS_STATE)
+  }, 60_000)
 })

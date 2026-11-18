@@ -23,12 +23,14 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
   `book2Sheets`, `book2Area`, `clock`, `clockArea`, `telemetry`). `telemetry` reads the events the play checks
-  left in the same size's storage, so run it with `book2` (and `clock`).
+  left in the same size's storage, so run it with `book2` (and `clock`). `ALEF_VERIFY_SIZES=upright390` runs only
+  those sizes (names: `phone`, `tablet`, `upright390`, `upright412`).
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
 
-Each size (phone 844×390, tablet 1180×820, both landscape) gets a fresh browser context: own storage, so a fresh save
+Each size (phone 844×390, tablet 1180×820, both landscape; and a phone held upright, 390×844 and 412×915, for the
+parent area's checks only: `home`, `book2Area`, `clockArea`) gets a fresh browser context: own storage, so a fresh save
 and no boy or girl yet. Each check gets its own page.
 
 | Check | Does |
@@ -37,9 +39,13 @@ and no boy or girl yet. Each check gets its own page.
 | `book2` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
 | `book2Station` | the path's first open station link (`?station=`) → its cover → a session of that screen |
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
-| `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top) |
+| `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
+
+**Nothing scrolls sideways.** At the year pad and at every section of the area (and Book 2's gallery and stroke
+review), the page and the area's own scroll box must be no wider than the screen (`scrollWidth <= clientWidth + 1`); a
+failure names the elements that pass the edge. A wide box that scrolls on purpose (a table's `.pa-wide`) is allowed.
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.

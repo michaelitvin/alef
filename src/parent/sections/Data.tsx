@@ -105,7 +105,7 @@ export function DataSection({ game, live }: DataSectionProps) {
         file says where the code and the design notes are). The tower’s events are in Book 2’s log, marked
         <code> via: tower</code>.
       </p>
-      <table data-logs style={{ borderCollapse: 'collapse' }}>
+      <div className="pa-wide"><table data-logs style={{ borderCollapse: 'collapse' }}>
         <tbody>
           {rows.map(({ log, all, recent, unreadable, summarized, chars }) => (
             <tr key={log.key} data-log={log.key}>
@@ -129,7 +129,7 @@ export function DataSection({ game, live }: DataSectionProps) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <p data-storage>
         Storage: telemetry <span data-storage-used>{kchars(storage.used)}</span> of {kchars(storage.budget)} chars
         {Object.entries(storage.frozen).map(([k, n]) => (
