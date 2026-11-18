@@ -41,6 +41,8 @@ export interface DuelEmbedded {
   onSeen: (key: string) => void
   /** a hit → 'right'; a miss or a timeout → 'wrong' (the forgiven twin is not an answer); 'over' stops after its feedback */
   onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'
+  /** set: called instead of onAnswer, with the round answered (a course whose tower answers count: Course.tower.facts) */
+  onAnswerRound?: (r: 'right' | 'wrong', round: Round) => 'on' | 'over'
   /**
    * a מגה kill (the parent brought it back, 2026-11-14): not reading, so no answer for the run (no star, no streak, no
    * heart); the run tracks it on its own
@@ -519,7 +521,10 @@ export class DuelController {
     if (!dry) tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
     // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
-    else if (emb.onAnswer(o.kind === 'hit' ? 'right' : 'wrong', r.target.id) === 'over') this.over = true
+    else {
+      const res = o.kind === 'hit' ? 'right' : 'wrong'
+      if ((emb.onAnswerRound ? emb.onAnswerRound(res, r) : emb.onAnswer(res, r.target.id)) === 'over') this.over = true
+    }
     const now = this.time.now()
     const msWalk = state.walking || result === 'timeout' ? now - this.walkStartedAt : null
     const pace = nextPace(tallies.read().pace, { result, msWalk, walkMs: r.walkMs })

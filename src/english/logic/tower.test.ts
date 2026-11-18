@@ -20,7 +20,7 @@ import { SOUND_KEYS, UNITS, unit } from '../content/units'
 import { WORDS, word } from '../content/words'
 import { PLACEMENT_ROUNDS } from '../content/placementRounds'
 import { wordPicture } from '../assets/images'
-import { EN_TOWER_OWN_LINES, choosePlacementRound, englishTower, enTowerRound, placementTower, type EnTowerDeps, type PictureOf } from './tower'
+import { EN_TOWER_OWN_LINES, choosePlacementRound, englishTower, enTowerRound, placementTower, towerFacts, type EnTowerDeps, type PictureOf } from './tower'
 
 const FULL: FeedbackPlan = { say: 'full', banner: true, waitMs: 0, tailMs: 0 }
 const SHORT: FeedbackPlan = { say: 'sound', banner: true, waitMs: 0, tailMs: 0 }
@@ -413,13 +413,14 @@ describe('the tower\'s answers count as any screen\'s', () => {
     const save = placed(3)
     const run = await towerRun(save)
     expect(run.view.screen?.screen).toBe('tower')
-    for (let i = 0; i < 5; i++) run.towerAnswer('right', 'v')
+    const v = enTowerRound(deps(save), opts(), { kind: 'letter', unit: 'v' })
+    for (let i = 0; i < 5; i++) run.towerAnswer('right', 'v', v)
     expect(save.read().tallies.v).toMatchObject({ seen: 5, wrong: 0 })
     expect(save.read().tallies['sc:tower']).toMatchObject({ seen: 5 })
     // five right first answers on his stage's new items pass stage 3
     expect(save.read().stage.stage).toBe(4)
     // an old unit counts for its tallies, not for the pass
-    run.towerAnswer('wrong', 'm')
+    run.towerAnswer('wrong', 'm', enTowerRound(deps(save), opts(), { kind: 'letter', unit: 'm' }))
     expect(save.read().tallies.m).toMatchObject({ seen: 1, wrong: 1 })
     expect(save.read().stage).toEqual({ stage: 4, newAnswers: '' })
     run.destroy()
@@ -428,10 +429,19 @@ describe('the tower\'s answers count as any screen\'s', () => {
   it('a tower word round at stage 5 counts its units', async () => {
     const save = placed(5)
     const run = await towerRun(save)
-    run.towerAnswer('wrong', 'clim')
+    run.towerAnswer('wrong', 'clim', enTowerRound(deps(save), opts(), { kind: 'name', word: 'clim' }))
     for (const f of ['c', 'l', 'i', 'm', 'cl-']) expect(save.read().tallies[f]).toMatchObject({ seen: 1, wrong: 1 })
     expect(save.read().stage.newAnswers).toBe('x')
     run.destroy()
+  })
+
+  it('the round\'s kind decides what an answer counts for: the unit a, or the heart word a', () => {
+    const letter = enTowerRound(deps(at(1)), opts(), { kind: 'letter', unit: 'a' })
+    expect(towerFacts(letter, 1)).toEqual({ features: ['a', 'sc:tower'], newStage: true })
+    // a word round on the heart word a (same id): its heart feature, never the unit's
+    const heart: Round = { ...letter, type: 'C', ask: 'name', target: { id: 'a', name: 'a', group: 'a' } }
+    expect(towerFacts(heart, 1)).toEqual({ features: ['heart:a', 'sc:tower'], newStage: true })
+    expect(englishTower(deps(at(1))).feedbackParts(heart, FULL)).toEqual(['hw-a'])
   })
 
   it('the Hebrew tower\'s answers stay the first duel\'s', async () => {
@@ -483,5 +493,41 @@ describe('the placement and the boss', () => {
     c.destroy()
     expect(hits).toBeGreaterThan(1)
     expect(heard).toHaveLength(1)
+  })
+})
+
+describe('the board hands the answered round on', () => {
+  it('with onAnswerRound, the run gets the round (its kind), not only its target id', async () => {
+    const save = at(3)
+    const d = deps(save)
+    const audio: DuelAudio = {
+      playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
+      lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
+    }
+    const got: { r: string; ask?: string; id: string }[] = []
+    let plain = 0
+    const c = new DuelController({
+      embedded: {
+        wave: 1, waves: 1, boss: false, seen: ['tower-intro'], onSeen: () => {}, onDone: () => {},
+        onAnswer: () => { plain++; return 'on' },
+        onAnswerRound: (r, round) => { got.push({ r, ask: round.ask, id: round.target.id }); return 'over' },
+      },
+      telemetry: { track: () => {}, flush: () => {} },
+      content: englishTower(d), makeRound: (o) => enTowerRound(d, o, { kind: 'letter', unit: 'v' }), tallies: save.towerTallies(),
+      audio, sleeper: instantSleeper(), rng: seeded(4),
+    })
+    let tapped = false
+    const stop = c.subscribe(() => {
+      const s = c.getView().state
+      if (!s.round || s.outcome || s.preview || s.paused || tapped) return
+      tapped = true
+      queueMicrotask(() => c.choose({ kind: 'rune', mark: s.round!.target }))
+    })
+    c.start()
+    await settle(() => got.length > 0)
+    stop()
+    c.destroy()
+    expect(got).toEqual([{ r: 'right', ask: 'letter', id: 'v' }])
+    expect(plain).toBe(0)
   })
 })

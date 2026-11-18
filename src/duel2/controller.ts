@@ -6,6 +6,7 @@ import type { Rng } from '../shared/adaptive'
 import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
 import type { Choice, Kind, LadderStep, RoundCtx } from './logic/rounds'
+import type { Round } from '../types/duel'
 import {
   TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
 } from './logic/run'
@@ -805,14 +806,14 @@ export class RunController {
   }
 
   /** An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. */
-  towerAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
+  towerAnswer(r: 'right' | 'wrong', markId: string, round?: Round): 'on' | 'over' {
     if (this.ending) return 'over'
     if (this.view.screen?.screen !== 'tower') return 'on'
     if (this.tower?.placement) return this.placementAnswer(r, markId)
     this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
     this.save.noteTowerAnswer(r === 'right')
     // a course whose tower answers count as its other screens' (English): its tallies and the stage pass
-    const facts = this.course.tower.facts?.(markId, this.stage)
+    const facts = round && this.course.tower.facts?.(round, this.stage)
     if (facts) {
       const { passed } = this.save.recordAnswer({ features: facts.features, miss: r !== 'right', newStage: facts.newStage })
       if (passed) {

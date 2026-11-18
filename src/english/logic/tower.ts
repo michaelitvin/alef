@@ -228,7 +228,8 @@ const CONFUSION_MIN = 2
 const LETTER_KINDS: readonly UnitKind[] = ['vowel', 'consonant', 'digraph', 'double', 'r-vowel', 'team']
 const letterPool = (stage: number) => UNITS.filter((u) => u.stage <= stage && !u.secondOf && LETTER_KINDS.includes(u.kind))
 const UNIT_IDS = new Set(UNITS.map((u) => u.id))
-const isUnitRound = (r: Round) => r.type !== 'C' && UNIT_IDS.has(r.target.id)
+/** a letter round asks a unit; a name or picture-word round a word (by the round's kind: the heart word `a` is no unit) */
+const isUnitRound = (r: Round) => r.ask === 'letter'
 
 /** the pictures of a unit's first sound (or last, `endOnly`): the asset plan's `Tl` words whose file is there */
 const picturesOf = (u: Unit, picture: PictureOf) => WORDS.filter((w) => w.picture && w.uses.includes(`Tl:${u.id}`) && picture(w.picture))
@@ -339,7 +340,7 @@ function letterRound(o: MakeRoundOpts, u: Unit, deps: EnTowerDeps, by?: 'picture
   const shown = shuffle(o.rng, runes)
   const example = pic ?? exampleOf(u)
   return {
-    id: o.id, type: pic ? 'A' : 'B', target: markOf(u.id, u.text),
+    id: o.id, type: pic ? 'A' : 'B', ask: 'letter', target: markOf(u.id, u.text),
     runes: shown.map((x) => markOf(x.id, x.text)), runeTexts: shown.map((x) => runeOf(x.id, x.text)),
     word: { key: example?.id ?? '', group: 'a', he: '' }, padWords: [],
     ...(pic ? { picture: deps.picture(pic.picture!) } : {}),
@@ -363,7 +364,7 @@ function wordRound(o: MakeRoundOpts, w: EnWord, picture: boolean, deps: EnTowerD
   for (const x of shuffle(o.rng, pool.filter((x) => x.units.length === w.units.length))) add(x)
   const shown = shuffle(o.rng, [w, ...others])
   return {
-    id: o.id, type: picture ? 'A' : 'C', target: markOf(w.id, w.text),
+    id: o.id, type: picture ? 'A' : 'C', ask: picture ? 'word' : 'name', target: markOf(w.id, w.text),
     runes: shown.map((x) => markOf(x.id, x.text)), runeTexts: shown.map((x) => runeOf(x.id, x.text)),
     word: { key: w.id, group: 'a', he: '' }, padWords: [],
     ...(picture ? { picture: deps.picture(w.picture!) } : {}),
@@ -386,19 +387,19 @@ export function enTowerRound(deps: EnTowerDeps, o: MakeRoundOpts, ask: TowerAsk)
  * and blends (enFeatures), and the screen. It counts towards the stage pass when it asks his stage's new items: a unit of
  * his stage, or a word of his stage (its new units are in it).
  */
-export function towerFacts(targetId: string, stage: number): { features: string[]; newStage: boolean } {
-  if (UNIT_IDS.has(targetId)) {
-    const u = unit(targetId)
+export function towerFacts(r: Round, stage: number): { features: string[]; newStage: boolean } {
+  if (isUnitRound(r)) {
+    const u = unit(r.target.id)
     return { features: enFeatures(unitChoice(u), 'tower'), newStage: u.stage === stage }
   }
-  const w = word(targetId)
+  const w = word(r.target.id)
   return { features: enFeatures(wordChoice(w), 'tower'), newStage: w.stage === stage }
 }
 
 /** the English tower's own lines beyond the first duel's 13 (data/lines.ts, EN_TOWER_LINE_IDS) */
 export const EN_TOWER_OWN_LINES = ['line-how-last', 'line-how-word'] as const
 
-const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text) : wordVoice(w.text))
+const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text) : w.kind === 'heart' ? heartVoice(w.text) : wordVoice(w.text))
 
 /** an introduction he does not need: the placement (or another screen) credited it as right before it was ever asked */
 const KNOWN: IntroState = { asked: 0, skipped: false, after: '', known: true }

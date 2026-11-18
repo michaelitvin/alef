@@ -16,6 +16,7 @@ import { MEGA_MAX } from '../../../utils/duel/rules'
 import { duel2Telemetry } from '../../telemetry'
 import { storeSavePort } from '../../savePort'
 import type { TowerView } from '../../controller'
+import type { Round } from '../../../types/duel'
 import type { Course } from '../../course/types'
 import { TEST_HOOKS } from '../../testHooks'
 import '../../../components/duel/duel.css'
@@ -25,7 +26,8 @@ interface TowerProps {
   paused: boolean
   /** the gallery: nothing is recorded */
   dry?: boolean
-  onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'
+  /** (`round`: the round answered, for a course whose tower answers count: Course.tower.facts) */
+  onAnswer: (r: 'right' | 'wrong', markId: string, round?: Round) => 'on' | 'over'
   onDone: (lastWave: number) => void
   /** a wave ended in the middle of the visit: true ends the visit there (stage 0 passed) */
   onWaveEnd?: (wave: number) => boolean
@@ -61,6 +63,8 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       owed: dry ? [] : save.read().towerOwed ?? [],
       onIntroduced: (id) => { if (!dry) save.monsterIntroduced(id) },
       onAnswer, onDone, dry,
+      // a course whose tower answers count (Course.tower.facts) gets the round answered
+      onAnswerRound: tower?.facts ? (r, round) => onAnswer(r, round.target.id, round) : undefined,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge, megaOff: !!placing,
     },

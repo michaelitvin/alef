@@ -45,6 +45,8 @@ export interface Round {
   picture?: string
   /** what each rune of `runes` shows, in the same order (the English rounds); unset: the Hebrew marks */
   runeTexts?: TowerRune[]
+  /** what a course's round asks (English: a unit's `letter`, a nonsense `name`, a picture's `word`); unset: Hebrew */
+  ask?: 'letter' | 'name' | 'word'
 }
 
 export type Choice = { kind: 'rune'; mark: DuelMark } | { kind: 'sound'; group: SoundGroup }

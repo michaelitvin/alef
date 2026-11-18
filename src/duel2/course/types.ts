@@ -3,6 +3,7 @@
 import type { createGameAudio } from '../../shared/gameAudio/kit'
 import type { DuelAudio } from '../../utils/duel/controller'
 import type { TowerContent } from '../../utils/duel/content'
+import type { Round } from '../../types/duel'
 import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { Word } from '../data/words'
@@ -93,10 +94,10 @@ export interface Course {
   tower: {
     content: TowerContent; tallies: () => DuelTallies; audio?: DuelAudio
     /**
-     * what a tower answer on `targetId` counts for: the run records it as any screen's answer (its features, and the stage
+     * what a tower answer on `round` counts for (its target, by what the round asks): the run records it as any screen's answer (its features, and the stage
      * pass when `newStage`). Hebrew: unset, the tower's answers stay the first duel's (English: logic/tower's towerFacts)
      */
-    facts?: (targetId: string, stage: number) => { features: string[]; newStage: boolean }
+    facts?: (round: Round, stage: number) => { features: string[]; newStage: boolean }
   }
   /**
    * the course's placement check in the tower (English, design Part 4; Hebrew: unset, its stage 0 is the book's): while
