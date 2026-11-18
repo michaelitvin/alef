@@ -3,10 +3,9 @@
 **Date:** 2026-11-16
 **Status:** Draft for the parent's review. Brainstormed with the parent on 2026-11-10 to 2026-11-16. A builder check ran on
 this document, and a rule-by-rule review against `docs/minigame-rules.md`; their findings are answered here.
-**Builds on:** [Book 2](2026-10-19-duel-book-2-design.md), [one duel](2026-11-11-one-duel-design.md),
+**Builds on:** `main` as of 2026-11-18 (the shared shell, audio kit, parent area, telemetry and review kit), [Book 2](2026-10-19-duel-book-2-design.md), [one duel](2026-11-11-one-duel-design.md),
 [Book 2 drawing](2026-11-07-book2-drawing-design.md), [the flight bosses](2026-11-07-book2-flight-boss-design.md),
-[girls](2026-11-07-girls-design.md), and the architecture of `docs/superpowers/plans/2026-11-16-improvement.md`
-(ADRs 0002–0005). Read [docs/minigame-rules.md](../../minigame-rules.md) first: every rule applies.
+[girls](2026-11-07-girls-design.md), and ADRs 0001–0007. Read [docs/minigame-rules.md](../../minigame-rules.md) first: every rule applies.
 **Mockups:** an HTML page built from the game's own parts, reviewed with the parent frame by frame. It is host-local,
 outside the repo. This document describes everything it shows.
 
@@ -366,7 +365,9 @@ the Hebrew path does not change. If yes: the same screen, right to left, purple,
 
 ## Part 9 — Parent area
 
-The English path has its own section in the shared parent area (the registry of the improvement plan):
+The English path has its own section in the shared parent area (`src/parent/`), behind the shared gate (the 2 s hold,
+then the parent's year of birth). It is a `GameParent` declared by the English course and listed in
+`src/parent/registry.ts`; there is no English parent screen of its own:
 - **Level found:** the stage, how many answers it took, the date; **Run the placement again**; **Start stage** (a
   choice of 1–9).
 - **Sound units:** every unit as a chip: knows / learning now / not seen yet. A tap shows its right, wrong and helped
@@ -378,7 +379,8 @@ The English path has its own section in the shared parent area (the registry of 
   `parent-check`.
 - **Settings:** the English path on or off (default on); the drawing on or off; the number range (up to 10, 100 or
   1000) is one setting for both paths, because it is about his counting, not his reading.
-- **Data:** the English log in the shared export.
+- **Data:** the English log in the shared export (declared as a `TelemetryLog` of the English `GameParent`).
+- **Sound settings** are the device's one setting (`alef-device`), as for every game; the English path adds none.
 
 ## Part 10 — Assets and budget
 
@@ -427,23 +429,40 @@ all nine stages in the first version). On staging, the placement walk uses only 
 
 ## Part 11 — How it fits the code
 
-The implementation follows the architecture branch (`feature/improve`, plan `2026-11-16-improvement.md`), and starts
-after it is merged into `main`. It may be built in parallel with Space Cat (see *Parallel work*).
+The implementation builds on what is on `main` (read `CLAUDE.md`'s map, `src/shared/README.md`, `src/parent/README.md`,
+`tools/review/README.md` and ADRs 0001–0007). It copies no per-game code: everything below that two games need comes
+from a shared module. It may be built in parallel with Space Cat (see *Parallel work*).
 
-- **One engine, two courses.** The run (`RunController`, its policies, its screens, the cover, the summary, the parent
-  section) is Book 2's. A *course* gives it what is language-specific: the content (items, stages, word lists), the round
-  builders of each screen, the audio table, the direction (right to left or left to right), the colours and the image set,
-  the save key and the telemetry game id. The Hebrew course is today's content and must behave exactly as before (its
-  tests stay green unchanged). My call: one app (`duel2/`) with the course chosen by the entry link
+- **One engine, two courses.** The run (`RunController`, its policies, its screens, the cover, the summary) is Book 2's.
+  A *course* gives it what is language-specific: the content (items, stages, word lists), the round builders of each
+  screen, the audio table, the direction (right to left or left to right), the colours and the image set, the save key,
+  the `GameParent` and the telemetry game id. The Hebrew course is today's content and must behave exactly as before
+  (its tests stay green unchanged). My call: one app (`duel2/`) with the course chosen by the entry link
   (`?course=en`), not a new Vite entry, so that the run, the merchant and the screens exist once.
-- **Saves:** the English progress has its own save; the Hebrew save is not migrated. Each save holds its own coin
-  balance, as Book 2's does now.
+- **Shell:** the English path starts through `useGameShell` (`src/shared/shell/`) like every game: the staging import,
+  the preload by `createPreloader` (the English fonts, images and voices), mute on hide, the play gate with the boy/girl
+  question, and `usePauseHold` under the pause cover.
+- **Audio:** one `createGameAudio({ game: 'english', voices, sfx, music, … })` instance of the shared kit
+  (`src/shared/gameAudio/`, ADR 0003). Its voice table holds the Puck files; the sound effects and music are Book 2's
+  files. Tests use `installFakeAudio()`. The device's one sound setting applies.
+- **Parent area:** `src/<course>/parent/index.ts`-style `GameParent` for English, listed in `src/parent/registry.ts`
+  (Part 9). Every way in goes through `src/shared/parentGate/`.
+- **Way out:** the shared `HomeButton` (`src/shared/HomeButton.tsx`), held, top-left on every English child screen, to
+  alef's home.
+- **Play time:** `usePlaytime('english', active)` (`src/shared/playtime.ts`).
+- **Telemetry:** one English log, declared as a `TelemetryLog` (with a roll-up of its items) in the English `GameParent`;
+  `src/parent/registry.ts` registers it, so it gets sealed chunks and its share of the one shared budget (ADR 0004,
+  ADR 0007). Every event carries `g: 'english'`.
+- **Saves:** the English progress has its own save, written through `persistSaveStorage()` (`src/shared/saveStorage.ts`);
+  the Hebrew save is not migrated. Each save holds its own coin balance, as Book 2's does now.
 - **The first duel's tower** (ADR 0002) is Hebrew-only code. The English tower is the same screen with English rounds; the
   builder decides whether `DuelController` takes a course or the English tower is a Book 2-style screen with the duel's
   look.
 - **Policies** (merchant, pass and hearts, flight boss, drawing round) take their language-specific parts (lines, items)
   from the course; their rules do not change.
-- **Telemetry:** the English run logs under its own game id, joined in the shared export.
+- **Checks:** `npm run check` (lint, dependency-cruiser boundaries, knip) and the tests, as in CI.
+- **Asset review** runs on the shared review kit (`tools/review/`, ADR 0006), with its CLI (`review open`, `notes`,
+  `retakes`, `answer`, `ask --take`, `ship`); no game-specific review server.
 
 ## Parallel work: Space Cat
 
