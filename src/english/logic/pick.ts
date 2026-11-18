@@ -4,8 +4,8 @@ import type { ScreenId } from '../../duel2/logic/predict'
 import { featurePrior, pickTarget } from '../../duel2/logic/predict'
 import type { Choice, RoundCtx } from '../../duel2/logic/rounds'
 import { NEW_SHARE } from '../../duel2/logic/stages'
-import { word } from '../content/words'
-import type { Unit } from '../content/units'
+import { word, type EnWord } from '../content/words'
+import { unit, type Unit } from '../content/units'
 
 /** The unit choice for a sound unit: its id is the unit's id. */
 export const unitChoice = (u: Unit): Choice => ({ kind: 'unit', id: u.id, text: u.text, soundId: 'snd-' + u.sound, itemId: u.id })
@@ -34,3 +34,9 @@ export function pickUnit(ctx: RoundCtx, pool: Unit[], screen: ScreenId = 'broom'
   if (fresh.length && fresh.length < pool.length && rng() < NEW_SHARE) cands = fresh
   return pickTarget(rng, cands, (u) => enFeatures(unitChoice(u), screen), ctx.tallies, ctx.recent, enPrior)
 }
+
+/** the item of an English choice: a unit, or a word */
+export const itemOfChoice = (c: Choice): Unit | EnWord => (c.kind === 'unit' ? unit(c.id) : word(c.id))
+
+/** An answer counts toward the stage pass when it asks his stage's new items: a unit or a word of his stage. */
+export const enIsNewStageChoice = (stage: number, c: Choice): boolean => itemOfChoice(c).stage === stage

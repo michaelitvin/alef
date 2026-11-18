@@ -17,7 +17,7 @@ import { heartVoice, nonsenseVoice, soundVoice, wordVoice } from '../content/voi
 import { WORDS, word, type EnWord } from '../content/words'
 import type { EnglishSave, IntroState, PlacementSave } from '../saveFormat'
 import type { Tally } from '../../shared/adaptive'
-import { introKind, introParts, introStep } from './intro'
+import { introAfter } from './intro'
 import { enFeatures, enPrior, pickUnit, unitChoice } from './pick'
 import { askOf, creditOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
 
@@ -226,7 +226,7 @@ const CONFUSION_MIN = 2
  * picture-word rounds.
  */
 const LETTER_KINDS: readonly UnitKind[] = ['vowel', 'consonant', 'digraph', 'double', 'r-vowel', 'team']
-const letterPool = (stage: number) => UNITS.filter((u) => u.stage <= stage && !u.secondOf && LETTER_KINDS.includes(u.kind))
+export const letterPool = (stage: number): Unit[] => UNITS.filter((u) => u.stage <= stage && !u.secondOf && LETTER_KINDS.includes(u.kind))
 const UNIT_IDS = new Set(UNITS.map((u) => u.id))
 /** a letter round asks a unit; a name or picture-word round a word (by the round's kind: the heart word `a` is no unit) */
 const isUnitRound = (r: Round) => r.ask === 'letter'
@@ -401,18 +401,6 @@ export const EN_TOWER_OWN_LINES = ['line-how-last', 'line-how-word'] as const
 
 const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text) : w.kind === 'heart' ? heartVoice(w.text) : wordVoice(w.text))
 
-/** an introduction he does not need: the placement (or another screen) credited it as right before it was ever asked */
-const KNOWN: IntroState = { asked: 0, skipped: false, after: '', known: true }
-const credited = (tallies: Record<string, Tally>, ids: string[]) => ids.length > 0 && ids.every((id) => (tallies[id]?.seen ?? 0) > 0 && !tallies[id]?.wrong)
-/** an introduction was said: asked, and not skipped (introStep sets `skipped` back to false when it shows one) */
-const introduced = (s: IntroState | undefined) => !!s && s.asked > 0 && !s.skipped
-
-/** the first unit of its kind (introKind: `qu` and `nk` are no "two letters, one sound") to be introduced */
-function firstOfKind(u: Unit, seen: Record<string, IntroState>): boolean {
-  const k = introKind(u)
-  return !!k && !UNITS.some((x) => x.id !== u.id && introKind(x) === k && introduced(seen[x.id]))
-}
-
 /**
  * The English tower: letter rounds (a picture or a sound, four letter runes), from stage 2 name rounds (a nonsense name,
  * three word runes), from stage 6 picture-word rounds. Feedback: the unit's sound, then the word ("fff. fox."). The
@@ -445,32 +433,6 @@ export function englishTower(deps: EnTowerDeps): TowerContent {
     },
     twinParts: (_r, c) => (c.kind === 'rune' ? ['line-almost', ...(UNIT_IDS.has(c.mark.id) ? [soundVoice(unit(c.mark.id))] : [])] : []),
     runeOf: (r, i) => r.runeTexts![i],
-    answered(r, right) {
-      const save = deps.save()
-      const s = save.read()
-      let key: string
-      let item: Unit | EnWord
-      let credit: string[]
-      if (isUnitRound(r)) {
-        item = unit(r.target.id)
-        key = item.id
-        credit = [item.id]
-      } else {
-        item = word(r.target.id)
-        if (!item.blends?.length) return []
-        // the stage's first blend word: one introduction for every blend (its key is 'blend')
-        key = 'blend'
-        credit = item.blends
-      }
-      const prev = s.introSeen[key]
-      if (!prev && credited(s.tallies, credit)) {
-        save.setIntro(key, KNOWN)
-        return []
-      }
-      const step = introStep(prev, right ? 'right' : 'wrong')
-      save.setIntro(key, step.state)
-      if (step.show !== 'intro') return []
-      return introParts(item, 'units' in item ? true : firstOfKind(item, s.introSeen))
-    },
+    answered: (r, right) => introAfter(deps.save(), isUnitRound(r) ? unit(r.target.id) : word(r.target.id), right),
   }
 }

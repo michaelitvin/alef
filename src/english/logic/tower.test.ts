@@ -530,4 +530,41 @@ describe('the board hands the answered round on', () => {
     expect(got).toEqual([{ r: 'right', ask: 'letter', id: 'v' }])
     expect(plain).toBe(0)
   })
+
+  it('a new unit right on its first ask is skipped, not taken as known, when the run records the answer first', async () => {
+    const save = at(3)
+    const d = deps(save)
+    const audio: DuelAudio = {
+      playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
+      lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
+    }
+    let answered = false
+    const c = new DuelController({
+      embedded: {
+        wave: 1, waves: 1, boss: false, seen: ['tower-intro'], onSeen: () => {}, onDone: () => {}, onAnswer: () => 'on',
+        // as the run does (RunController.towerAnswer): the answer goes into the same English tallies
+        onAnswerRound: (res, round) => {
+          save.recordAnswer({ features: towerFacts(round, 3).features, miss: res !== 'right', newStage: false })
+          answered = true
+          return 'over'
+        },
+      },
+      telemetry: { track: () => {}, flush: () => {} },
+      content: englishTower(d), makeRound: (o) => enTowerRound(d, o, { kind: 'letter', unit: 'v' }), tallies: save.towerTallies(),
+      audio, sleeper: instantSleeper(), rng: seeded(4),
+    })
+    let tapped = false
+    const stop = c.subscribe(() => {
+      const s = c.getView().state
+      if (!s.round || s.outcome || s.preview || s.paused || tapped) return
+      tapped = true
+      queueMicrotask(() => c.choose({ kind: 'rune', mark: s.round!.target }))
+    })
+    c.start()
+    await settle(() => answered && !!save.read().introSeen.v)
+    stop()
+    c.destroy()
+    expect(save.read().tallies.v).toMatchObject({ seen: 1, wrong: 0 })
+    expect(save.read().introSeen.v).toMatchObject({ asked: 1, skipped: true, known: false })
+  })
 })

@@ -1475,7 +1475,8 @@ export class RunController {
     else this.setScreen({ ...fresh, boss: undefined } as Partial<BroomView>)
     if (this.boss?.won) return this.bossWin(t)
     this.course.audio.startMusic(this.boss ? 'boss' : 'flight')
-    this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
+    // the hint shows a syllable's letter and vowel (a word's blend comes with the English hint)
+    this.set({ phase: 'question', hintAvailable: target.kind === 'syllable' })
     this.assets = []
     // a boss swoops in first (once), then its line; otherwise only the sound to catch (the demo taught the screen)
     if (this.boss) await this.bossRun(t, { type: 'arrive' }, target)
@@ -1715,8 +1716,17 @@ export class RunController {
   }
   private multLine(m: 1 | 2 | 3) { return this.course.lineAudioId('mult-up', m === 2 ? 1 : 2) }
 
+  /**
+   * a new item's introduction after an answer on it, said after its sound (the course's: English; Hebrew has none). Asked
+   * before the answer is recorded: it reads the tallies as they were before this answer
+   */
+  private introAfter(c: Choice, right: boolean): { id: string }[] {
+    return (this.course.rounds.introAfter?.(this.save, c, right) ?? []).map((p) => ({ id: 'line' in p ? this.variation(p.line) : p.id }))
+  }
+
   private onCatch(target: Choice, noPraise = false) {
     const st = this.save.read()
+    const intro = this.introAfter(target, true)
     this.record('broom', target, target, 'right')
     this.save.setPace(flightPace(st.pace, 'catch'))
     this.streak++
@@ -1724,8 +1734,8 @@ export class RunController {
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
       this.spokenTargets.add(target.soundId)
-      void this.course.audio.sayParts([{ id: this.cueId(target) }])
-    }
+      void this.course.audio.sayParts([{ id: this.cueId(target) }, ...intro])
+    } else if (intro.length) void this.course.audio.sayParts(intro)
     // the multiplier rises over the flight (its sound and line; no line on the catch that beats the boss)
     const m = multiplierOf(this.streak)
     if (m > this.view.mult) {
@@ -1749,6 +1759,7 @@ export class RunController {
       return 'on'
     }
     this.resetStreak()
+    const intro = this.introAfter(target, false)
     this.record('broom', target, hit, 'wrong')
     this.save.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
@@ -1758,7 +1769,7 @@ export class RunController {
     this.setScreen({ reveal: { right: right?.id ?? target.id, wrong: hit?.id }, missed: !hit, fx } as Partial<BroomView>)
     this.set({ hearts: this.hearts.left })
     if (outcome.over) return 'over'
-    void this.course.audio.sayParts([{ id: this.cueId(target) }])
+    void this.course.audio.sayParts([{ id: this.cueId(target) }, ...intro])
     this.time.after(1400, () => {
       const s = this.view.screen
       if (t === this.token && s?.screen === 'broom' && s.fx?.id === fx.id) this.setScreen({ reveal: undefined } as Partial<BroomView>)

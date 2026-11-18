@@ -1,4 +1,5 @@
-// 1 · Broom flight: the wizard rides in one of 3 lanes on the left; waves of 3 syllables (or letters) fly in from the right.
+// 1 · Broom flight: the wizard rides in one of 3 lanes on the left; waves of 3 syllables (or letters; English: units or
+// words, in Andika) fly in from the right.
 // He drags the wizard up or down (or taps a lane). The waves move only in the answer phase; the controller resolves a wave
 // when it reaches the wizard.
 import { useEffect, useRef, useState } from 'react'
@@ -14,6 +15,17 @@ import { BOSS_BOX, BROOM_ORB, BROOM_WIZARD_H, HP, LANE_Y, WIZ_W, WIZ_X, flightPa
 
 const LANE_H = 245
 export const BROOM_GLYPH_PX = 130
+/** a Latin glyph's advance per px (Andika, lowercase, about); a word's ink stays inside this share of the orb */
+const LATIN_ADVANCE = 0.55
+const WORD_IN_ORB = 0.85
+/**
+ * The size of an orb's text: a Hebrew letter or syllable, and a Latin unit of one or two letters, at BROOM_GLYPH_PX; a
+ * longer Latin word (an English word orb, in Andika) smaller, so that it stays inside the orb
+ */
+export function broomGlyphPx(text: string, latin: boolean): number {
+  if (!latin || text.length <= 2) return BROOM_GLYPH_PX
+  return Math.min(BROOM_GLYPH_PX, Math.floor((BROOM_ORB * WORD_IN_ORB) / (LATIN_ADVANCE * text.length)))
+}
 const BOSS_CX = BOSS_BOX.x + BOSS_BOX.w / 2
 const BOSS_CY = BOSS_BOX.y + BOSS_BOX.h / 2
 
@@ -117,7 +129,7 @@ export function Broom(p: {
               <g key={c.id} data-orb-i={i} data-lane={lane} transform={`translate(${x.toFixed(1)} 0)`}>
                 <ellipse cx={BROOM_ORB * 1.05} cy={y} rx={BROOM_ORB * 1.1} ry={BROOM_ORB * 0.3} fill="url(#d2-trail)" />
                 <Orb size={BROOM_ORB} x={0} y={y} state={state} testCorrect={c.id === p.correctId}>
-                  <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={y} alphabet={p.dir === 'ltr' ? 'latin' : 'hebrew'} />
+                  <Glyph text={c.text} px={broomGlyphPx(c.text, p.dir === 'ltr')} x={0} y={y} alphabet={p.dir === 'ltr' ? 'latin' : 'hebrew'} />
                 </Orb>
               </g>
             )

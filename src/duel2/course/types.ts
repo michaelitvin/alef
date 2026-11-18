@@ -35,8 +35,18 @@ export interface CourseStages {
  * makes a screen course-neutral changes its own member.
  */
 export interface CourseRounds {
+  /**
+   * the broom's sound or word to catch (`avoid`: the sound before). `kind` is the Hebrew run's letters or syllables; the
+   * English course ignores it and decides by its stage (a unit's sound, a word)
+   */
   broomTarget: (ctx: RoundCtx, kind: Kind, avoid?: string, screen?: ScreenId) => Choice
+  /** a wave of the broom: the target and the orbs flying with it */
   broomWave: (ctx: RoundCtx, target: Choice, kind: Kind) => Choice[]
+  /**
+   * the introduction due after an answer on `c` (logic of the English path: a new unit or heart word is asked once
+   * before its introduction), its step saved: lines (the run picks a take) and voice ids. Hebrew: unset, none
+   */
+  introAfter?: (save: SavePort, c: Choice, right: boolean) => ({ line: string } | { id: string })[]
   cauldronRound: (ctx: RoundCtx, avoid?: string) => { letter: Item; target: Syllable; orbs: Mark[] }
   ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
   ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => { fixed: LadderFixed; steps: LadderStep[] }

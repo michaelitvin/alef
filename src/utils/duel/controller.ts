@@ -518,6 +518,11 @@ export class DuelController {
     // Book 2's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
     // right answer for the mastery data (`recent`) nor for the pace
     const megaInRun = o.mega
+    // what the course says after the feedback (English: a new unit's introduction); the answer is the course's to keep.
+    // A boss fight flows: the course hears it once, at the hit that beats the boss. Heard before the run records the
+    // answer (onAnswerRound): the introduction reads the tallies as they were before this answer
+    const heard = !dry && !megaInRun && (!r.boss || (o.kind === 'hit' && o.final))
+    const after = heard ? this.content.answered?.(r, o.kind === 'hit') ?? [] : []
     if (!dry) tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
     // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
@@ -561,10 +566,6 @@ export class DuelController {
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !this.megaAnnounced && !emb.megaOff
     if (megaLine) this.megaAnnounced = true
 
-    // what the course says after the feedback (English: a new unit's introduction); the answer is the course's to keep.
-    // A boss fight flows: the course hears it once, at the hit that beats the boss
-    const heard = !dry && !megaInRun && (!r.boss || (o.kind === 'hit' && o.final))
-    const after = heard ? this.content.answered?.(r, o.kind === 'hit') ?? [] : []
     let recap = Promise.all([this.almost, this.time.sleep(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       // a defeated boss is congratulated first, then the usual recap
       .then(() => (r.boss && o.kind === 'hit' && o.final ? this.say('line-boss-win') : undefined))

@@ -1,9 +1,10 @@
 // The introductions: a new unit or heart word is asked once before it is introduced. A right answer skips the
 // introduction, and the next two answers decide: both right and he knows it; a miss brings the introduction after all.
-import type { Unit } from '../content/units'
+import { UNITS, type Unit } from '../content/units'
 import { WORDS, type EnWord } from '../content/words'
 import { heartVoice, nonsenseVoice, soundVoice, wordVoice } from '../content/voiceIds'
-import type { IntroState } from '../saveFormat'
+import type { EnglishSave, IntroState } from '../saveFormat'
+import type { Tally } from '../../shared/adaptive'
 
 const DECIDING = 2
 
@@ -58,4 +59,52 @@ export function introParts(item: Unit | EnWord, firstOfKind: boolean): string[] 
   if (item.secondOf) return ['intro-second', ...tail]
   const kind = firstOfKind ? introKind(item) : null
   return [...(kind ? [`intro-${kind}`] : []), 'intro-sound', ...tail]
+}
+
+/** what an introduction reads and writes of the English save (EnglishSavePort's part) */
+export interface IntroPort {
+  read(): Readonly<Pick<EnglishSave, 'tallies' | 'introSeen'>>
+  setIntro(id: string, s: IntroState): void
+}
+
+/** an introduction he does not need: the placement (or another screen) credited it as right before it was ever asked */
+const KNOWN: IntroState = { asked: 0, skipped: false, after: '', known: true }
+const credited = (tallies: Record<string, Tally>, ids: string[]) => ids.length > 0 && ids.every((id) => (tallies[id]?.seen ?? 0) > 0 && !tallies[id]?.wrong)
+/** an introduction was said: asked, and not skipped (introStep sets `skipped` back to false when it shows one) */
+const introduced = (s: IntroState | undefined) => !!s && s.asked > 0 && !s.skipped
+
+/** the first unit of its kind (introKind: `qu` and `nk` are no "two letters, one sound") to be introduced */
+function firstOfKind(u: Unit, seen: Record<string, IntroState>): boolean {
+  const k = introKind(u)
+  return !!k && !UNITS.some((x) => x.id !== u.id && introKind(x) === k && introduced(seen[x.id]))
+}
+
+/**
+ * Where an item's introduction is kept (`introSeen`) and the tallies that credit it: a unit by its id; a heart word by
+ * `heart:<word>` (the heart word `a` and the unit `a` share an id); a word with blends by 'blend' (one introduction for
+ * every blend: the stage's first blend word). Any other word has none.
+ */
+function introKey(item: Unit | EnWord): { key: string; credit: string[] } | null {
+  if (!('units' in item)) return { key: item.id, credit: [item.id] }
+  if (item.kind === 'heart') return { key: `heart:${item.id}`, credit: [`heart:${item.id}`] }
+  return item.blends?.length ? { key: 'blend', credit: item.blends } : null
+}
+
+/**
+ * One answer on `item` (any screen): its introduction's step is saved, and the voice ids of the introduction due now are
+ * returned (empty: none). An item the tallies credit as right before it was ever asked skips its introduction for good.
+ */
+export function introAfter(save: IntroPort, item: Unit | EnWord, right: boolean): string[] {
+  const k = introKey(item)
+  if (!k) return []
+  const s = save.read()
+  const prev = s.introSeen[k.key]
+  if (!prev && credited(s.tallies, k.credit)) {
+    save.setIntro(k.key, KNOWN)
+    return []
+  }
+  const step = introStep(prev, right ? 'right' : 'wrong')
+  save.setIntro(k.key, step.state)
+  if (step.show !== 'intro') return []
+  return introParts(item, 'units' in item ? true : firstOfKind(item, s.introSeen))
 }
