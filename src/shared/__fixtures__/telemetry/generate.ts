@@ -173,6 +173,20 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
 }
 
+/** a generator table: each event name's fields */
+type Table = Record<string, (r: R, t: number) => Record<string, unknown>>
+
+/**
+ * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
+ * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
+ */
+const ENGLISH: Table = {
+  player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'child' }),
+}
+
+/** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */
+const BOOK2_SPELL: Table = {}
+
 /** how often an event comes, against 1 for the rest (a session is mostly answers, as the child's are) */
 const WEIGHT: Record<string, number> = {
   answer: 30, 'tower-answer': 4, replay: 4, idle: 2, mult: 2, 'draw-stroke': 6, 'merchant-offer': 2, pause: 1.5, resume: 1.5,
@@ -199,19 +213,20 @@ export interface FixtureOpts {
 /** a session id as the game makes one: `<base36 ms>-<5 chars>` */
 const sessionId = (r: R, t: number) => `${t.toString(36)}-${Math.floor(r.next() * 36 ** 5).toString(36).padStart(5, '0')}`
 
-function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
-  const r = rng(o.seed ?? (game === 'book2' ? 7 : 11))
+/** a log of `game`: its table's events, and the tower's (`via: 'tower'`) when `tower` is set */
+function generate(game: string, table: Table, tower: boolean, seed: number, o: FixtureOpts): TelemetryEvent[] {
+  const r = rng(o.seed ?? seed)
   const days = o.days ?? 45
   const perDay = o.sessionsPerDay ?? 1
   const perSession = o.eventsPerSession ?? 150
   const oldDays = o.oldDays ?? 3
   const start = o.start ?? FIXTURE_START
   const out: TelemetryEvent[] = []
-  const names = game === 'book2' ? Object.keys(BOOK2) : Object.keys(CLOCK)
-  const tower = Object.keys(TOWER)
+  const names = Object.keys(table)
+  const towerNames = Object.keys(TOWER)
   let t = start
   // walk every name once first, so each appears in a fixture of any size
-  const cover: [boolean, string][] = [...names.map((n): [boolean, string] => [false, n]), ...(game === 'book2' ? tower.map((n): [boolean, string] => [true, n]) : [])]
+  const cover: [boolean, string][] = [...names.map((n): [boolean, string] => [false, n]), ...(tower ? towerNames.map((n): [boolean, string] => [true, n]) : [])]
   for (let d = 0; d < days; d++) {
     if (d % 4 === 3) continue // a day without play
     t = Math.max(t, start + d * DAY + r.int(0, 3) * 60 * 60 * 1000)
@@ -224,9 +239,9 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
         t += r.chance(0.05) ? 0 : r.int(200, 9000) // two events in one millisecond now and then
         if (r.chance(0.03)) run++
         const env: TelemetryEvent = d < oldDays ? { t, s, run, e: '' } : { t, s, run, e: '', g: game }
-        const [towerTurn, name] = cover.shift() ?? (game === 'book2' && r.chance(0.35) ? [true, weighted(r, tower)] : [false, weighted(r, names)])
+        const [towerTurn, name] = cover.shift() ?? (tower && r.chance(0.35) ? [true, weighted(r, towerNames)] : [false, weighted(r, names)])
         const e = name === 'tower-answer' ? 'answer' : name
-        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : (game === 'book2' ? BOOK2 : CLOCK)[name]!(r, t)
+        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : table[name]!(r, t)
         env.e = e
         out.push({ ...env, ...data })
       }
@@ -237,13 +252,18 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
 }
 
 /** Book 2's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
-export const book2Events = (o: FixtureOpts = {}) => generate('book2', o)
+export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, true, 7, o)
 /** the clock's log */
-export const clockEvents = (o: FixtureOpts = {}) => generate('clock', o)
+export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
+/** the English path's log (`g: 'english'`) */
+const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, false, 13, o)
+/** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
+const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 
 /** every event name the generators can send (Book 2, the tower, the clock) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK),
+  ...Object.keys(ENGLISH), ...Object.keys(BOOK2_SPELL),
 ])
 
 /** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
@@ -255,6 +275,8 @@ export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 /** the logs the goldens are made of (small, so the golden files stay small) */
 export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
 export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
+export const GOLDEN_ENGLISH = () => englishEvents({ eventsPerSession: 12 })
+export const GOLDEN_BOOK2_SPELL = () => book2SpellEvents({ eventsPerSession: 12 })
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>

@@ -13,6 +13,7 @@ import type { ScreenId } from '../logic/predict'
 import type { Choice, Kind, LadderStep, RoundCtx } from '../logic/rounds'
 import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
+import type { Duel2Actions, Duel2Save } from '../store'
 
 export type CourseId = 'he' | 'en'
 
@@ -56,6 +57,9 @@ export interface CourseRounds {
 type LadderFixed = 'letter' | 'vowel' | 'dot'
 type DrawCtx = Parameters<typeof drawWords>[0]
 
+/** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */
+export type SaveHook = <T>(pick: (s: Duel2Save & Duel2Actions) => T) => T
+
 /** the kit instance's voice, effects and music */
 export type CourseAudio = Pick<
   ReturnType<typeof createGameAudio>,
@@ -75,6 +79,8 @@ export interface Course {
   log: TelemetryLog
   /** lazy: the English store is created only on the English page */
   save: () => SavePort
+  /** lazy, like `save`: the save as a store hook, for the screens that subscribe to it (CourseContext's useCourseSave) */
+  store: () => SaveHook
   images: Record<string, string>
   /** the shell's preload (useGameShell's `preload`) */
   preload: () => Promise<void>

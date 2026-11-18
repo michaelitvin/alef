@@ -9,19 +9,18 @@ import { SpeakerIcon } from '../components/icons'
 import { HAND_DANA, LETTERS, STROKES, strokesOf, type LetterDef, type Script } from '../data/strokes'
 import { DRAW_FONT, strokeTiming } from '../logic/drawLayout'
 import { ITEMS } from '../logic/content'
-import { say } from '../audio/duel2Audio'
-import { useDuel2Store } from '../store'
+import { useCourse, useCourseSave } from '../course/CourseContext'
 import { WORDS } from '../data/words'
 import { StrokeWords } from './StrokeWords'
-import { duel2Telemetry } from '../telemetry'
 
 const SCRIPT_NAME: Record<Script, string> = { print: 'Print (כתב דפוס)', hand: 'Handwriting (כתב יד)' }
 /** the letter's name file (finals have none) */
 const nameOf = (letter: string) => ITEMS.find((i) => i.base === letter && !i.soft)?.id
 
 function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number; playing: boolean; onPlay: () => void }) {
-  const marks = useDuel2Store((s) => s.strokeMarks ?? {})
-  const markStrokes = useDuel2Store((s) => s.markStrokes)
+  const course = useCourse()
+  const marks = useCourseSave((s) => s.strokeMarks ?? {})
+  const markStrokes = useCourseSave((s) => s.markStrokes)
   const key = `${def.letter}-${def.script}`
   const mark = marks[key]
   const pts = def.variants.flatMap((v) => v.flatMap((s) => s.pts))
@@ -40,7 +39,7 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
   const setMark = (m: 'ok' | 'wrong') => {
     const next = mark === m ? null : m
     markStrokes(key, next)
-    duel2Telemetry.track('stroke-mark', { letter: def.letter, script: def.script, mark: next })
+    course.telemetry.track('stroke-mark', { letter: def.letter, script: def.script, mark: next })
   }
   return (
     <div data-stroke-card={key} className="d2-stroke-card" style={{ direction: 'ltr', borderColor: mark === 'ok' ? '#3c9a4c' : mark === 'wrong' ? '#c0392b' : '#ccc' }}>
@@ -77,7 +76,7 @@ function LetterCard({ def, ms, playing, onPlay }: { def: LetterDef; ms?: number;
         {def.strict ? ' · no pen-lift joining' : ''}
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-        {name && <button aria-label="letter name" onClick={() => void say([`ln-${name}`])} style={{ width: 40, height: 34, padding: 2, background: '#28145a' }}><SpeakerIcon /></button>}
+        {name && <button aria-label="letter name" onClick={() => void course.audio.say([`ln-${name}`])} style={{ width: 40, height: 34, padding: 2, background: '#28145a' }}><SpeakerIcon /></button>}
         <button onClick={onPlay}>{playing ? 'Stop' : 'Play'}</button>
         <button data-mark-ok onClick={() => setMark('ok')} style={{ fontWeight: mark === 'ok' ? 700 : 400 }}>Looks right</button>
         <button data-mark-wrong onClick={() => setMark('wrong')} style={{ fontWeight: mark === 'wrong' ? 700 : 400 }}>Wrong</button>
@@ -90,7 +89,7 @@ export function Strokes({ onBack }: { onBack: () => void }) {
   const [script, setScript] = useState<Script | 'both' | 'words'>('print')
   const [playing, setPlaying] = useState<string | 'all' | null>(null)
   const [ms, setMs] = useState(0)
-  const marks = useDuel2Store((s) => s.strokeMarks ?? {})
+  const marks = useCourseSave((s) => s.strokeMarks ?? {})
   useEffect(() => {
     if (!playing) return
     let raf = 0

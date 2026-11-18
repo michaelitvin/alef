@@ -1,7 +1,8 @@
 // A station link from the home screen's path (spec: one duel, Part 3): `?station=<ScreenId>` opens that minigame for one
 // session, but only when it is one of his open screens (a typed or stale link to a locked one opens the cover).
 import type { ScreenId } from './logic/predict'
-import { cycleOf } from './logic/run'
+import { cycleOf, HEBREW_STAGES } from './logic/run'
+import type { CourseStages } from './course/types'
 import { towerMastered } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
 
@@ -12,9 +13,11 @@ export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | nul
 
 /**
  * His open screens, as the home's path shows them: Book 2 counts as open once his first-duel marks are mastered, even
- * before he first opened Book 2 (its save then moves the first duel's progress over).
+ * before he first opened Book 2 (its save then moves the first duel's progress over). `stages`: the course's (the English
+ * page passes its save, its tower's answers and its stages; default Hebrew).
  */
-export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; bookOpen?: boolean } | null, duelRecent: Record<string, string>): ScreenId[] {
+export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; bookOpen?: boolean } | null, duelRecent: Record<string, string>,
+  stages: CourseStages = HEBREW_STAGES): ScreenId[] {
   const open = !!save?.bookOpen || towerMastered(duelRecent, DUEL_MARKS.map((m) => m.id))
-  return cycleOf(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, open)
+  return cycleOf(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, open, stages)
 }

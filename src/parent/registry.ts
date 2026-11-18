@@ -3,10 +3,12 @@
 import { book2Parent } from '../duel2/parent'
 import { clockParent } from '../clock/parent'
 import { lessonsParent } from '../lessons/parent'
+import { ENGLISH_PARENTS } from '../english/parent'
 import { registerTelemetryLogs } from '../shared/telemetry'
 import type { GameId, GameParent } from './types'
 
-export const GAMES: readonly GameParent[] = [book2Parent, clockParent, lessonsParent]
+/** the English path only where it can be opened (production lists no English section) */
+export const GAMES: readonly GameParent[] = [book2Parent, clockParent, lessonsParent, ...ENGLISH_PARENTS]
 
 // Core seals, folds and evicts every game's log, so it must know them all on every page (each game page loads this).
 registerTelemetryLogs(GAMES.flatMap((g) => g.logs ?? []))

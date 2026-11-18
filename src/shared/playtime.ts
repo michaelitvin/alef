@@ -1,14 +1,14 @@
 // The play-time ledger: how long the child played each game, per day, for the parent area's Progress section.
 // Telemetry cannot give this (its logs are trimmed, and the lessons have none). One key, `alef-playtime`:
-//   { v: 1, days: { 'YYYY-MM-DD': { book2: ms, clock: ms, lessons: ms } } }   (the device's local days, kept 60 days)
+//   { v: 1, days: { 'YYYY-MM-DD': { book2: ms, clock: ms, lessons: ms, english: ms } } }   (the device's local days, kept 60 days)
 // Two pages can write it (the main app and Book 2's page), and a page can come back from the back/forward cache, so a
 // flush always reads the key, adds its own span and writes: no copy in memory is ever written back. It is a save-like
 // key: `?copy-prod` copies it (it is a few hundred bytes), and the staging build keeps its own under `staging:`.
 import { useEffect, useRef } from 'react'
 import { safeSetItem } from './saveStorage'
 
-export type PlaytimeGame = 'book2' | 'clock' | 'lessons'
-export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['book2', 'clock', 'lessons']
+export type PlaytimeGame = 'book2' | 'clock' | 'lessons' | 'english'
+export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['book2', 'clock', 'lessons', 'english']
 export const PLAYTIME_KEY = 'alef-playtime'
 export const PLAYTIME_KEEP_DAYS = 60
 /** how often a visible, running screen writes its time (ms) */
@@ -58,7 +58,7 @@ export function lastDays(n: number, now = Date.now(), doc: Playtime = readPlayti
     const d = new Date(now); d.setDate(d.getDate() - i)
     const day = dayKey(d)
     const row = doc.days[day] ?? {}
-    out.push({ day, ms: { book2: row.book2 ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0 } })
+    out.push({ day, ms: { book2: row.book2 ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0, english: row.english ?? 0 } })
   }
   return out
 }

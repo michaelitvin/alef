@@ -40,7 +40,7 @@ describe('the parent area', () => {
   })
 
   it('every game registers its part; the registry knows book2, clock and the lessons', () => {
-    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'lessons'])
+    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'lessons', 'english'])
   })
 
   it('progress: each game\'s line and top mix-ups come from its raw save, and no other game\'s save is written', async () => {

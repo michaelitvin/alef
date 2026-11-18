@@ -23,8 +23,8 @@ import { DotOverlay, ExplainOverlay, HintCard, WordLink } from './Overlays'
 import { PauseCover } from './PauseCover'
 import { MistakeFx } from '../components/MistakeFx'
 import { HealFly } from '../components/HealFly'
-import { holdAudio } from '../audio/duel2Audio'
-import { useDuel2Store } from '../store'
+import { holdAudio } from '../../shared/gameAudio/output'
+import { useCourse, useCourseSave } from '../course/CourseContext'
 import { TEST_HOOKS } from '../testHooks'
 import { useWizardArt } from '../assets/images'
 import { BAND_CONTENT_W, homeInBar, layoutVars, nextInMiddle, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
@@ -125,12 +125,15 @@ export function Play({ opts, onOver, onExit }: {
   /** a full run: the held home button leaves the run (it stops first: RunController.exit); none in a session or the gallery */
   onExit?: () => void
 }) {
-  const run = useRun(opts)
+  // the course the run plays: the one given, else the page's (CourseContext; Hebrew without a provider)
+  const page = useCourse()
+  const course = opts.course ?? page
+  const run = useRun({ ...opts, course })
   const wiz = useWizardArt()
-  const coins = useDuel2Store((s) => s.coins ?? 0)
+  const coins = useCourseSave((s) => s.coins ?? 0)
   const v = run.view
-  // play time for the parent's Progress section: not in the gallery's sandbox, not under the pause cover
-  usePlaytime('book2', !opts.sandbox && !v.paused && !v.over)
+  // play time for the parent's Progress section, under the course's game: not in the gallery's sandbox, not under the pause cover
+  usePlaytime(course.game, !opts.sandbox && !v.paused && !v.over)
   const size = useWindowSize()
   const reported = useRef(false)
   const [demoT, setDemoT] = useState(0)
@@ -169,7 +172,7 @@ export function Play({ opts, onOver, onExit }: {
             const path = demoPath(v, size)
             return (
               <>
-                <ScreenFor run={run} v={v} demoT={demoT} size={size} course={opts.course} />
+                <ScreenFor run={run} v={v} demoT={demoT} size={size} course={course} />
                 {path && (
                   <svg className="d2-stage d2-overlay" viewBox={overlayViewBox(v, size)} preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
                     <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} loop />
@@ -182,7 +185,7 @@ export function Play({ opts, onOver, onExit }: {
       ) : v.merchant ? (
         <Merchant v={v.merchant} onCoin={(value) => run.onGesture({ type: 'coin', value })} onHand={() => run.onGesture({ type: 'hand' })}
           onPotion={() => run.onGesture({ type: 'potion' })} onDecline={() => run.onGesture({ type: 'decline' })} />
-      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} size={size} course={opts.course} />}
+      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} size={size} course={course} />}
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}

@@ -6,16 +6,13 @@
 // itself. The voice says the run-end line (and the new-best line) — neither
 // praise for a loss nor disappointment (rule).
 import { useEffect, useRef } from 'react'
-import { duel2Telemetry } from '../telemetry'
-import { say } from '../audio/duel2Audio'
-import { lineAudioId } from '../data/lines'
 import { PlayIcon, TrophyIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { StarCount } from '../components/StarCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossTrophy } from '../components/BossShelf'
 import { BOSS_KINDS, bossOpen, type BossKind } from '../logic/boss'
-import { useDuel2Store } from '../store'
+import { useCourse, useCourseSave } from '../course/CourseContext'
 import type { Stage } from '../logic/content'
 import { HomeButton } from '../components/TopBar'
 
@@ -29,18 +26,20 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   /** a full run: the home button (a 2 s hold) in the corner */
   onExit?: () => void
 }) {
-  const best = useDuel2Store((s) => s.bestRun)
-  const coins = useDuel2Store((s) => s.coins ?? 0)
-  const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
-  const stage = useDuel2Store((s) => s.stage.stage) as Stage
+  // the open course's voice, log and save (the English path has its own purse and bests)
+  const course = useCourse()
+  const best = useCourseSave((s) => s.bestRun)
+  const coins = useCourseSave((s) => s.coins ?? 0)
+  const beaten = useCourseSave((s) => s.bossesBeaten ?? [])
+  const stage = useCourseSave((s) => s.stage.stage) as Stage
   // how long he looked at the end screen before playing again (the parent: he gives up after a loss)
   const shown = useRef(Date.now())
   const home = useRef(onHome)
   home.current = onHome
   useEffect(() => {
-    const ids = [lineAudioId('run-end', 1 + Math.floor(Math.random() * 3))]
-    if (over.best && !over.session) ids.push(lineAudioId('new-best', 1 + Math.floor(Math.random() * 2)))
-    const said = say(ids)
+    const ids = [course.lineAudioId('run-end', 1 + Math.floor(Math.random() * 3))]
+    if (over.best && !over.session) ids.push(course.lineAudioId('new-best', 1 + Math.floor(Math.random() * 2)))
+    const said = course.audio.say(ids)
     if (!over.session) return
     // a session: home by itself after its line (no button: rule). A lock stops the wait; coming back starts it again.
     let alive = true
@@ -49,13 +48,13 @@ export function Summary({ over, onAgain, onHome, onExit }: {
     const arm = () => {
       window.clearTimeout(timer)
       if (!alive || !lineDone || document.visibilityState === 'hidden') return
-      timer = window.setTimeout(() => { if (!alive) return; alive = false; duel2Telemetry.track('session-home', {}); home.current?.() }, HOME_AFTER_MS)
+      timer = window.setTimeout(() => { if (!alive) return; alive = false; course.telemetry.track('session-home', {}); home.current?.() }, HOME_AFTER_MS)
     }
     void Promise.resolve(said).catch(() => {}).then(() => { lineDone = true; arm() })
     const vis = () => { if (document.visibilityState === 'hidden') window.clearTimeout(timer); else arm() }
     document.addEventListener('visibilitychange', vis)
     return () => { alive = false; window.clearTimeout(timer); document.removeEventListener('visibilitychange', vis) }
-  }, [over])
+  }, [over, course])
   const won = [...new Set(over.bosses ?? [])]
   // the next boss that waits for him: one his stage has opened first (none after a session from the path)
   const waiting = BOSS_KINDS.filter((k) => !beaten.includes(k))
@@ -84,7 +83,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
       {!over.session && onExit && <HomeButton onHome={onExit} />}
       {!over.session && (
         <div className="d2-summary-row">
-          <button aria-label="play again" className="d2-play d2-play-big" onClick={() => { duel2Telemetry.track('again', { ms: Date.now() - shown.current, score: over.score }); onAgain() }}><PlayIcon /></button>
+          <button aria-label="play again" className="d2-play d2-play-big" onClick={() => { course.telemetry.track('again', { ms: Date.now() - shown.current, score: over.score }); onAgain() }}><PlayIcon /></button>
         </div>
       )}
     </div>

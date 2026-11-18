@@ -14,6 +14,7 @@ import {
 } from '../logic/rounds'
 import { HEBREW_STAGES } from '../logic/run'
 import { storeSavePort } from '../savePort'
+import { useDuel2Store } from '../store'
 import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
@@ -43,6 +44,7 @@ export const HEBREW: Course = {
   telemetry: duel2Telemetry,
   log: BOOK2_LOG,
   save: () => storeSavePort,
+  store: () => useDuel2Store,
   images: IMAGES,
   preload: preloadDuel2Assets,
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
