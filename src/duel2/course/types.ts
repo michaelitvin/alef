@@ -75,15 +75,17 @@ type LadderFixed = 'letter' | 'vowel' | 'dot'
 
 /**
  * A ladder's rung: he hears `target` and drags the plate that makes it. English: `parts` are the target's boxes, `at` the
- * one changed from the word below (`parts[at]` is the right plate; unset on the first rung, where the word is the plate),
- * `grow` 1 when it is a box more than the word below (lip → slip; -1 a box fewer). Hebrew: none of them.
+ * one changed from the word below (`parts[at]` is the right plate), `grow` 1 when it is a box more than the word below
+ * (lip → slip; -1, a box fewer, is reserved: no chain drops one). Hebrew: none of them.
  */
 export type LadderPlanStep = LadderStep & { at?: number; grow?: 1 | -1; parts?: Choice[] }
 /**
  * A ladder, for both courses. `fixed`: the part that stays on every rung (Hebrew only); `marked`: the changed place is
- * marked on the rung he makes (Hebrew always; English stages 1–3).
+ * marked on the rung he makes (Hebrew always; English stages 1–3); `base`: the ladder's foot, built already and said
+ * before the first rung (English: the chain's first word and its boxes; Hebrew: none). The run's visit has as many
+ * rounds as `steps` (at most the rungs asked for).
  */
-export interface LadderPlan { fixed?: LadderFixed; marked: boolean; steps: LadderPlanStep[] }
+export interface LadderPlan { fixed?: LadderFixed; marked: boolean; base?: { target: Choice; parts: Choice[] }; steps: LadderPlanStep[] }
 
 /**
  * A cauldron round, for both courses. `boxes`: the parts of the word shown, `boxes[gap]` the one missing (the right

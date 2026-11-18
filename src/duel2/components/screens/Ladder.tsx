@@ -54,6 +54,26 @@ function rungBoxes(c: RungChange): { text: string | null; mark: boolean }[] {
   return boxes
 }
 
+/**
+ * Where a drop at stage x puts the part on an unmarked rung (he finds the place): the box under it when a box changes,
+ * the gap between boxes (0: before the first) when one comes in
+ */
+function dropPlace(c: RungChange, x: number): number {
+  const { xs } = rungBoxXs(c.from.length)
+  if (c.grow === 1) return xs.filter((bx) => bx < x).length
+  let best = 0
+  xs.forEach((bx, i) => { if (Math.abs(bx - x) < Math.abs(xs[best] - x)) best = i })
+  return best
+}
+
+/** where the part goes on the rung he makes (the demo's hand): its box, or the gap where a box comes in */
+export function rungPlaceX(c: RungChange): number {
+  if (c.marked) { const { xs } = rungBoxXs(rungBoxes(c).length); return xs[c.at] }
+  const { xs, w } = rungBoxXs(c.from.length)
+  if (c.grow !== 1) return xs[c.at]
+  return c.at === 0 ? xs[0] - w / 2 : c.at >= xs.length ? xs[xs.length - 1] + w / 2 : (xs[c.at - 1] + xs[c.at]) / 2
+}
+
 function MakingRung(p: { change: RungChange; y: number }) {
   const boxes = rungBoxes(p.change)
   const { xs, w } = rungBoxXs(boxes.length)
@@ -112,7 +132,10 @@ export function ladderBoxes(built: number, rungs: number, view: FullView | null 
   }
 }
 
-export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; onPick: (id: string) => void; phase: Phase; reveal?: { right: string; wrong?: string }; correctId?: string
+export function Ladder(p: {
+  built: Choice[]; plates: Choice[]; rungs: number
+  /** `box`: on an unmarked English rung, the place he dropped the plate on (dropPlace; unset: a tap) */
+  onPick: (id: string, box?: number) => void; phase: Phase; reveal?: { right: string; wrong?: string }; correctId?: string
   /** the demo drags this plate to the next rung as the hand moves (t from 0 to 1) */
   demo?: { id: string; t: number }
   /** the screen's size: on a phone on its side the ladder rises into the band (ladderView) */
@@ -130,6 +153,7 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
   const b = ladderBoxes(p.built.length, p.rungs, view)
   const fixY = b.plateYs
   const can = p.phase === 'answer'
+  const change = p.change && p.plates.length > 0 && p.built.length < p.rungs ? p.change : undefined
   return (
     <Stage bg="bg-ground" dir={p.dir} {...(view ? { viewBox: viewBoxOf(view), 'data-into-band': '' } : {})}>
       {IMAGES['s-ladder']
@@ -140,7 +164,7 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
           <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={px(c.text, RUNG_W)} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
         </g>
       ))}
-      {p.change && p.plates.length > 0 && p.built.length < p.rungs && <MakingRung change={p.change} y={nextRungY(p.built.length, p.rungs)} />}
+      {change && <MakingRung change={change} y={nextRungY(p.built.length, p.rungs)} />}
       {wiz('s-wizard-idle') && (
         // a new ladder: he is back at the start at once (sliding down from the top he would pass under the bar's buttons)
         <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb"
@@ -152,10 +176,11 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         const rungY = nextRungY(p.built.length, p.rungs)
         return (
-          <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')} onPick={() => p.onPick(c.id)}
+          <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
+            onPick={(q) => (change && !change.marked && q ? p.onPick(c.id, dropPlace(change, q.x)) : p.onPick(c.id))}
             // anywhere over the ladder counts (a child's drop is not precise)
             inZone={(q) => Math.abs(q.x - LADDER_CX) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
-            demo={p.demo?.id === c.id ? { t: p.demo.t, dx: LADDER_CX - PLATE_X, dy: rungY - fixY[i] } : undefined}>
+            demo={p.demo?.id === c.id ? { t: p.demo.t, dx: (change ? rungPlaceX(change) : LADDER_CX) - PLATE_X, dy: rungY - fixY[i] } : undefined}>
             <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
               <Glyph text={c.text} px={px(c.text, PLATE_W)} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />
             </Plate>

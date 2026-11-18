@@ -8,7 +8,7 @@ import { item as itemOf, mark as markOf, type MarkId } from '../logic/content'
 import { Broom } from '../components/screens/Broom'
 import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
 import { Cauldron, CauldronWord, ORB_X, ORB_Y, TILE_X } from '../components/screens/Cauldron'
-import { Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs } from '../components/screens/Ladder'
+import { Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs, rungPlaceX } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
@@ -55,7 +55,7 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
-      return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={pick} phase={v.phase} reveal={s.reveal} correctId={test ? ladderAnswerId(s) : undefined}
+      return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={(id, box) => run.onGesture({ type: 'pick', id, ...(box !== undefined ? { box } : {}) })} phase={v.phase} reveal={s.reveal} correctId={test ? ladderAnswerId(s) : undefined}
         demo={demoT !== undefined ? { id: ladderAnswerId(s), t: demoT } : undefined} size={size} dir={dir}
         {...(s.from ? { change: { from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked } } : {})} />
     case 'ghosts':
@@ -83,7 +83,9 @@ function demoPath(v: View, size: { w: number; h: number }): { from: { x: number;
   if (s.screen === 'cauldron') { const i = s.orbs.indexOf(s.target.mark!); return { from: { x: ORB_X[i], y: ORB_Y }, to: { x: 800, y: 650 } } }
   if (s.screen === 'ladder') {
     const i = s.plates.findIndex((p) => p.id === ladderAnswerId(s))
-    return { from: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs, plateTop(ladderView(size)))[i] }, to: { x: LADDER_CX, y: nextRungY(s.built.length, s.rungs) } }
+    // (an English rung: the hand goes to the place that changes)
+    const x = s.from ? rungPlaceX({ from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked }) : LADDER_CX
+    return { from: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs, plateTop(ladderView(size)))[i] }, to: { x, y: nextRungY(s.built.length, s.rungs) } }
   }
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
   if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: KEY_X[i], y: 690 }, to: { x: 800, y: 560 } } }

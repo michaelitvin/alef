@@ -17,7 +17,8 @@ export function DragPick(p: {
   enabled: boolean
   /** the drop zone, in stage coordinates of the finger */
   inZone: (q: { x: number; y: number }) => boolean
-  onPick: () => void
+  /** the pick: a drop gives the finger's stage point where he let go, a tap none */
+  onPick: (q?: { x: number; y: number }) => void
   children: ReactNode
   /** demo: how far (0–1) the choice has moved from its place toward `to` (dx, dy in stage units) */
   demo?: { t: number; dx: number; dy: number }
@@ -54,7 +55,7 @@ export function DragPick(p: {
         const moved = d.moved || Math.hypot(q.x - d.sx, q.y - d.sy) > MOVE_PX
         setD(null)
         p.onDrag?.(null)
-        if (!moved || p.inZone(q)) p.onPick()
+        if (!moved || p.inZone(q)) p.onPick(moved ? q : undefined)
       }}
       onPointerCancel={() => { setD(null); p.onDrag?.(null) }}>
       {p.children}

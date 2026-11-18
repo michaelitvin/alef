@@ -231,7 +231,9 @@ export class RunController {
   /** the round the demo showed is the first round he plays (the parent: the letter changed after the demo) */
   private demoRound = false
   private fxId = 0
-  private ladder: (LadderPlan & { built: Choice[] }) | null = null
+  private ladder: (LadderPlan & { built: Choice[]; footSaid?: boolean }) | null = null
+  /** the box of the rung he made that the plate was dropped on (an unmarked English rung; unset: a tap, or elsewhere) */
+  private pickBox: number | undefined
   private doorWords: Word[] = []
   /** stops the broom's tick */
   private broomStop: Cancel | undefined
@@ -312,7 +314,7 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
+  gesture(g: { type: 'pick'; id: string; box?: number } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
     if (this.view.paused) return
     if (g.type === 'touch') { this.dropHint(g.by); return }
     if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantStep(g); return }
@@ -343,6 +345,7 @@ export class RunController {
     if (this.view.phase !== 'answer' || !this.pickWaiter) return
     const w = this.pickWaiter
     this.pickWaiter = null
+    this.pickBox = g.box
     w(g.id)
   }
   next() {
@@ -997,14 +1000,21 @@ export class RunController {
       return target
     }
     if (screen === 'ladder') {
-      if (!this.ladder) this.ladder = { ...this.course.rounds.ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
-      const k = this.ladder.built.length
+      if (!this.ladder) {
+        const plan = this.course.rounds.ladderPlan(c, this.visitLen, this.opts.force?.fixed)
+        // the ladder's foot (English) is built already; the visit has as many rounds as the plan has rungs to make
+        this.ladder = { ...plan, built: plan.base ? [plan.base.target] : [] }
+        this.visitLen = Math.min(this.visitLen, plan.steps.length)
+      }
+      const foot = this.ladder.base ? 1 : 0
+      const k = this.ladder.built.length - foot
       const step = this.ladder.steps[k]
       // English: the rung he makes is the word below, its changed place marked at the early stages
+      const below = k > 0 ? this.ladder.steps[k - 1].parts : this.ladder.base?.parts
       const change = step.at !== undefined
-        ? { from: this.ladder.steps[k - 1].parts, parts: step.parts, at: step.at, ...(step.grow ? { grow: step.grow } : {}), marked: this.ladder.marked }
+        ? { from: below, parts: step.parts, at: step.at, ...(step.grow ? { grow: step.grow } : {}), marked: this.ladder.marked }
         : {}
-      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target, ...change } })
+      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen + foot, target: step.target, ...change } })
       return step.target
     }
     if (screen === 'ghosts') {
@@ -1069,6 +1079,12 @@ export class RunController {
       }
     }
     const c = target as Choice
+    // the ladder's foot (English): he hears the word it starts from before the first rung
+    if (screen === 'ladder' && this.ladder?.base && !this.ladder.footSaid) {
+      this.ladder.footSaid = true
+      await this.say(t, [{ id: this.cueId(this.ladder.base.target) }])
+      await this.sleep(t, 300)
+    }
     const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
     // the answers are open while the cue plays; a tap stops the reading (rule)
     const early = this.waitPick(t)
@@ -1177,8 +1193,16 @@ export class RunController {
     } else tapped = this.choicesOf(screen).find((x) => x.id === pickedId)
     // on an English ladder rung the changed part (he heard the word it makes)
     if (s.screen === 'ladder' && s.at !== undefined) answer = s.parts![s.at]
+    const box = this.pickBox
+    this.pickBox = undefined
     if (!tapped) return 'near'
     const right = tapped.id === answer.id || tapped.soundId === answer.soundId
+    // an unmarked English rung: he finds the place (design Part 5). The right part put anywhere else (or tapped) is
+    // "almost": no answer, no heart; he tries again
+    if (right && s.screen === 'ladder' && s.at !== undefined && !s.marked && box !== s.at) {
+      await this.say(t, [{ id: this.variation('almost') }])
+      return 'near'
+    }
     const near = !right && tapped.nearMissOf === answer.id
     const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
     // a new unit's introduction (the English cauldron and ladder; Hebrew has none), asked before the answer is recorded; a

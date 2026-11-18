@@ -193,7 +193,9 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
         if (armed) {
           armed = false
           const id = pickId(v, answer(v) === 'right')
-          if (id) c.gesture({ type: 'pick', id })
+          // an unmarked English ladder rung: the plate is dropped on the place that changes
+          const box = s.screen === 'ladder' && s.at !== undefined && !s.marked ? { box: s.at } : {}
+          if (id) c.gesture({ type: 'pick', id, ...box })
         }
       }
       if (v.phase !== 'answer') armed = true
