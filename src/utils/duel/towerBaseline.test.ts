@@ -1,4 +1,4 @@
-// The baseline of the tower (Book 2's first duel) before the course seam: two waves and a boss on a seeded rng, an
+// The baseline of the tower (Book 2's first duel) before the course seam: four waves (name screens, and their twin trap, start at wave 3) and a boss on a seeded rng, an
 // instant clock and the fake audio kit, embedded as Book 2 embeds it. A later diff in these snapshots is a regression.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DuelController, type DuelEmbedded } from './controller'
@@ -55,7 +55,9 @@ async function visit(emb: Pick<DuelEmbedded, 'wave' | 'waves' | 'boss'>): Promis
     if (key === last) return
     last = key
     if (!roundIds.has(r.id)) { roundIds.add(r.id); v.rounds.push({ type: r.type, target: r.target.id, runes: r.runes.map((m) => m.id) }) }
-    const wrong = ++n % 3 === 0
+    // wrong every third answer, and always when the round has a twin to tap (kamatz/patach on a name screen)
+    const twinAt = r.type === 'C' ? r.runes.find((m) => m.id !== r.target.id && isTwin(r, { kind: 'rune', mark: m })) : undefined
+    const wrong = ++n % 3 === 0 || !!twinAt
     const right: Choice = r.type === 'D' ? { kind: 'sound', group: r.target.group } : { kind: 'rune', mark: r.target }
     const others: Choice[] = r.type === 'D'
       ? r.padWords.filter((w) => w.group !== r.target.group).map((w) => ({ kind: 'sound', group: w.group }) as Choice)
@@ -71,20 +73,37 @@ async function visit(emb: Pick<DuelEmbedded, 'wave' | 'waves' | 'boss'>): Promis
   return v
 }
 
-describe('the tower baseline', () => {
-  it('two waves, then a boss: the lines, the rounds, the events and the first duel\'s save', async () => {
-    const log = { lines: [] as string[], rounds: [] as Visit['rounds'], events: [] as unknown[], answers: [] as string[], done: [] as number[] }
-    for (const emb of [{ wave: 1, waves: 2, boss: false }, { wave: 5, waves: 1, boss: true }]) {
+/** the whole scenario from a clean start; `Math.random` (the fx picker, the shake) is pinned to a seeded sequence */
+async function scenario() {
+  localStorage.clear()
+  useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+  audio.reset()
+  const rnd = seeded(11)
+  const spy = vi.spyOn(Math, 'random').mockImplementation(rnd)
+  const log = { lines: [] as string[], rounds: [] as Visit['rounds'], events: [] as unknown[], answers: [] as string[], done: [] as number[] }
+  try {
+    for (const emb of [{ wave: 1, waves: 4, boss: false }, { wave: 5, waves: 1, boss: true }]) {
       const v = await visit(emb)
       log.rounds.push(...v.rounds)
       log.events.push(...v.events)
       log.answers.push(...v.answers)
       log.done.push(...v.done)
     }
-    setDuelAudioLog(null)
-    log.lines = audio.said()
-    expect(log.answers.length).toBeGreaterThan(10)
-    expect(log).toMatchSnapshot()
-    expect(useProgressStore.getState().duel).toMatchSnapshot()
+  } finally { spy.mockRestore(); setDuelAudioLog(null) }
+  log.lines = audio.said()
+  return { log, duel: useProgressStore.getState().duel }
+}
+
+describe('the tower baseline', () => {
+  it('two waves, then a boss: the lines, the rounds, the events and the first duel\'s save; twice the same', async () => {
+    const a = await scenario()
+    const b = await scenario()
+    expect(b).toEqual(a)
+    expect(a.log.answers.length).toBeGreaterThan(10)
+    // the forgiven twin was tapped at least once (a choice event says so, and the save counts it)
+    expect(a.log.events.some((x) => (x as { e: string; data: { twin?: boolean } }).e === 'choice' && (x as { data: { twin?: boolean } }).data.twin === true)).toBe(true)
+    expect(Object.values(a.duel.byMark).reduce((n, t) => n + t.twin, 0)).toBeGreaterThan(0)
+    expect(a.log).toMatchSnapshot()
+    expect(a.duel).toMatchSnapshot()
   }, 120_000)
 })

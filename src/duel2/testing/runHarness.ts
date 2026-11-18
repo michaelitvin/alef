@@ -161,7 +161,7 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
     let broomWave = -1
     let broomRight = true
     let drawKey = ''
-    let drawWrongSent = false
+    let skipWrong = false
     for (let guard = 0; guard < 20_000 && !c.view.over; guard++) {
       autoTower(c)
       note()
@@ -175,12 +175,12 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
         if (lane !== null) c.gesture({ type: 'lane', lane })
       } else if (s?.screen === 'draw' && v.phase === 'answer' && !s.demo) {
         const key = `${s.word.id}:${s.letter}`
-        if (s.mode === 'letter' && s.strokes.length === 0 && key !== drawKey) { drawKey = key; drawWrongSent = answer(v) === 'right' }
+        if (s.mode === 'letter' && s.strokes.length === 0 && key !== drawKey) { drawKey = key; skipWrong = answer(v) === 'right' }
         const letter = strokesOf(s.letter, s.script).variants[0].map((x) => resample(x.pts, 30))
         const done = s.strokes.filter((x) => x.state === 'ok' || x.state === 'helped').length
         const busy = s.strokes.some((x) => x.state === 'live' || x.state === 'pending')
         if (s.mode === 'letter' && !busy) {
-          if (!drawWrongSent) { drawWrongSent = true; c.gesture({ type: 'stroke', pts: WRONG_STROKE }) }
+          if (!skipWrong) { skipWrong = true; c.gesture({ type: 'stroke', pts: WRONG_STROKE }) }
           else if (done < letter.length && s.strokes.length === done) c.gesture({ type: 'stroke', pts: letter[done] })
         } else if (s.mode === 'mark' && !busy) {
           const ink = bbox(s.strokes.filter((x) => x.state === 'ok' || x.state === 'helped').flatMap((x) => x.pts))
