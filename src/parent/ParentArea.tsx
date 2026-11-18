@@ -5,7 +5,7 @@
 //
 // Sections, top to bottom: Child, Sound, Progress, the open game's settings and reset, Data, Developer. Every game's lines
 // come from the registry (registry.ts); only the open game's settings, reset and developer tools show.
-import { Suspense, useEffect, useRef, type ReactNode } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { gameParent } from './registry'
 import type { GameId, LiveLog, SectionId, Track } from './types'
 import { ChildSection } from './sections/Child'
@@ -45,6 +45,18 @@ export function ParentArea({ game, onClose, section = 'game', track, telemetry, 
   const g = gameParent(game)
   const root = useRef<HTMLDivElement>(null)
   const goTo = (id: SectionId) => scrollTo(root.current, id)
+  // the nav wraps to two rows on a narrow phone: keep its measured height in --pa-nav-h, so a section lands below it
+  useLayoutEffect(() => {
+    const area = root.current
+    const nav = area?.querySelector('.pa-nav')
+    if (!area || !nav) return
+    const measure = () => area.style.setProperty('--pa-nav-h', `${(nav as HTMLElement).offsetHeight}px`)
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(measure)
+    ro.observe(nav)
+    return () => ro.disconnect()
+  }, [])
   // open at the section asked for, once (the top is the Child section)
   const first = useRef(section)
   useEffect(() => { if (first.current !== 'child') scrollTo(root.current, first.current) }, [])
