@@ -52,10 +52,10 @@ Updated 2026-11-17 after the parent's picture review and the word pass for a chi
 
 | Stage | Real words | Picture-only words | Heart words | Nonsense words | Pictures used (R / T / N) |
 |---|---|---|---|---|---|
-| 1 | 24 | 13 | 4 | 12 | 7 / 1 / 7 |
+| 1 | 24 | 13 | 3 | 12 | 7 / 1 / 7 |
 | 2 | 28 | 11 | 4 | 12 | 9 / 4 / 9 |
 | 3 | 29 | 13 | 4 | 12 | 6 / 0 / 12 |
-| 4 | 34 | 1 | 4 | 12 | 2 / 0 / 9 |
+| 4 | 34 | 1 | 5 | 12 | 2 / 0 / 9 |
 | 5 | 40 | 0 | 4 | 12 | 1 / 1 / 9 |
 | 6 | 34 | 0 | 4 | 12 | 2 / 0 / 8 |
 | 7 | 30 | 0 | 3 | 6 | 0 / 0 / 5 |
@@ -81,10 +81,10 @@ or the spell book; never alone on a door.
 
 | Stage | Heart words | Why at this stage |
 |---|---|---|
-| 1 | the, a, I, is | needed for the first phrases; `I` checked against `l` and `1` on the glyph sheet |
+| 1 | the, a, is | the first words he meets |
 | 2 | to, do, of, no | `no` is the pair of `on` in the ghosts (my call: open syllables are not taught, so `no` is a heart word) |
 | 3 | was, you, he, we | |
-| 4 | she, they, what, have | use sh, th, wh, which open here |
+| 4 | I, she, they, what, have | `I` is the first capital: capitals come only after stage 3 (design Part 3), and the phrase `I am fishing` is stage 7; `I` is checked against `l` and `1` on the glyph sheet. The rest use sh, th, wh, which open here |
 | 5 | said, there, where, come | |
 | 6 | some, one, put, give | `give`, `come`, `some` look like silent-e words but are not: taught here, where the contrast matters |
 | 7 | my, want, does | |
