@@ -5,7 +5,7 @@
 import type { Rng, Tally } from '../../shared/adaptive'
 import {
   GROUPS, GROUP_MARKS, ITEMS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, syllable,
-  type Item, type Mark, type MarkId, type Stage, type Syllable, type VowelGroup,
+  type Item, type Mark, type MarkId, type Syllable, type VowelGroup,
 } from './content.ts'
 import { features, pickTarget, type ScreenId } from './predict'
 import { NEW_SHARE } from './stages'
@@ -34,7 +34,7 @@ export interface Choice {
 export type Conf = Record<string, Record<string, number>>
 export interface RoundCtx {
   rng: Rng
-  stage: Stage
+  stage: number
   tallies: Record<string, Tally>
   recent: Record<string, string>
   /** letters: item → item; syllables: `<item>-<group>` → `<item>-<group>` (asked → tapped) */
@@ -63,8 +63,8 @@ export function sameSound(a: Choice, b: Choice): boolean {
   return a.soundId === b.soundId
 }
 
-const openedItems = (stage: Stage): Item[] => (stage === 1 || stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
-const syllableItems = (stage: Stage): Item[] => (stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
+const openedItems = (stage: number): Item[] => (stage === 1 || stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
+const syllableItems = (stage: number): Item[] => (stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
 
 /** True when the answer counts towards passing the current stage (it is on that stage's new content). */
 export function isNewStageChoice(stage: number, c: Choice): boolean {
@@ -150,7 +150,7 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
 const TWIN_WAVE_SHARE = 1 / 3
 
 /** The target and its twin (בּ/ב, כּ/כ, פּ/פ, שׁ/שׂ, same vowel) once the twin is opened (stage 3), else null. */
-function dotTwin(stage: Stage, target: Choice): Choice | null {
+function dotTwin(stage: number, target: Choice): Choice | null {
   if (target.kind !== 'syllable' || !target.mark || stage < 3) return null
   const pair = itemOf(target.itemId).pair
   if (!pair || !isAllowed(pair, target.mark)) return null

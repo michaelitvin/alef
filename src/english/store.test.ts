@@ -39,10 +39,12 @@ describe('the English save', () => {
     expect(s.getState().stage.stage).toBe(5)
   })
 
-  it('the English store keeps a new-stage answer and never passes a stage yet', () => {
+  it('the English store keeps a new-stage answer, and passes a stage by the English rule', () => {
     const p = memoryEnglishSavePort()
-    for (let i = 0; i < 10; i++) expect(p.recordAnswer({ features: ['a'], miss: false, newStage: true }).passed).toBe(false)
-    expect(p.read().stage).toEqual({ stage: 1, newAnswers: 'oooooooooo' })
+    for (let i = 0; i < 4; i++) expect(p.recordAnswer({ features: ['a'], miss: false, newStage: true }).passed).toBe(false)
+    expect(p.read().stage).toEqual({ stage: 1, newAnswers: 'oooo' })
+    expect(p.recordAnswer({ features: ['a'], miss: false, newStage: true }).passed).toBe(true)
+    expect(p.read().stage).toEqual({ stage: 2, newAnswers: '' })
   })
 
   it('opened stations only grow; seeded tallies never lower a count', () => {

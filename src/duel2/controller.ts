@@ -3,7 +3,7 @@
 // (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
 import type { Rng } from '../shared/adaptive'
-import { mark as markOf, syllable, type MarkId, type Stage } from './logic/content'
+import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
 import type { Choice, Kind, LadderStep, RoundCtx } from './logic/rounds'
 import {
@@ -127,7 +127,7 @@ export interface RunOpts {
   sandbox?: boolean
   force?: {
     /** 'merchant': the gallery's merchant visit (1 heart, 40 coins); the visit ends the gallery screen */
-    screen: ScreenId | 'crystal' | 'dot' | 'merchant'; stage: Stage; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
+    screen: ScreenId | 'crystal' | 'dot' | 'merchant'; stage: number; kind?: Kind; demo?: boolean; fixed?: 'letter' | 'vowel' | 'dot'; script?: Script
     /** the gallery: a boss of this kind on the broom flight */
     boss?: BossKind
     /** the gallery: the tower's boss visit */
@@ -191,7 +191,7 @@ export class RunController {
   private pass: PassState
   private get hearts() { return this.pass.hearts }
   private get screenId() { return this.pass.screen }
-  private stage: Stage
+  private stage: number
   private roundInScreen = 0
   private score = 0
   private streak = 0
@@ -273,7 +273,7 @@ export class RunController {
     this.view = { ...this.view, course: { id: this.course.id, dir: this.course.dir } }
     this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(this.course.save()) : this.course.save())
     this.now = opts.now ?? (() => this.time.now())
-    this.stage = opts.force?.stage ?? (this.save.read().stage.stage as Stage)
+    this.stage = opts.force?.stage ?? this.save.read().stage.stage
     this.pass = this.newPass()
   }
 
@@ -540,8 +540,8 @@ export class RunController {
   private facts(): PassFacts {
     const st = this.save.read()
     return {
-      stage: this.stage, draw: this.drawOn(), bookOpen: this.bookOpen(), recent: st.recent, duelRecent: this.save.firstDuelRecent(),
-      cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
+      stage: this.stage, stages: this.course.stages, draw: this.drawOn(), bookOpen: this.bookOpen(), recent: st.recent,
+      duelRecent: this.save.firstDuelRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
     }
   }
 
@@ -1070,7 +1070,7 @@ export class RunController {
     const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
-      this.stage = this.save.read().stage.stage as Stage
+      this.stage = this.save.read().stage.stage
       this.track('stage', { stage: this.stage })
     }
     this.course.telemetry.track('answer', {

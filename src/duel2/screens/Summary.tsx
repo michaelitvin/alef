@@ -13,7 +13,6 @@ import { InfoTap } from '../components/InfoTap'
 import { BossTrophy } from '../components/BossShelf'
 import { BOSS_KINDS, bossOpen, type BossKind } from '../logic/boss'
 import { useCourse, useCourseSave } from '../course/CourseContext'
-import type { Stage } from '../logic/content'
 import { HomeButton } from '../components/TopBar'
 
 /** after a session's summary (its run-end line, then this long) the game goes home by itself */
@@ -31,7 +30,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   const best = useCourseSave((s) => s.bestRun)
   const coins = useCourseSave((s) => s.coins ?? 0)
   const beaten = useCourseSave((s) => s.bossesBeaten ?? [])
-  const stage = useCourseSave((s) => s.stage.stage) as Stage
+  const stage = useCourseSave((s) => s.stage.stage)
   // how long he looked at the end screen before playing again (the parent: he gives up after a loss)
   const shown = useRef(Date.now())
   const home = useRef(onHome)

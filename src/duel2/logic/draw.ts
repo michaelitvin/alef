@@ -4,7 +4,7 @@ import type { Rng, Tally } from '../../shared/adaptive'
 import { WORDS, type Word } from '../data/words'
 import type { Script } from '../data/strokes'
 import type { MarkShape, MarkSpec } from './recognizer'
-import { item, type MarkId, type Stage } from './content'
+import { item, type MarkId } from './content'
 import { predict } from './predict'
 import type { Conf } from './rounds'
 
@@ -47,7 +47,7 @@ const VOWEL: Record<MarkId, MarkSpec> = {
  * The marks of the first syllable, in the order they are written (letter first, then the dagesh, the ש dot, the vowel).
  * None at stage 1 (letters only). The dagesh only where the game shows one (בּ כּ פּ: it changes the sound).
  */
-export function marksFor(w: Word, stage: Stage): MarkSpec[] {
+export function marksFor(w: Word, stage: number): MarkSpec[] {
   if (stage < 2) return []
   const it = item(w.first.item)
   const out: MarkSpec[] = []

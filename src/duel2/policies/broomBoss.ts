@@ -4,7 +4,6 @@
 // golden frame and line). Pure: no store, no clock, no audio. `stepBoss(state, event)` returns the next state and what the
 // run must do (show, say, play, save, track, wait); the run (controller.ts) does it and sends back the events. The flight
 // itself (the waves, the catches, the mistakes) and its finale stay with the run.
-import type { Stage } from '../logic/content'
 import type { Conf } from '../logic/rounds'
 import { BOSS_COINS, BOSS_HITS, chooseBoss, isBossVisit, type BossKind } from '../logic/boss'
 
@@ -49,7 +48,7 @@ export interface BossDueCtx {
   broomSessions: number
   /** broom visits so far in this run */
   broomVisits: number
-  stage: Stage
+  stage: number
   confusions: { letters: Conf; vowels: Conf }
   beaten: BossKind[]
   last: BossKind | null
