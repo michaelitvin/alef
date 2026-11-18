@@ -38,26 +38,41 @@ const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0,
 /** tallies kept in memory, recorded as the progress store records them (tests) */
 export function memoryTallies(initial: Partial<TowerTallies> = {}): DuelTallies {
   let t: TowerTallies = { byMark: {}, confusions: {}, recent: {}, pace: 1, ...initial }
+  return talliesOver(() => t, (next) => { t = next })
+}
+
+/**
+ * Tallies kept where `get` reads them and `put` writes them (another course's save), recorded as the progress store
+ * records them.
+ */
+export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => void): DuelTallies {
+  const update = (f: (t: TowerTallies) => TowerTallies) => put(f(get()))
   return {
-    read: () => t,
+    read: get,
     recordDuelRound(markId, _type, result, _ms, opts) {
-      const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
-      t = {
-        ...t,
-        byMark: { ...t.byMark, [markId]: { ...b, seen: b.seen + 1, [result]: b[result] + 1 } },
-        recent: opts?.recent === false ? t.recent : {
-          ...t.recent, [markId]: ((t.recent[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
-        },
-      }
+      update((t) => {
+        const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
+        return {
+          ...t,
+          byMark: { ...t.byMark, [markId]: { ...b, seen: b.seen + 1, [result]: b[result] + 1 } },
+          recent: opts?.recent === false ? t.recent : {
+            ...t.recent, [markId]: ((t.recent[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
+          },
+        }
+      })
     },
     recordDuelTwin(markId) {
-      const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
-      t = { ...t, byMark: { ...t.byMark, [markId]: { ...b, twin: b.twin + 1 } } }
+      update((t) => {
+        const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
+        return { ...t, byMark: { ...t.byMark, [markId]: { ...b, twin: b.twin + 1 } } }
+      })
     },
     recordDuelConfusion(askedId, tappedId) {
-      const row = t.confusions[askedId] ?? {}
-      t = { ...t, confusions: { ...t.confusions, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } }
+      update((t) => {
+        const row = t.confusions[askedId] ?? {}
+        return { ...t, confusions: { ...t.confusions, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } }
+      })
     },
-    setDuelPace(pace) { t = { ...t, pace } },
+    setDuelPace(pace) { update((t) => ({ ...t, pace })) },
   }
 }

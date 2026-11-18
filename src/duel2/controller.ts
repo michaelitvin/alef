@@ -273,7 +273,7 @@ export class RunController {
     this.view = { ...this.view, course: { id: this.course.id, dir: this.course.dir } }
     this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(this.course.save()) : this.course.save())
     this.now = opts.now ?? (() => this.time.now())
-    this.stage = opts.force?.stage ?? this.save.read().stage.stage
+    this.stage = opts.force?.stage ?? (this.save.read().stage.stage as Stage)
     this.pass = this.newPass()
   }
 
@@ -1070,7 +1070,7 @@ export class RunController {
     const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
-      this.stage = this.save.read().stage.stage
+      this.stage = this.save.read().stage.stage as Stage
       this.track('stage', { stage: this.stage })
     }
     this.course.telemetry.track('answer', {

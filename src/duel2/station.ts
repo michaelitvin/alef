@@ -4,7 +4,6 @@ import type { ScreenId } from './logic/predict'
 import { cycleOf } from './logic/run'
 import { towerMastered } from './logic/mastery'
 import { DUEL_MARKS } from '../utils/duel/marks'
-import type { Stage } from './logic/content'
 
 export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | null {
   const s = new URLSearchParams(search).get('station')
@@ -15,7 +14,7 @@ export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | nul
  * His open screens, as the home's path shows them: Book 2 counts as open once his first-duel marks are mastered, even
  * before he first opened Book 2 (its save then moves the first duel's progress over).
  */
-export function openScreens(save: { stage?: { stage: Stage }; settings?: { drawing?: boolean }; bookOpen?: boolean } | null, duelRecent: Record<string, string>): ScreenId[] {
+export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; bookOpen?: boolean } | null, duelRecent: Record<string, string>): ScreenId[] {
   const open = !!save?.bookOpen || towerMastered(duelRecent, DUEL_MARKS.map((m) => m.id))
   return cycleOf(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, open)
 }

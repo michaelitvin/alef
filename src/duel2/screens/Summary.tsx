@@ -16,6 +16,7 @@ import { InfoTap } from '../components/InfoTap'
 import { BossTrophy } from '../components/BossShelf'
 import { BOSS_KINDS, bossOpen, type BossKind } from '../logic/boss'
 import { useDuel2Store } from '../store'
+import type { Stage } from '../logic/content'
 import { HomeButton } from '../components/TopBar'
 
 /** after a session's summary (its run-end line, then this long) the game goes home by itself */
@@ -31,7 +32,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   const best = useDuel2Store((s) => s.bestRun)
   const coins = useDuel2Store((s) => s.coins ?? 0)
   const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
-  const stage = useDuel2Store((s) => s.stage.stage)
+  const stage = useDuel2Store((s) => s.stage.stage) as Stage
   // how long he looked at the end screen before playing again (the parent: he gives up after a loss)
   const shown = useRef(Date.now())
   const home = useRef(onHome)

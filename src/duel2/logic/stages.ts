@@ -9,7 +9,7 @@ const PASS_CORRECT = 8
 /** share of rounds aimed at the newest stage's items */
 export const NEW_SHARE = 0.6
 
-export interface StageProgress { stage: Stage; newAnswers: string }
+export interface StageProgress { stage: number; newAnswers: string }
 export const START_STAGE: StageProgress = { stage: 1, newAnswers: '' }
 
 export function recordStageAnswer(p: StageProgress, correct: boolean): { progress: StageProgress; passed: boolean } {

@@ -22,7 +22,8 @@ export interface SavePort extends SaveWrites {
 
 type AnyFn = (...a: unknown[]) => unknown
 
-function portOver(store: StoreApi<Duel2Save & Duel2Actions>, firstDuelRecent: () => Record<string, string>): SavePort {
+/** the port over a run's store (Book 2's, or another course's with more fields) */
+export function portOver<S extends Duel2Save & Duel2Actions>(store: StoreApi<S>, firstDuelRecent: () => Record<string, string>): SavePort {
   const writes = Object.fromEntries(WRITES.map((k) => [k, (...a: unknown[]) => (store.getState()[k] as AnyFn)(...a)])) as unknown as SaveWrites
   return { ...writes, read: () => store.getState(), firstDuelRecent }
 }

@@ -159,11 +159,18 @@ const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
 
-/** the save's state and actions, without storage: the persisted store below, and the in-memory one (savePort.ts) */
-export const duel2State: StateCreator<Duel2Save & Duel2Actions> = (set, get) => ({
+/** a course's stage rule: an answer on the stage's new items, and whether the stage passes with it */
+type StageRule = (p: StageProgress, correct: boolean) => { progress: StageProgress; passed: boolean }
+
+/**
+ * A run's save, its state and actions, without storage: `recordStage` is the course's stage rule, and `initial` is put
+ * over a fresh save (at the start and at each progress reset; the settings and the stroke marks are kept through a reset).
+ */
+export const runState = (recordStage: StageRule, initial: Partial<Duel2Save> = {}): StateCreator<Duel2Save & Duel2Actions> => (set, get) => ({
   ...fresh(),
   settings: DEFAULT_SETTINGS,
   strokeMarks: {},
+  ...initial,
   recordAnswer: ({ features, miss, asked, tapped, newStage }) => {
     const s = get()
     const tallies = { ...s.tallies }
@@ -184,7 +191,7 @@ export const duel2State: StateCreator<Duel2Save & Duel2Actions> = (set, get) => 
     const mistakes = miss ? [...s.mistakes, { round: s.roundNo, features }].slice(-20) : s.mistakes
     let stage = s.stage
     let passed = false
-    if (newStage) ({ progress: stage, passed } = recordStageAnswer(s.stage, !miss))
+    if (newStage) ({ progress: stage, passed } = recordStage(s.stage, !miss))
     set({ tallies, recent, confusions, mistakes, stage, roundNo: s.roundNo + 1 })
     return { passed }
   },
@@ -248,18 +255,31 @@ export const duel2State: StateCreator<Duel2Save & Duel2Actions> = (set, get) => 
       bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,
     }
   }),
-  resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
+  resetProgress: () => set((s) => ({ ...fresh(), ...initial, settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
 })
 
-export const useDuel2Store = create<Duel2Save & Duel2Actions>()(
-  persist(
-    duel2State,
-    {
-      name: 'alef-duel2', version: SAVE_VERSION, storage: persistSaveStorage(),
-      // Raise `version` when a save must be converted, and convert older saves in migrateSave (never drop his progress: rule).
-      // Fields added later (the bosses, the potion) take their defaults from the initial state: persist merges a saved
-      // state over it.
-      migrate: (state, version) => migrateSave(state, version) as Duel2Save & Duel2Actions,
-    },
-  ),
-)
+/** Book 2's save without storage (the in-memory one, savePort.ts): the Hebrew stage rule */
+export const duel2State = runState(recordStageAnswer)
+
+/**
+ * A run's persisted save under `key`: Book 2's (alef-duel2) and the English path's (alef-english). `X` is the save's own
+ * fields beyond Book 2's, with their fresh values in `initial`. Fields added later take their defaults from the initial
+ * state: persist merges a saved state over it.
+ */
+export function createRunStore<X extends object = Record<never, never>>(o: {
+  key: string; version: number
+  /** converts an older save (raise `version` when a save must be converted; never drop his progress: rule) */
+  migrate: (s: unknown, v: number) => unknown
+  initial?: Partial<Duel2Save> & X
+  recordStageAnswer: StageRule
+}) {
+  type S = Duel2Save & Duel2Actions & X
+  return create<S>()(
+    persist(
+      runState(o.recordStageAnswer, o.initial) as unknown as StateCreator<S>,
+      { name: o.key, version: o.version, storage: persistSaveStorage(), migrate: (state, version) => o.migrate(state, version) as S },
+    ),
+  )
+}
+
+export const useDuel2Store = createRunStore({ key: 'alef-duel2', version: SAVE_VERSION, migrate: migrateSave, recordStageAnswer })
