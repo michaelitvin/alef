@@ -6,7 +6,7 @@ import { IMAGES } from '../../assets/images'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
 import type { Choice } from '../../logic/rounds'
 import { DragPick } from '../DragPick'
-import { Glyph } from '../Glyph'
+import { Glyph, latinFitPx as fitPx } from '../Glyph'
 import { MarkAlone } from '../MarkAlone'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
@@ -63,12 +63,7 @@ const BOX_H = 150
 const BOX_ROW_W = 1100
 const BOX_MAX_W = 170
 const BOX_GAP = 14
-/** Andika's advance per letter, about (as the broom's words) */
-const LATIN_ADVANCE = 0.55
 const PICTURE = { x: 1340, y: 640, size: 240 }
-
-/** the glyph size of `text` in a box or tile `w` wide: at most `px`, small enough that its letters fit */
-const fitPx = (text: string, w: number, px: number) => Math.min(px, Math.floor((w * 0.8) / (LATIN_ADVANCE * Math.max(1, text.length))))
 
 /** the box row's centres, left to right (the stage is ltr on the English path) */
 export function boxXs(n: number): { xs: number[]; w: number } {

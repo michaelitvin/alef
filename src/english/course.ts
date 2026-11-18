@@ -2,8 +2,8 @@
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
-// logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts. The other screens'
-// rounds are built by the later English tasks, and until then calling one throws.
+// logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
+// logic/rounds/ghosts.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
 import type { Course, CourseRounds } from '../duel2/course/types'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
@@ -15,6 +15,7 @@ import { enBroomTarget, enBroomWave } from './logic/rounds/broom'
 import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
+import { enGhostExplanation, enGhostRound } from './logic/rounds/ghosts'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -36,7 +37,7 @@ const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), pic
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
-/** the English screens' rounds: the broom's, the cauldron's and the ladder's so far (the other screens come with the later English tasks) */
+/** the English screens' rounds: the broom's, the cauldron's, the ladder's and the ghosts' so far (the other screens come with the later English tasks) */
 const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
@@ -46,7 +47,9 @@ const EN_ROUNDS: CourseRounds = {
   introAfter: (save, c, right) => ('setIntro' in save ? introAfter(en(save), itemOfChoice(c), right).map((id) => (enLine(id) ? { line: id } : { id })) : []),
   dotIntroFor: () => null,
   cauldronRound: (ctx, avoid) => enCauldronRound(ctx, avoid, { picture: wordPicture, voice: hasVoice }),
-  ghostRound: () => notBuilt('ghosts'),
+  ghostRound: (ctx, kind, avoid) => enGhostRound(ctx, kind, avoid, hasVoice),
+  // the look-alike letters' explanation ("This is the letter: b.", then its sound)
+  explanation: enGhostExplanation,
   // (the gallery's forced part is Hebrew's: the English ladder has none)
   ladderPlan: (ctx, rungs) => enLadderPlan(ctx, rungs),
   doorWords: () => notBuilt('doors'),
@@ -58,9 +61,10 @@ const EN_ROUNDS: CourseRounds = {
   bossWave: enBossWave,
 }
 
-/** the run's Hebrew demo keys (by its letters and syllables) and the English lines that say them */
+/** the run's Hebrew demo and question keys (by its letters and syllables) and the English lines that say them */
 const DEMO_ALIAS: Record<string, string> = {
   'demo-broom-letter': 'demo-broom-sound', 'demo-ghosts-letter': 'demo-ghosts-sound', 'demo-ghosts-syllable': 'demo-ghosts-word',
+  'q-ghosts-letter': 'q-ghosts-sound',
 }
 const enLineId = (id: string) => DEMO_ALIAS[id] ?? id
 

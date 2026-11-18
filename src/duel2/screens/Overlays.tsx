@@ -21,10 +21,14 @@ function Frame({ children, dim = true }: { children: React.ReactNode; dim?: bool
 
 /** The syllable split into his two steps: the letter, then the vowel, then the whole. */
 function TwoSteps({ target, h, small = false }: { target: Choice; h: Highlight | null; small?: boolean }) {
-  const it = itemOf(target.itemId)
-  const m = target.mark ? markOf(target.mark) : null
   const y = small ? 250 : 430
   const px = small ? 150 : 240
+  // an English letter (the look-alike explanation): the letter, lit while its name and its sound play
+  if (target.kind === 'unit') {
+    return <g data-two-steps><Glyph text={target.text} px={px} x={800} y={y} glow={h === 'letter' || h === 'all' ? 'hit' : 'soft'} alphabet="latin" /></g>
+  }
+  const it = itemOf(target.itemId)
+  const m = target.mark ? markOf(target.mark) : null
   return (
     <g data-two-steps>
       {h === 'letter' || h === 'vowel' ? (

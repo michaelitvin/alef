@@ -1205,9 +1205,9 @@ export class RunController {
     }
     const near = !right && tapped.nearMissOf === answer.id
     const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
-    // a new unit's introduction (the English cauldron and ladder; Hebrew has none), asked before the answer is recorded; a
-    // run-ending miss keeps it due
-    const intro = (tiles || s.screen === 'ladder') && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
+    // a new unit's introduction (the English cauldron, ladder and ghosts; Hebrew has none), asked before the answer is
+    // recorded; a run-ending miss keeps it due
+    const intro = (tiles || s.screen === 'ladder' || s.screen === 'ghosts') && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
     if (right) {
       this.record(screen, answer, tapped, 'right')
       this.roundInScreen++
@@ -1253,7 +1253,7 @@ export class RunController {
     await this.sleep(t, FIX_DONE_MS)
     if (tiles) await this.wordBlend(t, c)
     if (intro.length) await this.say(t, intro)
-    if (this.explanationDue(screen, c)) await this.explain(t, c)
+    if (this.explanationDue(screen, c)) await this.explain(t, screen, c)
     return 'next'
   }
 
@@ -1324,19 +1324,28 @@ export class RunController {
   }
 
   private explanationDue(screen: ScreenId, c: Choice): boolean {
+    // the course's own explanation (English), counted by its feature
+    const own = this.course.rounds.explanation
+    if (own) { const e = own(c, screen); return !!e && this.explainNow(e.feature) }
     if (c.kind !== 'syllable') return false
+    return this.explainNow(`l:${c.itemId}`)
+  }
+
+  /** an explanation comes from time to time (rule): after two recent mistakes on `feature`, else on a quarter of them */
+  private explainNow(feature: string): boolean {
     const s = this.save.read()
-    const lf = `l:${c.itemId}`
-    const recent = s.mistakes.filter((m) => m.round > s.roundNo - 8 && m.features.includes(lf)).length
-    void screen
+    const recent = s.mistakes.filter((m) => m.round > s.roundNo - 8 && m.features.includes(feature)).length
     return recent >= 2 || this.rng() < 0.25
   }
 
-  private async explain(t: number, c: Choice) {
-    const parts: { id: string; highlight: Highlight }[] = [
-      { id: this.course.lineAudioId('explain-lead', 1), highlight: 'none' }, { id: `ln-${c.itemId}`, highlight: 'letter' },
-      { id: `vn-${c.mark}`, highlight: 'vowel' }, { id: c.soundId, highlight: 'all' },
-    ]
+  private async explain(t: number, screen: ScreenId, c: Choice) {
+    const own = this.course.rounds.explanation?.(c, screen)
+    const parts: { id: string; highlight: Highlight }[] = own
+      ? own.parts.map((p) => ({ id: 'line' in p ? this.variation(p.line) : p.id, highlight: p.highlight }))
+      : [
+          { id: this.course.lineAudioId('explain-lead', 1), highlight: 'none' }, { id: `ln-${c.itemId}`, highlight: 'letter' },
+          { id: `vn-${c.mark}`, highlight: 'vowel' }, { id: c.soundId, highlight: 'all' },
+        ]
     if (!this.opts.sandbox) this.course.telemetry.track('explain', { target: c.id })
     this.set({ phase: 'explain', overlay: { kind: 'explain', parts, target: c } })
     await this.waitNext(t)

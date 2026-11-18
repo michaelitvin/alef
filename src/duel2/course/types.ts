@@ -15,6 +15,7 @@ import type { Choice, Kind, LadderStep, RoundCtx } from '../logic/rounds'
 import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
 import type { Duel2Actions, Duel2Save } from '../store'
+import type { Highlight } from '../viewTypes'
 
 export type CourseId = 'he' | 'en'
 
@@ -49,7 +50,14 @@ export interface CourseRounds {
   introAfter?: (save: SavePort, c: Choice, right: boolean) => ({ line: string } | { id: string })[]
   /** the cauldron's round (`avoid`: the sound heard the round before) */
   cauldronRound: (ctx: RoundCtx, avoid?: string) => CauldronRound
+  /** the ghosts' round: the target and the signs of the ghosts (`avoid`: the sound heard the round before) */
   ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
+  /**
+   * the explanation after a mistake on `c` on `screen` (the English look-alike letters): its parts, lines (the run picks a
+   * take) and voice ids, each with what it lights, and the feature his recent mistakes on it are counted by; null: none.
+   * Unset (Hebrew): the run's own explanation of a syllable
+   */
+  explanation?: (c: Choice, screen: ScreenId) => { feature: string; parts: (({ line: string } | { id: string }) & { highlight: Highlight })[] } | null
   /** the ladder of a visit (`rungs` steps; `force`: the gallery's fixed part, Hebrew only) */
   ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => LadderPlan
   isNewStageChoice: (stage: number, c: Choice) => boolean

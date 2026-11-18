@@ -1,9 +1,10 @@
 // 4 · Look-alike ghosts: three ghosts float in from the right, each holding a sign with a letter (or a syllable). He taps
-// the one he heard; the wizard zaps it and the others fade.
+// the one he heard; the wizard zaps it and the others fade. On the English path a sign holds a letter or a look-alike
+// word (`top · pot`), in Andika, small enough to stay inside the sign.
 import { IMAGES, useWizardArt } from '../../assets/images'
 import { FACING } from '../../assets/facing'
 import type { Choice } from '../../logic/rounds'
-import { Glyph } from '../Glyph'
+import { Glyph, latinFitPx } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { Stage, faceTransform, type Dir, type Phase } from './Stage'
 
@@ -37,7 +38,7 @@ export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase
                 : <ellipse cx={s.x} cy={s.top + GHOST_H / 2} rx={GHOST_W / 2.4} ry={GHOST_H / 2} fill="#f4f0ff" />}
             </g>
             <Orb size={GHOST_SIGN} x={s.x} y={cy} state={state} onPick={can || (p.phase === 'mistake' && state === 'reveal') ? () => p.onPick(c.id) : undefined} testCorrect={c.id === p.correctId}>
-              <Glyph text={c.text} px={GHOST_GLYPH_PX} x={s.x} y={cy} alphabet={alphabet} />
+              <Glyph text={c.text} px={alphabet === 'latin' ? latinFitPx(c.text, GHOST_SIGN, GHOST_GLYPH_PX) : GHOST_GLYPH_PX} x={s.x} y={cy} alphabet={alphabet} />
             </Orb>
           </g>
         )

@@ -66,7 +66,8 @@ function shuffle<T>(rng: () => number, xs: T[]): T[] {
 const heardAs = (c: Choice) => (c.kind === 'word' ? `w:${HOMOPHONE[c.text] ?? c.text}` : c.soundId)
 /** never `I` against `l` (they look the same in many fonts) */
 const iAndL = (a: string, b: string) => (a.includes('I') && b.includes('l')) || (a.includes('l') && b.includes('I'))
-const fits = (out: Choice[], c: Choice) => !out.some((o) => o.id === c.id || heardAs(o) === heardAs(c) || iAndL(o.text, c.text))
+/** `c` may join `out`: another item and another sound, never I against l */
+export const fits = (out: Choice[], c: Choice) => !out.some((o) => o.id === c.id || heardAs(o) === heardAs(c) || iAndL(o.text, c.text))
 
 /** the target and others in order, as long as each fits (another sound, never I against l), up to ORBS */
 function fill(target: Choice, ordered: Choice[]): Choice[] {

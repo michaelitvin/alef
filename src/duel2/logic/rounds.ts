@@ -41,7 +41,8 @@ export interface RoundCtx {
   confusions: { letters: Conf; syllables: Conf }
 }
 
-const CONFUSION_GROUP_MIN = 3
+/** a mix-up he made this often (asked → tapped) makes a look-alike group of his own */
+export const CONFUSION_GROUP_MIN = 3
 
 const pick = <T,>(rng: Rng, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
 function shuffle<T>(rng: Rng, xs: T[]): T[] {

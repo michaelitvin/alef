@@ -9,18 +9,19 @@
 import type { BossKind, BossKinds } from '../../../duel2/logic/boss'
 import { BOSS_KINDS } from '../../../duel2/logic/boss'
 import type { Choice, Conf, RoundCtx } from '../../../duel2/logic/rounds'
+import { LOOKALIKE_LETTERS } from '../../content/sets'
 import { unit, type Unit } from '../../content/units'
 import { WORDS, word, type EnWord } from '../../content/words'
 import { pickTarget } from '../../../duel2/logic/predict'
 import { enFeatures, enPrior, pickUnit, unitChoice } from '../pick'
 import { oneUnitApart, wordChoice } from './broom'
 
-/** the look-alike pairs of the mimic (spec Part 5's ghost sets: b d p, n u, m w, h n) */
-const MIMIC_PAIRS: [string, string][] = [['b', 'd'], ['b', 'p'], ['d', 'p'], ['n', 'u'], ['m', 'w'], ['h', 'n']]
-const SHORT_VOWELS = ['a', 'e', 'i', 'o', 'u']
-const DIGRAPHS = ['sh', 'ch', 'th']
 /** every pair of a set */
 const pairsOf = (ids: string[]): [string, string][] => ids.flatMap((a, i) => ids.slice(i + 1).map((b) => [a, b] as [string, string]))
+/** the look-alike pairs of the mimic: every pair of the ghosts' letter sets (b d p, n u, m w, h n) */
+const MIMIC_PAIRS: [string, string][] = LOOKALIKE_LETTERS.flatMap((s) => pairsOf(s.letters))
+const SHORT_VOWELS = ['a', 'e', 'i', 'o', 'u']
+const DIGRAPHS = ['sh', 'ch', 'th']
 const UNIT_PAIRS: Record<Exclude<BossKind, 'dot'>, [string, string][]> = { mimic: MIMIC_PAIRS, bat: pairsOf(SHORT_VOWELS), shin: pairsOf(DIGRAPHS) }
 
 /** the stage a kind opens at */

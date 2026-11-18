@@ -8,7 +8,7 @@ import { IMAGES, useWizardArt } from '../../assets/images'
 import type { Choice } from '../../logic/rounds'
 import { belowBand, intoBandView, STAGE_CONTENT_TOP, viewBoxOf, type FullView } from '../../layout'
 import { DragPick } from '../DragPick'
-import { Glyph } from '../Glyph'
+import { Glyph, latinFitPx as fitPx } from '../Glyph'
 import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
@@ -31,11 +31,6 @@ const BOX_ROW_W = 380
 const BOX_MAX_W = 96
 const BOX_H = 104
 const BOX_GAP = 8
-/** Andika's advance per letter, about (as the cauldron's boxes) */
-const LATIN_ADVANCE = 0.55
-
-/** the glyph size of `text` on a plate or box `w` wide: at most `px`, small enough that its letters fit */
-const fitPx = (text: string, w: number, px: number) => Math.min(px, Math.floor((w * 0.8) / (LATIN_ADVANCE * Math.max(1, text.length))))
 
 /** the box row's centres over the rung, left to right (the stage is ltr on the English path) */
 function rungBoxXs(n: number): { xs: number[]; w: number } {
