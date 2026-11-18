@@ -182,6 +182,9 @@ type Table = Record<string, (r: R, t: number) => Record<string, unknown>>
  */
 const ENGLISH: Table = {
   player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'child' }),
+  'placement-start': (r) => ({ wave: r.int(1, 3) }),
+  'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
+  'placement-done': (r) => ({ level: r.int(1, 9), answers: r.int(5, 23) }),
 }
 
 /** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */

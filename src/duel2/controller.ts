@@ -65,7 +65,10 @@ interface CrystalView { screen: 'crystal'; kind: number }
  * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
 export interface TowerView {
   screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
-  /** stage 0's placement check: the marks he has not answered yet are asked first */
+  /**
+   * a placement check: Book 2's stage 0 (the marks he has not answered yet are asked first), or the course's own
+   * (`Course.placement`: the tower plays its rounds; a miss costs no heart and no streak, and there is no hint)
+   */
   placement?: boolean
   /** the duel's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
   mega?: number
@@ -175,6 +178,8 @@ const WORD_LINK_CHANCE = 0.25
 const CONFIDENT_MS = 3000
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
+/** the placement check's visit: a bound on its waves, never reached (at most 15 answers and its confirmations) */
+const PLACEMENT_WAVES = 10
 
 export class RunController {
   view: View = { course: { id: HEBREW.id, dir: HEBREW.dir }, phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
@@ -258,7 +263,7 @@ export class RunController {
   /** a hint's voice plays (a touch on an answer stops it) */
   private hintVoice = 0
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
-  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean } | null = null
+  private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean; placement?: boolean } | null = null
   private towerNo = 0
   /** the duel's מגה charge: it carries over between the tower's visits within this run, and starts empty in a new run */
   private towerMegaCharge = 0
@@ -456,6 +461,8 @@ export class RunController {
   private drawOn() { return !!this.save.read().settings.drawing }
   /** Book 2's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
   private bookOpen() { return !!this.opts.force || this.save.read().bookOpen !== false }
+  /** the course's placement check is due (Course.placement; never in the gallery) */
+  private placementDue() { return !this.opts.sandbox && !this.opts.force && !!this.course.placement?.due(this.save) }
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
@@ -533,7 +540,8 @@ export class RunController {
     const session = this.opts.session?.screen
     return runPass({
       mode: session ? 'session' : f ? 'gallery' : 'run', lastEnded, facts: this.facts(),
-      screen: session ?? (f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : undefined),
+      // the course's placement check is due: the run starts at the tower, where it is played
+      screen: session ?? (f ? (f.screen === 'dot' ? 'ladder' : f.screen === 'merchant' ? 'broom' : f.screen) : this.placementDue() ? 'tower' : undefined),
     })
   }
   /** what the pass reads from the saves, now */
@@ -730,6 +738,12 @@ export class RunController {
    */
   private async runTower(t: number) {
     const st = this.save.read()
+    if (!this.tower && this.placementDue()) {
+      // the course's placement check: one visit that lasts until he is placed (its waves are only a bound), never a
+      // boss; it is not a visit of his tower's rhythm (the visits' count and his tower wave stay)
+      this.tower = { wave: st.towerWave ?? 1, waves: PLACEMENT_WAVES, boss: false, visit: ++this.towerNo, done: null, coins: 0, placement: true }
+      this.track('placement-start', { wave: this.tower.wave })
+    }
     if (!this.tower) {
       const boss = this.towerBossNext()
       const from = this.opts.force ? (boss ? 5 : 1) : st.towerWave ?? 1
@@ -743,7 +757,7 @@ export class RunController {
     }
     const tw = this.tower
     this.syncMult()
-    const placement = !this.bookOpen() || undefined
+    const placement = tw.placement || !this.bookOpen() || undefined
     const mega = this.towerMegaCharge || undefined
     this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}), ...(mega ? { mega } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
     this.resuming = false
@@ -751,7 +765,7 @@ export class RunController {
     this.towerWaiter = null
     // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
     if (this.ending) { await this.endRun(); throw new Aborted() }
-    this.save.setTowerWave(last + 1)
+    if (!tw.placement) this.save.setTowerWave(last + 1)
     if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
     if (tw.boss) {
       // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
@@ -795,6 +809,7 @@ export class RunController {
   towerAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
     if (this.ending) return 'over'
     if (this.view.screen?.screen !== 'tower') return 'on'
+    if (this.tower?.placement) return this.placementAnswer(r, markId)
     this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
     this.save.noteTowerAnswer(r === 'right')
     if (r === 'right') {
@@ -811,6 +826,26 @@ export class RunController {
     if (!outcome.over) return 'on'
     // the answer on the screen finishes (the duel's feedback), then towerDone ends the run; a pause no longer cancels it
     this.ending = true
+    return 'over'
+  }
+
+  /**
+   * An answer of the course's placement check: walked and saved by the course. A right answer earns its star and coins
+   * and moves the streak; a miss costs no heart and no streak (nobody taught him that yet). Once he is placed, the run
+   * goes on at his stage, and 'over' ends the visit after this answer's feedback (the cycle goes on).
+   */
+  private placementAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
+    const { stage, done } = this.course.placement!.answer(this.save, r === 'right', Date.now())
+    this.track('placement-answer', { stage, target: markId, result: r, clock: Date.now() })
+    if (r === 'right') {
+      this.streak++
+      this.gainStar()
+      const m = multiplierOf(this.streak)
+      if (m > this.view.mult) { this.set({ mult: m }); this.track('mult', { mult: m, streak: this.streak }) }
+    }
+    if (!done) return 'on'
+    this.stage = done.level
+    this.track('placement-done', { level: done.level, answers: done.answers })
     return 'over'
   }
 

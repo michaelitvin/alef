@@ -91,5 +91,21 @@ export interface Course {
    * the duel's line player (default: the duel's own audio)
    */
   tower: { content: TowerContent; tallies: () => DuelTallies; audio?: DuelAudio }
+  /**
+   * the course's placement check in the tower (English, design Part 4; Hebrew: unset, its stage 0 is the book's): while
+   * it is `due`, the tower plays `tower(save)` instead of `tower.content`
+   */
+  placement?: CoursePlacement
   lineAudioId(id: string, n?: number): string
+}
+
+export interface CoursePlacement {
+  due(save: SavePort): boolean
+  /** the placement's rounds over this save (they ask what its walk asks next) */
+  tower(save: SavePort): TowerContent
+  /**
+   * one answer, walked and saved at once; `stage`: the stage it asked; `done`: he is placed (his stage, his seeded tallies
+   * and the open stations are saved then)
+   */
+  answer(save: SavePort, right: boolean, at: number): { stage: number; done: { level: number; answers: number } | null }
 }

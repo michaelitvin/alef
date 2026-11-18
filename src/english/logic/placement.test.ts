@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { BLENDS, unitsOfStage } from '../content/units'
 import { word } from '../content/words'
-import { creditOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
+import { askOf, creditOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
 
 const ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -78,6 +78,16 @@ describe('the placement walk', () => {
     // a gap (stage 3 not ready): only the ready stages below the gap
     const gap = walk([1, 2, 4, 5], 'always-right')
     expect(gap).toMatchObject({ level: 2, asked: [2, 2] })
+  })
+  it('a saved state asks what its step asked (a resume rebuilds next), through the confirmations too', () => {
+    for (const child of [readsUpTo(4), rightExceptConfirming(7), rightExceptConfirming(5), alternating(), missesFirstAsk()]) {
+      let { state, next } = startPlacement(ALL)
+      for (let i = 0; i < 40 && 'ask' in next; i++) {
+        expect(askOf(state)).toEqual(next.ask)
+        ;({ state, next } = stepPlacement(state, child(next.ask.stage, state.confirming.length > 0, state), ALL))
+      }
+      expect('done' in next).toBe(true)
+    }
   })
   it('a miss costs nothing but the count: the state has no hearts, hints or streak', () =>
     expect(Object.keys(startPlacement(ALL).state).sort()).toEqual(['asked', 'confirming', 'counts', 'jumped', 'kind', 'missed', 'stage']))

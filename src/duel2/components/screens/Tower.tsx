@@ -35,9 +35,10 @@ interface TowerProps {
   onCharge?: (mega: number) => void
   /**
    * the course played: the tower's rounds, spoken parts, tallies and line player, the save that keeps what was explained
-   * and the owed monsters, and the log (unset: the Hebrew course's, Book 2's save and log)
+   * and the owed monsters, the log, and its placement check's rounds (`view.placement`) (unset: the Hebrew course's,
+   * Book 2's save and log)
    */
-  course?: Pick<Course, 'tower' | 'save' | 'telemetry'>
+  course?: Pick<Course, 'tower' | 'save' | 'telemetry' | 'placement'>
 }
 
 /** the gallery records nothing, its events neither */
@@ -48,8 +49,10 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
   // one of each per mount (the controller is made once)
   const [tallies] = useState(() => tower?.tallies())
   const [save] = useState(() => (course ? course.save() : storeSavePort))
+  // the course's placement check plays its own rounds (Hebrew has none: its stage 0 plays the tower's)
+  const [content] = useState(() => (!dry && view.placement && course?.placement ? course.placement.tower(save) : tower?.content))
   const game = useDuelGame({
-    content: tower?.content, tallies, audio: tower?.audio,
+    content, tallies, audio: tower?.audio,
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: save.read().demosSeen,
       onSeen: (key) => { if (!dry) save.markDemo(key) },
@@ -100,7 +103,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
           )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}
-              onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} content={tower?.content} />
+              onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} content={content} />
           )}
         </div>
       </motion.div>

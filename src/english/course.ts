@@ -1,14 +1,19 @@
 // The English course: what Book 2's game plays on the English page (`?course=en`, where English is available:
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
-// save and pictures are its own; its stages are logic/stages.ts. Its rounds and the tower are built by the later English
-// tasks, and until then reading one throws.
+// save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
+// (logic/tower.ts). Its rounds and the tower's own rounds are built by the later English tasks, and until then reading one
+// throws.
 import type { Course, CourseRounds } from '../duel2/course/types'
+import type { SavePort } from '../duel2/savePort'
+import type { TowerContent } from '../utils/duel/content'
 import { englishAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
-import { englishStageRule } from './readyStages'
+import { placementAnswer, placementDue, placementTower } from './logic/tower'
+import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
-import { englishSavePort } from './savePort'
+import { englishSavePort, type EnglishSavePort } from './savePort'
+import type { EnglishSave } from './saveFormat'
 import { useEnglishStore } from './store'
 import { englishTelemetry } from './telemetry'
 import { ENGLISH_LOG } from './telemetryLog'
@@ -16,6 +21,12 @@ import { ENGLISH_LOG } from './telemetryLog'
 const notBuilt = (what: string): never => { throw new Error(`the English ${what} is not built yet`) }
 
 const a = englishAudio
+
+/** the run's save on the English course is the English port (the course gives it, or a test's save in memory) */
+function en(save: SavePort): EnglishSavePort {
+  if (!('setPlacement' in save)) throw new Error('not an English save')
+  return save as EnglishSavePort
+}
 
 export const ENGLISH: Course = {
   id: 'en',
@@ -27,7 +38,14 @@ export const ENGLISH: Course = {
     recordStageAnswer: englishStageRule, visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH,
   },
   get rounds(): CourseRounds { return notBuilt('rounds') },
-  get tower(): Course['tower'] { return notBuilt('tower') },
+  // its answers are kept in the English save; its rounds come in Task 15
+  tower: { get content(): TowerContent { return notBuilt('tower') }, tallies: () => englishSavePort().towerTallies() },
+  placement: {
+    // (only reads: also on the gallery's read-only save)
+    due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },
+    tower: (save) => placementTower(en(save), READY_STAGES),
+    answer: (save, right, at) => placementAnswer(en(save), right, at, READY_STAGES, enScreensOfStage),
+  },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {
     sayParts: a.sayParts, say: a.say, sayInfo: a.sayInfo, stopVoice: a.stopVoice, stopMusic: a.stopMusic, voiceSignal: a.voiceSignal,

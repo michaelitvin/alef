@@ -50,6 +50,14 @@ function found(s: PlacementState, level: number): Step {
   return ask({ ...s, stage: level, confirming }, confirming[0])
 }
 
+/**
+ * The round a saved walk asks next (a resume: the save keeps the state, not `next`). While confirming, `state.stage` is
+ * the level found, and the stage asked is the first confirmation.
+ */
+export function askOf(s: PlacementState): { stage: number; kind: 'picture' | 'name' } {
+  return { stage: s.confirming.length ? s.confirming[0] : s.stage, kind: s.kind }
+}
+
 export function stepPlacement(s: PlacementState, right: boolean, ready: number[]): Step {
   const base: PlacementState = { ...s, asked: s.asked + 1, kind: flip(s.kind) }
 
