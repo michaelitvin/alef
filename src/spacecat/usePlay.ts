@@ -6,8 +6,8 @@ import * as spaceCatAudio from './audio/spaceCatAudio'
 import { createEngine, type Engine } from './canvas/engine'
 import { PlayController, type EndInfo, type LevelDoneInfo, type PlayView } from './controller'
 import { layoutFor } from './layout'
-import { flushLog, track } from './logSeam'
 import { storeSavePort, type SpaceCatSavePort } from './savePort'
+import { spaceCatTelemetry } from './telemetry'
 
 export interface PlayApi { nextLevel: () => void }
 
@@ -39,7 +39,8 @@ export function usePlay(o: UsePlayOpts) {
     const fit = () => engine.setLayout(layoutFor(window.innerWidth, window.innerHeight))
     fit()
     const ctl = new PlayController({
-      engine, audio: spaceCatAudio, save: opts.current.save ?? storeSavePort, track, sleeper: opts.current.sleeper ?? realSleeper, rng: Math.random,
+      engine, audio: spaceCatAudio, save: opts.current.save ?? storeSavePort,
+      track: spaceCatTelemetry.track, setRun: spaceCatTelemetry.setRun, flush: spaceCatTelemetry.flush, sleeper: opts.current.sleeper ?? realSleeper, rng: Math.random,
       onLevelDone: (i) => opts.current.onLevelDone(i), onEnd: (i) => opts.current.onEnd(i),
     })
     setC(ctl)
@@ -63,11 +64,10 @@ export function usePlay(o: UsePlayOpts) {
     view,
     resume: () => c?.resume(),
     nextLevel: () => c?.nextLevel(),
-    /** the held house: the run stops, the log is written, then alef's home screen */
+    /** the held house: the run stops and writes the log (the controller's leave), then alef's home screen */
     leave: () => {
       c?.leave()
       spaceCatAudio.stopAll()
-      flushLog()
       opts.current.goHome()
     },
   }

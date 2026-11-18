@@ -34,8 +34,12 @@ export interface PlayOpts {
   engine: Engine
   audio: Pick<typeof SpaceCatAudio, 'say' | 'playSfx' | 'quiet' | 'stopAll' | 'stopVoice' | 'startTune' | 'stopTune'>
   save: SpaceCatSavePort
-  /** the run's telemetry (a no-op until Space Cat's log exists: logSeam.ts) */
+  /** the run's telemetry (Space Cat's log: telemetry.ts) */
   track: Track
+  /** the log's run number: each event carries it (the save's run count + 1 at a run's start) */
+  setRun?: (run: number) => void
+  /** writes the log's pending events now: the page may go away right after a pause or an abandon */
+  flush?: () => void
   sleeper: Sleeper
   rng: Rng
   onLevelDone: (info: LevelDoneInfo) => void
@@ -89,6 +93,7 @@ export class PlayController {
     this.o.engine.setShip(s.ship)
     this.setHud()
     this.music()
+    this.o.setRun?.(s.runs + 1)
     this.o.track('run-start', { ship: s.ship, rung: s.ladder.top })
     void this.nextRound()
   }
@@ -101,7 +106,8 @@ export class PlayController {
     this.o.engine.freeze()
     this.o.engine.setInput(false)
     this.o.audio.stopAll()
-    this.o.track('pause', {})
+    this.o.track('pause', { phase: this.view.phase })
+    this.o.flush?.()
     this.set({ paused: true })
   }
 
@@ -131,13 +137,15 @@ export class PlayController {
 
   /** the page goes away (pagehide): leaving in the middle of a run is an abandon */
   pageHide(): void {
-    if (this.running) this.o.track('abandon', { level: this.run.level, points: this.run.points })
+    if (this.running) this.o.track('abandon', { level: this.run.level, points: this.run.points, phase: this.view.phase })
     this.pause()
+    this.o.flush?.()
   }
 
   /** the held house: the run stops (the app then goes to alef's home screen) */
   leave(): void {
-    if (this.running) this.o.track('abandon', { level: this.run.level, points: this.run.points })
+    if (this.running) this.o.track('abandon', { level: this.run.level, points: this.run.points, phase: this.view.phase })
+    this.o.flush?.()
     this.running = false
     this.epoch++
     this.endTip(false)

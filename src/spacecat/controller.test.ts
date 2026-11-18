@@ -50,16 +50,18 @@ function setup(save: Partial<SpaceCatSave> = {}) {
   const engine = fakeEngine()
   const port = memorySavePort(save)
   const events: [string, Record<string, unknown> | undefined][] = []
+  const log = { runs: [] as number[], flushedAt: [] as number[] }
   const levels: LevelDoneInfo[] = []
   const ends: EndInfo[] = []
   let seed = 1
   const ctl = new PlayController({
     engine: engine as unknown as Engine, audio, save: port, track: (ev, f) => events.push([ev, f]), sleeper: instantSleeper(),
+    setRun: (n) => log.runs.push(n), flush: () => log.flushedAt.push(events.length),
     rng: () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 },
     onLevelDone: (i) => levels.push(i), onEnd: (i) => ends.push(i),
   })
   live.push(ctl)
-  return { engine, port, events, levels, ends, ctl }
+  return { engine, port, events, log, levels, ends, ctl }
 }
 /** a run that is not the first (no demo) */
 const played = { runs: 1, heard: { demo: 1 } }
@@ -241,13 +243,31 @@ describe('the play controller', () => {
     await playing(engine)
   })
 
-  it('pagehide during a run tracks abandon', async () => {
-    const { engine, ctl, events } = setup(played)
+  it('pagehide during a run tracks abandon and writes the log at once', async () => {
+    const { engine, ctl, events, log } = setup(played)
     ctl.start()
     await playing(engine)
     finish(engine, 'right')
     ctl.pageHide()
-    expect(events).toContainEqual(['abandon', { level: 1, points: 1 }])
+    expect(events).toContainEqual(['abandon', { level: 1, points: 1, phase: 'flight' }])
+    // the page may go away now: the last flush comes after the abandon and the pause
+    expect(log.flushedAt[log.flushedAt.length - 1]).toBe(events.length)
+  })
+
+  it('a pause is written to the log at once', async () => {
+    const { engine, ctl, events, log } = setup(played)
+    ctl.start()
+    await playing(engine)
+    ctl.pause()
+    expect(events[events.length - 1]).toEqual(['pause', { phase: 'flight' }])
+    expect(log.flushedAt).toEqual([events.length])
+  })
+
+  it('each run carries its run number: the save\'s runs + 1', async () => {
+    const { engine, ctl, log } = setup({ ...played, runs: 4 })
+    ctl.start()
+    await playing(engine)
+    expect(log.runs).toEqual([5])
   })
 
   it('a whole level plays with no audio files', async () => {
@@ -282,7 +302,7 @@ describe('the play controller', () => {
     ctl.start()
     await playing(engine)
     ctl.leave()
-    expect(events).toContainEqual(['abandon', { level: 1, points: 0 }])
+    expect(events).toContainEqual(['abandon', { level: 1, points: 0, phase: 'flight' }])
     expect(engine.input).toBe(false)
     // nothing counts after he left
     finish(engine, 'wrong')

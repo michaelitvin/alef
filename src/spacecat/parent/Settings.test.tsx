@@ -7,6 +7,7 @@ import { ParentArea } from '../../parent/ParentArea'
 import { SFX_NAMES } from '../audio/sfx'
 import { DEFAULT_SAVE, SAVE_KEY } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
+import { SPACECAT_LOG } from '../telemetryLog'
 import { spaceCatParent } from '.'
 import SpaceCatSettings from './Settings'
 
@@ -100,6 +101,19 @@ describe('Space Cat\'s section in the parent area', () => {
       expect(spaceCatParent.summary(bad)).toBeNull()
       expect(spaceCatParent.mixups(bad)).toEqual([])
     }
+  })
+
+  it('details list the right share of each rung he played, and nothing for none or bad JSON', () => {
+    const raw = literal({ items: { '3+4=7/c': stat(4, 1, 1, {}), '2+5=7/c': stat(6, 0, 0, {}), '5-2=3/a': stat(2, 1, 0, { 6: 1 }) } })
+    expect(spaceCatParent.details!(raw)).toEqual([{
+      id: 'spacecat-rungs', title: 'Right answers per rung',
+      items: ['2. plus, sums 6 to 10: 80% of 10 right', '4. missing number, plus and minus within 10: 50% of 2 right'],
+    }])
+    for (const bad of [null, '{x', literal({ items: {} })]) expect(spaceCatParent.details!(bad)).toEqual([])
+  })
+
+  it('declares its log for the Data section and the registry', () => {
+    expect(spaceCatParent.logs).toEqual([SPACECAT_LOG])
   })
 
   it('reset clears only alef-spacecat', async () => {

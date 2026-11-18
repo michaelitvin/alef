@@ -12,13 +12,9 @@ import { predictItem, priorOf, type ItemStats } from '../logic/predict'
 import type { FixedArrival } from '../logic/speed'
 import type { Settings as SettingsT } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
+import { RUNG_NAME, rungTallies, shareText } from './rungs'
 import { sumText } from './sumText'
 
-const RUNG_NAME: Record<RungId, string> = {
-  1: 'plus, sums to 5', 2: 'plus, sums 6 to 10', 3: 'minus within 10', 4: 'missing number, plus and minus within 10',
-  5: 'plus and minus to 20, no crossing of ten', 6: 'plus and minus to 20, crossing ten', 7: 'times, tables to 5',
-  8: 'times, tables to 10', 9: 'divide, from the open tables',
-}
 const SFX_LABEL: Record<SfxName, string> = {
   'new-sum': 'new sum', right: 'right', 'right-zoom': 'right with a zoom', wrong: 'wrong', timeout: 'time-out', heart: 'heart lost',
   level: 'level done', ship: 'new ship', end: 'end of run',
@@ -44,7 +40,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
   }
   const open = openRungs(s.ladder, s.settings)
   const items = Object.entries(s.items).map(([id, st]) => ({ id, st, it: itemById(id) })).filter((x) => x.it)
-  const byRung = (r: RungId) => items.filter((x) => x.it!.rung === r).reduce((a, x) => ({ seen: a.seen + x.st.seen, right: a.right + right(x.st) }), { seen: 0, right: 0 })
+  const tallies = rungTallies(s.items)
   const hard = items
     .map((x) => ({ ...x, p: predictItem(x.st, priorOf(x.it!)) }))
     .sort((a, b) => b.p - a.p)
@@ -61,11 +57,10 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
         <thead><tr><th align="left">Rung</th><th>Status</th><th>Right</th></tr></thead>
         <tbody>
           {RUNGS.map((r) => {
-            const t = byRung(r.id)
             return (
               <tr key={r.id} data-rung={r.id} data-status={status(r)}>
                 <td>{r.id}. {RUNG_NAME[r.id]}</td><td align="center">{status(r)}</td>
-                <td align="center">{t.seen ? `${Math.round((t.right / t.seen) * 100)}% of ${t.seen}` : '—'}</td>
+                <td align="center">{shareText(tallies.get(r.id))}</td>
               </tr>
             )
           })}

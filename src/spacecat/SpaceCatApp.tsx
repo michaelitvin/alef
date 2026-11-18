@@ -6,12 +6,12 @@ import { preloadSpaceCat } from './assets/preload'
 import { stopAll } from './audio/spaceCatAudio'
 import type { EndInfo, LevelDoneInfo } from './controller'
 import { ParentArea } from '../parent/ParentArea'
-import { flushLog, track } from './logSeam'
 import { Cover } from './screens/Cover'
 import { End } from './screens/End'
 import { LevelDone } from './screens/LevelDone'
 import { Play } from './screens/Play'
 import { rehydrateSpaceCat } from './store'
+import { spaceCatTelemetry } from './telemetry'
 import type { PlayApi } from './usePlay'
 
 type Screen = 'cover' | 'play' | 'level' | 'end' | 'parent'
@@ -35,7 +35,7 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
   // the held house (the cover, the end screen; the play screen has its own, which also ends the run): alef's home screen
   const leave = () => {
     stopAll()
-    flushLog()
+    spaceCatTelemetry.flush()
     goHome()
   }
   const inRun = screen === 'play' || screen === 'level' || screen === 'end'
@@ -49,8 +49,11 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
       {screen === 'level' && level && <LevelDone info={level} onNext={() => { setScreen('play'); play.current?.nextLevel() }} />}
       {screen === 'end' && end && <End info={end} onAgain={() => { unlockAudioOutput(); newRun() }} onHome={leave} />}
       {screen === 'cover' && <Cover onPlay={shell.play} loading={shell.loading} onParent={() => setScreen('parent')} onHome={leave} />}
-      {/* the shared parent area at Space Cat's section; its live log (`telemetry`) comes with Task 10B */}
-      {screen === 'parent' && <ParentArea game="spacecat" onClose={() => setScreen('cover')} track={track} homeHref={import.meta.env.BASE_URL} />}
+      {/* the shared parent area at Space Cat's section, with the live log (the Data section exports and clears it) */}
+      {screen === 'parent' && (
+        <ParentArea game="spacecat" onClose={() => setScreen('cover')} track={spaceCatTelemetry.track} telemetry={spaceCatTelemetry}
+          homeHref={import.meta.env.BASE_URL} />
+      )}
     </div>
   )
 }
