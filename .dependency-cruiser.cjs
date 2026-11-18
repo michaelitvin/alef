@@ -16,7 +16,7 @@ module.exports = {
       name: 'logic-never-imports-ui',
       severity: 'error',
       comment: 'Pure logic must not import components or screens.',
-      from: { path: '^src/(duel2/logic|clock/logic|utils/duel)/', pathNot: TEST },
+      from: { path: '^src/(duel2/logic|clock/logic|utils/duel|english/logic)/', pathNot: TEST },
       to: { path: ['^src/(duel2|clock)/(components|screens)/', '^src/components/'] },
     },
     {
@@ -63,6 +63,15 @@ module.exports = {
         'layout numbers in layout.ts and broomLayout.ts, and the saves go through savePort.ts.',
       from: { path: '^src/duel2/controller\\.ts$' },
       to: { path: ['^src/duel2/(components|screens)/', '^src/stores/'] },
+    },
+    {
+      name: 'run-engine-is-course-free',
+      severity: 'error',
+      comment:
+        'The run engine (Book 2\'s controller.ts, logic/ and policies/, and the first duel in src/utils/duel) never imports the ' +
+        'English course (src/english): a course reaches the run only as the Course it is given (RunOpts.course).',
+      from: { path: ['^src/duel2/(controller|logic/|policies/)', '^src/utils/duel/'] },
+      to: { path: '^src/english/' },
     },
     {
       name: 'run-policies-are-pure',

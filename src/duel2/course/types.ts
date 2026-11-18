@@ -1,9 +1,13 @@
 // The course seam: what Book 2's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
 // is today's modules (./hebrew.ts); the English course is built on its own page (src/english/course).
 import type { createGameAudio } from '../../shared/gameAudio/kit'
-import type { TelemetryLog } from '../../shared/telemetry'
-import type { createTelemetry } from '../../shared/telemetry'
+import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
+import type { Word } from '../data/words'
+import type { BossKind } from '../logic/boss'
+import type { Item, Mark, MarkId, Syllable } from '../logic/content'
+import type { drawWords } from '../logic/draw'
 import type { ScreenId } from '../logic/predict'
+import type { Choice, Kind, LadderStep, RoundCtx } from '../logic/rounds'
 import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
 
@@ -21,9 +25,33 @@ export interface CourseStages {
   sessionLength: Record<ScreenId, number>
 }
 
-/** Task 3 fills in the members */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface CourseRounds {}
+/**
+ * Every content function the run calls, with today's Hebrew signatures (a stage is a number). Each later task that
+ * makes a screen course-neutral changes its own member.
+ */
+export interface CourseRounds {
+  broomTarget: (ctx: RoundCtx, kind: Kind, avoid?: string, screen?: ScreenId) => Choice
+  broomWave: (ctx: RoundCtx, target: Choice, kind: Kind) => Choice[]
+  cauldronRound: (ctx: RoundCtx, avoid?: string) => { letter: Item; target: Syllable; orbs: Mark[] }
+  ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
+  ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => { fixed: LadderFixed; steps: LadderStep[] }
+  isNewStageChoice: (stage: number, c: Choice) => boolean
+  letterChoice: (it: Item) => Choice
+  /** the features of an answer (logic/predict): what its tallies are kept under */
+  features: (c: Choice, screen: ScreenId) => string[]
+  /** the doors' words of a visit */
+  doorWords: (ctx: RoundCtx, n: number) => Word[]
+  /** the keys of a door (its word among them) */
+  doorKeys: (ctx: RoundCtx, word: Word) => Word[]
+  wordLinkFor: (itemId: string, markId: MarkId, rng?: () => number) => Word | undefined
+  /** the dotted pair to introduce before a round (Hebrew only; English returns null) */
+  dotIntroFor: (targetItem: string, stage: number, seen: string[]) => string | null
+  drawWords: (ctx: DrawCtx, n?: number) => Word[]
+  bossTarget: (ctx: RoundCtx, kind: BossKind, avoid?: string) => Choice
+  bossWave: (ctx: RoundCtx, kind: BossKind, target: Choice) => Choice[]
+}
+type LadderFixed = 'letter' | 'vowel' | 'dot'
+type DrawCtx = Parameters<typeof drawWords>[0]
 
 /** the kit instance's voice, effects and music */
 export type CourseAudio = Pick<

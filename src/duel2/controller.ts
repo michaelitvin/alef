@@ -3,28 +3,26 @@
 // (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
 import type { Rng } from '../shared/adaptive'
-import { item as itemOf, mark as markOf, syllable, type MarkId, type Stage } from './logic/content'
-import { features, predict, type ScreenId } from './logic/predict'
+import { mark as markOf, syllable, type MarkId, type Stage } from './logic/content'
+import { predict, type ScreenId } from './logic/predict'
+import type { Choice, Kind, LadderStep, RoundCtx } from './logic/rounds'
 import {
-  broomTarget, broomWave, cauldronRound, ghostRound, isNewStageChoice, ladderPlan, letterChoice,
-  type Choice, type Kind, type LadderStep, type RoundCtx,
-} from './logic/rounds'
-import {
-  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, VISIT, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
+  TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
 } from './logic/run'
-import { WORDS, wordLinkFor, type Word } from './data/words'
-import { dotIntroFor, dotIntroParts } from './logic/dotIntro'
+import { WORDS, type Word } from './data/words'
+import { dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './layout'
-import { lineAudioId, lineById } from './data/lines'
-import { playSfx, sayParts, startMusic, stopMusic, stopVoice, type Duel2Sfx } from './audio/duel2Audio'
-import { readOnlySavePort, storeSavePort, type SavePort } from './savePort'
+import { lineById } from './data/lines'
+import type { Duel2Sfx } from './audio/duel2Audio'
+import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
-import { BOSS_COINS, BOSS_SLOW, bossTarget, bossWave, type BossKind } from './logic/boss'
-import { duel2Telemetry } from './telemetry'
+import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
+import { HEBREW } from './course/hebrew'
+import type { Course } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker } from './logic/recognizer'
-import { drawWords, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
+import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
@@ -143,8 +141,10 @@ export interface RunOpts {
   now?: () => number
   /** the time the run waits on (default: the window's timers); `now` defaults to its clock */
   sleeper?: Sleeper
-  /** the saves the run reads and writes (default: the real saves; in the gallery, `sandbox`, they are only read) */
+  /** the saves the run reads and writes (default: the course's saves; in the gallery, `sandbox`, they are only read) */
   save?: SavePort
+  /** what the run plays: its rounds, voice, log and saves (default: the Hebrew course) */
+  course?: Course
 }
 
 class Aborted extends Error {}
@@ -174,11 +174,6 @@ const CONFIDENT_MS = 3000
 /** a bonus coin pops this long after the one before */
 const COIN_POP_MS = 550
 
-const sylFeatures = (c: Choice, screen: ScreenId) => {
-  const it = itemOf(c.itemId)
-  return features(c.mark ? { item: it, mark: markOf(c.mark) } : { item: it }, screen)
-}
-
 export class RunController {
   view: View = { phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
   private listeners = new Set<() => void>()
@@ -187,6 +182,7 @@ export class RunController {
   private now: () => number
   private time: Sleeper
   private save: SavePort
+  private course: Course
   private pausedAt: number | null = null
   private pausedTotal = 0
   /** the pass: the screen, the hearts, the crystals, the checkpoint (policies/pass.ts) */
@@ -271,7 +267,8 @@ export class RunController {
   constructor(private opts: RunOpts = {}) {
     this.rng = opts.rng ?? Math.random
     this.time = opts.sleeper ?? realSleeper
-    this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(storeSavePort) : storeSavePort)
+    this.course = opts.course ?? HEBREW
+    this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(this.course.save()) : this.course.save())
     this.now = opts.now ?? (() => this.time.now())
     this.stage = opts.force?.stage ?? this.save.read().stage.stage
     this.pass = this.newPass()
@@ -330,15 +327,15 @@ export class RunController {
     if (this.view.merchant) return
     if (this.view.screen?.screen === 'draw') {
       this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
-      stopVoice()
-      void sayParts([{ id: `w-${this.view.screen.word.id}` }])
+      this.course.audio.stopVoice()
+      void this.course.audio.sayParts([{ id: `w-${this.view.screen.word.id}` }])
       return
     }
     const t = this.currentTarget()
     if (!t) return
     this.track('replay', { screen: this.screenId, target: t.id, phase: this.view.phase })
-    stopVoice()
-    void sayParts([{ id: this.cueId(t) }])
+    this.course.audio.stopVoice()
+    void this.course.audio.sayParts([{ id: this.cueId(t) }])
   }
   hint() {
     if (this.view.merchant) { this.merchantStep({ type: 'help' }); return }
@@ -377,7 +374,7 @@ export class RunController {
       cut = true
     }
     if (this.visit?.help) { this.merchantStep({ type: 'touch' }); cut = true }
-    if (this.hintVoice) { this.hintVoice = 0; stopVoice(); cut = true }
+    if (this.hintVoice) { this.hintVoice = 0; this.course.audio.stopVoice(); cut = true }
     if (cut) this.track('hint-stop', { screen: this.view.merchant ? 'merchant' : this.view.screen?.screen ?? null, by })
   }
 
@@ -388,7 +385,7 @@ export class RunController {
     const st = this.save.read()
     this.startStars = st.totalStars ?? 0
     const session = this.opts.session?.screen
-    if (!this.opts.sandbox) duel2Telemetry.track(session ? 'session-start' : 'run-start', { stage: this.stage, ...(session ? { screen: session } : {}) })
+    if (!this.opts.sandbox) this.course.telemetry.track(session ? 'session-start' : 'run-start', { stage: this.stage, ...(session ? { screen: session } : {}) })
     // the hearts last the whole run (spec: one duel, Part 1)
     this.pass = this.newPass(st.lastEnded)
     void this.loop()
@@ -397,14 +394,14 @@ export class RunController {
     this.token++
     this.running = false
     this.stopBroom()
-    stopVoice()
-    stopMusic()
+    this.course.audio.stopVoice()
+    this.course.audio.stopMusic()
     if (this.exited) return
     // closing the game before the cycle's end: the crystal the skipped doors owe him is still his
     if (!this.view.over && !this.ending) this.passStep({ type: 'owed' })
     // the run is already ending (its run-end was sent): closing now is no abandon
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'closed' })
-    if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) duel2Telemetry.track('abandon', { screen: this.screenId, score: this.score })
+    if (!this.view.over && !this.ending && !this.opts.sandbox && this.score > 0) this.course.telemetry.track('abandon', { screen: this.screenId, score: this.score })
   }
   /**
    * He held the home button (2 s): the run stops here, as when the game is closed — the owed crystal is paid, nothing is
@@ -420,8 +417,8 @@ export class RunController {
     this.token++
     this.running = false
     this.stopBroom()
-    stopVoice()
-    stopMusic()
+    this.course.audio.stopVoice()
+    this.course.audio.stopMusic()
     this.pickWaiter = null
     this.nextWaiter = null
     this.endStrokeWait()
@@ -435,7 +432,7 @@ export class RunController {
     this.token++
     this.pausedAt = this.now()
     this.stopBroom()
-    stopVoice()
+    this.course.audio.stopVoice()
     this.pickWaiter = null
     this.nextWaiter = null
     this.endStrokeWait()
@@ -459,28 +456,28 @@ export class RunController {
 
   // ---- helpers
   /** a telemetry event (never in the gallery) */
-  private track(e: string, data: Record<string, unknown>) { if (!this.opts.sandbox) duel2Telemetry.track(e, data) }
+  private track(e: string, data: Record<string, unknown>) { if (!this.opts.sandbox) this.course.telemetry.track(e, data) }
   private guard<T>(t: number, p: Promise<T>): Promise<T> {
     return p.then((v) => { if (t !== this.token) throw new Aborted(); return v })
   }
   private sleep(t: number, ms: number) { return this.guard(t, this.time.sleep(ms)) }
   private say(t: number, parts: { id: string; onStart?: () => void }[]) {
     for (const p of parts) this.assets.push(p.id)
-    return this.guard(t, sayParts(parts))
+    return this.guard(t, this.course.audio.sayParts(parts))
   }
   private variation(id: string): string {
     const n = lineById(id)?.variations ?? 1
     let k = 1 + Math.floor(this.rng() * n)
     if (n > 1 && k === this.lastLine[id]) k = (k % n) + 1
     this.lastLine[id] = k
-    return lineAudioId(id, k)
+    return this.course.lineAudioId(id, k)
   }
   private waitPick(t: number) { return this.guard(t, new Promise<string>((r) => { this.pickWaiter = r })) }
   private waitNext(t: number) {
     this.set({ needNext: true })
     return this.guard(t, new Promise<void>((r) => { this.nextWaiter = r }))
   }
-  private sfx(name: Duel2Sfx) { void playSfx(name) }
+  private sfx(name: Duel2Sfx) { void this.course.audio.playSfx(name) }
   private cueId(c: Choice) { return c.soundId }
   private ctx(): RoundCtx {
     const s = this.save.read()
@@ -570,7 +567,7 @@ export class RunController {
     while (r.wait) {
       if (r.wait.for === 'sleep') { await this.time.sleep(r.wait.ms); r = this.passStep({ type: 'slept' }) }
       else {
-        const said = sayParts(r.say.map((l) => ({ id: 'id' in l ? l.id : this.variation(l.line) })))
+        const said = this.course.audio.sayParts(r.say.map((l) => ({ id: 'id' in l ? l.id : this.variation(l.line) })))
         await (r.wait.min ? Promise.all([said, this.time.sleep(r.wait.min)]) : said)
         r = this.passStep({ type: 'heard' })
       }
@@ -663,7 +660,7 @@ export class RunController {
     const r = stepMerchant(v, { ...e, at: this.now() })
     this.visit = r.state
     this.demoMove = r.state.moves
-    if (r.hush) stopVoice()
+    if (r.hush) this.course.audio.stopVoice()
     if (r.view !== undefined) this.set({ merchant: r.view ?? undefined })
     if (r.run) this.set(r.run)
     if (r.bought) {
@@ -697,10 +694,10 @@ export class RunController {
       const done = (type: 'heard' | 'slept') => () => { if (t === this.token && no === this.merchantWait) this.merchantStep({ type }) }
       if (r.wait.for === 'say') {
         for (const p of parts) this.assets.push(p.id)
-        const said = sayParts(parts)
+        const said = this.course.audio.sayParts(parts)
         void (r.wait.min ? Promise.all([said, this.time.sleep(r.wait.min)]) : said).then(done('heard'))
       } else if (r.wait.for === 'sleep') void this.time.sleep(r.wait.ms).then(done('slept'))
-    } else if (parts.length) void sayParts(parts)
+    } else if (parts.length) void this.course.audio.sayParts(parts)
     if (r.end) {
       const d = this.visitDone
       this.visitDone = null
@@ -738,7 +735,7 @@ export class RunController {
       // the boss's wave jumps over the waves from `from`: the new monsters of those waves are introduced later, the
       // first time each of them appears
       if (boss && wave > from) this.save.oweMonsters(skippedMonsters(from, wave))
-      this.tower = { wave, waves: this.visitLen || VISIT.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
+      this.tower = { wave, waves: this.visitLen || this.course.stages.visit.tower, boss, visit: ++this.towerNo, done: null, coins: 0 }
       this.track('tower-start', { wave, boss, waves: this.tower.waves })
     }
     const tw = this.tower
@@ -875,7 +872,7 @@ export class RunController {
       this.demoShown = true
       this.prepareView(screen, kind)
       this.demoRound = screen !== 'broom'
-      this.set({ phase: 'demo', overlay: { kind: 'demo', line: lineAudioId(demo, 1), demo } })
+      this.set({ phase: 'demo', overlay: { kind: 'demo', line: this.course.lineAudioId(demo, 1), demo } })
       this.save.markDemo(demo)
       this.track('demo', { demo })
       await this.waitNext(t)
@@ -913,36 +910,31 @@ export class RunController {
     const prev = this.view.screen?.screen === screen ? (this.view.screen as { target?: Choice }).target?.soundId : undefined
     if (screen === 'broom') {
       // a new boss never starts with the sound the flight before ended on
-      const target = this.boss ? bossTarget(c, this.boss.kind, prev) : broomTarget(c, kind)
+      const target = this.boss ? this.course.rounds.bossTarget(c, this.boss.kind, prev) : this.course.rounds.broomTarget(c, kind)
       this.set({ screen: { screen: 'broom', kind, waves: [], travelMs: travelMs(this.save.read().pace), lane: 1, target } })
       return target
     }
     if (screen === 'cauldron') {
-      const r = cauldronRound(c, prev)
-      const target = { ...letterChoice(r.letter), kind: 'syllable' as Kind, id: r.target.id, text: r.target.text, soundId: r.target.soundId, group: r.target.mark.group, mark: r.target.mark.id }
+      const r = this.course.rounds.cauldronRound(c, prev)
+      const target = { ...this.course.rounds.letterChoice(r.letter), kind: 'syllable' as Kind, id: r.target.id, text: r.target.text, soundId: r.target.soundId, group: r.target.mark.group, mark: r.target.mark.id }
       this.set({ screen: { screen: 'cauldron', letterId: r.letter.id, orbs: r.orbs.map((m) => m.id), target } })
       return target
     }
     if (screen === 'ladder') {
-      if (!this.ladder) this.ladder = { ...ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
+      if (!this.ladder) this.ladder = { ...this.course.rounds.ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
       const step = this.ladder.steps[this.ladder.built.length]
       this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target } })
       return step.target
     }
     if (screen === 'ghosts') {
-      const r = ghostRound(c, kind, prev)
+      const r = this.course.rounds.ghostRound(c, kind, prev)
       this.set({ screen: { screen: 'ghosts', signs: r.signs, target: r.target } })
       return r.target
     }
     // doors
-    if (!this.doorWords.length) {
-      const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(this.stage, 3)))
-      const scored = pool.map((w) => ({ w, p: predict([`w:${w.id}`], this.save.read().tallies, this.save.read().recent) }))
-      this.doorWords = scored.sort(() => this.rng() - 0.5).slice(0, this.visitLen).map((x) => x.w)
-    }
+    if (!this.doorWords.length) this.doorWords = this.course.rounds.doorWords(c, this.visitLen)
     const word = this.doorWords[this.roundInScreen % this.doorWords.length]
-    const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => this.rng() - 0.5).slice(0, 2)
-    const keys = [word, ...others].sort(() => this.rng() - 0.5)
+    const keys = this.course.rounds.doorKeys(c, word)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
     const behind = this.roundInScreen === this.visitLen - 1 && !this.opts.session
       ? { crystal: this.save.read().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
@@ -954,7 +946,7 @@ export class RunController {
     if (!('itemId' in target)) return null
     // the gallery's dot-intro entry shows the introduction every round
     const seen = this.opts.force?.screen === 'dot' ? [] : this.save.read().dotIntrosSeen
-    return dotIntroFor(target.itemId, this.stage, seen)
+    return this.course.rounds.dotIntroFor(target.itemId, this.stage, seen)
   }
 
   private async dotIntro(t: number, hard: string) {
@@ -1023,7 +1015,7 @@ export class RunController {
       if (!live()) return
       spoke = true
       this.track('idle', { screen, target: c?.id ?? null })
-      void sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
+      void this.course.audio.sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
     })
     const hint = this.time.after(IDLE_HINT_MS, () => {
       if (live() && c) { spoke = true; void this.playHint(c, true, t).catch(() => {}) }
@@ -1031,7 +1023,7 @@ export class RunController {
     try {
       const id = await pick
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
-      if (spoke) stopVoice()
+      if (spoke) this.course.audio.stopVoice()
       return id
     } finally {
       waiting = false
@@ -1053,7 +1045,7 @@ export class RunController {
 
   private async playHint(c: Choice, auto: boolean, t = this.token) {
     if (c.kind !== 'syllable' || !c.mark) return
-    if (!this.opts.sandbox) duel2Telemetry.track('hint', { target: c.id, auto })
+    if (!this.opts.sandbox) this.course.telemetry.track('hint', { target: c.id, auto })
     this.set({ overlay: { kind: 'hint', target: c, glow: null } })
     const glow = (g: Highlight) => () => { if (this.view.overlay?.kind === 'hint') this.set({ overlay: { kind: 'hint', target: c, glow: g } }) }
     const voice = ++this.fxId
@@ -1068,17 +1060,17 @@ export class RunController {
 
   private record(screen: ScreenId, target: Choice | Word, tapped: Choice | Word | null, result: 'right' | 'wrong' | 'near') {
     if (result !== 'near' && screen !== 'broom') this.answered = true
-    const feats = 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : sylFeatures(target as Choice, screen)
+    const feats = 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen)
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-    const newStage = asked ? isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
+    const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage === 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
       this.stage = this.save.read().stage.stage
       this.track('stage', { stage: this.stage })
     }
-    duel2Telemetry.track('answer', {
+    this.course.telemetry.track('answer', {
       screen, stage: this.stage, target: 'id' in target ? target.id : '', tapped: tapped && 'id' in tapped ? tapped.id : null, result, ms,
       assets: this.assets, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}),
     })
@@ -1106,7 +1098,7 @@ export class RunController {
       this.streak++
       this.gainStar()
       this.set({ phase: 'feedback' })
-      const confident = predict(sylFeatures(c, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
+      const confident = predict(this.course.rounds.features(c, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
       if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
@@ -1160,7 +1152,7 @@ export class RunController {
         if (r) break
         if (waiting && !this.view.paused) { replays++; await Promise.race([this.say(t, [{ id: cue }]), done]) }
       }
-      stopVoice()
+      this.course.audio.stopVoice()
       // how long he took to do the right move himself, and how often the sound played again meanwhile
       this.track('fix', { screen: this.screenId, target: cue, ms: Math.round(this.now() - from), replays })
     } finally {
@@ -1221,10 +1213,10 @@ export class RunController {
 
   private async explain(t: number, c: Choice) {
     const parts: { id: string; highlight: Highlight }[] = [
-      { id: lineAudioId('explain-lead', 1), highlight: 'none' }, { id: `ln-${c.itemId}`, highlight: 'letter' },
+      { id: this.course.lineAudioId('explain-lead', 1), highlight: 'none' }, { id: `ln-${c.itemId}`, highlight: 'letter' },
       { id: `vn-${c.mark}`, highlight: 'vowel' }, { id: c.soundId, highlight: 'all' },
     ]
-    if (!this.opts.sandbox) duel2Telemetry.track('explain', { target: c.id })
+    if (!this.opts.sandbox) this.course.telemetry.track('explain', { target: c.id })
     this.set({ phase: 'explain', overlay: { kind: 'explain', parts, target: c } })
     await this.waitNext(t)
     this.set({ overlay: null })
@@ -1233,7 +1225,7 @@ export class RunController {
   private async maybeWordLink(t: number, c: Choice) {
     if (c.kind !== 'syllable' || this.lastWordLink) { this.lastWordLink = false; return }
     if (this.rng() >= WORD_LINK_CHANCE) return
-    const w = wordLinkFor(c.itemId, c.mark!, this.rng)
+    const w = this.course.rounds.wordLinkFor(c.itemId, c.mark!, this.rng)
     if (!w) return
     this.lastWordLink = true
     this.set({ overlay: { kind: 'word', word: w } })
@@ -1244,11 +1236,11 @@ export class RunController {
   private async celebrate(t: number, line: 'streak' | 'ladder-top' | 'crystal') {
     this.set({ phase: 'celebrate' })
     this.sfx(line === 'crystal' ? 'crystal' : 'streak')
-    startMusic('celebrate')
+    this.course.audio.startMusic('celebrate')
     const praise = this.praiseLine(line)
     if (praise) await this.say(t, [{ id: praise }])
     else await this.sleep(t, PRAISE_SOUND_MS)
-    stopMusic()
+    this.course.audio.stopMusic()
   }
 
   /** The praise words only the first PRAISE_SPOKEN times of each kind; after that its sound is enough (Michael: "he knows it"). */
@@ -1273,7 +1265,7 @@ export class RunController {
   private async endRun(cue?: string): Promise<'over'> {
     this.ending = true
     this.stopBroom()
-    stopMusic()
+    this.course.audio.stopMusic()
     const r = await this.passRun({ type: 'lost', score: this.score, bestRun: this.save.read().bestRun, cue })
     this.token++
     this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
@@ -1295,7 +1287,7 @@ export class RunController {
     this.resuming = false
     this.answered = false
     const st = this.save.read()
-    this.drawPlan ??= drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
+    this.drawPlan ??= this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
     const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
     const split = splitWord(word, script)
     const def = strokesOf(split.letter, script)
@@ -1337,7 +1329,7 @@ export class RunController {
     for (const c of this.drawTimers) c()
     this.drawTimers = []
   }
-  private drawLine(l: DrawLine) { return 'id' in l ? l.id : l.take ? lineAudioId(l.line, l.take) : this.variation(l.line) }
+  private drawLine(l: DrawLine) { return 'id' in l ? l.id : l.take ? this.course.lineAudioId(l.line, l.take) : this.variation(l.line) }
 
   /** One step of the round's policy, done: the views, the sounds, the saves, the telemetry, then its wait. */
   private drawStep(e: DrawInput) {
@@ -1347,7 +1339,7 @@ export class RunController {
     this.draw = r.state
     this.strokeNo = r.state.strokeNo
     this.demoNo = r.state.demoNo
-    if (r.hush) stopVoice()
+    if (r.hush) this.course.audio.stopVoice()
     if (r.run) this.set(r.run)
     if (r.view) this.set({ screen: r.view })
     if (r.cue) this.cueStarted = this.now()
@@ -1373,7 +1365,7 @@ export class RunController {
     if (r.ask) {
       const id = this.drawLine(r.ask)
       this.assets.push(id)
-      void sayParts([{ id, onStart: () => { if (t === this.token) this.drawStep({ type: 'ask-start' }) } }])
+      void this.course.audio.sayParts([{ id, onStart: () => { if (t === this.token) this.drawStep({ type: 'ask-start' }) } }])
         .then(() => { if (t === this.token) this.drawStep({ type: 'asked' }) })
     }
     const parts = r.say.map((l) => ({ id: this.drawLine(l) }))
@@ -1385,11 +1377,11 @@ export class RunController {
       const w = r.wait
       if (w.for === 'say') {
         for (const p of parts) this.assets.push(p.id)
-        const said = sayParts(parts)
+        const said = this.course.audio.sayParts(parts)
         void (w.min ? Promise.all([said, this.time.sleep(w.min)]) : said).then(done('heard'))
       } else if (w.for === 'sleep') void this.time.sleep(w.ms).then(done('slept'))
       else {
-        if (parts.length) void sayParts(parts)
+        if (parts.length) void this.course.audio.sayParts(parts)
         this.strokeWait = true
         const live = () => on() && this.strokeWait && !this.view.paused && this.view.phase === 'answer'
         this.drawTimers = [
@@ -1400,7 +1392,7 @@ export class RunController {
           this.drawTimers.push(this.time.after(w.settle, () => { if (on() && this.strokeWait) { this.endStrokeWait(); this.drawStep({ type: 'settle' }) } }))
         }
       }
-    } else if (parts.length) void sayParts(parts)
+    } else if (parts.length) void this.course.audio.sayParts(parts)
     if (r.end) {
       const f = this.drawDone
       this.drawDone = null
@@ -1433,7 +1425,7 @@ export class RunController {
     if (this.boss) this.bossStep({ type: 'fly' }, fresh)
     else this.setScreen({ ...fresh, boss: undefined } as Partial<BroomView>)
     if (this.boss?.won) return this.bossWin(t)
-    startMusic(this.boss ? 'boss' : 'flight')
+    this.course.audio.startMusic(this.boss ? 'boss' : 'flight')
     this.set({ phase: 'question', hintAvailable: kind === 'syllable' })
     this.assets = []
     // a boss swoops in first (once), then its line; otherwise only the sound to catch (the demo taught the screen)
@@ -1454,7 +1446,7 @@ export class RunController {
     const more = () => !!this.boss || spawned < this.visitLen
     const open = (ws: BroomWave[]) => ws.some((w) => w.resolved.some((r) => !r))
     const spawn = (now: number) => {
-      const choices = this.boss ? bossWave(this.ctx(), this.boss.kind, target) : broomWave(this.ctx(), target, kind)
+      const choices = this.boss ? this.course.rounds.bossWave(this.ctx(), this.boss.kind, target) : this.course.rounds.broomWave(this.ctx(), target, kind)
       // a two-orb wave takes two of the three lanes, at random
       let lanes: number[] | undefined
       if (choices.length === 2) {
@@ -1519,7 +1511,7 @@ export class RunController {
           announcing = true
           newTargetDue = false
           const spentWaves = waves.map((w) => ({ ...w, spent: true }))
-          target = this.boss ? bossTarget(this.ctx(), this.boss.kind, target.soundId) : broomTarget(this.ctx(), kind, target.soundId)
+          target = this.boss ? this.course.rounds.bossTarget(this.ctx(), this.boss.kind, target.soundId) : this.course.rounds.broomTarget(this.ctx(), kind, target.soundId)
           this.setScreen({ target, waves: spentWaves } as Partial<BroomView>)
           holdSpawn = true
           const go = () => { holdSpawn = false; nextSpawnAt = -Infinity }
@@ -1553,7 +1545,7 @@ export class RunController {
     this.set({ phase: 'celebrate' })
     this.sfx('streak')
     await this.sleep(t, FINALE_MS)
-    stopMusic()
+    this.course.audio.stopMusic()
   }
 
   // ---- the flight boss: policies/broomBoss.ts decides, the run does what it says
@@ -1563,9 +1555,9 @@ export class RunController {
     this.boss = r.state
     if (r.view || Object.keys(patch).length) this.setScreen({ ...patch, ...(r.view ? { boss: r.view } : {}) } as Partial<BroomView>)
     if (r.run) this.set(r.run)
-    if (r.music) stopMusic()
+    if (r.music) this.course.audio.stopMusic()
     for (const x of r.sfx) this.sfx(x)
-    if (r.music === 'celebrate') startMusic('celebrate')
+    if (r.music === 'celebrate') this.course.audio.startMusic('celebrate')
     for (const op of r.save) {
       if (op.op === 'markBossBeaten') { this.save.markBossBeaten(op.kind); this.bossesWon.push(op.kind) }
       else if (op.op === 'notePraise') this.save.notePraise(op.kind)
@@ -1593,7 +1585,7 @@ export class RunController {
   }
   private bossLine(l: BossLine, target?: Choice) {
     if ('cue' in l) return this.cueId(target!)
-    return l.take ? lineAudioId(l.line, l.take) : this.variation(l.line)
+    return l.take ? this.course.lineAudioId(l.line, l.take) : this.variation(l.line)
   }
 
   /** A right catch on a boss visit: a spell bolt flies to the boss, it shows its hit pose, one segment goes out. */
@@ -1640,7 +1632,7 @@ export class RunController {
   private endSession(r: PassStep) {
     this.ending = true
     this.stopBroom()
-    stopMusic()
+    this.course.audio.stopMusic()
     this.token++
     this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars, session: true }, needNext: false, overlay: null, hintAvailable: false })
   }
@@ -1672,7 +1664,7 @@ export class RunController {
     this.syncMult()
     if (this.streak % STREAK_EVERY === 0) await this.celebrate(t, 'streak')
   }
-  private multLine(m: 1 | 2 | 3) { return lineAudioId('mult-up', m === 2 ? 1 : 2) }
+  private multLine(m: 1 | 2 | 3) { return this.course.lineAudioId('mult-up', m === 2 ? 1 : 2) }
 
   private onCatch(target: Choice, noPraise = false) {
     const st = this.save.read()
@@ -1683,15 +1675,15 @@ export class RunController {
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
       this.spokenTargets.add(target.soundId)
-      void sayParts([{ id: this.cueId(target) }])
+      void this.course.audio.sayParts([{ id: this.cueId(target) }])
     }
     // the multiplier rises over the flight (its sound and line; no line on the catch that beats the boss)
     const m = multiplierOf(this.streak)
     if (m > this.view.mult) {
       this.set({ mult: m })
       this.track('mult', { mult: m, streak: this.streak })
-      if (!noPraise) { this.sfx('streak'); void sayParts([{ id: this.multLine(m) }]) }
-    } else if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void sayParts([{ id: praise }]) }
+      if (!noPraise) { this.sfx('streak'); void this.course.audio.sayParts([{ id: this.multLine(m) }]) }
+    } else if (!noPraise && this.streak % STREAK_EVERY === 0) { const praise = this.praiseLine('streak'); if (praise) void this.course.audio.sayParts([{ id: praise }]) }
   }
 
   /**
@@ -1704,7 +1696,7 @@ export class RunController {
     const outcome = this.answerOutcome(near ? 'near' : 'wrong')
     if (outcome.forgiven) {
       this.record('broom', target, hit, 'near')
-      void sayParts([{ id: this.variation('almost') }])
+      void this.course.audio.sayParts([{ id: this.variation('almost') }])
       return 'on'
     }
     this.resetStreak()
@@ -1717,7 +1709,7 @@ export class RunController {
     this.setScreen({ reveal: { right: right?.id ?? target.id, wrong: hit?.id }, missed: !hit, fx } as Partial<BroomView>)
     this.set({ hearts: this.hearts.left })
     if (outcome.over) return 'over'
-    void sayParts([{ id: this.cueId(target) }])
+    void this.course.audio.sayParts([{ id: this.cueId(target) }])
     this.time.after(1400, () => {
       const s = this.view.screen
       if (t === this.token && s?.screen === 'broom' && s.fx?.id === fx.id) this.setScreen({ reveal: undefined } as Partial<BroomView>)

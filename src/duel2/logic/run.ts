@@ -1,7 +1,6 @@
 // The run (spec: Run; one duel, Part 1): the screens in a fixed cycle; the hearts last the whole run, and one comes back
 // at the end of each pass (one trip through the cycle); the next run starts at the screen after the one where the last
 // ended (Michael, 2026-10-19); the streak multiplier of the coins; the broom flight's timing.
-import type { Stage } from './content.ts'
 import type { ScreenId } from './predict'
 import { recordStageAnswer, screensOfStage } from './stages'
 import type { CourseStages } from '../course/types'
@@ -11,12 +10,12 @@ export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'door
 /** the first duel's tower opens every cycle (spec: one duel, Part 3) */
 const ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand']
 const DRAWING: ScreenId[] = ['draw', 'draw-hand']
-/** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words per visit (spec: visit
- * lengths, tune in playtest) */
-export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3, draw: 3, 'draw-hand': 3 }
+/** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words / words per visit (spec:
+ * visit lengths, tune in playtest) */
+export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3, draw: 3, 'draw-hand': 3, spell: 3 }
 /** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
  * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
-export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6 }
+export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6, spell: 6 }
 /** Book 2's Hebrew course's stages (the course seam, src/duel2/course) */
 export const HEBREW_STAGES: CourseStages = { maxStage: 4, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH }
 export const HEARTS = 3
@@ -24,25 +23,25 @@ export const HEARTS = 3
 export const TARGET_EVERY = 3
 
 /**
- * The screens of a cycle: the tower first, then Book 2's screens of his stage, then drawing when on. Before Book 2 opens
- * (`bookOpen` false: stage 0) only the tower; drawing too waits for stage 1.
+ * The screens of a cycle: the tower first, then the course's screens of his stage, then drawing when on. Before Book 2
+ * opens (`bookOpen` false: stage 0) only the tower; drawing too waits for stage 1. `stages`: the course's (Hebrew by default).
  */
-export const cycleOf = (stage: Stage, draw = false, bookOpen = true): ScreenId[] =>
-  !bookOpen ? ['tower'] : ORDER.filter((s) => (s === 'tower' ? true : DRAWING.includes(s) ? draw : screensOfStage(stage).includes(s)))
+export const cycleOf = (stage: number, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId[] =>
+  !bookOpen ? ['tower'] : stages.order.filter((s) => (s === 'tower' ? true : stages.drawing.includes(s) ? draw : stages.screensOfStage(stage).includes(s)))
 
 /** The screen after `current` (which need not be in the cycle, e.g. drawing turned off since). */
-export function nextScreen(stage: Stage, current: ScreenId, draw = false, bookOpen = true): { screen: ScreenId; newCycle: boolean } {
-  const c = cycleOf(stage, draw, bookOpen)
-  const at = ORDER.indexOf(current)
-  const after = c.find((s) => ORDER.indexOf(s) > at)
+export function nextScreen(stage: number, current: ScreenId, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): { screen: ScreenId; newCycle: boolean } {
+  const c = cycleOf(stage, draw, bookOpen, stages)
+  const at = stages.order.indexOf(current)
+  const after = c.find((s) => stages.order.indexOf(s) > at)
   return after ? { screen: after, newCycle: false } : { screen: c[0], newCycle: true }
 }
 
-export function runStart(stage: Stage, lastEnded: ScreenId | null, draw = false, bookOpen = true): ScreenId {
-  const c = cycleOf(stage, draw, bookOpen)
+export function runStart(stage: number, lastEnded: ScreenId | null, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId {
+  const c = cycleOf(stage, draw, bookOpen, stages)
   // a screen that is not in the cycle (another stage's, or drawing turned off) starts the cycle over
   if (!lastEnded || !c.includes(lastEnded)) return c[0]
-  return nextScreen(stage, lastEnded, draw, bookOpen).screen
+  return nextScreen(stage, lastEnded, draw, bookOpen, stages).screen
 }
 
 export interface Hearts { left: number; nearMissUsed: boolean }

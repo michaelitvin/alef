@@ -9,10 +9,12 @@ import {
 } from './content.ts'
 import { features, pickTarget, type ScreenId } from './predict'
 import { NEW_SHARE } from './stages'
+import { WORDS, type Word } from '../data/words'
 
 export type Kind = 'letter' | 'syllable'
 export interface Choice {
-  kind: Kind
+  /** 'unit' and 'word': the English course's choices (Hebrew choices are letters and syllables) */
+  kind: Kind | 'unit' | 'word'
   /** item id (letter) or syllable id `<item>-<mark>` */
   id: string
   text: string
@@ -23,6 +25,11 @@ export interface Choice {
   mark?: MarkId
   /** set on the other form of a dotted letter (ב for בּ): a near miss for that target */
   nearMissOf?: string
+  /** the sound units of a word (the blend, the spell book) */
+  units?: string[]
+  picture?: string
+  heart?: true
+  nonsense?: true
 }
 export type Conf = Record<string, Record<string, number>>
 export interface RoundCtx {
@@ -60,7 +67,7 @@ const openedItems = (stage: Stage): Item[] => (stage === 1 || stage >= 3 ? ITEMS
 const syllableItems = (stage: Stage): Item[] => (stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
 
 /** True when the answer counts towards passing the current stage (it is on that stage's new content). */
-export function isNewStageChoice(stage: Stage, c: Choice): boolean {
+export function isNewStageChoice(stage: number, c: Choice): boolean {
   if (stage === 1) return c.kind === 'letter'
   if (stage === 2) return c.kind === 'syllable' && !itemOf(c.itemId).soft
   if (stage === 3) return c.kind === 'syllable' && itemOf(c.itemId).soft
@@ -256,4 +263,16 @@ export function ghostRound(ctx: RoundCtx, kind: Kind, avoid?: string): { target:
   const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m))
   const signs = fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m))
   return { target, signs: markNearMiss(target, shuffle(rng, signs)) }
+}
+
+/** The doors' words of a visit: `n` door words of the opened stages (at least stage 2's, at most stage 3's), shuffled. */
+export function doorWords(ctx: RoundCtx, n: number): Word[] {
+  const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(ctx.stage, 3)))
+  return pool.sort(() => ctx.rng() - 0.5).slice(0, n)
+}
+
+/** The keys of a door: its word and two other door words, shuffled. */
+export function doorKeys(ctx: RoundCtx, word: Word): Word[] {
+  const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => ctx.rng() - 0.5).slice(0, 2)
+  return [word, ...others].sort(() => ctx.rng() - 0.5)
 }
