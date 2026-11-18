@@ -5,7 +5,8 @@ import { useGameShell } from '../shared/shell/GameShell'
 import { preloadSpaceCat } from './assets/preload'
 import { stopAll } from './audio/spaceCatAudio'
 import type { EndInfo, LevelDoneInfo } from './controller'
-import { flushLog } from './logSeam'
+import { ParentArea } from '../parent/ParentArea'
+import { flushLog, track } from './logSeam'
 import { Cover } from './screens/Cover'
 import { End } from './screens/End'
 import { LevelDone } from './screens/LevelDone'
@@ -48,8 +49,8 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
       {screen === 'level' && level && <LevelDone info={level} onNext={() => { setScreen('play'); play.current?.nextLevel() }} />}
       {screen === 'end' && end && <End info={end} onAgain={() => { unlockAudioOutput(); newRun() }} onHome={leave} />}
       {screen === 'cover' && <Cover onPlay={shell.play} loading={shell.loading} onParent={() => setScreen('parent')} onHome={leave} />}
-      {/* the shared parent area comes with Space Cat's part in it */}
-      {screen === 'parent' && <div data-screen-part="parent" />}
+      {/* the shared parent area at Space Cat's section; its live log (`telemetry`) comes with Task 10B */}
+      {screen === 'parent' && <ParentArea game="spacecat" onClose={() => setScreen('cover')} track={track} homeHref={import.meta.env.BASE_URL} />}
     </div>
   )
 }
