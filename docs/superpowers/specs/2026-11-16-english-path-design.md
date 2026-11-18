@@ -101,6 +101,7 @@ like that"), because the purple parts did not fit a green background. Decided wi
   one set for the English path.
 - **Not changed** (my call): the monsters, the bosses, the merchant, the picture words, the coins, hearts and stars.
   Enemies stand out against green; rewards look the same in both paths, because they are the same reward system.
+  The crystals are props and turn green with them (the parent accepted the green set on the review page, 2026-11-17).
 - The transformation is a script run once. Its output is committed as new image files; the game does not recolour at
   run time. Record each output's source file and the script's parameters in `asset-sources/english/images.json`. The
   script itself is host-local, like the other generation tools.
@@ -385,14 +386,10 @@ then the parent's year of birth). It is a `GameParent` declared by the English c
 ## Part 10 — Assets and budget
 
 Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
-- **Images (a question for the parent: the budget).** Pictures are needed where a round shows one: the tower's first- and
-  last-sound rounds (two or three pictures per unit, rule: several pictures per sound), the doors' keys, the cauldron,
-  the spell book's early stages and the placement's picture rounds. Choosing words that serve several of these at once,
-  that is about 150 pictures, of which about 25 exist (cat, dog, fox, bus, fish, tent, cake, rose, tree, house, book,
-  ball, horse…): about 125 new. With 2 takes each and about 20 % made again after review, at about $0.15 an image, that
-  is about $40. The $10 agreed earlier counted about 70 pictures with one take each. The spell book sprite (an open
-  book) is one more image. Generated in the game's style from the style sheet, one subject on a flat background (rules:
-  art generation).
+- **Images (done, 2026-11-17):** made with Gemini 2.5 Flash Image through its batch service, one take each, retakes
+  for automated failures and the parent's rejects (the parent chose the model; the game's earlier pictures used
+  Gemini 3 Pro Image). The parent reviewed them on the review kit; pictures he found unclear were dropped and their
+  words stay without a picture (the asset plan lists them and the coverage they leave). About $3.3 spent.
 - **Transformed images:** the green set (Part 2), no cost.
 - **Voice:** about 45 sound units, about 300 words, about 100 nonsense words, about 30 heart words, and
   the English lines of the run, the merchant, the bosses, demos and info taps; plus girl forms where marked. Generated
