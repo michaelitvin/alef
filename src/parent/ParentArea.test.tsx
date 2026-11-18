@@ -146,7 +146,7 @@ describe('the parent area', () => {
     const { INITIAL_PROGRESS_STATE } = await import('../types/progress')
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel,
       byMark: { kamatz: { seen: 3, correct: 2, wrong: 1, timeout: 0, twin: 0, mega: 0 } } } })
-    for (const [game, lazyText] of [['lessons', /Dev mode/], ['book2', /Mark \(most misses first\)/], ['clock', /Predicted miss/]] as const) {
+    for (const [game, lazyText] of [['lessons', /Dev mode/], ['book2', /Mark \(most misses first\)/], ['clock', /Predicted miss/], ['spacecat', /Sums he finds hard/]] as const) {
       const { container, unmount } = render(<ParentArea game={game} onClose={() => {}} />)
       await screen.findByText(lazyText, {}, LAZY)
       const tables = [...container.querySelectorAll('table')]

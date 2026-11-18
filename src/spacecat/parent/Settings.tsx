@@ -53,7 +53,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
   return (
     <div data-spacecat-settings>
       <h3>Where he is</h3>
-      <table data-rungs style={{ borderCollapse: 'collapse' }}>
+      <div className="pa-wide"><table data-rungs style={{ borderCollapse: 'collapse' }}>
         <thead><tr><th align="left">Rung</th><th>Status</th><th>Right</th></tr></thead>
         <tbody>
           {RUNGS.map((r) => {
@@ -65,10 +65,10 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
             )
           })}
         </tbody>
-      </table>
+      </table></div>
 
       <h3>Sums he finds hard</h3>
-      <table data-hard style={{ borderCollapse: 'collapse' }}>
+      <div className="pa-wide"><table data-hard style={{ borderCollapse: 'collapse' }}>
         <thead><tr><th align="left">Sum</th><th>Right / seen</th><th>Time-outs</th><th>Usual time</th><th>Most frequent wrong pick</th></tr></thead>
         <tbody>
           {hard.map(({ id, st }) => {
@@ -81,7 +81,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
             )
           })}
         </tbody>
-      </table>
+      </table></div>
       {!hard.length && <p>No sums played yet.</p>}
 
       <h3>Range</h3>
