@@ -55,9 +55,13 @@ export function Summary({ over, onAgain, onHome, onExit }: {
     return () => { alive = false; window.clearTimeout(timer); document.removeEventListener('visibilitychange', vis) }
   }, [over, course])
   const won = [...new Set(over.bosses ?? [])]
-  // the next boss that waits for him: one his stage has opened first (none after a session from the path)
+  const confusions = useCourseSave((s) => s.confusions)
+  // the next boss that waits for him: one his stage has opened first (none after a session from the path). A course with
+  // its own boss kinds (English) teases only an open one; Book 2 teases a closed one when none is open
   const waiting = BOSS_KINDS.filter((k) => !beaten.includes(k))
-  const teaser = over.session ? undefined : waiting.find((k) => bossOpen(k, stage)) ?? waiting[0]
+  const kinds = course.rounds.bossKinds?.(stage, confusions)
+  const teaser = over.session ? undefined
+    : kinds ? waiting.find((k) => kinds.open.includes(k)) : waiting.find((k) => bossOpen(k, stage)) ?? waiting[0]
   return (
     <div className="d2-root d2-summary" data-screen="summary" data-session={over.session || undefined}>
       <div className="d2-summary-row">
