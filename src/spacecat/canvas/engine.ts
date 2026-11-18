@@ -5,10 +5,9 @@ import type { Sleeper } from '../../shared/sleeper'
 import type { SfxName } from '../audio/sfx'
 import { IMAGES } from '../assets/images'
 import type { RoundContent } from '../content'
-import type { Layout } from '../layout'
 import { nearestLane, startRound, step, type RoundEvent, type RoundResult, type RoundState } from '../logic/round'
 import {
-  GEOM, MAX_OFFSET, drawBackground, drawBox, drawHand, drawTopBar, fit, laneUnits, numDisc, planetPos, type Geom,
+  MAX_OFFSET, WIDE, drawBackground, drawBox, drawHand, drawTopBar, fit, geomFor, laneUnits, numDisc, planetPos, type Geom,
 } from './draw'
 import { CLEAR_MS, Effects, MARK_MS, drawFlyNumber, drawRightRing } from './effects'
 import { attachInput, type Intent } from './input'
@@ -32,7 +31,8 @@ export type EngineClock = Pick<Sleeper, 'frame' | 'now'>
 export interface Hud { dots: number; points: number; hearts: number }
 
 export interface Engine {
-  setLayout(l: Layout): void
+  /** the screen's size in CSS px: its layout and play area (geomFor); the ship stays in its lane */
+  setScreen(w: number, h: number): void
   setShip(n: 1 | 2 | 3): void
   setHud(h: Hud): void
   /** frozen: the planets stand still until resume() */
@@ -92,7 +92,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   const fx = new Effects()
   const stars = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), s: Math.random() * 2.2 + 1, v: Math.random() * 0.06 + 0.02 }))
 
-  let G: Geom = GEOM.wide
+  let G: Geom = WIDE
   let shipN: 1 | 2 | 3 = 1
   let hud: Hud = { dots: 0, points: 0, hearts: 3 }
   let hudAtStart: Hud = hud
@@ -414,9 +414,9 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   }, onIntent)
 
   const engine: Engine = {
-    setLayout(l) {
+    setScreen(w, h) {
       const lane = laneOf(ship.x), tLane = laneOf(ship.tx)
-      G = GEOM[l]
+      G = geomFor(w, h)
       ship.x = G.lanes[lane]; ship.tx = G.lanes[tLane]
     },
     setShip(n) { shipN = n },

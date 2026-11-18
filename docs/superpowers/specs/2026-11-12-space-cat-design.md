@@ -19,7 +19,7 @@ parent decided an exception.
 2. A child who cannot read can start, play and play again with no help.
 3. The game finds his level and aims at 1 mistake in 5, as the other alef games do.
 4. The parent sees which sums are hard for him.
-5. Landscape on the tablet; the original portrait layout on a phone.
+5. Landscape on the tablet and on a phone on its side; the original portrait layout on a phone held upright.
 
 ## Non-goals
 
@@ -57,14 +57,15 @@ Space Cat Math by permission of its author. Each ported source file says so in i
 
 ## The play screen
 
-One canvas, as in the original, wrapped by React. Logical size 1600×900 in the wide layout, 540×960 in the portrait
-layout. The layout follows the other games' rule: a tablet in landscape gets the wide layout; a phone gets the portrait
-layout, also when it lies on its side. *My call:* a screen whose shorter side is less than 600 CSS px is a phone; a
-screen that is wider than it is high and not a phone gets the wide layout; every other screen gets the portrait layout. The
-background fills the whole screen on any shape; the game area keeps its size inside it.
+One canvas, as in the original, wrapped by React. Logical size 1600×900 in the wide layout, 540 wide in the portrait
+layout. The layout follows the screen's current shape (rule; the parent, 2026-11-18): a screen that is wider than it is
+high (a tablet in landscape, a phone on its side) gets the wide layout; every other screen (a phone or a tablet held
+upright) gets the portrait layout. When the screen turns, the layout changes and the round goes on. The portrait play
+area is as tall as the screen's shape (960 to 1200 logical px), so that it fills a tall phone; the still screens keep
+540×960. The background fills the whole screen on any shape; the game area keeps its size inside it.
 
 **Top bar.** Left: the held house button first (the way home, a 2 s hold with a ring that fills; rule), then 7 progress
-dots for the level. Right: a star with the points of the run, and 3 hearts. All drawn as shapes, not emoji. During
+dots for the level (in the portrait layout the dots have their own row under the house, so that they are large). Right: a star with the points of the run, and 3 hearts. All drawn as shapes, not emoji. During
 flight the top bar does not take taps, except the house: a touch elsewhere on it steers like a touch anywhere. The hearts
 and the points speak on a tap where the game stands still: the points and his best on the cover, on *level done* and on
 the end screen, the hearts on *level done*, and a locked ship on the cover's shelf (see *Voice*). No plain home button, no
@@ -371,7 +372,7 @@ How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by secti
   built from the original's parts and alef's demo hand. The action is the answer: no confirm button. A place for the answer (the
   ring) is shown; the answer goes there by flight, not by a drag of a number, because the flight is the game. The demo
   uses a real hand, its round flows into play, and the zoom is explained when he first needs it. Landscape tablet first;
-  a phone keeps the portrait layout.
+  a phone on its side gets the wide layout, a phone held upright the portrait layout.
 - **Game play and learning.** The 1 in 5 target, recent answers weigh more, wrong answers only from open rungs,
   confusions recorded by direction and brought back, speed adapts unseen, a new element (the missing number) is
   explained at its first show. No state that cannot exist: the ship is always in a lane. The action-game rule replaces

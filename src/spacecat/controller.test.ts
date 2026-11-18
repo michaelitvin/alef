@@ -24,7 +24,7 @@ function fakeEngine() {
     hud: { dots: 0, points: 0, hearts: 3 } as Hud,
     hands: [] as string[],
     handDone: null as (() => void) | null,
-    setLayout() {}, setShip(n: number) { calls.push(`ship ${n}`) },
+    setScreen() {}, setShip(n: number) { calls.push(`ship ${n}`) },
     setHud(h: Hud) { e.hud = h },
     play(c: RoundContent, _ms: number, o?: { frozen?: boolean }) { e.content = c; e.plays.push(c); e.frozen = !!o?.frozen; calls.push('play') },
     freeze() { e.frozen = true; calls.push('freeze') },

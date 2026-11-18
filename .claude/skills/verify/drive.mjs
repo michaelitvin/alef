@@ -32,6 +32,7 @@ const VIEWPORTS = [
   // Space Cat plays upright and on its side, on a phone and a tablet: its sweep sizes run only when named
   { name: 'phoneUp', width: 412, height: 915, mobile: true, optIn: true },
   { name: 'phoneSide', width: 915, height: 412, mobile: true, optIn: true },
+  { name: 'phoneUpSmall', width: 390, height: 844, mobile: true, optIn: true },
   { name: 'tabletUp', width: 800, height: 1280, optIn: true },
   { name: 'tabletSide', width: 1280, height: 800, optIn: true },
 ]
@@ -682,6 +683,39 @@ const CHECKS = {
       out.push(`rung ${top}: ${res.join(' ')}; drew ${strings.filter((t) => /[+−×÷]/.test(t)).join('') || '-'}`)
     }
     for (const o of out) note(o)
+  },
+
+  async spacecatTurn(page, base, vp, note) {
+    // the screen turns mid-round (a phone or a tablet rotated): the layout follows the new shape, the round goes on in
+    // the same lane, and he answers it in the new layout; then it turns back
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed(2)])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    const turned = { ...vp, width: vp.height, height: vp.width }
+    const res = []
+    let n = 0
+    try {
+      for (const [i, size] of [turned, vp].entries()) {
+        const r = await scRound(page, n)
+        if (!r) throw new Error('no round to turn in')
+        await page.setViewportSize({ width: size.width, height: size.height })
+        await page.waitForTimeout(700)
+        const q = await scProbe(page)
+        if (q.n !== r.n || q.result) throw new Error(`the turn ended the round (n ${r.n} → ${q.n}, ${q.result})`)
+        if (q.shipLane !== r.shipLane) throw new Error(`the turn moved the ship (lane ${r.shipLane + 1} → ${q.shipLane + 1})`)
+        await shot(page, vp, `sc-turned-${i ? 'back' : 'over'}`)
+        const a = await scAnswer(page, size, 'right', r.n - 1)
+        n = a.n
+        res.push(`${size.width}×${size.height}: ${a.result}`)
+      }
+    } finally {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+    }
+    note(`turned mid-round, then answered: ${res.join(', ')}`)
+    await scNoText(page)
   },
 
   async spacecatArea(page, base, vp, note) {

@@ -5,7 +5,6 @@ import { realSleeper, type Sleeper } from '../shared/sleeper'
 import * as spaceCatAudio from './audio/spaceCatAudio'
 import { createEngine, type Engine } from './canvas/engine'
 import { PlayController, type EndInfo, type LevelDoneInfo, type PlayView } from './controller'
-import { layoutFor } from './layout'
 import { storeSavePort, type SpaceCatSavePort } from './savePort'
 import { spaceCatTelemetry } from './telemetry'
 
@@ -36,7 +35,7 @@ export function usePlay(o: UsePlayOpts) {
     const canvas = canvasRef.current!
     const make = opts.current.makeEngine ?? ((cv: HTMLCanvasElement) => createEngine(cv, { sfx: (n) => { void spaceCatAudio.playSfx(n) } }))
     const engine = make(canvas)
-    const fit = () => engine.setLayout(layoutFor(window.innerWidth, window.innerHeight))
+    const fit = () => engine.setScreen(window.innerWidth, window.innerHeight)
     fit()
     const ctl = new PlayController({
       engine, audio: spaceCatAudio, save: opts.current.save ?? storeSavePort,

@@ -1,13 +1,11 @@
-// Space Cat's layout choice: a phone (shorter side under 600 CSS px) keeps the portrait layout, also on its side;
-// a tablet or screen that is wider than high gets the wide layout.
+// Space Cat's layout choice, by the screen's current shape: a screen that is wider than it is high (a tablet in
+// landscape, a phone on its side) gets the wide layout; every other screen (a phone or a tablet held upright) gets the
+// portrait layout. The choice changes when the screen turns; the round goes on.
 export type Layout = 'wide' | 'portrait'
 
-/** the game area's logical size in each layout */
+/** the still screens' logical size in each layout (the play screen's portrait area may be taller: canvas/draw.ts) */
 export const LOGICAL = { wide: { w: 1600, h: 900 }, portrait: { w: 540, h: 960 } } as const
-/** a screen whose shorter side is less than this is a phone */
-export const PHONE_SHORT_SIDE = 600
 
 export function layoutFor(w: number, h: number): Layout {
-  if (Math.min(w, h) < PHONE_SHORT_SIDE) return 'portrait'
   return w > h ? 'wide' : 'portrait'
 }

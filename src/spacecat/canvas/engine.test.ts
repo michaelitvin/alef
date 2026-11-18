@@ -4,7 +4,7 @@ import type { RoundContent } from '../content'
 import { makeRound } from '../content'
 import { RUNGS, itemsOfRung, maxNumber, type RungId } from '../logic/facts'
 import type { RoundResult } from '../logic/round'
-import { GEOM } from './draw'
+import { WIDE } from './draw'
 import { CLEAR_MS, MARK_MS } from './effects'
 import { PARKED_MS, createEngine, type Engine } from './engine'
 import { manualClock, recordingContext } from './testCanvas'
@@ -19,7 +19,7 @@ const content = (rightLane = 1): RoundContent => {
   labels[rightLane] = '5'
   return { box: ['2', '+', '3', '=', null], labels, rightLane, flyNumber: '5', itemId: '2+3=5/c', fact: '+2,3' }
 }
-const G = GEOM.wide
+const G = WIDE
 
 function pointer(el: HTMLElement, type: string, x: number, y: number) {
   const e = new MouseEvent(type, { clientX: x, clientY: y, bubbles: true })

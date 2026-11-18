@@ -1,7 +1,6 @@
 // The play screen's geometry and its drawing parts. The sizes of the ship, the star and the points are the ones the
-// parent approved in the plan mock; the planets' scale curve is the original's. Every string drawn on the canvas goes
+// parent approved in the plan mock; the planets' linear growth is the original's. Every string drawn on the canvas goes
 // through drawText(), so that the no-text scan sees it.
-import type { Layout } from '../layout'
 import { LOGICAL, layoutFor } from '../layout'
 import { TEST_HOOKS } from '../testHooks'
 import { HAND_CUFF, HAND_PATH } from './handPath'
@@ -39,33 +38,55 @@ export interface Geom {
   R: number
   /** where the planets start (under the box) and where they arrive */
   y0: number; yArr: number
-  /** the top bar: its row; the progress dots; the hearts (right); the space kept free for the held house (left) */
-  topY: number; dotX: number; dotStep: number; dotR: number; heartS: number; heartX: number; heartStep: number; pointsSize: number; starGap: number
+  /** a planet starts at this share of its full size, and grows linearly to full size at the ship's row */
+  start: number
+  /**
+   * the top bar: its row; the progress dots (their own row when dotY is not topY); the hearts (right); the space kept
+   * free for the held house (left)
+   */
+  topY: number; dotY: number; dotX: number; dotStep: number; dotR: number; heartS: number; heartX: number; heartStep: number; pointsSize: number; starGap: number
   houseW: number
   box: { cy: number; h: number; font: number; gap: number }
   /** the layout's scale of strokes and speeds (wide = 1) */
   k: number
 }
 
-/** a planet starts at this share of its full size, and grows linearly to full size at the ship's row (the original's curve) */
-export const PLANET_START = 0.4
 /** the largest vertical offset of a planet from its neighbours, in logical px */
 export const MAX_OFFSET = 12
 
 const wideShipY = 790, wideShipS = 176, wideR = 92
-const portShipY = 855, portShipS = 128, portR = 66
+const portShipS = 128, portR = 66
 
-export const GEOM: Record<Layout, Geom> = {
-  wide: {
-    W: LOGICAL.wide.w, H: LOGICAL.wide.h, lanes: [0, 1, 2, 3].map((i) => 800 + (i - 1.5) * 240), shipY: wideShipY, shipS: wideShipS, R: wideR,
-    y0: 285, yArr: wideShipY - wideShipS * 0.5 - wideR, topY: 62, dotX: 190, dotStep: 42, dotR: 13, heartS: 1, heartX: 1515,
-    heartStep: 68, pointsSize: 64, starGap: 100, houseW: 150, box: { cy: 128, h: 124, font: 86, gap: 26 }, k: 1,
-  },
-  portrait: {
-    W: LOGICAL.portrait.w, H: LOGICAL.portrait.h, lanes: [0.125, 0.375, 0.625, 0.875].map((f) => f * LOGICAL.portrait.w), shipY: portShipY, shipS: portShipS,
-    R: portR, y0: 300, yArr: portShipY - portShipS * 0.5 - portR, topY: 50, dotX: 108, dotStep: 17, dotR: 7, heartS: 0.62,
-    heartX: 503, heartStep: 41, pointsSize: 50, starGap: 70, houseW: 96, box: { cy: 160, h: 104, font: 68, gap: 18 }, k: 0.62,
-  },
+/** the wide layout: a tablet in landscape and a phone on its side */
+export const WIDE: Geom = {
+  W: LOGICAL.wide.w, H: LOGICAL.wide.h, lanes: [0, 1, 2, 3].map((i) => 800 + (i - 1.5) * 240), shipY: wideShipY, shipS: wideShipS, R: wideR,
+  start: 0.4, y0: 285, yArr: wideShipY - wideShipS * 0.5 - wideR, topY: 62, dotY: 62, dotX: 190, dotStep: 42, dotR: 13, heartS: 1,
+  heartX: 1515, heartStep: 68, pointsSize: 64, starGap: 100, houseW: 150, box: { cy: 128, h: 124, font: 86, gap: 26 }, k: 1,
+}
+
+/** the portrait play area's height: the screen's own shape, from the still screens' 960 up to a tall phone's */
+export const PORTRAIT_H = { min: LOGICAL.portrait.h, max: 1200 } as const
+
+/**
+ * The portrait layout (a phone or a tablet held upright), H logical px high. Four lanes fill the width, so a planet at
+ * the ship's row is as wide as its lane; on a phone it starts at 0.6 of that size (not the original's 0.4), so that it
+ * is large during the whole flight. The progress dots have their own row under the house and the hearts.
+ */
+export function portraitGeom(H: number): Geom {
+  const W = LOGICAL.portrait.w, shipY = H - 105, dotStep = 44
+  return {
+    W, H, lanes: [0.125, 0.375, 0.625, 0.875].map((f) => f * W), shipY, shipS: portShipS, R: portR, start: 0.6,
+    y0: 330, yArr: shipY - portShipS * 0.5 - portR, topY: 50, dotY: 116, dotX: W / 2 - 3 * dotStep, dotStep, dotR: 15,
+    heartS: 0.62, heartX: 503, heartStep: 41, pointsSize: 50, starGap: 70, houseW: 96, box: { cy: 202, h: 104, font: 68, gap: 18 },
+    k: 0.62,
+  }
+}
+
+/** The play geometry for a screen of w × h CSS px: its layout, and in portrait an area as tall as the screen's shape. */
+export function geomFor(w: number, h: number): Geom {
+  if (layoutFor(w, h) === 'wide') return WIDE
+  const H = Math.round((LOGICAL.portrait.w * h) / Math.max(1, w))
+  return portraitGeom(Math.min(PORTRAIT_H.max, Math.max(PORTRAIT_H.min, H)))
 }
 
 /** the held house's size and its inset from the screen's edge (CSS px; src/shared/HomeButton.tsx) */
@@ -73,13 +94,13 @@ export const HOUSE_PX = 56, HOUSE_INSET = 8
 
 /**
  * Where the held house sits on a screen of w × h CSS px: on the top bar's row, in the corner the bar keeps free, and
- * always clear of the first progress dot. A phone on its side letterboxes the game area: the house then sits just left
- * of the area.
+ * always clear of the first progress dot (beside it, or above the dots' own row). A wide screen that letterboxes the
+ * game area (a phone on its side) puts the house just left of the area when there is room.
  */
 export function housePlace(w: number, h: number): { left: number; top: number } {
-  const G = GEOM[layoutFor(w, h)], f = fit(G, w, h)
+  const G = geomFor(w, h), f = fit(G, w, h)
   const centred = f.ox + (G.houseW / 2) * f.scale - HOUSE_PX / 2
-  const beforeDots = f.ox + (G.dotX - G.dotR) * f.scale - HOUSE_PX - 4
+  const beforeDots = G.dotY === G.topY ? f.ox + (G.dotX - G.dotR) * f.scale - HOUSE_PX - 4 : Infinity
   const top = Math.max(HOUSE_INSET, f.oy + G.topY * f.scale - HOUSE_PX / 2)
   // a letterboxed area with room beside it: the house just left of the area, clear of the bar and the sum box
   if (f.ox >= HOUSE_PX + 2 * HOUSE_INSET) return { left: f.ox - HOUSE_PX - HOUSE_INSET, top }
@@ -88,7 +109,7 @@ export function housePlace(w: number, h: number): { left: number; top: number } 
 
 /** A planet's centre and radius at progress p (0 = start, 1 = at the ship's row), with its vertical offset. */
 export function planetPos(G: Geom, lane: number, p: number, off: number): { x: number; y: number; r: number } {
-  return { x: G.lanes[lane], y: G.y0 + (G.yArr - G.y0) * p + off * (0.4 + 0.6 * Math.min(1, p)), r: G.R * (PLANET_START + (1 - PLANET_START) * p) }
+  return { x: G.lanes[lane], y: G.y0 + (G.yArr - G.y0) * p + off * (0.4 + 0.6 * Math.min(1, p)), r: G.R * (G.start + (1 - G.start) * p) }
 }
 
 /** the logical game area centred in a screen of cw × ch (CSS or device px): its scale and offset */
@@ -149,14 +170,14 @@ export function numDisc(g: CanvasRenderingContext2D, s: string, x: number, y: nu
   g.restore()
 }
 
-/** the top bar: 7 progress dots after the held house's corner, then on the right the star with the points and 3 hearts */
+/** the top bar: 7 progress dots after the held house (or on their own row under it), on the right the star with the points and 3 hearts */
 export function drawTopBar(
   g: CanvasRenderingContext2D, G: Geom, hud: { dots: number; points: number; hearts: number },
   breaking: { i: number; t: number } | null,
 ): { pointsAt: { x: number; y: number } } {
   const y = G.topY
   for (let i = 0; i < 7; i++) {
-    g.beginPath(); g.arc(G.dotX + i * G.dotStep, y, G.dotR, 0, Math.PI * 2)
+    g.beginPath(); g.arc(G.dotX + i * G.dotStep, G.dotY, G.dotR, 0, Math.PI * 2)
     g.fillStyle = i < hud.dots ? '#ffd84a' : 'rgba(255,255,255,.22)'; g.fill()
     if (i < hud.dots) { g.lineWidth = 2; g.strokeStyle = 'rgba(255,255,255,.4)'; g.stroke() }
   }

@@ -20,7 +20,7 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 | Its part in the shared parent area | `parent/` (`index.ts` light; `Settings.tsx`, `reset.ts` lazy) |
 | Voice on the shared kit, the coded effects and the tune behind the player port, the line table | `audio/` (`spaceCatAudio.ts`, `coded.ts`, `synth.ts`, `tune.ts`, `lines.ts`) |
 | The root: the shell, the screens' routing | `SpaceCatApp.tsx` (on `useGameShell`, `src/shared/shell/`; no boy or girl question) |
-| Phone, phone on its side, tablet | `layout.ts` |
+| The layout by the screen's shape (wide on its side, portrait upright) | `layout.ts`; the play geometry `canvas/draw.ts` (`geomFor`) |
 
 ## Tests
 
@@ -37,4 +37,5 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 
 - The coded effects are takes of the kit but not of its voice queue: `quiet()` keeps an effect and a line apart.
 - The round content is sums only (`content.ts` is the place for another kind).
-- The planets' and the progress dots' sizes on a phone wait for the parent's decision.
+- On a phone held upright the four lanes fill the width, so a planet at the ship's row cannot grow past its lane; it
+  starts at 0.6 of that size instead of the original's 0.4. The parent reviews these sizes (2026-11-18).
