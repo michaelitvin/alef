@@ -3,7 +3,7 @@
 // (`until`, `drain`, `proceed`) are written after the ones at the top of useRun.test.tsx, which stays as it is.
 import { act } from '@testing-library/react'
 import { vi } from 'vitest'
-import { RunController, type DrawView, type RunOpts, type View } from '../controller'
+import { ladderAnswerId, RunController, type DrawView, type RunOpts, type View } from '../controller'
 import type { Rng } from '../../shared/adaptive'
 import type { ScreenId } from '../logic/predict'
 import { cycleOf } from '../logic/run'
@@ -101,7 +101,7 @@ export function choiceIdsOf(v: View): string {
   switch (s.screen) {
     case 'broom': return s.waves.map((w) => w.choices.map((x) => x.id).join(',')).join('|')
     case 'cauldron': return s.tiles ? `${s.boxes!.map((x) => x.id).join(',')}/${s.gap}:${s.tiles.map((x) => x.id).join(',')}` : `${s.letterId}:${s.orbs.join(',')}`
-    case 'ladder': return `${s.built.map((x) => x.id).join(',')}|${s.plates.map((x) => x.id).join(',')}`
+    case 'ladder': return `${s.built.map((x) => x.id).join(',')}|${s.plates.map((x) => x.id).join(',')}${s.at !== undefined ? `|${s.at}${s.grow ? `+${s.grow}` : ''}${s.marked ? '*' : ''}` : ''}`
     case 'ghosts': return s.signs.map((x) => x.id).join(',')
     case 'doors': return `${s.word.id}:${s.keys.map((k) => k.id).join(',')}`
     case 'draw': return `${s.word.id}:${s.letter}:${s.mode}`
@@ -116,7 +116,7 @@ function pickId(v: View, right: boolean): string | null {
   if (s.screen === 'cauldron') return right ? s.target.mark! : s.orbs.find((m) => m !== s.target.mark) ?? null
   if (s.screen === 'doors') return right ? s.word.id : s.keys.find((k) => k.id !== s.word.id)?.id ?? null
   if (s.screen === 'ghosts') return right ? s.target.id : s.signs.find((x) => x.id !== s.target.id && x.nearMissOf !== s.target.id)?.id ?? null
-  if (s.screen === 'ladder') return right ? s.target.id : s.plates.find((x) => x.id !== s.target.id && x.nearMissOf !== s.target.id)?.id ?? null
+  if (s.screen === 'ladder') { const a = ladderAnswerId(s); return right ? a : s.plates.find((x) => x.id !== a && x.nearMissOf !== a)?.id ?? null }
   return null
 }
 

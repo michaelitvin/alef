@@ -27,13 +27,13 @@ export interface CauldronDeps { picture: PictureOf; voice?: HasVoice }
 /** a pair of letters that makes one sound (sh, ch, th, ck, ff…): one box, one tile */
 const isPair = (u: Unit) => (u.kind === 'digraph' || u.kind === 'double') && u.text.length === 2
 /** what a tile is like: wrong tiles of the right one's class come first */
-const classOf = (u: Unit) => (u.kind === 'vowel' ? 'vowel' : u.kind === 'consonant' ? 'letter' : isPair(u) ? 'pair' : u.kind)
+export const classOf = (u: Unit) => (u.kind === 'vowel' ? 'vowel' : u.kind === 'consonant' ? 'letter' : isPair(u) ? 'pair' : u.kind)
 
 /** a unit as a box or tile: its letters (an ending without its hyphen: `jump` + `ing`) */
-const partOf = (u: Unit): Choice => ({ ...unitChoice(u), text: u.text.replace(/^-/, '') })
+export const partOf = (u: Unit): Choice => ({ ...unitChoice(u), text: u.text.replace(/^-/, '') })
 
 /** the tiles that can be wrong next to `right`: opened letters, pairs and teams (and the opened endings for an ending) */
-function tilePool(stage: number, right: Unit): Unit[] {
+export function tilePool(stage: number, right: Unit): Unit[] {
   const endings = right.kind === 'ending' ? UNITS.filter((u) => u.kind === 'ending' && u.stage <= stage && !u.secondOf) : []
   return [...letterPool(stage), ...endings]
 }
@@ -59,14 +59,14 @@ function partnerOf(ctx: RoundCtx, id: string): string | null {
   return best?.[0] ?? null
 }
 
-/** the right tile and 3 wrong ones (his mix-up first, then tiles of its class, then any), shuffled */
-function tilesFor(ctx: RoundCtx, right: Choice, pool: Unit[], cls: string): Choice[] {
+/** the right tile and `n - 1` wrong ones (his mix-up first, then tiles of its class, then any), shuffled */
+export function tilesFor(ctx: RoundCtx, right: Choice, pool: Unit[], cls: string, n = TILES): Choice[] {
   const partner = partnerOf(ctx, right.id)
   const p = pool.filter((u) => u.id === partner)
   const same = shuffle(ctx.rng, pool.filter((u) => classOf(u) === cls))
   const ordered = [...p, ...same, ...shuffle(ctx.rng, pool)].map(partOf)
   const out = [right]
-  for (const c of ordered) if (out.length < TILES && fits(out, c)) out.push(c)
+  for (const c of ordered) if (out.length < n && fits(out, c)) out.push(c)
   return shuffle(ctx.rng, out)
 }
 

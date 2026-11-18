@@ -19,7 +19,7 @@ import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
 import { progressTallies } from '../../utils/duel/tallies'
-import type { CauldronRound, Course } from './types'
+import type { CauldronRound, Course, LadderPlan } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */
 const sylFeatures = (c: Choice, screen: ScreenId) => {
@@ -33,13 +33,16 @@ function hebrewCauldron(ctx: RoundCtx, avoid?: string): CauldronRound {
   return { target: syllableChoice(r.target), boxes: [letterChoice(r.letter)], gap: 0, orbs: r.orbs.map((m) => syllableChoice(syllable(r.letter.id, m.id))) }
 }
 
+/** today's ladder as the neutral one: the changed place is always marked (it has no boxes) */
+const hebrewLadder = (ctx: RoundCtx, rungs: number, force?: 'letter' | 'vowel' | 'dot'): LadderPlan => ({ ...ladderPlan(ctx, rungs, force), marked: true })
+
 export const HEBREW: Course = {
   id: 'he',
   game: 'book2',
   dir: 'rtl',
   stages: HEBREW_STAGES,
   rounds: {
-    broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan, isNewStageChoice, features: sylFeatures,
+    broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan: hebrewLadder, isNewStageChoice, features: sylFeatures,
     doorWords, doorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name

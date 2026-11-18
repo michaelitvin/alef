@@ -50,7 +50,8 @@ export interface CourseRounds {
   /** the cauldron's round (`avoid`: the sound heard the round before) */
   cauldronRound: (ctx: RoundCtx, avoid?: string) => CauldronRound
   ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
-  ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => { fixed: LadderFixed; steps: LadderStep[] }
+  /** the ladder of a visit (`rungs` steps; `force`: the gallery's fixed part, Hebrew only) */
+  ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => LadderPlan
   isNewStageChoice: (stage: number, c: Choice) => boolean
   /** the features of an answer (logic/predict): what its tallies are kept under */
   features: (c: Choice, screen: ScreenId) => string[]
@@ -71,6 +72,18 @@ export interface CourseRounds {
   bossWave: (ctx: RoundCtx, kind: BossKind, target: Choice) => Choice[]
 }
 type LadderFixed = 'letter' | 'vowel' | 'dot'
+
+/**
+ * A ladder's rung: he hears `target` and drags the plate that makes it. English: `parts` are the target's boxes, `at` the
+ * one changed from the word below (`parts[at]` is the right plate; unset on the first rung, where the word is the plate),
+ * `grow` 1 when it is a box more than the word below (lip → slip; -1 a box fewer). Hebrew: none of them.
+ */
+export type LadderPlanStep = LadderStep & { at?: number; grow?: 1 | -1; parts?: Choice[] }
+/**
+ * A ladder, for both courses. `fixed`: the part that stays on every rung (Hebrew only); `marked`: the changed place is
+ * marked on the rung he makes (Hebrew always; English stages 1–3).
+ */
+export interface LadderPlan { fixed?: LadderFixed; marked: boolean; steps: LadderPlanStep[] }
 
 /**
  * A cauldron round, for both courses. `boxes`: the parts of the word shown, `boxes[gap]` the one missing (the right

@@ -58,6 +58,29 @@ describe('the screens follow the course direction', () => {
     expect([...c.querySelectorAll('[data-tile]')].map((e) => e.getAttribute('data-tile'))).toEqual(['o', 'a', 'i', 'u'])
     expect(c.querySelector('[data-box="c"] text')!.getAttribute('direction')).toBe('ltr')
   })
+  it('the English ladder marks the changed place on the rung he makes, a box more where a letter comes in', () => {
+    const part = (id: string): Choice => ({ kind: 'unit', id, text: id, soundId: `snd-${id}`, itemId: id })
+    const w = (id: string): Choice => ({ kind: 'word', id, text: id, soundId: `w-${id}`, itemId: id })
+    const rung = (change: { from: Choice[]; at: number; grow?: 1; marked: boolean }) =>
+      render(<Ladder built={[w(change.from.map((x) => x.text).join(''))]} plates={['i', 'o', 'u'].map(part)} rungs={5} onPick={() => {}} phase="answer" dir="ltr" change={change} />).container
+    const boxesOf = (c: HTMLElement) => [...c.querySelectorAll('[data-making-rung] [data-box]')]
+    // sat → sit: the a's box is marked
+    const sat = rung({ from: ['s', 'a', 't'].map(part), at: 1, marked: true })
+    expect(boxesOf(sat).map((e) => e.getAttribute('data-box'))).toEqual(['s', 'a', 't'])
+    expect([...sat.querySelectorAll('[data-marked-box]')].map((e) => e.getAttribute('data-box'))).toEqual(['a'])
+    const x = boxesOf(sat).map((e) => Number(e.querySelector('rect')!.getAttribute('x')))
+    expect(x).toEqual([...x].sort((a, b) => a - b))
+    // lip → slip: an empty marked box comes in before l
+    const lip = rung({ from: ['l', 'i', 'p'].map(part), at: 0, grow: 1, marked: true })
+    expect(boxesOf(lip).map((e) => e.getAttribute('data-box'))).toEqual(['_', 'l', 'i', 'p'])
+    expect([...lip.querySelectorAll('[data-marked-box]')].map((e) => e.getAttribute('data-box'))).toEqual(['_'])
+    // later stages: the word below as it is, nothing marked (he finds the place)
+    const later = rung({ from: ['l', 'i', 'p'].map(part), at: 0, grow: 1, marked: false })
+    expect(boxesOf(later).map((e) => e.getAttribute('data-box'))).toEqual(['l', 'i', 'p'])
+    expect(later.querySelector('[data-marked-box]')).toBeNull()
+    // no rung to make without a change (Hebrew, and the first rung)
+    expect(ladder('ltr').querySelector('[data-making-rung]')).toBeNull()
+  })
   it('a Latin glyph is drawn ltr in Andika, a Hebrew one rtl', () => {
     const { container } = render(<svg><Glyph text="cat" alphabet="latin" px={100} x={0} y={0} /><Glyph text="בּ" px={100} x={0} y={0} /></svg>)
     const [latin, hebrew] = [...container.querySelectorAll('text')]

@@ -5,7 +5,7 @@
 import type { Rng } from '../shared/adaptive'
 import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
-import type { Choice, Kind, LadderStep, RoundCtx } from './logic/rounds'
+import type { Choice, Kind, RoundCtx } from './logic/rounds'
 import type { Round } from '../types/duel'
 import {
   TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
@@ -18,7 +18,7 @@ import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
 import { HEBREW } from './course/hebrew'
-import type { Course, CourseId } from './course/types'
+import type { Course, CourseId, LadderPlan } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker } from './logic/recognizer'
@@ -62,7 +62,16 @@ interface CauldronView {
   /** English stage 6: the word shown before the thrown `e` turns it into `target` (cap → cape) */
   shown?: Choice
 }
-interface LadderView { screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal }
+interface LadderView {
+  screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal
+  /**
+   * English, after the first rung: the rung he makes shows `from` (the word below's boxes); `parts` are the new word's,
+   * `parts[at]` the right plate (ladderAnswerId); `grow` 1: a box more than below; `marked`: the place `at` is marked
+   */
+  from?: Choice[]; parts?: Choice[]; at?: number; grow?: 1 | -1; marked?: boolean
+}
+/** the plate a ladder rung asks for: the changed part (English), else the target */
+export const ladderAnswerId = (s: { target: Choice; parts?: Choice[]; at?: number }): string => (s.at !== undefined && s.parts ? s.parts[s.at].id : s.target.id)
 interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
 interface DoorsView {
   screen: 'doors'; word: Word; lit: 0 | 1 | 2; keys: Word[]; opening: boolean; zooming: boolean; reveal?: Reveal
@@ -222,7 +231,7 @@ export class RunController {
   /** the round the demo showed is the first round he plays (the parent: the letter changed after the demo) */
   private demoRound = false
   private fxId = 0
-  private ladder: { fixed: 'letter' | 'vowel' | 'dot'; steps: LadderStep[]; built: Choice[] } | null = null
+  private ladder: (LadderPlan & { built: Choice[] }) | null = null
   private doorWords: Word[] = []
   /** stops the broom's tick */
   private broomStop: Cancel | undefined
@@ -989,8 +998,13 @@ export class RunController {
     }
     if (screen === 'ladder') {
       if (!this.ladder) this.ladder = { ...this.course.rounds.ladderPlan(c, this.visitLen, this.opts.force?.fixed), built: [] }
-      const step = this.ladder.steps[this.ladder.built.length]
-      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target } })
+      const k = this.ladder.built.length
+      const step = this.ladder.steps[k]
+      // English: the rung he makes is the word below, its changed place marked at the early stages
+      const change = step.at !== undefined
+        ? { from: this.ladder.steps[k - 1].parts, parts: step.parts, at: step.at, ...(step.grow ? { grow: step.grow } : {}), marked: this.ladder.marked }
+        : {}
+      this.set({ screen: { screen: 'ladder', built: this.ladder.built, plates: step.plates, rungs: this.visitLen, target: step.target, ...change } })
       return step.target
     }
     if (screen === 'ghosts') {
@@ -1161,12 +1175,15 @@ export class RunController {
       tapped = { ...c, id: `${c.itemId}-${m.id}`, group: m.group, mark: m.id, soundId: syllable(c.itemId, m.id).soundId }
       if (m.group === c.group) tapped = c
     } else tapped = this.choicesOf(screen).find((x) => x.id === pickedId)
+    // on an English ladder rung the changed part (he heard the word it makes)
+    if (s.screen === 'ladder' && s.at !== undefined) answer = s.parts![s.at]
     if (!tapped) return 'near'
     const right = tapped.id === answer.id || tapped.soundId === answer.soundId
     const near = !right && tapped.nearMissOf === answer.id
     const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
-    // a new unit's introduction (the English cauldron), asked before the answer is recorded; a run-ending miss keeps it due
-    const intro = tiles && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
+    // a new unit's introduction (the English cauldron and ladder; Hebrew has none), asked before the answer is recorded; a
+    // run-ending miss keeps it due
+    const intro = (tiles || s.screen === 'ladder') && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
     if (right) {
       this.record(screen, answer, tapped, 'right')
       this.roundInScreen++
