@@ -3,7 +3,8 @@
 // ended (Michael, 2026-10-19); the streak multiplier of the coins; the broom flight's timing.
 import type { Stage } from './content.ts'
 import type { ScreenId } from './predict'
-import { screensOfStage } from './stages'
+import { recordStageAnswer, screensOfStage } from './stages'
+import type { CourseStages } from '../course/types'
 
 export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
 /** the two drawing screens (print, then handwriting) go after the doors, when drawing is on (spec: one duel, Part 5) */
@@ -16,6 +17,8 @@ export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 
 /** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
  * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
 export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6 }
+/** Book 2's Hebrew course's stages (the course seam, src/duel2/course) */
+export const HEBREW_STAGES: CourseStages = { maxStage: 4, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH }
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3
