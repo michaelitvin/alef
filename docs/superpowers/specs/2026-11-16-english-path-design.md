@@ -452,7 +452,8 @@ from a shared module. It may be built in parallel with Space Cat (see *Parallel 
 - **Play time:** `usePlaytime('english', active)` (`src/shared/playtime.ts`).
 - **Telemetry:** one English log, declared as a `TelemetryLog` (with a roll-up of its items) in the English `GameParent`;
   `src/parent/registry.ts` registers it, so it gets sealed chunks and its share of the one shared budget (ADR 0004,
-  ADR 0007). Every event carries `g: 'english'`.
+  ADR 0007). Every event carries `g: 'english'`. Every English `track(` site gets a fixture in the telemetry golden generator (its test covers every
+  `track(` site).
 - **Saves:** the English progress has its own save, written through `persistSaveStorage()` (`src/shared/saveStorage.ts`);
   the Hebrew save is not migrated. Each save holds its own coin balance, as Book 2's does now.
 - **The first duel's tower** (ADR 0002) is Hebrew-only code. The English tower is the same screen with English rounds; the
