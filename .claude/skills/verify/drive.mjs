@@ -161,6 +161,13 @@ async function eachSection(page) {
     // the nav scrolls each section to the top, under the nav (a short page must not stop it lower down)
     const y = await section.evaluate((el) => Math.round(el.getBoundingClientRect().top - el.closest('.parent-area').getBoundingClientRect().top))
     if (y > 100) throw new Error(`the nav left section ${id} ${y} px from the top`)
+    // the heading must land fully below the nav, whatever height the nav has (one row, two rows)
+    const clash = await section.evaluate((el) => {
+      const nav = el.closest('.parent-area').querySelector('.pa-nav').getBoundingClientRect()
+      const h = el.querySelector('h2').getBoundingClientRect()
+      return h.top >= nav.bottom - 0.5 ? null : `heading top ${Math.round(h.top)} is above the nav bottom ${Math.round(nav.bottom)}`
+    })
+    if (clash) throw new Error(`section ${id}: ${clash}`)
     // a lazy section (a game's settings, its developer tools) loads after the tap: wait for its fallback to go
     await page.waitForFunction((s) => !document.querySelector(`[data-section="${s}"]`)?.textContent.includes('Loading…'), id)
     await noSideScroll(page, `section ${id}`)
