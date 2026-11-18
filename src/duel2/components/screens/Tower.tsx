@@ -3,7 +3,7 @@
 // (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Book 2's pause cover holds, and the
 // run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
 // sits above the rune row, as in the duel.
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useDuelGame } from '../../../hooks/useDuelGame'
 import { Battlefield, EMBEDDED_LANDSCAPE_QUERY, useLandscape } from '../../../components/duel/Battlefield'
@@ -13,8 +13,8 @@ import { ComboBurst } from '../../../components/duel/ComboBurst'
 import { Banner, Starfield } from '../../../components/duel/Starfield'
 import { Icon } from '../../../components/duel/Icon'
 import { MEGA_MAX } from '../../../utils/duel/rules'
-import { useDuel2Store } from '../../store'
 import { duel2Telemetry } from '../../telemetry'
+import { storeSavePort } from '../../savePort'
 import type { TowerView } from '../../controller'
 import type { Course } from '../../course/types'
 import { TEST_HOOKS } from '../../testHooks'
@@ -33,27 +33,34 @@ interface TowerProps {
   onMega?: (markId: string) => void
   /** the מגה charge changed: the run keeps it for its next tower visit (view.mega) */
   onCharge?: (mega: number) => void
-  /** the course's tower: its rounds, spoken parts, tallies and line player (unset: the Hebrew tower) */
-  tower?: Course['tower']
+  /**
+   * the course played: the tower's rounds, spoken parts, tallies and line player, the save that keeps what was explained
+   * and the owed monsters, and the log (unset: the Hebrew course's, Book 2's save and log)
+   */
+  course?: Pick<Course, 'tower' | 'save' | 'telemetry'>
 }
 
 /** the gallery records nothing, its events neither */
 const NO_TELEMETRY = { track: () => {}, flush: () => {} }
 
-export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge, tower }: TowerProps) {
+export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge, course }: TowerProps) {
+  const tower = course?.tower
+  // one of each per mount (the controller is made once)
+  const [tallies] = useState(() => tower?.tallies())
+  const [save] = useState(() => (course ? course.save() : storeSavePort))
   const game = useDuelGame({
-    content: tower?.content, tallies: tower?.tallies(), audio: tower?.audio,
+    content: tower?.content, tallies, audio: tower?.audio,
     embedded: {
-      wave: view.wave, waves: view.waves, boss: view.boss, seen: useDuel2Store.getState().demosSeen,
-      onSeen: (key) => { if (!dry) useDuel2Store.getState().markDemo(key) },
-      owed: dry ? [] : useDuel2Store.getState().towerOwed ?? [],
-      onIntroduced: (id) => { if (!dry) useDuel2Store.getState().monsterIntroduced(id) },
+      wave: view.wave, waves: view.waves, boss: view.boss, seen: save.read().demosSeen,
+      onSeen: (key) => { if (!dry) save.markDemo(key) },
+      owed: dry ? [] : save.read().towerOwed ?? [],
+      onIntroduced: (id) => { if (!dry) save.monsterIntroduced(id) },
       onAnswer, onDone, dry,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge,
     },
-    // the duel's events go to Book 2's log (via: 'tower'), in Book 2's run (ADR 0004)
-    telemetry: dry ? NO_TELEMETRY : duel2Telemetry,
+    // the duel's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Book 2's)
+    telemetry: dry ? NO_TELEMETRY : course?.telemetry ?? duel2Telemetry,
   })
   const { state } = game
   // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)

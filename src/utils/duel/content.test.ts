@@ -6,20 +6,26 @@ import { act, fireEvent, render } from '@testing-library/react'
 import { DuelController, type DuelAudio } from './controller'
 import { memoryTallies } from './tallies'
 import type { TowerContent } from './content'
+import { duelReducer, initialDuelState } from './reducer'
+import { isCorrect } from './rules'
 import type { DuelMark, Round } from '../../types/duel'
 import { instantSleeper } from '../../shared/sleeper'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 import { useDuel2Store } from '../../duel2/store'
 import { Tower } from '../../duel2/components/screens/Tower'
+import { memorySavePort } from '../../duel2/savePort'
 
 const LETTERS = ['m', 's', 't', 'a']
 const mark = (id: string): DuelMark => ({ id, name: id, group: 'a' })
 
-/** a Latin course's tower: four letter runes, the answer is always `m` */
+/**
+ * a Latin course's tower: four letter runes, the answer is always `m`. A sound screen (B) whose runes share one sound
+ * group: by the Hebrew rules every rune would be right, by the course's only `m` is
+ */
 const FAKE: TowerContent = {
   makeRound: (o) => ({
-    id: o.id, type: 'C', target: mark('m'), runes: LETTERS.map(mark),
+    id: o.id, type: 'B', target: mark('m'), runes: LETTERS.map(mark),
     runeTexts: LETTERS.map((id) => ({ id, text: id, alphabet: 'latin' as const })),
     word: { key: 'moon', group: 'a', he: '' }, padWords: [], monster: o.boss ? 'dragon' : 'fuzzy', boss: o.boss, walkMs: 9000,
   }),
@@ -62,9 +68,16 @@ describe('the tower on another course’s content', () => {
       const { audio, said } = fakeAudio()
       const onAnswer = vi.fn(() => 'on' as const)
       const tallies = memoryTallies()
+      const save = memorySavePort()
+      const events: string[] = []
+      const duel2Before = localStorage.getItem('alef-duel2')
+      const duel2State = JSON.stringify(useDuel2Store.getState())
       const { container, unmount } = render(createElement(Tower, {
         view: { screen: 'tower', wave: 1, waves: 1, boss: false, visit: 1 }, paused: false, onAnswer, onDone: () => {},
-        tower: { content: FAKE, tallies: () => tallies, audio },
+        course: {
+          tower: { content: FAKE, tallies: () => tallies, audio }, save: () => save,
+          telemetry: { track: (e: string) => { events.push(e) }, flush: () => {} } as never,
+        },
       }))
       let buttons: HTMLButtonElement[] = []
       for (let i = 0; i < 60 && !(buttons.length && !buttons[0].disabled); i++) {
@@ -79,6 +92,11 @@ describe('the tower on another course’s content', () => {
       await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
       expect(indexOfRun(said, ['en-sound-m', 'en-name-m', 'en-word-moon'])).toBeGreaterThan(-1)
       unmount()
+      // what was explained is kept in the course's save, the events go to its log; Book 2's save (alef-duel2) is untouched
+      expect(save.read().demosSeen).toEqual(expect.arrayContaining(['tower-intro', 'tower-screen-letter']))
+      expect(events).toContain('round')
+      expect(localStorage.getItem('alef-duel2')).toBe(duel2Before)
+      expect(JSON.stringify(useDuel2Store.getState())).toBe(duel2State)
     } finally {
       vi.useRealTimers()
     }
@@ -127,6 +145,51 @@ describe('the tower on another course’s content', () => {
     const t = tallies.read()
     expect(t.byMark.m).toMatchObject({ seen: 5, correct: 5 })
     expect(t.recent.m).toBe('ooooo')
+  })
+
+  it('the course judges the tap: a rune the Hebrew rules would take is a miss when the course says so', async () => {
+    const { audio } = fakeAudio()
+    const answers: string[] = []
+    const done: number[] = []
+    const tallies = memoryTallies()
+    const c = new DuelController({
+      embedded: {
+        wave: 1, waves: 1, boss: false, seen: [], onSeen: () => {},
+        onAnswer: (r, m) => { answers.push(`${r}:${m}`); return 'over' }, onDone: (w) => { done.push(w) },
+      },
+      telemetry: { track: () => {}, flush: () => {} },
+      content: FAKE, tallies, audio, sleeper: instantSleeper(), rng: () => 0.5,
+    })
+    let tapped = false
+    const stop = c.subscribe(() => {
+      const s = c.getView().state
+      const r = s.round
+      if (!r || s.outcome || s.preview || s.paused || tapped) return
+      tapped = true
+      const wrong = r.runes.find((m) => m.id === 's')!
+      // the Hebrew rules would call it right (the same sound group)
+      expect(isCorrect(r, { kind: 'rune', mark: wrong })).toBe(true)
+      queueMicrotask(() => c.choose({ kind: 'rune', mark: wrong }))
+    })
+    c.start()
+    for (let i = 0; i < 20_000 && !done.length; i++) await new Promise((r) => setTimeout(r, 0))
+    stop()
+    c.destroy()
+    expect(answers).toEqual(['wrong:m'])
+    expect(tallies.read().confusions).toEqual({ m: { s: 1 } })
+  })
+
+  it('the reducer takes the course\'s verdict over the Hebrew rules', () => {
+    const round = FAKE.makeRound({ id: 1, wave: 1, boss: false, rng: () => 0.5, lifetime: {} })
+    const s = duelReducer(duelReducer({ ...initialDuelState, phase: 'playing' }, { type: 'START_AT', wave: 1, boss: false }), { type: 'ROUND_READY', round })
+    const s2 = { kind: 'rune' as const, mark: round.runes[1] }
+    expect(duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle' }).outcome?.kind).toBe('hit')
+    expect(duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: false } }).outcome?.kind).toBe('miss')
+    const twin = duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: true } })
+    expect(twin.outcome).toBeNull()
+    expect(twin.twinTried).toBe('s')
+    const m = { kind: 'rune' as const, mark: round.runes[0] }
+    expect(duelReducer(s, { type: 'CHOOSE', choice: m, effect: 'gentle', verdict: { correct: true, twin: false } }).outcome?.kind).toBe('hit')
   })
 
   it('memory tallies keep twins, confusions and the pace, as the progress store does', () => {

@@ -9,7 +9,7 @@ import { useProgressStore } from '../stores/progressStore'
 const WRITES = [
   'recordAnswer', 'setPace', 'endRun', 'addStar', 'addCoins', 'spendCoins', 'markBossBeaten', 'setLastBoss', 'markBossNewHeard',
   'notePraise', 'addCrystal', 'markDemo', 'markDotIntro', 'noteDrawRound', 'noteMerchant', 'setMerchantFlag', 'merchantPaid',
-  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'noteTowerAnswer', 'openBook', 'nextCycle', 'noteBroomSession',
+  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'monsterIntroduced', 'noteTowerAnswer', 'openBook', 'nextCycle', 'noteBroomSession',
 ] as const satisfies readonly (keyof Duel2Actions)[]
 type SaveWrites = Pick<Duel2Actions, (typeof WRITES)[number]>
 

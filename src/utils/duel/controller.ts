@@ -640,14 +640,14 @@ export class DuelController {
         }
         const almost = this.content.twinParts(r, c)
         if (almost.length) this.almost = this.sayAll(almost)
-        this.dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle', correct, twin })
+        this.dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle', verdict: { correct, twin } })
         return
       }
       this.answeredRound = r.id
       if (!correct && !this.emb.dry) tallies.recordDuelConfusion(r.target.id, keyOf(c))
       this.set({ fx: (this.nextFx ??= makeFxPicker(this.rng))() })
       const effect = pickEffect(this.rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
-      this.dispatch({ type: 'CHOOSE', choice: c, effect, correct, twin })
+      this.dispatch({ type: 'CHOOSE', choice: c, effect, verdict: { correct, twin } })
     })
   }
 

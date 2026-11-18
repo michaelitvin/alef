@@ -33,7 +33,7 @@ type Run = ReturnType<typeof useRun>
 
 function ScreenFor({ run, v, demoT, dry, size, course }: {
   run: Run; v: View; demoT?: number; dry?: boolean; size?: { w: number; h: number }
-  /** the course played (RunOpts.course; unset: Hebrew): the tower takes its content from it */
+  /** the course played (RunOpts.course; unset: Hebrew): the tower takes its content, save and log from it */
   course?: Course
 }) {
   const s = v.screen
@@ -64,7 +64,7 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
     case 'tower':
       // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
       return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} onWaveEnd={run.towerWaveEnd}
-        onMega={run.towerMega} onCharge={run.towerCharge} tower={course?.tower} />
+        onMega={run.towerMega} onCharge={run.towerCharge} course={course} />
   }
 }
 
