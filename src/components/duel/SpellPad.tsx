@@ -1,7 +1,8 @@
 // The spell pad: runes (A/B/C) or picture words (D). States: almost (forgiven twin), hit, miss, reveal.
 import { motion } from 'framer-motion'
 import type { Choice, Outcome, Round } from '../../types/duel'
-import { isCorrect, keyOf } from '../../utils/duel/rules'
+import { keyOf } from '../../utils/duel/rules'
+import { HEBREW_TOWER, type TowerContent } from '../../utils/duel/content'
 import { WORD_PICTURE } from '../../assets/duel/sprites'
 import { RuneGlyph } from './RuneGlyph'
 
@@ -15,18 +16,20 @@ interface Props {
   showTestHooks: boolean
   /** the wizard is still explaining the round: marks can't be tapped yet */
   locked?: boolean
+  /** the course's verdict and runes (default: the Hebrew tower) */
+  content?: TowerContent
 }
 
-export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTestHooks, locked = false }: Props) {
+export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTestHooks, locked = false, content = HEBREW_TOWER }: Props) {
   const choices: Choice[] =
     round.type === 'D' ? round.padWords.map((w) => ({ kind: 'sound', group: w.group })) : round.runes.map((mark) => ({ kind: 'rune', mark }))
   const wordFor = (g: string) => round.padWords.find((w) => w.group === g)!
   const cols = oneRow ? choices.length : choices.length === 4 ? 2 : 3
   return (
     <div className="nd-pad" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-      {choices.map((c) => {
+      {choices.map((c, i) => {
         const k = keyOf(c)
-        const right = isCorrect(round, c)
+        const right = content.isCorrect(round, c)
         let state = !outcome && k === twinTried ? 'almost' : ''
         if (outcome) {
           if (k === outcome.choiceKey) state = outcome.kind === 'hit' ? 'hit' : 'miss'
@@ -45,7 +48,7 @@ export function SpellPad({ round, outcome, twinTried, oneRow, onChoose, showTest
             onClick={() => onChoose(c)}
           >
             {c.kind === 'rune' ? (
-              <RuneGlyph mark={c.mark} size={60} />
+              <RuneGlyph mark={c.mark} rune={round.runeTexts && content.runeOf(round, i)} size={60} />
             ) : (
               <img className="nd-word-pic nd-word-btn" src={WORD_PICTURE[wordFor(c.group).key]} alt="" draggable={false} />
             )}

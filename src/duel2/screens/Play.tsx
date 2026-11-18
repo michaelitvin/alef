@@ -3,6 +3,7 @@ import { usePlaytime } from '../../shared/playtime'
 import { useEffect, useRef, useState } from 'react'
 import { useRun } from '../useRun'
 import type { RunOpts, View } from '../controller'
+import type { Course } from '../course/types'
 import { item as itemOf, mark as markOf } from '../logic/content'
 import { Broom } from '../components/screens/Broom'
 import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
@@ -30,7 +31,11 @@ import { BAND_CONTENT_W, homeInBar, layoutVars, nextInMiddle, STAGE_CONTENT_TOP,
 
 type Run = ReturnType<typeof useRun>
 
-function ScreenFor({ run, v, demoT, dry, size }: { run: Run; v: View; demoT?: number; dry?: boolean; size?: { w: number; h: number } }) {
+function ScreenFor({ run, v, demoT, dry, size, course }: {
+  run: Run; v: View; demoT?: number; dry?: boolean; size?: { w: number; h: number }
+  /** the course played (RunOpts.course; unset: Hebrew): the tower takes its content from it */
+  course?: Course
+}) {
   const s = v.screen
   if (!s) return null
   const pick = (id: string) => run.onGesture({ type: 'pick', id })
@@ -59,7 +64,7 @@ function ScreenFor({ run, v, demoT, dry, size }: { run: Run; v: View; demoT?: nu
     case 'tower':
       // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
       return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} onWaveEnd={run.towerWaveEnd}
-        onMega={run.towerMega} onCharge={run.towerCharge} />
+        onMega={run.towerMega} onCharge={run.towerCharge} tower={course?.tower} />
   }
 }
 
@@ -164,7 +169,7 @@ export function Play({ opts, onOver, onExit }: {
             const path = demoPath(v, size)
             return (
               <>
-                <ScreenFor run={run} v={v} demoT={demoT} size={size} />
+                <ScreenFor run={run} v={v} demoT={demoT} size={size} course={opts.course} />
                 {path && (
                   <svg className="d2-stage d2-overlay" viewBox={overlayViewBox(v, size)} preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
                     <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} loop />
@@ -177,7 +182,7 @@ export function Play({ opts, onOver, onExit }: {
       ) : v.merchant ? (
         <Merchant v={v.merchant} onCoin={(value) => run.onGesture({ type: 'coin', value })} onHand={() => run.onGesture({ type: 'hand' })}
           onPotion={() => run.onGesture({ type: 'potion' })} onDecline={() => run.onGesture({ type: 'decline' })} />
-      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} size={size} />}
+      ) : <ScreenFor run={run} v={v} dry={opts.sandbox} size={size} course={opts.course} />}
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}

@@ -5,18 +5,18 @@
 // React reads `getView()` through `subscribe()` (src/hooks/useDuelGame.ts). The state changes as soon as an action is
 // dispatched; the reactions to a change (spawn the next monster, run the clock, play an outcome) run once the current
 // call is over (one React commit), or, with `reactOnCommit`, when the hook calls commit() after React rendered it.
-import type { Choice, DuelMark, DuelState, IconName, Next, PictureWord, Rng, Round } from '../../types/duel'
+import type { Choice, DuelState, IconName, Next, Rng, Round } from '../../types/duel'
 import { duelReducer, initialDuelState, type DuelAction } from './reducer'
-import { makeRound as defaultMakeRound, predictedMistakeRate, type MakeRoundOpts } from './rounds'
-import { MEGA_MAX, bossFor, isCorrect, isTwin, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from './rules'
-import { wordsFor } from './words'
+import { predictedMistakeRate, type MakeRoundOpts } from './rounds'
+import { MEGA_MAX, bossFor, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from './rules'
 import { feedbackPlan, nextBossStart, type FeedbackPlan } from './flow'
 import { makeFxPicker, type FxStyle } from './fxStyle'
 import { EFFECT_PRESETS } from './effects'
 import { lineAsset, muteDuelAudio, playLine, playSfx, setDuelAudioLog, stopAllLines, unlockDuelAudio } from './duelAudio'
-import { LINE_CUES, type LineCue } from '../../assets/duel/lineCues'
+import { HEBREW_TOWER, type TowerContent } from './content'
+import { progressTallies, type DuelTallies } from './tallies'
+import type { LineCue } from '../../assets/duel/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../../assets/duel/sprites'
-import { useProgressStore } from '../../stores/progressStore'
 import { realSleeper, type Cancel, type Sleeper } from '../../shared/sleeper'
 
 /** What the announcement banner shows while the wizard speaks (rendered by the tower). */
@@ -108,8 +108,12 @@ export interface DuelOpts {
   rng?: Rng
   /** verify/test builds only: fixed monster walk time */
   walkOverride?: number
-  /** injectable round factory (tests) */
+  /** injectable round factory (tests); default: the content's */
   makeRound?: (o: MakeRoundOpts) => Round
+  /** the course's rounds, runes and spoken parts (default: the Hebrew tower) */
+  content?: TowerContent
+  /** where the answers are read from and recorded (default: the first duel's save, alef-progress) */
+  tallies?: DuelTallies
   /** the time the flow waits on (default: the browser's timers) */
   sleeper?: Sleeper
   audio?: DuelAudio
@@ -142,6 +146,9 @@ export interface DuelView {
 }
 
 const TOWER_INTRO = 'tower-intro'
+/** the feedback's parts in turn: what the banner animates, and the beat before each (sound → name → word) */
+const FEEDBACK_SPEAKING = ['sound', 'name', 'word'] as const
+const FEEDBACK_GAP_MS = [0, 250, 200]
 const towerScreenKey = (key: string) => `tower-screen-${key}`
 type Spawn = Extract<Next, { kind: 'spawn' }>
 
@@ -153,7 +160,8 @@ export class DuelController {
   private readonly audio: DuelAudio
   private readonly embOpt: DuelOpts['embedded']
   private readonly telOpt: DuelOpts['telemetry']
-  private readonly store = useProgressStore
+  private readonly content: TowerContent
+  private readonly tallies: DuelTallies
   private readonly onCommit: boolean
 
   private view: DuelView = {
@@ -199,7 +207,9 @@ export class DuelController {
   constructor(opts: DuelOpts) {
     this.rng = opts.rng ?? Math.random
     this.walkOverride = opts.walkOverride
-    this.makeRound = opts.makeRound ?? defaultMakeRound
+    this.content = opts.content ?? HEBREW_TOWER
+    this.tallies = opts.tallies ?? progressTallies
+    this.makeRound = opts.makeRound ?? this.content.makeRound
     this.time = opts.sleeper ?? realSleeper
     this.audio = opts.audio ?? duelAudio
     this.embOpt = opts.embedded
@@ -328,35 +338,36 @@ export class DuelController {
     return this.audio.playLine(id, cb)
   }
 
+  /** the parts one after another (the first is said at once) */
+  private sayAll(parts: string[]): Promise<void> {
+    if (!parts.length) return Promise.resolve()
+    let p = this.say(parts[0])
+    for (const id of parts.slice(1)) p = p.then(() => this.say(id))
+    return p
+  }
+
   /**
-   * Wizard feedback: sound → name → picture word (shva: the silent puff → name), each highlighted as it is said.
-   * `parts` shortens it after confident answers: 'sound-name' drops the word, 'sound' says only the sound.
+   * Wizard feedback: the content's parts (Hebrew: sound → name → picture word), each highlighted as it is said, a beat
+   * before each. The plan shortens it after confident answers (flow.ts).
    */
-  private sayMark(m: DuelMark, word?: PictureWord, parts: FeedbackPlan['say'] = 'full'): Promise<void> {
-    const w = word ?? wordsFor(m.group)[0]
-    this.set({ speaking: 'sound' })
-    return (m.group === 'silent' ? this.say('sfx-mute') : this.say(`wiz-vowel-${m.group}`))
-      .then(() => (parts === 'sound' ? undefined : this.time.sleep(250).then(() => {
-        this.set({ speaking: 'name' })
-        return this.say(`wiz-${m.id}`)
+  private sayFeedback(parts: string[]): Promise<void> {
+    if (!parts.length) return Promise.resolve()
+    this.set({ speaking: FEEDBACK_SPEAKING[0] })
+    let p = this.say(parts[0])
+    // (at least two steps, so that the chain is as long as it always was)
+    for (let i = 1; i < Math.max(3, parts.length); i++) {
+      p = p.then(() => (i >= parts.length ? undefined : this.time.sleep(FEEDBACK_GAP_MS[i] ?? 200).then(() => {
+        this.set({ speaking: FEEDBACK_SPEAKING[i] ?? 'word' })
+        return this.say(parts[i])
       })))
-      .then(() => {
-        if (m.group === 'silent' || parts !== 'full') return undefined
-        return this.time.sleep(200).then(() => {
-          this.set({ speaking: 'word' })
-          return this.say(`wiz-word-${w.key}`)
-        })
-      })
-      .finally(() => this.set({ speaking: null }))
+    }
+    return p.finally(() => this.set({ speaking: null }))
   }
 
   // Clues are said once, cleanly, by the narrator — the same verified lines as the feedback. (The monster voice
   // and its pitch-shifting were dropped after playtesting: they moaned.)
   private playClue(r: Round): Promise<void> {
-    if (r.type === 'B') return r.target.group === 'silent' ? this.say('sfx-mute') : this.say(`wiz-vowel-${r.target.group}`)
-    if (r.type === 'C') return this.say(`wiz-${r.target.id}`)
-    if (r.type === 'A' && r.word.he) return this.say(`wiz-word-${r.word.key}`)
-    return Promise.resolve()
+    return this.sayAll(this.content.questionParts(r))
   }
 
   // ---- the round ----
@@ -373,7 +384,7 @@ export class DuelController {
       // `hearts: null` in the events: the run owns the hearts (the log kept the field, which was always empty here)
       this.track('round', {
         round: r.id, restart, wave: s.wave, kills: s.kills, boss: r.boss, bossHp: s.bossHp, hearts: null,
-        combo: s.combo, type: r.type, target: r.target.id, word: r.word.key, picture: r.type === 'A' ? WORD_PICTURE[r.word.key] : null,
+        combo: s.combo, type: r.type, target: r.target.id, word: r.word.key, picture: r.picture ?? (r.type === 'A' ? WORD_PICTURE[r.word.key] : null),
         monster: r.monster, monsterSrc: MONSTERS[r.monster]?.src ?? null, walkMs: r.walkMs,
         pad: r.runes.map((m) => m.id), padWords: r.padWords.map((w) => w.key),
       })
@@ -445,10 +456,10 @@ export class DuelController {
     this.waveStart = next.wave
 
     const s = this.state
-    const { byMark, confusions, recent } = this.store.getState().duel
+    const { byMark, confusions, recent } = this.tallies.read()
     const r = this.makeRound({
       id: this.nextId++, wave: next.wave, kills: s.kills, boss: next.boss, rng: this.rng,
-      lifetime: byMark, recent: recent ?? {}, confusions: confusions ?? {},
+      lifetime: byMark, recent, confusions,
       bossStart: next.boss ? this.bossStart : undefined, cover: !!this.emb.placement,
     })
     if (!r.boss) {
@@ -464,19 +475,19 @@ export class DuelController {
       }
     }
     // adaptive pace, applied silently between monsters (a ?walk= override in test builds wins)
-    r.walkMs = this.walkOverride ?? Math.round(r.walkMs * (this.store.getState().duel.pace ?? 1))
+    r.walkMs = this.walkOverride ?? Math.round(r.walkMs * this.tallies.read().pace)
 
-    const key = r.type === 'B' && r.target.group === 'silent' ? 'silent' : r.type
-    if (!s.seenScreens.includes(key)) {
+    const how = this.content.howLine(r)
+    if (how && !s.seenScreens.includes(how.key)) {
       // no look/listen icon (playtest: not needed); the glow cues point at the picture, speaker and marks
       // the round is shown while it is explained; its parts appear as the wizard names them
-      this.set({ hidden: (LINE_CUES[`line-how-${key}`] ?? []).map((c) => c.cue) })
+      this.set({ hidden: how.cues })
       this.dispatch({ type: 'ROUND_PREVIEW', round: r })
-      await this.say(`line-how-${key}`, this.onCue)
+      await this.say(how.id, this.onCue)
       this.set({ hidden: [], banner: null })
       if (held()) return void (this.pendingSpawn = { ...next, announce: null })
-      this.dispatch({ type: 'SCREEN_EXPLAINED', key })
-      this.emb.onSeen(towerScreenKey(key))
+      this.dispatch({ type: 'SCREEN_EXPLAINED', key: how.key })
+      this.emb.onSeen(towerScreenKey(how.key))
     }
     this.begin(r)
   }
@@ -487,13 +498,13 @@ export class DuelController {
     const r = state.round
     if (!o || !r || state.phase !== 'playing') return
     const token = this.roundToken
-    const store = this.store
+    const tallies = this.tallies
     const result = o.mega ? 'mega' : o.kind === 'hit' ? 'correct' : o.choiceKey ? 'wrong' : 'timeout'
     // how sure the answer was — measured before this round is recorded
-    const before = store.getState().duel
+    const before = tallies.read()
     const confidence = {
       firstThisRun: !this.marksThisRun.has(r.target.id),
-      predicted: predictedMistakeRate(before.byMark[r.target.id], before.recent?.[r.target.id]),
+      predicted: predictedMistakeRate(before.byMark[r.target.id], before.recent[r.target.id]),
       usedFrac: state.walking ? (this.time.now() - this.walkStartedAt) / r.walkMs : null,
       twin: state.twinTried !== null,
     }
@@ -503,17 +514,17 @@ export class DuelController {
     // Book 2's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
     // right answer for the mastery data (`recent`) nor for the pace
     const megaInRun = o.mega
-    if (!dry) store.getState().recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
+    if (!dry) tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
     // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
     else if (emb.onAnswer(o.kind === 'hit' ? 'right' : 'wrong', r.target.id) === 'over') this.over = true
     const now = this.time.now()
     const msWalk = state.walking || result === 'timeout' ? now - this.walkStartedAt : null
-    const pace = nextPace(store.getState().duel.pace ?? 1, { result, msWalk, walkMs: r.walkMs })
+    const pace = nextPace(tallies.read().pace, { result, msWalk, walkMs: r.walkMs })
     if (r.boss) this.bossStart = o.final ? 0 : nextBossStart(r.startFrac ?? 0, msWalk, r.walkMs, result)
     const plan = feedbackPlan(r, o, confidence)
     this.set({ feedback: plan })
-    if (!dry && !megaInRun) store.getState().setDuelPace(pace)
+    if (!dry && !megaInRun) tallies.setDuelPace(pace)
     this.track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
@@ -546,7 +557,7 @@ export class DuelController {
     const speech = Promise.all([this.almost, this.time.sleep(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       // a defeated boss is congratulated first, then the usual recap
       .then(() => (r.boss && o.kind === 'hit' && o.final ? this.say('line-boss-win') : undefined))
-      .then(() => this.sayMark(r.target, r.word, plan.say))
+      .then(() => this.sayFeedback(this.content.feedbackParts(r, plan)))
       .then(() => {
         if (!comboLine) return
         this.set({ celebrate: { combo: state.combo, at: Date.now() } })
@@ -612,28 +623,31 @@ export class DuelController {
       if (this.twinRound === r.id && keyOf(c) === this.twinKey) return // same twin again: still forgiven
       const now = this.time.now()
       const pos = c.kind === 'rune' ? r.runes.findIndex((m) => m.id === c.mark.id) : r.padWords.findIndex((w) => w.group === c.group)
+      const correct = this.content.isCorrect(r, c)
+      const twin = this.content.isTwin(r, c)
       this.track('choice', {
-        round: r.id, key: keyOf(c), pos, correct: isCorrect(r, c), twin: !isCorrect(r, c) && isTwin(r, c), walking: s.walking,
+        round: r.id, key: keyOf(c), pos, correct, twin: !correct && twin, walking: s.walking,
         msShown: Math.round(now - this.spawnedAt), msWalk: s.walking ? Math.round(now - this.walkStartedAt) : null,
       })
-      const store = this.store.getState()
-      if (!isCorrect(r, c) && isTwin(r, c) && !s.twinTried && this.twinRound !== r.id) {
+      const tallies = this.tallies
+      if (!correct && twin && !s.twinTried && this.twinRound !== r.id) {
         // forgiven once: no heart, no combo break — hear which mark he tapped, then try again
         this.twinRound = r.id
         this.twinKey = keyOf(c)
         if (!this.emb.dry) {
-          store.recordDuelTwin(r.target.id, r.type)
-          store.recordDuelConfusion(r.target.id, keyOf(c))
+          tallies.recordDuelTwin(r.target.id, r.type)
+          tallies.recordDuelConfusion(r.target.id, keyOf(c))
         }
-        if (c.kind === 'rune') this.almost = this.say('line-almost').then(() => this.say(`wiz-${c.mark.id}`))
-        this.dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle' })
+        const almost = this.content.twinParts(r, c)
+        if (almost.length) this.almost = this.sayAll(almost)
+        this.dispatch({ type: 'CHOOSE', choice: c, effect: 'gentle', correct, twin })
         return
       }
       this.answeredRound = r.id
-      if (!isCorrect(r, c) && !this.emb.dry) store.recordDuelConfusion(r.target.id, keyOf(c))
+      if (!correct && !this.emb.dry) tallies.recordDuelConfusion(r.target.id, keyOf(c))
       this.set({ fx: (this.nextFx ??= makeFxPicker(this.rng))() })
       const effect = pickEffect(this.rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
-      this.dispatch({ type: 'CHOOSE', choice: c, effect })
+      this.dispatch({ type: 'CHOOSE', choice: c, effect, correct, twin })
     })
   }
 

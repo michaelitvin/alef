@@ -1,6 +1,9 @@
 // The course seam: what Book 2's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
 // is today's modules (./hebrew.ts); the English course is built on its own page (src/english/course).
 import type { createGameAudio } from '../../shared/gameAudio/kit'
+import type { DuelAudio } from '../../utils/duel/controller'
+import type { TowerContent } from '../../utils/duel/content'
+import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { Word } from '../data/words'
 import type { BossKind } from '../logic/boss'
@@ -77,5 +80,10 @@ export interface Course {
   preload: () => Promise<void>
   /** the boy and girl pictures of the play gate's question, and its line id */
   genderPictures: { boy: string; girl: string; askLine: string }
+  /**
+   * the tower (the first duel's board): its rounds and spoken parts, where its answers are kept (lazy, like `save`), and
+   * the duel's line player (default: the duel's own audio)
+   */
+  tower: { content: TowerContent; tallies: () => DuelTallies; audio?: DuelAudio }
   lineAudioId(id: string, n?: number): string
 }

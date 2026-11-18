@@ -22,6 +22,13 @@ export interface PictureWord {
   he: string // '' for the silent "shh" picture
 }
 
+/** A rune as the pad draws it: a course's letter or word (Latin), or a Hebrew mark (RuneGlyph draws it from its mark). */
+export interface TowerRune {
+  id: string
+  text: string
+  alphabet: 'hebrew' | 'latin'
+}
+
 export interface Round {
   id: number
   type: ScreenType
@@ -34,6 +41,10 @@ export interface Round {
   walkMs: number
   /** where along its path it starts (0 = right edge, 1 = tower); a continuing boss picks up where it was */
   startFrac?: number
+  /** the picture a course's round shows (the English rounds); Hebrew rounds show `word`'s picture */
+  picture?: string
+  /** what each rune of `runes` shows, in the same order (the English rounds); unset: the Hebrew marks */
+  runeTexts?: TowerRune[]
 }
 
 export type Choice = { kind: 'rune'; mark: DuelMark } | { kind: 'sound'; group: SoundGroup }

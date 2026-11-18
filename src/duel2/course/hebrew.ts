@@ -16,6 +16,8 @@ import { HEBREW_STAGES } from '../logic/run'
 import { storeSavePort } from '../savePort'
 import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
+import { HEBREW_TOWER } from '../../utils/duel/content'
+import { progressTallies } from '../../utils/duel/tallies'
 import type { Course } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */
@@ -45,4 +47,6 @@ export const HEBREW: Course = {
   preload: preloadDuel2Assets,
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => lineAudioId(id, n),
+  // the first duel's rounds, lines and save, as always
+  tower: { content: HEBREW_TOWER, tallies: () => progressTallies },
 }

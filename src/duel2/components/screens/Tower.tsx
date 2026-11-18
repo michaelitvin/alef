@@ -16,6 +16,7 @@ import { MEGA_MAX } from '../../../utils/duel/rules'
 import { useDuel2Store } from '../../store'
 import { duel2Telemetry } from '../../telemetry'
 import type { TowerView } from '../../controller'
+import type { Course } from '../../course/types'
 import { TEST_HOOKS } from '../../testHooks'
 import '../../../components/duel/duel.css'
 
@@ -32,13 +33,16 @@ interface TowerProps {
   onMega?: (markId: string) => void
   /** the מגה charge changed: the run keeps it for its next tower visit (view.mega) */
   onCharge?: (mega: number) => void
+  /** the course's tower: its rounds, spoken parts, tallies and line player (unset: the Hebrew tower) */
+  tower?: Course['tower']
 }
 
 /** the gallery records nothing, its events neither */
 const NO_TELEMETRY = { track: () => {}, flush: () => {} }
 
-export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge }: TowerProps) {
+export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge, tower }: TowerProps) {
   const game = useDuelGame({
+    content: tower?.content, tallies: tower?.tallies(), audio: tower?.audio,
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: useDuel2Store.getState().demosSeen,
       onSeen: (key) => { if (!dry) useDuel2Store.getState().markDemo(key) },
@@ -89,7 +93,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
           )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}
-              onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} />
+              onChoose={game.choose} showTestHooks={TEST_HOOKS} locked={state.preview} content={tower?.content} />
           )}
         </div>
       </motion.div>
