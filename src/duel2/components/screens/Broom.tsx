@@ -8,7 +8,7 @@ import { wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
-import { H, Stage, faceTransform, toStage, type Phase } from './Stage'
+import { H, Stage, faceTransform, toStage, type Dir, type Phase } from './Stage'
 import type { BossView } from '../../controller'
 import { BOSS_BOX, BROOM_ORB, BROOM_WIZARD_H, HP, LANE_Y, WIZ_W, WIZ_X, flightPath, orbX } from '../../broomLayout'
 
@@ -38,6 +38,7 @@ export function Broom(p: {
   boss?: BossView
   /** the screen's size: the flight fills its width (flightPath) */
   size?: { w: number; h: number }
+  dir?: Dir
 }) {
   const wiz = useWizardArt()
   const clock = p.clock ?? (() => performance.now())
@@ -85,7 +86,7 @@ export function Broom(p: {
   const wizW = WIZ_W
   const path = flightPath(p.size)
   return (
-    <Stage bg="bg-sky" ref={svgRef} viewBox={`${path.view.left} 0 ${path.view.width.toFixed(1)} ${H}`}
+    <Stage bg="bg-sky" dir={p.dir} ref={svgRef} viewBox={`${path.view.left} 0 ${path.view.width.toFixed(1)} ${H}`}
       onPointerDown={(e) => { down.current = e.pointerId; (e.target as Element).setPointerCapture?.(e.pointerId); setDragY(stageY(e)) }}
       onPointerMove={(e) => {
         if (down.current === null) return
@@ -116,7 +117,7 @@ export function Broom(p: {
               <g key={c.id} data-orb-i={i} data-lane={lane} transform={`translate(${x.toFixed(1)} 0)`}>
                 <ellipse cx={BROOM_ORB * 1.05} cy={y} rx={BROOM_ORB * 1.1} ry={BROOM_ORB * 0.3} fill="url(#d2-trail)" />
                 <Orb size={BROOM_ORB} x={0} y={y} state={state} testCorrect={c.id === p.correctId}>
-                  <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={y} />
+                  <Glyph text={c.text} px={BROOM_GLYPH_PX} x={0} y={y} alphabet={p.dir === 'ltr' ? 'latin' : 'hebrew'} />
                 </Orb>
               </g>
             )

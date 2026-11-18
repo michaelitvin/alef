@@ -8,7 +8,7 @@ import { belowBand, intoBandView, STAGE_CONTENT_TOP, viewBoxOf, type FullView } 
 import { DragPick } from '../DragPick'
 import { Glyph } from '../Glyph'
 import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
-import { Stage, type Phase } from './Stage'
+import { Stage, type Dir, type Phase } from './Stage'
 
 const RUNG_W = 300
 const LADDER_GLYPH_PX = 96
@@ -71,20 +71,23 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
   demo?: { id: string; t: number }
   /** the screen's size: on a phone on its side the ladder rises into the band (ladderView) */
   size?: { w: number; h: number }
+  /** the course's direction (default: Hebrew's) */
+  dir?: Dir
 }) {
+  const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const wiz = useWizardArt()
   const view = ladderView(p.size)
   const b = ladderBoxes(p.built.length, p.rungs, view)
   const fixY = b.plateYs
   const can = p.phase === 'answer'
   return (
-    <Stage bg="bg-ground" {...(view ? { viewBox: viewBoxOf(view), 'data-into-band': '' } : {})}>
+    <Stage bg="bg-ground" dir={p.dir} {...(view ? { viewBox: viewBoxOf(view), 'data-into-band': '' } : {})}>
       {IMAGES['s-ladder']
         ? <image href={IMAGES['s-ladder']} x={b.ladder.x} y={b.ladder.y} width={b.ladder.w} height={b.ladder.h} preserveAspectRatio="none" />
         : <g stroke="#e7b860" strokeWidth={14}><line x1={690} y1={80} x2={690} y2={880} /><line x1={910} y1={80} x2={910} y2={880} /></g>}
       {p.built.map((c, k) => (
         <g key={k} data-rung={k}>
-          <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={LADDER_GLYPH_PX} x={LADDER_CX} y={RUNG_Y(k)} /></Plate>
+          <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={LADDER_GLYPH_PX} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
         </g>
       ))}
       {wiz('s-wizard-idle') && (
@@ -103,7 +106,7 @@ export function Ladder(p: { built: Choice[]; plates: Choice[]; rungs: number; on
             inZone={(q) => Math.abs(q.x - LADDER_CX) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
             demo={p.demo?.id === c.id ? { t: p.demo.t, dx: LADDER_CX - PLATE_X, dy: rungY - fixY[i] } : undefined}>
             <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
-              <Glyph text={c.text} px={LADDER_GLYPH_PX} x={PLATE_X} y={fixY[i]} />
+              <Glyph text={c.text} px={LADDER_GLYPH_PX} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />
             </Plate>
           </DragPick>
         )

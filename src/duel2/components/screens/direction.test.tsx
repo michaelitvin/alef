@@ -1,0 +1,56 @@
+import { render } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { Ladder } from './Ladder'
+import { Doors } from './Doors'
+import { Stage } from './Stage'
+import { Glyph } from '../Glyph'
+import { syllable } from '../../logic/content'
+import { syllableChoice } from '../../logic/rounds'
+import { WORDS } from '../../data/words'
+
+const plates = [syllableChoice(syllable('bet', 'chirik')), syllableChoice(syllable('kaf', 'chirik')), syllableChoice(syllable('bet', 'kamatz'))]
+const word = WORDS.find((w) => (w.syllables?.length ?? 0) >= 2)!
+const keys = WORDS.slice(0, 3)
+
+const ladder = (dir: 'rtl' | 'ltr') =>
+  render(<Ladder built={plates.slice(0, 1)} plates={plates} rungs={4} onPick={() => {}} phase="answer" dir={dir} />).container
+const doors = (dir: 'rtl' | 'ltr') =>
+  render(<Doors word={word} lit={2} keys={keys} onPick={() => {}} phase="answer" opening={false} zooming={false} dir={dir} />).container
+const cxs = (c: HTMLElement) => [...c.querySelectorAll('[data-syl]')].map((e) => Number(e.getAttribute('data-cx')))
+
+describe('the screens follow the course direction', () => {
+  it('a ladder in ltr says so and keeps its plates in DOM order', () => {
+    const c = ladder('ltr')
+    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('ltr')
+    expect([...c.querySelectorAll('[data-plate]')].map((e) => e.getAttribute('data-plate'))).toEqual(plates.map((p) => p.id))
+    expect(c.querySelector('[data-rung] text')!.getAttribute('direction')).toBe('ltr')
+  })
+  it('a ladder in rtl is as before', () => {
+    const c = ladder('rtl')
+    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+    expect(c.querySelector('[data-rung] text')!.getAttribute('direction')).toBe('rtl')
+  })
+  it('the door plate lays its syllables left to right in ltr', () => {
+    const c = doors('ltr')
+    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('ltr')
+    const x = cxs(c)
+    expect(x.length).toBeGreaterThanOrEqual(2)
+    expect(x).toEqual([...x].sort((a, b) => a - b))
+  })
+  it('the door plate lays its syllables right to left in rtl', () => {
+    const c = doors('rtl')
+    expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+    const x = cxs(c)
+    expect(x).toEqual([...x].sort((a, b) => b - a))
+  })
+  it('a Latin glyph is drawn ltr in Andika, a Hebrew one rtl', () => {
+    const { container } = render(<svg><Glyph text="cat" alphabet="latin" px={100} x={0} y={0} /><Glyph text="בּ" px={100} x={0} y={0} /></svg>)
+    const [latin, hebrew] = [...container.querySelectorAll('text')]
+    expect(latin.getAttribute('direction')).toBe('ltr')
+    expect(latin.getAttribute('style')).toContain('Andika')
+    expect(hebrew.getAttribute('direction')).toBe('rtl')
+  })
+  it('the stage defaults to rtl', () => {
+    expect(render(<Stage bg="bg-ground">{null}</Stage>).container.querySelector('[data-stage]')!.getAttribute('dir')).toBe('rtl')
+  })
+})

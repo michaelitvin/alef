@@ -35,21 +35,22 @@ function ScreenFor({ run, v, demoT, dry, size }: { run: Run; v: View; demoT?: nu
   if (!s) return null
   const pick = (id: string) => run.onGesture({ type: 'pick', id })
   const test = TEST_HOOKS && v.phase === 'answer'
+  const dir = v.course.dir
   switch (s.screen) {
     case 'broom':
       return <Broom waves={s.waves} travelMs={s.travelMs} lane={demoT !== undefined ? (demoT > 0.55 ? 0 : 1) : s.lane} onLane={(lane) => run.onGesture({ type: 'lane', lane })} phase={v.phase} reveal={s.reveal} missed={s.missed} fx={s.fx} finished={s.finished} boss={s.boss} clock={run.clock}
-        correctId={TEST_HOOKS ? s.target.id : undefined} size={size} />
+        correctId={TEST_HOOKS ? s.target.id : undefined} size={size} dir={dir} />
     case 'cauldron':
-      return <Cauldron letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
+      return <Cauldron dir={dir} letter={itemOf(s.letterId)} orbs={s.orbs.map(markOf)} onPick={pick} phase={v.phase} reveal={s.reveal}
         joined={s.joined ? { id: s.target.id, item: itemOf(s.letterId), mark: markOf(s.target.mark!), text: s.target.text, soundId: s.target.soundId } : undefined}
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
       return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={pick} phase={v.phase} reveal={s.reveal} correctId={test ? s.target.id : undefined}
-        demo={demoT !== undefined ? { id: s.target.id, t: demoT } : undefined} size={size} />
+        demo={demoT !== undefined ? { id: s.target.id, t: demoT } : undefined} size={size} dir={dir} />
     case 'ghosts':
-      return <Ghosts signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
+      return <Ghosts dir={dir} signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
     case 'doors':
-      return <Doors word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} behind={s.behind}
+      return <Doors dir={dir} word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} behind={s.behind}
         demo={demoT !== undefined ? { id: s.word.id, t: demoT } : undefined} />
     case 'crystal':
       return <Crystal kind={s.kind} onDone={() => {}} />
@@ -155,7 +156,7 @@ export function Play({ opts, onOver, onExit }: {
   const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
     <TouchAnswer.Provider value={touch}>
-    <div className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
+    <div dir={v.course.dir} data-course={v.course.id} className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
       style={layoutVars(size, contentTop(v), into)}>
       {o?.kind === 'demo' ? (
         <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>

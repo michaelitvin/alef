@@ -5,15 +5,17 @@ import { useEffect, useMemo, useState } from 'react'
 
 export interface InkBox { left: number; right: number; ascent: number; descent: number; /** advance width */ width?: number }
 export type Measurer = (text: string, px: number) => InkBox | null
+/** Hebrew (Sigalit, right to left, with nikkud) or Latin (Andika, left to right). Not `Script`: that means print or hand (data/strokes.ts). */
+export type Alphabet = 'hebrew' | 'latin'
 
 let ctx: CanvasRenderingContext2D | null | undefined
-export const canvasMeasurer: Measurer = (text, px) => {
+export const canvasMeasurer = (text: string, px: number, alphabet: Alphabet = 'hebrew'): InkBox | null => {
   if (ctx === undefined) {
     try { ctx = typeof document !== 'undefined' ? document.createElement('canvas').getContext('2d') : null } catch { ctx = null }
   }
   if (!ctx) return null
-  ctx.font = `${px}px Sigalit`
-  ctx.direction = 'rtl'
+  ctx.font = `${px}px ${alphabet === 'latin' ? 'Andika' : 'Sigalit'}`
+  ctx.direction = alphabet === 'latin' ? 'ltr' : 'rtl'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'alphabetic'
   const m = ctx.measureText(text)
@@ -117,8 +119,10 @@ export function Glyph(p: {
   text: string; px: number; x: number; y: number; dim?: boolean; glow?: 'none' | 'soft' | 'hit'; measurer?: Measurer; className?: string
   /** the whole word this syllable belongs to: its ink sets the height, so all its syllables share one baseline */
   lineOf?: string
+  alphabet?: Alphabet
 }) {
-  const measure = p.measurer ?? canvasMeasurer
+  const latin = p.alphabet === 'latin'
+  const measure = useMemo<Measurer>(() => p.measurer ?? ((text, px) => canvasMeasurer(text, px, p.alphabet)), [p.measurer, p.alphabet])
   const [tick, setTick] = useState(fontsReady ? 1 : 0)
   useEffect(() => {
     if (fontsReady) return
@@ -127,7 +131,7 @@ export function Glyph(p: {
     return () => { fontWaiters.delete(f) }
   }, [])
   // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
-  const shin = useMemo(() => drawnDots(p.text, p.px, measure), [measure, p.text, p.px, tick])
+  const shin = useMemo(() => (latin ? null : drawnDots(p.text, p.px, measure)), [latin, measure, p.text, p.px, tick])
   // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
   const { dx } = useMemo(() => inkOffset(measure(p.text, p.px), p.px), [measure, p.text, p.px, tick])
   // eslint-disable-next-line react-hooks/exhaustive-deps -- `tick` re-measures once the fonts load
@@ -146,9 +150,9 @@ export function Glyph(p: {
       y={p.y + dy}
       fontSize={p.px}
       textAnchor="middle"
-      direction="rtl"
+      direction={latin ? 'ltr' : 'rtl'}
       style={{
-        fontFamily: 'Sigalit, "Noto Sans Hebrew", serif', unicodeBidi: 'isolate',
+        fontFamily: latin ? 'Andika, system-ui, sans-serif' : 'Sigalit, "Noto Sans Hebrew", serif', unicodeBidi: 'isolate',
         // a dark outline under the fill, so the marks show on the light shine of an orb (Michael: the cholam dot vanished)
         stroke: '#1b0f3c', strokeWidth: Math.max(2, p.px * 0.05), paintOrder: 'stroke', strokeLinejoin: 'round',
         fill: glow === 'hit' ? '#ffffff' : '#fff6d8', opacity: p.dim ? 0.35 : 1,

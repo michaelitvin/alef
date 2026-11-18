@@ -15,7 +15,7 @@ import { Summary } from './Summary'
 import { Cover } from './Cover'
 import { HOLD_MS } from '../../shared/HoldButton'
 
-const base: View = { phase: 'answer', hearts: 3, screen: { screen: 'ghosts', signs: [], target: { id: 'x', soundId: 'x' } as never }, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
+const base: View = { course: { id: 'he', dir: 'rtl' }, phase: 'answer', hearts: 3, screen: { screen: 'ghosts', signs: [], target: { id: 'x', soundId: 'x' } as never }, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
 const HOME = '[aria-label="home (hold)"]'
 
 function setSize(w: number, h: number) {

@@ -18,7 +18,7 @@ import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
 import { HEBREW } from './course/hebrew'
-import type { Course } from './course/types'
+import type { Course, CourseId } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker } from './logic/recognizer'
@@ -84,6 +84,8 @@ export type Overlay =
   | { kind: 'word'; word: Word }
 
 export interface View {
+  /** the course being played: its direction sets the screens' layout (`dir` and `data-course` on the root) */
+  course: { id: CourseId; dir: 'rtl' | 'ltr' }
   phase: Phase
   hearts: number
   screen: ScreenView | null
@@ -175,7 +177,7 @@ const CONFIDENT_MS = 3000
 const COIN_POP_MS = 550
 
 export class RunController {
-  view: View = { phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
+  view: View = { course: { id: HEBREW.id, dir: HEBREW.dir }, phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
   private listeners = new Set<() => void>()
   private token = 0
   private rng: Rng
@@ -268,6 +270,7 @@ export class RunController {
     this.rng = opts.rng ?? Math.random
     this.time = opts.sleeper ?? realSleeper
     this.course = opts.course ?? HEBREW
+    this.view = { ...this.view, course: { id: this.course.id, dir: this.course.dir } }
     this.save = opts.save ?? (opts.sandbox ? readOnlySavePort(this.course.save()) : this.course.save())
     this.now = opts.now ?? (() => this.time.now())
     this.stage = opts.force?.stage ?? this.save.read().stage.stage

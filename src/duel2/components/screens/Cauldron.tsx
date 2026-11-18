@@ -7,7 +7,7 @@ import { DragPick } from '../DragPick'
 import { Glyph } from '../Glyph'
 import { MarkAlone } from '../MarkAlone'
 import { Orb, type PickState } from '../Orb'
-import { Stage, type Phase } from './Stage'
+import { Stage, type Dir, type Phase } from './Stage'
 
 export const ORB_X = [450, 800, 1150]
 export const ORB_Y = 200
@@ -19,16 +19,18 @@ export function Cauldron(p: {
   letter: Item; orbs: Mark[]; onPick: (m: MarkId) => void; phase: Phase; joined?: Syllable; reveal?: { right: MarkId; wrong?: MarkId }; correct?: MarkId
   /** the demo drags this orb to the pot as the hand moves (t from 0 to 1) */
   demo?: { id: MarkId; t: number }
+  dir?: Dir
 }) {
+  const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const svgRef = useRef<SVGSVGElement>(null)
   const can = p.phase === 'answer'
   const potH = POT.w * (600 / 496)
   return (
-    <Stage bg="bg-ground" ref={svgRef}>
+    <Stage bg="bg-ground" dir={p.dir} ref={svgRef}>
       {IMAGES['s-cauldron']
         ? <image href={IMAGES['s-cauldron']} x={POT.x - POT.w / 2} y={875 - potH} width={POT.w} height={potH} />
         : <ellipse cx={POT.x} cy={720} rx={170} ry={130} fill="#1a1230" stroke="#5ef0a6" strokeWidth={6} />}
-      <Glyph text={p.joined ? p.joined.text : p.letter.glyph} px={CAULDRON_GLYPH_PX} x={800} y={395} glow={p.joined ? 'hit' : 'soft'} />
+      <Glyph text={p.joined ? p.joined.text : p.letter.glyph} px={CAULDRON_GLYPH_PX} x={800} y={395} glow={p.joined ? 'hit' : 'soft'} alphabet={alphabet} />
       {p.orbs.map((m, i) => {
         if (p.joined && m.id === p.joined.mark.id) return null
         const dm = p.demo?.id === m.id ? p.demo.t : null

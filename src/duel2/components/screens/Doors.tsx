@@ -10,7 +10,7 @@ import { DragPick } from '../DragPick'
 import { Glyph, canvasMeasurer } from '../Glyph'
 import { Plate } from '../Orb'
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { Stage, type Phase } from './Stage'
+import { Stage, type Dir, type Phase } from './Stage'
 import { ZOOM_MS } from '../../layout'
 
 export const DOOR_GLYPH_PX = 110
@@ -19,23 +19,28 @@ export const PLATE_INNER = 330
 const SYL_GAP = 0.3
 
 /**
- * The word on the plate: syllables right to left, side by side by their ink widths (measured at DOOR_GLYPH_PX) with one
- * gap between them, centred; a word too long for the plate gets smaller letters (the parent: דּוּר ran off the plate).
+ * The word on the plate: syllables in the course's direction (right to left for Hebrew, left to right for English), side by
+ * side by their ink widths (measured at DOOR_GLYPH_PX) with one gap between them, centred; a word too long for the plate gets smaller letters (the parent: דּוּר ran off the plate).
  */
-export function doorWordLayout(widths: number[]): { px: number; cx: number[] } {
+export function doorWordLayout(widths: number[], dir: Dir = 'rtl'): { px: number; cx: number[] } {
   const gap = SYL_GAP * DOOR_GLYPH_PX
   const total = widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, widths.length - 1)
   const f = Math.min(1, PLATE_INNER / total)
   const cx: number[] = []
-  let right = 800 + (total * f) / 2
-  for (const w of widths) { cx.push(right - (w * f) / 2); right -= w * f + gap * f }
+  if (dir === 'ltr') {
+    let left = 800 - (total * f) / 2
+    for (const w of widths) { cx.push(left + (w * f) / 2); left += w * f + gap * f }
+  } else {
+    let right = 800 + (total * f) / 2
+    for (const w of widths) { cx.push(right - (w * f) / 2); right -= w * f + gap * f }
+  }
   return { px: DOOR_GLYPH_PX * f, cx }
 }
-const inkWidth = (text: string) => {
-  const b = canvasMeasurer(text, DOOR_GLYPH_PX)
+const inkWidth = (text: string, alphabet: 'hebrew' | 'latin') => {
+  const b = canvasMeasurer(text, DOOR_GLYPH_PX, alphabet)
   if (b) return b.left + b.right
   // no canvas (tests): about two thirds of the size for each letter
-  return [...text.normalize('NFD')].filter((ch) => /[\u05d0-\u05ea]/.test(ch)).length * DOOR_GLYPH_PX * 0.62
+  return [...text.normalize('NFD')].filter((ch) => (alphabet === 'latin' ? /[a-z]/i : /[\u05d0-\u05ea]/).test(ch)).length * DOOR_GLYPH_PX * 0.62
 }
 const DH = 560
 const DW = DH * (519 / 600)
@@ -121,10 +126,13 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
   behind?: { crystal: number }
   /** the demo carries this key to the door as the hand moves (t from 0 to 1) */
   demo?: { id: string; t: number }
+  /** the course's direction (default: Hebrew's) */
+  dir?: Dir
 }) {
+  const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const syls = (p.word.syllables ?? []).map((s) => syllable(s.item, s.mark).text + (s.tail ?? ''))
-  // right to left: the first syllable sits on the right
-  const lay = doorWordLayout(syls.map(inkWidth))
+  // the first syllable sits on the right in Hebrew and on the left in English
+  const lay = doorWordLayout(syls.map((t) => inkWidth(t, alphabet)), p.dir)
   const cx = lay.cx
   const dh = DH
   const dw = DW
@@ -151,7 +159,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
   // the doorway (in the scene's own units)
   const g = { x: DOOR_BOX.x + GAP.x0 * dw, y: DOOR_BOX.top + GAP.y0 * dh, w: (GAP.x1 - GAP.x0) * dw, h: (GAP.y1 - GAP.y0) * dh }
   return (
-    <Stage bg="bg-ground">
+    <Stage bg="bg-ground" dir={p.dir}>
       <defs>
         <clipPath id="d2-doorway"><rect x={g.x} y={g.y} width={g.w} height={g.h} rx={14} /></clipPath>
         <radialGradient id="d2-door-light" cx={ZOOM_C.x} cy={ZOOM_C.y} r={900} gradientUnits="userSpaceOnUse">
@@ -178,7 +186,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
           <Plate w={420} x={800} y={340} state="idle">
             {syls.map((t, i) => (
               <g key={i} data-syl={i} data-cx={cx[i]} data-lit={p.lit > i ? '1' : '0'}>
-                <Glyph text={t} px={lay.px} x={cx[i]} y={340} dim={p.lit <= i} glow={p.lit > i ? 'soft' : 'none'} lineOf={syls.join('')} />
+                <Glyph text={t} px={lay.px} x={cx[i]} y={340} dim={p.lit <= i} glow={p.lit > i ? 'soft' : 'none'} lineOf={syls.join('')} alphabet={alphabet} />
               </g>
             ))}
           </Plate>

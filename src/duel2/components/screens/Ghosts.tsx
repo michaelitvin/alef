@@ -5,7 +5,7 @@ import { FACING } from '../../assets/facing'
 import type { Choice } from '../../logic/rounds'
 import { Glyph } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
-import { Stage, faceTransform, type Phase } from './Stage'
+import { Stage, faceTransform, type Dir, type Phase } from './Stage'
 
 const GHOST_W = 290
 export const GHOST_H = GHOST_W * (600 / 574)
@@ -13,12 +13,13 @@ const GHOST_SIGN = 160
 export const GHOST_GLYPH_PX = 100
 export const GHOST_SLOTS = [{ x: 620, top: 250 }, { x: 980, top: 205 }, { x: 1340, top: 255 }]
 
-export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase: Phase; zapped?: string; reveal?: { right: string; wrong?: string }; correctId?: string }) {
+export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase: Phase; zapped?: string; reveal?: { right: string; wrong?: string }; correctId?: string; dir?: Dir }) {
+  const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const wiz = useWizardArt()
   const can = p.phase === 'answer'
   const wizH = 330
   return (
-    <Stage bg="bg-ground">
+    <Stage bg="bg-ground" dir={p.dir}>
       {wiz('s-wizard-cast') && <image data-wizard href={wiz('s-wizard-cast')} x={90} y={875 - wizH} width={wizH * (449 / 420)} height={wizH} />}
       {p.signs.map((c, i) => {
         const s = GHOST_SLOTS[i]
@@ -36,7 +37,7 @@ export function Ghosts(p: { signs: Choice[]; onPick: (id: string) => void; phase
                 : <ellipse cx={s.x} cy={s.top + GHOST_H / 2} rx={GHOST_W / 2.4} ry={GHOST_H / 2} fill="#f4f0ff" />}
             </g>
             <Orb size={GHOST_SIGN} x={s.x} y={cy} state={state} onPick={can || (p.phase === 'mistake' && state === 'reveal') ? () => p.onPick(c.id) : undefined} testCorrect={c.id === p.correctId}>
-              <Glyph text={c.text} px={GHOST_GLYPH_PX} x={s.x} y={cy} />
+              <Glyph text={c.text} px={GHOST_GLYPH_PX} x={s.x} y={cy} alphabet={alphabet} />
             </Orb>
           </g>
         )
