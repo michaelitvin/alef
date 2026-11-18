@@ -7,7 +7,7 @@ import type { Round } from '../../types/duel'
 import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { Word } from '../data/words'
-import type { BossKind } from '../logic/boss'
+import type { BossKind, BossKinds } from '../logic/boss'
 import type { Item, Mark, MarkId, Syllable } from '../logic/content'
 import type { drawWords } from '../logic/draw'
 import type { ScreenId } from '../logic/predict'
@@ -62,6 +62,11 @@ export interface CourseRounds {
   /** the dotted pair to introduce before a round (Hebrew only; English returns null) */
   dotIntroFor: (targetItem: string, stage: number, seen: string[]) => string | null
   drawWords: (ctx: DrawCtx, n?: number) => Word[]
+  /**
+   * the flight boss's kinds open at `stage` and his score for each, from his mix-ups (the English course's families);
+   * unset: Book 2's (logic/boss.ts bossOpen, bossScores)
+   */
+  bossKinds?: (stage: number, confusions: Duel2Save['confusions']) => BossKinds
   bossTarget: (ctx: RoundCtx, kind: BossKind, avoid?: string) => Choice
   bossWave: (ctx: RoundCtx, kind: BossKind, target: Choice) => Choice[]
 }

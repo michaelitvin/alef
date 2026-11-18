@@ -206,6 +206,9 @@ export class RunController {
   private nextWaiter: (() => void) | null = null
   private cueStarted = 0
   private spokenTargets = new Set<string>()
+  /** an introduction plays during the flight (its say's id; 0: none): the next wave waits for it, the orbs flying go on */
+  private introHold = 0
+  private introSays = 0
   private fixWaiter: ((id: string) => void) | null = null
   /** the round the demo showed is the first round he plays (the parent: the letter changed after the demo) */
   private demoRound = false
@@ -890,6 +893,7 @@ export class RunController {
       force: this.opts.force ? { boss: this.opts.force.boss } : undefined, session: !!this.opts.session, broomSessions: st.broomSessions ?? 0,
       broomVisits: this.broomVisits, stage: this.stage, confusions: { letters: st.confusions.letters, vowels: st.confusions.vowels },
       beaten: st.bossesBeaten ?? [], last: st.lastBoss ?? null, rng: this.rng,
+      ...(this.course.rounds.bossKinds ? { kinds: this.course.rounds.bossKinds(this.stage, st.confusions) } : {}),
     })
     this.broomVisits = d.broomVisits
     for (const op of d.save) {
@@ -1568,7 +1572,7 @@ export class RunController {
           void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target), onStart: go }])
             .catch(() => {}).finally(() => { announcing = false; if (holdSpawn) go() })
         }
-        if (!newTargetDue && !holdSpawn && more() && now >= nextSpawnAt) spawn(now)
+        if (!newTargetDue && !holdSpawn && !this.introHold && more() && now >= nextSpawnAt) spawn(now)
         // the visit ends when all its orbs have arrived (Michael: "let me finish"); the screen's waves, not `waves`: a wave
         // spawned in this tick (the last one, after a new sound) is only there
         if (!this.boss && spawned >= this.visitLen && !newTargetDue && !open((this.view.screen as BroomView).waves)) { this.stopBroom(); resolve('done') }
@@ -1724,6 +1728,15 @@ export class RunController {
     return (this.course.rounds.introAfter?.(this.save, c, right) ?? []).map((p) => ({ id: 'line' in p ? this.variation(p.line) : p.id }))
   }
 
+  /** says `parts` during the flight; with an introduction in them, no new wave sets off until they end (`introHold`) */
+  private sayFlight(parts: { id: string }[], intro: boolean) {
+    const said = this.course.audio.sayParts(parts)
+    if (!intro) return
+    const id = ++this.introSays
+    this.introHold = id
+    void said.catch(() => {}).finally(() => { if (this.introHold === id) this.introHold = 0 })
+  }
+
   private onCatch(target: Choice, noPraise = false) {
     const st = this.save.read()
     const intro = this.introAfter(target, true)
@@ -1734,8 +1747,8 @@ export class RunController {
     this.sfx('catch')
     if (!this.spokenTargets.has(target.soundId)) {
       this.spokenTargets.add(target.soundId)
-      void this.course.audio.sayParts([{ id: this.cueId(target) }, ...intro])
-    } else if (intro.length) void this.course.audio.sayParts(intro)
+      this.sayFlight([{ id: this.cueId(target) }, ...intro], intro.length > 0)
+    } else if (intro.length) this.sayFlight(intro, true)
     // the multiplier rises over the flight (its sound and line; no line on the catch that beats the boss)
     const m = multiplierOf(this.streak)
     if (m > this.view.mult) {
@@ -1759,7 +1772,8 @@ export class RunController {
       return 'on'
     }
     this.resetStreak()
-    const intro = this.introAfter(target, false)
+    // (a miss that ends the run says nothing more: its introduction stays due)
+    const intro = outcome.over ? [] : this.introAfter(target, false)
     this.record('broom', target, hit, 'wrong')
     this.save.setPace(flightPace(st.pace, 'miss'))
     // a miss (the target flew past in another lane) is a whoosh, not a crash
@@ -1769,7 +1783,7 @@ export class RunController {
     this.setScreen({ reveal: { right: right?.id ?? target.id, wrong: hit?.id }, missed: !hit, fx } as Partial<BroomView>)
     this.set({ hearts: this.hearts.left })
     if (outcome.over) return 'over'
-    void this.course.audio.sayParts([{ id: this.cueId(target) }, ...intro])
+    this.sayFlight([{ id: this.cueId(target) }, ...intro], intro.length > 0)
     this.time.after(1400, () => {
       const s = this.view.screen
       if (t === this.token && s?.screen === 'broom' && s.fx?.id === fx.id) this.setScreen({ reveal: undefined } as Partial<BroomView>)

@@ -46,14 +46,22 @@ export function bossScores(conf: { letters: Conf; vowels: Conf }): Record<BossKi
 }
 
 /**
+ * The kinds a course's bosses can be now and how often he made each kind's mix-up (a course with its own content: the
+ * English course; unset: Book 2's gates `bossOpen` and scores `bossScores`)
+ */
+export interface BossKinds { open: BossKind[]; scores: Record<BossKind, number> }
+
+/**
  * The kind of this boss: the one whose mix-up he makes most, a kind he has not beaten when the scores are close, never the
  * kind of the boss before, and only kinds his stage has opened. Null when none is open (stage 1: letters only).
  */
-export function chooseBoss(o: { stage: number; confusions: { letters: Conf; vowels: Conf }; beaten: BossKind[]; last: BossKind | null; rng: Rng }): BossKind | null {
-  let avail = BOSS_KINDS.filter((k) => bossOpen(k, o.stage))
+export function chooseBoss(o: {
+  stage: number; confusions: { letters: Conf; vowels: Conf }; beaten: BossKind[]; last: BossKind | null; rng: Rng; kinds?: BossKinds
+}): BossKind | null {
+  let avail = o.kinds ? BOSS_KINDS.filter((k) => o.kinds!.open.includes(k)) : BOSS_KINDS.filter((k) => bossOpen(k, o.stage))
   if (!avail.length) return null
   if (avail.length > 1) avail = avail.filter((k) => k !== o.last)
-  const raw = bossScores(o.confusions)
+  const raw = o.kinds?.scores ?? bossScores(o.confusions)
   const score = (k: BossKind) => raw[k] + (o.beaten.includes(k) ? 0 : UNBEATEN_BONUS)
   const top = Math.max(...avail.map(score))
   const best = avail.filter((k) => score(k) === top)

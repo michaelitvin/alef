@@ -11,6 +11,7 @@ import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScre
 import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower, towerFacts } from './logic/tower'
 import { enLine } from './data/lines'
 import { enBroomTarget, enBroomWave } from './logic/rounds/broom'
+import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -49,9 +50,16 @@ const EN_ROUNDS: CourseRounds = {
   doorKeys: () => notBuilt('doors'),
   wordLinkFor: () => notBuilt('word link'),
   drawWords: () => notBuilt('drawing'),
-  bossTarget: () => notBuilt('flight boss'),
-  bossWave: () => notBuilt('flight boss'),
+  bossKinds: enBossKinds,
+  bossTarget: enBossTarget,
+  bossWave: enBossWave,
 }
+
+/** the run's Hebrew demo keys (by its letters and syllables) and the English lines that say them */
+const DEMO_ALIAS: Record<string, string> = {
+  'demo-broom-letter': 'demo-broom-sound', 'demo-ghosts-letter': 'demo-ghosts-sound', 'demo-ghosts-syllable': 'demo-ghosts-word',
+}
+const enLineId = (id: string) => DEMO_ALIAS[id] ?? id
 
 /** the run's save on the English course is the English port (the course gives it, or a test's save in memory) */
 function en(save: SavePort): EnglishSavePort {
@@ -90,6 +98,6 @@ export const ENGLISH: Course = {
   images: ENGLISH_IMAGES,
   preload: preloadEnglishAssets,
   genderPictures: { boy: ENGLISH_IMAGES['s-wizard-idle'], girl: ENGLISH_IMAGES['s-wizard-idle-girl'] ?? ENGLISH_IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
-  lineAudioId: (id, n = 1) => `${id}-${n}`,
-  lineVariations: (id) => enLine(id)?.variations ?? 1,
+  lineAudioId: (id, n = 1) => `${enLineId(id)}-${n}`,
+  lineVariations: (id) => enLine(enLineId(id))?.variations ?? 1,
 }

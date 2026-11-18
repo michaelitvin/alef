@@ -1,9 +1,12 @@
 // The English broom in the run (design Part 5): a seeded English session flies its waves to the end, its catches and
 // mistakes count in the English tallies and the stage pass through the run's normal answer path, a new unit's
 // introduction follows its sound, and the word orbs are drawn in Andika, small enough to stay inside the orb.
-import { describe, expect, it } from 'vitest'
-import { render } from '@testing-library/react'
-import { alternate, recordSession, seeded } from '../duel2/testing/runHarness'
+import { describe, expect, it, vi } from 'vitest'
+import { act, render } from '@testing-library/react'
+import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
+import { RunController, type BroomView } from '../duel2/controller'
+import { fakeAudio } from '../shared/gameAudio/fakePlayer'
+import { enLine } from './data/lines'
 import { Broom, BROOM_GLYPH_PX } from '../duel2/components/screens/Broom'
 import type { Choice } from '../duel2/logic/rounds'
 import { ENGLISH } from './course'
@@ -80,6 +83,115 @@ describe('the English broom in the run', () => {
     const asked = words.filter((id) => word(id).kind === 'real')
     expect(asked.some((id) => word(id).units.every((u) => (t[u]?.seen ?? 0) > 0))).toBe(true)
     expect(t['sc:broom']?.seen ?? 0).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe('the English flight boss', () => {
+  it('a seeded English run meets a flight boss on its second broom session, flies its two-orb waves and beats it', async () => {
+    const save = englishSave(2, { broomSessions: 1 })
+    const log = await session(save, () => 'right')
+    const kind = save.read().bossesBeaten?.[0]
+    expect(kind).toBeDefined()
+    expect(['mimic', 'bat', 'dot']).toContain(kind)
+    // its waves: two orbs each
+    const waves = log.views.filter((v) => v.startsWith('broom:answer:') && v.length > 'broom:answer:'.length)
+      .flatMap((v) => v.slice('broom:answer:'.length).split('|'))
+    expect(waves.length).toBeGreaterThan(0)
+    for (const w of waves) expect(w.split(',')).toHaveLength(2)
+    // its English lines: it arrives, and the first win of a kind puts it on the shelf
+    expect(log.voice.some((id) => /^boss-arrive-\d$/.test(id))).toBe(true)
+    expect(log.voice).toContain('boss-new-1')
+    // its catches count as the flight's do
+    expect(save.read().tallies['sc:broom']?.seen ?? 0).toBeGreaterThanOrEqual(8)
+  })
+})
+
+describe('the broom\'s introductions and demo in the run', () => {
+  it('a miss that ends the run leaves the introduction due (its step is not saved)', async () => {
+    // a run (not a session from the path): its hearts end it; it goes on at the broom, after the tower
+    const save = englishSave(1, { lastEnded: 'tower' })
+    const log = await recordSession({ course: ENGLISH, save, rng: seeded(7) }, () => 'wrong')
+    expect(log.views.some((v) => v.startsWith('broom:'))).toBe(true)
+    const seen = Object.entries(save.read().introSeen)
+    // one target, all misses: the first brings the introduction, each next one is a step, the last ends the run
+    const misses = save.read().tallies['sc:broom']!.wrong!
+    expect(misses).toBeGreaterThanOrEqual(3)
+    expect(seen).toHaveLength(1)
+    expect(seen[0][1].asked).toBe(misses - 1)
+    expect(log.voice.filter((id) => id.startsWith('intro-sound-'))).toHaveLength(1)
+  })
+
+  it('a fresh stage-1 English broom says its sound demo', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = memoryEnglishSavePort({ stage: { stage: 1, newAnswers: '' }, placement: { state: null, requested: false, done: { level: 1, answers: 5, at: 1 }, runs: 1 } })
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'broom' } })
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      expect(c.view.overlay).toMatchObject({ kind: 'demo', line: 'demo-broom-sound-1' })
+      expect(ENGLISH.lineVariations('demo-broom-letter')).toBe(enLine('demo-broom-sound')!.variations)
+      expect(ENGLISH.lineAudioId('demo-ghosts-letter', 2)).toBe('demo-ghosts-sound-2')
+      expect(ENGLISH.lineAudioId('demo-ghosts-syllable')).toBe('demo-ghosts-word-1')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('no new wave sets off while an introduction plays; the orbs already flying go on', async () => {
+    vi.useFakeTimers()
+    let playing: string | null = null
+    fakeAudio.onVoice((id) => {
+      playing = id
+      return new Promise((r) => setTimeout(() => { playing = null; r() }, id.startsWith('intro-') ? 8000 : 10))
+    })
+    const save = englishSave(1)
+    const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'broom' } })
+    try {
+      c.start()
+      const seenWaves = new Set<number>()
+      let spawnedInIntro = 0
+      let movedInIntro = false
+      let introTicks = 0
+      let lastPos = ''
+      let missed = false
+      for (let i = 0; i < 4000 && !c.view.over; i++) {
+        const s = c.view.screen as BroomView | undefined
+        if (s?.screen === 'broom') {
+          const inIntro = !!playing && (playing as string).startsWith('intro-')
+          for (const w of s.waves) {
+            if (!seenWaves.has(w.id) && inIntro) spawnedInIntro++
+            seenWaves.add(w.id)
+          }
+          if (inIntro) {
+            introTicks++
+            const pos = s.waves.map((w) => `${w.id}:${w.resolved.join()}`).join('|')
+            if (lastPos && pos !== lastPos) movedInIntro = true
+            lastPos = pos
+          }
+          // miss the first wave (the new unit's first ask brings its introduction), then catch
+          const head = s.waves.find((w) => w.resolved.some((r) => !r))
+          if (head && c.view.phase === 'answer') {
+            const j = head.choices.findIndex((x) => x.soundId === s.target.soundId)
+            const k = missed ? j : head.choices.findIndex((x) => x.soundId !== s.target.soundId)
+            const lane = (head.lanes?.[k] ?? k) as 0 | 1 | 2
+            if (k >= 0) c.gesture({ type: 'lane', lane })
+          }
+          if (s.reveal?.wrong) missed = true
+        }
+        if (c.view.needNext) c.next()
+        if (introTicks > 40 && !playing) break
+        await act(async () => { await vi.advanceTimersByTimeAsync(50) })
+      }
+      expect(introTicks).toBeGreaterThan(40)
+      expect(spawnedInIntro).toBe(0)
+      // the orbs on the screen flew on (they resolved) while it played
+      expect(movedInIntro).toBe(true)
+    } finally {
+      c.destroy()
+      fakeAudio.onVoice(null)
+      vi.useRealTimers()
+    }
   })
 })
 
