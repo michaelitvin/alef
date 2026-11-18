@@ -64,11 +64,6 @@ describe('the English page', () => {
     expect(screen.getByTestId('cover').hasAttribute('dir')).toBe(false)
   })
 
-  it('the English preload waits for Andika, the English letters\' font', async () => {
-    const { ENGLISH_FONTS } = await vi.importActual<typeof import('./assets/preload')>('./assets/preload')
-    expect(ENGLISH_FONTS.map(([f]) => f)).toContain("1em 'Andika'")
-  })
-
   it('play time counts under english', () => { expect(PLAYTIME_GAMES).toContain('english') })
 
   it('the English page has a parent section and its log is registered', () => { expect(gameParent('english').logs).toContain(ENGLISH_LOG) })

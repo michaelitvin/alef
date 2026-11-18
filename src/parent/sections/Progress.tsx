@@ -6,6 +6,8 @@ import { lastDays, PLAYTIME_GAMES, type PlaytimeGame } from '../../shared/playti
 
 const TOP = 5
 const DAYS = 7
+/** the ledger's games that have a section here (English only where it can be opened: production shows no English column) */
+const COLUMNS = PLAYTIME_GAMES.filter((g) => GAMES.some((p) => p.id === g))
 const TITLE: Record<PlaytimeGame, string> = { book2: 'Book 2', clock: 'Clock', lessons: 'Lessons', english: 'English' }
 /** whole minutes, but a short play shows as `<1` rather than as nothing */
 const minutes = (ms: number) => (ms <= 0 ? '0' : ms < 60_000 ? '<1' : String(Math.round(ms / 60_000)))
@@ -15,12 +17,12 @@ export function ProgressSection() {
     <div>
       <h4 style={{ marginBottom: 4 }}>Minutes played, last 7 days</h4>
       <table data-playtime>
-        <thead><tr><th>Day</th>{PLAYTIME_GAMES.map((g) => <th key={g}>{TITLE[g]}</th>)}</tr></thead>
+        <thead><tr><th>Day</th>{COLUMNS.map((g) => <th key={g}>{TITLE[g]}</th>)}</tr></thead>
         <tbody>
           {lastDays(DAYS).map((d) => (
             <tr key={d.day} data-day={d.day}>
               <td>{d.day}</td>
-              {PLAYTIME_GAMES.map((g) => <td key={g} data-game={g}>{minutes(d.ms[g])}</td>)}
+              {COLUMNS.map((g) => <td key={g} data-game={g}>{minutes(d.ms[g])}</td>)}
             </tr>
           ))}
         </tbody>

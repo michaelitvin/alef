@@ -260,7 +260,7 @@ const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, fals
 /** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
 const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 
-/** every event name the generators can send (Book 2, the tower, the clock) */
+/** every event name the generators can send (Book 2, the tower, the clock, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK),
   ...Object.keys(ENGLISH), ...Object.keys(BOOK2_SPELL),
