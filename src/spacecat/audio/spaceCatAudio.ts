@@ -78,11 +78,11 @@ export function playSfx(name: SfxName): Promise<void> {
   return p
 }
 
-/** waits for the effect's end and SFX_TO_VOICE_MS, then says the line */
-export async function sayAfterSfx(sfx: Promise<void>, id: string): Promise<boolean> {
+/** waits for the effect's end and SFX_TO_VOICE_MS, then says the line, unless `still()` says the screen has gone */
+export async function sayAfterSfx(sfx: Promise<void>, id: string, still: () => boolean = () => true): Promise<boolean> {
   await sfx
   await wait(SFX_TO_VOICE_MS)
-  return say(id)
+  return still() ? say(id) : false
 }
 
 /** the tune (only while the device's music is on; it ducks under every line) */
@@ -112,3 +112,6 @@ export async function quiet(): Promise<void> {
     if (voice === lastVoice && effect === lastEffect) return
   }
 }
+
+/** the preload's effects step (the coded takes need no load: the kit passes over them) */
+export const preloadSfx = (): void => kit.preloadSfx()

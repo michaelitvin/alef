@@ -19,7 +19,7 @@ describe('Space Cat app', () => {
   it('never asks boy or girl', async () => {
     clearGender()
     const { container } = render(<SpaceCatApp />)
-    fireEvent.click(container.querySelector('[aria-label="play"]')!)
+    fireEvent.pointerDown(container.querySelector('[aria-label="play"]')!)
     await act(async () => { await new Promise((r) => setTimeout(r, 10)) })
     expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
     expect(container.querySelector('[data-screen="play"]')).not.toBeNull()

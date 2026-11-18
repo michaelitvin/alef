@@ -3,9 +3,10 @@
 // cover's play unlocks the audio inside the tap. `loading`: a turning ring while play waits for the preload.
 export const TRIANGLE_PATH = 'M58 30 L24 50 L58 70 Z'
 
-export function PlayTriangle({ onPress, loading, className = '' }: { onPress: () => void; loading?: boolean; className?: string }) {
+export function PlayTriangle({ onPress, loading, className = '', size }: { onPress: () => void; loading?: boolean; className?: string; size?: number }) {
   return (
     <button type="button" aria-label="play" className={`sc-play ${className}`.trim()} data-loading={loading || undefined}
+      style={size ? { width: size, height: size } : undefined}
       onPointerDown={(e) => { e.stopPropagation(); onPress() }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onPress() }}>
       <svg viewBox="0 0 100 100" aria-hidden>
         <defs>
