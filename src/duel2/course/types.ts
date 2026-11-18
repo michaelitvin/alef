@@ -90,7 +90,14 @@ export interface Course {
    * the tower (the first duel's board): its rounds and spoken parts, where its answers are kept (lazy, like `save`), and
    * the duel's line player (default: the duel's own audio)
    */
-  tower: { content: TowerContent; tallies: () => DuelTallies; audio?: DuelAudio }
+  tower: {
+    content: TowerContent; tallies: () => DuelTallies; audio?: DuelAudio
+    /**
+     * what a tower answer on `targetId` counts for: the run records it as any screen's answer (its features, and the stage
+     * pass when `newStage`). Hebrew: unset, the tower's answers stay the first duel's (English: logic/tower's towerFacts)
+     */
+    facts?: (targetId: string, stage: number) => { features: string[]; newStage: boolean }
+  }
   /**
    * the course's placement check in the tower (English, design Part 4; Hebrew: unset, its stage 0 is the book's): while
    * it is `due`, the tower plays `tower(save)` instead of `tower.content`

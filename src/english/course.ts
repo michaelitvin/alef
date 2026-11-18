@@ -8,11 +8,12 @@ import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
 import { englishAudio, englishDuelAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
-import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower } from './logic/tower'
+import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower, towerFacts } from './logic/tower'
 import { enLine } from './data/lines'
 import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES, wordPicture } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
+import { ENGLISH_VOICE_URLS } from './assets/audioFiles'
 import { englishSavePort, type EnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
 import { useEnglishStore } from './store'
@@ -24,7 +25,7 @@ const notBuilt = (what: string): never => { throw new Error(`the English ${what}
 const a = englishAudio
 
 /** the English tower's letter and word rounds, over the real save (looked up on each call) */
-const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), picture: wordPicture })
+const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), picture: wordPicture, voice: (id) => id in ENGLISH_VOICE_URLS })
 
 /** the run's save on the English course is the English port (the course gives it, or a test's save in memory) */
 function en(save: SavePort): EnglishSavePort {
@@ -43,7 +44,7 @@ export const ENGLISH: Course = {
   },
   get rounds(): CourseRounds { return notBuilt('rounds') },
   // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
-  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio },
+  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts },
   placement: {
     // (only reads: also on the gallery's read-only save)
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },

@@ -18,7 +18,7 @@ import { WORDS, word, type EnWord } from '../content/words'
 import type { EnglishSave, IntroState, PlacementSave } from '../saveFormat'
 import type { Tally } from '../../shared/adaptive'
 import { introKind, introParts, introStep } from './intro'
-import { enFeatures, enPrior, pickUnit } from './pick'
+import { enFeatures, enPrior, pickUnit, unitChoice } from './pick'
 import { askOf, creditOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
 
 type PlacementRound = (typeof PLACEMENT_ROUNDS)[number]
@@ -54,16 +54,26 @@ const voiceOf = (id: string): string => {
   return w.kind === 'heart' ? heartVoice(w.text) : w.kind === 'nonsense' ? nonsenseVoice(w.text) : wordVoice(w.text)
 }
 
-/** a picture round needs its target's picture (a picture dropped in review leaves the round out) */
-const usable = (r: PlacementRound) => r.kind === 'name' || !!word(r.target).picture
+/**
+ * a picture round needs its target's picture and its file (a picture dropped in review, or not made yet, leaves the round
+ * out: a word without a picture is used only in rounds without pictures)
+ */
+const usable = (r: PlacementRound, picture: PictureOf) => {
+  const key = word(r.target).picture
+  return r.kind === 'name' || (!!key && !!picture(key))
+}
+/** a picture's file when none is given: its key (every picture counts as there) */
+const keyAsFile: PictureOf = (k) => k
 
 /**
  * The round of `stage` and `kind` he has seen least (`seen`: the tower's tallies, by target); at random among those.
  * When the rounds of `kind` have all been asked more than one of the other kind (stage 1 has two picture rounds), the
  * other kind's round instead: the walk alternates the kinds, the content does not always have enough of one.
  */
-export function choosePlacementRound(stage: number, kind: Kind, seen: (target: string) => number, rng: () => number): PlacementRound {
-  const ofStage = PLACEMENT_ROUNDS.filter((r) => r.stage === stage && usable(r))
+export function choosePlacementRound(
+  stage: number, kind: Kind, seen: (target: string) => number, rng: () => number, picture: PictureOf = keyAsFile,
+): PlacementRound {
+  const ofStage = PLACEMENT_ROUNDS.filter((r) => r.stage === stage && usable(r, picture))
   if (!ofStage.length) throw new Error(`no placement round at stage ${stage}`)
   const least = (rs: PlacementRound[]) => Math.min(...rs.map((r) => seen(r.target)))
   const own = ofStage.filter((r) => r.kind === kind)
@@ -96,7 +106,7 @@ function placementRound(o: MakeRoundOpts, pr: PlacementRound, picture: PictureOf
   return {
     id: o.id, type: pr.kind === 'picture' ? 'A' : 'C', target: mark(target.id, target.text),
     runes, runeTexts, word: { key: target.id, group: 'a', he: '' }, padWords: [],
-    ...(pr.kind === 'picture' && target.picture && picture(target.picture) ? { picture: picture(target.picture) } : {}),
+    ...(pr.kind === 'picture' ? { picture: picture(target.picture!) } : {}),
     // right after "a new monster!" comes that monster
     monster: (o.kills === 0 && newMonsterAt(o.wave)) || unlocked[Math.floor(o.rng() * unlocked.length) % unlocked.length],
     boss: false,
@@ -109,11 +119,11 @@ function placementRound(o: MakeRoundOpts, pr: PlacementRound, picture: PictureOf
  * The placement tower over his save: each round asks the walk's next stage and kind. No hint, no twin. `picture`: the
  * file of a word's picture (the course gives assets/images' `wordPicture`).
  */
-export function placementTower(save: PlacementPort, ready: number[], picture: PictureOf = () => undefined): TowerContent {
+export function placementTower(save: PlacementPort, ready: number[], picture: PictureOf = keyAsFile): TowerContent {
   return {
     makeRound(o) {
       const ask = askOf(current(save.read().placement, ready))
-      const pr = choosePlacementRound(ask.stage, ask.kind, (t) => o.lifetime[t]?.seen ?? 0, o.rng)
+      const pr = choosePlacementRound(ask.stage, ask.kind, (t) => o.lifetime[t]?.seen ?? 0, o.rng, picture)
       return placementRound(o, pr, picture)
     },
     isCorrect: (r, c: Choice) => c.kind === 'rune' && c.mark.id === r.target.id,
@@ -182,18 +192,31 @@ export interface EnTowerPort {
   setIntro(id: string, s: IntroState): void
 }
 
-/** the English tower over a save (the course gives the real one, looked up on each call) and its pictures */
-export interface EnTowerDeps { save: () => EnTowerPort; picture: PictureOf }
+/**
+ * the English tower over a save (the course gives the real one, looked up on each call), its pictures, and which voice
+ * files are there (a unit is asked by its sound only when its sound clip is)
+ */
+export interface EnTowerDeps { save: () => EnTowerPort; picture: PictureOf; voice: (id: string) => boolean }
 
-/** what a round asks: a unit's letter (by its picture, or by its sound), a nonsense name, or the word of a picture */
-export type TowerAsk = { kind: 'letter'; unit: string } | { kind: 'name'; word: string } | { kind: 'word'; word: string }
+/**
+ * what a round asks: a unit's letter (`by` its picture or its sound; unset: by its picture when it has one, about half of
+ * them by sound when its clip is there too), a nonsense name, or the word of a picture
+ */
+export type TowerAsk = { kind: 'letter'; unit: string; by?: 'picture' | 'sound' } | { kind: 'name'; word: string } | { kind: 'word'; word: string }
 
 /** letter runes at every wave (spec Part 5: four; the Hebrew pad grows to six from wave 3); word runes */
 const LETTER_RUNES = 4
 const WORD_RUNES = 3
-/** my call: the share of name rounds from stage 2, and of picture-word rounds from stage 6 (when it has a picture) */
-const NAME_SHARE = 0.25
-const WORD_SHARE = 0.25
+/**
+ * The share of word rounds (a nonsense name, or from stage 6 a picture with word runes) by stage: none at stage 1, then
+ * growing, as the spec has the runes carry words later (Part 5). My call; the rest are letter rounds. From stage 6, when
+ * pictures with word runes are there, half of the word rounds are those.
+ */
+const WORD_SHARE_BY_STAGE: Record<number, number> = { 1: 0, 2: 0.2, 3: 0.25, 4: 0.3, 5: 0.4, 6: 0.45, 7: 0.5, 8: 0.55, 9: 0.6 }
+/** of a unit that has both a picture and its sound clip: the share asked by its sound (so that sound rounds stay) */
+const BY_SOUND_SHARE = 0.5
+/** of the word rounds from stage 6, when pictures with word runes are there: the share that are those */
+const PICTURE_WORD_SHARE = 0.5
 /** a mix-up he made this often is put on the board (as the Hebrew tower does) */
 const CONFUSION_MIN = 2
 
@@ -242,21 +265,13 @@ function partnerOf(target: string, confusions: MakeRoundOpts['confusions']): str
 }
 
 /**
- * What the choice of a target reads: the English save's tallies (every screen's answers and the placement's credit per
- * unit), with the tower's own answers on a unit added under the unit's id. The tower's tallies also hold its word rounds'
- * targets and the placement's words: those are kept by word, and only the word rounds' mix-ups read them.
+ * What the choice of a target reads: the English save's tallies, which hold every screen's answers, the tower's too (the
+ * run records them: `towerFacts`), and the placement's credit per unit. The tower's own tallies (`o.lifetime`) also hold
+ * its targets and the placement's words: only the word rounds' mix-ups read them, so nothing counts twice.
  */
 function ctxOf(o: MakeRoundOpts, save: EnTowerPort): RoundCtx {
   const s = save.read()
-  const tallies: Record<string, Tally> = { ...s.tallies }
-  const recent: Record<string, string> = { ...s.recent }
-  for (const [id, t] of Object.entries(o.lifetime)) {
-    if (!UNIT_IDS.has(id)) continue
-    const b = tallies[id] ?? {}
-    tallies[id] = { seen: (b.seen ?? 0) + (t.seen ?? 0), wrong: (b.wrong ?? 0) + (t.wrong ?? 0), timeout: (b.timeout ?? 0) + (t.timeout ?? 0) }
-    if (o.recent?.[id]) recent[id] = o.recent[id]
-  }
-  return { rng: o.rng, stage: s.stage.stage, tallies, recent, confusions: { letters: {}, syllables: {} } }
+  return { rng: o.rng, stage: s.stage.stage, tallies: s.tallies, recent: s.recent, confusions: { letters: {}, syllables: {} } }
 }
 
 const wordChoice = (w: EnWord): RunChoice => ({ kind: 'word', id: w.id, text: w.text, soundId: '', itemId: w.id })
@@ -275,17 +290,15 @@ function towerAsk(o: MakeRoundOpts, deps: EnTowerDeps): TowerAsk {
   const stage = ctx.stage
   const names = namePool(stage)
   const pictures = pictureWordPool(stage, deps.picture)
-  const wordAsk = (): TowerAsk => (pictures.length && (!names.length || ctx.rng() < 0.5)
+  const wordAsk = (): TowerAsk => (pictures.length && (!names.length || ctx.rng() < PICTURE_WORD_SHARE)
     ? { kind: 'word', word: pickWord(ctx, pictures).id }
     : { kind: 'name', word: pickWord(ctx, names).id })
   if (o.boss) {
     const own = letterPool(stage).filter((u) => u.stage === stage)
     if (own.length) return { kind: 'letter', unit: pickUnit(ctx, own, 'tower').id }
     if (names.length || pictures.length) return wordAsk()
-  } else {
-    const r = ctx.rng()
-    if (pictures.length && r < WORD_SHARE) return { kind: 'word', word: pickWord(ctx, pictures).id }
-    if (names.length && r < WORD_SHARE + NAME_SHARE) return { kind: 'name', word: pickWord(ctx, names).id }
+  } else if (names.length && ctx.rng() < (WORD_SHARE_BY_STAGE[stage] ?? 0)) {
+    return wordAsk()
   }
   return { kind: 'letter', unit: pickUnit(ctx, letterPool(stage), 'tower').id }
 }
@@ -307,11 +320,12 @@ function board(o: MakeRoundOpts): Pick<Round, 'monster' | 'boss' | 'walkMs' | 's
  * another sound, all units he has opened; his usual mix-up for it among them. A picture's other units are left out (fox:
  * no f, no o), so that only one rune is in the picture.
  */
-function letterRound(o: MakeRoundOpts, u: Unit, deps: EnTowerDeps): Round {
+function letterRound(o: MakeRoundOpts, u: Unit, deps: EnTowerDeps, by?: 'picture' | 'sound'): Round {
   const stage = deps.save().read().stage.stage
   const pool = letterPool(Math.max(stage, u.stage))
   const pictures = picturesOf(u, deps.picture)
-  const pic = pictures.length ? pickOne(o.rng, pictures) : null
+  const bySound = by ? by === 'sound' : deps.voice(soundVoice(u)) && o.rng() < BY_SOUND_SHARE
+  const pic = pictures.length && !bySound ? pickOne(o.rng, pictures) : null
   const inPicture = new Set(pic?.units ?? [])
   const runes: Unit[] = [u]
   const fits = (x: Unit) => !runes.some((y) => y.id === x.id || y.sound === x.sound) && !inPicture.has(x.id)
@@ -359,8 +373,26 @@ function wordRound(o: MakeRoundOpts, w: EnWord, picture: boolean, deps: EnTowerD
 
 /** the round of an ask (the tests ask for one) */
 export function enTowerRound(deps: EnTowerDeps, o: MakeRoundOpts, ask: TowerAsk): Round {
-  if (ask.kind === 'letter') return letterRound(o, unit(ask.unit), deps)
-  return wordRound(o, word(ask.word), ask.kind === 'word', deps)
+  if (ask.kind === 'letter') return letterRound(o, unit(ask.unit), deps, ask.by)
+  const w = word(ask.word)
+  if (ask.kind === 'name' || (w.picture && deps.picture(w.picture))) return wordRound(o, w, ask.kind === 'word', deps)
+  // a picture whose file is not there: a name round instead
+  const ctx = ctxOf(o, deps.save())
+  return wordRound(o, pickWord(ctx, namePool(Math.max(ctx.stage, 2))), false, deps)
+}
+
+/**
+ * What a tower answer counts for (the run records it, as for any screen): a unit round its unit, a word round its units
+ * and blends (enFeatures), and the screen. It counts towards the stage pass when it asks his stage's new items: a unit of
+ * his stage, or a word of his stage (its new units are in it).
+ */
+export function towerFacts(targetId: string, stage: number): { features: string[]; newStage: boolean } {
+  if (UNIT_IDS.has(targetId)) {
+    const u = unit(targetId)
+    return { features: enFeatures(unitChoice(u), 'tower'), newStage: u.stage === stage }
+  }
+  const w = word(targetId)
+  return { features: enFeatures(wordChoice(w), 'tower'), newStage: w.stage === stage }
 }
 
 /** the English tower's own lines beyond the first duel's 13 (data/lines.ts, EN_TOWER_LINE_IDS) */

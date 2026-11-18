@@ -556,8 +556,10 @@ export class DuelController {
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !this.megaAnnounced && !emb.megaOff
     if (megaLine) this.megaAnnounced = true
 
-    // what the course says after the feedback (English: a new unit's introduction); the answer is the course's to keep
-    const after = dry || megaInRun ? [] : this.content.answered?.(r, o.kind === 'hit') ?? []
+    // what the course says after the feedback (English: a new unit's introduction); the answer is the course's to keep.
+    // A boss fight flows: the course hears it once, at the hit that beats the boss
+    const heard = !dry && !megaInRun && (!r.boss || (o.kind === 'hit' && o.final))
+    const after = heard ? this.content.answered?.(r, o.kind === 'hit') ?? [] : []
     let recap = Promise.all([this.almost, this.time.sleep(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       // a defeated boss is congratulated first, then the usual recap
       .then(() => (r.boss && o.kind === 'hit' && o.final ? this.say('line-boss-win') : undefined))

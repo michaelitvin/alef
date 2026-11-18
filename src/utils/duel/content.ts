@@ -29,8 +29,8 @@ export interface TowerContent {
   twinParts(r: Round, c: Choice): string[]
   runeOf(r: Round, i: number): TowerRune
   /**
-   * an answer was given (right, or a miss or a timeout; never a מגה kill, never in the gallery): the voice ids said after
-   * its feedback (English: a new unit's introduction). Hebrew: unset, nothing more is said.
+   * an answer was given (right, or a miss or a timeout; never a מגה kill, never in the gallery; in a boss fight only the hit
+   * that beats the boss): the voice ids said after its feedback (English: a new unit's introduction). Hebrew: unset.
    */
   answered?(r: Round, right: boolean): string[]
 }

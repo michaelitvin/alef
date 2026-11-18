@@ -20,14 +20,18 @@ import { SOUND_KEYS, UNITS, unit } from '../content/units'
 import { WORDS, word } from '../content/words'
 import { PLACEMENT_ROUNDS } from '../content/placementRounds'
 import { wordPicture } from '../assets/images'
-import { EN_TOWER_OWN_LINES, englishTower, enTowerRound, type EnTowerDeps, type PictureOf } from './tower'
+import { EN_TOWER_OWN_LINES, choosePlacementRound, englishTower, enTowerRound, placementTower, type EnTowerDeps, type PictureOf } from './tower'
 
 const FULL: FeedbackPlan = { say: 'full', banner: true, waitMs: 0, tailMs: 0 }
 const SHORT: FeedbackPlan = { say: 'sound', banner: true, waitMs: 0, tailMs: 0 }
 
 const at = (stage: number, over: Parameters<typeof memoryEnglishSavePort>[0] = {}) =>
   memoryEnglishSavePort({ stage: { stage, newAnswers: '' }, ...over })
-const deps = (save: EnglishSavePort, picture: PictureOf = wordPicture): EnTowerDeps => ({ save: () => save, picture })
+/** (no sound clip by default: a unit with a picture is asked by its picture) */
+const deps = (save: EnglishSavePort, picture: PictureOf = wordPicture, voice: (id: string) => boolean = () => false): EnTowerDeps =>
+  ({ save: () => save, picture, voice })
+/** every picture has a file */
+const allPictures: PictureOf = (k) => `${k}.webp`
 const opts = (o: Partial<MakeRoundOpts> = {}): MakeRoundOpts => ({ id: 1, wave: 1, kills: 1, boss: false, rng: seeded(3), lifetime: {}, ...o })
 /** only fox has a picture file */
 const onlyFox: PictureOf = (k) => (k === 'fox' ? 'fox.webp' : undefined)
@@ -132,9 +136,9 @@ describe('the English tower\'s rounds', () => {
   })
 
   it('from stage 7 a picture carries three word runes (line-how-word)', () => {
-    const t = englishTower(deps(at(7)))
-    const r = enTowerRound(deps(at(7)), opts(), { kind: 'word', word: 'cats' })
-    expect(r).toMatchObject({ type: 'A', picture: wordPicture('cats') })
+    const t = englishTower(deps(at(7), allPictures))
+    const r = enTowerRound(deps(at(7), allPictures), opts(), { kind: 'word', word: 'cats' })
+    expect(r).toMatchObject({ type: 'A', picture: 'cats.webp' })
     expect(texts(r)).toHaveLength(3)
     expect(texts(r)).toContain('cats')
     expect(t.howLine(r)).toMatchObject({ id: 'line-how-word', key: 'word' })
@@ -142,6 +146,36 @@ describe('the English tower\'s rounds', () => {
     expect(t.questionParts(r)).toEqual([])
     expect(t.feedbackParts(r, FULL)).toEqual(['w-cats'])
     expect(rounds(5, [1, 2, 3]).every((x) => x.type !== 'A' || UNITS.some((u) => u.id === x.target.id))).toBe(true)
+  })
+
+  it('a picture with no file: a name round instead, and no picture-word round is made', () => {
+    const none = deps(at(7), () => undefined)
+    const r = enTowerRound(none, opts(), { kind: 'word', word: 'cats' })
+    expect(r.type).toBe('C')
+    expect(r.picture).toBeUndefined()
+    expect(word(r.target.id).kind).toBe('nonsense')
+    const t = englishTower(none)
+    const rng = seeded(8)
+    const made = Array.from({ length: 300 }, (_, i) => t.makeRound(opts({ id: i, rng })))
+    expect(made.filter((x) => x.type === 'A')).toEqual([])
+  })
+
+  it('a unit with a picture and its sound clip is asked by its sound about half of the time', () => {
+    const d = deps(at(3), onlyFox, () => true)
+    const rng = seeded(6)
+    const kinds = Array.from({ length: 400 }, (_, i) => enTowerRound(d, opts({ id: i, rng }), { kind: 'letter', unit: 'x' }).type)
+    const bySound = kinds.filter((k) => k === 'B').length / kinds.length
+    expect(bySound).toBeGreaterThan(0.35)
+    expect(bySound).toBeLessThan(0.65)
+    // with no sound clip, always by the picture
+    expect(enTowerRound(deps(at(3), onlyFox), opts(), { kind: 'letter', unit: 'x' }).type).toBe('A')
+  })
+
+  it('the runes carry words more often at later stages', () => {
+    const share = (stage: number) => rounds(stage, [1, 2, 3, 4], 600).filter((r) => !UNITS.some((u) => u.id === r.target.id)).length / 600
+    expect(share(1)).toBe(0)
+    expect(share(2)).toBeGreaterThan(0.1)
+    expect(share(8)).toBeGreaterThan(share(2) + 0.2)
   })
 
   it('bosses carry a unit of his stage, or a word when his stage has none', () => {
@@ -359,5 +393,95 @@ describe('the English course', () => {
     expect(ENGLISH.tower.audio).toBe(englishDuelAudio)
     const r = ENGLISH.tower.content.makeRound(opts())
     expect(r.runeTexts!.every((x) => x.alphabet === 'latin')).toBe(true)
+  })
+})
+
+describe('the tower\'s answers count as any screen\'s', () => {
+  const placed = (stage: number) => memoryEnglishSavePort({
+    stage: { stage, newAnswers: '' },
+    placement: { state: null, requested: false, done: { level: stage, answers: 10, at: 1 }, runs: 1 },
+  })
+  async function towerRun(save: EnglishSavePort) {
+    const { RunController } = await import('../../duel2/controller')
+    const run = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(11) })
+    run.start()
+    for (let i = 0; i < 200 && run.view.screen?.screen !== 'tower'; i++) await null
+    return run
+  }
+
+  it('an English tower answer on a new-stage unit counts toward the pass', async () => {
+    const save = placed(3)
+    const run = await towerRun(save)
+    expect(run.view.screen?.screen).toBe('tower')
+    for (let i = 0; i < 5; i++) run.towerAnswer('right', 'v')
+    expect(save.read().tallies.v).toMatchObject({ seen: 5, wrong: 0 })
+    expect(save.read().tallies['sc:tower']).toMatchObject({ seen: 5 })
+    // five right first answers on his stage's new items pass stage 3
+    expect(save.read().stage.stage).toBe(4)
+    // an old unit counts for its tallies, not for the pass
+    run.towerAnswer('wrong', 'm')
+    expect(save.read().tallies.m).toMatchObject({ seen: 1, wrong: 1 })
+    expect(save.read().stage).toEqual({ stage: 4, newAnswers: '' })
+    run.destroy()
+  })
+
+  it('a tower word round at stage 5 counts its units', async () => {
+    const save = placed(5)
+    const run = await towerRun(save)
+    run.towerAnswer('wrong', 'clim')
+    for (const f of ['c', 'l', 'i', 'm', 'cl-']) expect(save.read().tallies[f]).toMatchObject({ seen: 1, wrong: 1 })
+    expect(save.read().stage.newAnswers).toBe('x')
+    run.destroy()
+  })
+
+  it('the Hebrew tower\'s answers stay the first duel\'s', async () => {
+    const { HEBREW } = await import('../../duel2/course/hebrew')
+    expect(HEBREW.tower.facts).toBeUndefined()
+  })
+})
+
+describe('the placement and the boss', () => {
+  it('a placement picture round needs its picture file: with none, its name round', () => {
+    const r = choosePlacementRound(1, 'picture', () => 0, seeded(1), () => undefined)
+    expect(r.kind).toBe('name')
+    const t = placementTower(at(1), [1, 2, 3, 4, 5, 6, 7, 8, 9], () => undefined)
+    const rng = seeded(2)
+    for (let i = 0; i < 40; i++) expect(t.makeRound(opts({ id: i, rng })).type).toBe('C')
+    // with its file, the picture round shows it
+    const dog = choosePlacementRound(2, 'picture', () => 0, seeded(1), (k) => (k === 'dog' ? 'dog.webp' : undefined))
+    expect(dog.target).toBe('dog')
+  })
+
+  it('a boss fight is heard once, at the hit that beats the boss', async () => {
+    const save = at(3)
+    const d = deps(save)
+    const inner = englishTower(d)
+    const heard: string[] = []
+    const content = { ...inner, answered: (r: Round, right: boolean) => { heard.push(r.target.id); return inner.answered!(r, right) } }
+    const audio: DuelAudio = {
+      playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
+      lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
+    }
+    const done: number[] = []
+    let hits = 0
+    const c = new DuelController({
+      embedded: { wave: 5, waves: 1, boss: true, seen: ['tower-intro'], onSeen: () => {}, onAnswer: () => { hits++; return 'on' }, onDone: (w) => { done.push(w) } },
+      telemetry: { track: () => {}, flush: () => {} },
+      content, tallies: save.towerTallies(), audio, sleeper: instantSleeper(), rng: seeded(4),
+    })
+    let last = -1
+    const stop = c.subscribe(() => {
+      const s = c.getView().state
+      const r = s.round
+      if (!r || s.outcome || s.preview || s.paused || r.id === last) return
+      last = r.id
+      queueMicrotask(() => c.choose({ kind: 'rune', mark: r.target }))
+    })
+    c.start()
+    await settle(() => done.length > 0)
+    stop()
+    c.destroy()
+    expect(hits).toBeGreaterThan(1)
+    expect(heard).toHaveLength(1)
   })
 })

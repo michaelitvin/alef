@@ -811,6 +811,15 @@ export class RunController {
     if (this.tower?.placement) return this.placementAnswer(r, markId)
     this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
     this.save.noteTowerAnswer(r === 'right')
+    // a course whose tower answers count as its other screens' (English): its tallies and the stage pass
+    const facts = this.course.tower.facts?.(markId, this.stage)
+    if (facts) {
+      const { passed } = this.save.recordAnswer({ features: facts.features, miss: r !== 'right', newStage: facts.newStage })
+      if (passed) {
+        this.stage = this.save.read().stage.stage
+        this.track('stage', { stage: this.stage })
+      }
+    }
     if (r === 'right') {
       this.streak++
       this.gainStar()
