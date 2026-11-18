@@ -3,7 +3,7 @@ import { CHAINS } from './chains.ts'
 import { PHRASES } from './phrases.ts'
 import { PLACEMENT_ROUNDS, type PlacementText } from './placementRounds.ts'
 import { GHOST_WORD_SETS, LOOKALIKE_LETTERS } from './sets.ts'
-import { unit } from './units.ts'
+import { BLENDS, unit } from './units.ts'
 import { WORDS, word, type EnWord } from './words.ts'
 
 const BLOCKLIST = ['bod', 'taip', 'grane', 'birp', 'kog', 'clom', 'jome']
@@ -308,6 +308,19 @@ describe('placement rounds', () => {
     // P★ is the target and Pd a wrong choice of a picture round, as in the plan's 1.4 notes
     const wrong = pictureRounds.flatMap((r) => r.others).filter((o): o is string => typeof o === 'string')
     expect([...new Set(wrong)].sort()).toEqual(WORDS.filter((w) => w.uses.includes('Pd')).map((w) => w.text).sort())
+  })
+
+  it("each round's tested unit is of its stage and in its word (a stage-5 round tests one of its word's blends)", () => {
+    for (const r of PLACEMENT_ROUNDS) {
+      const w = word(r.target)
+      if (r.stage === 5) {
+        expect(BLENDS.map((b) => b.id), r.target).toContain(r.stageUnit)
+        expect(w.blends ?? [], r.target).toContain(r.stageUnit)
+      } else {
+        expect(unit(r.stageUnit).stage, r.target).toBe(r.stage)
+        expect(w.units, r.target).toContain(r.stageUnit)
+      }
+    }
   })
 
   it("placement words differ only in a unit of the round's stage, and use no unit above it", () => {

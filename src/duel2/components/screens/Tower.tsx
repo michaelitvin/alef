@@ -49,10 +49,12 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
   // one of each per mount (the controller is made once)
   const [tallies] = useState(() => tower?.tallies())
   const [save] = useState(() => (course ? course.save() : storeSavePort))
-  // the course's placement check plays its own rounds (Hebrew has none: its stage 0 plays the tower's)
-  const [content] = useState(() => (!dry && view.placement && course?.placement ? course.placement.tower(save) : tower?.content))
+  // the course's placement check plays its own rounds at a fixed walk, with no מגה spell (Hebrew has none: its stage 0
+  // plays the tower's)
+  const [placing] = useState(() => (!dry && view.placement && course?.placement ? course.placement : null))
+  const [content] = useState(() => (placing ? placing.tower(save) : tower?.content))
   const game = useDuelGame({
-    content, tallies, audio: tower?.audio,
+    content, tallies, audio: tower?.audio, walkOverride: placing?.walkMs,
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: save.read().demosSeen,
       onSeen: (key) => { if (!dry) save.markDemo(key) },
@@ -60,7 +62,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       onIntroduced: (id) => { if (!dry) save.monsterIntroduced(id) },
       onAnswer, onDone, dry,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
-      mega: view.mega, onMega, onCharge,
+      mega: view.mega, onMega, onCharge, megaOff: !!placing,
     },
     // the duel's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Book 2's)
     telemetry: dry ? NO_TELEMETRY : course?.telemetry ?? duel2Telemetry,
@@ -94,7 +96,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
           resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
-          {state.mega >= MEGA_MAX && game.lightning && state.round && !state.paused && !paused && (
+          {!placing && state.mega >= MEGA_MAX && game.lightning && state.round && !state.paused && !paused && (
             <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0, rotate: -120 }}
               animate={{ scale: [0, 1.9, 0.9, 1.15, 1], rotate: [-120, 20, -10, 0, 0] }}
               transition={{ duration: 0.9, ease: 'easeOut' }} onClick={game.megaCast} aria-label="mega">

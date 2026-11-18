@@ -13,14 +13,14 @@ import { heartVoice, nonsenseVoice, wordVoice } from '../content/voiceIds'
 import { word } from '../content/words'
 import type { EnglishSave, PlacementSave } from '../saveFormat'
 import type { Tally } from '../../shared/adaptive'
-import { askOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
+import { askOf, creditOf, seedAfterPlacement, startPlacement, stepPlacement, type PlacementState } from './placement'
 
 type PlacementRound = (typeof PLACEMENT_ROUNDS)[number]
 type Kind = 'picture' | 'name'
 
 /** what the placement reads and writes of the English save (EnglishSavePort's part) */
 export interface PlacementPort {
-  read(): Readonly<Pick<EnglishSave, 'placement'>>
+  read(): Readonly<Pick<EnglishSave, 'placement' | 'tallies'>>
   setPlacement(p: PlacementSave): void
   setStage(stage: number): void
   seedTallies(t: Record<string, Tally>): void
@@ -35,6 +35,13 @@ const current = (p: PlacementSave, ready: number[]): PlacementState => p.state ?
 
 /** the rune count of the placement (spec Part 4: three word runes) */
 const RUNES = 3
+
+/**
+ * Every placement round's walk (the duel's walkOverride: the tower's pace never adapts during the check): the first
+ * wave's walk. The placement measures his reading, not his speed (my call); a monster that reaches the tower is a miss,
+ * which costs nothing here.
+ */
+export const PLACEMENT_WALK_MS = walkMs(1, false)
 
 const voiceOf = (id: string): string => {
   const w = word(id)
@@ -87,8 +94,8 @@ function placementRound(o: MakeRoundOpts, pr: PlacementRound): Round {
     // right after "a new monster!" comes that monster
     monster: (o.kills === 0 && newMonsterAt(o.wave)) || unlocked[Math.floor(o.rng() * unlocked.length) % unlocked.length],
     boss: false,
-    // the first wave's walk at every wave: the placement measures his reading, not his speed (my call)
-    walkMs: walkMs(1, false),
+    // (the duel's walkOverride sets every round's walk: PLACEMENT_WALK_MS)
+    walkMs: PLACEMENT_WALK_MS,
   }
 }
 
@@ -113,13 +120,31 @@ export function placementTower(save: PlacementPort, ready: number[]): TowerConte
 }
 
 /**
- * One answer of the placement: walked and saved at once. When the walk has found his level: he is placed at it, the
+ * The credit of one answer to his unit tallies (design Part 4, credit per sound unit): a right word, one right answer
+ * for each of its units and blend skills; a miss, one wrong answer for the unit the round tests. Merged as the seed is
+ * (seedTallies never lowers a count), so a re-run the parent asks for adds to what he has.
+ */
+function credit(save: PlacementPort, target: string, right: boolean) {
+  const r = PLACEMENT_ROUNDS.find((x) => x.target === target)
+  if (!r) return
+  const now = save.read().tallies
+  const add: Record<string, Tally> = {}
+  for (const c of creditOf(word(target), r.stageUnit, right)) {
+    const t = now[c.unit] ?? {}
+    add[c.unit] = { seen: (t.seen ?? 0) + 1, wrong: (t.wrong ?? 0) + (c.right ? 0 : 1) }
+  }
+  save.seedTallies(add)
+}
+
+/**
+ * One answer of the placement: credited, walked and saved at once. When the walk has found his level: he is placed at it, the
  * units below it are seeded as known, every station open at it opens (spec Part 1), and the placement is done.
  * `stage`: the stage this answer was asked at (the next ask of the saved walk, never `state.stage`).
  */
 export function placementAnswer(
-  save: PlacementPort, right: boolean, at: number, ready: number[], stations: (stage: number) => ScreenId[],
+  save: PlacementPort, right: boolean, target: string, at: number, ready: number[], stations: (stage: number) => ScreenId[],
 ): { stage: number; done: { level: number; answers: number } | null } {
+  credit(save, target, right)
   const p = save.read().placement
   const cur = current(p, ready)
   const stage = askOf(cur).stage

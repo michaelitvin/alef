@@ -835,7 +835,7 @@ export class RunController {
    * goes on at his stage, and 'over' ends the visit after this answer's feedback (the cycle goes on).
    */
   private placementAnswer(r: 'right' | 'wrong', markId: string): 'on' | 'over' {
-    const { stage, done } = this.course.placement!.answer(this.save, r === 'right', Date.now())
+    const { stage, done } = this.course.placement!.answer(this.save, r === 'right', markId, Date.now())
     this.track('placement-answer', { stage, target: markId, result: r, clock: Date.now() })
     if (r === 'right') {
       this.streak++
@@ -861,7 +861,8 @@ export class RunController {
 
   /** the duel's מגה charge changed: kept for the run's next tower visit */
   towerCharge(mega: number) {
-    if (this.view.screen?.screen === 'tower') this.towerMegaCharge = mega
+    // (a placement check has no מגה spell: its charge is not kept)
+    if (this.view.screen?.screen === 'tower' && !this.tower?.placement) this.towerMegaCharge = mega
   }
 
   /** The tower's visit is over (its waves, its boss, or the hearts ran out and the last answer finished). */

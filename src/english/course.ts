@@ -8,7 +8,7 @@ import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
 import { englishAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
-import { placementAnswer, placementDue, placementTower } from './logic/tower'
+import { PLACEMENT_WALK_MS, placementAnswer, placementDue, placementTower } from './logic/tower'
 import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
@@ -44,7 +44,8 @@ export const ENGLISH: Course = {
     // (only reads: also on the gallery's read-only save)
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },
     tower: (save) => placementTower(en(save), READY_STAGES),
-    answer: (save, right, at) => placementAnswer(en(save), right, at, READY_STAGES, enScreensOfStage),
+    walkMs: PLACEMENT_WALK_MS,
+    answer: (save, right, target, at) => placementAnswer(en(save), right, target, at, READY_STAGES, enScreensOfStage),
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {

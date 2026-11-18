@@ -103,9 +103,11 @@ export interface CoursePlacement {
   due(save: SavePort): boolean
   /** the placement's rounds over this save (they ask what its walk asks next) */
   tower(save: SavePort): TowerContent
+  /** every round's walk time (the duel's walkOverride): the pace never adapts during the check */
+  walkMs: number
   /**
-   * one answer, walked and saved at once; `stage`: the stage it asked; `done`: he is placed (his stage, his seeded tallies
-   * and the open stations are saved then)
+   * one answer on the round of `target`, walked, credited and saved at once; `stage`: the stage it asked; `done`: he is
+   * placed (his stage, his seeded tallies and the open stations are saved then)
    */
-  answer(save: SavePort, right: boolean, at: number): { stage: number; done: { level: number; answers: number } | null }
+  answer(save: SavePort, right: boolean, target: string, at: number): { stage: number; done: { level: number; answers: number } | null }
 }

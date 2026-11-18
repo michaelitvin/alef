@@ -46,6 +46,8 @@ export interface DuelEmbedded {
    * heart); the run tracks it on its own
    */
   onMega?: (markId: string) => void
+  /** no מגה spell in this visit (a placement check has no help): never announced, a lightning tap does nothing */
+  megaOff?: boolean
   /** the מגה charge at the visit's start (the run keeps it from its last visit) */
   mega?: number
   /** the מגה charge changed: the run keeps it for its next visit */
@@ -551,7 +553,7 @@ export class DuelController {
     // (in Book 2's run a מגה kill leaves the streak as it was: no second celebration of it)
     const comboLine = o.kind === 'hit' && !megaInRun && state.combo > 0 && state.combo % 5 === 0
     if (comboLine) this.track('combo', { round: r.id, combo: state.combo })
-    const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !this.megaAnnounced
+    const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !this.megaAnnounced && !emb.megaOff
     if (megaLine) this.megaAnnounced = true
 
     const speech = Promise.all([this.almost, this.time.sleep(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
@@ -657,7 +659,7 @@ export class DuelController {
       const s = this.state
       const r = s.round
       // (Book 2's run: not after its hearts ran out or its visit ended)
-      if (s.paused || s.mega < MEGA_MAX || this.over || this.done) return
+      if (s.paused || s.mega < MEGA_MAX || this.over || this.done || this.emb.megaOff) return
       this.track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
       if (!r || s.outcome || s.preview) {
         this.megaQueued = true // he did what the wizard said; it fires when the next monster appears

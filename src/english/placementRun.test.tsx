@@ -13,7 +13,10 @@ import { memoryEnglishSavePort, type EnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
 import { PLACEMENT_ROUNDS } from './content/placementRounds'
 import { askOf } from './logic/placement'
-import { choosePlacementRound, placementTower } from './logic/tower'
+import { PLACEMENT_WALK_MS, choosePlacementRound, placementTower } from './logic/tower'
+import { word } from './content/words'
+import { unitsOfStage } from './content/units'
+import { MEGA_MAX } from '../utils/duel/rules'
 import { enScreensOfStage } from './logic/stages'
 import { readLog } from '../shared/telemetry'
 
@@ -46,9 +49,11 @@ function sync(run: RunController) {
     const save = b.save
     const duel: DuelController = new DuelController({
       content: ENGLISH.placement!.tower(save), tallies: save.towerTallies(), audio: duelAudio, rng: seeded(5),
+      walkOverride: ENGLISH.placement!.walkMs,
       embedded: () => ({
         wave: s.wave, waves: s.waves, boss: s.boss, seen: save.read().demosSeen, onSeen: (k) => save.markDemo(k), owed: [],
-        onAnswer: (r, id) => run.towerAnswer(r, id), placement: true, onWaveEnd: (w) => run.towerWaveEnd(w),
+        onAnswer: (r, id) => run.towerAnswer(r, id), placement: true, onWaveEnd: (w) => run.towerWaveEnd(w), megaOff: true,
+        onCharge: (m) => run.towerCharge(m),
         // the visit is over; once he is placed the run would go on at the broom, whose English rounds come later
         onDone: (w) => { b.ended = true; if (!save.read().placement.done) run.towerDone(w) },
       }),
@@ -103,10 +108,22 @@ async function towerAnswer(run: RunController, a: 'right' | 'wrong') {
   await until(() => board(run).ended || (asking(run) && towerRound(run).id !== r.id))
 }
 
-async function placementWith(save: EnglishSavePort, child: 'always-right' | 'always-wrong') {
+type Child = 'always-right' | 'always-wrong' | ((stage: number, target: string) => boolean)
+
+/** plays the whole placement; returns the run and his answers (the round's target, right or not) */
+async function placementWith(save: EnglishSavePort, child: Child) {
   const run = await inPlacement(save)
-  for (let i = 0; i < 40 && !board(run).ended; i++) await towerAnswer(run, child === 'always-right' ? 'right' : 'wrong')
-  return run
+  const answers: { target: string; right: boolean }[] = []
+  for (let i = 0; i < 40 && !board(run).ended; i++) {
+    await until(() => asking(run) || board(run).ended)
+    if (board(run).ended) break
+    const target = towerRound(run).target.id
+    const stage = PLACEMENT_ROUNDS.find((r) => r.target === target)!.stage
+    const right = child === 'always-right' || (child !== 'always-wrong' && child(stage, target))
+    answers.push({ target, right })
+    await towerAnswer(run, right ? 'right' : 'wrong')
+  }
+  return Object.assign(run, { answers })
 }
 
 beforeEach(() => { vi.useFakeTimers(); said.length = 0; localStorage.clear(); ENGLISH.telemetry.clear() })
@@ -189,6 +206,74 @@ describe('the placement in the run', () => {
     save.setPlacement({ ...save.read().placement, requested: true })
     const run = startEnglishRun(save); await until(() => run.view.screen?.screen === 'tower')
     expect(run.view.screen).toMatchObject({ placement: true })
+  })
+})
+
+describe('the placement check, its credit, walk and spell', () => {
+  it('a unit he read right at his level\'s stage is known after it; the unit he missed is not; one never asked is new', async () => {
+    // reads stages 1-6; at stage 7 he misses, reads one, misses (level 7); stage 8 and up he misses
+    let at7 = 0
+    const save = memoryEnglishSavePort()
+    const run = await placementWith(save, (stage) => (stage <= 6 ? true : stage === 7 ? at7++ % 2 === 1 : false))
+    expect(save.read().placement.done).toMatchObject({ level: 7 })
+    const tallies = save.read().tallies
+    const rounds = run.answers.map((a) => ({ ...a, round: PLACEMENT_ROUNDS.find((r) => r.target === a.target)! }))
+    const readAt7 = rounds.find((a) => a.round.stage === 7 && a.right)!
+    const missedAt7 = rounds.filter((a) => a.round.stage === 7 && !a.right)
+    const missedUnits = new Set(missedAt7.map((a) => a.round.stageUnit))
+    for (const u of word(readAt7.target).units) {
+      if (missedUnits.has(u)) continue
+      expect(tallies[u], u).toMatchObject({ wrong: 0 }); expect(tallies[u]!.seen, u).toBeGreaterThan(0)
+    }
+    for (const u of missedUnits) expect(tallies[u]!.wrong, u).toBeGreaterThan(0)
+    // a stage-7 ending in none of his words was never asked: it is still new
+    const asked = new Set(rounds.flatMap((a) => word(a.target).units))
+    const fresh = unitsOfStage(7).filter((u) => !asked.has(u.id))
+    expect(fresh.length).toBeGreaterThan(0)
+    for (const u of fresh) expect(tallies[u.id], u.id).toBeUndefined()
+  })
+
+  it('a re-run adds to his tallies: nothing is wiped', async () => {
+    const save = memoryEnglishSavePort(); await placementWith(save, 'always-right')
+    const before = save.read().tallies
+    save.setPlacement({ ...save.read().placement, requested: true })
+    await placementWith(save, 'always-right')
+    for (const [k, t] of Object.entries(before)) expect(save.read().tallies[k]!.seen!, k).toBeGreaterThanOrEqual(t.seen!)
+  })
+
+  it('every round walks the same time: monsters that reach the tower do not slow it', async () => {
+    const run = await inPlacement()
+    for (let i = 0; i < 3; i++) {
+      const r = towerRound(run)
+      expect(r.walkMs).toBe(PLACEMENT_WALK_MS)
+      // no tap: the monster reaches the tower (a miss)
+      await until(() => board(run).ended || (asking(run) && towerRound(run).id !== r.id))
+    }
+    expect(towerRound(run).walkMs).toBe(PLACEMENT_WALK_MS)
+    expect(run.view.hearts).toBe(3)
+  })
+
+  it('the spell is never offered: no line, and a tap on it does nothing', async () => {
+    const save = memoryEnglishSavePort()
+    const run = await inPlacement(save)
+    // he misses the first ask of each stage and reads the rest: a long walk, with enough hits to charge the spell
+    const seen = new Set<number>()
+    let hits = 0
+    while (hits < MEGA_MAX) {
+      const stage = PLACEMENT_ROUNDS.find((r) => r.target === towerRound(run).target.id)!.stage
+      const right = seen.has(stage)
+      seen.add(stage)
+      await towerAnswer(run, right ? 'right' : 'wrong')
+      if (right) hits++
+    }
+    expect(board(run).ended).toBe(false)
+    expect(board(run).duel!.getView().state.mega).toBe(MEGA_MAX)
+    expect(said).not.toContain('line-mega')
+    const asked = save.read().placement.state!.asked
+    board(run).duel!.megaCast()
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(board(run).duel!.getView().state.outcome).toBeNull()
+    expect(save.read().placement.state!.asked).toBe(asked)
   })
 })
 
