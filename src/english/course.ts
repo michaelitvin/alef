@@ -15,7 +15,7 @@ import { enBroomTarget, enBroomWave } from './logic/rounds/broom'
 import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
-import { enGhostExplanation, enGhostRound } from './logic/rounds/ghosts'
+import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -47,7 +47,9 @@ const EN_ROUNDS: CourseRounds = {
   introAfter: (save, c, right) => ('setIntro' in save ? introAfter(en(save), itemOfChoice(c), right).map((id) => (enLine(id) ? { line: id } : { id })) : []),
   dotIntroFor: () => null,
   cauldronRound: (ctx, avoid) => enCauldronRound(ctx, avoid, { picture: wordPicture, voice: hasVoice }),
-  ghostRound: (ctx, kind, avoid) => enGhostRound(ctx, kind, avoid, hasVoice),
+  ghostRound: (ctx, kind, avoid, prevSigns) => enGhostRound(ctx, kind, avoid, prevSigns, hasVoice),
+  // letters or words on a ghosts visit, by the stage (the other screens: the run's own choice)
+  visitKind: enGhostVisitKind,
   // the look-alike letters' explanation ("This is the letter: b.", then its sound)
   explanation: enGhostExplanation,
   // (the gallery's forced part is Hebrew's: the English ladder has none)

@@ -120,10 +120,19 @@ describe('the English ghosts in the run', () => {
     }
   })
 
-  it('an introduction follows a new unit', async () => {
-    const save = englishSave(2)
-    await session(save, () => 'right', 3)
-    expect(Object.keys(save.read().introSeen).length).toBeGreaterThan(0)
+  it('an introduction plays on the ghosts, after the sound or word he heard', async () => {
+    // (all right, a new unit is known and its introduction skipped; with mistakes it plays)
+    let played = 0
+    for (let seed = 1; seed <= 6; seed++) {
+      const save = englishSave(2)
+      const log = await session(save, alternate(2), seed)
+      expect(Object.keys(save.read().introSeen).length).toBeGreaterThan(0)
+      const i = log.voice.findIndex((id) => /^intro-/.test(id))
+      if (i < 0) continue
+      played++
+      expect(log.voice[i - 1]).toMatch(/^(snd|w|hw)-/)
+    }
+    expect(played).toBeGreaterThan(0)
   })
 
   it('a fresh save says the ghosts\' demo line, by sound or by word', async () => {

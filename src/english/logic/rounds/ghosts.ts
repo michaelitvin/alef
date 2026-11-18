@@ -1,9 +1,10 @@
 // The English ghosts (design Part 5, "look-alikes"): three ghosts hold signs; he hears a sound (or a word) and picks its
 // ghost. A visit keeps one look-alike set: a set of asset plan 1.13 (`b d p`, `n u` at stage 2, `m w`, `h n` at stage 3;
 // opened when all its letters are), or one of his own mix-ups (an item and what he tapped for it CONFUSION_GROUP_MIN
-// times). The run's `kind` says letters or words: the word visits take the look-alike words (`top · pot`, `was · saw`).
-// A set of two gets a third ghost of another sound. Never `I` against `l`. The run keeps a visit's set through `avoid`
-// (the sound of the target before): the next round asks another member of the set that has it.
+// times). A visit is of letters or of words by the stage (`enGhostVisitKind`): the word visits take the look-alike words
+// (`top · pot`, `was · saw`), few at stage 2 and most from stage 5. A set of two gets a third ghost of another sound, and
+// its target may come twice (else the answer would be "the other one"). Never `I` against `l`. The run keeps a visit's
+// set by the signs of the round before (`prevSigns`), else by `avoid` (the sound of the target before).
 import { pickTarget } from '../../../duel2/logic/predict'
 import { CONFUSION_GROUP_MIN, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
 import type { ScreenId } from '../../../duel2/logic/predict'
@@ -20,6 +21,17 @@ import { fits, wordChoice, type HasVoice } from './broom'
 const GHOSTS = 3
 /** when a visit starts and he has mix-ups of his own: the share of visits that take one of them (my call) */
 const OWN_SHARE = 0.5
+/**
+ * The share of word visits by stage (my call, as the broom's WORD_SHARE_BY_STAGE): the spec puts the look-alike words in
+ * the later stages, and the letter sets are all open from stage 3, so from stage 5 most visits are words.
+ */
+export const GHOST_WORD_SHARE_BY_STAGE: Record<number, number> = { 1: 0, 2: 0.15, 3: 0.25, 4: 0.4, 5: 0.65, 6: 0.65, 7: 0.65, 8: 0.65, 9: 0.65 }
+
+/** The kind of a ghosts visit (letters or words) by the stage's word share; other screens: unset (the run decides). */
+export function enGhostVisitKind(screen: ScreenId, stage: number, rng: () => number): Kind | undefined {
+  if (screen !== 'ghosts') return undefined
+  return rng() < (GHOST_WORD_SHARE_BY_STAGE[stage] ?? 0) ? 'syllable' : 'letter'
+}
 
 const isLetters = (kind: Kind) => kind === 'letter'
 const UNIT_IDS = new Set(UNITS.map((u) => u.id))
@@ -52,6 +64,7 @@ function together(kind: Kind, ids: string[]): string[] {
 function ownSets(ctx: RoundCtx, kind: Kind): string[][] {
   const out: string[][] = []
   const keys = new Set<string>()
+  const table = ghostSets(ctx.stage, kind)
   for (const [asked, row] of Object.entries(ctx.confusions.letters)) {
     if (!opened(kind, asked, ctx.stage)) continue
     const partners = Object.entries(row)
@@ -59,7 +72,9 @@ function ownSets(ctx: RoundCtx, kind: Kind): string[][] {
       .sort((a, b) => b[1] - a[1]).map(([id]) => id)
     const set = together(kind, [asked, ...partners])
     const key = [...set].sort().join()
-    if (set.length >= 2 && !keys.has(key)) { keys.add(key); out.push(set) }
+    // a mix-up inside a set of the table is that set already
+    const inTable = table.some((t) => set.every((id) => t.includes(id)))
+    if (set.length >= 2 && !keys.has(key) && !inTable) { keys.add(key); out.push(set) }
   }
   return out
 }
@@ -74,10 +89,23 @@ function shuffle<T>(rng: () => number, xs: T[]): T[] {
 }
 const pick = <T,>(rng: () => number, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
 
-/** the visit's set: the one that has the target before (`avoid`), else a new one (his own on OWN_SHARE of the visits) */
-function setOf(ctx: RoundCtx, kind: Kind, avoid: string | undefined): string[] | null {
-  const table = ghostSets(ctx.stage, kind).map((s) => together(kind, s)).filter((s) => s.length >= 2)
-  const mine = ownSets(ctx, kind)
+/**
+ * The visit's set: the one the signs before showed (`prevSigns`; the largest, when sets overlap), else one that has the
+ * target before (`avoid`), else a new one (his own on OWN_SHARE of the visits).
+ */
+/** the sets a visit can take at this stage: the table's and his own */
+function setsOf(ctx: RoundCtx, kind: Kind): { table: string[][]; mine: string[][] } {
+  return { table: ghostSets(ctx.stage, kind).map((s) => together(kind, s)).filter((s) => s.length >= 2), mine: ownSets(ctx, kind) }
+}
+
+function setOf(ctx: RoundCtx, kind: Kind, avoid: string | undefined, prevSigns: string[] | undefined): string[] | null {
+  const { table, mine } = setsOf(ctx, kind)
+  if (prevSigns?.length) {
+    const shown = [...mine, ...table].filter((s) => s.every((id) => prevSigns.includes(id)))
+    const most = Math.max(0, ...shown.map((s) => s.length))
+    const kept = shown.filter((s) => s.length === most)
+    if (kept.length) return pick(ctx.rng, kept)
+  }
   const isAvoid = (id: string) => id === avoid || choiceOf(kind, id).soundId === avoid
   const going = avoid ? [...mine, ...table].filter((s) => s.some(isAvoid)) : []
   if (going.length) return pick(ctx.rng, going)
@@ -108,16 +136,23 @@ function others(ctx: RoundCtx, kind: Kind, target?: Choice): Choice[] {
 
 /**
  * One round of the ghosts: the visit's look-alike set (see the top of the file) on three ghosts, one of them asked; a set
- * of two gets a third ghost of another sound. `avoid`: the sound of the target before.
+ * of two gets a third ghost of another sound. `avoid`: the sound of the target before; `prevSigns`: the ids of the signs
+ * before (the visit's set).
  */
-export function enGhostRound(ctx: RoundCtx, kind: Kind, avoid?: string, voice: HasVoice = () => true): { target: Choice; signs: Choice[] } {
-  const set = setOf(ctx, kind, avoid)?.map((id) => choiceOf(kind, id))
+export function enGhostRound(ctx: RoundCtx, kind: Kind, avoid?: string, prevSigns?: string[], voice: HasVoice = () => true): { target: Choice; signs: Choice[] } {
+  const set = setOf(ctx, kind, avoid, prevSigns)?.map((id) => choiceOf(kind, id))
   // no set open (not on the path: the ghosts open with the first sets): any opened item
   const members = set ?? others(ctx, kind).slice(0, GHOSTS)
-  const fresh = members.filter((c) => c.id !== avoid && c.soundId !== avoid)
+  // a pair may ask the same twice: the third ghost is never asked, so "not the one before" would give the answer away
+  const fresh = members.length <= 2 ? members : members.filter((c) => c.id !== avoid && c.soundId !== avoid)
   const target = pickChoice(ctx, kind, voicedFirst(fresh.length ? fresh : members, voice))
   const signs = [target]
-  for (const c of [...shuffle(ctx.rng, members), ...others(ctx, kind, target)]) if (signs.length < GHOSTS && fits(signs, c)) signs.push(c)
+  for (const c of shuffle(ctx.rng, members)) if (signs.length < GHOSTS && fits(signs, c)) signs.push(c)
+  // a third ghost never makes another set with the signs (the next round could not tell which set the visit has)
+  const { table, mine } = setsOf(ctx, kind)
+  const other = [...table, ...mine].filter((x) => !set || x.some((id) => !set.some((c) => c.id === id)))
+  const makesSet = (c: Choice) => other.some((x) => x.includes(c.id) && x.every((id) => id === c.id || signs.some((g) => g.id === id)))
+  for (const c of others(ctx, kind, target)) if (signs.length < GHOSTS && fits(signs, c) && !makesSet(c)) signs.push(c)
   return { target, signs: shuffle(ctx.rng, signs) }
 }
 

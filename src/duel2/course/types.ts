@@ -50,8 +50,13 @@ export interface CourseRounds {
   introAfter?: (save: SavePort, c: Choice, right: boolean) => ({ line: string } | { id: string })[]
   /** the cauldron's round (`avoid`: the sound heard the round before) */
   cauldronRound: (ctx: RoundCtx, avoid?: string) => CauldronRound
-  /** the ghosts' round: the target and the signs of the ghosts (`avoid`: the sound heard the round before) */
-  ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string) => { target: Choice; signs: Choice[] }
+  /**
+   * the ghosts' round: the target and the signs of the ghosts (`avoid`: the sound heard the round before; `prevSigns`: the
+   * ids of the signs the round before, so a visit keeps its set; Hebrew ignores it)
+   */
+  ghostRound: (ctx: RoundCtx, kind: Kind, avoid?: string, prevSigns?: string[]) => { target: Choice; signs: Choice[] }
+  /** the kind of a visit (letters or syllables/words) on `screen`; unset, or undefined for a screen: the run's own draw */
+  visitKind?: (screen: ScreenId, stage: number, rng: () => number) => Kind | undefined
   /**
    * the explanation after a mistake on `c` on `screen` (the English look-alike letters): its parts, lines (the run picks a
    * take) and voice ids, each with what it lights, and the feature his recent mistakes on it are counted by; null: none.

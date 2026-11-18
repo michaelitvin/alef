@@ -524,6 +524,9 @@ export class RunController {
   }
   private kindFor(screen: ScreenId): Kind {
     if (this.opts.force?.kind) return this.opts.force.kind
+    // the course's own choice (English ghosts: by the stage's word share)
+    const own = this.course.rounds.visitKind?.(screen, this.stage, this.rng)
+    if (own) return own
     if (this.stage === 1) return 'letter'
     if (screen === 'ghosts') return this.rng() < 0.35 ? 'letter' : 'syllable'
     if (screen === 'broom') return this.rng() < 0.2 ? 'letter' : 'syllable'
@@ -1018,7 +1021,8 @@ export class RunController {
       return step.target
     }
     if (screen === 'ghosts') {
-      const r = this.course.rounds.ghostRound(c, kind, prev)
+      const before = this.view.screen?.screen === 'ghosts' ? this.view.screen.signs.map((x) => x.id) : undefined
+      const r = this.course.rounds.ghostRound(c, kind, prev, before)
       this.set({ screen: { screen: 'ghosts', signs: r.signs, target: r.target } })
       return r.target
     }

@@ -8,7 +8,7 @@ import { GHOST_WORD_SETS, LOOKALIKE_LETTERS } from '../../content/sets'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'
 import { unitChoice } from '../pick'
-import { enGhostExplanation, enGhostRound, ghostSets } from './ghosts'
+import { enGhostExplanation, enGhostRound, enGhostVisitKind, ghostSets, GHOST_WORD_SHARE_BY_STAGE } from './ghosts'
 
 type Conf = Record<string, Record<string, number>>
 const ctxAt = (stage: number, seed = 1, letters: Conf = {}): RoundCtx =>
@@ -52,12 +52,16 @@ describe('the English ghosts', () => {
     const mine = { s: { f: 3 } }
     const firsts = rounds(2, 'letter', 300, mine)
     expect(firsts.some((r) => r.target.id === 's' && has(r.signs, 's', 'f'))).toBe(true)
-    // the visit keeps it: the round after s asks f, with s among the ghosts
+    // the visit keeps it: the round after s shows s and f again, and asks one of them
     for (let seed = 1; seed <= 50; seed++) {
       const r = enGhostRound(ctxAt(2, seed, mine), 'letter', 'snd-s')
-      expect(r.target.id).toBe('f')
+      expect(['s', 'f']).toContain(r.target.id)
       expect(has(r.signs, 's', 'f')).toBe(true)
     }
+    // a mix-up inside a set of the table is that set (b for d: the visit is b d p, not b d and a third)
+    const inside = rounds(2, 'letter', 200, { b: { d: 5 } }).filter((r) => has(r.signs, 'b', 'd'))
+    expect(inside.length).toBeGreaterThan(0)
+    for (const r of inside) expect(ids(r.signs).sort()).toEqual(['b', 'd', 'p'])
     // twice is not yet a mix-up: s is in no set, so the visit after s takes a set of the table
     for (let seed = 1; seed <= 50; seed++) {
       const r = enGhostRound(ctxAt(2, seed, { s: { f: 2 } }), 'letter', 'snd-s')
@@ -80,16 +84,53 @@ describe('the English ghosts', () => {
     }
   })
 
-  it('a visit keeps its set', () => {
-    for (let seed = 1; seed <= 100; seed++) {
-      const ctx = ctxAt(2, seed)
-      const first = enGhostRound(ctx, 'letter')
-      const set = LOOKALIKE_LETTERS.filter((l) => l.letters.includes(first.target.id))
-      const next = enGhostRound(ctx, 'letter', first.target.soundId)
-      expect(next.target.id).not.toBe(first.target.id)
-      // the next target is in the set of the first (n is in two sets: either one)
-      expect(set.some((l) => l.letters.includes(next.target.id))).toBe(true)
+  it('a visit keeps its set, also where sets share a letter (n u · h n)', () => {
+    for (const stage of [2, 3]) {
+      for (let seed = 1; seed <= 100; seed++) {
+        const ctx = ctxAt(stage, seed, { s: { n: 4 } })
+        let r = enGhostRound(ctx, 'letter')
+        const set = [...LOOKALIKE_LETTERS.map((l) => l.letters), ['s', 'n']].find((l) => l.every((id) => has(r.signs, id)) && l.includes(r.target.id))!
+        expect(set).toBeDefined()
+        for (let k = 0; k < 6; k++) {
+          const prev = r
+          r = enGhostRound(ctx, 'letter', prev.target.soundId, ids(prev.signs))
+          expect(has(r.signs, ...set)).toBe(true)
+          expect(set).toContain(r.target.id)
+          // a set of three never asks the same twice in a row
+          if (set.length === 3) expect(r.target.id).not.toBe(prev.target.id)
+        }
+      }
     }
+  })
+
+  it('a pair visit does not strictly alternate', () => {
+    let repeats = 0
+    for (let seed = 1; seed <= 60; seed++) {
+      const ctx = ctxAt(2, seed)
+      let r = enGhostRound(ctx, 'syllable')
+      for (let k = 0; k < 5; k++) {
+        const prev = r
+        r = enGhostRound(ctx, 'syllable', prev.target.soundId, ids(prev.signs))
+        if (r.target.id === prev.target.id) repeats++
+      }
+    }
+    expect(repeats).toBeGreaterThan(20)
+  })
+
+  it('word visits are few at stage 2 and most from stage 5', () => {
+    expect(GHOST_WORD_SHARE_BY_STAGE[2]).toBeLessThan(0.25)
+    for (let s = 3; s <= 9; s++) expect(GHOST_WORD_SHARE_BY_STAGE[s]).toBeGreaterThanOrEqual(GHOST_WORD_SHARE_BY_STAGE[s - 1])
+    expect(GHOST_WORD_SHARE_BY_STAGE[5]).toBeGreaterThan(0.5)
+    const share = (stage: number) => {
+      const rng = seeded(11)
+      let words = 0
+      for (let i = 0; i < 2000; i++) if (enGhostVisitKind('ghosts', stage, rng) === 'syllable') words++
+      return words / 2000
+    }
+    expect(Math.abs(share(2) - GHOST_WORD_SHARE_BY_STAGE[2])).toBeLessThan(0.04)
+    expect(Math.abs(share(6) - GHOST_WORD_SHARE_BY_STAGE[6])).toBeLessThan(0.04)
+    // the other screens: the run decides (no draw)
+    expect(enGhostVisitKind('broom', 4, () => { throw new Error('drawn') })).toBeUndefined()
   })
 
   it('look-alike words from stage 2: top · pot', () => {
