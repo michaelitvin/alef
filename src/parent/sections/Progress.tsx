@@ -14,7 +14,7 @@ export function ProgressSection() {
   return (
     <div>
       <h4 style={{ marginBottom: 4 }}>Minutes played, last 7 days</h4>
-      <table data-playtime>
+      <div className="pa-wide"><table data-playtime>
         <thead><tr><th>Day</th>{PLAYTIME_GAMES.map((g) => <th key={g}>{TITLE[g]}</th>)}</tr></thead>
         <tbody>
           {lastDays(DAYS).map((d) => (
@@ -24,7 +24,7 @@ export function ProgressSection() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       {GAMES.map((g) => {
         const raw = rawSave(g.saveKey)
         const line = g.summary(raw)

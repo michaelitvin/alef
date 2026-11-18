@@ -19,6 +19,9 @@ section.
   must not create another game's store or telemetry instance (depcruise rules `parent-area-reads-games-only-through-their-parent-index`
   and `game-parent-index-is-light`).
 - Only the open game shows its settings, reset and developer tools; every game's logs show in the Data section's one export.
+- A phone held upright must not scroll the area sideways. Put every table (also in a game's section) in its own
+  sideways-scrolling box, `<div className="pa-wide"><table>…</table></div>`; long strings break by themselves
+  (`overflow-wrap: anywhere` on the area). The /verify driver checks every section at 390 and 412 px wide.
 - `registry.ts` registers every game's `logs` with core telemetry on every game page (sealing, the shared budget and the
   roll-ups need them all). A new game's log, with an optional `rollup` (what an evicted chunk keeps), needs no other edit.
 
