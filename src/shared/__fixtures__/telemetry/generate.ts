@@ -165,6 +165,7 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   workday: (r) => ({ gears: r.int(0, 12), bonus: r.int(0, 5) }),
   pause: (r) => ({ phase: r.pick(['ask', 'answer', 'feedback']) }),
   abandon: (r) => ({ served: r.int(0, 10), ...(r.chance(0.8) ? { phase: r.pick(['ask', 'bonus']) } : {}) }),
+  exit: (r) => ({ served: r.int(0, 10), ...(r.chance(0.8) ? { phase: r.pick(['ask', 'answer', 'feedback']) } : {}), paused: r.chance(0.2) }),
   bonus: (r) => ({ try: r.int(1, 3), angle: r.int(-180, 180) + Math.round(r.next() * 10) / 10, gears: r.int(0, 3) }),
   player: (r) => ({ gender: r.pick(['boy', 'girl']), by: r.pick(['child', 'parent']) }),
   settings: (r) => ({ keys: ['langs', 'sfx'], langs: ['he', 'en'], sfx: r.chance(0.5) }),
