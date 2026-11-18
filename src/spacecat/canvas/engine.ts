@@ -13,6 +13,18 @@ import {
 import { CLEAR_MS, Effects, MARK_MS, drawFlyNumber, drawRightRing } from './effects'
 import { attachInput, type Intent } from './input'
 import { PLANET_AIR, PlanetRenderer } from './planet'
+import { TEST_HOOKS } from '../testHooks'
+
+/** What the verify build's driver reads each frame (client CSS px): where to touch, and which lane is right. */
+export interface RoundProbe {
+  /** rounds put on the screen so far (a restart counts) */
+  n: number
+  phase: 'idle' | 'flight' | 'mark'; frozen: boolean; input: boolean; right: number | null; shipLane: number | null
+  lanes: number[]; shipY: number; planets: { x: number; y: number; r: number }[]; result: string | null
+}
+declare global {
+  interface Window { __scRound?: RoundProbe }
+}
 
 /** The engine's time seam: the shared Sleeper's `frame` and `now` (a test steps the frames by hand). */
 export type EngineClock = Pick<Sleeper, 'frame' | 'now'>
@@ -108,6 +120,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   let flyFrom = { x: 0, y: 0 }
   let ringPulse = false
   let hand: Hand | null = null
+  let plays = 0
 
   const laneOf = (x: number) => nearestLane(laneUnits(G, x), round?.lane ?? 1)
   const send = (e: RoundEvent) => {
@@ -362,6 +375,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     lastNow = now
     update(dt)
     render()
+    if (TEST_HOOKS) probe()
     cancel = clock.frame(loop)
   }
   cancel = clock.frame(loop)
@@ -370,6 +384,17 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     const b = canvas.getBoundingClientRect()
     return b.width > 0 ? b : { left: 0, top: 0, width: G.W, height: G.H }
   }
+  /** the verify build's probe: the round in client coordinates (canvas logical units through the same fit as input) */
+  function probe() {
+    const b = rect(), f = fit(G, b.width, b.height)
+    const cx = (x: number) => b.left + f.ox + x * f.scale, cy = (y: number) => b.top + f.oy + y * f.scale
+    window.__scRound = {
+      n: plays, phase, frozen, input: inputOn && phase === 'flight' && !!round && !round.done, right: content?.rightLane ?? null,
+      shipLane: round?.lane ?? null, lanes: G.lanes.map(cx), shipY: cy(G.shipY), result: round?.done?.result ?? null,
+      planets: [0, 1, 2, 3].map((i) => { const at = planetPos(G, i, p, offs[i]); return { x: cx(at.x), y: cy(at.y), r: at.r * f.scale } }),
+    }
+  }
+
   const detach = attachInput(canvas, {
     toLogical: (cx, cy) => {
       const b = rect(), f = fit(G, b.width, b.height)
@@ -398,6 +423,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     setHud(h) { hud = { ...h }; if (phase !== 'flight') hudAtStart = hud },
     play(c, arrivalMs, opts) {
       endHand()
+      plays++
       const lane = round ? round.lane : laneOf(ship.x)
       ship.x = ship.tx = G.lanes[lane]
       last = { c, arrivalMs, frozen: !!opts?.frozen, lane }

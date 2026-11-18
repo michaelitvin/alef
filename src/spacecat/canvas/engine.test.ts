@@ -171,7 +171,9 @@ describe('the engine', () => {
         clock.tick(32)
       }
     }
-    expect(window.__scText.length).toBeGreaterThan(1000)
+    // the log keeps each string once; the context saw every draw
+    expect(window.__scText.length).toBeGreaterThan(20)
+    expect(rec.texts.length).toBeGreaterThan(1000)
     for (const s of window.__scText) expect(s).toMatch(/^[0-9+−×÷=]+$/)
     expect(rec.texts.every((s) => /^[0-9+−×÷=]+$/.test(s))).toBe(true)
   })

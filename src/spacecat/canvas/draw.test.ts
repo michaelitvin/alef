@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { layoutFor } from '../layout'
-import { GEOM, HOUSE_INSET, HOUSE_PX, MAX_OFFSET, drawText, fit, housePlace, planetPos } from './draw'
+import { GEOM, HOUSE_INSET, HOUSE_PX, MAX_OFFSET, TEXT_LOG_MAX, TEXT_LOG_OVERFLOW, drawText, fit, housePlace, planetPos } from './draw'
 import { recordingContext } from './testCanvas'
 
 const SCREENS: [number, number][] = [[1280, 800], [412, 915], [915, 412]]
@@ -13,6 +13,16 @@ describe('drawing', () => {
     drawText(ctx, '+', 0, 0)
     expect(window.__scText).toEqual(['3', '+'])
     expect(texts).toEqual(['3', '+'])
+    restore()
+  })
+  it('the text log keeps each string once and stays bounded', () => {
+    const { ctx, restore } = recordingContext()
+    window.__scText = []
+    for (let f = 0; f < 100; f++) drawText(ctx, '7', 0, 0)
+    expect(window.__scText).toEqual(['7'])
+    for (let i = 0; i < 2 * TEXT_LOG_MAX; i++) drawText(ctx, String(i), 0, 0)
+    expect(window.__scText).toHaveLength(TEXT_LOG_MAX)
+    expect(window.__scText[TEXT_LOG_MAX - 1]).toBe(TEXT_LOG_OVERFLOW)
     restore()
   })
   it('neighbouring planets never overlap', () => {

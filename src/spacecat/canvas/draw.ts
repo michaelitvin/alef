@@ -12,9 +12,20 @@ declare global {
 
 export const FONT = (px: number) => `700 ${Math.round(px)}px system-ui, sans-serif`
 
-/** Draws a string (centred unless the context says otherwise) and, in tests and the verify build, records it. */
+/**
+ * The verify build records each distinct string once (the canvas draws the same digits every frame, so a list of every
+ * draw grows without end). Past this many distinct strings it records `OVERFLOW` and stops: the scan then fails, as it
+ * must, since a real screen draws far fewer.
+ */
+export const TEXT_LOG_MAX = 500
+export const TEXT_LOG_OVERFLOW = '(too many strings)'
+
+/** Draws a string (centred unless the context says otherwise) and, in tests and the verify build, records it once. */
 export function drawText(g: CanvasRenderingContext2D, s: string, x: number, y: number): void {
-  if (TEST_HOOKS) (window.__scText ??= []).push(s)
+  if (TEST_HOOKS) {
+    const log = (window.__scText ??= [])
+    if (log.length < TEXT_LOG_MAX && !log.includes(s)) log.push(log.length === TEXT_LOG_MAX - 1 ? TEXT_LOG_OVERFLOW : s)
+  }
   g.fillText(s, x, y)
 }
 

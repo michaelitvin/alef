@@ -12,6 +12,22 @@ const flush = () => new Promise((r) => setTimeout(r, 0))
 const tune = () => audio.live().find((e) => e.kind === 'music')
 
 describe('Space Cat on the audio kit', () => {
+  it('the QA audio log records only what the device lets play', async () => {
+    const w = window as unknown as { __scAudio?: { kind: string; id: string }[] }
+    w.__scAudio = []
+    applySound({ sfx: false, music: false, volume: 0.8 })
+    await playSfx('right')
+    startTune()
+    stopTune()
+    expect(w.__scAudio.map((e) => `${e.kind}:${e.id}`)).toEqual(['tune:stop'])
+    applySound({ sfx: true, music: true, volume: 0.8 })
+    void playSfx('right')
+    startTune()
+    stopTune()
+    expect(w.__scAudio.map((e) => `${e.kind}:${e.id}`)).toEqual(['tune:stop', 'sfx:right', 'tune:start', 'tune:stop'])
+    delete w.__scAudio
+  })
+
   it('say resolves at once for an unknown id', async () => {
     expect(await say('no-such-line')).toBe(false)
     expect(audio.said()).toEqual([])

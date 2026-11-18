@@ -4,6 +4,7 @@
 // take serves boys and girls (no line has a boy or girl form). Two audio events never touch: a line waits for the
 // effect before it (SFX_TO_VOICE_MS), and `quiet()` lets a round's arrival sound wait for the voice and the last effect.
 import { createGameAudio } from '../../shared/gameAudio/kit'
+import { effectsOn, musicOn } from '../../shared/gameAudio/output'
 import { VOICE_URLS } from '../assets/audioFiles'
 import { TEST_HOOKS } from '../testHooks'
 import { CODED_SFX, TUNE_URL } from './coded'
@@ -14,7 +15,7 @@ import { TUNE_DUCK, TUNE_GAIN } from './tune'
 /** a voice line starts this long after the effect before it ends (spec *Voice*: about 0.4 s) */
 export const SFX_TO_VOICE_MS = 400
 
-/** the QA audio log of test builds (rule): every line, effect and tune start or stop, with its time */
+/** the QA audio log of test builds (rule): every line, effect and tune start or stop that the device lets play, with its time */
 type AudioLogEntry = { t: number; kind: 'voice' | 'sfx' | 'tune'; id: string }
 const log = (kind: AudioLogEntry['kind'], id: string) => {
   if (TEST_HOOKS) (window as unknown as { __scAudio?: AudioLogEntry[] }).__scAudio?.push({ t: performance.now(), kind, id })
@@ -71,7 +72,7 @@ export function sayInfo(id: string): void {
 let lastEffect: Promise<void> = Promise.resolve()
 /** plays an effect; resolves when it ends (at once when effects are off on the device) */
 export function playSfx(name: SfxName): Promise<void> {
-  log('sfx', name)
+  if (effectsOn()) log('sfx', name)
   const p = kit.playSfx(name)
   const before = lastEffect
   lastEffect = Promise.all([before, p]).then(() => {})
@@ -87,7 +88,7 @@ export async function sayAfterSfx(sfx: Promise<void>, id: string, still: () => b
 
 /** the tune (only while the device's music is on; it ducks under every line) */
 export function startTune(): void {
-  log('tune', 'start')
+  if (musicOn()) log('tune', 'start')
   kit.startMusic('tune')
 }
 export function stopTune(): void {
