@@ -53,6 +53,17 @@ function fakeAudio() {
   return { audio, said }
 }
 
+/**
+ * Awaits the flow until `done`: it runs on the virtual clock and the fake audio, so microtasks carry it; a macrotask
+ * every 200 turns lets anything else in. Bounded, and cheap under load (20,000 setTimeout(0) turns timed out there).
+ */
+async function settle(done: () => boolean, rounds = 4000) {
+  for (let i = 0; i < rounds && !done(); i++) {
+    for (let j = 0; j < 200 && !done(); j++) await null
+    await new Promise((r) => setTimeout(r, 0))
+  }
+}
+
 const indexOfRun = (xs: string[], run: string[]) => xs.findIndex((_, i) => run.every((x, j) => xs[i + j] === x))
 
 beforeEach(() => {
@@ -126,7 +137,7 @@ describe('the tower on another course’s content', () => {
       queueMicrotask(() => c.choose({ kind: 'rune', mark: r.target }))
     })
     c.start()
-    for (let i = 0; i < 20_000 && !done.length; i++) await new Promise((r) => setTimeout(r, 0))
+    await settle(() => done.length > 0)
     stop()
     c.destroy()
 
@@ -172,7 +183,7 @@ describe('the tower on another course’s content', () => {
       queueMicrotask(() => c.choose({ kind: 'rune', mark: wrong }))
     })
     c.start()
-    for (let i = 0; i < 20_000 && !done.length; i++) await new Promise((r) => setTimeout(r, 0))
+    await settle(() => done.length > 0)
     stop()
     c.destroy()
     expect(answers).toEqual(['wrong:m'])

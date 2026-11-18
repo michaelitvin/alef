@@ -1,16 +1,17 @@
 // The English course: what Book 2's game plays on the English page (`?course=en`, where English is available:
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
-// (logic/tower.ts). Its rounds and the tower's own rounds are built by the later English tasks, and until then reading one
-// throws.
+// (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The other screens'
+// rounds are built by the later English tasks, and until then reading one throws.
 import type { Course, CourseRounds } from '../duel2/course/types'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
-import { englishAudio } from './audio'
+import { englishAudio, englishDuelAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
-import { PLACEMENT_WALK_MS, placementAnswer, placementDue, placementTower } from './logic/tower'
+import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower } from './logic/tower'
+import { enLine } from './data/lines'
 import { READY_STAGES, englishStageRule } from './readyStages'
-import { ENGLISH_IMAGES } from './assets/images'
+import { ENGLISH_IMAGES, wordPicture } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
 import { englishSavePort, type EnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
@@ -21,6 +22,9 @@ import { ENGLISH_LOG } from './telemetryLog'
 const notBuilt = (what: string): never => { throw new Error(`the English ${what} is not built yet`) }
 
 const a = englishAudio
+
+/** the English tower's letter and word rounds, over the real save (looked up on each call) */
+const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), picture: wordPicture })
 
 /** the run's save on the English course is the English port (the course gives it, or a test's save in memory) */
 function en(save: SavePort): EnglishSavePort {
@@ -38,12 +42,12 @@ export const ENGLISH: Course = {
     recordStageAnswer: englishStageRule, visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH,
   },
   get rounds(): CourseRounds { return notBuilt('rounds') },
-  // its answers are kept in the English save; its rounds come in Task 15
-  tower: { get content(): TowerContent { return notBuilt('tower') }, tallies: () => englishSavePort().towerTallies() },
+  // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
+  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio },
   placement: {
     // (only reads: also on the gallery's read-only save)
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },
-    tower: (save) => placementTower(en(save), READY_STAGES),
+    tower: (save) => placementTower(en(save), READY_STAGES, wordPicture),
     walkMs: PLACEMENT_WALK_MS,
     answer: (save, right, target, at) => placementAnswer(en(save), right, target, at, READY_STAGES, enScreensOfStage),
   },
@@ -60,4 +64,5 @@ export const ENGLISH: Course = {
   preload: preloadEnglishAssets,
   genderPictures: { boy: ENGLISH_IMAGES['s-wizard-idle'], girl: ENGLISH_IMAGES['s-wizard-idle-girl'] ?? ENGLISH_IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => `${id}-${n}`,
+  lineVariations: (id) => enLine(id)?.variations ?? 1,
 }

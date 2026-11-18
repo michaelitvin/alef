@@ -1,4 +1,5 @@
-// The field: sky, ground, tower + wizard (left), the monster walking in from the right, effects, banners.
+// The field: sky, ground, tower + wizard (left), the monster walking in from the right (its sign shows the round's
+// picture: Round.picture on a course's round), effects, banners.
 // Tower edge and staff tip are measured from the rendered sprites, so stop point and fireball origin are right
 // in any aspect ratio, and re-measured on resize/rotation.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
@@ -142,7 +143,10 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} points={points} />}
-      {round && outcome && resultBanner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
+      {round && outcome && resultBanner && (
+        <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking}
+          rune={round.runeTexts?.find((x) => x.id === round.target.id)} picture={round.picture} />
+      )}
 
       {banner && (
         <motion.div className="nd-wave-banner" initial={{ scale: 0, rotate: -8 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>

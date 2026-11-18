@@ -28,6 +28,11 @@ export interface TowerContent {
   /** a forgiven twin tap (Hebrew: `line-almost` then `wiz-<mark>`) */
   twinParts(r: Round, c: Choice): string[]
   runeOf(r: Round, i: number): TowerRune
+  /**
+   * an answer was given (right, or a miss or a timeout; never a מגה kill, never in the gallery): the voice ids said after
+   * its feedback (English: a new unit's introduction). Hebrew: unset, nothing more is said.
+   */
+  answered?(r: Round, right: boolean): string[]
 }
 
 /** the Hebrew screen a round is explained as: the silent mark's sound screen has its own explanation */

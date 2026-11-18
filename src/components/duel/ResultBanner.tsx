@@ -1,13 +1,18 @@
 // After each round: the mark and its picture word; the wizard says sound → name → word, and the part being said
 // animates (sound → the vowel marks, name → the whole rune, word → the picture). No text.
 import { motion } from 'framer-motion'
-import type { DuelMark, PictureWord } from '../../types/duel'
+import type { DuelMark, PictureWord, TowerRune } from '../../types/duel'
 import { WORD_PICTURE } from '../../assets/duel/sprites'
 import { RuneGlyph } from './RuneGlyph'
 
-export function ResultBanner({ mark, word, kind, speaking = null }: {
-  mark: DuelMark; word: PictureWord; kind: 'hit' | 'miss'; speaking?: 'sound' | 'name' | 'word' | null
+/**
+ * `rune` and `picture`: a course's round (English) shows its own rune and its own picture (none: no picture); a Hebrew
+ * round the mark and its picture word.
+ */
+export function ResultBanner({ mark, word, kind, speaking = null, rune, picture }: {
+  mark: DuelMark; word: PictureWord; kind: 'hit' | 'miss'; speaking?: 'sound' | 'name' | 'word' | null; rune?: TowerRune; picture?: string
 }) {
+  const src = rune ? picture : WORD_PICTURE[word.key]
   return (
     <motion.div
       className={`nd-resolve ${kind}`}
@@ -17,8 +22,8 @@ export function ResultBanner({ mark, word, kind, speaking = null }: {
       animate={{ y: 0, opacity: 1, scale: 1 }}
       transition={{ delay: kind === 'hit' ? 0.35 : 0.2, type: 'spring' }}
     >
-      <RuneGlyph mark={mark} size={58} />
-      <img className="nd-word-pic nd-word-banner" src={WORD_PICTURE[word.key]} alt="" draggable={false} />
+      <RuneGlyph mark={mark} rune={rune} size={58} />
+      {src && <img className="nd-word-pic nd-word-banner" src={src} alt="" draggable={false} />}
     </motion.div>
   )
 }

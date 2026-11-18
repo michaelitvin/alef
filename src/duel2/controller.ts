@@ -12,7 +12,6 @@ import {
 import { WORDS, type Word } from './data/words'
 import { dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './layout'
-import { lineById } from './data/lines'
 import type { Duel2Sfx } from './audio/duel2Audio'
 import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
@@ -476,7 +475,7 @@ export class RunController {
     return this.guard(t, this.course.audio.sayParts(parts))
   }
   private variation(id: string): string {
-    const n = lineById(id)?.variations ?? 1
+    const n = this.course.lineVariations(id)
     let k = 1 + Math.floor(this.rng() * n)
     if (n > 1 && k === this.lastLine[id]) k = (k % n) + 1
     this.lastLine[id] = k

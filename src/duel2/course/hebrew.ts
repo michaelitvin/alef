@@ -2,7 +2,7 @@
 import { cancelVoice, playSfx, say, sayInfo, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from '../audio/duel2Audio'
 import { IMAGES } from '../assets/images'
 import { preloadDuel2Assets } from '../assets/preload'
-import { lineAudioId } from '../data/lines'
+import { lineAudioId, lineById } from '../data/lines'
 import { wordLinkFor } from '../data/words'
 import { bossTarget, bossWave } from '../logic/boss'
 import { item as itemOf, mark as markOf } from '../logic/content'
@@ -49,6 +49,7 @@ export const HEBREW: Course = {
   preload: preloadDuel2Assets,
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => lineAudioId(id, n),
+  lineVariations: (id) => lineById(id)?.variations ?? 1,
   // the first duel's rounds, lines and save, as always
   tower: { content: HEBREW_TOWER, tallies: () => progressTallies },
 }

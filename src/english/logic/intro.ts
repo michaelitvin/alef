@@ -2,7 +2,7 @@
 // introduction, and the next two answers decide: both right and he knows it; a miss brings the introduction after all.
 import type { Unit } from '../content/units'
 import { WORDS, type EnWord } from '../content/words'
-import { heartVoice, soundVoice, wordVoice } from '../content/voiceIds'
+import { heartVoice, nonsenseVoice, soundVoice, wordVoice } from '../content/voiceIds'
 import type { IntroState } from '../saveFormat'
 
 const DECIDING = 2
@@ -50,7 +50,8 @@ export function introKind(u: Unit): 'team' | 'magic-e' | 'ending' | null {
 export function introParts(item: Unit | EnWord, firstOfKind: boolean): string[] {
   if ('units' in item) {
     if (item.kind === 'heart') return ['intro-heart', heartVoice(item.id)]
-    return firstOfKind && item.blends?.length ? ['intro-blend', wordVoice(item.id)] : []
+    // (the tower's first blend word may be a nonsense name: its own voice)
+    return firstOfKind && item.blends?.length ? ['intro-blend', item.kind === 'nonsense' ? nonsenseVoice(item.id) : wordVoice(item.id)] : []
   }
   const pic = pictureOf(item)
   const tail = [soundVoice(item), ...(pic ? [wordVoice(pic)] : [])]

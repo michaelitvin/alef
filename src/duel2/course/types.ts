@@ -97,6 +97,8 @@ export interface Course {
    */
   placement?: CoursePlacement
   lineAudioId(id: string, n?: number): string
+  /** how many takes a line has (the run picks one: Hebrew `lineById`, English `enLine`; an unknown id has one) */
+  lineVariations(id: string): number
 }
 
 export interface CoursePlacement {
