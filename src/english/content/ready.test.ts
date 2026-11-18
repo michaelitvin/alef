@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { contentStages, REVIEWED_STAGES } from './ready.ts'
+import { PHRASES } from './phrases.ts'
 import { UNITS } from './units.ts'
-import { heartVoice, nonsenseVoice, soundVoice, wordVoice } from './voiceIds.ts'
+import { heartVoice, nonsenseVoice, phraseVoice, soundVoice, wordVoice } from './voiceIds.ts'
 import { WORDS } from './words.ts'
 
 const idsOfStages = (stages: number[]): Set<string> =>
   new Set([
     ...UNITS.filter((u) => stages.includes(u.stage)).map(soundVoice),
+    ...PHRASES.filter((p) => stages.includes(p.stage)).map((p) => phraseVoice(p.id)),
     ...WORDS.filter((w) => stages.includes(w.stage)).map((w) =>
       w.kind === 'heart' ? heartVoice(w.text) : w.kind === 'nonsense' ? nonsenseVoice(w.text) : wordVoice(w.text),
     ),
@@ -31,6 +33,12 @@ describe('contentStages', () => {
       voices.delete(missing)
       expect(contentStages({ strict: true, voices })).toEqual([2])
     }
+  })
+  it('strict: a stage 4–9 also needs its door-phrase clips', () => {
+    const voices = idsOfStages([1, 2, 3, 4])
+    expect(contentStages({ strict: true, voices })).toEqual([1, 2, 3, 4])
+    voices.delete(phraseVoice('a-big-duck'))
+    expect(contentStages({ strict: true, voices })).toEqual([1, 2, 3])
   })
   it('not strict: every stage 1 to 9', () => {
     expect(contentStages({ strict: false, voices: new Set() })).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])

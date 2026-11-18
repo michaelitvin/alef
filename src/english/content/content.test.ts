@@ -26,7 +26,23 @@ const LONGEST_NONSENSE: Record<number, number> = { 1: 3, 2: 3, 3: 4, 4: 5, 5: 5,
 const count = (kind: EnWord['kind']): number => WORDS.filter((w) => w.kind === kind).length
 const decodable = (): EnWord[] => WORDS.filter((w) => w.kind === 'real' || w.kind === 'nonsense')
 const stageOfUnit = (id: string): number => unit(id).stage
-const blendStages = (w: EnWord): number[] => (w.blends ?? []).map(() => 5)
+
+const START_BLENDS = ['st', 'sp', 'sn', 'sl', 'sk', 'sm', 'sw', 'fr', 'fl', 'tr', 'cr', 'dr', 'br', 'gr', 'pl', 'cl', 'bl', 'gl']
+const END_BLENDS = ['nt', 'nd', 'mp', 'st', 'sk', 'ft', 'lk']
+const plain = (id: string): boolean => unit(id).kind === 'consonant'
+
+/** The stage-5 patterns a unit list holds, derived from the units: two plain consonants at the start or the end. */
+const derivedBlends = (units: string[]): string[] => {
+  const letters = units.map((u) => unit(u).text)
+  const n = units.length
+  const out: string[] = []
+  if (n >= 2 && plain(units[0]) && plain(units[1]) && START_BLENDS.includes(letters[0] + letters[1])) out.push(letters[0] + letters[1] + '-')
+  if (n >= 2 && plain(units[n - 2]) && plain(units[n - 1]) && END_BLENDS.includes(letters[n - 2] + letters[n - 1])) out.push('-' + letters[n - 2] + letters[n - 1])
+  return out
+}
+/** Any two plain consonant units side by side (a blend, listed or not). */
+const adjacentConsonants = (units: string[]): boolean => units.some((u, i) => i > 0 && plain(u) && plain(units[i - 1]))
+const blendStages = (w: EnWord): number[] => derivedBlends(w.units).map(() => 5)
 
 /** The letters of a unit list; a magic e wraps the next consonant ('c a_e k' = cake). */
 const spell = (units: string[]): string => {
@@ -52,15 +68,12 @@ const longestPerStage = (): Record<number, Set<string>> => {
 /** A word or a placement text as {text, units}. */
 const asUnits = (x: string | PlacementText): { text: string; units: string[] } => (typeof x === 'string' ? word(x) : x)
 
-/** Positions of the stage-5 blends in a unit list: the first two units of a start blend, the last two of an end blend. */
+/** Positions of the stage-5 blends in a unit list. */
 const blendPositions = (units: string[]): Set<number> => {
-  const letters = units.map((u) => unit(u).text)
   const out = new Set<number>()
-  const start = ['st', 'sp', 'sn', 'sl', 'sk', 'sm', 'sw', 'fr', 'fl', 'tr', 'cr', 'dr', 'br', 'gr', 'pl', 'cl', 'bl', 'gl']
-  const end = ['nt', 'nd', 'mp', 'st', 'sk', 'ft', 'lk']
-  const n = letters.length
-  if (n >= 3 && start.includes(letters[0] + letters[1]) && unit(units[2]).kind !== 'consonant') [0, 1].forEach((i) => out.add(i))
-  if (n >= 3 && end.includes(letters[n - 2] + letters[n - 1]) && unit(units[n - 3]).kind !== 'consonant') [n - 2, n - 1].forEach((i) => out.add(i))
+  const found = derivedBlends(units)
+  if (found.some((b) => b.endsWith('-'))) [0, 1].forEach((i) => out.add(i))
+  if (found.some((b) => b.startsWith('-'))) [units.length - 2, units.length - 1].forEach((i) => out.add(i))
   return out
 }
 
@@ -78,6 +91,16 @@ const oneAdded = (long: string[], short: string[]): number | undefined => {
     if (long.slice(0, i).join(' ') === short.slice(0, i).join(' ') && long.slice(i + 1).join(' ') === short.slice(i).join(' ')) return i
   }
   return undefined
+}
+
+/** Edit distance: one letter changed, added or dropped is 1. */
+const distance = (a: string, b: string): number => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array<number>(b.length).fill(0)])
+  for (let j = 0; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+  return d[a.length][b.length]
 }
 
 const hasDuplicates = (xs: string[]): boolean => new Set(xs).size !== xs.length
@@ -107,14 +130,20 @@ describe('word lists', () => {
     for (const w of decodable()) expect(spell(w.units), w.text).toBe(w.text)
   })
 
-  it('every blend pattern is in the word, and every stage-5 word has one', () => {
-    for (const w of WORDS.filter((x) => x.stage === 5 && x.units.length)) expect(w.blends?.length, w.text).toBeGreaterThan(0)
-    for (const w of WORDS.filter((x) => x.blends)) {
-      for (const b of w.blends!) {
-        const letters = b.replace('-', '')
-        const spelled = w.units.map((u) => unit(u).text)
-        const ok = b.endsWith('-') ? spelled.slice(0, 2).join('') === letters : spelled.slice(-2).join('') === letters
-        expect(ok, `${w.text} ${b}`).toBe(true)
+  it('the blend flags equal the blends derived from the units; below stage 5 no two consonants meet', () => {
+    for (const w of decodable()) {
+      const derived = derivedBlends(w.units).sort()
+      if (w.stage === 5) {
+        expect(derived.length, w.text).toBeGreaterThan(0)
+        expect([...(w.blends ?? [])].sort(), w.text).toEqual(derived)
+        // every pair of consonants side by side is a listed blend
+        const covered = blendPositions(w.units)
+        w.units.forEach((u, i) => {
+          if (i > 0 && plain(u) && plain(w.units[i - 1])) expect(covered.has(i) && covered.has(i - 1), `${w.text} at ${i}`).toBe(true)
+        })
+      } else {
+        expect(w.blends, w.text).toBeUndefined()
+        if (w.stage < 5) expect(adjacentConsonants(w.units), `${w.text} has two consonants together before stage 5`).toBe(false)
       }
     }
   })
@@ -168,16 +197,13 @@ describe('word lists', () => {
     expect(checked).toBeGreaterThan(60)
   })
 
-  it('nonsense words are not real words, not in the blocklist, and not one letter from a heart word', () => {
+  it('nonsense words are not real words, not in the blocklist, and not one letter changed, added or dropped from a heart word', () => {
     const real = new Set(WORDS.filter((w) => w.kind !== 'nonsense').map((w) => w.text.toLowerCase()))
     const hearts = WORDS.filter((w) => w.kind === 'heart').map((w) => w.text.toLowerCase())
     for (const w of WORDS.filter((x) => x.kind === 'nonsense')) {
       expect(real.has(w.text), w.text).toBe(false)
       expect(BLOCKLIST.includes(w.text), w.text).toBe(false)
-      for (const h of hearts.filter((x) => x.length === w.text.length && x.length > 2)) {
-        const diff = [...h].filter((c, i) => c !== w.text[i]).length
-        expect(diff, `${w.text} next to ${h}`).toBeGreaterThan(1)
-      }
+      for (const h of hearts.filter((x) => x.length >= 2)) expect(distance(w.text, h), `${w.text} next to ${h}`).toBeGreaterThan(1)
     }
     for (const w of BLOCKLIST) expect(WORDS.some((x) => x.text === w)).toBe(false)
   })

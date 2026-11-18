@@ -100,7 +100,7 @@ or the spell book; never alone on a door.
 | at | a·t | | — |
 | in | i·n | | — |
 | it | i·t | | — |
-| sat | s·a·t | L1, L3 | — |
+| sat | s·a·t | L1 | — |
 | mat | m·a·t | Pd (map) | — |
 | pat | p·a·t | Pd (pan) | — |
 | tap | t·a·p | L2, L3 | — |
@@ -158,7 +158,7 @@ R word-mouse), strawberry (`s`, R pw-strawberry), tiger (`t`, N), turtle (`t`, N
 | sun | s·u·n | Tl s, D, S·pic | T |
 | nut | n·u·t | G (hut·nut) | — |
 | mop | m·o·p | L4 | — (picture dropped after review: "broom") |
-| pot | p·o·t | D, S·pic, G (top·pot), L1 | N |
+| pot | p·o·t | D, S·pic, G (top·pot), L1, L2 | N |
 | top | t·o·p | G, L4 | — |
 | pig | p·i·g | Tl p, D, S·pic, G, L3 | T |
 
@@ -168,7 +168,7 @@ banana (`b`, R pw-banana), butterfly (`b`, R word-butterfly), egg (`e`, T), elep
 **Later-stage sound pictures:** duck (`d`, 4), drum (`d`, 5), book (`b`, 9).
 **Coverage:** `u` has one picture (umbrella) and `o` two uncertain names (2.3); both also get sound rounds.
 
-**Nonsense (12):** fod, dop, gub, cug, bem, tob, mub, dut, cuf, sut, pem, gid. (Design example `bod` is replaced: it is
+**Nonsense (12):** fod, pob, gub, cug, bem, gom, mub, bup, cuf, suf, pem, gid. (`dop`, `tob` (one letter from the heart words `do`, `to`), `dut`, `sut` (from `put`) and `tud` (sounds rude) were replaced. Design example `bod` is replaced: it is
 slang for "body".)
 
 ### 1.6 Stage 3 — `k h r l w j y x qu v z`
@@ -188,7 +188,7 @@ slang for "body".)
 | let | l·e·t | L3 | — |
 | lip | l·i·p | L4 | — |
 | lot | l·o·t | L3 | — |
-| log | l·o·g | Tl l, D, S·pic, L3 | N |
+| log | l·o·g | Tl l, D, S·pic, P★, L3 | N |
 | lap | l·a·p | L4 | — |
 | web | w·e·b | L3 | — (picture dropped after review: "net") |
 | wet | w·e·t | L3 | — |
@@ -196,7 +196,7 @@ slang for "body".)
 | jam | j·a·m | | — |
 | jet | j·e·t | | — |
 | yes | y·e·s | | — |
-| fox | f·o·x | Tl x, D, S·pic, L1 | R pw-fox |
+| fox | f·o·x | Tl x, D, S·pic, P★, L1 | R pw-fox |
 | box | b·o·x | Tl x, D, S·pic | N |
 | fix | f·i·x | L1 | — |
 | ax | a·x | Tl x, D | N |
@@ -265,7 +265,7 @@ sound") and in word runes. My call: `th` (/θ/, thin) is the main reading, `th�
 
 | Word | Units [pattern] | Uses | Picture |
 |---|---|---|---|
-| stop | s·t·o·p [st-] | G (stop·spot), L2 | — |
+| stop | s·t·o·p [st-] | G (stop·spot) | — |
 | spot | s·p·o·t [sp-] | G, L2 | — |
 | spit | s·p·i·t [sp-] | L2 | — |
 | spin | s·p·i·n [sp-] | L2 | — |
@@ -291,7 +291,7 @@ sound") and in word runes. My call: `th` (/θ/, thin) is the main reading, `th�
 | clap | c·l·a·p [cl-] | L3 | — |
 | clip | c·l·i·p [cl-] | L3 | — |
 | clock | c·l·o·ck [cl-] | Tl ck, D | N |
-| black | b·l·a·ck [bl-] | Dp | — |
+| black | b·l·a·ck [bl-] | | — |
 | glad | g·l·a·d [gl-] | | — |
 | tent | t·e·n·t [-nt] | Tl t, D, P★, L4 | R word-tent |
 | bent | b·e·n·t [-nt] | L4 | — |
@@ -328,7 +328,7 @@ My call: `u_e` is read /uː/ first (tube, tune, rule) and /juː/ second (cube, c
 | cone | c·o_e·n | D, L1 | N |
 | bone | b·o_e·n | D, P★, L1, Dp | N |
 | wave | w·a_e·v | | — |
-| snake | s·n·a_e·k | D, Dp | N |
+| snake | s·n·a_e·k | D, P★, Dp | N |
 | whale | wh·a_e·l | Tl wh, D | N |
 | white | wh·i_e·t | Dp | — |
 | bike | b·i_e·k | D, L2 | R word-bicycle |
@@ -514,7 +514,7 @@ book, `ow₂` cow, `ea₂` bread) are their own items, later in the stage, in ro
 | bread | b·r·ea₂·d | D | N |
 | head | h·ea₂·d | | — |
 
-**Nonsense (12):** voam, baip, feeb, sloy, zigh, broid, glay, noaf, foud, jawp, dreeb, snigh. My call: no nonsense word
+**Nonsense (12):** voam, baip, feeb, sloy, zigh, broid, glay, noaf, zoud, jawp, dreeb, snigh. (`foud` was dropped: one letter from the heart word `four`.) My call: no nonsense word
 uses a two-reading spelling (`oo ow ea`), so it has only one reading. (`taip` was dropped: it sounds like "tape".)
 
 ### 1.13 Look-alike sets (ghosts) and broom sets
@@ -547,7 +547,7 @@ consonant (`lip → slip`): my call, because that is how a blend is built. Every
 | 2 | dog → dot → pot → pit → pin | bug → bag → bad → bed → beg | pen → pan → pin → pig → big | mop → top → tip → tap → cap |
 | 3 | fox → fix → fin → fan → van | hat → hot → hop → top → tip | web → wet → let → lot → log | zip → zap → lap → lip → hip |
 | 4 | ship → shop → chop → chip | duck → luck → lock → sock | king → sing → sink → pink → pick | bell → well → will → fill |
-| 5 | lip → slip → slap → snap → snack | top → stop → spot → spit → spin | cap → clap → clip → flip | ten → tent → bent → best → nest |
+| 5 | lip → slip → slap → snap → snack | pot → spot → spit → spin | cap → clap → clip → flip | ten → tent → bent → best → nest |
 | 6 | pin → pine → line → lime → time | kit → kite → bite → bike → like | hop → hope → hole → home | tub → tube → tune |
 | 7 | jump → jumps → jumped → bumped | kick → kicks → kicked → licked → licking | fish → wish → wishes → wished → wishing | cat → cats → hats |
 | 8 | car → card → hard → harm → farm | for → fork → fort → sort → sport | turn → burn → barn → born | shirt → short → sort → sport |
@@ -582,16 +582,16 @@ in the lists (marked °) needs no audio: the placement has no hint, and after a 
 | Stage | Picture rounds (target first) | Name rounds (target first) |
 |---|---|---|
 | 1 | map · mat · man — fan · fin · tan (only 2: the pan picture was dropped; stage 1 asks 4 name rounds) | mip · map · nip — tif · taf · tip — nif · naf · mif — pim · pam° · tim° |
-| 2 | dog · dig · dot — cup · cap · cop° — bed · bad · bid° | gub · gab° · dub° — bem · bim° · dem° — dop · dap° · bop° |
+| 2 | dog · dig · dot — cup · cap · cop° — bed · bad · bid° | gub · gab° · dub° — bem · bim° · dem° — pob · pab° · pib° |
 | 3 | hat · rat° · vat° — log · hog° · jog° — fox · foz° · fov° | vap · zap · lap — zim · vim° · rim° — jex · yex° · hex° |
 | 4 | duck · dull° · duff° — ring · rink° · rich° — fish · fill · fizz° | chim · shim° · thim° — shap · chap° · thap° — thog · shog° · chog° |
 | 5 | frog · fog° · grog° — drum · dum° · trum° — tent · ten · test° | sluk · suk° · snuk° — clim · cim° · flim° — snet · set° · spet° |
-| 6 | snake · snack · snoke° — kite · kit · kote° — bone · bun° · bane° | pove · pov° · pave° — dape · dap° · dipe° — fime · fim · fame° |
-| 7 | cats · cat · cast° — boxes · box · fox — ducks · duck · dusk° | gromping · gromped · gromps — jishes · jish · jishing° — nolked · nolking · nolks° |
+| 6 | snake · snak° · snoke° — kite · kit · kote° — bone · bun° · bane° | pove · pov° · pave° — dape · dap° · dipe° — fime · fim · fame° |
+| 7 | cats · cat · cating° — boxes · box · boxed° — ducks · duck · ducked° | gromping · gromped · gromps — jishes · jish · jishing° — nolked · nolking · nolks° |
 | 8 | car · cur° · cor° — bird · bard° · bid° — fork · fark° · ferk° | zarn · zan° · zorn° — murt · mut° · mart° — virp · vip° · varp° |
 | 9 | boat · bait° · bet° — sheep · ship · shape° — moon · man · moan° | voam · vam° · veam° — baip · bap° · beep° — sloy · slay° · slee° |
 
-The design's examples `vap · vip · map` and `cats · cat · cast` are kept or adjusted to the rule above (`vip`, `map`
+The design's examples `vap · vip · map` and `cats · cat · cast` are adjusted (two units differ in `cast`, so `cating`) or adjusted to the rule above (`vip`, `map`
 differ in units of stages 1, so `zap`, `lap` replace them).
 
 ### 1.17 Longest word per screen and stage

@@ -25,7 +25,7 @@ export const PLACEMENT_ROUNDS: { stage: number; kind: 'picture' | 'name'; target
   { stage: 2, kind: 'picture', target: 'bed', others: ['bad', t('bid', 'b i d')] },
   { stage: 2, kind: 'name', target: 'gub', others: [t('gab', 'g a b'), t('dub', 'd u b')] },
   { stage: 2, kind: 'name', target: 'bem', others: [t('bim', 'b i m'), t('dem', 'd e m')] },
-  { stage: 2, kind: 'name', target: 'dop', others: [t('dap', 'd a p'), t('bop', 'b o p')] },
+  { stage: 2, kind: 'name', target: 'pob', others: [t('pab', 'p a b'), t('pib', 'p i b')] },
 
   { stage: 3, kind: 'picture', target: 'hat', others: [t('rat', 'r a t'), t('vat', 'v a t')] },
   { stage: 3, kind: 'picture', target: 'log', others: [t('hog', 'h o g'), t('jog', 'j o g')] },
@@ -55,7 +55,7 @@ export const PLACEMENT_ROUNDS: { stage: number; kind: 'picture' | 'name'; target
   { stage: 6, kind: 'name', target: 'dape', others: [t('dap', 'd a p'), t('dipe', 'd i_e p')] },
   { stage: 6, kind: 'name', target: 'fime', others: ['fim', t('fame', 'f a_e m')] },
 
-  { stage: 7, kind: 'picture', target: 'cats', others: ['cat', t('cates', 'c a t -es')] },
+  { stage: 7, kind: 'picture', target: 'cats', others: ['cat', t('cating', 'c a t -ing')] },
   { stage: 7, kind: 'picture', target: 'boxes', others: ['box', t('boxed', 'b o x -ed')] },
   { stage: 7, kind: 'picture', target: 'ducks', others: ['duck', t('ducked', 'd u ck -ed')] },
   { stage: 7, kind: 'name', target: 'gromping', others: ['gromped', 'gromps'] },

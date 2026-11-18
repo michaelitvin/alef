@@ -427,13 +427,13 @@ naf | n a f | |
 `),
   ...parse('nonsense', 2, `
 fod | f o d | |
-dop | d o p | |
+pob | p o b | |
 gub | g u b | |
 cug | c u g | |
 bem | b e m | |
-tob | t o b | |
+gom | g o m | |
 mub | m u b | |
-tud | t u d | |
+bup | b u p | |
 cuf | c u f | |
 suf | s u f | |
 pem | p e m | |
