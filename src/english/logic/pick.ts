@@ -1,8 +1,7 @@
 // The adaptive choice of the English path: the features of a choice (what his answers are tallied under) and the pick of a
 // sound unit near the one-mistake-in-five aim. Same method as Book 2 (`pickTarget`), with the English features.
-import { pickNearTarget, type Rng } from '../../shared/adaptive'
 import type { ScreenId } from '../../duel2/logic/predict'
-import { predict } from '../../duel2/logic/predict'
+import { featurePrior, pickTarget } from '../../duel2/logic/predict'
 import type { Choice, RoundCtx } from '../../duel2/logic/rounds'
 import { NEW_SHARE } from '../../duel2/logic/stages'
 import { word } from '../content/words'
@@ -23,13 +22,15 @@ export function enFeatures(c: Choice, screen: ScreenId): string[] {
   return [...own, `sc:${screen}`]
 }
 
+/** The English prior of a feature: the screen's prior, else a flat 0.03 (a unit id such as `w` is not a Hebrew letter feature). */
+export const enPrior = (f: string): number => (f.startsWith('sc:') ? featurePrior(f) : 0.03)
+
 /** A unit from the pool: near the aim; the stage's new units are chosen on `NEW_SHARE` of the rounds. */
-export function pickUnit(ctx: RoundCtx, pool: Unit[]): Unit {
+export function pickUnit(ctx: RoundCtx, pool: Unit[], screen: ScreenId = 'broom'): Unit {
   if (pool.length === 0) throw new Error('no unit to pick')
-  const rng: Rng = ctx.rng
+  const { rng } = ctx
   let cands = pool
   const fresh = pool.filter((u) => u.stage === ctx.stage)
   if (fresh.length && fresh.length < pool.length && rng() < NEW_SHARE) cands = fresh
-  const rates = cands.map((u) => predict(enFeatures(unitChoice(u), 'broom'), ctx.tallies, ctx.recent))
-  return cands[pickNearTarget(rng, rates)]
+  return pickTarget(rng, cands, (u) => enFeatures(unitChoice(u), screen), ctx.tallies, ctx.recent, enPrior)
 }

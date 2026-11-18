@@ -34,25 +34,27 @@ function pictureOf(u: Unit): string | undefined {
 /** qu and nk are digraphs by spelling only (each makes two sounds): the first two-letter, one-sound unit is in stage 4 */
 const TWO_SOUNDS = ['kw', 'nk']
 
+/** The kind of introduction line a unit starts a kind with (null: none). The one place for "first of its kind". */
+export function introKind(u: Unit): 'team' | 'magic-e' | 'ending' | null {
+  if (u.kind === 'digraph' && !TWO_SOUNDS.includes(u.sound)) return 'team'
+  if (u.kind === 'magic-e') return 'magic-e'
+  if (u.kind === 'ending') return 'ending'
+  return null
+}
+
 /**
- * The voice ids of an introduction. A unit: its line, its sound, a picture word. A heart word: `intro-heart`, the word.
- * `firstOfKind`: the first digraph, silent e or ending (or the first blend, for a word with blend patterns) starts with its
- * own line.
+ * The voice ids of an introduction (empty: none). A unit: its line, its sound, a picture word. A heart word: `intro-heart`,
+ * the word. `firstOfKind`: the first digraph, silent e or ending starts with its own line; for a word, it is the stage's
+ * first blend word (its `introSeen` key is 'blend'). Any other word has no introduction.
  */
 export function introParts(item: Unit | EnWord, firstOfKind: boolean): string[] {
   if ('units' in item) {
     if (item.kind === 'heart') return ['intro-heart', heartVoice(item.id)]
-    if (firstOfKind && item.blends?.length) return ['intro-blend', wordVoice(item.id)]
-    throw new Error(`no introduction for the word "${item.id}"`)
+    return firstOfKind && item.blends?.length ? ['intro-blend', wordVoice(item.id)] : []
   }
   const pic = pictureOf(item)
   const tail = [soundVoice(item), ...(pic ? [wordVoice(pic)] : [])]
   if (item.secondOf) return ['intro-second', ...tail]
-  const lead: string[] = []
-  if (firstOfKind) {
-    if (item.kind === 'digraph' && !TWO_SOUNDS.includes(item.sound)) lead.push('intro-team')
-    else if (item.kind === 'magic-e') lead.push('intro-magic-e')
-    else if (item.kind === 'ending') lead.push('intro-ending')
-  }
-  return [...lead, 'intro-sound', ...tail]
+  const kind = firstOfKind ? introKind(item) : null
+  return [...(kind ? [`intro-${kind}`] : []), 'intro-sound', ...tail]
 }

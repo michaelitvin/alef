@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { Rng } from '../../shared/adaptive'
 import type { RoundCtx } from '../../duel2/logic/rounds'
 import { unit, unitsOfStage } from '../content/units'
-import { enFeatures, pickUnit, unitChoice } from './pick'
-import { word } from '../content/words'
+import { predict } from '../../duel2/logic/predict'
+import { enFeatures, enPrior, pickUnit, unitChoice } from './pick'
 
 const seeded = (seed: number): Rng => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 
@@ -23,10 +23,18 @@ describe('enFeatures', () => {
   it('a word: its units and blend patterns', () => {
     const f = enFeatures({ kind: 'word', id: 'stop', text: 'stop', soundId: '', itemId: 'stop' }, 'doors')
     expect(f).toEqual(expect.arrayContaining(['s', 't', 'o', 'p', 'sc:doors']))
-    expect(f).toEqual(expect.arrayContaining(word('stop').blends ?? ['st-']))
+    expect(f).toEqual(expect.arrayContaining(['st-']))
   })
   it('a heart word: heart:<word>', () => {
     expect(enFeatures({ kind: 'word', id: 'the', text: 'the', soundId: '', itemId: 'the', heart: true }, 'doors')).toEqual(['heart:the', 'sc:doors'])
+  })
+})
+
+describe('the English prior', () => {
+  it('with no tallies, w and m predict the same', () => {
+    const rate = (id: string) => predict(enFeatures(unitChoice(unit(id)), 'broom'), {}, {}, enPrior)
+    expect(rate('w')).toBe(rate('m'))
+    expect(rate('l')).toBe(rate('m'))
   })
 })
 

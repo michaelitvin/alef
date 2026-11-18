@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { UNITS, unit } from '../content/units'
 import { word } from '../content/words'
-import { introParts, introStep } from './intro'
+import { introKind, introParts, introStep } from './intro'
 
 describe('introStep', () => {
   it('a new unit is asked once before its introduction; right skips it, and the next two decide', () => {
@@ -30,7 +30,14 @@ describe('introParts', () => {
   it('a unit that is not the first of its kind has the plain line', () => expect(introParts(unit('i_e'), false)[0]).toBe('intro-sound'))
   it('a second reading has intro-second', () => expect(introParts(unit('oo:2'), true)[0]).toBe('intro-second'))
   it('a heart word is introduced with intro-heart and the word', () => expect(introParts(word('the'), true)).toEqual(['intro-heart', 'hw-the']))
-  it('the first blend', () => expect(introParts(word('stop'), true)[0]).toBe('intro-blend'))
+  it('the stage\'s first blend word', () => expect(introParts(word('stop'), true)).toEqual(['intro-blend', 'w-stop']))
+  it('a later blend word and a plain word have no introduction', () => {
+    expect(introParts(word('stop'), false)).toEqual([])
+    expect(introParts(word('cat'), true)).toEqual([])
+  })
+  it('introKind names the kind a unit starts', () => {
+    expect([unit('ck'), unit('qu'), unit('nk'), unit('a_e'), unit('-s'), unit('m')].map(introKind)).toEqual(['team', null, null, 'magic-e', 'ending', null])
+  })
   it('qu and nk are digraphs by spelling only, and never give the two-letters line', () => {
     expect([unit('qu').kind, unit('nk').kind]).toEqual(['digraph', 'digraph'])
     expect(introParts(unit('qu'), true)).not.toContain('intro-team')
