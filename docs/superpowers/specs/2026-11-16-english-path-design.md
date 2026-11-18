@@ -1,7 +1,7 @@
 # The English path — Design
 
 **Date:** 2026-11-16
-**Status:** Draft for the parent's review. Brainstormed with the parent on 2026-11-10 to 2026-11-16. A builder check ran on
+**Status:** Approved by the parent on 2026-11-18, with the Hebrew spell book in this build (Part 7). Brainstormed with the parent on 2026-11-10 to 2026-11-16. A builder check ran on
 this document, and a rule-by-rule review against `docs/minigame-rules.md`; their findings are answered here.
 **Builds on:** `main` as of 2026-11-18 (the shared shell, audio kit, parent area, telemetry and review kit), [Book 2](2026-10-19-duel-book-2-design.md), [one duel](2026-11-11-one-duel-design.md),
 [Book 2 drawing](2026-11-07-book2-drawing-design.md), [the flight bosses](2026-11-07-book2-flight-boss-design.md),
@@ -51,8 +51,8 @@ What the research found (host-local report, 2026-11-11), and what this design ta
 - A slow start for a child who already reads: walking him through letters he knows.
 - An English screen that looks like a mistake beside the Hebrew one (the parent rejected a blue tint as "too close to
   the purple one").
-- Anything the Hebrew path loses: the Hebrew path, its saves and its screens behave as before (the Hebrew spell book,
-  Part 7, is a separate step if the parent wants it).
+- Anything the Hebrew path loses: the Hebrew path, its saves and its screens behave as before, except for the Hebrew
+  spell book (Part 7), which the parent added on purpose.
 
 ## Part 1 — Home
 
@@ -291,7 +291,7 @@ playtest.
 - He writes the first letter of the heard word. My call: from stage 2, sometimes the whole short word (three letters),
   in three boxes, left to right.
 
-## Part 7 — The spell book (a new screen; Hebrew is a question)
+## Part 7 — The spell book (a new screen, for both languages)
 
 **English.** He hears a word ("cat"). An open book shows its picture on the left page and one box for each sound unit
 on the right page. He drags a tile into each box, left to right; each drop plays that unit's sound; the full word
@@ -304,9 +304,8 @@ on the right page. He drags a tile into each box, left to right; each drop plays
   voice says "That sounds right, but this word is spelled with …".
 - My call: the spell book enters the cycle after the doors (writing after reading), and opens at stage 1.
 
-**Hebrew** (the parent asked whether it could be used for Hebrew as well). **A question for the parent: is it part of
-this build?** My recommendation: yes, as one screen built for both languages. If not, the spell book is English-only and
-the Hebrew path does not change. If yes: the same screen, right to left, purple, in Book 2's run; Book 2's cycle,
+**Hebrew** (the parent asked whether it could be used for Hebrew as well). **The parent decided: yes, in this build**, as
+one screen built for both languages (2026-11-18). The same screen, right to left, purple, in Book 2's run; Book 2's cycle,
 `screensOfStage`, the home path and the Hebrew run's tests change on purpose.
 - Words: the door words, which already store their syllables (`בַּ · יִ · ת`). He builds the consonant-vowel syllables
   that Book 2 teaches. The closing letter (`ת`) is printed, faint, and is not a box.
