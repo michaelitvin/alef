@@ -6,7 +6,7 @@ import { IMAGES } from '../../assets/images'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
 import type { Choice } from '../../logic/rounds'
 import { DragPick } from '../DragPick'
-import { Glyph, latinFitPx as fitPx } from '../Glyph'
+import { Glyph, latinFitPx as fitPx, latinOrbPx } from '../Glyph'
 import { MarkAlone } from '../MarkAlone'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
@@ -117,7 +117,7 @@ export function CauldronWord(p: {
           <DragPick key={c.id} attrs={{ 'data-tile': c.id, ...(p.correct === c.id ? { 'data-correct-orb': '1' } : {}) }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
             onPick={() => p.onPick(c.id)} inZone={(q) => Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top}>
             <Orb size={TILE_SIZE} x={x} y={y} state={state} testCorrect={p.correct === c.id}>
-              <Glyph text={c.text} px={fitPx(c.text, TILE_SIZE, 110)} x={x} y={y} alphabet="latin" />
+              <Glyph text={c.text} px={latinOrbPx(c.text, TILE_SIZE, 110)} x={x} y={y} alphabet="latin" />
             </Orb>
           </DragPick>
         )

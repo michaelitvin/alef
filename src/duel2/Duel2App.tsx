@@ -8,7 +8,7 @@ import { Play } from './screens/Play'
 import { Summary } from './screens/Summary'
 import { ParentArea } from '../parent/ParentArea'
 import type { SectionId } from '../parent/types'
-import { Gallery, type GalleryEntry } from './screens/Gallery'
+import { Gallery, GALLERY, type GalleryEntry } from './screens/Gallery'
 import { Strokes } from './screens/Strokes'
 import { DrawTest } from './screens/DrawTest'
 import { useGameShell } from '../shared/shell/GameShell'
@@ -75,10 +75,12 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   })
   // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
   // through the parent area (behind its hold), never past it
-  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : station ? 'station' : 'cover'))
+  // test builds: #/gallery/<entry> starts that gallery screen at once (the /verify driver's fit check opens screens so)
+  const [linked] = useState(() => (TEST_HOOKS && typeof location !== 'undefined' ? GALLERY.find((e) => location.hash === `#/gallery/${e.id}`) ?? null : null))
+  const [screen, setScreen] = useState<Screen>(() => (TEST_HOOKS && typeof location !== 'undefined' && location.hash === '#/strokes' ? 'strokes' : linked ? 'gallery-play' : station ? 'station' : 'cover'))
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
-  const [entry, setEntry] = useState<GalleryEntry | null>(null)
+  const [entry, setEntry] = useState<GalleryEntry | null>(linked)
   // where the parent area opens: Book 2's section from the cover, the developer tools when a developer screen goes back
   const [areaAt, setAreaAt] = useState<SectionId>('game')
   const backToArea = () => { setAreaAt('developer'); setScreen('parent') }

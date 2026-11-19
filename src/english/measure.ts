@@ -19,3 +19,18 @@ export function measureText(text: string, px: number): number {
   for (const ch of text) em += ADVANCE_EM[ch] ?? OTHER_EM
   return em * px
 }
+
+/**
+ * The ink's height in em above the baseline and below it, from Andika's glyph boxes (yMax, yMin; units per em 2048):
+ * ascenders b d f h k l 0.79, i j with their dot 0.73, t 0.65, capitals 0.72, other lowercase the x-height 0.51;
+ * descenders g j p q y 0.24, the round letters' overshoot 0.012.
+ */
+export function inkEm(text: string): { top: number; bottom: number } {
+  let top = 0
+  let bottom = 0
+  for (const ch of text) {
+    top = Math.max(top, /[bdfhkl]/.test(ch) ? 0.79 : /[ij]/.test(ch) ? 0.73 : /[A-Z]/.test(ch) ? 0.72 : ch === 't' ? 0.65 : ch === ' ' ? 0 : 0.51)
+    bottom = Math.max(bottom, /[gjpqy]/.test(ch) ? 0.24 : 0.012)
+  }
+  return { top, bottom }
+}

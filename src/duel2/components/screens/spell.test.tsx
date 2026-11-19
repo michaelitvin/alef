@@ -111,4 +111,16 @@ describe('the spell book screen', () => {
       vi.useRealTimers()
     }
   })
+
+  it('the English gallery\'s long fixture is the most boxes a word has (5), and every tile it needs is there', () => {
+    expect(listedEnglish()).toContain('spell-long')
+    const r = spellFixture(ENGLISH, true)
+    expect(r.boxes.map((b) => b.text)).toEqual(['j', 'u', 'm', 'p', 'ing'])
+    r.boxes.forEach((b) => expect(r.tiles.map((t) => t.unit)).toContain(b.unit))
+    // the short one stays as it was
+    expect(spellFixture(ENGLISH).word).toBe('fish')
+  })
 })
+
+const listedEnglish = () => [...render(<CourseProvider value={ENGLISH}><Gallery onBack={() => {}} onStart={() => {}} /></CourseProvider>)
+  .container.querySelectorAll('[data-entry]')].map((e) => e.getAttribute('data-entry'))

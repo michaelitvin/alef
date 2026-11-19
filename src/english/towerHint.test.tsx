@@ -323,6 +323,21 @@ describe('the ? on the board', () => {
     he.unmount()
   })
 
+  it('the ? sits right of the tower, so it never covers the door (the tower\'s size follows the screen: it is measured)', async () => {
+    const rect = (left: number, right: number) => ({ left, right, top: 0, bottom: 0, width: right - left, height: 0, x: left, y: 0, toJSON: () => ({}) })
+    const real = Element.prototype.getBoundingClientRect
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      return this.classList.contains('nd-tower') ? rect(20, 128) : this.classList.contains('nd-pad-area') ? rect(0, 740) : real.call(this)
+    }
+    try {
+      const { container } = board('name')
+      await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+      expect((container.querySelector('.nd-hint-btn') as HTMLElement).style.left).toBe('140px')
+    } finally {
+      Element.prototype.getBoundingClientRect = real
+    }
+  })
+
   it('a letter round shows no ?', async () => {
     const { container } = board('letter')
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })

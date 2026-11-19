@@ -8,7 +8,7 @@ import { IMAGES } from '../../assets/images'
 import type { SpellView } from '../../controller'
 import { DemoHand } from '../DemoHand'
 import { DragPick } from '../DragPick'
-import { Glyph, latinFitPx } from '../Glyph'
+import { Glyph, latinFitPx, latinOrbPx } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
@@ -85,8 +85,8 @@ export function SpellBook(p: {
   const next = v.filled.findIndex((x) => x === null)
   const [demoT, setDemoT] = useState(0)
   const px = (text: string, room: number, max: number) => (latin ? latinFitPx(text, room, max) : Math.min(max, Math.round(room * 0.72)))
-  const glyph = (text: string, x: number, y: number, room: number, max: number, glow: 'soft' | 'hit' = 'soft') => (
-    <Glyph text={text} px={px(text, room, max)} x={x} y={y} glow={glow} alphabet={latin ? 'latin' : 'hebrew'} />
+  const glyph = (text: string, x: number, y: number, room: number, max: number, glow: 'soft' | 'hit' = 'soft', size = px(text, room, max)) => (
+    <Glyph text={text} px={size} x={x} y={y} glow={glow} alphabet={latin ? 'latin' : 'hebrew'} />
   )
   const boxAt = (q: { x: number; y: number }) => {
     if (Math.abs(q.y - BOX_Y) > BOX_H / 2 + DROP_AIR) return -1
@@ -130,7 +130,7 @@ export function SpellBook(p: {
           <DragPick key={`${c.unit}-${i}`} attrs={{ 'data-tile': c.unit, ...(p.correct === c.unit ? { 'data-correct-orb': '1' } : {}) }} enabled={enabled} demo={demo}
             inZone={(q) => boxAt(q) >= 0} onPick={(q) => { const box = q ? boxAt(q) : next; if (box >= 0) p.onDrop(c.unit, box) }}>
             <Orb size={TILE_SIZE} x={tileXs[i]} y={TILE_Y} state={state} testCorrect={p.correct === c.unit}>
-              {glyph(c.text, tileXs[i], TILE_Y, TILE_SIZE, 96)}
+              {glyph(c.text, tileXs[i], TILE_Y, TILE_SIZE, 96, 'soft', latin ? latinOrbPx(c.text, TILE_SIZE, 96) : undefined)}
             </Orb>
           </DragPick>
         )

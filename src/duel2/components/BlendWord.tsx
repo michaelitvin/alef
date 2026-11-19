@@ -4,6 +4,7 @@
 import type { BlendPart } from '../course/types'
 import { GlyphDefs } from './Glyph'
 import { measureText } from '../../english/measure'
+import { LATIN_TEXT } from '../../shared/latinText'
 
 /** the card: the same place as the Hebrew hint card */
 const CARD = { x: 480, y: 110, w: 640, h: 300 }
@@ -27,7 +28,7 @@ export function BlendWord({ parts, lit }: { parts: BlendPart[]; lit: number[] })
         <g key={i} data-part={p.unit} data-lit={on.has(p.unit) || undefined}>
           <text x={p.x + p.w / 2} y={y} fontSize={px} textAnchor="middle" direction="ltr"
             style={{
-              fontFamily: 'Andika, system-ui, sans-serif', stroke: '#1b0f3c', strokeWidth: Math.max(2, px * 0.05), paintOrder: 'stroke',
+              fontFamily: 'Andika, system-ui, sans-serif', ...LATIN_TEXT, stroke: '#1b0f3c', strokeWidth: Math.max(2, px * 0.05), paintOrder: 'stroke',
               fill: on.has(p.unit) ? '#ffffff' : '#fff6d8', opacity: on.has(p.unit) ? 1 : 0.45,
               filter: on.has(p.unit) ? 'url(#d2-glow-hit)' : undefined,
             }}>

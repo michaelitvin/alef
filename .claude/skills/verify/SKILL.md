@@ -22,8 +22,11 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `telemetry`). `telemetry` reads the events the play checks
-  left in the same size's storage, so run it with `book2` (and `clock`).
+  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `telemetry`, `englishFit`). `telemetry` reads the events the play
+  checks left in the same size's storage, so run it with `book2` (and `clock`).
+- **The English fit check.** `englishFit` needs the staging verify build (the English page is open only on staging):
+  `ALEF_STAGING=1 npx vite build --mode verify --outDir dist-verify`, and run the driver with `ALEF_STAGING=1` too (its
+  preview then serves `/alef/staging/`). On any other build it prints `SKIP`. It takes about 6 minutes per size.
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
@@ -40,6 +43,7 @@ and no boy or girl yet. Each check gets its own page.
 | `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top) |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
+| `englishFit` | at 740×360 and 1024×768 (its own sizes), the English screens at real scale, measured in the page (the font's ink on a canvas at the drawn size, `getBoundingClientRect`): every Latin glyph in an orb stays inside the orb's gold ring (0.41 of the sprite's width from its centre), every glyph in a box inside its box's outline; the broom (stages 4 and 6, watched 20 s each, until words came), the cauldron (4, 6), the ladder's making rung clear of the built rungs and the wizard, the tower's `?` clear of the tower, and the spell book's 5-box word (its boxes on their page). Each screen is opened with a seeded save (`?course=en&station=<screen>`) or a test-build link `#/gallery/<entry>` (the spell book: `spell-long`). |
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.

@@ -22,6 +22,14 @@ describe('Glyph', () => {
     expect(t.style.stroke).not.toBe('')
     expect(t.style.paintOrder).toBe('stroke')
   })
+  it('Latin text draws each letter on its own (no ff or fi ligature); Hebrew text keeps its font features', () => {
+    const latin = render(<svg><Glyph text="off" px={80} x={0} y={0} measurer={() => null} alphabet="latin" /></svg>).container.querySelector('text')!
+    expect(latin.style.fontVariantLigatures).toBe('none')
+    expect(latin.style.fontFeatureSettings).toContain('"liga" 0')
+    const hebrew = render(<svg><Glyph text="מוֹ" px={80} x={0} y={0} measurer={() => null} /></svg>).container.querySelector('text')!
+    expect(hebrew.style.fontVariantLigatures).toBe('')
+    expect(hebrew.style.fontFeatureSettings).toBe('')
+  })
   it('glyph text is isolated RTL', () => {
     const { container } = render(<svg><Glyph text="מוֹ" px={80} x={0} y={0} measurer={() => null} /></svg>)
     const t = container.querySelector('text')!

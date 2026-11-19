@@ -208,8 +208,11 @@ describe('the broom\'s word orbs', () => {
     const px = Number(t.getAttribute('font-size'))
     expect(px).toBeLessThan(BROOM_GLYPH_PX)
     expect(measureText('fishing', px)).toBeLessThanOrEqual(221)
-    // a unit keeps the letter's size
-    expect(Number(orb({ kind: 'unit', id: 'sh', text: 'sh', soundId: 'snd-sh', itemId: 'sh' }, 'ltr').getAttribute('font-size'))).toBe(BROOM_GLYPH_PX)
+    // a letter keeps the letter's size; a two-letter unit as wide as sh is a little smaller, inside the orb's gold ring
+    expect(Number(orb({ kind: 'unit', id: 'm', text: 'm', soundId: 'snd-m', itemId: 'm' }, 'ltr').getAttribute('font-size'))).toBe(BROOM_GLYPH_PX)
+    const sh = Number(orb({ kind: 'unit', id: 'sh', text: 'sh', soundId: 'snd-sh', itemId: 'sh' }, 'ltr').getAttribute('font-size'))
+    expect(sh).toBeLessThan(BROOM_GLYPH_PX)
+    expect(sh).toBeGreaterThan(BROOM_GLYPH_PX * 0.9)
   })
 
   it('a Hebrew syllable keeps its size', () => {

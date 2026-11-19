@@ -4,11 +4,12 @@
 import { render } from '@testing-library/react'
 import { createElement as h } from 'react'
 import { describe, expect, it } from 'vitest'
-import { Broom, WORD_IN_ORB } from '../duel2/components/screens/Broom'
+import { Broom, broomGlyphPx } from '../duel2/components/screens/Broom'
+import { ORB_RING_IN } from '../duel2/components/Glyph'
 import { CauldronWord, PICTURE, POT, TILE_SIZE, BOX_H, BOX_Y, boxXs } from '../duel2/components/screens/Cauldron'
 import { DOOR_BOX, Doors, PLATE_INNER } from '../duel2/components/screens/Doors'
 import { GHOST_SIGN, Ghosts } from '../duel2/components/screens/Ghosts'
-import { Ladder, PLATE_W, RUNG_W, rungBoxXs } from '../duel2/components/screens/Ladder'
+import { Ladder, PLATE_W, RUNG_W, ladderBoxes, rungBoxXs } from '../duel2/components/screens/Ladder'
 import { BlendWord } from '../duel2/components/BlendWord'
 import { RuneGlyph } from '../components/duel/RuneGlyph'
 import { BROOM_ORB, LANE_Y } from '../duel2/broomLayout'
@@ -20,16 +21,25 @@ import { UNITS, unit } from './content/units'
 import { WORDS, type EnWord } from './content/words'
 import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
-import { measureText } from './measure'
+import { inkEm, measureText } from './measure'
 import { SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
 import type { SpellBox } from '../duel2/policies/spell'
 
 /** the smallest phone and a tablet */
 const SIZES = [[740, 360], [1024, 768]] as const
 const STAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-/** a word's measured width may fill this share of a rectangular place (the rest is its frame and air) and of a round one */
+/** a word's measured width may fill this share of a rectangular place (the rest is its frame and air) */
 const IN_RECT = 0.9
-const IN_ROUND = 0.85
+/**
+ * How far from an orb's centre a text's ink reaches: the corner of its ink box (advance width, Andika's ink height),
+ * centred as Glyph centres it, with half its outline. It must stay inside the gold ring, ORB_RING_IN of the orb's size
+ * (a share of the orb's width is not enough: the ring is a circle, and a word's corners reach further than its middle).
+ */
+const reach = (text: string, px: number) => {
+  const ink = inkEm(text)
+  return Math.hypot(measureText(text, px) / 2 + 0.025 * px, ((ink.top + ink.bottom) / 2 + 0.025) * px)
+}
+const inRing = (t: Element, size: number) => expect(reach(t.textContent!, sizeOf(t)), t.textContent!).toBeLessThanOrEqual(size * ORB_RING_IN)
 
 const longestReal = longestPerStage()
 const longestNonsense = (stage: number): string[] => {
@@ -60,15 +70,18 @@ describe('broom orbs', () => {
       onLane: () => {}, phase: 'answer', clock: () => 2500, dir: 'ltr' }),
   ).container)[0]
 
-  it.each(STAGES)('stage %i: each longest word stays inside its orb', (stage) => {
-    for (const w of longest(stage)) {
-      const px = sizeOf(orbText(w))
-      expect(measureText(w, px), w).toBeLessThanOrEqual(BROOM_ORB * WORD_IN_ORB + 0.5)
-    }
+  it.each(STAGES)('stage %i: each longest word stays inside its orb\'s gold ring', (stage) => {
+    for (const w of longest(stage)) inRing(orbText(w), BROOM_ORB)
+  })
+  it('every word of the path stays inside the ring (the QA\'s 4-letter words: hole, home, like, name, game)', () => {
+    // (the size the orb draws, broomGlyphPx, without a render per word; the longest words above are rendered)
+    for (const w of [...WORDS.filter((x) => x.kind !== 'picture-only').map((x) => x.text), 'hole', 'home', 'like', 'name', 'game', 'box', 'fox', 'fix'])
+      expect(reach(w, broomGlyphPx(w, true)), w).toBeLessThanOrEqual(BROOM_ORB * ORB_RING_IN)
+    for (const w of ['home', 'game']) inRing(orbText(w), BROOM_ORB)
   })
   it('with gromping in every lane the orbs still clear each other and the stage, and the word is inside', () => {
     for (let i = 1; i < LANE_Y.length; i++) expect(LANE_Y[i] - LANE_Y[i - 1] - 2 * ORB_JITTER).toBeGreaterThanOrEqual(BROOM_ORB)
-    expect(measureText('gromping', sizeOf(orbText('gromping')))).toBeLessThanOrEqual(BROOM_ORB * IN_ROUND)
+    inRing(orbText('gromping'), BROOM_ORB)
     for (const [w, h] of SIZES) expect(stageBox(w, h, STAGE_CONTENT_TOP.broom).scale).toBeGreaterThan(0)
   })
 })
@@ -99,7 +112,7 @@ describe('the cauldron', () => {
     }
     const c = draw(boxesOf(longest(stage)[0]), tiles.slice(0, 4), wordChoice(longest(stage)[0]))
     const shown = [...c.querySelectorAll('[data-tile] text')] as SVGTextElement[]
-    shown.forEach((t) => expect(measureText(t.textContent!, sizeOf(t)), t.textContent!).toBeLessThanOrEqual(TILE_SIZE * IN_ROUND))
+    shown.forEach((t) => inRing(t, TILE_SIZE))
   })
   it('the word with the most boxes (7 at most) fits its row, and the picture at x 1340 clears the boxes, the pot and the stage', () => {
     const most = Math.max(...WORDS.map((w) => w.units.length))
@@ -139,13 +152,35 @@ describe('the ladder', () => {
       }
     }
   })
+  it('the rung he makes stays clear of the wizard and of the built rung below it, at every height and length', () => {
+    const rects = (c: HTMLElement) => [...c.querySelectorAll('[data-making-rung] rect')].map((r) => {
+      const [x, y, w, h] = ['x', 'y', 'width', 'height'].map((a) => Number(r.getAttribute(a)))
+      // the outline's outer half
+      const o = Number(r.getAttribute('stroke-width')) / 2
+      return { l: x - o, r: x + w + o, t: y - o, b: y + h + o }
+    })
+    const apart = (a: { l: number; r: number; t: number; b: number }, b: { x: number; y: number; w: number; h: number }) =>
+      a.r <= b.x || b.x + b.w <= a.l || a.b <= b.y || b.y + b.h <= a.t
+    for (let n = 1; n <= 6; n++) {
+      for (let built = 1; built < 5; built++) {
+        const from = Array.from({ length: n }, (_, i) => partChoice('abcdef'[i]))
+        const c = render(h(Ladder, { built: Array.from({ length: built }, () => wordChoice('ship')), plates: [partChoice('e')], rungs: 5, onPick: () => {},
+          phase: 'answer', dir: 'ltr', change: { from, at: 0, marked: false } })).container
+        const b = ladderBoxes(built, 5)
+        for (const r of rects(c)) {
+          expect(apart(r, b.wizard), `${n} boxes, ${built} built: the wizard`).toBe(true)
+          b.rungs.forEach((rung, k) => expect(apart(r, rung), `${n} boxes, ${built} built: rung ${k}`).toBe(true))
+        }
+      }
+    }
+  })
 })
 
 describe('ghost signs', () => {
   it.each(STAGES)('stage %i: each longest word is inside its sign', (stage) => {
     for (const w of longest(stage)) {
       const c = render(h(Ghosts, { signs: [wordChoice(w)], onPick: () => {}, phase: 'answer', dir: 'ltr' })).container
-      expect(measureText(w, sizeOf(inner(c)[0])), w).toBeLessThanOrEqual(GHOST_SIGN * IN_ROUND)
+      inRing(inner(c)[0], GHOST_SIGN)
     }
   })
 })
@@ -226,7 +261,7 @@ describe('the spell book', () => {
     const tiles = [...new Set(UNITS.map((u) => u.text.replace(/^-/, '')))].map(spellBox)
     for (let i = 0; i < tiles.length; i += 6) {
       const shown = [...drawSpell([spellBox('a')], tiles.slice(i, i + 6)).querySelectorAll('[data-tile] text')] as SVGTextElement[]
-      shown.forEach((t) => expect(measureText(t.textContent!, sizeOf(t)), t.textContent!).toBeLessThanOrEqual(SPELL_TILE * IN_ROUND))
+      shown.forEach((t) => inRing(t, SPELL_TILE))
     }
   })
 })

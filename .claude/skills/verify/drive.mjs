@@ -9,6 +9,8 @@
 //   ALEF_VERIFY_URL  the app's base URL (ends in /alef/), as the browser reaches it. Not set: start `vite preview` of
 //                    dist-verify/ here and stop it at the end.
 //   ALEF_VERIFY_ONLY a comma-separated list of checks to run (default: all; the names are in CHECKS below)
+// The English fit check (englishFit) needs the staging verify build (ALEF_STAGING=1): elsewhere the English page is
+// closed, and the check is skipped.
 //
 // Every run opens its own browser context and closes it in a finally, also when a check fails or throws, on Ctrl-C
 // and at the deadline: a tab left open on a shared browser keeps animating and eats its CPU. It never closes a browser
@@ -24,6 +26,15 @@ const VIEWPORTS = [
   { name: 'phone', width: 844, height: 390 },
   { name: 'tablet', width: 1180, height: 820 },
 ]
+/** the English fit check's sizes: the smallest phone on its side and a 4:3 tablet */
+const FIT_VIEWPORTS = [
+  { name: 'fit-740x360', width: 740, height: 360 },
+  { name: 'fit-1024x768', width: 1024, height: 768 },
+]
+/** a check that runs at other sizes than VIEWPORTS */
+const SIZES_OF = { englishFit: FIT_VIEWPORTS }
+/** a check that cannot run on this build: printed as SKIP, not a failure */
+class Skip extends Error {}
 /** the parent gate's year: any year 18 to 100 years back opens it (src/shared/parentGate/acceptYear.ts) */
 const YEAR_OK = new Date().getFullYear() - 40
 const YEAR_CHILD = new Date().getFullYear() - 6
@@ -174,6 +185,153 @@ async function shot(page, vp, name) {
   } catch (e) {
     console.log(`     no screenshot ${vp.name}-${name}: ${e.message.split('\n')[0]}`)
   }
+}
+
+
+// ---- the English fit check: drawn Latin text against its orb's ring or its box, at real scale ----
+/** the orb sprite's gold ring: its inner edge is this share of the sprite's width from the centre (s-orb.webp) */
+const ORB_RING_IN = 0.41
+
+/**
+ * In the page: every Latin learning glyph (SVG text with direction ltr) on screen, its ink box on the screen (the font's
+ * own ink, measured on a canvas at the drawn size, plus half the outline), and the check of its place: inside the gold
+ * ring of its orb, or inside the inner edge of its box's outline. Also the boxes' row rects and the named things they
+ * must not touch.
+ */
+const FIT_PROBE = ({ ringIn }) => {
+  const ctx = document.createElement('canvas').getContext('2d')
+  const scaleOf = (el) => { const m = el.getScreenCTM(); return Math.hypot(m.a, m.b) }
+  const box = (r) => ({ left: r.left, top: r.top, right: r.right, bottom: r.bottom })
+  const visible = (el) => { for (let e = el; e && e !== document.body; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) return false } return true }
+  const ink = (t) => {
+    const s = scaleOf(t)
+    const cs = getComputedStyle(t)
+    const px = parseFloat(cs.fontSize) * s
+    ctx.font = `${cs.fontWeight} ${px}px ${cs.fontFamily}`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'alphabetic'
+    // the canvas joins ff and fi as the font's liga says, and has no switch for it; a letter spacing that is not zero
+    // turns ligatures off (as in CSS), as the game's Latin text has them off
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0.01px'
+    const m = ctx.measureText(t.textContent)
+    const at = new DOMPoint(+t.getAttribute('x'), +t.getAttribute('y')).matrixTransform(t.getScreenCTM())
+    const half = (parseFloat(cs.strokeWidth) || 0) * s / 2
+    // the canvas and the SVG must use one font: their advances agree (else the measure is of another font)
+    const drawn = t.getComputedTextLength() * s
+    return {
+      left: at.x - m.actualBoundingBoxLeft - half, right: at.x + m.actualBoundingBoxRight + half,
+      top: at.y - m.actualBoundingBoxAscent - half, bottom: at.y + m.actualBoundingBoxDescent + half,
+      px, fontOk: Math.abs(drawn - m.width) <= Math.max(1, 0.03 * m.width), font: cs.fontFamily,
+      // Latin learning text shows each letter on its own: no ff or fi ligature
+      ligOk: cs.fontVariantLigatures === 'none',
+    }
+  }
+  const orbs = []
+  const boxes = []
+  for (const t of document.querySelectorAll('svg text[data-glyph][direction="ltr"]')) {
+    if (!t.textContent.trim() || !visible(t)) continue
+    const k = ink(t)
+    const pick = t.closest('.d2-pick')
+    const img = pick && [...pick.children].find((c) => c.tagName === 'image')
+    if (img && /s-orb/.test(img.getAttribute('href') ?? '')) {
+      const r = img.getBoundingClientRect()
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      const R = r.width * ringIn
+      const worst = Math.max(...[[k.left, k.top], [k.right, k.top], [k.left, k.bottom], [k.right, k.bottom]].map(([x, y]) => Math.hypot(x - cx, y - cy)))
+      orbs.push({ text: t.textContent, px: +k.px.toFixed(1), ring: +R.toFixed(1), reach: +worst.toFixed(1), ok: worst <= R, fontOk: k.fontOk, font: k.font, ligOk: k.ligOk })
+      continue
+    }
+    const g = t.closest('[data-box]')
+    const rect = g && [...g.children].find((c) => c.tagName === 'rect')
+    if (rect) {
+      const r = rect.getBoundingClientRect()
+      const half = (parseFloat(getComputedStyle(rect).strokeWidth) || 0) * scaleOf(rect) / 2
+      const slack = Math.min(k.left - (r.left + half), r.right - half - k.right, k.top - (r.top + half), r.bottom - half - k.bottom)
+      boxes.push({ text: t.textContent, px: +k.px.toFixed(1), slack: +slack.toFixed(1), ok: slack >= 0, fontOk: k.fontOk, font: k.font, ligOk: k.ligOk })
+    }
+  }
+  const rectsOf = (sel) => [...document.querySelectorAll(sel)].filter(visible).map((e) => box(e.getBoundingClientRect()))
+  return {
+    orbs, boxes,
+    rows: {
+      making: rectsOf('[data-making-rung] [data-box] > rect'),
+      boxes: rectsOf('svg [data-box] > rect'),
+    },
+    things: {
+      rungs: rectsOf('[data-rung] image'), wizard: rectsOf('image[data-wizard]'), book: rectsOf('[data-book]'),
+      hint: rectsOf('.nd-hint-btn'), tower: rectsOf('.nd-tower'),
+    },
+    view: { w: innerWidth, h: innerHeight },
+  }
+}
+
+/** a and b overlap (screen rects); `gap`: the free room between them (negative: they overlap by that much) */
+const gapOf = (a, b) => Math.max(b.left - a.right, a.left - b.right, b.top - a.bottom, a.top - b.bottom)
+const unionOf = (rs) => ({ left: Math.min(...rs.map((r) => r.left)), top: Math.min(...rs.map((r) => r.top)), right: Math.max(...rs.map((r) => r.right)), bottom: Math.max(...rs.map((r) => r.bottom)) })
+
+/**
+ * A fresh English save at `stage` (placement done), and a boy already chosen. Written on a page of the origin that is not
+ * the app (its icon): the staging app's own localStorage adds the prefix itself, the raw one needs it written.
+ */
+async function seedEnglish(page, base, stage) {
+  await page.goto('about:blank')
+  await page.goto(`${base}favicon.svg`, { waitUntil: 'domcontentloaded' })
+  await page.evaluate((stage) => {
+    localStorage.clear()
+    localStorage.setItem('staging:alef-player', JSON.stringify({ gender: 'boy', by: 'parent', at: 1 }))
+    if (stage) localStorage.setItem('staging:alef-english', JSON.stringify({ version: 1, state: {
+      coins: 0, bookOpen: true, stage: { stage, newAnswers: '' },
+      settings: { sfx: false, music: false, volume: 0.8, drawing: true, range: 100, path: true },
+      placement: { state: null, requested: false, done: { level: stage, answers: 20, at: 1 }, runs: 1 },
+      tower: { byMark: {}, confusions: {}, recent: {}, pace: 1 }, introSeen: {}, openedStations: [], lastRunWords: [],
+    } }))
+  }, stage)
+}
+
+/** one session of `station` on the English page at `stage`: its station cover, play, the play screen */
+async function englishStation(page, base, station, stage) {
+  await seedEnglish(page, base, stage)
+  await page.goto(`${base}duel2/?course=en&station=${station}`, { waitUntil: 'domcontentloaded' })
+  await page.locator(`[data-screen="station"][data-station="${station}"]`).waitFor()
+  await tap(page, page.locator('[data-station-play]'))
+  await passGender(page, `[data-screen="play"][data-session="${station}"]`)
+  await page.evaluate(() => document.fonts.ready)
+}
+
+/**
+ * Samples the probe every `every` ms for `ms` (orbs fly, rounds change), keeps every distinct glyph's worst sample,
+ * the rows and things of each sample, and says what does not fit.
+ */
+async function sampleFit(page, ms, every, ready, judge) {
+  const seen = new Map()
+  const bad = []
+  let samples = 0
+  const until = Date.now() + ms
+  while (Date.now() < until) {
+    const p = await page.evaluate(FIT_PROBE, { ringIn: ORB_RING_IN })
+    if (ready(p)) {
+      samples++
+      for (const o of p.orbs) {
+        const key = `orb ${o.text}`
+        const prev = seen.get(key)
+        if (!prev || o.reach / o.ring > prev.reach / prev.ring) seen.set(key, o)
+      }
+      for (const b of p.boxes) {
+        const key = `box ${b.text}`
+        const prev = seen.get(key)
+        if (!prev || b.slack < prev.slack) seen.set(key, b)
+      }
+      for (const why of judge(p)) if (!bad.includes(why)) bad.push(why)
+    }
+    await page.waitForTimeout(every)
+  }
+  for (const [key, v] of seen) {
+    if (!v.fontOk) bad.push(`${key}: not drawn in the measured font (${v.font})`)
+    if (!v.ligOk) bad.push(`${key}: ligatures are on`)
+    if (!v.ok) bad.push(key.startsWith('orb') ? `${key} (${v.px} px) reaches ${v.reach} px from the orb's centre, its ring is at ${v.ring}` : `${key} (${v.px} px) is ${-v.slack} px past its box's edge`)
+  }
+  return { seen, bad, samples }
 }
 
 // ---- the checks: each gets a fresh page in the run's context, and its own notes ----
@@ -335,6 +493,111 @@ const CHECKS = {
     const names = [...new Set(part.events.map((e) => e.e))]
     note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)
   },
+
+  async englishFit(page, base, vp, note) {
+    // the English page is open only on staging (src/english/available.ts)
+    if (!base.endsWith('/staging/')) throw new Skip('the English page needs the staging verify build (ALEF_STAGING=1)')
+    const problems = []
+    const report = (screen, r, extra = '') => {
+      const orbs = [...r.seen.values()].filter((v) => 'ring' in v)
+      const boxes = [...r.seen.values()].filter((v) => 'slack' in v)
+      const tight = orbs.length ? Math.max(...orbs.map((o) => o.reach / o.ring)) : null
+      note(`${screen}: ${r.samples} samples, ${orbs.length} orb glyphs${tight !== null ? ` (closest to the ring ${(tight * 100).toFixed(0)}%)` : ''}, ${boxes.length} box glyphs${boxes.length ? ` (least room ${Math.min(...boxes.map((b) => b.slack))} px)` : ''}${extra}`)
+      if (!r.samples) problems.push(`${screen}: nothing to measure`)
+      problems.push(...r.bad.map((b) => `${screen}: ${b}`))
+    }
+    // the broom: word orbs (from stage 2, more of them later), each orb's drawn word inside its gold ring; waves come at their
+    // own pace, so it watches long enough to see words
+    const words = new Set()
+    // stages 4 and 6, and stage 6 again (up to two more times) while no word came
+    for (const [i, stage] of [4, 6, 6, 6].entries()) {
+      if (i >= 2 && words.size) break
+      await englishStation(page, base, 'broom', stage)
+      const r = await sampleFit(page, 20_000, 300, (p) => p.orbs.length > 0, (p) => { p.orbs.forEach((o) => o.text.length > 2 && words.add(o.text)); return [] })
+      report(`broom st${stage}`, r)
+      await shot(page, vp, `en-broom-st${stage}`)
+    }
+    note(`broom words seen: ${[...words].join(' ') || 'none'}`)
+    if (!words.size) problems.push('broom: no word orb came in the time watched')
+    // the cauldron: the word's boxes and the tiles (orbs)
+    for (const stage of [4, 6]) {
+      await englishStation(page, base, 'cauldron', stage)
+      report(`cauldron st${stage}`, await sampleFit(page, 6_000, 500, (p) => p.boxes.length > 0, () => []))
+      await shot(page, vp, `en-cauldron-st${stage}`)
+    }
+    // the ladder: the rung he makes, clear of the built rungs (the foot) and the wizard
+    {
+      await englishStation(page, base, 'ladder', 4)
+      let least = Infinity
+      const r = await sampleFit(page, 6_000, 500, (p) => p.rows.making.length > 0, (p) => {
+        const row = unionOf(p.rows.making)
+        const out = []
+        for (const [name, rs] of [['a built rung', p.things.rungs], ['the wizard', p.things.wizard]]) {
+          for (const t of rs) {
+            const g = gapOf(row, t)
+            least = Math.min(least, g)
+            if (g < 0) out.push(`the making rung's boxes overlap ${name} by ${(-g).toFixed(0)} px`)
+          }
+        }
+        return out
+      })
+      report('ladder st4', r, `, the row's least room to the foot or the wizard ${least === Infinity ? '-' : least.toFixed(0)} px`)
+      await shot(page, vp, 'en-ladder-st4')
+    }
+    // the tower: the ? of a word round never on the tower (its door)
+    {
+      // a word round brings the ?. Its letter rounds come first (a new stage's units): it waits, and answers nothing (a
+      // session of right answers ends before the word rounds come); a session that ends first is played again
+      let found = false
+      for (let attempt = 0; attempt < 3 && !found; attempt++) {
+        await englishStation(page, base, 'tower', 6)
+        const until = Date.now() + 180_000
+        while (Date.now() < until && !(found = (await page.locator('.nd-hint-btn').count()) > 0)) {
+          if (!(await page.locator('[data-screen="play"]').count())) break
+          await page.waitForTimeout(1500)
+        }
+      }
+      if (!found) problems.push('tower st6: no word round with its ? came')
+      else {
+        await page.waitForTimeout(400)
+        const p = await page.evaluate(FIT_PROBE, { ringIn: ORB_RING_IN })
+        const g = gapOf(p.things.hint[0], p.things.tower[0])
+        note(`tower st6: the ? is ${g.toFixed(0)} px from the tower`)
+        if (g < 0) problems.push(`tower st6: the ? overlaps the tower by ${(-g).toFixed(0)} px`)
+        await shot(page, vp, 'en-tower-st6')
+      }
+    }
+    // the spell book with its longest word (5 boxes): the gallery's test-build link
+    {
+      await seedEnglish(page, base, 4)
+      await page.goto(`${base}duel2/?course=en#/gallery/spell-long`, { waitUntil: 'domcontentloaded' })
+      await page.locator('[data-screen="play"]').waitFor({ timeout: 20_000 }).catch(() => {})
+      await page.evaluate(() => document.fonts.ready)
+      let fiveBoxes = false
+      // the boxes fill as he drops (a tap drops the tile into the next box): the right tile of four boxes, so their
+      // letters are measured too (the fifth casts the spell)
+      const until = Date.now() + 40_000
+      while (Date.now() < until && (await page.locator('[data-box][data-filled]').count()) < 4) {
+        const right = page.locator('[data-correct-orb]').first()
+        if (await right.count()) await tap(page, right).catch(() => {})
+        await page.waitForTimeout(1200)
+      }
+      const r = await sampleFit(page, 4_000, 500, (p) => p.rows.boxes.length > 0, (p) => {
+        fiveBoxes ||= p.rows.boxes.length === 5
+        const row = unionOf(p.rows.boxes)
+        const book = p.things.book[0]
+        if (!book) return ['no book']
+        // the boxes' page: right of the spine (English reads from the left page, where the picture is)
+        const page = { left: (book.left + book.right) / 2, right: book.right, top: book.top, bottom: book.bottom }
+        return row.left < page.left || row.right > page.right || row.top < page.top || row.bottom > page.bottom ? ['the boxes leave their page'] : []
+      })
+      if (!fiveBoxes) problems.push('spell: the long fixture did not show 5 boxes')
+      if (![...r.seen.keys()].some((k) => k.startsWith('box'))) problems.push('spell: no box was filled')
+      report('spell (5 boxes)', r)
+      await shot(page, vp, 'en-spell-long')
+    }
+    if (problems.length) throw new Error(`${problems.length} misfit(s):\n     ${problems.join('\n     ')}`)
+  },
 }
 
 // ---- the run ----
@@ -376,7 +639,9 @@ async function run() {
   const names = Object.keys(CHECKS).filter((n) => !only || only.includes(n))
   console.log(`base ${base}  browser ${cdp ? 'connected' : 'launched'}  shots ${shots}`)
   let failed = 0
-  for (const vp of VIEWPORTS) {
+  for (const vp of [...VIEWPORTS, ...FIT_VIEWPORTS]) {
+    const sized = names.filter((n) => (SIZES_OF[n] ?? VIEWPORTS).includes(vp))
+    if (!sized.length) continue
     // one context per size: its own storage (a fresh save, boy or girl not set yet), touch on
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: true, isMobile: vp.name === 'phone', locale: 'he-IL' })
     contexts.add(context)
@@ -384,7 +649,7 @@ async function run() {
       // a shared browser may be busy: generous waits (a screenshot can take tens of seconds)
       context.setDefaultTimeout(60_000)
       await context.addInitScript(INIT, !!cdp)
-      for (const name of names) {
+      for (const name of sized) {
         const page = await context.newPage()
         const notes = []
         const errors = []
@@ -395,10 +660,11 @@ async function run() {
           if (errors.length) throw new Error(`page errors: ${errors.join(' | ')}`)
           console.log(`PASS ${vp.name} ${name} (${((Date.now() - t0) / 1000).toFixed(1)} s)${notes.length ? `\n     ${notes.join('\n     ')}` : ''}`)
         } catch (e) {
+          if (e instanceof Skip) { console.log(`SKIP ${vp.name} ${name}: ${e.message}`); continue }
           failed++
           await shot(page, vp, `FAIL-${name}`).catch(() => {})
           // the first line, and playwright's "waiting for locator(…)" line: which element it waited for
-          const why = e.message.split('\n').filter((l, i) => i === 0 || /waiting for/.test(l)).slice(0, 2).join(' ')
+          const why = /misfit/.test(e.message) ? e.message : e.message.split('\n').filter((l, i) => i === 0 || /waiting for/.test(l)).slice(0, 2).join(' ')
           console.log(`FAIL ${vp.name} ${name}: ${why}${notes.length ? `\n     ${notes.join('\n     ')}` : ''}`)
         } finally {
           await page.close().catch(() => {})

@@ -3,7 +3,7 @@
 // (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Book 2's pause cover holds, and the
 // run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
 // sits above the rune row, as in the duel.
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useDuelGame } from '../../../hooks/useDuelGame'
 import { Battlefield, EMBEDDED_LANDSCAPE_QUERY, useLandscape } from '../../../components/duel/Battlefield'
@@ -48,6 +48,29 @@ interface TowerProps {
 /** the gallery records nothing, its events neither */
 const NO_TELEMETRY = { track: () => {}, flush: () => {} }
 
+/** the room between the tower and the ? of a word round */
+const HINT_AIR = 12
+/**
+ * Where the ? of a word round goes (its left, in the pad area's px): right of the tower, so that it never covers the
+ * tower's door (on a phone on its side the ground under the tower is too low for it). The tower's size follows the
+ * screen's (duel.css), so it is measured; null until then (the CSS place).
+ */
+function useBesideTower(root: RefObject<HTMLDivElement | null>, on: boolean): number | null {
+  const [left, setLeft] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    const tower = root.current?.querySelector('.nd-tower')
+    const pad = root.current?.querySelector('.nd-pad-area')
+    if (!on || !tower || !pad) return
+    const place = () => setLeft(Math.round(tower.getBoundingClientRect().right - pad.getBoundingClientRect().left + HINT_AIR))
+    place()
+    const watch = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place)
+    watch?.observe(tower)
+    watch?.observe(pad)
+    return () => watch?.disconnect()
+  }, [root, on])
+  return left
+}
+
 export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, onCharge, course }: TowerProps) {
   const tower = course?.tower
   // one of each per mount (the controller is made once)
@@ -77,6 +100,9 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
   const { state } = game
   // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)
   const landscape = useLandscape(EMBEDDED_LANDSCAPE_QUERY)
+  const root = useRef<HTMLDivElement>(null)
+  const hinting = game.canHint && state.walking && !!state.round && !state.outcome && !state.preview && !state.paused && !paused
+  const hintLeft = useBesideTower(root, hinting)
   const shakeCtl = useAnimationControls()
   // one visit per mount (the run gives each visit its own key)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,7 +119,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
     void shakeCtl.start({ x: [0, -s, s, -s * 0.6, s * 0.6, -s * 0.2, 0], y: [0, s * 0.5, -s * 0.5, s * 0.3, -s * 0.2, 0, 0], transition: { duration: 0.45 } })
   }, [game.shake, shakeCtl])
   return (
-    <div className={`nd-root nd-embedded${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-tower={view.boss ? 'boss' : 'waves'}
+    <div ref={root} className={`nd-root nd-embedded${landscape ? ' nd-landscape' : ''}`} dir="rtl" data-tower={view.boss ? 'boss' : 'waves'}
       data-cue={game.cue ?? undefined} data-hidden={game.hidden.length ? game.hidden.join(' ') : undefined}>
       <RuneGlowDefs />
       <motion.div className="nd-screen" animate={shakeCtl}>
@@ -113,8 +139,8 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
             </motion.button>
           )}
           {/* the hint of a word round (English): the words on the runes blend, left to right */}
-          {game.canHint && state.walking && state.round && !state.outcome && !state.preview && !state.paused && !paused && (
-            <button type="button" className="nd-hint-btn" aria-label="hint" onClick={game.hint}><HintIcon /></button>
+          {hinting && (
+            <button type="button" className="nd-hint-btn" aria-label="hint" onClick={game.hint} style={hintLeft === null ? undefined : { left: hintLeft }}><HintIcon /></button>
           )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}

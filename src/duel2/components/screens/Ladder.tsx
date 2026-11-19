@@ -24,12 +24,20 @@ const PLATE_HALF = (PLATE_W * PLATE_ASPECT * HIT) / 2
 /** the wizard's height, and where he stands before the first rung: his feet on the stage (it ends at 900) */
 const LADDER_WIZ_H = 230
 const WIZ_START_Y = 855
+/** the wizard's centre x, left of the ladder; his box's right edge (his staff) */
+const LADDER_WIZ_X = 560
+const WIZ_RIGHT = LADDER_WIZ_X + LADDER_WIZ_H * 0.4
 export const LADDER_CX = 800
 export const LADDER_PLATE_X = PLATE_X
-/** the boxes of the rung he makes (English): a row as wide as fits over the rung */
-const BOX_ROW_W = 380
+/** the room between the rung he makes and the wizard's staff */
+const ROW_AIR = 20
+/**
+ * The boxes of the rung he makes (English): a row over the rung, centred on the ladder, that stays clear of the wizard
+ * (his staff is at WIZ_RIGHT) and of the built rung below (rungs are 150 apart, a plate 147 high: 28 to spare)
+ */
+const BOX_ROW_W = 2 * (LADDER_CX - WIZ_RIGHT - ROW_AIR)
 const BOX_MAX_W = 96
-const BOX_H = 104
+const BOX_H = 96
 const BOX_GAP = 8
 
 /** the box row's centres over the rung, left to right (the stage is ltr on the English path) */
@@ -123,7 +131,7 @@ export function ladderBoxes(built: number, rungs: number, view: FullView | null 
     rungs: Array.from({ length: Math.min(built, rungs) }, (_, k): Box => ({ x: LADDER_CX - RUNG_W / 2, y: RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2, w: RUNG_W, h: RUNG_W * PLATE_ASPECT })),
     plates: built < rungs ? ys.map((y): Box => ({ x: PLATE_X - (PLATE_W * HIT) / 2, y: y - (ph * HIT) / 2, w: PLATE_W * HIT, h: ph * HIT })) : [],
     plateYs: ys,
-    wizard: { x: 560 - LADDER_WIZ_H * 0.4, y: standY - LADDER_WIZ_H + 40, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
+    wizard: { x: LADDER_WIZ_X - LADDER_WIZ_H * 0.4, y: standY - LADDER_WIZ_H + 40, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
   }
 }
 

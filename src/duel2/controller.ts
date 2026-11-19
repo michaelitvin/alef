@@ -173,6 +173,8 @@ export interface RunOpts {
     boss?: BossKind
     /** the gallery: the tower's boss visit */
     towerBoss?: boolean
+    /** the gallery: the spell book's long fixture round (English's 5 boxes) */
+    longSpell?: boolean
   }
   /**
    * A session from the home screen's path (spec: one duel, Part 3): one visit of this screen (SESSION_LENGTH), then the
@@ -1742,7 +1744,7 @@ export class RunController {
     this.resuming = false
     this.answered = false
     // (until a course has its own spell rounds, the gallery shows its fixture round)
-    return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course) : null)
+    return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course, !!this.opts.force.longSpell) : null)
   }
 
   /**

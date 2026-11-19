@@ -1,6 +1,7 @@
 // Nikkud rune glyph: the mark alone on a dotted placeholder (circle or box). Marks are drawn with exact geometry;
 // the vav of holam male / shuruk is a drawn shape (fonts vary — a bare bar + dot reads as "i").
 import type { DuelMark, TowerRune } from '../../types/duel'
+import { LATIN_TEXT } from '../../shared/latinText'
 
 const INK = '#fff6d8'
 /** Placeholder: faint and cool-toned, so the warm mark dominates (playtest: the circle was too strong). */
@@ -19,7 +20,7 @@ export function RuneGlyph({ mark, rune, box = false, size = 56 }: { mark: DuelMa
     return (
       <span className="nd-rune-text" dir="ltr" style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: size, height: size,
-        fontFamily: "'Andika', system-ui, sans-serif", fontSize: size * 0.7, lineHeight: 1, color: INK, unicodeBidi: 'isolate',
+        fontFamily: "'Andika', system-ui, sans-serif", fontSize: size * 0.7, lineHeight: 1, color: INK, unicodeBidi: 'isolate', ...LATIN_TEXT,
       }}>{rune.text}</span>
     )
   }
