@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { EnglishCard, EnglishPath } from './EnglishCard'
 import { PlayButton } from './PlayButton'
 import { englishStationStates } from './englishStations'
+import { englishDoorsPlayable } from '../../english/doorsPlayable'
 import { useEnglishStore } from '../../english/store'
 import { englishSavePort } from '../../english/savePort'
 import { clearGender } from '../../shared/player'
@@ -44,7 +45,7 @@ describe('the English path', () => {
 
   it('runs left to right with the captions of the design, marked as parent text, and no Hebrew', () => {
     englishSavePort().setStage(5)
-    const { container } = render(<EnglishPath stations={englishStationStates()} />)
+    const { container } = render(<EnglishPath stations={englishStationStates(englishDoorsPlayable)} />)
     const path = container.querySelector('[data-path]')!
     expect(path.getAttribute('dir')).toBe('ltr')
     const caps: Record<string, Element> = Object.fromEntries([...path.querySelectorAll('[data-station]')].map((e) => [e.getAttribute('data-station'), e.querySelector('.home-cap')!]))
@@ -59,7 +60,7 @@ describe('the English path', () => {
   })
 
   it('the wizard stands at the newest open reading station', () => {
-    const { container } = render(<EnglishPath stations={englishStationStates()} />)
+    const { container } = render(<EnglishPath stations={englishStationStates(englishDoorsPlayable)} />)
     expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
     expect(container.querySelector('[data-wizard]')!.closest('[data-station]')!.getAttribute('data-station')).toBe('ladder')
   })

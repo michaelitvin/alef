@@ -124,7 +124,9 @@ module.exports = {
       severity: 'error',
       comment:
         'The home reads the English path only through its save format, station (the open stations and their ratings come only ' +
-        'from there), available, the doors filter (a light helper over the course\'s own rule) and the green pictures.',
+        'from there), available, the doors filter (a light helper over the course\'s own rule) and the green pictures. ' +
+        'This rule sees direct imports only: it cannot catch what the allowed files import in turn (doorsPlayable pulls in the ' +
+        'words and the picture map), so the home loads doorsPlayable with import() and only where English is available.',
       from: { path: '^src/components/home/', pathNot: TEST },
       to: {
         path: '^src/english/',
@@ -134,6 +136,26 @@ module.exports = {
           '^src/english/available\\.ts$',
           '^src/english/doorsPlayable\\.ts$',
           '^src/english/assets/img/',
+        ],
+      },
+    },
+    {
+      name: 'hebrew-page-never-loads-english-statically',
+      severity: 'error',
+      comment:
+        'The Hebrew page (duel2, the shared components, the pages, the parent area) never imports the English path statically, ' +
+        'so that production ships no English words. Allowed: available, saveFormat, station, measure, the green pictures and the English ' +
+        'parent index (it is empty where English is unavailable). The English course arrives by import() only, which ' +
+        'is a dynamic dependency and is left out here. Direct imports only: a transitive one is checked by looking into the built chunks.',
+      from: { path: '^src/(duel2|components|pages|parent)/', pathNot: TEST },
+      to: {
+        path: '^src/english/',
+        dependencyTypesNot: ['dynamic-import'],
+        pathNot: [
+          '^src/english/(available|saveFormat|station)\\.ts$',
+          '^src/english/assets/img/',
+          '^src/english/parent/index\\.ts$',
+          '^src/english/measure\\.ts$', // a width table of 52 numbers, no imports: the Hebrew screens' shared text sizing
         ],
       },
     },
