@@ -44,6 +44,10 @@ export interface DrawLayout {
   rest: { text: string; cx: number; px: number; font: string }
   /** the bare vav the first vowel sits on: its centre (stage) and its box in letter units */
   vav?: { cx: number; box: { left: number; right: number; top: number; bottom: number } }
+  /** the Latin board (four lines: the top line, the dashed middle line, the baseline, the descender line) */
+  alphabet?: 'latin'
+  /** Latin: the letters' boxes, left to right (`slot` is the first); `dx`: its letter's origin from `x0`, in letter units */
+  boxes?: { left: number; right: number; top: number; bottom: number; dx: number }[]
 }
 
 export function drawLayout(p: { letter: string; vav: boolean; rest: string; script: Script; def: LetterDef; marksAbove: boolean; marksUnder: boolean }, measure: TextMeasure = canvasTextMeasure): DrawLayout {
@@ -89,6 +93,55 @@ export function drawLayout(p: { letter: string; vav: boolean; rest: string; scri
     slot,
     rest: { text: p.rest, cx: edge - (rest.w * u) / 2, px: u * pxPerU, font },
     ...(vavOut ? { vav: vavOut } : {}),
+  }
+}
+
+/** a Latin letter's box is at least this wide (letter units, its padding aside): i and l are thin */
+const LATIN_MIN_W = 0.5
+/** the gap between two boxes of a word (letter units) */
+const BOX_GAP = 0.14
+
+/**
+ * The Latin board (left to right): the boxes of the letters he writes (one, or a whole word's), then the rest of the word
+ * after one box. Four lines at the course's heights; for a capital the top line is at the capitals' top (they stop short
+ * of the ascender: on school paper they touch the top line). `em`: a text's width in em; one letter unit is `unitEm` em.
+ */
+export function latinLayout(p: {
+  defs: LetterDef[]; rest: string; capital: boolean; font: string; unitEm: number; em: (text: string) => number
+  lines: { top: number; mid: number; base: number; desc: number; cap: number }
+}): DrawLayout {
+  const pts = p.defs.flatMap((d) => d.variants.flatMap((v) => v.flatMap((st) => st.pts)))
+  const defTop = Math.min(...pts.map((q) => q[1]))
+  const defBottom = Math.max(...pts.map((q) => q[1]))
+  const widths = p.defs.map((d) => Math.max(d.w, LATIN_MIN_W) + 2 * PAD)
+  const restW = p.rest ? p.em(p.rest) / p.unitEm : 0
+  const needTop = Math.min(p.lines.top - 0.15, defTop - PAD)
+  const needBottom = Math.max(p.lines.desc + 0.1, defBottom + PAD)
+  const totalW = widths.reduce((a, w) => a + w, 0) + BOX_GAP * (widths.length - 1) + (p.rest ? GAP + restW : 0)
+  const bw = BOARD.right - BOARD.left - 60
+  const bh = BOARD.bottom - BOARD.top - 30
+  const u = Math.min(U_MAX, bh / (needBottom - needTop), bw / totalW)
+  const top = (BOARD.top + BOARD.bottom) / 2 - ((needTop + needBottom) / 2) * u
+  const cx = (BOARD.left + BOARD.right) / 2
+  let edge = cx - (totalW * u) / 2
+  const sTop = top + (needTop + 0.08) * u
+  const sBottom = top + (needBottom - 0.08) * u
+  const origins: number[] = []
+  const rects = widths.map((w, i) => {
+    const r = { left: edge, right: edge + w * u, top: sTop, bottom: sBottom }
+    origins.push(edge + ((w - p.defs[i].w) / 2) * u)
+    edge += (w + BOX_GAP) * u
+    return r
+  })
+  const x0 = origins[0]
+  const boxes = rects.map((r, i) => ({ ...r, dx: (origins[i] - x0) / u }))
+  const restLeft = rects[rects.length - 1].right + GAP * u
+  const y = (v: number) => top + v * u
+  return {
+    script: 'print', u, x0, top, alphabet: 'latin',
+    lines: { top: y(p.capital ? p.lines.cap : p.lines.top), mid: y(p.lines.mid), base: y(p.lines.base), below: y(p.lines.desc), left: BOARD.left + 20, right: BOARD.right - 20 },
+    slot: rects[0], boxes,
+    rest: { text: p.rest, cx: restLeft + (restW * u) / 2, px: u / p.unitEm, font: p.font },
   }
 }
 

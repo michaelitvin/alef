@@ -8,7 +8,7 @@ import { bossTarget, bossWave } from '../logic/boss'
 import { item as itemOf, mark as markOf, syllable } from '../logic/content'
 import { dotIntroFor } from '../logic/dotIntro'
 import { heSpellRound } from '../logic/spell'
-import { drawWords } from '../logic/draw'
+import { drawWords, splitWord } from '../logic/draw'
 import { features, type ScreenId } from '../logic/predict'
 import {
   broomTarget, broomWave, cauldronRound, doorKeys, doorWords, ghostRound, isNewStageChoice, ladderPlan, letterChoice, syllableChoice, type Choice, type RoundCtx,
@@ -20,7 +20,7 @@ import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
 import { progressTallies } from '../../utils/duel/tallies'
-import type { CauldronRound, Course, DoorRound, LadderPlan } from './types'
+import type { CauldronRound, Course, DoorRound, DrawItem, LadderPlan } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */
 const sylFeatures = (c: Choice, screen: ScreenId) => {
@@ -44,6 +44,11 @@ const hebrewDoorRounds = (ctx: RoundCtx, n: number): DoorRound[] => doorWords(ct
 /** today's keys of a door word (the keys are door words: a key's picture is its image name) */
 const hebrewDoorKeys = (ctx: RoundCtx, r: DoorRound) => doorKeys(ctx, r.word!)
 
+/** today's drawing words as neutral rounds: the slot's one letter; the word itself, for its vav and marks */
+const hebrewDrawWords = (ctx: Parameters<Course['rounds']['drawWords']>[0], n?: number): DrawItem[] => drawWords(ctx, n).map((w) => ({
+  id: w.id, letters: [splitWord(w, 'print').letter], voice: `w-${w.id}`, picture: w.picture, alphabet: 'hebrew', word: w,
+}))
+
 export const HEBREW: Course = {
   id: 'he',
   game: 'book2',
@@ -51,7 +56,7 @@ export const HEBREW: Course = {
   stages: HEBREW_STAGES,
   rounds: {
     broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan: hebrewLadder, isNewStageChoice, features: sylFeatures,
-    doorRounds: hebrewDoorRounds, doorKeys: hebrewDoorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
+    doorRounds: hebrewDoorRounds, doorKeys: hebrewDoorKeys, wordLinkFor, dotIntroFor, drawWords: hebrewDrawWords, bossTarget, bossWave,
     // a door word to spell, its syllables in the boxes and its picture on the page
     spellRound: (ctx) => heSpellRound(ctx, (key) => IMAGES[key]),
   },

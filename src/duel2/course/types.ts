@@ -4,15 +4,16 @@ import type { createGameAudio } from '../../shared/gameAudio/kit'
 import type { DuelAudio } from '../../utils/duel/controller'
 import type { TowerContent } from '../../utils/duel/content'
 import type { Round } from '../../types/duel'
+import type { Rng, Tally } from '../../shared/adaptive'
 import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { ScreenView } from '../controller'
+import type { LetterDef } from '../data/strokes'
 import type { Word } from '../data/words'
 import type { BossKind, BossKinds } from '../logic/boss'
 import type { MarkId } from '../logic/content'
-import type { drawWords } from '../logic/draw'
 import type { ScreenId } from '../logic/predict'
-import type { Choice, Kind, LadderStep, RoundCtx } from '../logic/rounds'
+import type { Choice, Conf, Kind, LadderStep, RoundCtx } from '../logic/rounds'
 import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
 import type { Duel2Actions, Duel2Save } from '../store'
@@ -77,7 +78,8 @@ export interface CourseRounds {
   wordLinkFor: (itemId: string, markId: MarkId, rng?: () => number) => Word | undefined
   /** the dotted pair to introduce before a round (Hebrew only; English returns null) */
   dotIntroFor: (targetItem: string, stage: number, seen: string[]) => string | null
-  drawWords: (ctx: DrawCtx, n?: number) => Word[]
+  /** the drawing's rounds of a visit (`n` of them; the run takes them in turn) */
+  drawWords: (ctx: DrawCtx, n?: number) => DrawItem[]
   /** the spell book's round (policies/spell.ts); null: no spell round is possible at this stage (the visit ends at once) */
   spellRound: (ctx: RoundCtx) => SpellRound | null
   /**
@@ -113,7 +115,46 @@ export interface LadderPlan { fixed?: LadderFixed; marked: boolean; base?: { tar
  * last box, so he can give it without listening)
  */
 export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice; noStage?: true }
-type DrawCtx = Parameters<typeof drawWords>[0]
+/** what the drawing's rounds are chosen by: his answers, his mix-ups of letters and his stage */
+export interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; stage: number; avoid?: string }
+/**
+ * A drawing round, for both courses: the letters he writes, one box each, left to right (Hebrew: the one letter of the
+ * slot; English: the first letter of the heard word, or from stage 2 sometimes the whole three-letter word); `voice`, the
+ * word he hears; `firstSound`, its first sound after it (English: the unit's own sound take, never the letter's name);
+ * `picture`, its picture (Hebrew: an image name; English: the file). `id`: the word's id (telemetry, the replay).
+ */
+export interface DrawItem {
+  id: string
+  letters: string[]
+  voice: string
+  firstSound?: string
+  picture?: string
+  alphabet: 'hebrew' | 'latin'
+  /** English: what his answer counts on (a unit for one letter, the word for a whole word): its tallies and the stage pass */
+  asked?: Choice
+  /** English: the word as written (the rest of it stands beside the slot of one letter) */
+  text?: string
+  /** Hebrew: the Book 2 word (the slot's letter, the bare vav and the marks come from it) */
+  word?: Word
+}
+/**
+ * The course's own letters on the drawing board (English: Latin, on four lines). Unset: Hebrew's (data/strokes.ts, no
+ * four lines). y values are in the letter box (data/strokes.ts: 0 the top line, 1 the baseline).
+ */
+export interface CourseWriting {
+  /** every letter, in the order the stroke review lists them */
+  letters: LetterDef[]
+  strokesOf(letter: string): LetterDef
+  /** the strokes of a letter that are marks (the dots of i and j, the bars of t and f) */
+  isMark(letter: string, stroke: number): boolean
+  /** the four lines (the top line, the dashed middle line, the baseline, the descender line), and the capitals' top */
+  lines: { top: number; mid: number; base: number; desc: number; cap: number }
+  /** the font the rest of a word is written in, and its ascender in em (one letter unit is this many em) */
+  font: string
+  unitEm: number
+  /** a text's width in em */
+  em(text: string): number
+}
 
 /**
  * A door, for both courses. `plate`: the words on it, one per word, in reading order (English: one word, or from stage 4
@@ -200,6 +241,8 @@ export interface Course {
   placement?: CoursePlacement
   /** the hint that blends a word (English); unset (Hebrew): the run's own hint (a syllable's letter and vowel) */
   hint?: CourseHint
+  /** the drawing's letters (English: Latin, on four lines); unset (Hebrew): Book 2's */
+  writing?: CourseWriting
   lineAudioId(id: string, n?: number): string
   /** how many takes a line has (the run picks one: Hebrew `lineById`, English `enLine`; an unknown id has one) */
   lineVariations(id: string): number

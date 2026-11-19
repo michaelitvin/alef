@@ -3,8 +3,8 @@
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
-// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
-import type { BlendPlan, Course, CourseHint, CourseRounds } from '../duel2/course/types'
+// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts, the drawing logic/draw.ts (on the Latin board: EN_WRITING). Calling a member not built yet throws (the word link).
+import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from '../duel2/course/types'
 import type { Choice } from '../duel2/logic/rounds'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
@@ -19,6 +19,9 @@ import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
 import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
 import { enSpellRound } from './logic/spell'
+import { enDrawWords } from './logic/draw'
+import { BASE, DESC, LATIN_STROKES, MID, TOP, isMark, latinStrokesOf } from './data/strokes'
+import { measureText } from './measure'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { blendOf } from './logic/blend'
@@ -42,7 +45,7 @@ const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), pic
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
-/** the English screens' rounds: the broom's, the cauldron's, the ladder's, the ghosts', the doors' and the spell book's so far (the other screens come with the later English tasks) */
+/** the English screens' rounds: the broom's, the cauldron's, the ladder's, the ghosts', the doors', the spell book's and the drawing's */
 const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
@@ -63,12 +66,23 @@ const EN_ROUNDS: CourseRounds = {
   doorRounds: (ctx, n) => enDoorRounds(ctx, n, { picture: wordPicture }),
   doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),
   wordLinkFor: () => notBuilt('word link'),
-  drawWords: () => notBuilt('drawing'),
+  // the first letter of a heard word, sometimes a whole word or a capital (pictures: files only)
+  drawWords: (ctx, n) => enDrawWords(ctx, n, { picture: wordPicture, voice: hasVoice }),
   // a real word to spell; its picture at stages 1–3 (files only)
   spellRound: (ctx) => enSpellRound(ctx, { picture: wordPicture, voice: hasVoice }),
   bossKinds: enBossKinds,
   bossTarget: enBossTarget,
   bossWave: enBossWave,
+}
+
+/** the capitals' top: they stop short of the ascender (TOP); the Latin board draws its top line there for a capital */
+const CAP = Math.min(...latinStrokesOf('H').variants[0].flatMap((st) => st.pts.map((p) => p[1])))
+
+/** the drawing's letters: Latin, in Andika's shapes, on four lines (one letter unit is Andika's ascender, 0.79 em) */
+const EN_WRITING: CourseWriting = {
+  letters: LATIN_STROKES, strokesOf: latinStrokesOf, isMark,
+  lines: { top: TOP, mid: MID, base: BASE, desc: DESC, cap: CAP },
+  font: "'Andika'", unitEm: 0.79, em: (text) => measureText(text, 1),
 }
 
 /** the blend of a word choice (a unit, a sound: none) */
@@ -122,6 +136,7 @@ export const ENGLISH: Course = {
   // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
   tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts },
   hint: EN_HINT,
+  writing: EN_WRITING,
   placement: {
     // (only reads: also on the gallery's read-only save)
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },

@@ -19,13 +19,13 @@ import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
 import { HEBREW } from './course/hebrew'
-import type { BlendPart, BlendPlan, Course, CourseId, DoorKey, DoorRound, LadderPlan } from './course/types'
+import type { BlendPart, BlendPlan, Course, CourseId, DoorKey, DoorRound, DrawItem, LadderPlan } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
-import { LetterChecker } from './logic/recognizer'
+import { LetterChecker, splitMarks } from './logic/recognizer'
 import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
-import { drawLayout } from './logic/drawLayout'
-import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
+import { drawLayout, latinLayout } from './logic/drawLayout'
+import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView, type LatinRound } from './policies/draw'
 import { spellVisit, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellStep, type SpellView } from './policies/spell'
 import { spellFixture } from './data/spellFixtures'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
@@ -288,7 +288,9 @@ export class RunController {
   private boss: BossState | null = null
   private bossesWon: BossKind[] = []
   private startStars = 0
-  private drawPlan: Word[] | null = null
+  private drawPlan: DrawItem[] | null = null
+  /** the drawing round on the screen (a pause starts it again) */
+  private drawCur: DrawItem | null = null
   /** the drawing round in progress (policies/draw.ts) */
   private draw: DrawState | null = null
   /** it waits for his next stroke; the wait's number, and its times (settle, idle, hint) */
@@ -404,7 +406,7 @@ export class RunController {
     if (this.view.screen?.screen === 'draw') {
       this.track('replay', { screen: 'draw', target: this.view.screen.word.id, phase: this.view.phase })
       this.course.audio.stopVoice()
-      void this.course.audio.sayParts([{ id: `w-${this.view.screen.word.id}` }])
+      void this.course.audio.sayParts([{ id: this.drawCur?.voice ?? `w-${this.view.screen.word.id}` }])
       return
     }
     if (this.view.screen?.screen === 'spell') {
@@ -1624,17 +1626,25 @@ export class RunController {
   private buildDraw(script: Script): DrawView {
     const cur = this.view.screen
     if (this.resuming && cur?.screen === 'draw' && !this.answered) {
-      // after a pause the same word starts again from its beginning
+      // after a pause the same word starts again from its beginning (Latin: from its first box)
       this.resuming = false
-      const v: DrawView = { ...cur, strokes: [], mode: 'letter', demo: undefined, lineFx: undefined, glow: undefined }
+      const v: DrawView = { ...cur, strokes: [], mode: 'letter', demo: undefined, lineFx: undefined, glow: undefined, ...(cur.letters ? { letter: cur.letters[0], box: 0 } : {}) }
       this.set({ screen: v })
       return v
     }
     this.resuming = false
     this.answered = false
     const st = this.save.read()
-    this.drawPlan ??= this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters })
-    const word = this.drawPlan[this.roundInScreen % this.drawPlan.length]
+    this.drawPlan ??= this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters, stage: this.stage })
+    const item = this.drawPlan[this.roundInScreen % this.drawPlan.length]
+    this.drawCur = item
+    const v = item.alphabet === 'latin' ? this.latinDraw(item) : this.hebrewDraw(item.word!, script)
+    this.set({ screen: v })
+    return v
+  }
+
+  /** Book 2's board: the word on its lines, the slot for its first letter, its bare vav and its marks */
+  private hebrewDraw(word: Word, script: Script): DrawView {
     const split = splitWord(word, script)
     const def = strokesOf(split.letter, script)
     const marks = marksFor(word, this.stage)
@@ -1643,9 +1653,42 @@ export class RunController {
       marksAbove: marks.some((m) => m.zone === 'above-left' || m.zone === 'above-right' || m.zone === 'vav-above'),
       marksUnder: marks.some((m) => m.zone === 'under'),
     })
-    const v: DrawView = { screen: 'draw', word, script, letter: split.letter, layout, marks, strokes: [], mode: 'letter' }
-    this.set({ screen: v })
-    return v
+    return { screen: 'draw', word, script, letter: split.letter, layout, marks, strokes: [], mode: 'letter' }
+  }
+
+  /** the course's Latin board (four lines): a box for each letter; after one letter, the rest of the word */
+  private latinDraw(item: DrawItem): DrawView {
+    const w = this.course.writing!
+    const defs = item.letters.map((l) => w.strokesOf(l))
+    const one = item.letters.length === 1
+    const rest = one && item.text ? item.text.slice(1) : ''
+    const layout = latinLayout({ defs, rest, capital: one && /[A-Z]/.test(item.letters[0]), lines: w.lines, font: w.font, unitEm: w.unitEm, em: w.em })
+    return {
+      screen: 'draw', word: { id: item.id }, script: 'print', letter: item.letters[0], layout, marks: [], strokes: [], mode: 'letter',
+      alphabet: 'latin', letters: item.letters, box: 0, ...(item.picture ? { picture: item.picture } : {}),
+    }
+  }
+
+  /**
+   * A Latin round's facts: each letter without its marks, its marks, and what he hears (the word, then its first sound;
+   * a capital: the line for the big letter before the sound; a whole word: the word). When he waits: the line, then the
+   * word or the sound; when it is drawn: the word.
+   */
+  private latinRound(item: DrawItem): LatinRound {
+    const w = this.course.writing!
+    const parts = item.letters.map((l) => splitMarks(w.strokesOf(l), w.isMark))
+    const voice: DrawLine = { id: item.voice }
+    const sound: DrawLine[] = item.firstSound ? [{ id: item.firstSound }] : []
+    const capital = item.letters.length === 1 && /[A-Z]/.test(item.letters[0])
+    const word = item.letters.length > 1
+    return {
+      defs: parts.map((x) => x.body), marks: parts.map((x) => x.marks),
+      cue: {
+        start: capital ? [voice, { line: 'q-draw-big' }, ...sound] : [voice, ...sound],
+        idle: word ? [{ line: 'q-draw-word' }, voice] : capital ? [{ line: 'q-draw-big' }, ...sound] : [{ line: 'q-draw' }, voice, ...sound],
+        end: [voice],
+      },
+    }
   }
 
   /**
@@ -1655,12 +1698,14 @@ export class RunController {
   private async runDrawRound(t: number, screen: 'draw' | 'draw-hand') {
     this.syncMult()
     const view = this.buildDraw(this.opts.force?.script ?? scriptOf(screen))
-    const def = strokesOf(view.letter, view.script)
+    const latin = view.alphabet === 'latin' ? this.latinRound(this.drawCur!) : undefined
+    const def = latin ? latin.defs[0] : strokesOf(view.letter, view.script)
     const st = this.save.read()
-    // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo)
+    // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo); a whole word, only
+    // with letters he has written alone, has the first visit's demo only
     const firstVisit = screen === 'draw' && (this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw'))
-    const demo = firstVisit ? 'first' : needsDemo(view.letter, view.script, st.tallies, st.recent) ? 'letter' : null
-    this.draw = drawRound({ view, def, checker: new LetterChecker(def), screen, demo, strokeNo: this.strokeNo, demoNo: this.demoNo })
+    const demo = firstVisit ? 'first' : (view.letters?.length ?? 1) === 1 && needsDemo(view.letter, view.script, st.tallies, st.recent) ? 'letter' : null
+    this.draw = drawRound({ view, def, checker: new LetterChecker(def), screen, demo, strokeNo: this.strokeNo, demoNo: this.demoNo, ...(latin ? { latin } : {}) })
     this.assets = []
     await this.guard(t, new Promise<void>((r) => {
       this.drawDone = r
@@ -1676,6 +1721,23 @@ export class RunController {
     this.drawTimers = []
   }
   private drawLine(l: DrawLine) { return 'id' in l ? l.id : l.take ? this.course.lineAudioId(l.line, l.take) : this.variation(l.line) }
+
+  /**
+   * A drawn round's answer: the drawing's tallies; where the course says what it asks (English: the unit of one letter,
+   * the word of a whole word), also that one's tallies and the stage pass (as on the other screens)
+   */
+  private drawAnswer(features: string[], miss: boolean) {
+    const asked = this.drawCur?.asked
+    if (!asked) { this.save.recordAnswer({ features, miss, newStage: false }); return }
+    const { passed } = this.save.recordAnswer({
+      features: [...new Set([...features, ...this.course.rounds.features(asked, 'draw')])], miss, asked,
+      newStage: this.course.rounds.isNewStageChoice(this.stage, asked),
+    })
+    if (passed) {
+      this.stage = this.save.read().stage.stage
+      this.track('stage', { stage: this.stage })
+    }
+  }
 
   /** One step of the round's policy, done: the views, the sounds, the saves, the telemetry, then its wait. */
   private drawStep(e: DrawInput) {
@@ -1699,7 +1761,7 @@ export class RunController {
     }
     for (const op of r.save) {
       if (op.op === 'markDemo') { this.demoShown = true; this.save.markDemo(op.id) }
-      else if (op.op === 'recordAnswer') this.save.recordAnswer({ features: op.features, miss: op.miss, newStage: false })
+      else if (op.op === 'recordAnswer') this.drawAnswer(op.features, op.miss)
       else this.save.noteDrawRound()
     }
     for (const x of r.track) this.track(x.e, x.data)

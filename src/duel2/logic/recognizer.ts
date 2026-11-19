@@ -385,6 +385,13 @@ export class LetterChecker {
     const t = this.lead()
     return t.v.slice(t.idx).map((st) => st.pts.map((p) => apply(t.frame, p)))
   }
+  /** points of the data (letter units), where his letter is: a mark of the letter (the dot of i) sits where his letter puts it */
+  place(pts: Pt[]): Pt[] {
+    const t = this.lead()
+    return pts.map((p) => apply(t.frame, p))
+  }
+  /** his letter's size against the data's (1: as the data) */
+  get scale() { return this.lead().frame.s }
   /** the letter's box as the data has it, where his letter is */
   expectedBox(): Box {
     const t = this.lead()
@@ -561,4 +568,50 @@ export function markTargets(specs: MarkSpec[], boxes: MarkBoxes): Pt[][] {
     else out.push([[x - 0.2, y - 0.05], [x + 0.2, y - 0.05]], [[x, y - 0.03], [x, y + 0.15]])
   }
   return out
+}
+
+// ---- Latin marks (the dot of i and j, the bar of t and f): the Hebrew marks rule. Any order, also after the next letter;
+// each is matched to the nearest mark still missing, at the place his own letter puts it (LetterChecker.place)
+
+/** a mark of a Latin letter: a dot (a tap) or a bar, and its stroke as the data has it */
+export interface LetterMark { shape: 'dot' | 'bar'; pts: Pt[] }
+/** a mark he owes, where his letter puts it (`box`: the letter's box in a word; `k`: his letter's size against the data) */
+export interface MarkTarget extends LetterMark { box: number; k: number }
+
+/**
+ * A letter's strokes without its marks (the checker judges these), and its marks (from its first variant: only a d g q
+ * have more, and they have no marks).
+ */
+export function splitMarks(def: LetterDef, isMark: (letter: string, stroke: number) => boolean): { body: LetterDef; marks: LetterMark[] } {
+  const marks = def.variants[0].filter((_, i) => isMark(def.letter, i))
+    .map((st): LetterMark => ({ shape: pathLength(st.pts) < 0.08 ? 'dot' : 'bar', pts: st.pts }))
+  if (!marks.length) return { body: def, marks }
+  return { body: { ...def, variants: def.variants.map((v) => v.filter((_, i) => !isMark(def.letter, i))) }, marks }
+}
+
+/** how far (letter units, times his letter's size) a mark's middle may be from its place, across and up/down */
+const MARK_TOL = { dot: { x: 0.24, y: 0.22 }, bar: { x: 0.3, y: 0.2 } }
+
+/**
+ * The mark (an index of `targets`) that his stroke is: of the right kind (a dot is small; a bar is flat and about as
+ * long as the data's), near its place; the nearest one when two fit. -1: none (a wrong mark, or not a mark at all).
+ */
+export function matchMark(stroke: Pt[], targets: MarkTarget[]): number {
+  const b = bbox(stroke)
+  const w = b.right - b.left
+  const h = b.bottom - b.top
+  const c: Pt = [(b.left + b.right) / 2, (b.top + b.bottom) / 2]
+  let best = -1
+  let bestD = Infinity
+  targets.forEach((t, i) => {
+    const k = Math.max(1, t.k)
+    const tb = bbox(t.pts)
+    const tc: Pt = [(tb.left + tb.right) / 2, (tb.top + tb.bottom) / 2]
+    if (t.shape === 'dot' ? Math.max(w, h) > 0.16 * k : !(w >= 1.8 * h && w > 0.35 * (tb.right - tb.left) && w < 2.5 * (tb.right - tb.left) + 0.1)) return
+    const tol = MARK_TOL[t.shape]
+    if (Math.abs(c[0] - tc[0]) > tol.x * k || Math.abs(c[1] - tc[1]) > tol.y * k) return
+    const d = dist(c, tc)
+    if (d < bestD) { best = i; bestD = d }
+  })
+  return best
 }

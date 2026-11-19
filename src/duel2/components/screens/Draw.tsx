@@ -1,6 +1,8 @@
 // 6 · Drawing: the word's picture, and the word on writing lines with its first letter missing — an empty framed slot
 // where he writes the letter from memory (print or handwriting, the script of the word). His strokes are white while he
 // draws, gold when right; a wrong one fades while the glowing hand shows it again. After the letter, its marks.
+// The Latin board (English): four lines (the top line, the dashed middle line, the baseline, a faint descender line),
+// left to right; a box for each letter he writes (one, or a whole word's), and after one box the rest of the word.
 import { useEffect, useRef, useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import type { DrawView } from '../../controller'
@@ -13,6 +15,7 @@ import { strokesOf } from '../../data/strokes'
 import { TEST_HOOKS } from '../../testHooks'
 import { Stage, toStage, type Phase } from './Stage'
 import { useTouchAnswer } from '../DragPick'
+import { useCourse } from '../../course/CourseContext'
 
 const poly = (p: Pt[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
 const INK = { fill: '#fff6d8', stroke: '#1b0f3c', paintOrder: 'stroke' as const, strokeLinejoin: 'round' as const }
@@ -22,10 +25,11 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
   const base = L.lines.base
   const font = L.rest.font
   const px = L.rest.px
-  const shin = L.script === 'print' ? drawnDots(L.rest.text, px, canvasMeasurer) : null
+  const shin = L.script === 'print' && L.alphabet !== 'latin' ? drawnDots(L.rest.text, px, canvasMeasurer) : null
+  const latin = L.alphabet === 'latin'
   const text = (t: string, x: number, attrs: Record<string, unknown> = {}) => (
-    <text data-glyph x={x} y={base} fontSize={px} textAnchor="middle" direction="rtl"
-      style={{ ...INK, fontFamily: `${font}, 'Noto Sans Hebrew', serif`, strokeWidth: Math.max(2, px * 0.04), unicodeBidi: 'isolate' }} {...attrs}>{t}</text>
+    <text data-glyph x={x} y={base} fontSize={px} textAnchor="middle" direction={latin ? 'ltr' : 'rtl'}
+      style={{ ...INK, fontFamily: latin ? `${font}, sans-serif` : `${font}, 'Noto Sans Hebrew', serif`, strokeWidth: Math.max(2, px * 0.04), unicodeBidi: 'isolate' }} {...attrs}>{t}</text>
   )
   return (
     <g data-word>
@@ -39,6 +43,7 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
 /** `bare`: no picture (the parent's test board) */
 export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) => void; bare?: boolean }) {
   const touch = useTouchAnswer()
+  const writing = useCourse().writing
   const v = p.view
   const L = v.layout
   const can = p.phase === 'answer'
@@ -75,36 +80,47 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
     else setDiscarded((d) => [...d, { id: s.id, pts: s.pts }])
   }
   const ok = v.strokes.filter((s) => s.state === 'ok' || s.state === 'helped')
+  const latin = v.alphabet === 'latin'
+  /** the ink of the letter he writes now (Latin: in its own box, not its marks) */
+  const mine = latin ? ok.filter((s) => s.box === (v.box ?? 0) && !s.mark) : ok
   const markVav = v.glow === 'marks' && v.marks.some((m) => m.zone.startsWith('vav'))
-  const pic = IMAGES[v.word.picture]
+  const pic = latin ? v.picture : v.word.picture ? IMAGES[v.word.picture] : undefined
+  const boxes = L.boxes ?? [L.slot]
   if (TEST_HOOKS && typeof window !== 'undefined') {
     // the verify build draws the right strokes and marks with real touches (never in a release build)
+    const def = latin && writing ? writing.strokesOf(v.letter) : strokesOf(v.letter, v.script)
+    const dx = L.boxes?.[v.box ?? 0]?.dx ?? 0
     ;(window as unknown as { __d2draw?: unknown }).__d2draw = {
-      layout: { x0: L.x0, top: L.top, u: L.u }, letter: v.letter, script: v.script, mode: v.mode,
-      expected: strokesOf(v.letter, v.script).variants[0].map((s) => s.pts),
+      layout: { x0: L.x0 + dx * L.u, top: L.top, u: L.u }, letter: v.letter, script: v.script, mode: v.mode,
+      expected: def.variants[0].filter((_, i) => !(latin && writing?.isMark(v.letter, i))).map((s) => s.pts),
       marks: () => markTargets(v.marks, { letter: bbox(ok.flatMap((s) => s.pts)), vav: L.vav?.box }),
     }
   }
   const lineY = (y: number) => L.top + y * L.u
   return (
     <Stage bg="bg-ground">
-      {!p.bare && <g data-picture>
+      {!p.bare && (pic || !latin) && <g data-picture>
         <rect x={PIC.x - PIC.size / 2 - 14} y={PIC.y - PIC.size / 2 - 14} width={PIC.size + 28} height={PIC.size + 28} rx={36} fill="#fff6d8" opacity={0.92} stroke="#ffd34d" strokeWidth={6} />
         {pic ? <image href={pic} x={PIC.x - PIC.size / 2} y={PIC.y - PIC.size / 2} width={PIC.size} height={PIC.size} />
           : <circle cx={PIC.x} cy={PIC.y} r={PIC.size / 3} fill="#c9b6ff" />}
       </g>}
       <rect data-draw-board x={BOARD.left} y={BOARD.top} width={BOARD.right - BOARD.left} height={BOARD.bottom - BOARD.top} rx={30}
         fill="#160a35" fillOpacity={0.86} stroke="#ffd34d" strokeOpacity={0.55} strokeWidth={5} />
-      {/* the writing lines: top, middle (faint), baseline, and the line below for descenders */}
-      <g data-lines stroke="#fff6d8" strokeLinecap="round">
-        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.top} y2={L.lines.top} strokeWidth={4} strokeOpacity={0.5} />
-        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.mid} y2={L.lines.mid} strokeWidth={3} strokeOpacity={0.18} strokeDasharray="14 16" />
+      {/* the writing lines: top, middle (faint), baseline, and the line below for descenders (Latin: the four lines of
+          school paper, the middle one dashed, the descender line faint) */}
+      <g data-lines data-four={latin ? '' : undefined} stroke="#fff6d8" strokeLinecap="round">
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.top} y2={L.lines.top} strokeWidth={4} strokeOpacity={latin ? 0.6 : 0.5} />
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.mid} y2={L.lines.mid} strokeWidth={3} strokeOpacity={latin ? 0.45 : 0.18} strokeDasharray="14 16" />
         <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.base} y2={L.lines.base} strokeWidth={5} strokeOpacity={0.6} />
-        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.below} y2={L.lines.below} strokeWidth={3} strokeOpacity={0.3} strokeDasharray="6 12" />
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.below} y2={L.lines.below} strokeWidth={3} strokeOpacity={latin ? 0.22 : 0.3} strokeDasharray="6 12" />
       </g>
-      <rect data-slot x={L.slot.left} y={L.slot.top} width={L.slot.right - L.slot.left} height={L.slot.bottom - L.slot.top} rx={24}
-        className={can && v.mode === 'letter' && !down && !v.strokes.length ? 'd2-slot-pulse' : undefined}
-        fill="#ffd34d" fillOpacity={0.06} stroke="#ffd34d" strokeWidth={5} strokeDasharray="22 14" strokeOpacity={v.mode === 'done' ? 0.25 : 0.85} />
+      {boxes.map((b, i) => {
+        const now = i === (v.box ?? 0)
+        return <rect key={i} data-slot x={b.left} y={b.top} width={b.right - b.left} height={b.bottom - b.top} rx={24}
+          className={now && can && v.mode === 'letter' && !down && !v.strokes.some((s) => (s.box ?? 0) === i && !s.mark) ? 'd2-slot-pulse' : undefined}
+          fill="#ffd34d" fillOpacity={0.06} stroke="#ffd34d" strokeWidth={5} strokeDasharray="22 14"
+          strokeOpacity={v.mode === 'done' || (latin && !now && v.mode === 'letter') ? 0.25 : 0.85} />
+      })}
       <WordText L={L} glowVav={markVav} />
       <g data-strokes className={v.mode === 'done' ? 'd2-drawn' : v.glow === 'marks' ? 'd2-drawn-soft' : undefined}>
         {v.strokes.map((s) => {
@@ -134,7 +150,7 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
             </clipPath>
           )}
           <g clipPath={v.lineFx.outside ? 'url(#d2-outside)' : undefined}>
-            {ok.map((s) => <polyline key={s.id} points={poly(s.pts.map(map))} fill="none" stroke="#ff9a2e" strokeWidth={w * 1.6} strokeLinecap="round" strokeLinejoin="round" />)}
+            {mine.map((s) => <polyline key={s.id} points={poly(s.pts.map(map))} fill="none" stroke="#ff9a2e" strokeWidth={w * 1.6} strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
         </g>
       )}

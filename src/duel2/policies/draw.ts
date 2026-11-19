@@ -4,17 +4,23 @@
 // failed); then the marks (judged by place and count); then the word again. No hearts are lost. Pure: no store, no
 // clock, no audio. `stepDraw(state, event)` returns the next state and what the run must do (show, say, play, save,
 // track, wait); the run (controller.ts) does it and sends back the events. `LetterChecker` and `judgeMarks` judge; the
-// policy only puts them in order.
+// policy only puts them in order. On the Latin board (English: `latin`) he writes a box for each letter, in turn, each
+// with its own checker; the dots and bars of a letter are its marks (`matchMark`): any order once the letter is there,
+// also after the next letter; after the last letter, the line asks for those still missing.
 import type { Pt, Script, LetterDef } from '../data/strokes'
-import type { Word } from '../data/words'
-import { bbox, judgeMarks, lineFeedback, markTargets, pathLength, type Box, type LetterChecker, type LineKind, type MarkBoxes, type MarkSpec, type Verdict } from '../logic/recognizer'
+import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, matchMark, pathLength, type Box, type LetterMark, type LineKind, type MarkBoxes, type MarkSpec, type MarkTarget, type Verdict } from '../logic/recognizer'
 import { strokeTiming, type DrawLayout } from '../logic/drawLayout'
 import { drawFeature } from '../logic/draw'
 
-/** one of his strokes on the drawing screen (letter units of the slot): live while judged, gold when right */
-export interface DrawStroke { id: number; pts: Pt[]; state: 'live' | 'pending' | 'ok' | 'wrong' | 'helped' | 'mark' }
+/**
+ * one of his strokes on the drawing screen (letter units of the slot): live while judged, gold when right. Latin: `box`,
+ * the letter's box it was drawn for; `mark`, a dot or a bar of a letter (it is not part of the letter's ink)
+ */
+export interface DrawStroke { id: number; pts: Pt[]; state: 'live' | 'pending' | 'ok' | 'wrong' | 'helped' | 'mark'; box?: number; mark?: true }
+/** the round's word: its id, and its picture (Hebrew: an image name; the whole Book 2 word) */
+export interface DrawWord { id: string; picture?: string }
 export interface DrawView {
-  screen: 'draw'; word: Word; script: Script; letter: string; layout: DrawLayout; marks: MarkSpec[]
+  screen: 'draw'; word: DrawWord; script: Script; letter: string; layout: DrawLayout; marks: MarkSpec[]
   strokes: DrawStroke[]
   mode: 'letter' | 'mark' | 'done'
   /** the glowing hand draws these strokes (a one-point stroke is a tap); a hint's demo stops at his next stroke */
@@ -23,6 +29,11 @@ export interface DrawView {
   lineFx?: { kind: LineKind; outside?: { from: number; to: number } }
   /** what the voice names glows: the marks' places */
   glow?: 'marks'
+  /** the Latin board: the letters, one box each (`letter` is the one he writes now, in box `box`); the picture's file */
+  alphabet?: 'latin'
+  letters?: string[]
+  box?: number
+  picture?: string
 }
 
 /** wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
@@ -105,6 +116,17 @@ type Flow =
   | { k: 'ring'; kind: LineKind } | { k: 'line' } | { k: 'marks' } | { k: 'mark-wrong' } | { k: 'mark-redraw'; id: number; targets: Pt[][] }
   | { k: 'marks-end' } | { k: 'done-ring' } | { k: 'done-word' } | { k: 'over' }
 
+/**
+ * A Latin round's own facts: the letters' strokes without their marks (one checker each, in turn), their marks (the
+ * Hebrew marks rule: any order, also after the next letter, each matched to the nearest one missing), and what he
+ * hears: as the round starts, when he waits, and when it is drawn.
+ */
+export interface LatinRound {
+  defs: LetterDef[]
+  marks: LetterMark[][]
+  cue: { start: DrawLine[]; idle: DrawLine[]; end: DrawLine[] }
+}
+
 /** the round's facts that the run knows as it starts */
 export interface DrawCtx {
   /** the round's screen, as built by the run (its word, script, layout and marks) */
@@ -119,6 +141,8 @@ export interface DrawCtx {
   /** the last stroke and demo ids (they only grow) */
   strokeNo: number
   demoNo: number
+  /** a Latin round (unset: Hebrew) */
+  latin?: LatinRound
 }
 
 export interface DrawState {
@@ -151,6 +175,11 @@ export interface DrawState {
   spoke: boolean
   strokeNo: number
   demoNo: number
+  /**
+   * a Latin round: its facts, the box he writes now, and the marks of the letters he has written, where his letters
+   * put them (`got`: drawn, or drawn for him by the hand)
+   */
+  latin?: LatinRound & { box: number; due: (MarkTarget & { got: boolean })[] }
 }
 
 /** A round as it starts (the run sends `start` next). */
@@ -159,6 +188,7 @@ export function drawRound(c: DrawCtx): DrawState {
     view: c.view, def: c.def, checker: c.checker, screen: c.screen, demo: c.demo, flow: { k: 'word' }, started: 0,
     tries: [], wrongStrokes: 0, helped: false, againSaid: false, mine: [], markTries: 0, markWrong: false, asked: false, spoke: false,
     strokeNo: c.strokeNo, demoNo: c.demoNo,
+    ...(c.latin ? { latin: { ...c.latin, box: 0, due: [] } } : {}),
   }
 }
 
@@ -171,7 +201,25 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
   const run = (p: RunPatch) => { r.run = { ...r.run, ...p } }
   const go = (flow: Flow, wait?: Wait) => { s.flow = flow; if (wait) r.wait = wait }
   const checker = () => { if (s.checker === state.checker) s.checker = state.checker.clone(); return s.checker }
-  const addStroke = (pts: Pt[], st: DrawStroke['state']) => show({ strokes: [...s.view.strokes, { id: ++s.strokeNo, pts, state: st }] })
+  const addStroke = (pts: Pt[], st: DrawStroke['state'], more?: Partial<DrawStroke>) =>
+    show({ strokes: [...s.view.strokes, { id: ++s.strokeNo, pts, state: st, ...(s.latin ? { box: s.latin.box } : {}), ...more }] })
+  // Latin: the checker judges each letter in its own box; his strokes and the hand's are where he draws them (from the
+  // first box's origin)
+  const dx = () => (s.latin ? s.view.layout.boxes?.[s.latin.box]?.dx ?? 0 : 0)
+  const out = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x + d, y]) : p }
+  const inn = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x - d, y]) : p }
+  /** Latin: the marks of his letters still missing */
+  const missing = () => (s.latin ? s.latin.due.filter((m) => !m.got) : [])
+  const markLine = (): DrawLine => ({ line: missing()[0]?.shape === 'bar' ? 'draw-cross' : 'draw-dot', take: 1 })
+  /** Latin: his stroke is the missing mark `i` (gold at once: a mark is not judged as a stroke of the letter) */
+  const gotMark = (i: number, pts: Pt[]) => {
+    const L = s.latin!
+    const t = missing()[i]
+    s.latin = { ...L, due: L.due.map((m) => (m === t ? { ...m, got: true } : m)) }
+    addStroke(pts, 'ok', { box: t.box, mark: true })
+    r.sfx.push('stroke')
+    r.track.push({ e: 'draw-mark', data: { mark: `${s.view.letters![t.box]}:${t.shape}`, ok: true } })
+  }
   const restyle = (f: (x: DrawStroke, i: number, all: DrawStroke[]) => DrawStroke['state'] | null) =>
     show({ strokes: s.view.strokes.map((x, i, all) => { const k = f(x, i, all); return k ? { ...x, state: k } : x }) })
   const dropFaded = () => show({ strokes: s.view.strokes.filter((x) => x.state !== 'wrong') })
@@ -194,18 +242,25 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
 
   /** the letter is done: the lines are told (never failed), then the marks */
   const lines = () => {
-    s.ink = bbox(s.view.strokes.filter((x) => x.state === 'ok' || x.state === 'helped').flatMap((x) => x.pts))
+    s.ink = bbox(s.view.strokes.filter((x) => (x.state === 'ok' || x.state === 'helped') && !x.mark && (!s.latin || x.box === s.latin.box)).flatMap((x) => inn(x.pts)))
+    if (s.latin) {
+      // the letter's marks are owed now, where his letter puts them
+      const L = s.latin
+      const c = s.checker
+      s.latin = { ...L, due: [...L.due, ...L.marks[L.box].map((m) => ({ ...m, pts: out(c.place(m.pts)), box: L.box, k: c.scale, got: false }))] }
+    }
     run({ phase: 'feedback' })
     const fb = lineFeedback(s.ink, s.def)
     if (fb) {
       show({ lineFx: fb })
-      r.track.push({ e: 'draw-lines', data: { letter: v0.letter, kind: fb.kind } })
+      r.track.push({ e: 'draw-lines', data: { letter: s.view.letter, kind: fb.kind } })
       go({ k: 'ring', kind: fb.kind }, { for: 'sleep', ms: RING_MS })
       return
     }
     afterLines()
   }
   const afterLines = () => {
+    if (s.latin) { latinNext(); return }
     if (!s.view.marks.length) { done(); return }
     // his marks count from the moment the letter is done, also while the voice asks for them: a dot drawn at once (the
     // ש's own dot, right after the ש) was thrown away, so the marks seemed to need an order (the parent)
@@ -217,6 +272,39 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     s.mine = []
     go({ k: 'marks' })
     strokeWait()
+  }
+  /** Latin: the next letter's box; after the last letter, the marks still missing (none: the round is drawn) */
+  const latinNext = () => {
+    const L = s.latin!
+    if (L.box < L.defs.length - 1) {
+      const box = L.box + 1
+      s.latin = { ...L, box }
+      s.def = L.defs[box]
+      s.checker = new LetterChecker(s.def)
+      s.tries = []
+      show({ letter: s.view.letters![box], box })
+      run({ phase: 'answer' })
+      letterTurn()
+      return
+    }
+    if (!missing().length) { done(); return }
+    show({ mode: 'mark' })
+    run({ phase: 'answer' })
+    r.ask = markLine()
+    s.asked = false
+    go({ k: 'marks' })
+    strokeWait()
+  }
+  /** Latin: a stroke while he draws the marks: the nearest missing one, or a wrong mark (the hand shows them) */
+  const latinMark = (pts: Pt[]) => {
+    const m = matchMark(pts, missing())
+    if (m >= 0) { gotMark(m, pts); if (missing().length) strokeWait(); else marksEnd(); return }
+    r.track.push({ e: 'draw-mark', data: { mark: missing().map((t) => `${s.view.letters![t.box]}:${t.shape}`).join('+'), ok: false } })
+    s.markWrong = true
+    s.markTries++
+    addStroke(pts, 'wrong', { mark: true })
+    run({ phase: 'feedback' })
+    go({ k: 'mark-wrong' }, { for: 'sleep', ms: WRONG_MS })
   }
   /** the marks are right, or the hand drew them: the round ends once the line that asks for them has ended */
   const marksEnd = () => {
@@ -230,15 +318,17 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     r.sfx.push('drawn')
     r.drawn = true
     const clean = s.wrongStrokes === 0 && !s.helped && !s.markWrong
-    r.save.push({ op: 'recordAnswer', features: [drawFeature(v0.letter, v0.script), `sc:${s.screen}`], miss: !clean }, { op: 'noteDrawRound' })
-    r.track.push({ e: 'draw-done', data: { letter: v0.letter, script: v0.script, word: v0.word.id, ms: Math.round(ev.at - s.started), wrongStrokes: s.wrongStrokes, helped: s.helped } })
+    // (a word: each of its letters' tallies)
+    const letters = s.latin ? s.view.letters! : [v0.letter]
+    r.save.push({ op: 'recordAnswer', features: [...new Set(letters.map((l) => drawFeature(l, v0.script))), `sc:${s.screen}`], miss: !clean }, { op: 'noteDrawRound' })
+    r.track.push({ e: 'draw-done', data: { letter: letters.join(''), script: v0.script, word: v0.word.id, ms: Math.round(ev.at - s.started), wrongStrokes: s.wrongStrokes, helped: s.helped } })
     go({ k: 'done-ring' }, { for: 'sleep', ms: RING_MS })
   }
   /** a verdict of the checker on his stroke (`settled`: no stroke, the pause settled a waiting piece) */
   const judged = (v: Verdict | null, settled: boolean) => {
     if (!v) { letterTurn(); return }
     r.track.push({ e: 'draw-stroke', data: {
-      letter: v0.letter, script: v0.script, n: v.index + 1, ok: v.kind !== 'wrong', ...(v.kind === 'partial' ? { partial: true } : {}),
+      letter: s.view.letter, script: v0.script, n: v.index + 1, ok: v.kind !== 'wrong', ...(v.kind === 'partial' ? { partial: true } : {}),
       ...(v.kind === 'wrong' ? { why: v.why } : {}), ...(settled ? { settled: true } : {}), ...(v.kind === 'ok' && v.joined ? { joined: true } : {}),
     } })
     // the strokes this verdict covers; a piece that waited before them was right (settled) or wrong
@@ -259,7 +349,8 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
   }
   /** the hint: the hand shows what is left (the marks, once he draws them); his next stroke stops it */
   const hint = (auto: boolean) => {
-    const strokes = s.view.mode === 'mark' && s.boxes ? markTargets(s.view.marks, s.boxes) : s.checker.remaining()
+    const strokes = s.latin && s.view.mode === 'mark' ? missing().map((m) => m.pts)
+      : s.view.mode === 'mark' && s.boxes ? markTargets(s.view.marks, s.boxes) : s.checker.remaining().map(out)
     if (!strokes.length) return
     r.track.push({ e: 'hint', data: { screen: 'draw', target: v0.word.id, auto } })
     const id = ++s.demoNo
@@ -272,14 +363,15 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     case 'start':
       s.started = ev.at
       run({ phase: 'question', overlay: null, hintAvailable: true, needNext: false })
-      r.track.push({ e: 'draw-start', data: { word: v0.word.id, letter: v0.letter, script: v0.script } })
-      r.say.push({ id: `w-${v0.word.id}` })
+      r.track.push({ e: 'draw-start', data: { word: v0.word.id, letter: s.latin ? v0.letters!.join('') : v0.letter, script: v0.script } })
+      r.say.push(...(s.latin ? s.latin.cue.start : [{ id: `w-${v0.word.id}` }]))
       go({ k: 'word' }, { for: 'say' })
       break
     case 'stroke': {
       if (f.k !== 'letter' && f.k !== 'marks') break
       // his stroke stops the idle line or the hint's voice of this wait
       if (s.spoke) r.hush = true
+      if (f.k === 'marks' && s.latin) { latinMark(ev.pts); break }
       if (f.k === 'marks') {
         s.mine = [...s.mine, ev.pts]
         addStroke(ev.pts, 'mark')
@@ -296,10 +388,15 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
         go({ k: 'mark-wrong' }, { for: 'sleep', ms: WRONG_MS })
         break
       }
+      // Latin: a dot or a bar of a letter he has written (also after the next letter) is that mark, not a stroke of this one
+      if (s.latin && !s.checker.hasPending && missing().length) {
+        const m = matchMark(ev.pts, missing())
+        if (m >= 0) { gotMark(m, ev.pts); letterTurn(); break }
+      }
       // a tap is not a stroke of the letter
       if (pathLength(ev.pts) < TAP_LEN) { letterTurn(); break }
       addStroke(ev.pts, 'live')
-      judged(checker().add(ev.pts), false)
+      judged(checker().add(inn(ev.pts)), false)
       break
     }
     case 'settle':
@@ -310,7 +407,8 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
       if (f.k !== 'letter' && f.k !== 'marks') break
       s.spoke = true
       r.track.push({ e: 'idle', data: { screen: 'draw', target: v0.word.id } })
-      if (s.view.mode === 'mark') r.say.push({ line: 'draw-mark', take: 1 })
+      if (s.view.mode === 'mark') r.say.push(s.latin ? markLine() : { line: 'draw-mark', take: 1 })
+      else if (s.latin) r.say.push(...s.latin.cue.idle)
       else r.say.push({ line: 'q-draw' }, { id: `w-${v0.word.id}` })
       break
     case 'hint':
@@ -339,7 +437,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           }
           if (!s.demo) { answer(); break }
           run({ phase: 'demo' })
-          const id = handDraw(s.checker.remaining(), s.demo === 'first' ? { line: 'demo-draw', take: 1 } : undefined)
+          const id = handDraw(s.checker.remaining().map(out), s.demo === 'first' ? { line: 'demo-draw', take: 1 } : undefined)
           go({ k: 'demo', id })
           break
         }
@@ -351,18 +449,18 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           const c = s.checker
           if ((s.tries[f.index] ?? 0) >= DRAW_TRIES) {
             // no dead end: the hand draws it for him and the round goes on
-            go({ k: 'redraw', id: handDraw([c.expected()]), helped: true })
+            go({ k: 'redraw', id: handDraw([out(c.expected())]), helped: true })
             break
           }
           const line: DrawLine | undefined = s.againSaid ? undefined : { line: 'draw-again' }
           s.againSaid = true
-          go({ k: 'redraw', id: handDraw([c.expected()], line), helped: false })
+          go({ k: 'redraw', id: handDraw([out(c.expected())], line), helped: false })
           break
         }
         case 'redraw':
           handDone(f.id)
           dropFaded()
-          if (f.helped) { addStroke(checker().force(), 'helped'); s.helped = true }
+          if (f.helped) { addStroke(out(checker().force()), 'helped'); s.helped = true }
           run({ phase: 'answer' })
           if (s.checker.done) lines(); else letterTurn()
           break
@@ -375,7 +473,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           afterLines()
           break
         case 'mark-wrong': {
-          const targets = markTargets(s.view.marks, s.boxes!)
+          const targets = s.latin ? missing().map((m) => m.pts) : markTargets(s.view.marks, s.boxes!)
           go({ k: 'mark-redraw', id: handDraw(targets), targets })
           break
         }
@@ -383,7 +481,9 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           handDone(f.id)
           dropFaded()
           if (s.markTries >= DRAW_TRIES) {
-            for (const p of f.targets) addStroke(p, 'helped')
+            const owed = missing()
+            f.targets.forEach((p, i) => addStroke(p, 'helped', s.latin ? { mark: true, box: owed[i]?.box } : undefined))
+            if (s.latin) s.latin = { ...s.latin, due: s.latin.due.map((m) => ({ ...m, got: true })) }
             s.helped = true
             marksEnd()
             break
@@ -393,7 +493,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           strokeWait()
           break
         case 'done-ring':
-          r.say.push({ id: `w-${v0.word.id}` })
+          r.say.push(...(s.latin ? s.latin.cue.end : [{ id: `w-${v0.word.id}` }]))
           go({ k: 'done-word' }, { for: 'say' })
           break
         case 'done-word':
