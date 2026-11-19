@@ -75,18 +75,19 @@ describe('the spell book screen', () => {
   })
 
   it('the gallery opens the spell book with a fixture round, rtl and ltr', async () => {
-    // the English page's gallery lists it; the Hebrew one only once Task 26 puts it in the cycle (the force opens it on both)
+    // both pages' galleries list it (the Hebrew run has it after the doors); the long one is English's only
     const listed = (course: Course) => [...render(<CourseProvider value={course}><Gallery onBack={() => {}} onStart={() => {}} /></CourseProvider>)
       .container.querySelectorAll('[data-entry]')].map((e) => e.getAttribute('data-entry'))
     expect(listed(ENGLISH)).toContain('spell')
-    expect(listed(HEBREW)).not.toContain('spell')
+    expect(listed(HEBREW)).toContain('spell')
+    expect(listed(HEBREW)).not.toContain('spell-long')
     vi.useFakeTimers()
     // the demo's line plays until the test lets it end
     fakeAudio.holdUntil(/^demo-spell/)
     try {
-      // (Hebrew has no spell rounds yet, Task 26; English has, so here it has none, to check the fixture's page with its picture)
-      const englishFixture: Course = { ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => null } }
-      for (const [course, word, dir] of [[HEBREW, 'camel', 'rtl'], [englishFixture, 'fish', 'ltr']] as [Course, string, 'rtl' | 'ltr'][]) {
+      // (both courses have spell rounds; here they have none, to check the fixture's page with its picture)
+      const fixture = (c: Course): Course => ({ ...c, rounds: { ...c.rounds, spellRound: () => null } })
+      for (const [course, word, dir] of [[fixture(HEBREW), 'camel', 'rtl'], [fixture(ENGLISH), 'fish', 'ltr']] as [Course, string, 'rtl' | 'ltr'][]) {
         expect(course.rounds.spellRound({ rng: () => 0.5, stage: 4, tallies: {}, recent: {}, confusions: { letters: {}, syllables: {} } })).toBeNull()
         const c = new RunController({ sandbox: true, force: { screen: 'spell', stage: 4, demo: true }, course, now: () => Date.now() })
         c.start()

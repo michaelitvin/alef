@@ -77,7 +77,7 @@ export async function drain(c: RunController) {
 /** the book open, drawing on, the demos, dot introductions and hints seen: the sessions are plain rounds */
 const SAVE = {
   bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: true },
-  demosSeen: ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors', 'demo-draw'],
+  demosSeen: ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors', 'demo-draw', 'demo-spell'],
   dotIntrosSeen: ['bet', 'kaf', 'pe', 'shin'],
   hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))),
 }
@@ -166,12 +166,24 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
     let broomRight = true
     let drawKey = ''
     let skipWrong = false
+    let spellKey = ''
     for (let guard = 0; guard < 20_000 && !c.view.over; guard++) {
       autoTower(c)
       note()
       const v = c.view
       const s = v.screen
-      if (v.needNext || v.fixing) { proceed(c); armed = false }
+      if (s?.screen === 'spell') {
+        // one answer per box (a wrong one: a tile that is no box's, then he fixes it with the right one)
+        const box = s.filled.findIndex((x) => x === null)
+        const right = s.round.boxes[box]?.unit
+        if (s.alive) spellKey = ''
+        else if (right && !s.demo && !s.wrong && v.fixing) c.gesture({ type: 'drop', tile: right, box })
+        else if (right && !s.demo && !s.wrong && v.phase === 'answer' && s.filled.join(',') + box !== spellKey) {
+          spellKey = s.filled.join(',') + box
+          const tile = answer(v) === 'right' ? right : s.round.tiles.find((t) => !s.round.boxes.some((b) => b.unit === t.unit))?.unit
+          if (tile) c.gesture({ type: 'drop', tile, box })
+        }
+      } else if (v.needNext || v.fixing) { proceed(c); armed = false }
       else if (s?.screen === 'broom' && v.phase === 'answer') {
         const head = s.waves.find((w) => w.resolved.some((r) => !r))
         if (head && head.id !== broomWave) { broomWave = head.id; broomRight = answer(v) === 'right' }

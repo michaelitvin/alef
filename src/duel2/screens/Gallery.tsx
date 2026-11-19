@@ -23,9 +23,7 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'draw-print', label: 'Drawing — the first letter in print', force: { screen: 'draw', stage: 2, demo: true } },
   { id: 'draw-hand', label: 'Drawing — the first letter in handwriting', force: { screen: 'draw-hand', stage: 3, demo: true } },
   { id: 'doors', label: 'Door corridor — read the word', force: { screen: 'doors', stage: 4, demo: true } },
-  // (a fixture round until the course has its own spell rounds; listed on the Hebrew page once Task 26 puts the spell
-  // book in its cycle, so the Hebrew gallery stays as it is until then)
-  { id: 'spell', label: 'Spell book — put each sound in its box', force: { screen: 'spell', stage: 4, demo: true }, courses: ['en'] },
+  { id: 'spell', label: 'Spell book — put each sound in its box', force: { screen: 'spell', stage: 4, demo: true } },
   { id: 'spell-long', label: 'Spell book — the longest word (5 boxes)', force: { screen: 'spell', stage: 4, demo: true, longSpell: true }, courses: ['en'] },
   { id: 'crystal', label: 'Crystal (the reward)', force: { screen: 'crystal', stage: 4 } },
   { id: 'dot-intro', label: 'Dotted letters — the introduction (ב/בּ, כ/כּ, פ/פּ, שׂ/שׁ)', force: { screen: 'dot', stage: 3, fixed: 'dot' } },

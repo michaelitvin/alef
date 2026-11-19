@@ -7,6 +7,7 @@ import { wordLinkFor } from '../data/words'
 import { bossTarget, bossWave } from '../logic/boss'
 import { item as itemOf, mark as markOf, syllable } from '../logic/content'
 import { dotIntroFor } from '../logic/dotIntro'
+import { heSpellRound } from '../logic/spell'
 import { drawWords } from '../logic/draw'
 import { features, type ScreenId } from '../logic/predict'
 import {
@@ -51,8 +52,8 @@ export const HEBREW: Course = {
   rounds: {
     broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan: hebrewLadder, isNewStageChoice, features: sylFeatures,
     doorRounds: hebrewDoorRounds, doorKeys: hebrewDoorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
-    // the spell book is not in the Hebrew cycle yet (Task 26 gives it rounds and puts it there)
-    spellRound: () => null,
+    // a door word to spell, its syllables in the boxes and its picture on the page
+    spellRound: (ctx) => heSpellRound(ctx, (key) => IMAGES[key]),
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {

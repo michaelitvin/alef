@@ -2854,6 +2854,168 @@ exports[`the Hebrew baseline > Hebrew ladder at stage 4 1`] = `
 }
 `;
 
+exports[`the Hebrew baseline > Hebrew spell at stage 4 1`] = `
+{
+  "events": [
+    {
+      "e": "session-start",
+      "screen": "spell",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "fix",
+      "screen": "spell",
+      "target": "syl-k-e",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "fix",
+      "screen": "spell",
+      "target": "syl-t-u",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "fix",
+      "screen": "spell",
+      "target": "syl-k-e",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "fix",
+      "screen": "spell",
+      "target": "syl-y-i",
+    },
+    {
+      "e": "spell-drop",
+    },
+    {
+      "e": "spell-cast",
+    },
+    {
+      "e": "session-end",
+      "screen": "spell",
+    },
+  ],
+  "views": [
+    "spell:question:tent:_,_:alef-cholam,ayin-patach,lamed-tsere,mem-segol,he-segol",
+    "spell:answer:tent:_,_:alef-cholam,ayin-patach,lamed-tsere,mem-segol,he-segol",
+    "spell:answer:tent:alef-cholam,_:alef-cholam,ayin-patach,lamed-tsere,mem-segol,he-segol",
+    "spell:feedback:tent:alef-cholam,he-segol:alef-cholam,ayin-patach,lamed-tsere,mem-segol,he-segol",
+    "spell:answer:dog:_,_:alef-segol,khaf-kamatz,dalet-segol,kaf-segol,lamed-segol",
+    "spell:mistake:dog:_,_:alef-segol,khaf-kamatz,dalet-segol,kaf-segol,lamed-segol",
+    "spell:answer:dog:kaf-segol,_:alef-segol,khaf-kamatz,dalet-segol,kaf-segol,lamed-segol",
+    "spell:feedback:dog:kaf-segol,lamed-segol:alef-segol,khaf-kamatz,dalet-segol,kaf-segol,lamed-segol",
+    "spell:celebrate:dog:kaf-segol,lamed-segol:alef-segol,khaf-kamatz,dalet-segol,kaf-segol,lamed-segol",
+    "spell:answer:cat:_,_:tav-shuruk,het-kamatz,qof-shuruk,yod-cholam,het-kubutz",
+    "spell:answer:cat:het-kamatz,_:tav-shuruk,het-kamatz,qof-shuruk,yod-cholam,het-kubutz",
+    "spell:mistake:cat:het-kamatz,_:tav-shuruk,het-kamatz,qof-shuruk,yod-cholam,het-kubutz",
+    "spell:feedback:cat:het-kamatz,tav-shuruk:tav-shuruk,het-kamatz,qof-shuruk,yod-cholam,het-kubutz",
+    "spell:celebrate:cat:het-kamatz,tav-shuruk:tav-shuruk,het-kamatz,qof-shuruk,yod-cholam,het-kubutz",
+    "spell:answer:house:_,_:nun-cholam,yod-shuruk,yod-chirik,bet-patach,tet-patach",
+    "spell:answer:house:bet-patach,_:nun-cholam,yod-shuruk,yod-chirik,bet-patach,tet-patach",
+    "spell:feedback:house:bet-patach,yod-chirik:nun-cholam,yod-shuruk,yod-chirik,bet-patach,tet-patach",
+    "spell:answer:dog:_,_:kaf-segol,lamed-kamatz,tav-kamatz,mem-tsere,lamed-segol",
+    "spell:mistake:dog:_,_:kaf-segol,lamed-kamatz,tav-kamatz,mem-tsere,lamed-segol",
+    "spell:answer:dog:kaf-segol,_:kaf-segol,lamed-kamatz,tav-kamatz,mem-tsere,lamed-segol",
+    "spell:feedback:dog:kaf-segol,lamed-segol:kaf-segol,lamed-kamatz,tav-kamatz,mem-tsere,lamed-segol",
+    "spell:celebrate:dog:kaf-segol,lamed-segol:kaf-segol,lamed-kamatz,tav-kamatz,mem-tsere,lamed-segol",
+    "spell:answer:house:_,_:gimel-kamatz,bet-patach,yod-chirik,zayin-tsere,ayin-kamatz",
+    "spell:answer:house:bet-patach,_:gimel-kamatz,bet-patach,yod-chirik,zayin-tsere,ayin-kamatz",
+    "spell:mistake:house:bet-patach,_:gimel-kamatz,bet-patach,yod-chirik,zayin-tsere,ayin-kamatz",
+    "spell:feedback:house:bet-patach,yod-chirik:gimel-kamatz,bet-patach,yod-chirik,zayin-tsere,ayin-kamatz",
+    "spell:celebrate:house:bet-patach,yod-chirik:gimel-kamatz,bet-patach,yod-chirik,zayin-tsere,ayin-kamatz",
+  ],
+  "voice": [
+    "w-tent",
+    "syl-0-o",
+    "syl-h-e",
+    "w-tent",
+    "w-dog",
+    "syl-k-e",
+    "syl-k-e",
+    "syl-l-e",
+    "w-dog",
+    "streak-2",
+    "w-cat",
+    "syl-ch-a",
+    "syl-t-u",
+    "syl-t-u",
+    "w-cat",
+    "streak-1",
+    "w-house",
+    "syl-b-a",
+    "syl-y-i",
+    "w-house",
+    "w-dog",
+    "syl-k-e",
+    "syl-k-e",
+    "syl-l-e",
+    "w-dog",
+    "w-house",
+    "syl-b-a",
+    "syl-y-i",
+    "syl-y-i",
+    "w-house",
+  ],
+}
+`;
+
 exports[`the Hebrew baseline > a fresh Hebrew save 1`] = `"{"stage":{"stage":1,"newAnswers":""},"tallies":{},"recent":{},"confusions":{"letters":{},"vowels":{},"syllables":{}},"pace":1,"lastEnded":null,"demosSeen":[],"dotIntrosSeen":[],"hintsSeen":{},"mistakes":[],"roundNo":0,"runs":0,"bestRun":0,"crystals":0,"totalStars":0,"coins":0,"praiseHeard":{},"drawRounds":0,"bossesBeaten":[],"bossNewHeard":[],"lastBoss":null,"potionIntroSeen":false,"merchant":{"visits":0,"purchases":0,"declines":0,"short":0,"over":0,"hints":0,"level":0,"demoSeen":false,"undoShown":false,"cleanRow":0,"hintRow":0},"checkpointsSinceVisit":999,"towerWave":1,"towerVisits":0,"towerOwed":[],"bookOpen":false,"towerTail":"","firstDuelImported":false,"cycleNo":0,"broomSessions":0,"settings":{"sfx":true,"music":true,"volume":0.8,"drawing":true,"range":100},"strokeMarks":{}}"`;
 
 exports[`the Hebrew baseline > the cycle at stage 1 1`] = `
@@ -2898,6 +3060,7 @@ exports[`the Hebrew baseline > the cycle at stage 4 1`] = `
   "ladder",
   "ghosts",
   "doors",
+  "spell",
   "draw",
   "draw-hand",
 ]

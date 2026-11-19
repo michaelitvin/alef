@@ -33,5 +33,6 @@ export function recordStageAnswer(p: StageProgress, correct: boolean): { progres
 export function screensOfStage(stage: number): ScreenId[] {
   if (stage === 1) return ['broom', 'ghosts']
   if (stage < 4) return ['broom', 'cauldron', 'ladder', 'ghosts']
-  return ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
+  // the spell book opens with the doors (writing after reading: it comes after them in the cycle)
+  return ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell']
 }

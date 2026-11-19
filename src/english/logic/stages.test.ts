@@ -71,7 +71,9 @@ describe('the English stages', () => {
     const he: PassFacts = { stage: 4, draw: false, bookOpen: true, recent: {}, duelRecent: {}, cycleNo: 0, towerTail: '' }
     const en: PassFacts = { ...he, stages: ENGLISH.stages }
     expect(runPass({ mode: 'run', lastEnded: 'doors', facts: en }).screen).toBe('spell')
-    expect(runPass({ mode: 'run', lastEnded: 'doors', facts: he }).screen).toBe('tower')
+    // (the Hebrew run has the spell book after the doors too, from stage 4: Task 26)
+    expect(runPass({ mode: 'run', lastEnded: 'doors', facts: he }).screen).toBe('spell')
+    expect(runPass({ mode: 'run', lastEnded: 'spell', facts: he }).screen).toBe('tower')
     expect(visitLength('gallery', 'doors', en)).toBe(6)
     expect(visitLength('gallery', 'doors', he)).toBe(3)
     expect(visitLength('session', 'cauldron', en)).toBe(EN_SESSION_LENGTH.cauldron)

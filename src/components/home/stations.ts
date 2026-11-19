@@ -23,6 +23,7 @@ const STATIONS: Station[] = [
   { id: 'cauldron', learn: 'בניית הברה', pic: 'img' },
   { id: 'ladder', learn: 'משפחות הברות, דגש', pic: 'img' },
   { id: 'doors', learn: 'קריאת מילים', pic: 'img' },
+  { id: 'spell', learn: 'כתיב מילים', pic: 'img' },
   { id: 'draw', learn: 'אותיות דפוס', pic: 'glyph' },
   { id: 'draw-hand', learn: 'אותיות כתב יד', pic: 'hand' },
 ]

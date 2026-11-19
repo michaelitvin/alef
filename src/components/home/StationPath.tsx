@@ -51,8 +51,9 @@ export function StationPath() {
   const gender = useGender()
   const wizard = wizardArt(WIZ, 's-wizard-cast', gender)
   // the newest open station: the last open reading station (drawing opens with stage 1, together with the first Book 2
-  // minigames, and only comes last on the path because writing follows reading: it is never the newest)
-  const reading = stations.filter((s) => s.open && s.id !== 'draw' && s.id !== 'draw-hand')
+  // minigames, and only comes last on the path because writing follows reading: it is never the newest; the spell book
+  // opens with the doors and follows them for the same reason, so the doors stay the newest)
+  const reading = stations.filter((s) => s.open && s.id !== 'draw' && s.id !== 'draw-hand' && s.id !== 'spell')
   const newest = stations.indexOf(reading[reading.length - 1])
   // the wizard's station comes into view: on a phone the RTL path can start with it off-screen. At once on the first
   // load, smoothly when he moves on later. A relative scroll, so the RTL scroll origin does not matter.

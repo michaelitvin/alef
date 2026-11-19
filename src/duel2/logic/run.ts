@@ -5,10 +5,10 @@ import type { ScreenId } from './predict'
 import { recordStageAnswer, screensOfStage } from './stages'
 import type { CourseStages } from '../course/types'
 
-export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
+export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell']
 /** the two drawing screens (print, then handwriting) go after the doors, when drawing is on (spec: one duel, Part 5) */
-/** the first duel's tower opens every cycle (spec: one duel, Part 3) */
-const ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand']
+/** the first duel's tower opens every cycle (spec: one duel, Part 3); the spell book follows the doors (English path, Part 7) */
+const ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand']
 const DRAWING: ScreenId[] = ['draw', 'draw-hand']
 /** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words / words per visit (spec:
  * visit lengths, tune in playtest) */

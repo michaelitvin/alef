@@ -1,6 +1,7 @@
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RunController, type BroomView, type View } from './controller'
+import { bossOpen, type BossKind } from './logic/boss'
+import { RunController, type BroomView, type SpellView, type View } from './controller'
 import { useRun } from './useRun'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useDuel2Store } from './store'
 import { hintCoins } from './logic/merchant'
@@ -37,7 +38,7 @@ function seeded(seed: number) {
 
 type Force = NonNullable<ConstructorParameters<typeof RunController>[0]>['force']
 let played: string[] = []
-const allDemos = ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors']
+const allDemos = ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors', 'demo-spell']
 const ALL_DOTS = ['bet', 'kaf', 'pe', 'shin']
 
 function make(opts: ConstructorParameters<typeof RunController>[0] = {}) {
@@ -69,10 +70,18 @@ function wrongId(v: View): string {
   if (s.screen === 'ladder') return s.plates.find((x) => x.id !== s.target.id && x.nearMissOf !== s.target.id)!.id
   throw new Error('no pick')
 }
+/** the spell book: the right tile into the next empty box (also his fix after a mistake) */
+function spellDrop(c: RunController) {
+  const s = c.view.screen
+  if (s?.screen !== 'spell' || s.demo || s.wrong || !(c.view.phase === 'answer' || c.view.fixing)) return
+  const box = s.filled.findIndex((x) => x === null)
+  if (box >= 0) c.gesture({ type: 'drop', tile: s.round.boxes[box].unit, box })
+}
 /** after a mistake he does the right move himself (the marked answer); an explanation still has next */
 function proceed(c: RunController) {
   autoTower(c)
-  if (c.view.fixing) c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
+  if (c.view.fixing && c.view.screen?.screen === 'spell') spellDrop(c)
+  else if (c.view.fixing) c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
   else if (c.view.needNext) c.next()
 }
 /** does the fix and presses next through any explanation until the next answer phase */
@@ -316,6 +325,7 @@ describe('run controller', () => {
         autoTower(c)
         if (c.view.merchant) c.gesture({ type: 'decline' })
         else if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
         fly(c)
         await tick(50)
@@ -325,7 +335,7 @@ describe('run controller', () => {
     /** on a calm screen: a wrong pick, then he does the fix */
     async function loseHeart(c: RunController) {
       const before = c.view.hearts
-      await playTo(c, (v) => v.phase === 'answer' && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
+      await playTo(c, (v) => v.phase === 'answer' && !!v.screen && !['crystal', 'broom', 'tower', 'spell'].includes(v.screen.screen))
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => !!v.fixing)
       await drain(c)
@@ -336,8 +346,8 @@ describe('run controller', () => {
       await playTo(c, (v) => v.screen?.screen === 'crystal', onTick)
       await playTo(c, (v) => v.screen?.screen === 'broom', onTick)
     }
-    /** stage 4 (no stage passes during the test), drawing off: broom → cauldron → ladder → ghosts → doors, then the crystal */
-    const fromStartOfCycle = () => useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
+    /** stage 4 (no stage passes during the test), drawing off: broom → cauldron → ladder → ghosts → doors, the crystal, the spell book */
+    const fromStartOfCycle = () => useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
 
     it('gives one heart back, once, at once: no line, no pause, the top bar’s hearts flash (the parent)', async () => {
       duel2Telemetry.clear()
@@ -437,10 +447,12 @@ describe('run controller', () => {
     for (let guard = 0; guard < 400 && c.view.screen?.screen !== 'crystal'; guard++) {
       await tick(50)
       if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.screen?.screen === 'spell') spellDrop(c)
       else if (c.view.phase === 'answer' && c.view.screen && !['crystal', 'broom', 'tower'].includes(c.view.screen.screen as string)) c.gesture({ type: 'pick', id: rightId(c.view) })
     }
     expect(c.view.screen?.screen).toBe('crystal')
-    await until(c, (v) => v.screen?.screen === 'broom')
+    // (after the crystal: the spell book)
+    await until(c, (v) => v.screen?.screen === 'spell')
     expect(useDuel2Store.getState().crystals).toBe(1)
     c.destroy()
   })
@@ -676,7 +688,7 @@ describe('run controller', () => {
     await until(c, (v) => v.phase === 'celebrate')
     c.pause()
     c.resume()
-    await until(c, (v) => v.screen?.screen === 'broom')
+    await until(c, (v) => v.screen?.screen === 'spell')
     expect(useDuel2Store.getState().crystals).toBe(1)
     c.destroy()
   })
@@ -1257,9 +1269,9 @@ describe('run controller', () => {
   describe('the first duel’s tower in the run (spec: one duel, Part 3)', () => {
     beforeEach(() => { towerAuto = false })
     const tv = (c: RunController) => c.view.screen as Extract<View['screen'], { screen: 'tower' }>
-    /** stage 4, the last run ended on the doors: this one starts with the tower */
+    /** stage 4, the last run ended on the spell book (the cycle's last screen): this one starts with the tower */
     function atTower(extra: Partial<ReturnType<typeof useDuel2Store.getState>> = {}) {
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', ...extra })
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', ...extra })
       const c = make()
       c.start()
       return c
@@ -1433,7 +1445,7 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).placement).toBe(true)
         c.destroy()
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1497,7 +1509,7 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).waves).toBe(2)
         c.destroy()
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors' })
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1540,7 +1552,7 @@ describe('run controller', () => {
         expect(c.view.merchant).toBeDefined()
         c.destroy()
         // after a meeting, with 2 hearts he waits a checkpoint again (as before)
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', coins: 50, checkpointsSinceVisit: 0 })
+        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 50, checkpointsSinceVisit: 0 })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1570,9 +1582,10 @@ describe('run controller', () => {
       const c = atTower({ lastEnded: 'ghosts', towerVisits: 2, coins: 50 })
       const priv = c as unknown as { pass: { hearts: { left: number; nearMissUsed: boolean } } }
       priv.pass = { ...priv.pass, hearts: { left: 2, nearMissUsed: false } }
-      // the doors first, then the crystal; the checkpoint before the tower's boss has him
+      // the doors first, then the crystal and the spell book; the checkpoint before the tower's boss has him
       for (let guard = 0; guard < 4000 && !c.view.merchant && c.view.screen?.screen !== 'tower'; guard++) {
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && c.view.screen?.screen === 'doors') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
       }
@@ -1591,6 +1604,7 @@ describe('run controller', () => {
         autoTower(c)
         if (c.view.merchant) c.gesture({ type: 'decline' })
         else if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (s?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) {
           counts[s.screen] = (counts[s.screen] ?? 0) + 1
           c.gesture({ type: 'pick', id: rightId(c.view) })
@@ -1680,6 +1694,7 @@ describe('run controller', () => {
       autoTower(c)
       if (c.view.merchant) c.gesture({ type: 'decline' })
       else if (c.view.needNext || c.view.fixing) proceed(c)
+      else if (c.view.screen?.screen === 'spell') spellDrop(c)
       else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'draw', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
       fly(c)
       await tick(50)
@@ -1687,7 +1702,7 @@ describe('run controller', () => {
     expect(pred(c.view)).toBe(true)
   }
   async function loseHeart(c: RunController) {
-    await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
+    await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower', 'spell'].includes(v.screen.screen))
     const before = c.view.hearts
     c.gesture({ type: 'pick', id: wrongId(c.view) })
     await until(c, (v) => !!v.fixing || v.over !== null || !!v.defeat)
@@ -1960,6 +1975,7 @@ describe('run controller', () => {
       for (let i = 0; i < 4000 && c.view.screen?.screen !== 'ladder'; i++) {
         if (c.view.merchant) came = true
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && c.view.screen?.screen === 'cauldron') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
       }
@@ -1975,6 +1991,7 @@ describe('run controller', () => {
       for (let i = 0; i < 4000 && c.view.screen?.screen !== 'ladder'; i++) {
         if (c.view.merchant) came = true
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && c.view.screen?.screen === 'cauldron') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
       }
@@ -1984,17 +2001,21 @@ describe('run controller', () => {
     }, 60_000)
 
     it('with 3 hearts after the pass heart he does not come', async () => {
-      // the run starts at the broom; he loses one heart on the doors, the last screen; after the crystal the pass heart
-      // refills him to 3 at the same checkpoint, so the merchant does not come there
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', coins: 100 })
+      // he loses one heart on the spell book, the last screen; the pass heart refills him to 3 at the checkpoint after
+      // it, so the merchant does not come there
+      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 100 })
       const c = make()
       c.start()
-      await playTo(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer')
-      await loseHeart(c)
+      await playTo(c, (v) => v.screen?.screen === 'spell' && v.phase === 'answer' && !(v.screen as SpellView).demo)
+      const sp = c.view.screen as SpellView
+      c.gesture({ type: 'drop', tile: sp.round.tiles.find((t) => !sp.round.boxes.some((b) => b.unit === t.unit))!.unit, box: 0 })
+      await until(c, (v) => !!v.fixing)
+      expect(c.view.hearts).toBe(2)
       let came = false
       for (let i = 0; i < 4000 && c.view.screen?.screen !== 'broom'; i++) {
         if (c.view.merchant) came = true
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && c.view.screen?.screen === 'doors') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
       }
@@ -2014,6 +2035,7 @@ describe('run controller', () => {
       for (let i = 0; i < 2000 && c.view.hearts < 3; i++) {
         if (c.view.merchant) came = true
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer') c.gesture({ type: 'pick', id: rightId(c.view) })
         await tick(50)
       }
@@ -2041,7 +2063,7 @@ describe('run controller', () => {
       // he loses the run (two hearts left): the coins stay spent
       expect(c.view.hearts).toBe(2)
       await loseHeart(c)
-      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower'].includes(v.screen.screen))
+      await playTo(c, (v) => v.phase === 'answer' && !v.merchant && !!v.screen && !['crystal', 'broom', 'tower', 'spell'].includes(v.screen.screen))
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => v.over !== null)
       expect(coins()).toBeGreaterThanOrEqual(spent)
@@ -2075,6 +2097,7 @@ describe('run controller', () => {
         prev = s?.screen
         autoTower(c)
         if (c.view.needNext || c.view.fixing) proceed(c)
+        else if (c.view.screen?.screen === 'spell') spellDrop(c)
         else if (c.view.phase === 'answer' && s && !['crystal', 'broom', 'tower'].includes(s.screen)) c.gesture({ type: 'pick', id: rightId(c.view) })
         fly(c)
         await tick(50)
@@ -2083,7 +2106,8 @@ describe('run controller', () => {
       for (let i = 0; i < 100 && !bv(c)?.boss; i++) await tick(50)
       visits[1] = bv(c)?.boss?.kind ?? null
       expect(visits[0]).toBeNull()
-      expect(['mimic', 'bat']).toContain(visits[1])
+      // a boss his stage opens (the run reaches stage 4 here, and its spell book changes the rounds' draws)
+      expect(bossOpen(visits[1] as BossKind, useDuel2Store.getState().stage.stage)).toBe(true)
       expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
       c.destroy()
     }, 60_000)
@@ -2379,14 +2403,14 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.destroy()
   })
 
-  it('in the lap only when drawing is on: after the doors', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'doors', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+  it('in the lap only when drawing is on: after the doors and the spell book', async () => {
+    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', settings: { ...useDuel2Store.getState().settings, drawing: true } })
     const c = make()
     c.start()
     await until(c, (v) => !!v.screen)
     expect(c.view.screen!.screen).toBe('draw')
     c.destroy()
-    useDuel2Store.setState({ lastEnded: 'doors', settings: { ...useDuel2Store.getState().settings, drawing: false } })
+    useDuel2Store.setState({ lastEnded: 'spell', settings: { ...useDuel2Store.getState().settings, drawing: false } })
     const d = make()
     d.start()
     await until(d, (v) => !!v.screen)

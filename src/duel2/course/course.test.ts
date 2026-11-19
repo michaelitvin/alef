@@ -15,7 +15,7 @@ describe('the course', () => {
   })
   it("the Hebrew course is today's modules", () => {
     expect(HEBREW.stages.screensOfStage).toBe(screensOfStage)
-    expect(HEBREW.stages.order).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'draw', 'draw-hand'])
+    expect(HEBREW.stages.order).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand'])
     for (const st of [1, 2, 3, 4] as const) expect(HEBREW.stages.order.filter((s) => cycleOf(st, true).includes(s))).toEqual(cycleOf(st, true))
     expect(HEBREW.telemetry).toBe(duel2Telemetry)
     expect(HEBREW.log).toBe(BOOK2_LOG)
