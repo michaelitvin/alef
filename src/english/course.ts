@@ -26,6 +26,7 @@ import { enAnswerOnly, enFeatures, enIsNewStageChoice, itemOfChoice } from './lo
 import { introAfter } from './logic/intro'
 import { blendOf } from './logic/blend'
 import { word } from './content/words'
+import { unit, UNITS } from './content/units'
 import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES, wordPicture } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
@@ -157,6 +158,8 @@ export const ENGLISH: Course = {
   store: () => useEnglishStore,
   images: ENGLISH_IMAGES,
   preload: preloadEnglishAssets,
+  sheetTexts: [...new Set([...UNITS.map((x) => x.text), ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), 'I l 1', 'O 0', 'b d p q'])],
+  coverSample: { texts: ['a', 'm', 's'].map((id) => unit(id).text), alphabet: 'latin' },
   genderPictures: { boy: ENGLISH_IMAGES['s-wizard-idle'], girl: ENGLISH_IMAGES['s-wizard-idle-girl'] ?? ENGLISH_IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => `${enLineId(id)}-${n}`,
   lineVariations: (id) => enLine(enLineId(id))?.variations ?? 1,

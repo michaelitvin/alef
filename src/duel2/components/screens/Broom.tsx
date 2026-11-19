@@ -3,7 +3,8 @@
 // He drags the wizard up or down (or taps a lane). The waves move only in the answer phase; the controller resolves a wave
 // when it reaches the wizard.
 import { useEffect, useRef, useState } from 'react'
-import { IMAGES, useWizardArt } from '../../assets/images'
+import { IMAGES } from '../../assets/images'
+import { useWizardArt } from '../../course/CourseContext'
 import { FACING } from '../../assets/facing'
 import { wavePos } from '../../logic/run'
 import type { Choice } from '../../logic/rounds'

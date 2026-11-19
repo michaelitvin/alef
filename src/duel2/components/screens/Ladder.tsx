@@ -4,7 +4,7 @@
 // the plates stay below the bar.
 // The English ladder (word chains): the rung he makes shows the word below in boxes; at the early stages the place that
 // changes is marked (a gold box, or an empty gold box where a letter comes in: lip → slip), later he finds it.
-import { IMAGES, useWizardArt } from '../../assets/images'
+import { useImages, useWizardArt } from '../../course/CourseContext'
 import type { Choice } from '../../logic/rounds'
 import { belowBand, intoBandView, STAGE_CONTENT_TOP, viewBoxOf, type FullView } from '../../layout'
 import { DragPick } from '../DragPick'
@@ -148,6 +148,7 @@ export function Ladder(p: {
   /** English: the rung he makes, from the word below (none on the first rung and in Hebrew) */
   change?: RungChange
 }) {
+  const images = useImages()
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   // a Latin word fits its plate (Hebrew's letters keep their size)
   const px = (text: string, w: number) => (alphabet === 'latin' ? fitPx(text, w, LADDER_GLYPH_PX) : LADDER_GLYPH_PX)
@@ -159,8 +160,8 @@ export function Ladder(p: {
   const change = p.change && p.plates.length > 0 && p.built.length < p.rungs ? p.change : undefined
   return (
     <Stage bg="bg-ground" dir={p.dir} {...(view ? { viewBox: viewBoxOf(view), 'data-into-band': '' } : {})}>
-      {IMAGES['s-ladder']
-        ? <image href={IMAGES['s-ladder']} x={b.ladder.x} y={b.ladder.y} width={b.ladder.w} height={b.ladder.h} preserveAspectRatio="none" />
+      {images['s-ladder']
+        ? <image href={images['s-ladder']} x={b.ladder.x} y={b.ladder.y} width={b.ladder.w} height={b.ladder.h} preserveAspectRatio="none" />
         : <g stroke="#e7b860" strokeWidth={14}><line x1={690} y1={80} x2={690} y2={880} /><line x1={910} y1={80} x2={910} y2={880} /></g>}
       {p.built.map((c, k) => (
         <g key={k} data-rung={k}>

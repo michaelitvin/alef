@@ -71,6 +71,8 @@ export const HEBREW: Course = {
   store: () => useDuel2Store,
   images: IMAGES,
   preload: preloadDuel2Assets,
+  // today's cover orbs
+  coverSample: { texts: [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text], alphabet: 'hebrew' },
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => lineAudioId(id, n),
   lineVariations: (id) => lineById(id)?.variations ?? 1,

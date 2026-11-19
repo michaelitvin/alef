@@ -4,7 +4,7 @@
 // the camera moves into the doorway while its light fills the screen, and the next door comes out of that light (the
 // parent found the earlier exact zoom ugly: a stretched picture and a growing box). English: the plate holds a word, or from
 // stage 4 a phrase of two or three words, left to right, that light one at a time; its keys' pictures are files.
-import { IMAGES } from '../../assets/images'
+import { useImages } from '../../course/CourseContext'
 import { syllable } from '../../logic/content'
 import type { Choice } from '../../logic/rounds'
 import type { Word } from '../../data/words'
@@ -83,18 +83,19 @@ export function ArriveLight() {
 
 /** What waits behind the door, far away in its light: the next door (its plate still blank), or the crystal. */
 function NextRoom(p: { crystal?: number }) {
+  const images = useImages()
   if (p.crystal !== undefined) {
     const k = ((p.crystal % 4) + 4) % 4
     return (
       <g data-next-crystal>
         <circle cx={800} cy={450} r={420} fill="#ffd34d" opacity={0.35} />
-        {IMAGES[`s-crystal-${k + 1}`] && <image href={IMAGES[`s-crystal-${k + 1}`]} x={600} y={190} width={400} height={520} />}
+        {images[`s-crystal-${k + 1}`] && <image href={images[`s-crystal-${k + 1}`]} x={600} y={190} width={400} height={520} />}
       </g>
     )
   }
   return (
     <g data-next-door>
-      {IMAGES['s-door'] ? <image href={IMAGES['s-door']} x={DOOR_BOX.x} y={DOOR_BOX.top} width={DW} height={DH} />
+      {images['s-door'] ? <image href={images['s-door']} x={DOOR_BOX.x} y={DOOR_BOX.top} width={DW} height={DH} />
         : <rect x={DOOR_BOX.x} y={DOOR_BOX.top} width={DW} height={DH} rx={DW / 2} fill="#2a1660" stroke="#ffd34d" strokeWidth={8} />}
       <Plate w={420} x={800} y={340} state="idle" />
     </g>
@@ -111,14 +112,15 @@ export const KEY_W = DISC_R / KEY_BOW.r
 export const KEY_H = KEY_W * (600 / 428)
 
 function KeyShape(p: { x: number; y: number; picture: string | undefined; state: 'idle' | 'reveal' | 'wrong' | 'off'; correct: boolean }) {
+  const images = useImages()
   const ring = p.state === 'reveal' ? '#ffd34d' : p.state === 'wrong' ? '#ff4d6a' : '#e7b860'
   const pic = DISC_R * 1.5
   return (
     <g className="d2-key" opacity={p.state === 'off' ? 0.4 : 1}>
-      {IMAGES['s-key']
-        ? <image href={IMAGES['s-key']} x={p.x - KEY_W * KEY_BOW.cx} y={p.y - KEY_H * KEY_BOW.cy} width={KEY_W} height={KEY_H} />
+      {images['s-key']
+        ? <image href={images['s-key']} x={p.x - KEY_W * KEY_BOW.cx} y={p.y - KEY_H * KEY_BOW.cy} width={KEY_W} height={KEY_H} />
         : <g stroke={ring} strokeWidth={12} fill="none"><circle cx={p.x} cy={p.y} r={DISC_R + 12} /><path d={`M${p.x} ${p.y + DISC_R + 12} v110 m0 -40 h34 m-34 30 h24`} /></g>}
-      <circle data-key-disc cx={p.x} cy={p.y} r={DISC_R} fill={IMAGES['s-key'] ? 'none' : '#2a1660'} stroke={ring} strokeWidth={p.state === 'idle' ? 0 : 10} />
+      <circle data-key-disc cx={p.x} cy={p.y} r={DISC_R} fill={images['s-key'] ? 'none' : '#2a1660'} stroke={ring} strokeWidth={p.state === 'idle' ? 0 : 10} />
       {p.picture && <image data-key-picture href={p.picture} x={p.x - pic / 2} y={p.y - pic / 2} width={pic} height={pic} />}
       <rect data-pick x={p.x - 110} y={p.y - 110} width={220} height={KEY_H * (1 - KEY_BOW.cy) + 110} fill="transparent" {...(p.correct ? { 'data-correct': '1' } : {})} />
     </g>
@@ -140,6 +142,7 @@ export function Doors(p: {
   /** the course's direction (default: Hebrew's) */
   dir?: Dir
 }) {
+  const images = useImages()
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const syls = p.plate ? p.plate.map((c) => c.text) : (('syllables' in p.word && p.word.syllables) || []).map((s) => syllable(s.item, s.mark).text + (s.tail ?? ''))
   // the first syllable sits on the right in Hebrew and on the left in English
@@ -179,10 +182,10 @@ export function Doors(p: {
       </defs>
       <g key={arrive} className={arrive ? 'd2-arrive-scene' : undefined}>
       <g data-door-scene transform={`translate(${ZOOM_C.x} ${ZOOM_C.y}) scale(${z.k}) translate(${-ZOOM_C.x} ${-ZOOM_C.y})`}>
-        {IMAGES['s-door'] ? (
+        {images['s-door'] ? (
           <g>
-            <image href={IMAGES['s-door']} x={dw ? 800 - dw / 2 : 0} y={95} width={dw} height={dh} style={{ opacity: p.opening ? 0 : 1, transition: 'opacity 0.35s' }} />
-            {IMAGES['s-door-open'] && <image href={IMAGES['s-door-open']} x={800 - dw / 2} y={95} width={dw} height={dh} style={{ opacity: p.opening ? 1 : 0, transition: 'opacity 0.35s' }} />}
+            <image href={images['s-door']} x={dw ? 800 - dw / 2 : 0} y={95} width={dw} height={dh} style={{ opacity: p.opening ? 0 : 1, transition: 'opacity 0.35s' }} />
+            {images['s-door-open'] && <image href={images['s-door-open']} x={800 - dw / 2} y={95} width={dw} height={dh} style={{ opacity: p.opening ? 1 : 0, transition: 'opacity 0.35s' }} />}
           </g>
         ) : <rect x={800 - dw / 2} y={95} width={dw} height={dh} rx={dw / 2} fill={p.opening ? 'none' : '#2a1660'} stroke="#ffd34d" strokeWidth={8} />}
         {/* far away in the doorway's light: the next door (or the crystal), with its own glow (no mask: it repainted slowly) */}
@@ -215,7 +218,7 @@ export function Doors(p: {
             // he brings the key to the door (anywhere on it)
             inZone={(q) => Math.abs(q.x - 800) < dw / 2 && q.y > 95 && q.y < 95 + dh - 20}
             demo={p.demo?.id === k.id ? { t: p.demo.t, dx: 800 - KEY_X[i], dy: 560 - KEY_Y } : undefined}>
-            <KeyShape x={KEY_X[i]} y={KEY_Y} picture={p.plate ? k.picture : IMAGES[k.picture]} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
+            <KeyShape x={KEY_X[i]} y={KEY_Y} picture={p.plate ? k.picture : images[k.picture]} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
           </DragPick>
         )
       })}

@@ -3,7 +3,8 @@
 // coins go, the child's coins in piles on the ground (one pile per value, drawn up to PILE_CAP), and one ✗ card for "no
 // thanks". No text: only digits (the values, the price, the merchant's count).
 import { useState } from 'react'
-import { IMAGES, useWizardArt } from '../../assets/images'
+import { IMAGES } from '../../assets/images'
+import { useWizardArt } from '../../course/CourseContext'
 import { FACING } from '../../assets/facing'
 import type { MerchantView } from '../../controller'
 import { hintCoins, piles } from '../../logic/merchant'

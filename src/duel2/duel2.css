@@ -285,3 +285,33 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 .d2-station .home-orb { position: relative; display: block; }
 .d2-station .home-orb img { width: 100%; height: 100%; }
 .d2-station .home-orb span { position: absolute; inset: 0; display: grid; place-items: center; font-family: Sigalit, serif; color: #fff6d8; text-shadow: 0 0 4px #1b0f3c; }
+
+/* The English course's green look (design Part 2): the colours the parent approved in the mock, as variables on the course's
+   own root. Only [data-course="en"] reads them, so Book 2 (data-course="he", or none) draws as before. SVG parts the screens
+   draw with a purple fill attribute take the green by their attribute (a CSS rule wins over a presentation attribute). */
+[data-course="en"] {
+  --en-night: #0a2826; --en-deep: #0d3d38; --en-mid: #12564e;
+  --en-button: #0f3b38d9; --en-button-glow: #7fe0c880;
+  --en-tile: #136054; --en-tile-top: #1f8a78; --en-tile-edge: #9fe6d4;
+  --en-rune: #0f4a42; --en-rune-top: #17685c; --en-rune-edge: #6fc9b4;
+  --en-panel: #0f4a42aa; --en-panel-dark: #0b2f2c; --en-panel-edge: #7fd6c2;
+  --en-shadow: #06211f;
+}
+.d2-root[data-course="en"] { background: var(--en-night); }
+[data-course="en"] .d2-btn { background: var(--en-button); box-shadow: 0 0 12px var(--en-button-glow); }
+[data-course="en"] .d2-btn[data-glow="true"] { box-shadow: 0 0 22px #ffd34d, 0 0 8px #fff6a0; }
+[data-course="en"] .d2-btn-next { background: linear-gradient(#ffb02e, #ff6a1a); box-shadow: 0 0 24px #ff8c28cc; }
+[data-course="en"] .d2-parent-btn, [data-course="en"] .home-btn { background: #0f3b3899; }
+[data-course="en"] .d2-crystal-shelf, [data-course="en"] .d2-boss-shelf { background: #0b2f2ccc; box-shadow: 0 0 16px var(--en-button-glow); }
+[data-course="en"] .d2-mult { background: var(--en-rune); }
+[data-course="en"] .d2-trophy-beaten { background: var(--en-tile); }
+[data-course="en"] .d2-pause { background: radial-gradient(ellipse at 50% 35%, var(--en-mid), var(--en-shadow) 75%); }
+/* runes, letter tiles and orbs without their picture, the door, the plates, the boxes and the panels */
+[data-course="en"] svg [fill="#2a1660"] { fill: var(--en-tile); }
+[data-course="en"] svg rect[fill="#1b0f3c"], [data-course="en"] svg circle[fill="#1b0f3c"] { fill: var(--en-shadow); }
+[data-course="en"] svg [fill="#160a35"] { fill: var(--en-panel-dark); stroke: var(--en-panel-edge); }
+[data-course="en"] svg [fill="#1b0f3ccc"] { fill: #0b2f2ccc; }
+/* the Latin learning text is Andika (src/shared/latinText.ts keeps its letters apart) */
+.latin { font-family: Andika, system-ui, sans-serif; font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
+/* the tower's runes (the first duel's board, played inside the English run) */
+[data-course="en"] .nd-rune:not(.hit):not(.miss) { background: linear-gradient(var(--en-rune-top), var(--en-rune)); border-color: var(--en-rune-edge); box-shadow: inset 0 -5px 0 #0003, 0 0 12px var(--en-button-glow); }

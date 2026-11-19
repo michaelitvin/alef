@@ -1,0 +1,29 @@
+// The English path's pictures: the green file where there is one, Book 2's elsewhere, and the pictures that never change.
+import { describe, expect, it } from 'vitest'
+import { IMAGES } from '../../duel2/assets/images'
+import { ENGLISH_IMAGES, greenImages } from './images'
+
+describe('the English path\'s pictures', () => {
+  it('has a picture for every key of Book 2', () => {
+    expect(Object.keys(ENGLISH_IMAGES).sort()).toEqual(Object.keys(IMAGES).sort())
+  })
+
+  it('the shipped green files replace the wizard, the crystals, the props and the backgrounds', () => {
+    for (const k of ['s-wizbroom', 's-wizbroom-girl', 's-wizard-idle', 's-crystal-1', 's-door', 's-key', 's-orb', 's-ghost', 'bg-sky', 'bg-ground']) {
+      expect(ENGLISH_IMAGES[k], k).not.toBe(IMAGES[k])
+    }
+  })
+
+  it('a missing green file falls back to the Hebrew one', () => {
+    const base = { 's-orb': 'he-orb.webp', 's-key': 'he-key.webp' }
+    expect(greenImages(base, { 's-orb': 'en-orb.webp' })).toEqual({ 's-orb': 'en-orb.webp', 's-key': 'he-key.webp' })
+    expect(greenImages(base, {})).toEqual(base)
+  })
+
+  it('the merchant is never recoloured', () => {
+    const base = { 'merchant-sell': 'a', 'boss-dot-fly': 'b', 's-potion': 'c', 'pw-cat': 'd', 'word-camel': 'e' }
+    const green = Object.fromEntries(Object.keys(base).map((k) => [k, 'green']))
+    expect(greenImages(base, green)).toEqual(base)
+    for (const k of Object.keys(IMAGES).filter((k) => /^(merchant-|boss-|s-potion|pw-|word-)/.test(k))) expect(ENGLISH_IMAGES[k], k).toBe(IMAGES[k])
+  })
+})

@@ -1,0 +1,159 @@
+{
+ "note": "One entry per image in src/english/assets/img/: the Book 2 picture it was derived from and how. Every other English picture is Book 2's (src/english/assets/images.ts).",
+ "images": [
+  {
+   "name": "bg-ground",
+   "source": "src/duel2/assets/img/bg-ground.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-bg-ground, no note)"
+  },
+  {
+   "name": "bg-sky",
+   "source": "src/duel2/assets/img/bg-sky.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-bg-sky, no note)"
+  },
+  {
+   "name": "s-cauldron",
+   "source": "src/duel2/assets/img/s-cauldron.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-cauldron, no note)"
+  },
+  {
+   "name": "s-crystal-1",
+   "source": "src/duel2/assets/img/s-crystal-1.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-crystal-1, no note)"
+  },
+  {
+   "name": "s-crystal-2",
+   "source": "src/duel2/assets/img/s-crystal-2.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-crystal-2, no note)"
+  },
+  {
+   "name": "s-crystal-3",
+   "source": "src/duel2/assets/img/s-crystal-3.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-crystal-3, no note)"
+  },
+  {
+   "name": "s-crystal-4",
+   "source": "src/duel2/assets/img/s-crystal-4.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-crystal-4, no note)"
+  },
+  {
+   "name": "s-door",
+   "source": "src/duel2/assets/img/s-door.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-door, no note)"
+  },
+  {
+   "name": "s-door-open",
+   "source": "src/duel2/assets/img/s-door-open.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-door-open, no note)"
+  },
+  {
+   "name": "s-ghost",
+   "source": "src/duel2/assets/img/s-ghost.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-ghost, no note)"
+  },
+  {
+   "name": "s-key",
+   "source": "src/duel2/assets/img/s-key.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-key, no note)"
+  },
+  {
+   "name": "s-ladder",
+   "source": "src/duel2/assets/img/s-ladder.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-ladder, no note)"
+  },
+  {
+   "name": "s-orb",
+   "source": "src/duel2/assets/img/s-orb.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-orb, no note)"
+  },
+  {
+   "name": "s-plate",
+   "source": "src/duel2/assets/img/s-plate.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-plate, no note)"
+  },
+  {
+   "name": "s-wizard-cast",
+   "source": "src/duel2/assets/img/s-wizard-cast.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-cast, no note)"
+  },
+  {
+   "name": "s-wizard-cast-girl",
+   "source": "src/duel2/assets/img/s-wizard-cast-girl.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-cast-girl, no note)"
+  },
+  {
+   "name": "s-wizard-dizzy",
+   "source": "src/duel2/assets/img/s-wizard-dizzy.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-dizzy, no note)"
+  },
+  {
+   "name": "s-wizard-dizzy-girl",
+   "source": "src/duel2/assets/img/s-wizard-dizzy-girl.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-dizzy-girl, no note)"
+  },
+  {
+   "name": "s-wizard-idle",
+   "source": "src/duel2/assets/img/s-wizard-idle.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-idle, no note)"
+  },
+  {
+   "name": "s-wizard-idle-girl",
+   "source": "src/duel2/assets/img/s-wizard-idle-girl.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizard-idle-girl, no note)"
+  },
+  {
+   "name": "s-wizbroom",
+   "source": "src/duel2/assets/img/s-wizbroom.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizbroom, no note)"
+  },
+  {
+   "name": "s-wizbroom-girl",
+   "source": "src/duel2/assets/img/s-wizbroom-girl.webp",
+   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-s-wizbroom-girl, no note)"
+  }
+ ]
+}

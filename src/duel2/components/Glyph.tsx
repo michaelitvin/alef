@@ -168,7 +168,7 @@ export function Glyph(p: {
   const t = (
     <text
       data-glyph
-      className={shin ? undefined : p.className}
+      className={latin ? (p.className ? `${p.className} latin` : 'latin') : shin ? undefined : p.className}
       x={p.x + dx}
       y={p.y + dy}
       fontSize={p.px}

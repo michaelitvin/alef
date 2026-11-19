@@ -1,19 +1,15 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
 // orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and the held house home to alef
 // (a 2 s hold, top left, the same in every game: src/shared/HomeButton.tsx).
-import { useWizardArt } from '../assets/images'
-import { syllable } from '../logic/content'
-import { Glyph, GlyphDefs } from '../components/Glyph'
+import { Glyph, GlyphDefs, latinOrbPx } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossShelf } from '../components/BossShelf'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
 import { SlidersGlyph } from '../components/holdGlyphs'
-import { useCourse, useCourseSave } from '../course/CourseContext'
+import { useCourse, useCourseSave, useWizardArt } from '../course/CourseContext'
 import { HomeButton } from '../../shared/HomeButton'
-
-const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
 export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: () => void; onParent: () => void; onHome?: () => void; loading?: boolean }) {
   const wiz = useWizardArt()
@@ -28,10 +24,10 @@ export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: (
       <svg className="d2-stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
         <GlyphDefs />
         {images['bg-sky'] ? <image href={images['bg-sky']} width={1600} height={900} preserveAspectRatio="xMidYMid slice" /> : <rect width={1600} height={900} fill="#1b0f3c" />}
-        {SAMPLE.map((t, i) => { const oy = [150, 330, 730][i]; return (
+        {course.coverSample.texts.map((t, i) => { const oy = [150, 330, 730][i]; return (
           <g key={t} className="d2-drift" style={{ animationDelay: `${-i * 4}s` }}>
             {images['s-orb'] ? <image href={images['s-orb']} x={-80} y={oy - 80} width={160} height={160} /> : <circle cx={0} cy={oy} r={80} fill="#2a1660" />}
-            <Glyph text={t} px={92} x={0} y={oy} />
+            <Glyph text={t} px={course.coverSample.alphabet === 'latin' ? latinOrbPx(t, 160, 92) : 92} x={0} y={oy} alphabet={course.coverSample.alphabet} />
           </g>
         ) })}
         <g className="d2-bob">

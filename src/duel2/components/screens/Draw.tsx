@@ -28,7 +28,7 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
   const shin = L.script === 'print' && L.alphabet !== 'latin' ? drawnDots(L.rest.text, px, canvasMeasurer) : null
   const latin = L.alphabet === 'latin'
   const text = (t: string, x: number, attrs: Record<string, unknown> = {}) => (
-    <text data-glyph x={x} y={base} fontSize={px} textAnchor="middle" direction={latin ? 'ltr' : 'rtl'}
+    <text data-glyph {...(latin ? { className: 'latin' } : {})} x={x} y={base} fontSize={px} textAnchor="middle" direction={latin ? 'ltr' : 'rtl'}
       style={{ ...INK, fontFamily: latin ? `${font}, sans-serif` : `${font}, 'Noto Sans Hebrew', serif`, strokeWidth: Math.max(2, px * 0.04), unicodeBidi: 'isolate' }} {...attrs}>{t}</text>
   )
   return (

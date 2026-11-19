@@ -2,7 +2,7 @@
 // the mark joins the letter. The English cauldron (CauldronWord): the word he hears in boxes, one of them empty, and four
 // tiles above; the right tile fills the box (after a thrown `e`, the word turns and its picture comes).
 import { useRef } from 'react'
-import { IMAGES } from '../../assets/images'
+import { useImages } from '../../course/CourseContext'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
 import type { Choice } from '../../logic/rounds'
 import { DragPick } from '../DragPick'
@@ -23,14 +23,15 @@ export function Cauldron(p: {
   demo?: { id: MarkId; t: number }
   dir?: Dir
 }) {
+  const images = useImages()
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   const svgRef = useRef<SVGSVGElement>(null)
   const can = p.phase === 'answer'
   const potH = POT.w * (600 / 496)
   return (
     <Stage bg="bg-ground" dir={p.dir} ref={svgRef}>
-      {IMAGES['s-cauldron']
-        ? <image href={IMAGES['s-cauldron']} x={POT.x - POT.w / 2} y={875 - potH} width={POT.w} height={potH} />
+      {images['s-cauldron']
+        ? <image href={images['s-cauldron']} x={POT.x - POT.w / 2} y={875 - potH} width={POT.w} height={potH} />
         : <ellipse cx={POT.x} cy={720} rx={170} ry={130} fill="#1a1230" stroke="#5ef0a6" strokeWidth={6} />}
       <Glyph text={p.joined ? p.joined.text : p.letter.glyph} px={CAULDRON_GLYPH_PX} x={800} y={395} glow={p.joined ? 'hit' : 'soft'} alphabet={alphabet} />
       {p.orbs.map((m, i) => {
@@ -84,6 +85,7 @@ export function CauldronWord(p: {
   demo?: { id: string; t: number }
   dir?: Dir
 }) {
+  const images = useImages()
   const svgRef = useRef<SVGSVGElement>(null)
   const can = p.phase === 'answer'
   const potH = POT.w * (600 / 496)
@@ -91,8 +93,8 @@ export function CauldronWord(p: {
   const picture = p.joined ? p.target.picture : (p.shown ?? p.target).picture
   return (
     <Stage bg="bg-ground" dir={p.dir} ref={svgRef}>
-      {IMAGES['s-cauldron']
-        ? <image href={IMAGES['s-cauldron']} x={POT.x - POT.w / 2} y={875 - potH} width={POT.w} height={potH} />
+      {images['s-cauldron']
+        ? <image href={images['s-cauldron']} x={POT.x - POT.w / 2} y={875 - potH} width={POT.w} height={potH} />
         : <ellipse cx={POT.x} cy={720} rx={170} ry={130} fill="#1a1230" stroke="#5ef0a6" strokeWidth={6} />}
       {picture && <image data-cauldron-picture href={picture} x={PICTURE.x - PICTURE.size / 2} y={PICTURE.y - PICTURE.size / 2} width={PICTURE.size} height={PICTURE.size} />}
       {p.boxes.map((b, i) => {

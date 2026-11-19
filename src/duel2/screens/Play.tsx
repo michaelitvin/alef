@@ -26,9 +26,8 @@ import { PauseCover } from './PauseCover'
 import { MistakeFx } from '../components/MistakeFx'
 import { HealFly } from '../components/HealFly'
 import { holdAudio } from '../../shared/gameAudio/output'
-import { useCourse, useCourseSave } from '../course/CourseContext'
+import { useCourse, useCourseSave, useWizardArt } from '../course/CourseContext'
 import { TEST_HOOKS } from '../testHooks'
-import { useWizardArt } from '../assets/images'
 import { BAND_CONTENT_W, homeInBar, layoutVars, nextInMiddle, STAGE_CONTENT_TOP, viewBoxOf } from '../layout'
 
 type Run = ReturnType<typeof useRun>

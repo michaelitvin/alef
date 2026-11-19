@@ -231,6 +231,10 @@ export interface Course {
   images: Record<string, string>
   /** the shell's preload (useGameShell's `preload`) */
   preload: () => Promise<void>
+  /** the learning content that drifts by on the cover, in orbs (Hebrew: syllables; English: sound units), and its alphabet */
+  coverSample: { texts: string[]; alphabet: 'hebrew' | 'latin' }
+  /** the legibility sheet's texts (test builds, #/glyphs); unset (Hebrew): its letters and stage-3 syllables. English: every unit and letter, and the look-alikes I l 1 side by side */
+  sheetTexts?: string[]
   /** the boy and girl pictures of the play gate's question, and its line id */
   genderPictures: { boy: string; girl: string; askLine: string }
   /**
