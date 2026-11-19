@@ -146,6 +146,10 @@ describe('the hint that blends a word', () => {
       const events = englishTelemetry.events() as { e: string; result?: string; by?: string }[]
       expect(events.find((e) => e.e === 'blend-hint')).toMatchObject({ by: 'button', words: 1 })
       expect(events.find((e) => e.e === 'answer')).toMatchObject({ result: 'helped' })
+      // the answer names its word beside the unit it asked, and every English event carries g
+      expect(events.find((e) => e.e === 'answer')).toHaveProperty('word', expect.any(String))
+      expect(events.length).toBeGreaterThan(1)
+      expect((events as { g?: string }[]).every((e) => e.g === 'english')).toBe(true)
       // on the stage pass it is not a right answer
       expect(save.read().stage.newAnswers).toBe('x')
       // the next answer, with no hint, is right again

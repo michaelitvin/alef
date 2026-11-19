@@ -194,18 +194,21 @@ const SPELL: Table = {
  * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
  */
 const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
-const EN_WORDS = ['cat', 'map', 'ship', 'kite', 'frog']
-const EN_UNITS = ['a', 'm', 'sh', 'i', 'o', 'ck']
+/** each word with its units (the sounds the cauldron and the ladder ask for) */
+const EN_UNITS: Record<string, string[]> = { cat: ['c', 'a', 't'], map: ['m', 'a', 'p'], ship: ['sh', 'i', 'p'], kite: ['k', 'i', 't', 'e'], frog: ['f', 'r', 'o', 'g'] }
+const EN_WORDS = Object.keys(EN_UNITS)
 const ENGLISH: Table = {
-  // the run's answer: on the cauldron and the ladder `target` is the unit and `word` its word; `helped` after the hint
+  // the run's answer: on the cauldron and the ladder `target` is a unit of `word`; `helped` after the hint
   answer: (r, t) => {
     const screen = r.pick(EN_SCREENS)
     const result = r.pick(['right', 'right', 'right', 'wrong', 'near', 'helped'])
-    const target = screen === 'cauldron' || screen === 'ladder' ? r.pick(EN_UNITS) : r.pick(EN_WORDS)
+    const word = r.pick(EN_WORDS)
+    const part = screen === 'cauldron' || screen === 'ladder'
+    const target = part ? r.pick(EN_UNITS[word]!) : word
     return {
-      screen, stage: r.int(1, 9), target, ...(screen === 'cauldron' || screen === 'ladder' ? { word: r.pick(EN_WORDS) } : {}),
-      tapped: result === 'right' || result === 'helped' ? target : r.chance(0.2) ? null : r.pick(EN_UNITS), result, ms: r.int(400, 9000),
-      assets: [`w-${r.pick(EN_WORDS)}`, `img-${r.pick(EN_WORDS)}`], clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}),
+      screen, stage: r.int(1, 9), target, ...(part ? { word } : {}),
+      tapped: result === 'right' || result === 'helped' ? target : r.chance(0.2) ? null : r.pick(part ? EN_UNITS[word]! : EN_WORDS), result, ms: r.int(400, 9000),
+      assets: [`w-${word}`, `img-${word}`], clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}),
     }
   },
   'tower-answer': (r, t) => ({ screen: 'tower', target: r.pick(EN_WORDS), result: r.pick(['right', 'right', 'wrong', 'helped']), clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}) }),
@@ -296,7 +299,7 @@ export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, tru
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** the English path's log (`g: 'english'`) */
-const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
+export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
 const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 

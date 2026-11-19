@@ -176,6 +176,11 @@ describe('the English tower\'s hint', () => {
     // (a helped answer is neither right nor wrong: not in the recent answers)
     for (const f of features) expect(after.recent[f]).toBe(recentBefore[f])
     expect((englishTelemetry.events() as { e: string; result?: string; screen?: string }[]).find((x) => x.e === 'answer' && x.screen === 'tower')).toMatchObject({ result: 'helped' })
+    // the tower's own events (via: 'tower', its hint's `{round, words, by}`) and the run's answer all carry g
+    const all = englishTelemetry.events() as { e: string; g?: string; via?: string; round?: unknown }[]
+    expect(all.some((x) => x.e === 'blend-hint' && x.via === 'tower' && x.round !== undefined)).toBe(true)
+    expect(all.some((x) => x.e === 'answer' && x.via === undefined)).toBe(true)
+    expect(all.every((x) => x.g === 'english')).toBe(true)
     duel!.destroy()
     run.destroy()
   })
