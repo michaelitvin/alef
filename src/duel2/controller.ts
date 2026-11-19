@@ -290,6 +290,7 @@ export class RunController {
   private bossesWon: BossKind[] = []
   /** the words he was asked in this run, in order, once each (the course's `onRunEnd` gets them) */
   private wordsRead: string[] = []
+  private wordsSaved = false
   private startStars = 0
   private drawPlan: DrawItem[] | null = null
   /** the drawing round on the screen (a pause starts it again) */
@@ -497,7 +498,14 @@ export class RunController {
     this.pass = this.newPass(st.lastEnded)
     void this.loop()
   }
+  /** gives the course the words of the run once, however the run ends (none read, a sandbox run: nothing) */
+  private saveWords() {
+    if (this.opts.sandbox || this.wordsSaved || this.wordsRead.length === 0) return
+    this.wordsSaved = true
+    this.course.onRunEnd?.(this.wordsRead)
+  }
   destroy() {
+    this.saveWords()
     this.token++
     this.running = false
     this.stopBroom()
@@ -531,6 +539,7 @@ export class RunController {
     this.endStrokeWait()
     if (!done) this.passStep({ type: 'owed' })
     if (this.visit && !this.visit.bought && !this.visit.declined) this.track('merchant-decline', { phase: 'exit' })
+    this.saveWords()
     this.exited = true
     this.track('run-exit', { screen, score: this.score, paused, ...(done ? { ended: true } : {}) })
   }
@@ -1622,7 +1631,7 @@ export class RunController {
     this.course.audio.stopMusic()
     const r = await this.passRun({ type: 'lost', score: this.score, bestRun: this.save.read().bestRun, cue })
     this.token++
-    if (!this.opts.sandbox) this.course.onRunEnd?.(this.wordsRead)
+    this.saveWords()
     this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'
   }
@@ -2178,6 +2187,7 @@ export class RunController {
    * shows its stars and goes home by itself. A pause can no longer cancel it.
    */
   private endSession(r: PassStep) {
+    this.saveWords()
     this.ending = true
     this.stopBroom()
     this.course.audio.stopMusic()

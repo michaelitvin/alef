@@ -3,7 +3,7 @@
 // links to it.
 import { useState } from 'react'
 import { LATIN_TEXT } from '../../shared/latinText'
-import { WORDS } from '../content/words'
+import { WORDS, type EnWord } from '../content/words'
 import { useEnglishStore } from '../store'
 import { englishTelemetry } from '../telemetry'
 
@@ -12,7 +12,7 @@ export default function OffScreenCheck() {
   const run = useEnglishStore((s) => s.runs) as number
   const [at, setAt] = useState(0)
   const [marks, setMarks] = useState<Record<string, boolean>>({})
-  const words = (ids ?? []).map((id) => WORDS.find((w) => w.id === id)).filter((w) => !!w)
+  const words = (ids ?? []).map((id) => WORDS.find((w) => w.id === id)).filter((w): w is EnWord => w !== undefined)
   const w = words[at]
   const answer = (ok: boolean) => {
     if (!w) return

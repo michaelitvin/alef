@@ -41,3 +41,26 @@ describe('the parent\'s off-screen check', () => {
     expect(users.sort()).toEqual(['src/english/parent/OffScreenCheck.tsx', 'src/english/parent/Settings.tsx'])
   })
 })
+
+describe('the check, to its end', () => {
+  beforeEach(() => { localStorage.clear(); useEnglishStore.getState().resetProgress() })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('a ✗ is tracked, the end counts the ✓, and "Check again" starts over', () => {
+    const track = vi.spyOn(englishTelemetry, 'track')
+    englishSavePort().setLastRunWords(real.slice(0, 2).map((w) => w.id))
+    const { container } = render(<Settings goTo={() => {}} />)
+    fireEvent.click(el(container, '[data-check-no]'))
+    fireEvent.click(el(container, '[data-check-ok]'))
+    expect(track).toHaveBeenCalledWith('parent-check', expect.objectContaining({ word: real[1].id, ok: true }))
+    expect(el(container, '[data-check-done]').textContent).toBe('Done: 1 of 2 read.')
+    fireEvent.click(el(container, '[data-check-again]'))
+    expect(el(container, '[data-check-word]').textContent).toBe(real[0].text)
+  })
+
+  it('with no words it says so', () => {
+    const { container } = render(<Settings goTo={() => {}} />)
+    expect(el(container, '[data-offscreen-check]').textContent).toContain('No words yet')
+    expect(container.querySelector('[data-check-word]')).toBeNull()
+  })
+})
