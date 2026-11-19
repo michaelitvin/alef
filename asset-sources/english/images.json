@@ -1,5 +1,5 @@
 {
- "note": "One entry per image in src/english/assets/img/: the Book 2 picture it was derived from and how. Every other English picture is Book 2's (src/english/assets/images.ts).",
+ "note": "One entry per green image in src/english/assets/img/: the Book 2 picture (or the first duel's sprite) it was derived from and how. Every other English picture is Book 2's (src/english/assets/images.ts).",
  "images": [
   {
    "name": "bg-ground",
@@ -154,6 +154,62 @@
    "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizbroom-girl, no note)"
+  },
+  {
+   "name": "duel-tower",
+   "source": "src/assets/duel/sprites/tower.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-tower, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-idle",
+   "source": "src/assets/duel/sprites/wizard-idle.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-idle, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-idle-girl",
+   "source": "src/assets/duel/sprites/wizard-idle-girl.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-idle-girl, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-cast",
+   "source": "src/assets/duel/sprites/wizard-cast.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-cast, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-cast-girl",
+   "source": "src/assets/duel/sprites/wizard-cast-girl.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-cast-girl, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-dizzy",
+   "source": "src/assets/duel/sprites/wizard-dizzy.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "duel-wizard-dizzy-girl",
+   "source": "src/assets/duel/sprites/wizard-dizzy-girl.webp",
+   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy-girl, no note)",
+   "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   }
  ]
 }

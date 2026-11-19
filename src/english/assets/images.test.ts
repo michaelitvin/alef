@@ -27,3 +27,18 @@ describe('the English path\'s pictures', () => {
     for (const k of Object.keys(IMAGES).filter((k) => /^(merchant-|boss-|s-potion|pw-|word-)/.test(k))) expect(ENGLISH_IMAGES[k], k).toBe(IMAGES[k])
   })
 })
+
+describe('the English tower\'s art', () => {
+  it('is green: it differs from the first duel\'s tower and wizards, which stay the default', async () => {
+    const { ENGLISH_TOWER_ART } = await import('./towerArt')
+    const { TOWER, WIZARD, WIZARD_GIRL } = await import('../../assets/duel/sprites')
+    const { HEBREW } = await import('../../duel2/course/hebrew')
+    expect(ENGLISH_TOWER_ART.tower).not.toBe(TOWER)
+    for (const pose of ['idle', 'cast', 'dizzy'] as const) {
+      expect(ENGLISH_TOWER_ART.wizard[pose], pose).not.toBe(WIZARD[pose])
+      expect(ENGLISH_TOWER_ART.wizardGirl[pose], pose).not.toBe(WIZARD_GIRL[pose])
+    }
+    // the Hebrew course has none of its own: the board falls back to the duel's sprites
+    expect(HEBREW.tower.art).toBeUndefined()
+  })
+})

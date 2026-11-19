@@ -5,7 +5,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import type { Outcome, Round } from '../../types/duel'
-import { TOWER, useWizard } from '../../assets/duel/sprites'
+import { TOWER, useWizard, type TowerArt } from '../../assets/duel/sprites'
+import { useGender } from '../../shared/player'
 import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
@@ -37,6 +38,8 @@ export function useLandscape(query = LANDSCAPE_QUERY) {
 const CAST_ANIM = { pulse: { scale: [1, 1.12, 1] }, twirl: { rotate: [0, 360] }, jump: { y: [0, -26, 0] } }
 
 interface Props {
+  /** the course's own tower and wizard pictures (English: the green ones); unset: the duel's */
+  art?: TowerArt
   round: Round | null
   outcome: Outcome | null
   walking: boolean
@@ -58,8 +61,11 @@ interface Props {
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, held = false, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
-  const WIZARD = useWizard()
+export function Battlefield({ art, round, outcome, walking, paused, held = false, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
+  const own = useWizard()
+  const girl = useGender() === 'girl'
+  const WIZARD = art ? (girl ? art.wizardGirl : art.wizard) : own
+  const TOWER_IMG = art?.tower ?? TOWER
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)
@@ -128,7 +134,7 @@ export function Battlefield({ round, outcome, walking, paused, held = false, lan
   return (
     <div className="nd-field" ref={fieldRef}>
       <div className="nd-ground" />
-      <img ref={towerRef} className="nd-tower" src={TOWER} alt="" draggable={false} onLoad={relayout} />
+      <img ref={towerRef} className="nd-tower" src={TOWER_IMG} alt="" draggable={false} onLoad={relayout} />
       <motion.img
         ref={wizardRef}
         className="nd-wizard"

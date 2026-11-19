@@ -27,6 +27,9 @@ export const WIZARD_GIRL = { idle: wizardIdleGirl, cast: wizardCastGirl, dizzy: 
 export const useWizard = () => (useGender() === 'girl' ? WIZARD_GIRL : WIZARD)
 export const TOWER = tower
 
+/** The tower and the wizard's poses a board draws (a course with its own look gives them: Course.tower.art); the default is this file's. */
+export interface TowerArt { tower: string; wizard: typeof WIZARD; wizardGirl: typeof WIZARD_GIRL }
+
 type Faces = 'left' | 'right' | 'front'
 
 export const MONSTERS: Record<string, { src: string; faces: Faces }> = {

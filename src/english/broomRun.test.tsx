@@ -105,6 +105,24 @@ describe('the English flight boss', () => {
     // its catches count as the flight's do
     expect(save.read().tallies['sc:broom']?.seen ?? 0).toBeGreaterThanOrEqual(8)
   })
+
+  it('a boss visit of every kind ends at every stage that opens it (no spin, no throw in the round\'s pick)', async () => {
+    const beaten = new Set<string>()
+    for (const stage of [2, 4, 5]) for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const save = englishSave(stage, { broomSessions: 1 })
+      await session(save, () => 'right', seed)
+      const k = save.read().bossesBeaten?.[0]
+      expect(k, `stage ${stage} seed ${seed}`).toBeDefined()
+      beaten.add(k!)
+    }
+    expect(beaten.size).toBeGreaterThanOrEqual(2)
+  }, 120_000)
+
+  it('a forced screen the course lacks, or a boss kind not open at the forced stage, is refused rather than spun on', () => {
+    expect(() => new RunController({ course: ENGLISH, save: englishSave(2), force: { screen: 'draw-hand', stage: 3 }, sandbox: true })).toThrow(/no draw-hand screen/)
+    expect(() => new RunController({ course: ENGLISH, save: englishSave(3), force: { screen: 'broom', stage: 3, boss: 'shin' }, sandbox: true })).toThrow(/not open at stage 3/)
+    expect(() => new RunController({ course: ENGLISH, save: englishSave(4), force: { screen: 'broom', stage: 4, boss: 'shin' }, sandbox: true })).not.toThrow()
+  })
 })
 
 describe('the broom\'s introductions and demo in the run', () => {

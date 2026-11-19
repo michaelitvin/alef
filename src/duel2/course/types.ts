@@ -3,6 +3,7 @@
 import type { createGameAudio } from '../../shared/gameAudio/kit'
 import type { DuelAudio } from '../../utils/duel/controller'
 import type { TowerContent } from '../../utils/duel/content'
+import type { TowerArt } from '../../assets/duel/sprites'
 import type { Round } from '../../types/duel'
 import type { Rng, Tally } from '../../shared/adaptive'
 import type { DuelTallies } from '../../utils/duel/tallies'
@@ -248,6 +249,8 @@ export interface Course {
      * pass when `newStage`). Hebrew: unset, the tower's answers stay the first duel's (English: logic/tower's towerFacts)
      */
     facts?: (round: Round, stage: number) => { features: string[]; newStage: boolean }
+    /** the tower and the wizard's poses the board draws (English: the green ones); unset: the first duel's own */
+    art?: TowerArt
   }
   /**
    * the course's placement check in the tower (English, design Part 4; Hebrew: unset, its stage 0 is the book's): while

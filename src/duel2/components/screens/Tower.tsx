@@ -124,7 +124,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       <RuneGlowDefs />
       <motion.div className="nd-screen" animate={shakeCtl}>
         <Starfield />
-        <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused} held={game.held}
+        <Battlefield art={tower?.art} round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused} held={game.held}
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} fx={game.fx}
           resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
         {game.blend && <BlendWord parts={game.blend.parts} lit={game.blend.lit} />}

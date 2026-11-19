@@ -296,6 +296,7 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
   --en-rune: #0f4a42; --en-rune-top: #17685c; --en-rune-edge: #6fc9b4;
   --en-panel: #0f4a42aa; --en-panel-dark: #0b2f2c; --en-panel-edge: #7fd6c2;
   --en-shadow: #06211f;
+  --en-trail-top: #a0ffd8; --en-trail-end: #2fd6a0; --en-aura: #7fe0c8; --en-silhouette: #0a2a26; --en-silhouette-edge: #5aa898aa; --en-silhouette-glow: #2fe0b0;
 }
 .d2-root[data-course="en"] { background: var(--en-night); }
 [data-course="en"] .d2-btn { background: var(--en-button); box-shadow: 0 0 12px var(--en-button-glow); }
@@ -315,3 +316,15 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 .latin { font-family: Andika, system-ui, sans-serif; font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
 /* the tower's runes (the first duel's board, played inside the English run) */
 [data-course="en"] .nd-rune:not(.hit):not(.miss) { background: linear-gradient(var(--en-rune-top), var(--en-rune)); border-color: var(--en-rune-edge); box-shadow: inset 0 -5px 0 #0003, 0 0 12px var(--en-button-glow); }
+/* what the screens draw in code with purple: the broom's orb trails and the boss aura, the glyph outline, the boss silhouettes, the legibility sheet's page */
+[data-course="en"] #d2-trail stop:first-child { stop-color: var(--en-trail-top); }
+[data-course="en"] #d2-trail stop:last-child { stop-color: var(--en-trail-end); }
+[data-course="en"] #d2-bossglow stop { stop-color: var(--en-aura); }
+[data-course="en"] text[data-glyph] { stroke: var(--en-shadow) !important; }
+[data-course="en"] .d2-trophy-dark { background: var(--en-silhouette); border-color: var(--en-silhouette-edge); }
+[data-course="en"] .d2-trophy-dark img { filter: brightness(0) drop-shadow(0 0 2px var(--en-silhouette-glow)) drop-shadow(0 0 4px var(--en-silhouette-glow)); }
+[data-course="en"][data-glyph-sheet] { background: var(--en-night) !important; }
+/* the tower's night, ground and pad in the course's green (the first duel's board keeps its purple on Book 1's own page and in Hebrew) */
+[data-course="en"] .nd-screen { background: radial-gradient(ellipse at 75% 18%, #2fd6a040, transparent 55%), radial-gradient(ellipse at 20% 35%, #3fb8d030, transparent 50%), linear-gradient(var(--en-night), var(--en-mid) 55%, var(--en-deep)); }
+[data-course="en"] .nd-ground { background: linear-gradient(#3fa08a59, #06211fe6); border-top-color: #7fd6c280; box-shadow: 0 -6px 30px #2fd6a059; }
+[data-course="en"] .nd-pad-area { background: linear-gradient(#0a282ad9, #06211f); }

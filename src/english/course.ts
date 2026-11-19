@@ -26,6 +26,7 @@ import { enAnswerOnly, enFeatures, enIsNewStageChoice, itemOfChoice } from './lo
 import { introAfter } from './logic/intro'
 import { blendOf } from './logic/blend'
 import { word } from './content/words'
+import { ENGLISH_TOWER_ART } from './assets/towerArt'
 import { unit, UNITS } from './content/units'
 import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES, wordPicture } from './assets/images'
@@ -136,7 +137,7 @@ export const ENGLISH: Course = {
   },
   rounds: EN_ROUNDS,
   // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
-  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts },
+  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts, art: ENGLISH_TOWER_ART },
   hint: EN_HINT,
   writing: EN_WRITING,
   placement: {

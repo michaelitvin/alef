@@ -351,6 +351,13 @@ export class RunController {
     this.now = opts.now ?? (() => this.time.now())
     this.stage = opts.force?.stage ?? this.save.read().stage.stage
     this.pass = this.newPass()
+    // a forced screen the course does not have, or a boss kind not open at the forced stage, has nothing to run: the loop
+    // would turn without waiting for anything (a screen of length 0) or throw in the round's pick, so it is refused here
+    const f = opts.force
+    if (f && f.screen !== 'merchant' && f.screen !== 'dot' && f.screen !== 'crystal' && this.course.stages.visit[f.screen] === 0) throw new Error(`the ${this.course.id} course has no ${f.screen} screen`)
+    if (f?.boss && this.course.rounds.bossKinds && !this.course.rounds.bossKinds(this.stage, { letters: {}, vowels: {} } as never).open.includes(f.boss)) {
+      throw new Error(`the ${this.course.id} course's ${f.boss} boss is not open at stage ${this.stage}`)
+    }
   }
 
   // ---- React bridge

@@ -12,7 +12,7 @@ export function GlyphSheet() {
   const cell = 160
   const rows = Math.ceil(texts.length / per)
   return (
-    <div data-course={course.id} style={{ overflow: 'auto', height: '100%', background: '#160a35' }}>
+    <div data-course={course.id} data-glyph-sheet style={{ overflow: 'auto', height: '100%', background: '#160a35' }}>
       <svg data-sheet viewBox={`0 0 ${per * cell} ${rows * cell}`} width={per * cell} height={rows * cell}>
         <GlyphDefs />
         {texts.map((t, i) => {

@@ -1,14 +1,14 @@
 // The English path shows no Hebrew, and no Latin text but its learning content (rules: the child cannot read yet; no
 // Hebrew on the English path). Every English gallery screen and the cover are rendered with the English course and their
 // text nodes are scanned.
-import { act, render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 // jsdom loads no fonts or pictures
 vi.mock('./assets/preload', () => ({ ENGLISH_FONTS: [], preloadEnglishAssets: () => Promise.resolve() }))
 import { CourseProvider } from '../duel2/course/CourseContext'
 import { Cover } from '../duel2/screens/Cover'
 import { Play } from '../duel2/screens/Play'
-import { GALLERY } from '../duel2/screens/Gallery'
+import { galleryFor } from '../duel2/screens/Gallery'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { HEBREW } from '../duel2/course/hebrew'
@@ -30,12 +30,22 @@ function textNodes(root: Element): { text: string; el: Element }[] {
 /** a learning element: a Latin letter, unit or word drawn as such */
 const learning = (el: Element) => !!el.closest('.latin, .nd-rune-text')
 
-// the Hebrew letters' own screens: handwriting, the dotted letters and their three bosses have no English screen
-const HEBREW_ONLY = ['draw-hand', 'dot-intro', 'boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat']
-const entries = GALLERY.filter((e) => (!e.courses || e.courses.includes('en')) && !HEBREW_ONLY.includes(e.id))
+const entries = galleryFor('en')
+/** the screens that show no text at all (the crystal's light, the merchant's coins); every other one shows learning text */
+const NO_TEXT = ['crystal', 'merchant']
+
+/** renders a gallery entry in the English course and waits until its screen is up and, where it has text, its text is drawn */
+async function shown(e: (typeof entries)[number]) {
+  const r = render(<CourseProvider value={ENGLISH}><Play opts={{ sandbox: true, force: e.force }} onOver={() => {}} /></CourseProvider>)
+  await waitFor(() => expect(r.container.querySelector('[data-screen="play"][data-kind]'), e.id).not.toBeNull(), { timeout: 10_000 })
+  if (!NO_TEXT.includes(e.id)) await waitFor(() => expect(textNodes(r.container).length, e.id).toBeGreaterThan(0), { timeout: 10_000 })
+  return r
+}
 
 describe('English child screens', () => {
-  it('the gallery has screens to scan', () => { expect(entries.length).toBeGreaterThan(10) })
+  it('the gallery has screens to scan', () => { expect(entries.length).toBeGreaterThan(10)
+    expect(entries.map((e) => e.id)).not.toContain('draw-hand')
+    expect(entries.map((e) => e.id)).toEqual(expect.arrayContaining(['boss-dot', 'boss-shin', 'boss-mimic', 'boss-bat'])) })
 
   it('the cover shows Latin units, and the Hebrew cover keeps its syllables', () => {
     const en = render(<CourseProvider value={ENGLISH}><Cover onPlay={() => {}} onParent={() => {}} /></CourseProvider>)
@@ -53,9 +63,7 @@ describe('English child screens', () => {
     expect(textNodes(cover.container).filter((n) => HEBREW_LETTER.test(n.text))).toEqual([])
     cover.unmount()
     for (const e of entries) {
-      const r = render(<CourseProvider value={ENGLISH}><Play opts={{ sandbox: true, force: e.force }} onOver={() => {}} /></CourseProvider>)
-      await act(async () => { await new Promise((res) => setTimeout(res, 30)) })
-      expect(r.container.querySelector('[data-screen="play"]'), e.id).not.toBeNull()
+      const r = await shown(e)
       expect(textNodes(r.container).filter((n) => HEBREW_LETTER.test(n.text)).map((n) => `${e.id}: ${n.text}`)).toEqual([])
       r.unmount()
     }
@@ -66,8 +74,7 @@ describe('English child screens', () => {
     expect(textNodes(cover.container).filter((n) => LATIN_LETTER.test(n.text) && !learning(n.el))).toEqual([])
     cover.unmount()
     for (const e of entries) {
-      const r = render(<CourseProvider value={ENGLISH}><Play opts={{ sandbox: true, force: e.force }} onOver={() => {}} /></CourseProvider>)
-      await act(async () => { await new Promise((res) => setTimeout(res, 30)) })
+      const r = await shown(e)
       expect(textNodes(r.container).filter((n) => LATIN_LETTER.test(n.text) && !learning(n.el)).map((n) => `${e.id}: ${n.text}`)).toEqual([])
       r.unmount()
     }
