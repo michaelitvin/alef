@@ -6,6 +6,7 @@ import type { TowerContent } from '../../utils/duel/content'
 import type { Round } from '../../types/duel'
 import type { DuelTallies } from '../../utils/duel/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
+import type { ScreenView } from '../controller'
 import type { Word } from '../data/words'
 import type { BossKind, BossKinds } from '../logic/boss'
 import type { MarkId } from '../logic/content'
@@ -126,6 +127,25 @@ export interface DoorKey {
   picture: string
 }
 
+/** one piece of a word the blend lights: its letters (a two-letter unit is one piece) and the unit it belongs to */
+export interface BlendPart { text: string; unit: number }
+/**
+ * How a word blends (the hint, after every second miss, the made word): the voice ids it plays; when each unit lights,
+ * in ms from the voice's real start; how long it lasts (the lights end by then, also with no clip); and the word's
+ * pieces, which the hint card (BlendWord) draws
+ */
+export interface BlendPlan { audio: string[]; lights: { unit: number; atMs: number }[]; totalMs: number; parts: BlendPart[] }
+
+/**
+ * The hint that blends a word (English): `plan`, the blends of a screen (where he hears the word: its word; where he
+ * reads to choose: each word on the screen, left to right; none: no `?`); `of`, the blend of one word (the made word,
+ * the right word after a miss; null: not a word)
+ */
+export interface CourseHint {
+  plan(screen: ScreenView): BlendPlan[]
+  of(c: Choice): BlendPlan | null
+}
+
 /** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */
 export type SaveHook = <T>(pick: (s: Duel2Save & Duel2Actions) => T) => T
 
@@ -172,6 +192,8 @@ export interface Course {
    * it is `due`, the tower plays `tower(save)` instead of `tower.content`
    */
   placement?: CoursePlacement
+  /** the hint that blends a word (English); unset (Hebrew): the run's own hint (a syllable's letter and vowel) */
+  hint?: CourseHint
   lineAudioId(id: string, n?: number): string
   /** how many takes a line has (the run picks one: Hebrew `lineById`, English `enLine`; an unknown id has one) */
   lineVariations(id: string): number

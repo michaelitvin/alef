@@ -18,7 +18,7 @@ import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
 import { HEBREW } from './course/hebrew'
-import type { Course, CourseId, DoorKey, DoorRound, LadderPlan } from './course/types'
+import type { BlendPart, BlendPlan, Course, CourseId, DoorKey, DoorRound, LadderPlan } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker } from './logic/recognizer'
@@ -112,6 +112,8 @@ export type Overlay =
   | { kind: 'explain'; parts: { id: string; highlight: Highlight }[]; target: Choice }
   | { kind: 'dot'; parts: { id: string; highlight: Highlight }[]; soft: string; hard: string }
   | { kind: 'hint'; target: Choice; glow: Highlight | null }
+  /** a word blends (English): its pieces, and the units lit so far (BlendWord) */
+  | { kind: 'blend'; parts: BlendPart[]; lit: number[] }
   | { kind: 'word'; word: Word }
 
 export interface View {
@@ -208,6 +210,8 @@ const CONFIDENT_MS = 3000
 const COIN_POP_MS = 550
 /** the placement check's visit: a bound on its waves, never reached (at most 15 answers and its confirmations) */
 const PLACEMENT_WAVES = 10
+/** the pause between two words that blend in turn (a door's plate, the ghosts' words) */
+const BLEND_GAP_MS = 300
 
 export class RunController {
   view: View = { course: { id: HEBREW.id, dir: HEBREW.dir }, phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
@@ -297,6 +301,13 @@ export class RunController {
   private doorHintOn = false
   /** a hint's voice plays (a touch on an answer stops it) */
   private hintVoice = 0
+  /** the blends play: a new number ends the ones before (their lights); `blendHint` is the hint's (a touch stops it) */
+  private blendNo = 0
+  private blendHint = 0
+  /** the hint blended a word in this round (English): its answer counts as helped, not right */
+  private hinted = false
+  /** the misses on this visit's word rounds (English): the blend plays too after every second one */
+  private blendMisses = 0
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean; placement?: boolean } | null = null
   private towerNo = 0
@@ -384,6 +395,11 @@ export class RunController {
   hint() {
     if (this.view.merchant) { this.merchantStep({ type: 'help' }); return }
     const s = this.view.screen
+    // the course's hint blends the words (English): on every screen with a word to blend, while he answers
+    if (this.course.hint && s && s.screen !== 'draw' && s.screen !== 'tower') {
+      if (this.view.phase === 'answer' && !this.view.overlay) void this.hintBlend(this.token, false).catch(() => {})
+      return
+    }
     if (s?.screen === 'doors' && this.view.phase === 'answer') {
       // the door's hint: the syllables light again one at a time, slower, with no voice (he reads it); a touch on a key ends it
       const t = this.token
@@ -422,6 +438,13 @@ export class RunController {
     }
     if (this.visit?.help) { this.merchantStep({ type: 'touch' }); cut = true }
     if (this.hintVoice) { this.hintVoice = 0; this.course.audio.stopVoice(); cut = true }
+    if (this.blendHint) {
+      this.blendHint = 0
+      this.blendNo++
+      if (this.view.overlay?.kind === 'blend') this.set({ overlay: null })
+      this.course.audio.stopVoice()
+      cut = true
+    }
     if (cut) this.track('hint-stop', { screen: this.view.merchant ? 'merchant' : this.view.screen?.screen ?? null, by })
   }
 
@@ -565,6 +588,7 @@ export class RunController {
         if (r.end) return this.endSession(r)
         if (!r.fresh) continue
         this.roundInScreen = 0
+        this.blendMisses = 0
         this.ladder = null
         this.doorRounds = []
         this.drawPlan = null
@@ -1088,7 +1112,8 @@ export class RunController {
     const target = this.buildRound(screen, kind)
     const intro = this.needsDotIntro(target)
     if (intro) await this.dotIntro(t, intro)
-    this.set({ phase: 'question', overlay: null, hintAvailable: screen === 'doors' || (target as Choice).kind === 'syllable' })
+    this.hinted = false
+    this.set({ phase: 'question', overlay: null, hintAvailable: this.hintOpen(screen, target) })
     this.assets = []
     // no instruction and no hint at the start of a round: he knows the screen (Michael). They come only when he waits
     // (idleWait), and the hint button is always there.
@@ -1143,7 +1168,7 @@ export class RunController {
       void this.course.audio.sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
     })
     const hint = this.time.after(IDLE_HINT_MS, () => {
-      if (live() && c) { spoke = true; void this.playHint(c, true, t).catch(() => {}) }
+      if (live() && c) { spoke = true; void (this.course.hint ? this.hintBlend(t, true) : this.playHint(c, true, t)).catch(() => {}) }
     })
     try {
       const id = await pick
@@ -1194,15 +1219,21 @@ export class RunController {
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = door ? door.asked : 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
+    // a thrown e (the English cauldron, cap → cape) is always the e in the last box: he can give it without listening,
+    // so it never counts towards the stage
+    const thrown = this.view.screen?.screen === 'cauldron' && !!this.view.screen.shown
     // a Hebrew door word counts towards the stage from stage 4 (its last stage, the words); an English door by its key's word
-    const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
-    const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
+    const newStage = thrown ? false : asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
+    // a right answer after the hint blended the word (English) is helped: counted apart from right (the Hebrew run never is)
+    const helped = this.hinted && result === 'right'
+    if (result !== 'near') this.hinted = false
+    const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage, ...(helped ? { helped } : {}) })
     if (passed) {
       this.stage = this.save.read().stage.stage
       this.track('stage', { stage: this.stage })
     }
     this.course.telemetry.track('answer', {
-      screen, stage: this.stage, target: 'id' in target ? target.id : '', tapped: tapped && 'id' in tapped ? tapped.id : null, result, ms,
+      screen, stage: this.stage, target: 'id' in target ? target.id : '', tapped: tapped && 'id' in tapped ? tapped.id : null, result: helped ? 'helped' : result, ms,
       assets: this.assets, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}),
     })
   }
@@ -1254,8 +1285,9 @@ export class RunController {
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
       // let the effect ring a moment before the voice goes on (Michael: effects got cut)
       await this.sleep(t, SFX_RING_MS)
-      await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
-      if (tiles) await this.wordBlend(t, c)
+      // (the English cauldron: the made word blends instead)
+      if (tiles) await this.wordBlend(t, c, true)
+      else await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       if (intro.length) await this.say(t, intro)
       await this.maybeWordLink(t, c)
       await this.streakMoment(t)
@@ -1284,7 +1316,9 @@ export class RunController {
     if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ reveal: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
     if (s.screen === 'ghosts') { this.setScreen({ reveal: undefined, zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
     await this.sleep(t, FIX_DONE_MS)
-    if (tiles) await this.wordBlend(t, c)
+    const blend = this.missBlendDue(c)
+    if (tiles) await this.wordBlend(t, c, blend)
+    else if (blend) await this.blendAfterMiss(t, c)
     if (intro.length) await this.say(t, intro)
     if (this.explanationDue(screen, c)) await this.explain(t, screen, c)
     return 'next'
@@ -1363,6 +1397,7 @@ export class RunController {
     this.sfx('door')
     await this.sleep(t, SFX_RING_MS)
     await this.say(t, [{ id: cue }])
+    if (asked && this.missBlendDue(asked)) await this.blendAfterMiss(t, asked)
     if (intro.length) await this.say(t, intro)
     this.setScreen({ zooming: true } as Partial<DoorsView>)
     await this.sleep(t, ZOOM_MS + 60)
@@ -1399,12 +1434,86 @@ export class RunController {
   }
 
   /**
-   * After the English cauldron's word is made (right, or after the fix), the word's blend plays: "caaat … cat" (design
-   * Part 5). The blend comes with Task 21 (the hint that blends a word); until then nothing plays here.
+   * After the English cauldron's word is made (right, or after the fix): at a thrown e's turn he hears the short word,
+   * then the long one ("cap … cape"); the made word blends (design Part 5) after a right answer, and after a miss when
+   * the blend is due (every second miss: missBlendDue; else the fix has said the word already)
    */
-  private async wordBlend(t: number, word: Choice) {
-    void t
-    void word
+  private async wordBlend(t: number, word: Choice, blend: boolean) {
+    const s = this.view.screen as CauldronView
+    if (s.shown) {
+      await this.say(t, [{ id: this.cueId(s.shown) }])
+      await this.sleep(t, BLEND_GAP_MS)
+    }
+    const plan = blend ? this.course.hint?.of(word) : null
+    if (plan) await this.playBlends(t, [plan], false)
+    else if (blend || s.shown) await this.say(t, [{ id: this.cueId(word) }])
+  }
+
+  /** the course's blends of the screen (English; none: no `?`) */
+  private blendsOf(): BlendPlan[] {
+    return this.course.hint && this.view.screen ? this.course.hint.plan(this.view.screen) : []
+  }
+  /** the `?` of a calm round: the course's blends, where it has them (English); else a door, or a syllable (Hebrew) */
+  private hintOpen(screen: ScreenId, target: Choice | Word): boolean {
+    if (this.course.hint) return this.blendsOf().length > 0
+    return screen === 'doors' || (target as Choice).kind === 'syllable'
+  }
+
+  /** The hint blends the words of the screen (English; the `?`, or after a long wait): the answer after it is helped. */
+  private async hintBlend(t: number, auto: boolean) {
+    const plans = this.blendsOf()
+    if (!plans.length) return
+    this.hinted = true
+    this.track('blend-hint', { screen: this.view.screen?.screen ?? null, words: plans.length, by: auto ? 'idle' : 'button' })
+    await this.playBlends(t, plans, true)
+  }
+
+  /** a miss on a word round of this visit (English): true on every second one, when the right word blends too */
+  private missBlendDue(c: Choice): boolean {
+    if (!this.course.hint?.of(c)) return false
+    this.blendMisses++
+    const due = this.blendMisses % 2 === 0
+    if (due) this.track('blend-hint', { screen: this.view.screen?.screen ?? null, words: 1, by: 'miss' })
+    return due
+  }
+  /** after a miss (every second one) and his own right move: the right word blends */
+  private async blendAfterMiss(t: number, c: Choice) {
+    const plan = this.course.hint?.of(c)
+    if (plan) await this.playBlends(t, [plan], false)
+  }
+
+  /**
+   * Plays blends one word after another: the card shows the word, its voice plays, and each unit lights at its time from
+   * the voice's real start. A missing clip (or a missing timing) never stalls it: the lights go on to the plan's end. A
+   * newer blend (or, for the hint, a touch on an answer) ends it.
+   */
+  private async playBlends(t: number, plans: BlendPlan[], asHint: boolean) {
+    const no = ++this.blendNo
+    if (asHint) this.blendHint = no
+    const alive = () => t === this.token && no === this.blendNo
+    const timers: Cancel[] = []
+    try {
+      for (let i = 0; i < plans.length && alive(); i++) {
+        const plan = plans[i]
+        if (i > 0) await this.sleep(t, BLEND_GAP_MS)
+        if (!alive()) break
+        this.set({ overlay: { kind: 'blend', parts: plan.parts, lit: [] } })
+        let started: number | null = null
+        const light = (u: number) => () => {
+          const o = this.view.overlay
+          if (alive() && o?.kind === 'blend') this.set({ overlay: { ...o, lit: [...o.lit, u] } })
+        }
+        const start = () => { started = this.now(); for (const l of plan.lights) timers.push(this.time.after(l.atMs, light(l.unit))) }
+        await this.say(t, plan.audio.map((id, k) => ({ id, ...(k === 0 ? { onStart: start } : {}) })))
+        // (a missing clip ends at once: the lights still run to the plan's end)
+        const left = started === null ? 0 : plan.totalMs - (this.now() - started)
+        if (left > 0 && alive()) await this.sleep(t, left)
+      }
+    } finally {
+      timers.forEach((c) => c())
+      if (no === this.blendNo && this.view.overlay?.kind === 'blend') this.set({ overlay: null })
+      if (this.blendHint === no) this.blendHint = 0
+    }
   }
 
   private async maybeWordLink(t: number, c: Choice) {
@@ -1612,7 +1721,8 @@ export class RunController {
     if (this.boss?.won) return this.bossWin(t)
     this.course.audio.startMusic(this.boss ? 'boss' : 'flight')
     // the hint shows a syllable's letter and vowel (a word's blend comes with the English hint)
-    this.set({ phase: 'question', hintAvailable: target.kind === 'syllable' })
+    this.hinted = false
+    this.set({ phase: 'question', hintAvailable: this.course.hint ? this.blendsOf().length > 0 : target.kind === 'syllable' })
     this.assets = []
     // a boss swoops in first (once), then its line; otherwise only the sound to catch (the demo taught the screen)
     if (this.boss) await this.bossRun(t, { type: 'arrive' }, target)
@@ -1699,6 +1809,8 @@ export class RunController {
           const spentWaves = waves.map((w) => ({ ...w, spent: true }))
           target = this.boss ? this.course.rounds.bossTarget(this.ctx(), this.boss.kind, target.soundId) : this.course.rounds.broomTarget(this.ctx(), kind, target.soundId)
           this.setScreen({ target, waves: spentWaves } as Partial<BroomView>)
+          // (English: a new word to catch has its own hint; a sound has none)
+          if (this.course.hint) { this.hinted = false; this.set({ hintAvailable: this.blendsOf().length > 0 }) }
           holdSpawn = true
           const go = () => { holdSpawn = false; nextSpawnAt = -Infinity }
           void this.say(t, [{ id: this.variation('target-new') }, { id: this.cueId(target), onStart: go }])

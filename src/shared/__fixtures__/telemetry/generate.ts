@@ -185,6 +185,7 @@ const ENGLISH: Table = {
   'placement-start': (r) => ({ wave: r.int(1, 3) }),
   'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
   'placement-done': (r) => ({ level: r.int(1, 9), answers: r.int(5, 23) }),
+  'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
 }
 
 /** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */

@@ -18,6 +18,7 @@ import { Merchant } from '../components/screens/Merchant'
 import { Tower } from '../components/screens/Tower'
 import { TopBar } from '../components/TopBar'
 import { ExplainPanel } from '../components/ExplainPanel'
+import { BlendWord } from '../components/BlendWord'
 import { DemoHand } from '../components/DemoHand'
 import { DotOverlay, ExplainOverlay, HintCard, WordLink } from './Overlays'
 import { PauseCover } from './PauseCover'
@@ -198,8 +199,9 @@ export function Play({ opts, onOver, onExit }: {
       {o?.kind === 'explain' && <ExplainPanel key={o.target.id + o.parts.length} parts={o.parts} onNext={run.onNext} skippable>{(h) => <ExplainOverlay target={o.target} h={h} />}</ExplainPanel>}
       {o?.kind === 'dot' && <ExplainPanel key={o.hard} parts={o.parts} onNext={run.onNext} skippable>{(h) => <DotOverlay soft={o.soft} hard={o.hard} h={h} />}</ExplainPanel>}
       {o?.kind === 'hint' && <HintCard target={o.target} glow={o.glow} />}
+      {o?.kind === 'blend' && <BlendWord parts={o.parts} lit={o.lit} />}
       {o?.kind === 'word' && <WordLink word={o.word} />}
-      {(!o || o.kind === 'hint' || o.kind === 'word') && (
+      {(!o || o.kind === 'hint' || o.kind === 'blend' || o.kind === 'word') && (
         <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow} help={!!v.merchant}

@@ -14,8 +14,11 @@ import { wordChoice, type HasVoice } from './broom'
 
 /** the tiles of a round: the right one and 3 wrong ones */
 const TILES = 4
-/** of the rounds from stage 4: the share whose missing part is a pair of letters (`_ip`), my call */
-const PAIR_SHARE = 0.4
+/**
+ * the share of rounds whose missing part is a pair of letters (`_ip`), by stage (my call): from stage 4, where the
+ * pairs come, through stage 5; then it tapers, as the silent e and the endings take the rounds
+ */
+export const PAIR_SHARE: Record<number, number> = { 4: 0.4, 5: 0.4, 6: 0.25, 7: 0.2, 8: 0.15, 9: 0.15 }
 /** the share of `e` throws (C6 pairs) by stage, my call: often on the stage that brings the silent e, rarely after */
 const THROW_SHARE = (stage: number) => (stage === 6 ? 0.4 : stage > 6 ? 0.15 : 0)
 /** a mix-up he made this often comes onto the tiles (as on the tower and the broom) */
@@ -117,7 +120,7 @@ function throwRound(ctx: RoundCtx, avoid: string | undefined, deps: CauldronDeps
 /**
  * The cauldron's round at his stage: a word he hears, its parts with one empty box, and 4 tiles. `avoid`: the sound
  * heard the round before (never the same word twice in a row). From stage 4, a pair of letters is missing on
- * PAIR_SHARE of the rounds; from stage 6, THROW_SHARE of them throw an `e` in.
+ * PAIR_SHARE of the rounds (by stage); from stage 6, THROW_SHARE of them throw an `e` in.
  */
 export function enCauldronRound(ctx: RoundCtx, avoid: string | undefined, deps: CauldronDeps): CauldronRound {
   const { rng, stage } = ctx
@@ -127,7 +130,7 @@ export function enCauldronRound(ctx: RoundCtx, avoid: string | undefined, deps: 
   }
   const all = boxWords(stage).filter((w) => wordChoice(w).soundId !== avoid)
   const withPair = all.filter((w) => w.units.some((u) => isPair(unit(u))))
-  const pair = stage >= 4 && withPair.length > 0 && rng() < PAIR_SHARE
+  const pair = stage >= 4 && withPair.length > 0 && rng() < (PAIR_SHARE[stage] ?? 0)
   const pool = voicedFirst(pair ? withPair : all, deps.voice)
   const w = pickWord(ctx, pool, (x) => enFeatures(wordChoice(x), 'cauldron'))
   const units = w.units.map(unit)

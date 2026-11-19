@@ -4,7 +4,8 @@
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
 // logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
-import type { Course, CourseRounds } from '../duel2/course/types'
+import type { BlendPlan, Course, CourseHint, CourseRounds } from '../duel2/course/types'
+import type { Choice } from '../duel2/logic/rounds'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
 import { englishAudio, englishDuelAudio } from './audio'
@@ -19,6 +20,8 @@ import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/roun
 import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
+import { blendOf } from './logic/blend'
+import { word } from './content/words'
 import { READY_STAGES, englishStageRule } from './readyStages'
 import { ENGLISH_IMAGES, wordPicture } from './assets/images'
 import { preloadEnglishAssets } from './assets/preload'
@@ -65,6 +68,28 @@ const EN_ROUNDS: CourseRounds = {
   bossWave: enBossWave,
 }
 
+/** the blend of a word choice (a unit, a sound: none) */
+const blendOfChoice = (c: Choice): BlendPlan | null => (c.kind === 'word' ? blendOf(word(c.id)) : null)
+const plans = (cs: Choice[]) => cs.map(blendOfChoice).filter((p): p is BlendPlan => !!p)
+
+/**
+ * The hint that blends a word (Task 21; the method is PROVISIONAL, logic/blend.ts). Where he hears the word (the broom,
+ * the cauldron, the ladder): its blend. Where he reads to choose (the doors, the ghosts' words): each word on the
+ * screen, left to right. The tower's words are Task 21a's; the placement has no hint.
+ */
+const EN_HINT: CourseHint = {
+  plan: (s) => {
+    switch (s.screen) {
+      case 'broom': case 'ladder': return plans([s.target])
+      case 'cauldron': return s.tiles ? plans([s.target]) : []
+      case 'ghosts': return plans(s.signs)
+      case 'doors': return s.plate ? plans(s.plate) : []
+      default: return []
+    }
+  },
+  of: blendOfChoice,
+}
+
 /** the run's Hebrew demo and question keys (by its letters and syllables) and the English lines that say them */
 const DEMO_ALIAS: Record<string, string> = {
   'demo-broom-letter': 'demo-broom-sound', 'demo-ghosts-letter': 'demo-ghosts-sound', 'demo-ghosts-syllable': 'demo-ghosts-word',
@@ -93,6 +118,7 @@ export const ENGLISH: Course = {
   rounds: EN_ROUNDS,
   // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
   tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts },
+  hint: EN_HINT,
   placement: {
     // (only reads: also on the gallery's read-only save)
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },

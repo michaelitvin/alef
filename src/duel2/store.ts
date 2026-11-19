@@ -98,7 +98,11 @@ export interface Duel2Save {
 }
 
 export interface Duel2Actions {
-  recordAnswer: (a: { features: string[]; miss: boolean; asked?: Choice; tapped?: Choice; newStage: boolean }) => { passed: boolean }
+  /**
+   * `helped`: a right answer after the hint (English): `seen` and `helped` + 1, not wrong, not a mistake; on the stage
+   * pass it is not a right answer. The Hebrew run never passes it, so its tallies keep their shape
+   */
+  recordAnswer: (a: { features: string[]; miss: boolean; asked?: Choice; tapped?: Choice; newStage: boolean; helped?: boolean }) => { passed: boolean }
   setPace: (p: number) => void
   endRun: (ended: ScreenId, score: number) => void
   addStar: () => void
@@ -171,14 +175,17 @@ export const runState = (recordStage: StageRule, initial: Partial<Duel2Save> = {
   settings: DEFAULT_SETTINGS,
   strokeMarks: {},
   ...initial,
-  recordAnswer: ({ features, miss, asked, tapped, newStage }) => {
+  recordAnswer: ({ features, miss, asked, tapped, newStage, helped }) => {
     const s = get()
     const tallies = { ...s.tallies }
     const recent = { ...s.recent }
+    // (a helped answer is neither right nor wrong: it is not in the recent answers)
+    const help = !!helped && !miss
     for (const f of features) {
       const t = tallies[f] ?? {}
-      tallies[f] = { seen: (t.seen ?? 0) + 1, wrong: (t.wrong ?? 0) + (miss ? 1 : 0) }
-      recent[f] = pushRecent(recent[f], miss)
+      const h = (t.helped ?? 0) + (help ? 1 : 0)
+      tallies[f] = { seen: (t.seen ?? 0) + 1, wrong: (t.wrong ?? 0) + (miss ? 1 : 0), ...(h ? { helped: h } : {}) }
+      if (!help) recent[f] = pushRecent(recent[f], miss)
     }
     let confusions = s.confusions
     if (miss && asked && tapped && asked.id !== tapped.id) {
@@ -191,7 +198,7 @@ export const runState = (recordStage: StageRule, initial: Partial<Duel2Save> = {
     const mistakes = miss ? [...s.mistakes, { round: s.roundNo, features }].slice(-20) : s.mistakes
     let stage = s.stage
     let passed = false
-    if (newStage) ({ progress: stage, passed } = recordStage(s.stage, !miss))
+    if (newStage) ({ progress: stage, passed } = recordStage(s.stage, !miss && !help))
     set({ tallies, recent, confusions, mistakes, stage, roundNo: s.roundNo + 1 })
     return { passed }
   },

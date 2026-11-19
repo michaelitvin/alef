@@ -7,7 +7,7 @@ import type { RoundCtx } from '../../../duel2/logic/rounds'
 import { seeded } from '../../../duel2/testing/runHarness'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'
-import { enCauldronRound, type CauldronDeps } from './cauldron'
+import { PAIR_SHARE, enCauldronRound, type CauldronDeps } from './cauldron'
 
 const ctxAt = (stage: number, seed = 1, letters: Record<string, Record<string, number>> = {}): RoundCtx =>
   ({ rng: seeded(seed), stage, tallies: {}, recent: {}, confusions: { letters, syllables: {} } })
@@ -53,6 +53,19 @@ describe('the English cauldron', () => {
     // _ip → sh, ch, th
     const ship = pairs.find((r) => r.target.id === 'ship' || r.target.id === 'chip')
     expect(ship).toBeDefined()
+  })
+
+  it('the pair share holds through stage 5, then tapers', () => {
+    expect(PAIR_SHARE[4]).toBe(0.4)
+    expect(PAIR_SHARE[5]).toBe(0.4)
+    for (let s = 6; s <= 9; s++) expect(PAIR_SHARE[s]).toBeLessThanOrEqual(PAIR_SHARE[s - 1])
+    expect(PAIR_SHARE[6]).toBeLessThan(PAIR_SHARE[5])
+    // measured: the rounds with a missing pair (not the throws) are fewer at stage 8 than at stage 5
+    const pairShare = (stage: number) => {
+      const rs = rounds(stage, 600).filter((r) => !r.becomes)
+      return rs.filter((r) => rightOf(r).text.length === 2 && ['digraph', 'double'].includes(unit(rightOf(r).id).kind)).length / rs.length
+    }
+    expect(pairShare(8)).toBeLessThan(pairShare(5))
   })
 
   it('stage 6 throws e after cap and the word becomes cape', () => {
