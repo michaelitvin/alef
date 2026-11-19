@@ -700,7 +700,7 @@ export class RunController {
       // checkpoint is only in the adventure, where the boss is decided at the visit's start anyway)
       if (this.screenId === 'broom' && this.visitBoss === undefined) this.visitBoss = this.decideBoss()
       const st = this.save.read()
-      const range: NumberRange = st.settings.range ?? 100
+      const range: NumberRange = this.save.range()
       // the checkpoints since his last visit, this one included (the save counts the ones passed without him)
       const since = st.checkpointsSinceVisit ?? NEVER_VISITED
       const r = this.passStep({
@@ -734,7 +734,7 @@ export class RunController {
     const GALLERY_COINS = 40
     if (!this.visit) {
       this.passStep({ type: 'gallery-merchant' })
-      const range = this.save.read().settings.range ?? 100
+      const range = this.save.range()
       const price = priceAt(0, range)
       this.newMerchantVisit(price, composeCoins(GALLERY_COINS, price, range, this.save.read().merchant?.level ?? 0, this.rng))
     }

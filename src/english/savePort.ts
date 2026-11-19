@@ -7,8 +7,9 @@ import { portOver, type SavePort } from '../duel2/savePort'
 import type { ScreenId } from '../duel2/logic/predict'
 import type { Tally } from '../shared/adaptive'
 import { talliesOver, type DuelTallies } from '../utils/duel/tallies'
+import { getNumberRange, type NumberRange } from '../shared/numberRange'
 import { englishState, useEnglishStore } from './store'
-import type { EnglishFields, EnglishSave, IntroState, PlacementSave } from './saveFormat'
+import type { EnglishFields, EnglishSave, EnglishSettings, IntroState, PlacementSave } from './saveFormat'
 
 export interface EnglishSavePort extends SavePort {
   /** the English save as it is now (a snapshot: read again after a write) */
@@ -22,6 +23,8 @@ export interface EnglishSavePort extends SavePort {
   /** adds these stations to the opened ones (it only grows) */
   openStations(ids: ScreenId[]): void
   setLastRunWords(words: string[]): void
+  /** merges the settings, `path` included (the store's own `setSettings` takes Book 2's settings only) */
+  setSettings(p: Partial<EnglishSettings>): void
   /** the English tower's answers, kept in this save's `tower` */
   towerTallies(): DuelTallies
 }
@@ -36,8 +39,8 @@ function mergeTally(a: Tally | undefined, b: Tally): Tally {
   return out
 }
 
-function englishPortOver(store: StoreApi<EnglishState>): EnglishSavePort {
-  const base = portOver(store, () => store.getState().tower.recent)
+function englishPortOver(store: StoreApi<EnglishState>, range: () => NumberRange): EnglishSavePort {
+  const base = portOver(store, () => store.getState().tower.recent, range)
   const tower = talliesOver(() => store.getState().tower, (t) => store.setState({ tower: t }))
   return {
     ...base,
@@ -52,6 +55,7 @@ function englishPortOver(store: StoreApi<EnglishState>): EnglishSavePort {
     setIntro: (id, i) => store.setState((s) => ({ introSeen: { ...s.introSeen, [id]: i } })),
     openStations: (ids) => store.setState((s) => ({ openedStations: [...new Set([...s.openedStations, ...ids])] })),
     setLastRunWords: (lastRunWords) => store.setState({ lastRunWords }),
+    setSettings: (p) => store.setState((s) => ({ settings: { ...s.settings, ...p } })),
     towerTallies: () => tower,
   }
 }
@@ -59,12 +63,12 @@ function englishPortOver(store: StoreApi<EnglishState>): EnglishSavePort {
 let real: EnglishSavePort | null = null
 /** the real save (alef-english) */
 export function englishSavePort(): EnglishSavePort {
-  return (real ??= englishPortOver(useEnglishStore))
+  return (real ??= englishPortOver(useEnglishStore, getNumberRange))
 }
 
 /** a save in memory (tests): a fresh English save with `initial` over it; the writes work as in the real save */
 export function memoryEnglishSavePort(initial: Partial<EnglishSave> = {}): EnglishSavePort {
   const store = createStore<EnglishState>()(englishState)
   store.setState(initial as Partial<EnglishState>)
-  return englishPortOver(store)
+  return englishPortOver(store, () => store.getState().settings.range ?? 100)
 }

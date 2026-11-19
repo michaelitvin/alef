@@ -193,6 +193,7 @@ const ENGLISH: Table = {
   'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
   'placement-done': (r) => ({ level: r.int(1, 9), answers: r.int(5, 23) }),
   ...SPELL,
+  'range-set': (r) => ({ range: r.pick([10, 100, 1000]) }),
   'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
 }
 

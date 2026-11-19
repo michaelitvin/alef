@@ -2,9 +2,10 @@
 // is made of (so that the exact price can always be made), the hint's coins, the piles, and the counting. He pays the
 // exact price: there is no haggling and no change.
 import type { Rng } from '../../shared/adaptive'
+import type { NumberRange } from '../../shared/numberRange'
 
-/** the parent's number range for shopping: up to 10, 100 or 1000 */
-export type NumberRange = 10 | 100 | 1000
+/** the parent's number range for shopping: up to 10, 100 or 1000 (one setting for both paths, shared/numberRange.ts) */
+export type { NumberRange }
 /** the coin values of each range, ascending (the game's own coins, never shekels or notes) */
 export const COIN_VALUES: Record<NumberRange, number[]> = {
   10: [1, 2, 5, 10],
