@@ -19,7 +19,17 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | A station link from home (`?station=`) | `station.ts` |
 | The run's pure policies: the merchant's visit, a drawing round, the flight boss, the pass and its hearts (`step(state, event)` returns what the run does; the controller does it), see [ADR 0005](../../docs/adr/0005-run-policies-and-the-sleeper.md) | `policies/*.ts` (a depcruise rule keeps them pure) |
 | The run's seams: the saves it reads and writes, the time it waits on | `savePort.ts` (`storeSavePort`; the gallery reads it through `readOnlySavePort`; `memorySavePort` for tests), `src/shared/sleeper.ts` (`realSleeper`, `instantSleeper`) |
+| The course seam: what the run reads from the course it plays (Hebrew: `course/hebrew.ts`; English: `src/english/course.ts`, loaded by `?course=en`), see [ADR 0008](../../docs/adr/0008-one-engine-two-courses.md) | `course/types.ts` (`Course`), `course/CourseContext.tsx` (`useCourse`; the default is Hebrew) |
+| The spell book (both courses): tiles into boxes, and in English the written form | `policies/spell.ts`, `policies/spellWrite.ts`; `policies/latinRow.ts` is the Latin row rules that drawing (`policies/draw.ts`) and the written spell book share; the course gives the round (`rounds.spellRound`) |
 | Layout numbers the run and the views share | `layout.ts` (`ZOOM_MS`), `broomLayout.ts` (the flight's geometry), `viewTypes.ts`; the controller imports nothing from `components/` (a depcruise rule) |
+
+## The course seam
+
+`RunController` plays a `Course`, never Hebrew or English by name. The members that only one course has are optional
+(unset in Hebrew): `tower.art` and `tower.facts`, `placement`, `writing`, `hint`, `recordOnly`, `bossKinds`, `visitKind`,
+`introAfter`, `explanation`, `onRunEnd`. The tower keeps the first duel's flow and takes the course's rounds
+(`tower.content`). The Hebrew baselines (`course/__snapshots__`, `src/utils/duel/__snapshots__`) pin the Hebrew run: a
+diff there is a regression. Do not test the course's id in the engine; add a member.
 
 ## Terms
 
@@ -36,6 +46,8 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 - A test that needs neither the real saves nor fake timers gives the controller `save: memorySavePort(…)` and
   `sleeper: instantSleeper()` (`savePort.test.ts`). The run tests keep the default seams (the real store, the window's
   timers under fake timers).
+- `course/seam.test.ts` and `hebrewBaseline.test.ts` check the seam and the Hebrew run. The test timeout is 20 s
+  (`vite.config.ts`).
 - `logic/` has plain unit tests. Put a new rule there when it needs no timing.
 - `TEST_HOOKS` (`testHooks.ts`) turns on `data-correct` and the debug routes (`#/glyphs`, `#/tower-glyphs` for the
   tower's runes and monsters, `#/summary`, `#/strokes`) in tests and in the verify build only.

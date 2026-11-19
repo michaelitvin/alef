@@ -18,6 +18,12 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Show letters and nikkud only as the learning content. Do not use them as labels.
 - Do not use Latin letters for Hebrew sounds. Use picture words.
   Reason: English phonics conflict with Hebrew vowels. Example (duel): the child heard "U" as "uh" (= kamatz).
+- On the English path, Latin letters are the learning content, so they may appear as letters, sound units and words.
+  No Hebrew letter and no nikkud appears on the English path, not even as a label.
+  Reason: the rule above is about Hebrew sounds. On the English path the child learns to read Latin letters, and a Hebrew
+  mark next to them would give each letter a second sound to learn.
+  Example (English path): the orbs, the runes, the boxes and the plates carry Latin text. The no-text scan
+  (`src/english/noText.test.tsx`) allows Latin letters only as such content.
 - Do not say what the screen already shows.
   Example (duel): do not say "לחץ על הברק". Make the lightning appear with an animation that attracts attention.
   Example (book 2): a heart that comes back at the end of a pass has no line ("לֵב אֶחָד חוֹזֵר אֵלֶיךָ" was removed). The heart
@@ -289,6 +295,11 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   so that it flies in. Check this with a geometry test at each screen size, also when you make the answers bigger.
   Example (book 2): the parent made the broom's orbs 1.3 times bigger and said: "pay attention so orbs don't overlap
   each other". Orbs in neighbouring lanes already overlapped a little on a phone.
+- A second path gets its look from one colour transformation of the first path's assets. Do not draw a second set.
+  Transform the player's character fully: use a mapping that leaves no half-changed patches (the parent, 2026-11-12/16).
+  Reason: one set of art keeps the two paths one game, and a half-changed character looks like a mistake.
+  Example (English path): the purple wizard, tower and cards are recoloured green by one mapping (the recoloured files in
+  `src/english/assets/img/`). Purple that is drawn in code (orb trails, silhouettes) takes the course's colour too.
 
 ## Art generation
 
@@ -439,6 +450,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Make wrong answers clearly different from the right one. Do not offer two answers that differ only in a small detail.
   Example (clock): two 9:30 clocks, one with the short hand on the 9 (an impossible clock) and one half way to the 10.
   The parent: "too confusing, don't do this".
+- On the English path, word choices may differ in one letter (the parent, 2026-11-16).
+  Reason: reading `cat` and `cot` apart is the skill. A choice that differs in the vowel only is the right test of it.
+  Example (English path): the ladder's rungs change one letter at a time (`lip`, `slip`), and the cauldron makes `cap` into `cape`. This does not
+  change the rule above for the Hebrew path or for the clock.
 - Forgive a near miss one time.
 - After a mistake or an explanation, do not go on by yourself. The child needs as much time as he wants to think.
   After a mistake, mark the right answer (and the wrong one) and let the child do the right move himself: drag the marked
