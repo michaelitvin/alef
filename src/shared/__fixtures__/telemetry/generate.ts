@@ -143,6 +143,12 @@ const TOWER: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'voice-fallback': (r) => ({ id: `line-${r.pick(['wave', 'boss'])}` }),
 }
 
+/** the English tower's events: the tower's, and its hint (`{round, words, by}`, with `via: 'tower'` added; the run's is `{screen, by}`) */
+const TOWER_ENGLISH: Record<string, (r: R, t: number) => Record<string, unknown>> = {
+  ...TOWER,
+  'blend-hint': (r) => ({ round: r.int(1, 40), words: r.int(1, 3), by: r.pick(['button', 'miss']) }),
+}
+
 /** the clock's events (src/clock) */
 const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   round: (r) => {
@@ -187,7 +193,26 @@ const SPELL: Table = {
  * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
  * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
  */
+const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
+const EN_WORDS = ['cat', 'map', 'ship', 'kite', 'frog']
+const EN_UNITS = ['a', 'm', 'sh', 'i', 'o', 'ck']
 const ENGLISH: Table = {
+  // the run's answer: on the cauldron and the ladder `target` is the unit and `word` its word; `helped` after the hint
+  answer: (r, t) => {
+    const screen = r.pick(EN_SCREENS)
+    const result = r.pick(['right', 'right', 'right', 'wrong', 'near', 'helped'])
+    const target = screen === 'cauldron' || screen === 'ladder' ? r.pick(EN_UNITS) : r.pick(EN_WORDS)
+    return {
+      screen, stage: r.int(1, 9), target, ...(screen === 'cauldron' || screen === 'ladder' ? { word: r.pick(EN_WORDS) } : {}),
+      tapped: result === 'right' || result === 'helped' ? target : r.chance(0.2) ? null : r.pick(EN_UNITS), result, ms: r.int(400, 9000),
+      assets: [`w-${r.pick(EN_WORDS)}`, `img-${r.pick(EN_WORDS)}`], clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}),
+    }
+  },
+  'tower-answer': (r, t) => ({ screen: 'tower', target: r.pick(EN_WORDS), result: r.pick(['right', 'right', 'wrong', 'helped']), clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}) }),
+  replay: (r) => ({ screen: r.pick([...EN_SCREENS, 'spell']), target: r.pick(EN_WORDS), phase: r.pick(['question', 'answer']) }),
+  hint: (r) => ({ target: r.pick(EN_WORDS), auto: r.chance(0.5) }),
+  idle: (r) => ({ screen: r.pick(EN_SCREENS), target: r.chance(0.1) ? null : r.pick(EN_WORDS) }),
+  explain: (r) => ({ target: r.pick(EN_WORDS) }),
   player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'child' }),
   'placement-start': (r) => ({ wave: r.int(1, 3) }),
   'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
@@ -229,7 +254,7 @@ export interface FixtureOpts {
 const sessionId = (r: R, t: number) => `${t.toString(36)}-${Math.floor(r.next() * 36 ** 5).toString(36).padStart(5, '0')}`
 
 /** a log of `game`: its table's events, and the tower's (`via: 'tower'`) when `tower` is set */
-function generate(game: string, table: Table, tower: boolean, seed: number, o: FixtureOpts): TelemetryEvent[] {
+function generate(game: string, table: Table, tower: boolean, seed: number, o: FixtureOpts, towerTable: Table = TOWER): TelemetryEvent[] {
   const r = rng(o.seed ?? seed)
   const days = o.days ?? 45
   const perDay = o.sessionsPerDay ?? 1
@@ -238,7 +263,7 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
   const start = o.start ?? FIXTURE_START
   const out: TelemetryEvent[] = []
   const names = Object.keys(table)
-  const towerNames = Object.keys(TOWER)
+  const towerNames = Object.keys(towerTable)
   let t = start
   // walk every name once first, so each appears in a fixture of any size
   const cover: [boolean, string][] = [...names.map((n): [boolean, string] => [false, n]), ...(tower ? towerNames.map((n): [boolean, string] => [true, n]) : [])]
@@ -256,7 +281,7 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
         const env: TelemetryEvent = d < oldDays ? { t, s, run, e: '' } : { t, s, run, e: '', g: game }
         const [towerTurn, name] = cover.shift() ?? (tower && r.chance(0.35) ? [true, weighted(r, towerNames)] : [false, weighted(r, names)])
         const e = name === 'tower-answer' ? 'answer' : name
-        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : table[name]!(r, t)
+        const data = towerTurn ? { ...towerTable[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : table[name]!(r, t)
         env.e = e
         out.push({ ...env, ...data })
       }
@@ -271,14 +296,14 @@ export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, tru
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** the English path's log (`g: 'english'`) */
-const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, false, 13, o)
+const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
 const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 
 /** every event name the generators can send (Book 2, the tower, the clock, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK),
-  ...Object.keys(ENGLISH), ...Object.keys(BOOK2_SPELL),
+  ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(BOOK2_SPELL),
 ])
 
 /** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */

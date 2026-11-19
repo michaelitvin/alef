@@ -1273,7 +1273,7 @@ export class RunController {
    * `target`: what was asked; `tapped`: what he took. An English door: `target` is the door (`{ id }`) and `door.asked` the
    * word of its key (the word, or the phrase's noun): its features and its stage decide
    */
-  private record(screen: ScreenId, target: Choice | Word | { id: string }, tapped: Choice | Word | DoorKey | null, result: 'right' | 'wrong' | 'near', door?: { asked: Choice }) {
+  private record(screen: ScreenId, target: Choice | Word | { id: string }, tapped: Choice | Word | DoorKey | null, result: 'right' | 'wrong' | 'near', door?: { asked: Choice }, word?: string) {
     if (result !== 'near' && screen !== 'broom') this.answered = true
     const feats = door ? this.course.rounds.features(door.asked, screen)
       : 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen)
@@ -1294,7 +1294,7 @@ export class RunController {
       this.track('stage', { stage: this.stage })
     }
     this.course.telemetry.track('answer', {
-      screen, stage: this.stage, target: 'id' in target ? target.id : '', tapped: tapped && 'id' in tapped ? tapped.id : null, result: helped ? 'helped' : result, ms,
+      screen, stage: this.stage, target: 'id' in target ? target.id : '', ...(word ? { word } : {}), tapped: tapped && 'id' in tapped ? tapped.id : null, result: helped ? 'helped' : result, ms,
       assets: this.assets, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}),
     })
   }
@@ -1329,12 +1329,14 @@ export class RunController {
       return 'near'
     }
     const near = !right && tapped.nearMissOf === answer.id
+    // the answer's word when the answer is a part of it (the English cauldron's missing unit, a ladder's changed part)
+    const wordOf = answer.id !== c.id ? c.id : undefined
     const outcome = this.answerOutcome(right ? 'right' : near ? 'near' : 'wrong')
     // a new unit's introduction (the English cauldron, ladder and ghosts; Hebrew has none), asked before the answer is
     // recorded; a run-ending miss keeps it due
     const intro = (tiles || s.screen === 'ladder' || s.screen === 'ghosts') && !outcome.forgiven && !outcome.over ? this.introAfter(answer, right) : []
     if (right) {
-      this.record(screen, answer, tapped, 'right')
+      this.record(screen, answer, tapped, 'right', undefined, wordOf)
       this.roundInScreen++
       // the streak counts this answer before its coins (the fifth right answer pays 2)
       this.streak++
@@ -1356,13 +1358,13 @@ export class RunController {
       return 'next'
     }
     if (outcome.forgiven) {
-      this.record(screen, answer, tapped, 'near')
+      this.record(screen, answer, tapped, 'near', undefined, wordOf)
       await this.say(t, [{ id: this.variation('almost') }])
       return 'near'
     }
     // a mistake
     this.resetStreak()
-    this.record(screen, answer, tapped, 'wrong')
+    this.record(screen, answer, tapped, 'wrong', undefined, wordOf)
     this.roundInScreen++
     this.sfx('hit')
     const reveal = s.screen === 'cauldron' && !tiles ? { right: c.mark!, wrong: tapped.mark } : { right: answer.id, wrong: tapped.id }

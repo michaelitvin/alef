@@ -4,6 +4,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { readLog } from './telemetry'
 import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { ENGLISH_LOG } from '../english/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 import { DUEL_HISTORY_LOG } from '../utils/duel/telemetryHistory'
 import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_BOOK2_SPELL, GOLDEN_CLOCK, GOLDEN_ENGLISH, GOLDEN_NOW, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
@@ -18,6 +19,14 @@ describe('the export goldens', () => {
 
   it('the clock: all', async () => {
     await expect(goldenExport(CLOCK_LOG, GOLDEN_CLOCK())).toMatchFileSnapshot('./__fixtures__/telemetry/clock-all.golden.json')
+  })
+
+  it('English: all', async () => {
+    await expect(goldenExport(ENGLISH_LOG, GOLDEN_ENGLISH())).toMatchFileSnapshot('./__fixtures__/telemetry/english-all.golden.json')
+  })
+
+  it('the Hebrew spell book: all', async () => {
+    await expect(goldenExport(BOOK2_LOG, GOLDEN_BOOK2_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-spell.golden.json')
   })
 
   it('the first duel\'s frozen history, read from storage', async () => {
