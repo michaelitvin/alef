@@ -26,6 +26,8 @@ import { LetterChecker } from './logic/recognizer'
 import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
+import { spellVisit, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellView } from './policies/spell'
+import { spellFixture } from './data/spellFixtures'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
 import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
 import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, type MerchantState, type MerchantView } from './policies/merchant'
@@ -104,10 +106,11 @@ export interface TowerView {
   /** the duel's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
   mega?: number
 }
-export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView
+export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView | SpellView
 
 export type { MerchantView } from './policies/merchant'
 export type { DrawStroke, DrawView } from './policies/draw'
+export type { SpellView } from './policies/spell'
 export type { BossPose, BossView } from './policies/broomBoss'
 
 export type Overlay =
@@ -158,6 +161,8 @@ export interface View {
 }
 /** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
 type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
+/** the spell book: he dropped the tile of `tile` (its unit) into box `box` (in box order, the reading's) */
+type DropGesture = { type: 'drop'; tile: string; box: number }
 
 export interface RunOpts {
   sandbox?: boolean
@@ -193,6 +198,10 @@ const WIZARD_AT = { x: 260, y: 520 }
 const SFX_RING_MS = 400
 /** the pass hearts' flashes so far, in every run (View.heartFlash) */
 let heartFlashes = 0
+/** an input of a policy, before the run stamps its time */
+type NoAt<T> = T extends unknown ? Omit<T, 'at'> : never
+/** the spell book's effects: a tile lands (the lock's click), a wrong tile (the hit), the spell */
+const SPELL_SFX: Record<SpellSfx, Duel2Sfx> = { drop: 'lock', wrong: 'hit', spell: 'spell' }
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
@@ -287,6 +296,9 @@ export class RunController {
   private drawDone: (() => void) | null = null
   private strokeNo = 0
   private demoNo = 0
+  /** the spell book's round in progress (policies/spell.ts); its waits share the drawing's wait number and timers */
+  private spell: SpellState | null = null
+  private spellDone: ((end: 'next' | 'over') => void) | null = null
   /** the merchant's visit in progress (policies/merchant.ts): it survives a pause (coins in his hand included) */
   private visit: MerchantState | null = null
   /** ends the run's wait for the visit (it has ended) */
@@ -338,9 +350,11 @@ export class RunController {
   broomClock = () => (this.pausedAt ?? this.now()) - this.pausedTotal
 
   // ---- input
-  gesture(g: { type: 'pick'; id: string; box?: number } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture) {
+  gesture(g: { type: 'pick'; id: string; box?: number } | { type: 'lane'; lane: 0 | 1 | 2 } | { type: 'stroke'; pts: Pt[] } | MerchantGesture | TouchGesture | DropGesture) {
     if (this.view.paused) return
     if (g.type === 'touch') { this.dropHint(g.by); return }
+    // (the spell policy takes a drop only while it waits for one, and only into the next box)
+    if (g.type === 'drop') { if (this.view.screen?.screen === 'spell') this.spellStep({ type: 'drop', tile: g.tile, box: g.box }); return }
     if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantStep(g); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWait || this.view.screen?.screen !== 'draw') return
@@ -387,6 +401,12 @@ export class RunController {
       void this.course.audio.sayParts([{ id: `w-${this.view.screen.word.id}` }])
       return
     }
+    if (this.view.screen?.screen === 'spell') {
+      this.track('replay', { screen: 'spell', target: this.view.screen.round.word, phase: this.view.phase })
+      this.course.audio.stopVoice()
+      void this.course.audio.sayParts([{ id: this.view.screen.round.wordVoice }])
+      return
+    }
     const t = this.currentTarget()
     if (!t) return
     this.track('replay', { screen: this.screenId, target: t.id, phase: this.view.phase })
@@ -396,6 +416,8 @@ export class RunController {
   hint() {
     if (this.view.merchant) { this.merchantStep({ type: 'help' }); return }
     const s = this.view.screen
+    // the spell book's hint: the next tile glows (policies/spell.ts)
+    if (s?.screen === 'spell') { if (this.view.phase === 'answer') this.spellStep({ type: 'hint', auto: false }); return }
     // the course's hint blends the words (English): on every screen with a word to blend, while he answers
     if (this.course.hint && s && s.screen !== 'draw' && s.screen !== 'tower') {
       if (this.view.phase === 'answer' && !this.view.overlay) void this.hintBlend(this.token, false).catch(() => {})
@@ -431,6 +453,7 @@ export class RunController {
     if (this.view.overlay?.kind === 'hint') { this.set({ overlay: null }); cut = true }
     const s = this.view.screen
     if (s?.screen === 'draw' && s.demo?.hint) { this.drawStep({ type: 'touch' }); cut = true }
+    if (s?.screen === 'spell' && this.spell?.hinted) { this.spellStep({ type: 'touch' }); cut = true }
     if (s?.screen === 'doors' && this.doorHintOn) {
       this.doorHint++
       this.doorHintOn = false
@@ -558,7 +581,7 @@ export class RunController {
   }
   private currentTarget(): Choice | null {
     const s = this.view.screen
-    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw' || s.screen === 'tower') return null
+    if (!s || s.screen === 'crystal' || s.screen === 'doors' || s.screen === 'draw' || s.screen === 'tower' || s.screen === 'spell') return null
     return s.target
   }
   private kindFor(screen: ScreenId): Kind {
@@ -983,6 +1006,11 @@ export class RunController {
     if (screen === 'draw' || screen === 'draw-hand') {
       // its own demo: the hand writes the letter in the slot (runDrawRound)
       while (this.roundInScreen < this.visitLen) await this.runDrawRound(t, screen)
+      return
+    }
+    if (screen === 'spell') {
+      // its own demo: the hand drops the first tile (policies/spell.ts); no round at this stage: the visit ends
+      while (this.roundInScreen < this.visitLen) if (!(await this.runSpellRound(t))) return
       return
     }
     const demo = this.demoKey(screen, kind)
@@ -1703,6 +1731,101 @@ export class RunController {
       this.drawDone = null
       f?.()
     }
+  }
+
+  // ---- the spell book (spec: 2026-11-16 English path, Part 7; both courses)
+
+  /** this round of the spell book: after a pause the same round again; else the course's (the gallery: its fixture) */
+  private buildSpell(): SpellRound | null {
+    const cur = this.view.screen
+    if (this.resuming && cur?.screen === 'spell' && !this.answered) { this.resuming = false; return cur.round }
+    this.resuming = false
+    this.answered = false
+    // (until a course has its own spell rounds, the gallery shows its fixture round)
+    return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course) : null)
+  }
+
+  /**
+   * One round of the spell book (policies/spell.ts decides, the run does what it says): the word; the demo when needed;
+   * he drops each unit's tile into its box; the last one casts the spell. A wrong tile costs a heart, as on the calm
+   * screens. False: the course has no round at this stage (the visit ends).
+   */
+  private async runSpellRound(t: number): Promise<boolean> {
+    this.passStep({ type: 'round' })
+    this.syncMult()
+    const round = this.buildSpell()
+    if (!round) return false
+    const demo = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !this.save.read().demosSeen.includes('demo-spell')
+    this.spell = spellVisit({ round, demo, at: this.now() })
+    this.assets = []
+    const end = await this.guard(t, new Promise<'next' | 'over'>((r) => {
+      this.spellDone = r
+      this.spellStep({ type: 'start' })
+    }))
+    this.spell = null
+    if (end === 'over') { await this.endRun(round.wordVoice); throw new Aborted() }
+    await this.streakMoment(t)
+    await this.sleep(t, 500)
+    return true
+  }
+
+  private spellEnd(end: 'next' | 'over') {
+    const f = this.spellDone
+    this.spellDone = null
+    f?.(end)
+  }
+
+  /** One step of the spell round's policy, done: the views, the sounds, the heart, the saves, the telemetry, then its wait. */
+  private spellStep(e: NoAt<SpellInput>) {
+    const sp = this.spell
+    if (!sp) return
+    const r = stepSpell(sp, { ...e, at: this.now() } as SpellInput)
+    this.spell = r.state
+    if (r.hush) this.course.audio.stopVoice()
+    if (r.run) this.set(r.run)
+    if (r.view) this.set({ screen: r.view })
+    if (r.cue) this.cueStarted = this.now()
+    for (const x of r.sfx) this.sfx(SPELL_SFX[x])
+    for (const op of r.save) {
+      if (op.op === 'markDemo') { this.demoShown = true; this.save.markDemo(op.id) }
+      else {
+        // the spell is cast: the round's one answer (a miss when he fixed a mistake on the way: no star then)
+        this.answered = true
+        this.roundInScreen++
+        this.save.recordAnswer({ features: op.features, miss: op.miss, newStage: false })
+        if (!op.miss) { this.streak++; this.gainStar() }
+      }
+    }
+    for (const x of r.track) this.track(x.e, x.data)
+    if (r.run?.phase === 'mistake') {
+      // a wrong tile: the heart is the run's call, as on the calm screens
+      const outcome = this.answerOutcome('wrong')
+      this.resetStreak()
+      this.set({ hearts: this.hearts.left })
+      if (outcome.over) { this.endStrokeWait(); this.spellEnd('over'); return }
+    }
+    const t = this.token
+    const parts = r.say.map((l) => ({ id: this.drawLine(l) }))
+    if (r.wait) {
+      this.endStrokeWait()
+      const no = ++this.drawWait
+      const on = () => t === this.token && no === this.drawWait
+      const w = r.wait
+      if (w.for === 'say') {
+        for (const p of parts) this.assets.push(p.id)
+        void this.course.audio.sayParts(parts).then(() => { if (on()) this.spellStep({ type: 'heard' }) })
+      } else if (w.for === 'sleep') void this.time.sleep(w.ms).then(() => { if (on()) this.spellStep({ type: 'slept' }) })
+      else {
+        if (parts.length) void this.course.audio.sayParts(parts)
+        const live = () => on() && !this.view.paused
+        const idle = () => {
+          this.drawTimers.push(this.time.after(w.idle, () => { if (!live()) return; this.spellStep({ type: 'idle' }); if (w.every && live()) idle() }))
+        }
+        idle()
+        if (w.hint !== undefined) this.drawTimers.push(this.time.after(w.hint, () => { if (live()) this.spellStep({ type: 'hint', auto: true }) }))
+      }
+    } else if (parts.length) void this.course.audio.sayParts(parts)
+    if (r.end) this.spellEnd('next')
   }
 
   // ---- the broom flight

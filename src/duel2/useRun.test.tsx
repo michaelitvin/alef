@@ -58,7 +58,7 @@ function rightId(v: View): string {
   const s = v.screen!
   if (s.screen === 'cauldron') return s.target.mark!
   if (s.screen === 'doors') return s.word.id
-  if (s.screen === 'broom' || s.screen === 'crystal' || s.screen === 'draw' || s.screen === 'tower') throw new Error('no pick here')
+  if (s.screen === 'broom' || s.screen === 'crystal' || s.screen === 'draw' || s.screen === 'tower' || s.screen === 'spell') throw new Error('no pick here')
   return s.target.id
 }
 function wrongId(v: View): string {

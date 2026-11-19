@@ -51,6 +51,8 @@ export const HEBREW: Course = {
   rounds: {
     broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan: hebrewLadder, isNewStageChoice, features: sylFeatures,
     doorRounds: hebrewDoorRounds, doorKeys: hebrewDoorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
+    // the spell book is not in the Hebrew cycle yet (Task 26 gives it rounds and puts it there)
+    spellRound: () => null,
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {

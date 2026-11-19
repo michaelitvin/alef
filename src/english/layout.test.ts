@@ -21,6 +21,8 @@ import { WORDS, type EnWord } from './content/words'
 import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
 import { measureText } from './measure'
+import { SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
+import type { SpellBox } from '../duel2/policies/spell'
 
 /** the smallest phone and a tablet */
 const SIZES = [[740, 360], [1024, 768]] as const
@@ -179,6 +181,52 @@ describe('the hint card', () => {
       expect(spans[0].l, w).toBeGreaterThanOrEqual(480)
       expect(spans[spans.length - 1].r, w).toBeLessThanOrEqual(480 + 640)
       spans.slice(1).forEach((s, i) => expect(s.l, w).toBeGreaterThanOrEqual(spans[i].r - 0.5))
+    }
+  })
+})
+
+describe('the spell book', () => {
+  // Task 22's carry-over: the boxes on the book's page (at most 5: j u m p ing), measured in the drawn box width, and the
+  // tiles; on the smallest phone a letter in a box is still at least 16 CSS px high
+  const spellBox = (text: string): SpellBox => ({ unit: text, text, soundId: `snd-${text}` })
+  const drawSpell = (boxes: SpellBox[], tiles: SpellBox[]) => render(h(SpellBook, {
+    view: { screen: 'spell', round: { word: 'w', wordVoice: 'w-w', boxes, tiles, mode: 'tiles' }, filled: boxes.map((b) => b.unit), alive: false },
+    phase: 'answer', dir: 'ltr', onDrop: () => {},
+  })).container
+  const spelled = WORDS.filter((w) => w.kind !== 'picture-only' && w.units.length <= 5)
+  it('jumping is a word of five boxes, the most the page is sized for', () => {
+    expect(boxesOf('jumping').map((b) => b.text)).toEqual(['j', 'u', 'm', 'p', 'ing'])
+    const { xs, w } = spellBoxes(5, 'ltr', false)
+    expect(xs[0] - w / 2).toBeGreaterThan(800)
+    expect(xs[4] + w / 2).toBeLessThan(1500)
+  })
+  // the units of the words of n boxes, n at a time (a box's width depends only on how many boxes the word has)
+  const rows = [1, 2, 3, 4, 5].flatMap((n) => {
+    const texts = [...new Set(spelled.filter((w) => w.units.length === n).flatMap((w) => boxesOf(w.text).map((b) => b.text)))]
+    return Array.from({ length: Math.ceil(texts.length / n) }, (_, i) => {
+      const row = texts.slice(i * n, i * n + n)
+      while (row.length < n) row.push(texts[0])
+      return row
+    })
+  })
+  it.each(SIZES)('at %i×%i every box of every word of up to 5 boxes holds its unit', (sw, sh) => {
+    const scale = stageBox(sw, sh, STAGE_CONTENT_TOP.spell).scale
+    expect(rows.some((r) => r.length === 5 && r.includes('ing'))).toBe(true)
+    for (const row of rows) {
+      const { w: bw } = spellBoxes(row.length, 'ltr', false)
+      const texts = [...drawSpell(row.map(spellBox), []).querySelectorAll('[data-box] text')] as SVGTextElement[]
+      expect(texts).toHaveLength(row.length)
+      for (const t of texts) {
+        expect(measureText(t.textContent!, sizeOf(t)) * scale, `${row.length} boxes: ${t.textContent}`).toBeLessThanOrEqual(bw * scale * IN_RECT)
+        expect(sizeOf(t) * scale, `${row.length} boxes: ${t.textContent}`).toBeGreaterThanOrEqual(16)
+      }
+    }
+  })
+  it('every unit fits its tile', () => {
+    const tiles = [...new Set(UNITS.map((u) => u.text.replace(/^-/, '')))].map(spellBox)
+    for (let i = 0; i < tiles.length; i += 6) {
+      const shown = [...drawSpell([spellBox('a')], tiles.slice(i, i + 6)).querySelectorAll('[data-tile] text')] as SVGTextElement[]
+      shown.forEach((t) => expect(measureText(t.textContent!, sizeOf(t)), t.textContent!).toBeLessThanOrEqual(SPELL_TILE * IN_ROUND))
     }
   })
 })

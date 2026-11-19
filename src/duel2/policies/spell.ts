@@ -138,6 +138,8 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       return
     }
     show({ alive: true })
+    // the tiles rest while the spell is cast
+    run({ phase: 'feedback' })
     r.sfx.push('spell')
     r.say.push({ id: box.soundId }, { id: rd.wordVoice })
     r.save.push({ op: 'recordAnswer', features: [`spell:${rd.word}`, `sc:spell-${rd.mode}`], miss: s.mistakes > 0 })
@@ -170,7 +172,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
         s.hinted = false
         show({ glow: box.unit })
         r.hush = true
-        r.say.push({ id: 'spell-near' })
+        r.say.push({ line: 'spell-near' })
         r.track.push({ e: 'spell-near', data: { ...base, tile: ev.tile, unit: box.unit, box: at } })
         go({ k: 'near' }, { for: 'say' })
         break

@@ -55,7 +55,7 @@ export const CONTENT_TOP_PX = BAR_TOP_PX + BAR_H_PX + BAR_GAP_PX
  * before). The drawing in handwriting is not named: its tall words reach the stage's top.
  */
 export const STAGE_CONTENT_TOP: Record<string, number> = {
-  broom: 78, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, crystal: 170, merchant: 104,
+  broom: 78, cauldron: 66, ladder: 48, ghosts: 176, doors: 42, draw: 160, crystal: 170, merchant: 104, spell: 50,
 }
 
 /**

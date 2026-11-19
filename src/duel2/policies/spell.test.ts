@@ -76,6 +76,8 @@ describe('the spell policy', () => {
     expect(r.say).toEqual([{ id: 's-t' }, { id: 'w-cat' }])
     expect(r.sfx).toEqual(['drop', 'spell'])
     expect(g.view.alive).toBe(true)
+    // the tiles rest while the spell is cast
+    expect(r.run).toEqual({ phase: 'feedback' })
     expect(g.tracked('spell-cast')).toEqual([{ word: 'cat', mode: 'tiles', ms: 5000, mistakes: 0 }])
     expect(g.d.save).toEqual([{ op: 'recordAnswer', features: ['spell:cat', 'sc:spell-tiles'], miss: false }])
     expect(g.d.end).toBe(true)
@@ -117,7 +119,7 @@ describe('the spell policy', () => {
   it('a near tile is forgiven once, the second time it is a mistake', () => {
     const g = visit().open()
     const r = g.send({ type: 'drop', tile: 'k', box: 0 })
-    expect(r.say).toEqual([{ id: 'spell-near' }])
+    expect(r.say).toEqual([{ line: 'spell-near' }])
     expect(r.sfx).toEqual([])
     expect(g.view.glow).toBe('c')
     expect(g.tracked('spell-near')).toEqual([{ word: 'cat', mode: 'tiles', tile: 'k', unit: 'c', box: 0 }])

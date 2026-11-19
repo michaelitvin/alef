@@ -17,6 +17,7 @@ import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
 import type { Duel2Actions, Duel2Save } from '../store'
 import type { Highlight } from '../viewTypes'
+import type { SpellRound } from '../policies/spell'
 
 export type CourseId = 'he' | 'en'
 
@@ -77,6 +78,8 @@ export interface CourseRounds {
   /** the dotted pair to introduce before a round (Hebrew only; English returns null) */
   dotIntroFor: (targetItem: string, stage: number, seen: string[]) => string | null
   drawWords: (ctx: DrawCtx, n?: number) => Word[]
+  /** the spell book's round (policies/spell.ts); null: no spell round is possible at this stage (the visit ends at once) */
+  spellRound: (ctx: RoundCtx) => SpellRound | null
   /**
    * the flight boss's kinds open at `stage` and his score for each, from his mix-ups (the English course's families);
    * unset: Book 2's (logic/boss.ts bossOpen, bossScores)

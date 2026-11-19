@@ -1,6 +1,6 @@
 import { useGender, wizardArt } from '../../shared/player'
 // Book 2 art (generated, see asset-sources/duel2/) plus the duel's picture words (`word-<key>`). Missing images fall back to
-// simple SVG in the components.
+// simple SVG in the components (the spell book's `s-book` is not drawn yet: SpellBook draws its pages until it lands).
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url]))
 export const IMAGES: Record<string, string> = {

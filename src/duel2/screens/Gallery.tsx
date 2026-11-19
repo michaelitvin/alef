@@ -1,8 +1,14 @@
 // Screen gallery (parent area; Michael: a way to review the screens before the child plays). Each entry starts one screen at
 // once, its demo first, with real audio, in a sandbox that writes no progress.
 import type { RunOpts } from '../controller'
+import { useCourse } from '../course/CourseContext'
+import type { CourseId } from '../course/types'
 
-export interface GalleryEntry { id: string; label: string; force: NonNullable<RunOpts['force']> }
+export interface GalleryEntry {
+  id: string; label: string; force: NonNullable<RunOpts['force']>
+  /** listed only on these courses' pages (unset: every course) */
+  courses?: CourseId[]
+}
 export const GALLERY: GalleryEntry[] = [
   { id: 'tower', label: 'Tower — two waves (the first duel, in the run)', force: { screen: 'tower', stage: 1 } },
   { id: 'tower-boss', label: 'Tower — boss', force: { screen: 'tower', stage: 1, towerBoss: true } },
@@ -17,6 +23,9 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'draw-print', label: 'Drawing — the first letter in print', force: { screen: 'draw', stage: 2, demo: true } },
   { id: 'draw-hand', label: 'Drawing — the first letter in handwriting', force: { screen: 'draw-hand', stage: 3, demo: true } },
   { id: 'doors', label: 'Door corridor — read the word', force: { screen: 'doors', stage: 4, demo: true } },
+  // (a fixture round until the course has its own spell rounds; listed on the Hebrew page once Task 26 puts the spell
+  // book in its cycle, so the Hebrew gallery stays as it is until then)
+  { id: 'spell', label: 'Spell book — put each sound in its box', force: { screen: 'spell', stage: 4, demo: true }, courses: ['en'] },
   { id: 'crystal', label: 'Crystal (the reward)', force: { screen: 'crystal', stage: 4 } },
   { id: 'dot-intro', label: 'Dotted letters — the introduction (ב/בּ, כ/כּ, פ/פּ, שׂ/שׁ)', force: { screen: 'dot', stage: 3, fixed: 'dot' } },
   { id: 'boss-dot', label: 'Flight boss — the dot thief (בּ/ב, כּ/כ, פּ/פ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'dot' } },
@@ -27,13 +36,14 @@ export const GALLERY: GalleryEntry[] = [
 ]
 
 export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: GalleryEntry) => void }) {
+  const course = useCourse()
   return (
     <div className="d2-parent">
       <button onClick={onBack} style={{ float: 'right', fontSize: 18 }}>Back</button>
       <h2>Book 2 — screens</h2>
       <p>Each screen starts at once with its demo. Nothing you do here changes his progress. Use Back (bottom right) to return.</p>
       <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 10, maxWidth: 560 }}>
-        {GALLERY.map((e) => (
+        {GALLERY.filter((e) => !e.courses || e.courses.includes(course.id)).map((e) => (
           <li key={e.id}><button data-entry={e.id} onClick={() => onStart(e)} style={{ width: '100%', padding: '12px 16px', fontSize: 17, textAlign: 'left' }}>{e.label}</button></li>
         ))}
       </ul>

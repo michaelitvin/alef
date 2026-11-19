@@ -13,6 +13,7 @@ import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
 import { Draw } from '../components/screens/Draw'
+import { SpellBook } from '../components/screens/SpellBook'
 import { TouchAnswer } from '../components/DragPick'
 import { Merchant } from '../components/screens/Merchant'
 import { Tower } from '../components/screens/Tower'
@@ -68,6 +69,11 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
       return <Crystal kind={s.kind} onDone={() => {}} />
     case 'draw':
       return <Draw view={s} phase={v.phase} onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} />
+    case 'spell': {
+      const next = s.filled.findIndex((x) => x === null)
+      return <SpellBook view={s} phase={v.phase} fixing={v.fixing} dir={dir} onDrop={(tile, box) => run.onGesture({ type: 'drop', tile, box })}
+        correct={TEST_HOOKS && next >= 0 ? s.round.boxes[next].unit : undefined} />
+    }
     case 'tower':
       // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
       return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} onWaveEnd={run.towerWaveEnd}

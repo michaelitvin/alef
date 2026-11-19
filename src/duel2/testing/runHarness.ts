@@ -108,6 +108,8 @@ export function choiceIdsOf(v: View): string {
     case 'draw': return `${s.word.id}:${s.letter}:${s.mode}`
     case 'crystal': return String(s.kind)
     case 'tower': return `${s.wave}/${s.waves}`
+    // the boxes filled so far (`_`: empty) and the tiles
+    case 'spell': return `${s.round.word}:${s.filled.map((x) => x ?? '_').join(',')}:${s.round.tiles.map((x) => x.unit).join(',')}`
   }
 }
 

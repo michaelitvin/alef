@@ -63,6 +63,9 @@ const EN_ROUNDS: CourseRounds = {
   doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),
   wordLinkFor: () => notBuilt('word link'),
   drawWords: () => notBuilt('drawing'),
+  // the spell book's English rounds come in Task 25; until then a spell visit has none and ends at once (never a throw:
+  // the English cycle holds the spell book already)
+  spellRound: () => null,
   bossKinds: enBossKinds,
   bossTarget: enBossTarget,
   bossWave: enBossWave,
