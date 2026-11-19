@@ -81,8 +81,33 @@
       },
       "seed": 101
      }
+    },
+    {
+     "take": "clips/zoom-tip-1/v3.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק לְמַעְלָֽה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     }
+    },
+    {
+     "take": "clips/zoom-tip-1/v4.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק למעלה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 103
+     }
     }
-   ]
+   ],
+   "note": "The parent rejected take 2: the stress of לְמַעְלָה. Take 3 has a meteg on the last syllable (לְמַעְלָֽה), take 4 the word without nikkud."
   },
   {
    "id": "missing-1",
@@ -187,8 +212,33 @@
       },
       "seed": 101
      }
+    },
+    {
+     "take": "clips/level-done-2/v3.mp3",
+     "request": {
+      "text": "[excited] יֽוֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 102
+     }
+    },
+    {
+     "take": "clips/level-done-2/v4.mp3",
+     "request": {
+      "text": "[excited] יופי של טיסה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 103
+     }
     }
-   ]
+   ],
+   "note": "The parent rejected take 2: the stress of יֹפִי (it must be YO-fi). Take 3 is spoken from יֽוֹפִי (the clock game's spelling), take 4 from the plain יופי של טיסה."
   },
   {
    "id": "new-ship-1",
@@ -293,8 +343,35 @@
       },
       "seed": 101
      }
+    },
+    {
+     "take": "clips/info-hearts-1/v3.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     },
+     "edit": "pause between the sentences widened to 0.8 s"
+    },
+    {
+     "take": "clips/info-hearts-1/v4.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 103
+     },
+     "edit": "pause between the sentences widened to 0.8 s"
     }
-   ]
+   ],
+   "note": "The parent rejected take 2: odd pacing. Takes 3 and 4 have a tag for each sentence (take 3 also without the comma), and their pause between the sentences was widened to 0.8 s with an audio edit."
   },
   {
    "id": "info-points-1",
