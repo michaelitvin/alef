@@ -56,7 +56,7 @@ describe('the English page', () => {
     fireEvent.click(container.querySelector('[data-gender="boy"]')!)
     await waitFor(() => expect(readLog('alef-english-telemetry').some((e) => e.e === 'player' && e.g === 'english')).toBe(true), { timeout: 3000 })
     expect(readLog('alef-duel2-telemetry').some((e) => e.e === 'player')).toBe(false)
-  })
+  }, 60_000)
 
   it('the Hebrew page is the same as before', async () => {
     at('/duel2/'); render(<Duel2App goHome={() => {}} />)

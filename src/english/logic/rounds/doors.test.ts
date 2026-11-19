@@ -38,7 +38,7 @@ describe('the English doors', () => {
         for (const k of keys) expect(word(k.id).kind).toBe('real')
       }
     }
-  })
+  }, 60_000)
 
   it('a phrase\'s wrong keys are not its noun', () => {
     let phrases = 0

@@ -14,7 +14,7 @@ import { Plate } from '../Orb'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Stage, type Dir, type Phase } from './Stage'
 import { ZOOM_MS } from '../../layout'
-import { measureText } from '../../../english/testing/measure'
+import { measureText } from '../../../english/measure'
 
 export const DOOR_GLYPH_PX = 110
 /** the room for the word inside the plate's frame (stage units) */

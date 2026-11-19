@@ -2,7 +2,7 @@
 // marks — not by its line box (rule; a syllable with a mark below sat too high in the mockups). Measured after the font
 // loads; until then (or with no canvas) it centers by the line box.
 import { useEffect, useMemo, useState } from 'react'
-import { measureText } from '../../english/testing/measure'
+import { measureText } from '../../english/measure'
 
 export interface InkBox { left: number; right: number; ascent: number; descent: number; /** advance width */ width?: number }
 export type Measurer = (text: string, px: number) => InkBox | null

@@ -2,7 +2,7 @@
 // mistakes count in the English tallies and the stage pass through the run's normal answer path, a new unit's
 // introduction follows its sound, and the word orbs are drawn in Andika, small enough to stay inside the orb.
 import { describe, expect, it, vi } from 'vitest'
-import { measureText } from './testing/measure'
+import { measureText } from './measure'
 import { act, render } from '@testing-library/react'
 import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
 import { RunController, type BroomView } from '../duel2/controller'

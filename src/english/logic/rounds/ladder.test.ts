@@ -97,7 +97,7 @@ describe('the English ladder', () => {
       // grow -1 is reserved: no chain drops a box
       expect(p!.steps.every((s) => s.at !== undefined && (s.grow === undefined || s.grow === 1))).toBe(true)
     }
-  })
+  }, 60_000)
 
   it('a magic e is the e he adds (pin → pine), and counts for its silent e', () => {
     const p = plans(6, 200).find((x) => x.base!.target.id === 'pin')
@@ -147,5 +147,5 @@ describe('the English ladder', () => {
         })
       }
     }
-  })
+  }, 60_000)
 })

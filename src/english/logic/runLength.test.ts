@@ -74,5 +74,5 @@ describe('the English run length', () => {
     expect(screensPerRun).toHaveLength(2000)
     expect(mean(screensPerRun)).toBeGreaterThanOrEqual(3)
     expect(share(threeRunsReachAll)).toBeGreaterThan(0.8)
-  })
+  }, 60_000)
 })

@@ -20,7 +20,7 @@ import { UNITS, unit } from './content/units'
 import { WORDS, type EnWord } from './content/words'
 import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
-import { measureText } from './testing/measure'
+import { measureText } from './measure'
 
 /** the smallest phone and a tablet */
 const SIZES = [[740, 360], [1024, 768]] as const

@@ -2,7 +2,7 @@
 // visit keeps one look-alike set; the answers count in the English tallies and the stage pass; after a mistake on a
 // look-alike letter the explanation names the letter and says its sound; the signs are drawn in Andika, inside the sign.
 import { render } from '@testing-library/react'
-import { measureText } from './testing/measure'
+import { measureText } from './measure'
 import { describe, expect, it, vi } from 'vitest'
 import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
 import { RunController } from '../duel2/controller'

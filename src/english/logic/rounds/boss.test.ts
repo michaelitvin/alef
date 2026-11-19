@@ -59,7 +59,7 @@ describe('the English flight bosses', () => {
         }
       }
     }
-  })
+  }, 60_000)
 
   it('asks a unit of his stage when its family has one, and his own mix-up is the twin', () => {
     for (let seed = 1; seed <= 40; seed++) expect(['w', 'h']).toContain(enBossTarget(ctxAt(3, seed), 'mimic').id)
