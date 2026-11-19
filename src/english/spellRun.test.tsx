@@ -249,6 +249,29 @@ describe('the spell book\'s answers count, box by box', () => {
   }, 60_000)
 })
 
+describe('a pause in the spell book', () => {
+  it('the same round again after a pause counts its answered box once', async () => {
+    const save = placed({ demosSeen: ['demo-spell'] })
+    const c = new RunController({ course: oneRound(SHOP), save, now: () => Date.now(), rng: seeded(1), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    drop(c, 'sh', 0)
+    await until(c, (v) => spell(v).filled[0] === 'sh')
+    expect(save.read().stage.newAnswers).toBe('o')
+    c.pause()
+    c.resume()
+    // the round starts again, its boxes empty
+    await until(c, (v) => v.phase === 'answer' && spell(v).filled.every((x) => x === null))
+    expect(spell(c.view).round.word).toBe('shop')
+    await playRound(c, false)
+    await until(c, (v) => !!v.over)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(tally(save, 'o')).toMatchObject({ seen: 1 })
+    expect(save.read().stage.newAnswers).toBe('o')
+    c.destroy()
+  }, 60_000)
+})
+
 describe('an empty spell visit', () => {
   it('is no checkpoint: the screen after it comes with no merchant\'s checkpoint between', async () => {
     const none: Course = { ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => null } }

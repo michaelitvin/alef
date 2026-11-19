@@ -4,8 +4,9 @@
 // (no heart is lost; after SPELL_TRIES the right tile glows). A `near` tile (another spelling of the box's sound) is
 // forgiven once. Pure: no store, no clock, no audio. The policy works in box order; the view mirrors for right to left.
 // The write mode sends the same `drop` (the unit his finger wrote, as the recognizer judged it). The first event of a
-// visit, of any type, starts it. Each box is one answer on its unit, when the round gives the box's choice: its first
-// drop decides (a right tile or a forgiven near tile is right, a wrong tile a miss; the fix after it is not an answer).
+// visit, of any type, starts it. Each box is one answer on its unit, when the round gives the box's choice: the first
+// drop decides a box (a right tile or a forgiven near tile is right, a wrong tile a miss; the fix after it is no second
+// answer, nor is the same round again after a pause: the visit starts with the boxes already answered).
 import type { Choice } from '../logic/rounds'
 import type { DrawLine, RunPatch, TrackRequest } from './draw'
 
@@ -108,10 +109,11 @@ export interface SpellState {
   answered: number[]
 }
 
-/** A visit as it starts (the first event starts it). */
-export function spellVisit(ctx: { round: SpellRound; demo: boolean; at: number }): SpellState {
+/** A visit as it starts (the first event starts it). `answered`: the boxes of this round answered before a pause. */
+export function spellVisit(ctx: { round: SpellRound; demo: boolean; at: number; answered?: number[] }): SpellState {
   return {
-    round: ctx.round, demo: ctx.demo, flow: { k: 'open' }, started: ctx.at, fixFrom: 0, replays: 0, forgiven: [], mistakes: 0, hinted: false, answered: [],
+    round: ctx.round, demo: ctx.demo, flow: { k: 'open' }, started: ctx.at, fixFrom: 0, replays: 0, forgiven: [], mistakes: 0, hinted: false,
+    answered: [...(ctx.answered ?? [])],
     view: { screen: 'spell', round: ctx.round, filled: ctx.round.boxes.map(() => null), alive: false },
   }
 }

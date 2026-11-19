@@ -35,9 +35,9 @@ export const classOf = (u: Unit) => (u.kind === 'vowel' ? 'vowel' : u.kind === '
 /** a unit as a box or tile: its letters (an ending without its hyphen: `jump` + `ing`) */
 export const partOf = (u: Unit): Choice => ({ ...unitChoice(u), text: u.text.replace(/^-/, '') })
 
-/** the tiles that can be wrong next to `right`: opened letters, pairs and teams (and the opened endings for an ending) */
-export function tilePool(stage: number, right: Unit): Unit[] {
-  const endings = right.kind === 'ending' ? UNITS.filter((u) => u.kind === 'ending' && u.stage <= stage && !u.secondOf) : []
+/** the tiles that can be wrong next to `rights`: opened letters, pairs and teams (and the opened endings when one is an ending) */
+export function tilePool(stage: number, rights: Unit[]): Unit[] {
+  const endings = rights.some((u) => u.kind === 'ending') ? UNITS.filter((u) => u.kind === 'ending' && u.stage <= stage && !u.secondOf) : []
   return [...letterPool(stage), ...endings]
 }
 
@@ -140,5 +140,5 @@ export function enCauldronRound(ctx: RoundCtx, avoid: string | undefined, deps: 
   const gap = pickTarget(rng, places, (i) => enFeatures(unitChoice(units[i]), 'cauldron'), ctx.tallies, ctx.recent, enPrior)
   const boxes = units.map(partOf)
   // (no picture: he makes the word by ear; a picture comes only with a thrown e)
-  return { target: wordChoice(w), boxes, gap, orbs: tilesFor(ctx, boxes[gap], tilePool(stage, units[gap]), classOf(units[gap])) }
+  return { target: wordChoice(w), boxes, gap, orbs: tilesFor(ctx, boxes[gap], tilePool(stage, [units[gap]]), classOf(units[gap])) }
 }

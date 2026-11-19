@@ -73,7 +73,7 @@ function partPlates(ctx: RoundCtx, right: Choice): Choice[] {
     const singles = letterPool(ctx.stage).filter((x: Unit) => x.kind === 'vowel' || x.kind === 'consonant')
     return tilesFor(ctx, right, singles, right.text === 'e' ? 'letter' : 'vowel', PLATES)
   }
-  return tilesFor(ctx, right, tilePool(ctx.stage, u), classOf(u), PLATES)
+  return tilesFor(ctx, right, tilePool(ctx.stage, [u]), classOf(u), PLATES)
 }
 
 /** the foot and the first `rungs` changes of a chain: each word's boxes, and where it changed from the word below */

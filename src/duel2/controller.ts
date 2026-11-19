@@ -300,6 +300,8 @@ export class RunController {
   private demoNo = 0
   /** the spell book's round in progress (policies/spell.ts); its waits share the drawing's wait number and timers */
   private spell: SpellState | null = null
+  /** the boxes of the spell round in progress already answered (they survive a pause: the same round again counts them once) */
+  private spellAnswered: number[] = []
   /** this visit ended with no round (the course had none at this stage): no checkpoint after it */
   private visitEmpty = false
   private spellDone: ((end: 'next' | 'over') => void) | null = null
@@ -1752,6 +1754,7 @@ export class RunController {
     if (this.resuming && cur?.screen === 'spell' && !this.answered) { this.resuming = false; return cur.round }
     this.resuming = false
     this.answered = false
+    this.spellAnswered = []
     // the gallery's long fixture (five boxes fit their page), always; else the course's round (until a course has its own
     // spell rounds, the gallery shows its fixture round)
     if (this.opts.force?.longSpell) return spellFixture(this.course, true)
@@ -1769,7 +1772,7 @@ export class RunController {
     const round = this.buildSpell()
     if (!round) return false
     const demo = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !this.save.read().demosSeen.includes('demo-spell')
-    this.spell = spellVisit({ round, demo, at: this.now() })
+    this.spell = spellVisit({ round, demo, at: this.now(), answered: this.spellAnswered })
     this.assets = []
     const end = await this.guard(t, new Promise<'next' | 'over'>((r) => {
       this.spellDone = r
@@ -1812,6 +1815,7 @@ export class RunController {
     if (!sp) return
     const r = stepSpell(sp, { ...e, at: this.now() } as SpellInput)
     this.spell = r.state
+    this.spellAnswered = r.state.answered
     if (r.hush) this.course.audio.stopVoice()
     if (r.run) this.set(r.run)
     if (r.view) this.set({ screen: r.view })

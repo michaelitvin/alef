@@ -79,7 +79,8 @@ describe('the English spell book', () => {
         expect(r.boxes.map((b) => b.unit)).toEqual(w.units)
         expect(r.boxes.length).toBeLessThanOrEqual(MAX_BOXES)
         for (const b of r.boxes) {
-          expect(b.text).toBe(unit(b.unit).text.replace(/^-/, ''))
+          // (a magic e's box shows its vowel letter)
+          expect(b.text).toBe(unit(b.unit).kind === 'magic-e' ? unit(b.unit).text[0] : unit(b.unit).text.replace(/^-/, ''))
           expect(b.soundId).toBe(`snd-${soundOf(b.unit)}`)
           expect(b.choice).toMatchObject({ kind: 'unit', id: b.unit })
         }
@@ -90,7 +91,30 @@ describe('the English spell book', () => {
         expect(r.tiles.length).toBeLessThanOrEqual(MAX_TILES)
         expect(wrongTiles(r).length).toBeGreaterThanOrEqual(2)
         expect(r.mode).toBe('tiles')
+        // a silent e is the faint tail, at the word's end only
+        const magic = w.units.some((u) => unit(u).kind === 'magic-e')
+        expect(r.tail).toBe(magic ? 'e' : undefined)
+        if (magic) expect(w.text.endsWith('e')).toBe(true)
       }
+    }
+  })
+
+  it('stage 6 offers silent-e words: cake is c · a · k with a faint e, a says "ay", and no short a is a tile', () => {
+    const all = rounds(6, 600)
+    expect(all.filter((r) => r.tail === 'e').length).toBeGreaterThan(0)
+    const cakes = all.filter((r) => r.word === 'cake')
+    expect(cakes.length).toBeGreaterThan(0)
+    for (const r of cakes) {
+      expect(r.boxes.map((b) => [b.unit, b.text, b.soundId])).toEqual([['c', 'c', 'snd-k'], ['a_e', 'a', 'snd-ay'], ['k', 'k', 'snd-k']])
+      expect(r.tail).toBe('e')
+      expect(r.tiles.filter((t) => t.text === 'a').map((t) => t.unit)).toEqual(['a_e'])
+      expect(r.tiles.map((t) => t.unit)).not.toContain('a')
+    }
+  })
+
+  it('a near tile that cannot start a word is never offered for the first box', () => {
+    for (const r of rounds(9, 600)) for (const [tile, box] of Object.entries(r.near ?? {})) {
+      if (unit(tile).endOnly) expect(r.boxes.findIndex((b) => b.unit === box)).toBeGreaterThan(0)
     }
   })
 
