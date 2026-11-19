@@ -101,12 +101,16 @@ export function createGameAudio<S extends string = string, M extends string = st
   let current: Sound | null = null
   let currentSignal: VoiceSignal | null = null
   const lines = new Set<Sound>()
-  /** Plays one voice file; false when it has no file (a missing file never stalls, but it was not heard either). */
-  async function playFile(id: string): Promise<boolean> {
+  /**
+   * Plays one voice file; false when it has no file (a missing file never stalls, but it was not heard either).
+   * `onHeard`: the file really plays (loaded), with its length in ms when the player knows it; never for a missing file
+   */
+  async function playFile(id: string, onHeard?: (ms: number | null) => void): Promise<boolean> {
     const url = urlOf(id)
     if (!url) return false
     duck(true)
-    const s = audioPlayer().play(url, { kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs })
+    const heard = onHeard ? { onStart: (x: Sound) => { const d = x.duration?.(); onHeard(d ? Math.round(d * 1000) : null) } } : {}
+    const s = audioPlayer().play(url, { kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs, ...heard })
     current = s
     try {
       return (await s.done) !== false
@@ -123,9 +127,10 @@ export function createGameAudio<S extends string = string, M extends string = st
   /**
    * Plays the parts in order with `gapMs` between them, after anything already queued. A stopVoice drops what is left.
    * Resolves true only when every part was really heard (a one-time moment is used up only then: a missing file or a
-   * stop leaves it for next time).
+   * stop leaves it for next time). A part's `onStart` comes as its turn starts (also with no file); `onHeard` only when
+   * its file really plays, with the file's length in ms when known.
    */
-  function sayParts(parts: { id: string; onStart?: () => void }[], gapMs = o.gapMs, signal?: VoiceSignal): Promise<boolean> {
+  function sayParts(parts: { id: string; onStart?: () => void; onHeard?: (ms: number | null) => void }[], gapMs = o.gapMs, signal?: VoiceSignal): Promise<boolean> {
     const mine = epoch
     const token = {}
     pending.add(token)
@@ -140,7 +145,7 @@ export function createGameAudio<S extends string = string, M extends string = st
           parts[i].onStart?.()
           const id = voiceFile(parts[i].id)
           o.onSay?.(id)
-          if ((await playFile(id)) === false) heard = false
+          if ((await playFile(id, parts[i].onHeard)) === false) heard = false
         }
         return heard && epoch === mine && !signal?.cancelled
       } finally {

@@ -106,8 +106,10 @@ export interface LadderPlan { fixed?: LadderFixed; marked: boolean; base?: { tar
  * tile); `orbs`: the tiles, the right one among them; `target`: the word shown and heard; `becomes`: the word the right
  * tile makes of it (English stage 6: `cap` and a thrown `e` make `cape`; then he hears `becomes`). A picture is its file.
  * Hebrew: one box, the letter, with `gap` 0 on its mark; the orbs are syllables of that letter, the target one of them.
+ * `noStage`: its answer never counts towards the stage (the course's call: English, a thrown e is always the e in the
+ * last box, so he can give it without listening)
  */
-export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice }
+export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice; noStage?: true }
 type DrawCtx = Parameters<typeof drawWords>[0]
 
 /**
@@ -131,10 +133,11 @@ export interface DoorKey {
 export interface BlendPart { text: string; unit: number }
 /**
  * How a word blends (the hint, after every second miss, the made word): the voice ids it plays; when each unit lights,
- * in ms from the voice's real start; how long it lasts (the lights end by then, also with no clip); and the word's
- * pieces, which the hint card (BlendWord) draws
+ * in ms from the voice's real start (its file loaded and playing); how long it lasts (the lights end by then, also with
+ * no clip); and the word's pieces, which the hint card (BlendWord) draws. `stretch`: the times split `totalMs` evenly
+ * (no timing of the clip): the run stretches them to the clip's real length once it plays; a missing clip keeps them
  */
-export interface BlendPlan { audio: string[]; lights: { unit: number; atMs: number }[]; totalMs: number; parts: BlendPart[] }
+export interface BlendPlan { audio: string[]; lights: { unit: number; atMs: number }[]; totalMs: number; parts: BlendPart[]; stretch?: true }
 
 /**
  * The hint that blends a word (English): `plan`, the blends of a screen (where he hears the word: its word; where he

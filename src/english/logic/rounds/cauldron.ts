@@ -114,7 +114,8 @@ function throwRound(ctx: RoundCtx, avoid: string | undefined, deps: CauldronDeps
   // the wrong tiles: single letters he knows (any other e is left out by its look)
   const pool = letterPool(ctx.stage).filter((u) => u.kind === 'vowel' || u.kind === 'consonant')
   const boxes = [...short.units.map((u) => partOf(unit(u))), e]
-  return { target: shown(short, deps), boxes, gap: boxes.length - 1, orbs: tilesFor(ctx, e, pool, 'letter'), becomes: shown(long, deps) }
+  // (always the e in the last box: he can give it without listening, so it never counts towards the stage)
+  return { target: shown(short, deps), boxes, gap: boxes.length - 1, orbs: tilesFor(ctx, e, pool, 'letter'), becomes: shown(long, deps), noStage: true }
 }
 
 /**

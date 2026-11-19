@@ -4,7 +4,7 @@
 // blends, a thrown e's turn says the short word and then the long one, and a thrown e never counts towards the stage.
 import { act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { seeded, until } from '../duel2/testing/runHarness'
+import { recordSession, seeded, until } from '../duel2/testing/runHarness'
 import { RunController, type ScreenView, type View } from '../duel2/controller'
 import type { Course } from '../duel2/course/types'
 import { fakeAudio } from '../shared/gameAudio/fakePlayer'
@@ -12,6 +12,7 @@ import { ENGLISH } from './course'
 import { blendOf } from './logic/blend'
 import { wordChoice } from './logic/rounds/broom'
 import { word } from './content/words'
+import { unit } from './content/units'
 import { memoryEnglishSavePort } from './savePort'
 import { englishTelemetry } from './telemetry'
 import type { EnglishSave } from './saveFormat'
@@ -82,18 +83,37 @@ async function missTimes(n: number, screen: 'cauldron') {
   return { blends }
 }
 
-/** the units lit as `w` blends on the `?`, and whether the blend ended */
+/**
+ * the units lit as `w` blends on the `?`, whether the blend ended, and when each unit lit and the blend ended (ms from
+ * the voice's start, or from the first light when the clip is missing)
+ */
 async function playBlend(w: ReturnType<typeof word>) {
   const course: Course = { ...ENGLISH, hint: { plan: () => [blendOf(w)], of: () => null } }
   const run = await englishSession(englishSave(2), 'cauldron', course)
   let lit: number[] = []
-  run.c.subscribe(() => { const o = run.c.view.overlay; if (o?.kind === 'blend') lit = o.lit })
+  let voiceAt: number | null = null
+  const at: number[] = []
+  let endAt = 0
+  fakeAudio.onPlay = (e) => { if (e.id === wordChoice(w).soundId) voiceAt = Date.now() }
+  run.c.subscribe(() => {
+    const o = run.c.view.overlay
+    if (o?.kind === 'blend' && o.lit.length > lit.length) at.push(Date.now())
+    if (o?.kind === 'blend') lit = o.lit
+    else if (lit.length && !endAt) endAt = Date.now()
+  })
   try {
     await hint(run)
-    return { lit, ended: run.c.view.overlay === null }
+    const from = voiceAt ?? at[0]
+    return { lit, ended: run.c.view.overlay === null, at: at.map((x) => x - from), endMs: endAt - from }
   } finally {
     run.c.destroy()
   }
+}
+
+/** the times, each within a ms of the ones expected (a timer's tick, the rounding of a stretched light) */
+const near = (got: number[], want: number[]) => {
+  expect(got).toHaveLength(want.length)
+  got.forEach((x, i) => expect(Math.abs(x - want[i])).toBeLessThanOrEqual(1))
 }
 
 /** a doors view with these words on the plate */
@@ -110,12 +130,14 @@ describe('the hint that blends a word', () => {
   it('a word after a hint counts as helped', async () => {
     vi.useFakeTimers()
     englishTelemetry.clear()
-    const save = englishSave(2)
+    // (stage 1: every unit is new, so each answer counts towards the stage)
+    const save = englishSave(1)
     const run = await englishSession(save, 'cauldron')
     try {
       expect(run.c.view.hintAvailable).toBe(true)
       const u = targetUnit(run)
-      const before = save.read().stage.newAnswers
+      expect(unit(u).stage).toBe(1)
+      expect(save.read().stage.newAnswers).toBe('')
       await hint(run)
       await answer(run, 'right')
       expect(save.read().tallies[u]).toMatchObject({ helped: 1 })
@@ -124,11 +146,13 @@ describe('the hint that blends a word', () => {
       const events = englishTelemetry.events() as { e: string; result?: string; by?: string }[]
       expect(events.find((e) => e.e === 'blend-hint')).toMatchObject({ by: 'button', words: 1 })
       expect(events.find((e) => e.e === 'answer')).toMatchObject({ result: 'helped' })
-      // (on the stage pass it is not a right answer)
-      const now = save.read().stage.newAnswers
-      if (now !== before) expect(now.endsWith('x')).toBe(true)
+      // on the stage pass it is not a right answer
+      expect(save.read().stage.newAnswers).toBe('x')
       // the next answer, with no hint, is right again
+      const next = targetUnit(run)
       await answer(run, 'right')
+      expect(unit(next).stage).toBe(1)
+      expect(save.read().stage.newAnswers).toBe('xo')
       expect((englishTelemetry.events() as { e: string; result?: string }[]).filter((e) => e.e === 'answer').map((e) => e.result)).toEqual(['helped', 'right'])
     } finally {
       run.c.destroy()
@@ -167,9 +191,58 @@ describe('the hint that blends a word', () => {
       const r = await playBlend(word('fish'))
       expect(r.lit).toEqual([0, 1, 2])
       expect(r.ended).toBe(true)
+      // (on the fallback length, 700 ms)
+      expect(r.at).toEqual([0, 233, 467])
+      expect(r.endMs).toBe(700)
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('with no timing, the lights split the clip\'s real length from its real start: a 1.4 s clip', async () => {
+    vi.useFakeTimers()
+    try {
+      fakeAudio.durationOf = (id) => (id === 'w-fish' ? 1400 : null)
+      fakeAudio.onVoice((id) => new Promise((r) => setTimeout(r, id === 'w-fish' ? 1400 : 10)))
+      const r = await playBlend(word('fish'))
+      expect(r.lit).toEqual([0, 1, 2])
+      near(r.at, [0, 467, 933])
+      expect(r.endMs).toBe(1400)
+    } finally {
+      fakeAudio.onVoice(null)
+      vi.useRealTimers()
+    }
+  })
+
+  it('the lights start when the clip is really heard (its file loaded), not when it is asked for', async () => {
+    vi.useFakeTimers()
+    try {
+      fakeAudio.loadMs = 300
+      fakeAudio.durationOf = (id) => (id === 'w-fish' ? 1400 : null)
+      fakeAudio.onVoice((id) => new Promise((r) => setTimeout(r, id === 'w-fish' ? 1700 : 10)))
+      const r = await playBlend(word('fish'))
+      expect(r.lit).toEqual([0, 1, 2])
+      near(r.at, [300, 766, 1234])
+      expect(r.endMs).toBe(1700)
+    } finally {
+      fakeAudio.onVoice(null)
+      vi.useRealTimers()
+    }
+  })
+
+  it('the misses are counted per visit: one miss on a visit and one on the next bring no blend', async () => {
+    englishTelemetry.clear()
+    let cauldron = 0
+    // a run: one miss on the cauldron's visit, then misses on the ladder's (the third ends the run); the merchant (whom
+    // the harness does not serve) is kept away: his last visit is put far enough back that no checkpoint of this run is his
+    const save = englishSave(2, { checkpointsSinceVisit: -10 })
+    const log = await recordSession({ course: ENGLISH, save, rng: seeded(7) }, (v) =>
+      v.screen?.screen === 'cauldron' ? (cauldron++ === 0 ? 'wrong' : 'right') : v.screen?.screen === 'ladder' ? 'wrong' : 'right')
+    const events = englishTelemetry.events() as { e: string; screen?: string; result?: string; by?: string }[]
+    const wrong = events.filter((e) => e.e === 'answer' && e.result === 'wrong').map((e) => e.screen)
+    expect(wrong).toEqual(['cauldron', 'ladder', 'ladder'])
+    expect(log.views.some((v) => v.startsWith('ladder:'))).toBe(true)
+    expect(events.filter((e) => e.e === 'blend-hint' && e.by === 'miss')).toEqual([])
   })
 
   it('the cauldron\'s made word blends after a right answer', async () => {
@@ -205,7 +278,8 @@ describe('the hint that blends a word', () => {
           const short = heard.lastIndexOf(s.shown.soundId)
           expect(short).toBeGreaterThanOrEqual(0)
           expect(heard.indexOf(s.target.soundId, short)).toBeGreaterThan(short)
-          if (save.read().stage.stage === stage.stage) expect(save.read().stage.newAnswers).toBe(stage.newAnswers)
+          // (it does not count: the stage and its answers stay as they were)
+          expect(save.read().stage).toEqual(stage)
         }
         run.c.destroy()
       }

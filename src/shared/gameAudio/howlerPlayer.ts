@@ -82,10 +82,17 @@ export const howlerPlayer: AudioPlayer = {
       fade: (to, ms) => { h.fade(h.volume(), to, ms) },
       position: () => (id !== undefined && h.playing(id) ? (h.seek(id) as number) : null),
       playing: () => h.playing(),
+      duration: () => (h.state() === 'loaded' ? h.duration() / (o.rate ?? 1) : null),
     }
     sound.done = playOnce(h, o.rate ?? 1, o.timeoutMs ?? 10_000, (x) => {
       id = x
       o.onPlay?.(sound)
+      // (only when asked: Howler's own 'play' event, once the file really plays)
+      if (o.onStart) {
+        const start = o.onStart
+        if (h.playing(x)) start(sound)
+        else h.once('play', () => start(sound), x)
+      }
     })
     return sound
   },

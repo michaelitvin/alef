@@ -19,6 +19,8 @@ export interface PlayOptions {
   caption?: string[]
   /** the sound has started (music: after its file has loaded) */
   onPlay?: (s: Sound) => void
+  /** a voice or effect is really heard: its file has loaded and it plays (later than `onPlay`, which comes with the call) */
+  onStart?: (s: Sound) => void
 }
 
 export interface Sound {
@@ -32,6 +34,8 @@ export interface Sound {
   /** the playback position (s, media time), or null while it is not playing */
   position(): number | null
   playing(): boolean
+  /** how long it plays, in seconds at its rate (real time), once its file has loaded; null before */
+  duration?(): number | null
 }
 
 export interface AudioPlayer {

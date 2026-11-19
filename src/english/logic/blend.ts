@@ -13,7 +13,7 @@ export interface WordTiming { units: { startMs: number; endMs: number }[]; durat
 /** the timings of the word clips, by voice id; the asset track fills it from forced alignment (empty now) */
 export const WORD_TIMINGS: Record<string, WordTiming> = {}
 
-/** a word's length when its clip has no timing (or is missing): the lights still go through it and end */
+/** a word's length when its clip is missing (or does not say its length): the lights still go through it and end */
 export const FALLBACK_WORD_MS = 700
 
 export type BlendMethod = (w: EnWord, timing: WordTiming | null) => BlendPlan
@@ -53,14 +53,15 @@ const unitCount = (w: EnWord) => Math.max(1, w.units.length)
 /**
  * PROVISIONAL (the spec's last fallback, until the parent picks the method by ear): no slowed audio; the units light
  * one after another while the normal word plays. With a timing, each unit lights where it starts in the clip; without
- * one, the clip's length (FALLBACK_WORD_MS) is split evenly by unit, a two-letter unit being one part.
+ * one, the clip's length is split evenly by unit, a two-letter unit being one part (`stretch`: the run knows the length
+ * only once the clip plays; FALLBACK_WORD_MS when the clip is missing).
  */
 export const lightsOnNormalWord: BlendMethod = (w, timing) => {
   const n = unitCount(w)
   const fits = timing && timing.units.length === n
   const totalMs = fits ? timing.durationMs : FALLBACK_WORD_MS
   const lights = Array.from({ length: n }, (_, i) => ({ unit: i, atMs: fits ? timing.units[i].startMs : Math.round((i * totalMs) / n) }))
-  return { audio: [wordChoice(w).soundId], lights, totalMs, parts: blendParts(w) }
+  return { audio: [wordChoice(w).soundId], lights, totalMs, parts: blendParts(w), ...(fits ? {} : { stretch: true as const }) }
 }
 
 /**

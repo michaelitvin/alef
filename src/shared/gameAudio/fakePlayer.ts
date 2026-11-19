@@ -3,6 +3,8 @@
 //
 //   const audio = installFakeAudio()            // in a describe: installs it before each test, resets it, removes it after
 //   audio.voiceMs = 300                     // each voice part lasts 300 ms (default 0: it ends at once)
+//   audio.durationOf = (id) => 1400         // the length (ms) a voice reports once it starts (default: voiceMs, if any)
+//   audio.loadMs = 300                      // a voice or effect is heard (onStart) this long after the call (default 0)
 //   audio.onVoice((id, e) => …)             // or the test's own timing per voice part (resolve false: not heard);
 //                                           // `e.caption` is the line's words on screen (playLine's caption)
 //   audio.holdUntil(/^q-/); audio.release() // voice parts that match wait for release (one id, or all)
@@ -19,6 +21,10 @@ export interface FakeEntry { kind: SoundKind; id: string; url: string; at: numbe
 
 export interface FakePlayer extends AudioPlayer {
   voiceMs: number
+  /** the length (ms) a voice file reports once it plays (Sound.duration); null: `voiceMs` when set, else unknown */
+  durationOf: ((id: string) => number | null) | null
+  /** a sound is really heard (PlayOptions.onStart) this long after its call: its file loading (default 0: at once) */
+  loadMs: number
   exists: ((id: string) => boolean) | null
   missing: ((id: string) => boolean) | null
   /** a sound has started */
@@ -50,6 +56,8 @@ export function createFakePlayer(): FakePlayer {
 
   const fake: FakePlayer = {
     voiceMs: 0,
+    durationOf: null,
+    loadMs: 0,
     exists: null,
     missing: null,
     onPlay: null,
@@ -83,10 +91,20 @@ export function createFakePlayer(): FakePlayer {
         fade: (to) => { entry.volume = to },
         position: () => (finished ? null : ((Date.now() - t0) / 1000) * (o.rate ?? 1)),
         playing: () => !finished,
+        duration: () => {
+          const ms = fake.durationOf?.(o.id) ?? (fake.voiceMs > 0 ? fake.voiceMs : null)
+          return ms === null ? null : ms / 1000
+        },
       }
       playing.set(sound, entry)
       fake.onPlay?.(entry)
       o.onPlay?.(sound)
+      // (the fake's files are there at once: a sound is heard as it starts)
+      if (o.kind !== 'music' && o.onStart) {
+        const heard = o.onStart
+        if (fake.loadMs > 0) window.setTimeout(() => { if (!finished) heard(sound) }, fake.loadMs)
+        else heard(sound)
+      }
       if (o.kind === 'voice') {
         if (voiceFn) void voiceFn(o.id, entry).then((r) => end(r !== false), () => end(false))
         else if (holdRe?.test(o.id)) held.push({ id: o.id, end: () => end() })
@@ -119,6 +137,8 @@ export function createFakePlayer(): FakePlayer {
       held = []
       playing.clear()
       fake.voiceMs = 0
+      fake.durationOf = null
+      fake.loadMs = 0
       fake.exists = null
       fake.missing = null
       fake.onPlay = null

@@ -68,6 +68,12 @@ describe('the English cauldron', () => {
     expect(pairShare(8)).toBeLessThan(pairShare(5))
   })
 
+  it('a thrown e never counts towards the stage; the other rounds do', () => {
+    const rs = rounds(6, 300)
+    expect(rs.some((r) => r.becomes)).toBe(true)
+    for (const r of rs) expect(r.noStage).toBe(r.becomes ? true : undefined)
+  })
+
   it('stage 6 throws e after cap and the word becomes cape', () => {
     const throws = rounds(6, 600).filter((r) => r.becomes)
     expect(throws.length).toBeGreaterThan(30)

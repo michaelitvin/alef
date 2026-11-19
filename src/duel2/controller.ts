@@ -61,6 +61,8 @@ interface CauldronView {
   boxes?: Choice[]; gap?: number; tiles?: Choice[]
   /** English stage 6: the word shown before the thrown `e` turns it into `target` (cap → cape) */
   shown?: Choice
+  /** the course's call: this round's answer never counts towards the stage (CauldronRound.noStage) */
+  noStage?: boolean
 }
 interface LadderView {
   screen: 'ladder'; built: Choice[]; plates: Choice[]; rungs: number; target: Choice; reveal?: Reveal
@@ -533,7 +535,7 @@ export class RunController {
     return p.then((v) => { if (t !== this.token) throw new Aborted(); return v })
   }
   private sleep(t: number, ms: number) { return this.guard(t, this.time.sleep(ms)) }
-  private say(t: number, parts: { id: string; onStart?: () => void }[]) {
+  private say(t: number, parts: { id: string; onStart?: () => void; onHeard?: (ms: number | null) => void }[]) {
     for (const p of parts) this.assets.push(p.id)
     return this.guard(t, this.course.audio.sayParts(parts))
   }
@@ -1038,7 +1040,7 @@ export class RunController {
       }
       // English: he hears the word to make (after a thrown e, the word it becomes)
       const target = r.becomes ?? r.target
-      this.set({ screen: { screen: 'cauldron', letterId: '', orbs: [], target, boxes: r.boxes, gap: r.gap, tiles: r.orbs, ...(r.becomes ? { shown: r.target } : {}) } })
+      this.set({ screen: { screen: 'cauldron', letterId: '', orbs: [], target, boxes: r.boxes, gap: r.gap, tiles: r.orbs, ...(r.becomes ? { shown: r.target } : {}), ...(r.noStage ? { noStage: true } : {}) } })
       return target
     }
     if (screen === 'ladder') {
@@ -1219,11 +1221,10 @@ export class RunController {
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = door ? door.asked : 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-    // a thrown e (the English cauldron, cap → cape) is always the e in the last box: he can give it without listening,
-    // so it never counts towards the stage
-    const thrown = this.view.screen?.screen === 'cauldron' && !!this.view.screen.shown
+    // a round the course keeps out of the stage pass (CauldronRound.noStage)
+    const noStage = this.view.screen?.screen === 'cauldron' && !!this.view.screen.noStage
     // a Hebrew door word counts towards the stage from stage 4 (its last stage, the words); an English door by its key's word
-    const newStage = thrown ? false : asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
+    const newStage = noStage ? false : asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
     // a right answer after the hint blended the word (English) is helped: counted apart from right (the Hebrew run never is)
     const helped = this.hinted && result === 'right'
     if (result !== 'near') this.hinted = false
@@ -1499,14 +1500,22 @@ export class RunController {
         if (!alive()) break
         this.set({ overlay: { kind: 'blend', parts: plan.parts, lit: [] } })
         let started: number | null = null
+        let total = plan.totalMs
         const light = (u: number) => () => {
           const o = this.view.overlay
           if (alive() && o?.kind === 'blend') this.set({ overlay: { ...o, lit: [...o.lit, u] } })
         }
-        const start = () => { started = this.now(); for (const l of plan.lights) timers.push(this.time.after(l.atMs, light(l.unit))) }
-        await this.say(t, plan.audio.map((id, k) => ({ id, ...(k === 0 ? { onStart: start } : {}) })))
-        // (a missing clip ends at once: the lights still run to the plan's end)
-        const left = started === null ? 0 : plan.totalMs - (this.now() - started)
+        // from the voice's real start (its file plays); an even split is stretched to the clip's own length
+        const start = (clipMs: number | null) => {
+          started = this.now()
+          const k = plan.stretch && clipMs ? clipMs / plan.totalMs : 1
+          total = plan.totalMs * k
+          for (const l of plan.lights) timers.push(this.time.after(Math.round(l.atMs * k), light(l.unit)))
+        }
+        await this.say(t, plan.audio.map((id, k) => ({ id, ...(k === 0 ? { onHeard: start } : {}) })))
+        // a missing clip (or one that never played) ends at once: the lights run on the plan's own times, then it ends
+        if (started === null && alive()) start(null)
+        const left = started === null ? 0 : total - (this.now() - started)
         if (left > 0 && alive()) await this.sleep(t, left)
       }
     } finally {
