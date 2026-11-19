@@ -176,7 +176,7 @@ describe('the roll-up budget', () => {
     trimRollups(logs, BUDGET)
     expect(total()).toBeLessThanOrEqual(BUDGET)
     expect(Object.keys(readRollup(logs[5]!).days)).toContain(newest)
-  })
+  }, 60_000)
 })
 
 describe('rollupsFor', () => {

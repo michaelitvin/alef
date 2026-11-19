@@ -84,6 +84,10 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'spell').getAttribute('data-open')).toBe('true')
     expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=spell`)
+    // the wizard stays at the doors: the spell book opens with them and follows them (writing after reading)
+    expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
+    expect(st(container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
+    expect(st(container, 'spell').querySelector('[data-wizard]')).toBeNull()
   })
 
   it('stage 2 with drawing: open stations first in path order, then the locked doors and spell book', () => {

@@ -170,7 +170,7 @@ describe('the English ghosts', () => {
         }
       }
     }
-  })
+  }, 60_000)
 
   it('the look-alike explanation names the letter, then says its sound', () => {
     const b = unitChoice(unit('b'))

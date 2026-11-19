@@ -159,7 +159,7 @@ describe('the spell policy', () => {
     expect(plain.d.save).toEqual([])
   })
 
-  it('a hint glows the next tile; idle says the word again', () => {
+  it('a hint glows the next tile; idle says the question line, then the word again', () => {
     const g = visit().open()
     g.drop('c', 0)
     g.send({ type: 'hint', auto: true })
@@ -167,7 +167,7 @@ describe('the spell policy', () => {
     expect(g.tracked('hint')).toEqual([{ screen: 'spell', target: 'cat', auto: true }])
     g.send({ type: 'touch' })
     expect(g.view.glow).toBeUndefined()
-    g.send({ type: 'idle' })
+    expect(g.send({ type: 'idle' }).say).toEqual([{ line: 'q-spell' }, { id: 'w-cat' }])
     expect(g.d.said.slice(-1)).toEqual(['w-cat'])
   })
 })

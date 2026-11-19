@@ -45,7 +45,8 @@ export interface RoundCtx {
 export const CONFUSION_GROUP_MIN = 3
 
 const pick = <T,>(rng: Rng, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
-function shuffle<T>(rng: Rng, xs: T[]): T[] {
+/** a Fisher–Yates shuffle with the round's rng (a new array) */
+export function shuffle<T>(rng: Rng, xs: T[]): T[] {
   const a = [...xs]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1))

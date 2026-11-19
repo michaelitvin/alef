@@ -8,7 +8,7 @@ import type { SpellBox, SpellRound } from '../policies/spell'
 import { WORDS, type Word } from '../data/words'
 import { syllable, syllablesOfStage, type Syllable } from './content'
 import { features, pickTarget } from './predict'
-import { sameSound, syllableChoice, type RoundCtx } from './rounds'
+import { sameSound, shuffle, syllableChoice, type RoundCtx } from './rounds'
 
 /** wrong tiles (the fixture's row: 2 boxes and 3 wrong tiles) */
 const WRONG = 3
@@ -21,15 +21,6 @@ export type PictureOf = (key: string) => string | undefined
 const tileOf = (s: Syllable): SpellBox => {
   const choice = syllableChoice(s)
   return { unit: s.id, text: s.text, soundId: s.soundId, choice }
-}
-
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
 }
 
 /**

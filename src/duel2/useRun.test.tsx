@@ -451,8 +451,16 @@ describe('run controller', () => {
       else if (c.view.phase === 'answer' && c.view.screen && !['crystal', 'broom', 'tower'].includes(c.view.screen.screen as string)) c.gesture({ type: 'pick', id: rightId(c.view) })
     }
     expect(c.view.screen?.screen).toBe('crystal')
-    // (after the crystal: the spell book)
+    // (after the crystal: the spell book, the cycle's last screen, then the next cycle)
     await until(c, (v) => v.screen?.screen === 'spell')
+    expect(useDuel2Store.getState().crystals).toBe(1)
+    for (let guard = 0; guard < 1200 && c.view.screen?.screen !== 'broom'; guard++) {
+      await tick(50)
+      autoTower(c)
+      if (c.view.needNext || c.view.fixing) proceed(c)
+      else spellDrop(c)
+    }
+    expect(c.view.screen?.screen).toBe('broom')
     expect(useDuel2Store.getState().crystals).toBe(1)
     c.destroy()
   })
@@ -2107,6 +2115,7 @@ describe('run controller', () => {
       visits[1] = bv(c)?.boss?.kind ?? null
       expect(visits[0]).toBeNull()
       // a boss his stage opens (the run reaches stage 4 here, and its spell book changes the rounds' draws)
+      expect(visits[1]).not.toBeNull()
       expect(bossOpen(visits[1] as BossKind, useDuel2Store.getState().stage.stage)).toBe(true)
       expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
       c.destroy()

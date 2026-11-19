@@ -218,7 +218,8 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       }
       if (s.flow.k !== 'answer' && s.flow.k !== 'near') break
       r.track.push({ e: 'idle', data: { screen: 'spell', target: rd.word } })
-      r.say.push({ id: rd.wordVoice })
+      // he waits: the question line, then the word (as the drawing's q-draw)
+      r.say.push({ line: 'q-spell' }, { id: rd.wordVoice })
       break
     case 'hint': {
       // no hint after a mistake: the right tile already glows

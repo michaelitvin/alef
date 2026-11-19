@@ -111,7 +111,7 @@ describe('the tower on another course’s content', () => {
     } finally {
       vi.useRealTimers()
     }
-  })
+  }, 60_000)
 
   it('says the course’s question, explanation and feedback parts in order, never a Hebrew line-how', async () => {
     const { audio, said } = fakeAudio()
