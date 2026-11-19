@@ -176,6 +176,13 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
 /** a generator table: each event name's fields */
 type Table = Record<string, (r: R, t: number) => Record<string, unknown>>
 
+/** the spell book's events (both languages: the English log and Book 2's) */
+const SPELL: Table = {
+  'spell-drop': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), unit: r.pick(LETTERS), box: r.int(0, 3), ...(r.chance(0.7) ? { ok: true } : { ok: false, tile: r.pick(LETTERS) }) }),
+  'spell-cast': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), ms: r.int(3000, 40_000), mistakes: r.int(0, 4) }),
+  'spell-near': (r) => ({ word: r.pick(WORDS), mode: 'tiles', tile: r.pick(LETTERS), unit: r.pick(LETTERS), box: r.int(0, 3) }),
+}
+
 /**
  * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
  * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
@@ -185,18 +192,12 @@ const ENGLISH: Table = {
   'placement-start': (r) => ({ wave: r.int(1, 3) }),
   'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
   'placement-done': (r) => ({ level: r.int(1, 9), answers: r.int(5, 23) }),
-  'spell-drop': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), unit: r.pick(LETTERS), box: r.int(0, 3), ok: r.chance(0.7) }),
-  'spell-cast': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), ms: r.int(3000, 40_000), mistakes: r.int(0, 4) }),
-  'spell-near': (r) => ({ word: r.pick(WORDS), mode: 'tiles', tile: r.pick(LETTERS), unit: r.pick(LETTERS), box: r.int(0, 3) }),
+  ...SPELL,
   'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
 }
 
 /** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */
-const BOOK2_SPELL: Table = {
-  'spell-drop': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), unit: r.pick(LETTERS), box: r.int(0, 3), ok: r.chance(0.7) }),
-  'spell-cast': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), ms: r.int(3000, 40_000), mistakes: r.int(0, 4) }),
-  'spell-near': (r) => ({ word: r.pick(WORDS), mode: 'tiles', tile: r.pick(LETTERS), unit: r.pick(LETTERS), box: r.int(0, 3) }),
-}
+const BOOK2_SPELL: Table = { ...SPELL }
 
 /** how often an event comes, against 1 for the rest (a session is mostly answers, as the child's are) */
 const WEIGHT: Record<string, number> = {
