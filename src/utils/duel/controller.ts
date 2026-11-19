@@ -18,6 +18,7 @@ import { HEBREW_TOWER, type TowerContent } from './content'
 import { progressTallies, type DuelTallies } from './tallies'
 import type { LineCue } from '../../assets/duel/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../../assets/duel/sprites'
+import { BLEND_GAP_MS, scheduleBlend } from '../../shared/blendSchedule'
 import { realSleeper, type Cancel, type Sleeper } from '../../shared/sleeper'
 
 /** What the announcement banner shows while the wizard speaks (rendered by the tower). */
@@ -153,11 +154,11 @@ export interface DuelView {
   canHint: boolean
   /** the hint's blend plays: the word's pieces, and the units lit so far (BlendWord) */
   blend: { parts: BlendPart[]; lit: number[] } | null
+  /** the walk is held while the hint's blend plays: the monster stands where it is, and the time left is kept */
+  held: boolean
 }
 
 const TOWER_INTRO = 'tower-intro'
-/** the beat between two words of a blend */
-const BLEND_GAP_MS = 300
 /** the feedback's parts in turn: what the banner animates, and the beat before each (sound → name → word) */
 const FEEDBACK_SPEAKING = ['sound', 'name', 'word'] as const
 const FEEDBACK_GAP_MS = [0, 250, 200]
@@ -178,7 +179,7 @@ export class DuelController {
 
   private view: DuelView = {
     state: initialDuelState, banner: null, shake: null, cue: null, lightning: false, celebrate: null, speaking: null,
-    hidden: [], fx: null, feedback: null, canHint: false, blend: null,
+    hidden: [], fx: null, feedback: null, canHint: false, blend: null, held: false,
   }
   private listeners = new Set<() => void>()
   /** the state the reactions last ran on (React's last commit) */
@@ -219,6 +220,10 @@ export class DuelController {
   private blendNo = 0
   /** the hint blended the words in this round: a right answer is helped, not right */
   private hinted = false
+  /** when the walk was held for the hint's blend (null: it walks); the time held is given back to the walk */
+  private holdAt: number | null = null
+  /** the word misses of this visit (every second one blends the right word in its feedback) */
+  private wordMisses = 0
 
   constructor(opts: DuelOpts) {
     this.rng = opts.rng ?? Math.random
@@ -333,6 +338,7 @@ export class DuelController {
   private runClock(s: DuelState) {
     this.clock()
     this.clock = () => {}
+    if (this.holdAt !== null) return // held for the hint's blend: it re-arms when the walk goes on
     const r = s.round
     if (!r || !s.walking || s.paused || s.outcome || s.phase !== 'playing') return
     const left = r.walkMs - (this.time.now() - this.walkStartedAt)
@@ -560,6 +566,11 @@ export class DuelController {
     const pace = nextPace(tallies.read().pace, { result, msWalk, walkMs: r.walkMs })
     if (r.boss) this.bossStart = o.final ? 0 : nextBossStart(r.startFrac ?? 0, msWalk, r.walkMs, result)
     const plan = feedbackPlan(r, o, confidence)
+    // after every second word miss of the visit the feedback blends the right word instead of only saying it
+    const wordRound = r.ask === 'name' || r.ask === 'word'
+    const missPlans = o.kind === 'miss' && !megaInRun && wordRound ? this.content.hint?.(r) : undefined
+    const blendRight = !!missPlans?.length && ++this.wordMisses % 2 === 0
+    if (blendRight) this.track('blend-hint', { round: r.id, words: 1, by: 'miss' })
     this.set({ feedback: plan })
     if (!dry && !megaInRun) tallies.setDuelPace(pace)
     this.track('outcome', {
@@ -594,7 +605,9 @@ export class DuelController {
     let recap = Promise.all([this.almost, this.time.sleep(o.kind === 'hit' ? 560 + juice.hitstopMs : 700)])
       // a defeated boss is congratulated first, then the usual recap
       .then(() => (r.boss && o.kind === 'hit' && o.final ? this.say('line-boss-win') : undefined))
-      .then(() => this.sayFeedback(this.content.feedbackParts(r, plan)))
+      .then(() => (blendRight
+        ? this.playBlends([missPlans![Math.max(0, r.runes.findIndex((m) => m.id === r.target.id))]], r.id)
+        : this.sayFeedback(this.content.feedbackParts(r, plan))))
     if (after.length) recap = recap.then(() => this.sayAll(after))
     const speech = recap
       .then(() => {
@@ -645,6 +658,8 @@ export class DuelController {
       this.megaAnnounced = false
       this.megaQueued = false
       this.bossStart = 0
+      this.wordMisses = 0
+      this.holdAt = null
       this.marksThisRun = new Set()
       // the intro names the tower: "…הַגֵּן עַל הַמִּגְדָּל"
       this.set({ lightning: false, cue: null, celebrate: null, hidden: this.introDue ? ['tower'] : [], banner: null })
@@ -697,24 +712,45 @@ export class DuelController {
    * an answer ends it. The monster keeps walking.
    */
   hint() {
-    const s = this.state
-    const r = s.round
-    if (!this.view.canHint || !r || !s.walking || s.outcome || s.paused || s.preview || s.phase !== 'playing' || this.answeredRound === r.id) return
-    const plans = this.content.hint?.(r) ?? []
-    if (!plans.length) return
-    this.hinted = true
-    this.track('blend-hint', { round: r.id, words: plans.length, by: 'button' })
-    void this.playBlends(plans, r.id).catch(() => {})
+    this.batch(() => {
+      const s = this.state
+      const r = s.round
+      if (!this.view.canHint || !r || !s.walking || s.outcome || s.paused || s.preview || s.phase !== 'playing' || this.answeredRound === r.id) return
+      const plans = this.content.hint?.(r) ?? []
+      if (!plans.length) return
+      this.hinted = true
+      this.holdWalk()
+      this.track('blend-hint', { round: r.id, words: plans.length, by: 'button' })
+      void this.playBlends(plans, r.id).catch(() => {})
+    })
   }
 
-  /** the blend ends at once: its card, its lights, its voice */
+  /** the walk stops where it is while the blend plays (the answers stay open): its clock stops, the monster stands */
+  private holdWalk() {
+    if (this.holdAt !== null) return
+    this.holdAt = this.time.now()
+    this.clock()
+    this.clock = () => {}
+    this.set({ held: true })
+  }
+  /** the walk goes on with the time it had left: the time held is given back */
+  private releaseWalk() {
+    if (this.holdAt === null) return
+    this.walkStartedAt += this.time.now() - this.holdAt
+    this.holdAt = null
+    this.set({ held: false })
+    this.runClock(this.state)
+  }
+
+  /** the blend ends at once: its card, its lights, its voice; a held walk goes on */
   private endBlend() {
     this.blendNo++
     if (this.view.blend) this.set({ blend: null })
+    this.releaseWalk()
   }
   /** a touch on an answer: a blend that plays goes away with its voice (the answer stays counted as helped) */
   private stopBlend() {
-    if (!this.view.blend) return
+    if (!this.view.blend && this.holdAt === null) return
     this.endBlend()
     this.audio.stopAllLines()
   }
@@ -743,9 +779,9 @@ export class DuelController {
         // from the voice's real start (its file plays); an even split is stretched to the clip's own length
         const start = (clipMs: number | null) => {
           started = this.time.now()
-          const k = plan.stretch && clipMs ? clipMs / plan.totalMs : 1
-          total = plan.totalMs * k
-          for (const l of plan.lights) timers.push(this.time.after(Math.round(l.atMs * k), light(l.unit)))
+          const sch = scheduleBlend(plan, clipMs)
+          total = sch.totalMs
+          for (const l of sch.lights) timers.push(this.time.after(l.atMs, light(l.unit)))
         }
         for (let k = 0; k < plan.audio.length && alive(); k++) await this.say(plan.audio[k], undefined, k === 0 ? start : undefined)
         // a missing clip (or one that never played) ends at once: the lights run on the plan's own times, then it ends
@@ -755,7 +791,10 @@ export class DuelController {
       }
     } finally {
       timers.forEach((c) => c())
-      if (no === this.blendNo && this.view.blend) this.set({ blend: null })
+      if (no === this.blendNo) {
+        if (this.view.blend) this.set({ blend: null })
+        this.releaseWalk()
+      }
     }
   }
 

@@ -2,6 +2,7 @@
 // that wait for next, explanations, hints, demos, the dotted-letter introduction, the word link, celebrations, the hearts
 // (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
+import { BLEND_GAP_MS, scheduleBlend } from '../shared/blendSchedule'
 import type { Rng } from '../shared/adaptive'
 import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
@@ -212,8 +213,6 @@ const CONFIDENT_MS = 3000
 const COIN_POP_MS = 550
 /** the placement check's visit: a bound on its waves, never reached (at most 15 answers and its confirmations) */
 const PLACEMENT_WAVES = 10
-/** the pause between two words that blend in turn (a door's plate, the ghosts' words) */
-const BLEND_GAP_MS = 300
 
 export class RunController {
   view: View = { course: { id: HEBREW.id, dir: HEBREW.dir }, phase: 'question', hearts: HEARTS, screen: null, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
@@ -1511,9 +1510,9 @@ export class RunController {
         // from the voice's real start (its file plays); an even split is stretched to the clip's own length
         const start = (clipMs: number | null) => {
           started = this.now()
-          const k = plan.stretch && clipMs ? clipMs / plan.totalMs : 1
-          total = plan.totalMs * k
-          for (const l of plan.lights) timers.push(this.time.after(Math.round(l.atMs * k), light(l.unit)))
+          const sch = scheduleBlend(plan, clipMs)
+          total = sch.totalMs
+          for (const l of sch.lights) timers.push(this.time.after(l.atMs, light(l.unit)))
         }
         await this.say(t, plan.audio.map((id, k) => ({ id, ...(k === 0 ? { onHeard: start } : {}) })))
         // a missing clip (or one that never played) ends at once: the lights run on the plan's own times, then it ends

@@ -180,6 +180,65 @@ describe('the English tower\'s hint', () => {
     run.destroy()
   })
 
+  it('the walk is held while the blend plays: no timeout in it, and it goes on with the time it had left', async () => {
+    const save = at(3)
+    const d = deps(save)
+    // a short walk (2 s) that the blend (about 2.4 s) outlasts
+    const p = await walking(englishTower(d), () => (o) => ({ ...enTowerRound(d, o, { kind: 'name', word: NAME }), walkMs: 2000 }), save)
+    const round = p.round
+    await vi.advanceTimersByTimeAsync(1000)
+    p.c.hint()
+    expect(p.c.getView().held).toBe(true)
+    await settle(() => p.c.getView().blend === null && p.c.getView().held === false, 10_000)
+    // the blend lasted longer than the whole walk, and the monster is still on the field
+    expect(p.c.getView().state.outcome).toBeNull()
+    expect(p.c.getView().state.round).toBe(round)
+    // about a second was left of the walk
+    await vi.advanceTimersByTimeAsync(800)
+    expect(p.c.getView().state.outcome).toBeNull()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(p.c.getView().state.outcome).not.toBeNull()
+    expect(p.c.getView().state.outcome!.kind).toBe('miss')
+    p.c.destroy()
+  })
+
+  it('a tap during the blend answers at once and the walk is no longer held', async () => {
+    const save = at(3)
+    const d = deps(save)
+    const p = await walking(englishTower(d), () => (o) => enTowerRound(d, o, { kind: 'name', word: NAME }), save)
+    p.c.hint()
+    await settle(() => !!p.c.getView().blend)
+    p.c.choose({ kind: 'rune', mark: p.round.target })
+    expect(p.c.getView().held).toBe(false)
+    expect(p.c.getView().state.outcome!.kind).toBe('hit')
+    p.c.destroy()
+  })
+
+  it('after every second word miss of the visit the feedback blends the right word', async () => {
+    const save = at(3)
+    const d = deps(save)
+    const p = await walking(englishTower(d), () => (o) => enTowerRound(d, o, { kind: 'name', word: NAME }), save)
+    const missBlends = () => p.events.filter((x) => x.e === 'blend-hint' && x.data.by === 'miss').length
+    const blends: string[] = []
+    p.c.subscribe(() => { const b = p.c.getView().blend; if (b) blends.push(b.parts.map((x) => x.text).join('')) })
+    const wrongOnce = async (round: Round) => {
+      p.c.choose({ kind: 'rune', mark: round.runes.find((m) => m.id !== round.target.id)! })
+      await settle(() => p.events.filter((x) => x.e === 'outcome').length > 0 && p.c.getView().state.outcome === null && !!p.c.getView().state.round && p.c.getView().state.walking)
+    }
+    const ids = () => p.events.filter((x) => x.e === 'outcome').length
+    // the first miss: the plain word; the second: the right word blends
+    await wrongOnce(p.round)
+    expect(ids()).toBe(1)
+    expect(missBlends()).toBe(0)
+    expect(blends).toEqual([])
+    const second = p.c.getView().state.round!
+    p.c.choose({ kind: 'rune', mark: second.runes.find((m) => m.id !== second.target.id)! })
+    await settle(() => missBlends() === 1 && p.c.getView().blend === null && blends.length > 0)
+    expect(blends[0]).toBe(word(second.target.id).text)
+    expect(new Set(blends).size).toBe(1)
+    p.c.destroy()
+  })
+
   it('a letter round has no ?', async () => {
     const save = at(3)
     const d = deps(save)
@@ -233,7 +292,7 @@ describe('the ? on the board', () => {
     const answers: unknown[][] = []
     const course = {
       tower: { content, tallies: () => save.towerTallies(), audio: fakeAudio(said), facts: towerFacts },
-      save: () => save, telemetry: { track: () => {}, flush: () => {} } as never, placement: undefined,
+      dir: 'ltr' as const, save: () => save, telemetry: { track: () => {}, flush: () => {} } as never, placement: undefined,
     }
     const ui = render(<Tower view={{ screen: 'tower', wave: 1, waves: 1, boss: false, visit: 1 }} paused={false} course={course}
       onAnswer={(...a) => { answers.push(a); return 'on' }} onDone={() => {}} />)
@@ -251,6 +310,17 @@ describe('the ? on the board', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(8000) })
     expect(container.querySelector('[data-blend]')).toBeNull()
     expect(said.filter((id) => id.startsWith('w-')).length).toBe(3)
+  })
+
+  it('the English tower\'s pad runs left to right; the Hebrew tower\'s has no direction of its own', async () => {
+    const en = board('name')
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    expect(en.container.querySelector('.nd-pad-area')!.getAttribute('dir')).toBe('ltr')
+    en.unmount()
+    const he = render(<Tower view={{ screen: 'tower', wave: 1, waves: 1, boss: false, visit: 1 }} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
+    expect(he.container.querySelector('.nd-pad-area')!.hasAttribute('dir')).toBe(false)
+    he.unmount()
   })
 
   it('a letter round shows no ?', async () => {

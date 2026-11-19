@@ -42,7 +42,7 @@ interface TowerProps {
    * and the owed monsters, the log, and its placement check's rounds (`view.placement`) (unset: the Hebrew course's,
    * Book 2's save and log)
    */
-  course?: Pick<Course, 'tower' | 'save' | 'telemetry' | 'placement'>
+  course?: Pick<Course, 'tower' | 'save' | 'telemetry' | 'placement'> & Partial<Pick<Course, 'dir'>>
 }
 
 /** the gallery records nothing, its events neither */
@@ -66,6 +66,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       onIntroduced: (id) => { if (!dry) save.monsterIntroduced(id) },
       onAnswer, onDone, dry,
       // a course whose tower answers count (Course.tower.facts) gets the round answered
+      // (the third argument only when helped, so that every other answer is reported as it always was)
       onAnswerRound: tower?.facts ? (r, round, helped) => (helped ? onAnswer(r, round.target.id, round, helped) : onAnswer(r, round.target.id, round)) : undefined,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge, megaOff: !!placing,
@@ -97,12 +98,13 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       <RuneGlowDefs />
       <motion.div className="nd-screen" animate={shakeCtl}>
         <Starfield />
-        <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused}
+        <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused} held={game.held}
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} fx={game.fx}
           resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
         {game.blend && <BlendWord parts={game.blend.parts} lit={game.blend.lit} />}
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
-        <div className="nd-pad-area">
+        {/* the pad reads in the course's direction (the board is right to left; English runes run left to right); Hebrew: no attribute */}
+        <div className="nd-pad-area" {...(course?.dir === 'ltr' ? { dir: 'ltr' } : {})}>
           {!placing && state.mega >= MEGA_MAX && game.lightning && state.round && !state.paused && !paused && (
             <motion.button className="nd-mega-btn" style={{ x: '-50%' }} initial={{ scale: 0, rotate: -120 }}
               animate={{ scale: [0, 1.9, 0.9, 1.15, 1], rotate: [-120, 20, -10, 0, 0] }}

@@ -41,6 +41,8 @@ interface Props {
   outcome: Outcome | null
   walking: boolean
   paused: boolean
+  /** the walk is held (the hint's blend plays): the monster stands where it is, and the time it had left stays */
+  held?: boolean
   landscape: boolean
   banner: ReactNode | null
   bossHp?: number
@@ -56,7 +58,7 @@ interface Props {
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
+export function Battlefield({ round, outcome, walking, paused, held = false, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
   const WIZARD = useWizard()
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
@@ -97,6 +99,19 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
     walkStart.current = performance.now()
   }
   if (!walking) walkKey.current = -1
+  // a held walk: the monster stands where it was, and the time held is given back when it goes on (no restart from the edge)
+  const heldAt = useRef<number | null>(null)
+  const heldX = useRef<number | null>(null)
+  if (held && walking && round && heldAt.current === null) {
+    const now = performance.now()
+    const from = geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
+    heldAt.current = now
+    heldX.current = from - (from - geo.end) * Math.min(1, (now - walkStart.current) / round.walkMs)
+  } else if (!held && heldAt.current !== null) {
+    walkStart.current += performance.now() - heldAt.current
+    heldAt.current = null
+    heldX.current = null
+  }
   const outcomeX = useMemo(() => {
     if (!outcome || !round) return geo.start
     if (!walking) return geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
@@ -139,7 +154,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
 
       {round && !outcome && (
         <WalkingMonster round={round} walking={walking} startX={geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)} endX={geo.end} bossHp={bossHp} onReplay={onReplay}
-          remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
+          remainingMs={remainingWalkMs(round.walkMs, walkStart.current, heldAt.current ?? performance.now())} holdX={heldX.current} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} points={points} />}
