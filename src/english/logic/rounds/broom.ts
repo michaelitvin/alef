@@ -3,13 +3,11 @@
 // a heart word among heart or decodable words. The course ignores the run's `kind` (letters or syllables, a Hebrew
 // choice): the stage decides. No orb carries a picture: he finds the word by its letters, not by a picture.
 import type { ScreenId } from '../../../duel2/logic/predict'
-import { pickTarget } from '../../../duel2/logic/predict'
 import type { Choice, Kind, RoundCtx } from '../../../duel2/logic/rounds'
-import { NEW_SHARE } from '../../../duel2/logic/stages'
 import { unit } from '../../content/units'
 import { heartVoice, wordVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'
-import { enFeatures, enPrior, pickUnit, unitChoice } from '../pick'
+import { pickUnit, pickWord, unitChoice } from '../pick'
 import { letterPool } from '../tower'
 
 /** which voice files are there (a target is heard: one whose clip is there is chosen first) */
@@ -87,13 +85,6 @@ function partnerOf(ctx: RoundCtx, id: string): string | null {
 const voicedFirst = <T,>(xs: T[], id: (x: T) => string, voice: HasVoice): T[] => {
   const v = xs.filter((x) => voice(id(x)))
   return v.length ? v : xs
-}
-
-/** a word near the aim; the stage's own words on NEW_SHARE of the picks (as pickUnit picks units) */
-function pickWord(ctx: RoundCtx, pool: EnWord[], screen: ScreenId): EnWord {
-  const fresh = pool.filter((w) => w.stage === ctx.stage)
-  const cands = fresh.length && fresh.length < pool.length && ctx.rng() < NEW_SHARE ? fresh : pool
-  return pickTarget(ctx.rng, cands, (w) => enFeatures(wordChoice(w), screen), ctx.tallies, ctx.recent, enPrior)
 }
 
 /** the decodable words of a stage that have a wave of one-unit neighbours (by stage: the lists never change) */

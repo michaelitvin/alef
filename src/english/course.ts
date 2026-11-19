@@ -16,7 +16,7 @@ import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
-import { enDoorKeys, enDoorRounds } from './logic/rounds/doors'
+import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -83,7 +83,10 @@ export const ENGLISH: Course = {
   game: 'english',
   dir: 'ltr',
   stages: {
-    maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING, screensOfStage: enScreensOfStage,
+    maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING,
+    // the doors only where a door can be made (stage 1's pictures, map and fan, have no file yet): they come back by
+    // themselves when one lands
+    screensOfStage: (s) => enScreensOfStage(s).filter((x) => x !== 'doors' || enDoorsPlayable(s, { picture: wordPicture })),
     // enRecordStageAnswer over READY_STAGES: the same rule as the English save's
     recordStageAnswer: englishStageRule, visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH,
   },

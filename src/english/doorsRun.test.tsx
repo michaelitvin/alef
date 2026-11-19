@@ -77,21 +77,26 @@ describe('the English doors in the run', () => {
     expect(phrases).toBeGreaterThan(0)
   })
 
-  it('door answers count toward the stage from stage 4 only', async () => {
-    const flagsAt = async (stage: number) => {
+  it('a door answer counts toward the stage when its key\'s word is of his stage', async () => {
+    const flagsAt = async (stage: number, seed = 7) => {
       const port = englishSave(stage)
-      const flags: boolean[] = []
-      const save: SavePort = { ...port, recordAnswer: (a) => { flags.push(!!a.newStage); return port.recordAnswer(a) } }
-      await session(save, () => 'right')
+      // (each answer with the stage it was given on: a pass moves the stage on during the session)
+      const flags: { newStage: boolean; asked?: string; at: number }[] = []
+      const save: SavePort = { ...port, recordAnswer: (a) => { flags.push({ newStage: !!a.newStage, asked: a.asked?.id, at: port.read().stage.stage }); return port.recordAnswer(a) } }
+      await session(save, () => 'right', seed)
       return { flags, stage: port.read().stage.stage }
     }
+    // stage 2: its door words with a picture (dog, cat, bus) are all of stage 2; five right answers pass it
     const low = await flagsAt(2)
-    expect(low.flags.length).toBeGreaterThanOrEqual(3)
-    expect(low.flags.every((f) => !f)).toBe(true)
-    const high = await flagsAt(5)
-    expect(high.flags.slice(0, 5)).toEqual([true, true, true, true, true])
-    // five right answers pass stage 5
-    expect(high.stage).toBe(6)
+    expect(low.flags.length).toBeGreaterThanOrEqual(5)
+    for (const f of low.flags) expect(f.newStage).toBe(word(f.asked!).stage === f.at)
+    expect(low.flags.slice(0, 5).map((f) => f.newStage)).toEqual([true, true, true, true, true])
+    expect(low.stage).toBe(3)
+    // stage 6: only the words of stage 6 (cake, bike; a phrase by its noun) count, the older ones do not
+    const all: { newStage: boolean; asked?: string; at: number }[] = []
+    for (let seed = 1; seed <= 4; seed++) all.push(...(await flagsAt(6, seed)).flags)
+    for (const f of all) expect(f.newStage, f.asked).toBe(word(f.asked!).stage === f.at)
+    expect(new Set(all.map((f) => f.newStage))).toEqual(new Set([true, false]))
   }, 60_000)
 
   it('the door never says its word before he picks; the question plays only when he waits', async () => {
@@ -145,6 +150,11 @@ describe('the English doors in the run', () => {
     }
     expect(played).toBe(1)
   }, 60_000)
+
+  it('the doors are left out of a stage where no door can be made (stage 1: map and fan have no picture file yet)', () => {
+    expect(ENGLISH.stages.screensOfStage(1)).not.toContain('doors')
+    for (const stage of [2, 4, 9]) expect(ENGLISH.stages.screensOfStage(stage)).toContain('doors')
+  })
 
   it('a fresh save says the doors\' demo line over an English door', async () => {
     vi.useFakeTimers()

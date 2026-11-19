@@ -35,6 +35,17 @@ export function pickUnit(ctx: RoundCtx, pool: Unit[], screen: ScreenId = 'broom'
   return pickTarget(rng, cands, (u) => enFeatures(unitChoice(u), screen), ctx.tallies, ctx.recent, enPrior)
 }
 
+/**
+ * A word from the pool: near the aim (its features on `screen`); the stage's new words are chosen on `NEW_SHARE` of the
+ * rounds. The broom's word targets and the doors' words.
+ */
+export function pickWord(ctx: RoundCtx, pool: EnWord[], screen: ScreenId): EnWord {
+  const fresh = pool.filter((w) => w.stage === ctx.stage)
+  const cands = fresh.length && fresh.length < pool.length && ctx.rng() < NEW_SHARE ? fresh : pool
+  const asChoice = (w: EnWord): Choice => ({ kind: 'word', id: w.id, text: w.text, soundId: '', itemId: w.id })
+  return pickTarget(ctx.rng, cands, (w) => enFeatures(asChoice(w), screen), ctx.tallies, ctx.recent, enPrior)
+}
+
 /** the item of an English choice: a unit, or a word */
 export const itemOfChoice = (c: Choice): Unit | EnWord => (c.kind === 'unit' ? unit(c.id) : word(c.id))
 

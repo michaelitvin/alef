@@ -1184,15 +1184,17 @@ export class RunController {
   }
 
   /**
-   * `target`: what was asked (an English door: the door, `{ id }`, its features given in `own`); `tapped`: what he took
+   * `target`: what was asked; `tapped`: what he took. An English door: `target` is the door (`{ id }`) and `door.asked` the
+   * word of its key (the word, or the phrase's noun): its features and its stage decide
    */
-  private record(screen: ScreenId, target: Choice | Word | { id: string }, tapped: Choice | Word | DoorKey | null, result: 'right' | 'wrong' | 'near', own?: string[]) {
+  private record(screen: ScreenId, target: Choice | Word | { id: string }, tapped: Choice | Word | DoorKey | null, result: 'right' | 'wrong' | 'near', door?: { asked: Choice }) {
     if (result !== 'near' && screen !== 'broom') this.answered = true
-    const feats = own ?? ('syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen))
+    const feats = door ? this.course.rounds.features(door.asked, screen)
+      : 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen)
     const ms = Math.round(this.now() - this.cueStarted)
-    const asked = 'soundId' in target ? (target as Choice) : undefined
+    const asked = door ? door.asked : 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-    // a door (a word or a phrase) counts towards the stage from stage 4: Hebrew's last stage (the words), English's 4–9
+    // a Hebrew door word counts towards the stage from stage 4 (its last stage, the words); an English door by its key's word
     const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
@@ -1321,12 +1323,12 @@ export class RunController {
     const tapped = (s.keys as DoorKey[]).find((k) => k.id === picked) ?? null
     // what he hears when it opens: the Hebrew door word; the English word, or the phrase's own clip
     const cue = s.plate ? this.door!.soundId ?? s.plate[0].soundId : `w-${s.word.id}`
-    // an English door counts for the word of its key (the word, or the phrase's noun), and may bring its introduction,
+    // an English door counts for the word of its key (the word, or the phrase's noun: its tallies and its stage), and may bring its introduction,
     // asked before the answer is recorded (a run-ending miss keeps it due)
     const asked = s.plate ? (target as Choice) : null
     const intro = asked && !outcome.over ? this.introAfter(asked, right) : []
     const record = (result: 'right' | 'wrong') => asked
-      ? this.record('doors', { id: this.door!.id }, tapped, result, this.course.rounds.features(asked, 'doors'))
+      ? this.record('doors', { id: this.door!.id }, tapped, result, { asked })
       : this.record('doors', target as Word, tapped as Word | null, result)
     if (right) {
       record('right')

@@ -8,13 +8,14 @@ import { PHRASES } from '../../content/phrases'
 import { phraseVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'
 import type { PictureOf } from '../tower'
+import { pickWord } from '../pick'
 import { wordChoice } from './broom'
 
 /** the keys under a door: the right one and two wrong ones */
 const KEYS = 3
 /** from this stage some doors hold a phrase (asset plan 1.15) */
 const PHRASE_STAGE = 4
-/** of the doors from stage 4: the share that holds a phrase (design Part 5: "about half") */
+/** of the doors from stage 4: the share that holds a phrase (the plan's "about half"; the design gives no share) */
 export const PHRASE_SHARE = 0.5
 
 /** the file of a word's picture (none: no picture, so the word is never a key) */
@@ -35,16 +36,8 @@ function shuffle<T>(rng: () => number, xs: T[]): T[] {
   return a
 }
 
-/**
- * the words that go on a door alone: real door words (`D`) of his stages, with a picture file. While his stages have none
- * (the pictures are not all made yet: stage 1's map and fan), the next stage's that have one, so the doors still play
- */
-function doorWords(stage: number, d: DoorsDeps): EnWord[] {
-  const withFile = WORDS.filter((w) => w.kind === 'real' && w.uses.includes('D') && !!fileOf(w, d))
-  const upTo = (s: number) => withFile.filter((w) => w.stage <= s)
-  const s = [stage, ...withFile.map((w) => w.stage).filter((x) => x > stage).sort((a, b) => a - b)].find((x) => upTo(x).length > 0)
-  return s === undefined ? [] : upTo(s)
-}
+/** the words that go on a door alone: real door words (`D`) of his stages, with a picture file */
+const doorWords = (stage: number, d: DoorsDeps) => WORDS.filter((w) => w.kind === 'real' && w.uses.includes('D') && w.stage <= stage && !!fileOf(w, d))
 /** the phrases of his stages whose noun has a picture file */
 const phrases = (stage: number, d: DoorsDeps) => (stage < PHRASE_STAGE ? [] : PHRASES.filter((p) => p.stage <= stage && !!fileOf(word(p.noun), d)))
 /**
@@ -56,37 +49,42 @@ const keyWords = (stage: number, d: DoorsDeps) => WORDS.filter((w) => w.kind ===
 const wordDoor = (w: EnWord): DoorRound => ({ id: w.id, plate: [wordChoice(w)], key: w.id })
 const phraseDoor = (p: Phrase): DoorRound => ({ id: p.id, plate: p.words.map((x) => wordChoice(word(x))), key: p.noun, soundId: phraseVoice(p.id) })
 
-/** draws from a shuffled list in turn (it starts again when it runs out), never the key of the door before when another is there */
-function deck<T>(rng: () => number, items: T[], keyOf: (x: T) => string) {
-  let order = shuffle(rng, items)
-  let at = 0
-  return (prev?: string): T => {
-    if (at >= order.length) { order = shuffle(rng, items); at = 0 }
-    const j = order.slice(at).findIndex((x) => keyOf(x) !== prev)
-    const k = at + (j < 0 ? 0 : j)
-    ;[order[at], order[k]] = [order[k], order[at]]
-    return order[at++]
-  }
-}
+/**
+ * The doors play at `stage` when a door can be made: a door word or a phrase of his stages with a picture file, and
+ * enough pictures for its keys (stage 1's map and fan have no file yet: no doors until one lands)
+ */
+export const enDoorsPlayable = (stage: number, d: DoorsDeps): boolean =>
+  (doorWords(stage, d).length > 0 || phrases(stage, d).length > 0) && keyWords(stage, d).length >= KEYS
 
 /**
- * The doors of a visit: single words at stages 1–3; from stage 4 a phrase on about half of them (PHRASE_SHARE). Two doors
- * in a row never ask the same key word.
+ * The doors of a visit: single words at stages 1–3; from stage 4 a phrase on about half of them (PHRASE_SHARE). The word
+ * (a phrase: its noun) is picked near the aim, as the broom picks its words; a key word already planned in the visit
+ * comes again only when the list runs out, and two doors in a row never ask the same key word.
  */
 export function enDoorRounds(ctx: RoundCtx, n: number, d: DoorsDeps): DoorRound[] {
   const singles = doorWords(ctx.stage, d)
   const many = phrases(ctx.stage, d)
   if (!singles.length && !many.length) throw new Error(`no door word at stage ${ctx.stage}`)
-  const nextWord = deck(ctx.rng, singles, (w) => w.id)
-  const nextPhrase = deck(ctx.rng, many, (p) => p.noun)
+  const nouns = many.map((p) => word(p.noun))
+  const planned = new Set<string>()
+  /** the words not planned yet (all, when none is left), never the key of the door before when another is there */
+  const open = (ws: EnWord[], prev?: string) => {
+    const left = ws.filter((w) => !planned.has(w.id))
+    const pool = left.length ? left : ws
+    const apart = pool.filter((w) => w.id !== prev)
+    return apart.length ? apart : pool
+  }
+  const wordDoorOf = (prev?: string) => wordDoor(pickWord(ctx, open(singles, prev), 'doors'))
+  const phraseDoorOf = (prev?: string) => { const noun = pickWord(ctx, open(nouns, prev), 'doors').id; return phraseDoor(many.find((p) => p.noun === noun)!) }
   const out: DoorRound[] = []
   for (let i = 0; i < n; i++) {
     const prev = out[i - 1]?.key
     const phrase = many.length > 0 && (!singles.length || ctx.rng() < PHRASE_SHARE)
-    let door = phrase ? phraseDoor(nextPhrase(prev)) : wordDoor(nextWord(prev))
+    let door = phrase ? phraseDoorOf(prev) : wordDoorOf(prev)
     // (every door of one kind has that key: a door of the other kind keeps the two apart)
-    if (door.key === prev && phrase && singles.length) door = wordDoor(nextWord(prev))
-    else if (door.key === prev && !phrase && many.length) door = phraseDoor(nextPhrase(prev))
+    if (door.key === prev && phrase && singles.length) door = wordDoorOf(prev)
+    else if (door.key === prev && !phrase && many.length) door = phraseDoorOf(prev)
+    planned.add(door.key)
     out.push(door)
   }
   return out

@@ -120,7 +120,11 @@ export interface DoorRound { id: string; plate: Choice[]; key: string; soundId?:
  * A key under a door: its id and its picture. English: the picture's file. Hebrew: the keys are Book 2 door words, and
  * `picture` is their image name (the screen looks it up).
  */
-export interface DoorKey { id: string; picture: string }
+export interface DoorKey {
+  id: string
+  /** Hebrew: an image name (IMAGES key, looked up by the screen); English: the picture's file */
+  picture: string
+}
 
 /** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */
 export type SaveHook = <T>(pick: (s: Duel2Save & Duel2Actions) => T) => T

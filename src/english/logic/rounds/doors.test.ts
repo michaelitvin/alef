@@ -8,7 +8,7 @@ import { seeded } from '../../../duel2/testing/runHarness'
 import { PHRASES } from '../../content/phrases'
 import { WORDS, word } from '../../content/words'
 import { wordPicture } from '../../assets/images'
-import { PHRASE_SHARE, enDoorKeys, enDoorRounds } from './doors'
+import { PHRASE_SHARE, enDoorKeys, enDoorRounds, enDoorsPlayable } from './doors'
 
 const ctxAt = (stage: number, seed = 1): RoundCtx => ({ rng: seeded(seed), stage, tallies: {}, recent: {}, confusions: { letters: {}, syllables: {} } })
 /** every picture counts as there (its key is its file) */
@@ -107,6 +107,26 @@ describe('the English doors', () => {
     }
   })
 
+  it('a visit plans each key word once while its words last, and picks near the aim', () => {
+    // stage 3: 15 door words (identity files), 6 doors: no key twice
+    for (const v of visits(3, 80)) expect(new Set(v.map((d) => d.round.key)).size).toBe(6)
+    // stage 1 has two: they take turns
+    for (const v of visits(1, 20)) expect(new Set(v.map((d) => d.round.key))).toEqual(new Set(['map', 'fan']))
+    // near the aim (one mistake in five): fan's units known (the screen's own risk stays), map's all missed; with no
+    // tallies about even
+    const count = (tallies: RoundCtx['tallies']) => {
+      let fan = 0
+      for (let seed = 1; seed <= 200; seed++) if (enDoorRounds({ ...ctxAt(1, seed), tallies }, 1, deps)[0].key === 'fan') fan++
+      return fan
+    }
+    const known = { seen: 40, wrong: 0 }
+    const missed = { seen: 20, wrong: 20 }
+    expect(count({ f: known, n: known, a: known, m: missed, p: missed })).toBeGreaterThan(150)
+    const even = count({})
+    expect(even).toBeGreaterThan(60)
+    expect(even).toBeLessThan(140)
+  })
+
   it('the shared rules: three keys with their pictures, the right one among them; every word shown is in WORDS', () => {
     for (let stage = 1; stage <= 9; stage++) {
       for (const { round, keys } of doors(stage, 60)) {
@@ -116,16 +136,16 @@ describe('the English doors', () => {
         expect(new Set(keys.map((k) => k.picture)).size).toBe(3)
         for (const k of keys) expect(k.picture).toBe(word(k.id).picture)
         for (const c of round.plate) expect(WORDS.some((w) => w.id === c.id && w.text === c.text)).toBe(true)
-        // a heart word never has a picture; never `I` against `l` (the keys are pictures, the plate is one reading)
+        // a heart word never has a picture
         for (const c of round.plate) if (c.heart) expect(c.picture).toBeUndefined()
       }
     }
   })
 
-  it('a word without a picture file is never a key, and never on a door alone', () => {
+  it('a word without a picture file is neither a key nor a door\'s word', () => {
     // the course's picture rule: the files of assets/images (pw-<word>, word-<word>, or a renamed Book 2 picture)
     const d = { picture: wordPicture }
-    for (const stage of [1, 4, 9]) {
+    for (const stage of [2, 4, 9]) {
       for (const { round, keys } of visits(stage, 40, d).flat()) {
         for (const k of keys) {
           expect(wordPicture(word(k.id).picture!)).toBeDefined()
@@ -134,9 +154,11 @@ describe('the English doors', () => {
         expect(wordPicture(word(round.key).picture!)).toBeDefined()
       }
     }
-    // stage 1's door words have no file yet (map, fan): its doors take the next stage's that have one
-    const first = visits(1, 40, d).flat()
-    for (const { round } of first) expect(word(round.key).stage).toBe(2)
+    // stage 1's door words have no file yet (map, fan): no door plays there (never a stage-2 word on a stage-1 plate)
+    expect(enDoorsPlayable(1, d)).toBe(false)
+    expect(enDoorsPlayable(2, d)).toBe(true)
+    expect(enDoorsPlayable(1, deps)).toBe(true)
+    expect(() => enDoorRounds(ctxAt(1), 6, d)).toThrow()
     for (const { round } of doors(1, 40)) expect(word(round.key).stage).toBe(1)
     // with no file for duck, no door asks it, and no key shows it
     const noDuck = { picture: (k: string) => (k === 'duck' ? undefined : k) }
