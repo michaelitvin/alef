@@ -10,7 +10,7 @@ import type { Round } from '../types/duel'
 import {
   TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
 } from './logic/run'
-import { WORDS, type Word } from './data/words'
+import type { Word } from './data/words'
 import { dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './layout'
 import type { Duel2Sfx } from './audio/duel2Audio'
@@ -18,7 +18,7 @@ import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
 import { HEBREW } from './course/hebrew'
-import type { Course, CourseId, LadderPlan } from './course/types'
+import type { Course, CourseId, DoorKey, DoorRound, LadderPlan } from './course/types'
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker } from './logic/recognizer'
@@ -73,11 +73,21 @@ interface LadderView {
 /** the plate a ladder rung asks for: the changed part (English), else the target */
 export const ladderAnswerId = (s: { target: Choice; parts?: Choice[]; at?: number }): string => (s.at !== undefined && s.parts ? s.parts[s.at].id : s.target.id)
 interface GhostsView { screen: 'ghosts'; signs: Choice[]; target: Choice; zapped?: string; reveal?: Reveal }
-interface DoorsView {
-  screen: 'doors'; word: Word; lit: 0 | 1 | 2; keys: Word[]; opening: boolean; zooming: boolean; reveal?: Reveal
+interface DoorsBase {
+  /** `lit`: how many parts of the plate are lit (Hebrew: the word's two syllables; English: its words) */
+  screen: 'doors'; lit: number; opening: boolean; zooming: boolean; reveal?: Reveal
   /** the last door: the crystal (its kind) waits behind it */
   behind?: { crystal: number }
 }
+/** Hebrew: the door word (its syllables are the plate) and the keys, door words; `word.id` is the right key */
+interface WordDoorsView extends DoorsBase { word: Word; keys: Word[]; plate?: undefined }
+/** English: the words on the door in reading order (`plate`); `word` is the right key (the word's or the noun's picture) */
+interface PlateDoorsView extends DoorsBase { word: DoorKey; keys: DoorKey[]; plate: Choice[] }
+type DoorsView = WordDoorsView | PlateDoorsView
+/** what a door asks: the Hebrew door word; on an English door the word of its right key (the word, or the phrase's noun) */
+const doorTarget = (s: DoorsView): Choice | Word => (s.plate ? s.plate.find((c) => c.id === s.word.id)! : s.word)
+/** the parts of a door's plate that light one at a time: the Hebrew word's two syllables, or the English door's words */
+const doorParts = (s: DoorsView) => (s.plate ? s.plate.length : 2)
 interface CrystalView { screen: 'crystal'; kind: number }
 /** The first duel's tower (spec: one duel, Part 3): drawn by `Tower` (the duel's own board), which reports each answer
  * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
@@ -234,7 +244,9 @@ export class RunController {
   private ladder: (LadderPlan & { built: Choice[]; footSaid?: boolean }) | null = null
   /** the box of the rung he made that the plate was dropped on (an unmarked English rung; unset: a tap, or elsewhere) */
   private pickBox: number | undefined
-  private doorWords: Word[] = []
+  /** the doors of this visit, and the one on screen */
+  private doorRounds: DoorRound[] = []
+  private door: DoorRound | null = null
   /** stops the broom's tick */
   private broomStop: Cancel | undefined
   private waveId = 0
@@ -378,9 +390,12 @@ export class RunController {
       const no = ++this.doorHint
       const on = () => t === this.token && no === this.doorHint
       this.doorHintOn = true
+      const full = doorParts(s)
+      const light = (k: number) => () => { if (on()) { if (k === full) this.doorHintOn = false; this.setScreen({ lit: k } as Partial<DoorsView>) } }
       this.setScreen({ lit: 0 } as Partial<DoorsView>)
-      void this.sleep(t, 600).then(() => { if (on()) this.setScreen({ lit: 1 } as Partial<DoorsView>) })
-        .then(() => this.sleep(t, 1400)).then(() => { if (on()) { this.doorHintOn = false; this.setScreen({ lit: 2 } as Partial<DoorsView>) } }).catch(() => {})
+      let step = this.sleep(t, 600).then(light(1))
+      for (let k = 2; k <= full; k++) step = step.then(() => this.sleep(t, 1400)).then(light(k))
+      void step.catch(() => {})
       return
     }
     if (s?.screen === 'draw') { if (this.view.phase === 'answer') this.drawStep({ type: 'hint', auto: false }); return }
@@ -402,7 +417,7 @@ export class RunController {
     if (s?.screen === 'doors' && this.doorHintOn) {
       this.doorHint++
       this.doorHintOn = false
-      this.setScreen({ lit: 2 } as Partial<DoorsView>)
+      this.setScreen({ lit: doorParts(s) } as Partial<DoorsView>)
       cut = true
     }
     if (this.visit?.help) { this.merchantStep({ type: 'touch' }); cut = true }
@@ -551,7 +566,7 @@ export class RunController {
         if (!r.fresh) continue
         this.roundInScreen = 0
         this.ladder = null
-        this.doorWords = []
+        this.doorRounds = []
         this.drawPlan = null
         this.visitKind = null
         this.newVisit()
@@ -973,13 +988,13 @@ export class RunController {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
       this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
-      return cur.screen === 'doors' ? cur.word : (cur as BroomView).target
+      return cur.screen === 'doors' ? doorTarget(cur) : (cur as BroomView).target
     }
     this.resuming = false
     this.answered = false
     if (this.demoRound) {
       this.demoRound = false
-      if (cur && cur.screen === screen) return cur.screen === 'doors' ? cur.word : (cur as CauldronView).target
+      if (cur && cur.screen === screen) return cur.screen === 'doors' ? doorTarget(cur) : (cur as CauldronView).target
     }
     const c = this.ctx()
     // never the same sound two rounds in a row on one screen
@@ -1027,14 +1042,20 @@ export class RunController {
       return r.target
     }
     // doors
-    if (!this.doorWords.length) this.doorWords = this.course.rounds.doorWords(c, this.visitLen)
-    const word = this.doorWords[this.roundInScreen % this.doorWords.length]
-    const keys = this.course.rounds.doorKeys(c, word)
+    if (!this.doorRounds.length) this.doorRounds = this.course.rounds.doorRounds(c, this.visitLen)
+    const door = this.doorRounds[this.roundInScreen % this.doorRounds.length]
+    this.door = door
+    const keys = this.course.rounds.doorKeys(c, door)
     // behind the last door: the crystal he is about to win (the kind runCrystal will show)
     const behind = this.roundInScreen === this.visitLen - 1 && !this.opts.session
       ? { crystal: this.save.read().crystals + (this.opts.sandbox ? 0 : 1) } : undefined
-    this.set({ screen: { screen: 'doors', word, lit: 0, keys, opening: false, zooming: false, ...(behind ? { behind } : {}) } })
-    return word
+    const more = { opening: false, zooming: false, ...(behind ? { behind } : {}) }
+    // Hebrew: the door word and its keys, door words; English: the right key as `word`, and the plate's words
+    const view: DoorsView = door.word
+      ? { screen: 'doors', word: door.word, lit: 0, keys: keys as Word[], ...more }
+      : { screen: 'doors', word: keys.find((k) => k.id === door.key)!, lit: 0, keys, ...more, plate: door.plate }
+    this.set({ screen: view })
+    return doorTarget(view)
   }
 
   private needsDotIntro(target: Choice | Word): string | null {
@@ -1055,7 +1076,8 @@ export class RunController {
 
   private questionLine(screen: ScreenId, kind: Kind) {
     if (screen === 'ghosts' && kind === 'letter') return 'q-ghosts-letter'
-    if (screen === 'doors') return 'q-door'
+    // (a phrase on an English door: "What do the words say?")
+    if (screen === 'doors') return ((this.view.screen as DoorsView).plate?.length ?? 1) > 1 ? 'q-door-words' : 'q-door'
     return `q-${screen}`
   }
 
@@ -1073,8 +1095,10 @@ export class RunController {
     if (screen === 'doors') {
       await this.sleep(t, 200)
       this.setScreen({ lit: 1 } as Partial<DoorsView>)
-      await this.sleep(t, 900)
-      this.setScreen({ lit: 2 } as Partial<DoorsView>)
+      for (let k = 2; k <= doorParts(this.view.screen as DoorsView); k++) {
+        await this.sleep(t, 900)
+        this.setScreen({ lit: k } as Partial<DoorsView>)
+      }
       this.set({ phase: 'answer' })
       this.cueStarted = this.now()
       for (;;) {
@@ -1159,13 +1183,16 @@ export class RunController {
     }
   }
 
-  private record(screen: ScreenId, target: Choice | Word, tapped: Choice | Word | null, result: 'right' | 'wrong' | 'near') {
+  /**
+   * `target`: what was asked (an English door: the door, `{ id }`, its features given in `own`); `tapped`: what he took
+   */
+  private record(screen: ScreenId, target: Choice | Word | { id: string }, tapped: Choice | Word | DoorKey | null, result: 'right' | 'wrong' | 'near', own?: string[]) {
     if (result !== 'near' && screen !== 'broom') this.answered = true
-    const feats = 'syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen)
+    const feats = own ?? ('syllables' in target || 'first' in target ? [`w:${(target as Word).id}`, 'sc:doors'] : this.course.rounds.features(target as Choice, screen))
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
-    // a word (the doors) counts towards the stage from stage 4: Hebrew's last stage (the words), English's 4–9
+    // a door (a word or a phrase) counts towards the stage from stage 4: Hebrew's last stage (the words), English's 4–9
     const newStage = asked ? this.course.rounds.isNewStageChoice(this.stage, asked) && result !== 'near' : this.stage >= 4 && result !== 'near'
     const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage })
     if (passed) {
@@ -1180,7 +1207,7 @@ export class RunController {
 
   /** right → feedback and on; near → forgiven once (same round); wrong → mistake, next, maybe an explanation. */
   private async evaluate(t: number, screen: ScreenId, target: Choice | Word, pickedId: string): Promise<'next' | 'near' | 'over'> {
-    if (screen === 'doors') return this.evaluateDoor(t, target as Word, pickedId)
+    if (screen === 'doors') return this.evaluateDoor(t, target, pickedId)
     const c = target as Choice
     const s = this.view.screen!
     let tapped: Choice | undefined
@@ -1286,12 +1313,23 @@ export class RunController {
     }
   }
 
-  private async evaluateDoor(t: number, word: Word, picked: string): Promise<'next' | 'over'> {
-    const right = picked === word.id
+  private async evaluateDoor(t: number, target: Choice | Word, picked: string): Promise<'next' | 'over'> {
+    const s = this.view.screen as DoorsView
+    const right = picked === s.word.id
     const outcome = this.answerOutcome(right ? 'right' : 'wrong')
-    const tapped = WORDS.find((w) => w.id === picked) ?? null
+    // the key he took, among the course's keys of this door
+    const tapped = (s.keys as DoorKey[]).find((k) => k.id === picked) ?? null
+    // what he hears when it opens: the Hebrew door word; the English word, or the phrase's own clip
+    const cue = s.plate ? this.door!.soundId ?? s.plate[0].soundId : `w-${s.word.id}`
+    // an English door counts for the word of its key (the word, or the phrase's noun), and may bring its introduction,
+    // asked before the answer is recorded (a run-ending miss keeps it due)
+    const asked = s.plate ? (target as Choice) : null
+    const intro = asked && !outcome.over ? this.introAfter(asked, right) : []
+    const record = (result: 'right' | 'wrong') => asked
+      ? this.record('doors', { id: this.door!.id }, tapped, result, this.course.rounds.features(asked, 'doors'))
+      : this.record('doors', target as Word, tapped as Word | null, result)
     if (right) {
-      this.record('doors', word, tapped, 'right')
+      record('right')
       this.roundInScreen++
       this.streak++
       this.gainStar()
@@ -1300,7 +1338,8 @@ export class RunController {
       this.setScreen({ opening: true } as Partial<DoorsView>)
       this.sfx('door')
       await this.sleep(t, SFX_RING_MS)
-      await this.say(t, [{ id: `w-${word.id}` }])
+      await this.say(t, [{ id: cue }])
+      if (intro.length) await this.say(t, intro)
       await this.streakMoment(t)
       // through the doorway to the next door (or the crystal): the round goes on where the flight ends
       this.setScreen({ zooming: true } as Partial<DoorsView>)
@@ -1308,20 +1347,21 @@ export class RunController {
       return 'next'
     }
     this.resetStreak()
-    this.record('doors', word, tapped, 'wrong')
+    record('wrong')
     this.sfx('hit')
-    this.setScreen({ reveal: { right: word.id, wrong: picked } } as Partial<DoorsView>)
+    this.setScreen({ reveal: { right: s.word.id, wrong: picked } } as Partial<DoorsView>)
     this.set({ phase: 'mistake', hearts: this.hearts.left })
-    if (outcome.over) return this.endRun(`w-${word.id}`)
+    if (outcome.over) return this.endRun(cue)
     // he drags the marked key himself and the door opens (no star: it was a mistake)
-    await this.fix(t, `w-${word.id}`)
+    await this.fix(t, cue)
     this.roundInScreen++
     this.set({ phase: 'feedback' })
     this.sfx('key')
     this.setScreen({ reveal: undefined, opening: true } as Partial<DoorsView>)
     this.sfx('door')
     await this.sleep(t, SFX_RING_MS)
-    await this.say(t, [{ id: `w-${word.id}` }])
+    await this.say(t, [{ id: cue }])
+    if (intro.length) await this.say(t, intro)
     this.setScreen({ zooming: true } as Partial<DoorsView>)
     await this.sleep(t, ZOOM_MS + 60)
     return 'next'

@@ -103,7 +103,8 @@ export function choiceIdsOf(v: View): string {
     case 'cauldron': return s.tiles ? `${s.boxes!.map((x) => x.id).join(',')}/${s.gap}:${s.tiles.map((x) => x.id).join(',')}` : `${s.letterId}:${s.orbs.join(',')}`
     case 'ladder': return `${s.built.map((x) => x.id).join(',')}|${s.plates.map((x) => x.id).join(',')}${s.at !== undefined ? `|${s.at}${s.grow ? `+${s.grow}` : ''}${s.marked ? '*' : ''}` : ''}`
     case 'ghosts': return s.signs.map((x) => x.id).join(',')
-    case 'doors': return `${s.word.id}:${s.keys.map((k) => k.id).join(',')}`
+    // (English: the plate's words first, `a big duck=duck:…`)
+    case 'doors': return `${s.plate ? `${s.plate.map((x) => x.id).join(' ')}=` : ''}${s.word.id}:${s.keys.map((k) => k.id).join(',')}`
     case 'draw': return `${s.word.id}:${s.letter}:${s.mode}`
     case 'crystal': return String(s.kind)
     case 'tower': return `${s.wave}/${s.waves}`

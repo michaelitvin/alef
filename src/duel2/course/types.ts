@@ -68,10 +68,10 @@ export interface CourseRounds {
   isNewStageChoice: (stage: number, c: Choice) => boolean
   /** the features of an answer (logic/predict): what its tallies are kept under */
   features: (c: Choice, screen: ScreenId) => string[]
-  /** the doors' words of a visit */
-  doorWords: (ctx: RoundCtx, n: number) => Word[]
-  /** the keys of a door (its word among them) */
-  doorKeys: (ctx: RoundCtx, word: Word) => Word[]
+  /** the doors of a visit (`n` of them) */
+  doorRounds: (ctx: RoundCtx, n: number) => DoorRound[]
+  /** the keys of a door, the right one (`round.key`) among them */
+  doorKeys: (ctx: RoundCtx, round: DoorRound) => DoorKey[]
   wordLinkFor: (itemId: string, markId: MarkId, rng?: () => number) => Word | undefined
   /** the dotted pair to introduce before a round (Hebrew only; English returns null) */
   dotIntroFor: (targetItem: string, stage: number, seen: string[]) => string | null
@@ -108,6 +108,19 @@ export interface LadderPlan { fixed?: LadderFixed; marked: boolean; base?: { tar
  */
 export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice }
 type DrawCtx = Parameters<typeof drawWords>[0]
+
+/**
+ * A door, for both courses. `plate`: the words on it, one per word, in reading order (English: one word, or from stage 4
+ * a phrase of two or three); `key`: the id of the right key (the one with the picture of the word, or of the phrase's
+ * noun); `soundId`: what he hears when the door opens (a phrase's own clip; unset: the plate's one word's). Hebrew: one
+ * plate word, and `word`, the Book 2 door word whose syllables light on the plate.
+ */
+export interface DoorRound { id: string; plate: Choice[]; key: string; soundId?: string; word?: Word }
+/**
+ * A key under a door: its id and its picture. English: the picture's file. Hebrew: the keys are Book 2 door words, and
+ * `picture` is their image name (the screen looks it up).
+ */
+export interface DoorKey { id: string; picture: string }
 
 /** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */
 export type SaveHook = <T>(pick: (s: Duel2Save & Duel2Actions) => T) => T

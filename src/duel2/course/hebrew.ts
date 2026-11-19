@@ -19,7 +19,7 @@ import { duel2Telemetry } from '../telemetry'
 import { BOOK2_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
 import { progressTallies } from '../../utils/duel/tallies'
-import type { CauldronRound, Course, LadderPlan } from './types'
+import type { CauldronRound, Course, DoorRound, LadderPlan } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */
 const sylFeatures = (c: Choice, screen: ScreenId) => {
@@ -36,6 +36,13 @@ function hebrewCauldron(ctx: RoundCtx, avoid?: string): CauldronRound {
 /** today's ladder as the neutral one: the changed place is always marked (it has no boxes) */
 const hebrewLadder = (ctx: RoundCtx, rungs: number, force?: 'letter' | 'vowel' | 'dot'): LadderPlan => ({ ...ladderPlan(ctx, rungs, force), marked: true })
 
+/** today's door words as neutral doors: the word is the plate's one word, and its own key (its syllables light on the plate) */
+const hebrewDoorRounds = (ctx: RoundCtx, n: number): DoorRound[] => doorWords(ctx, n).map((w) => ({
+  id: w.id, plate: [{ kind: 'word', id: w.id, text: w.text, soundId: `w-${w.id}`, itemId: w.id, picture: w.picture }], key: w.id, word: w,
+}))
+/** today's keys of a door word (the keys are door words: a key's picture is its image name) */
+const hebrewDoorKeys = (ctx: RoundCtx, r: DoorRound) => doorKeys(ctx, r.word!)
+
 export const HEBREW: Course = {
   id: 'he',
   game: 'book2',
@@ -43,7 +50,7 @@ export const HEBREW: Course = {
   stages: HEBREW_STAGES,
   rounds: {
     broomTarget, broomWave, cauldronRound: hebrewCauldron, ghostRound, ladderPlan: hebrewLadder, isNewStageChoice, features: sylFeatures,
-    doorWords, doorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
+    doorRounds: hebrewDoorRounds, doorKeys: hebrewDoorKeys, wordLinkFor, dotIntroFor, drawWords, bossTarget, bossWave,
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {

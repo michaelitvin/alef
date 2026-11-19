@@ -2,9 +2,11 @@
 // says the word before he picks). Three keys hang under the door, each with a picture in its handle. When it opens, the
 // next door (or, behind the last one, the crystal) shows far away in the doorway's light ("no additional door behind");
 // the camera moves into the doorway while its light fills the screen, and the next door comes out of that light (the
-// parent found the earlier exact zoom ugly: a stretched picture and a growing box).
+// parent found the earlier exact zoom ugly: a stretched picture and a growing box). English: the plate holds a word, or from
+// stage 4 a phrase of two or three words, left to right, that light one at a time; its keys' pictures are files.
 import { IMAGES } from '../../assets/images'
 import { syllable } from '../../logic/content'
+import type { Choice } from '../../logic/rounds'
 import type { Word } from '../../data/words'
 import { DragPick } from '../DragPick'
 import { Glyph, canvasMeasurer } from '../Glyph'
@@ -106,7 +108,7 @@ const DISC_R = 80
 export const KEY_W = DISC_R / KEY_BOW.r
 export const KEY_H = KEY_W * (600 / 428)
 
-function KeyShape(p: { x: number; y: number; picture: string; state: 'idle' | 'reveal' | 'wrong' | 'off'; correct: boolean }) {
+function KeyShape(p: { x: number; y: number; picture: string | undefined; state: 'idle' | 'reveal' | 'wrong' | 'off'; correct: boolean }) {
   const ring = p.state === 'reveal' ? '#ffd34d' : p.state === 'wrong' ? '#ff4d6a' : '#e7b860'
   const pic = DISC_R * 1.5
   return (
@@ -115,13 +117,20 @@ function KeyShape(p: { x: number; y: number; picture: string; state: 'idle' | 'r
         ? <image href={IMAGES['s-key']} x={p.x - KEY_W * KEY_BOW.cx} y={p.y - KEY_H * KEY_BOW.cy} width={KEY_W} height={KEY_H} />
         : <g stroke={ring} strokeWidth={12} fill="none"><circle cx={p.x} cy={p.y} r={DISC_R + 12} /><path d={`M${p.x} ${p.y + DISC_R + 12} v110 m0 -40 h34 m-34 30 h24`} /></g>}
       <circle data-key-disc cx={p.x} cy={p.y} r={DISC_R} fill={IMAGES['s-key'] ? 'none' : '#2a1660'} stroke={ring} strokeWidth={p.state === 'idle' ? 0 : 10} />
-      {IMAGES[p.picture] && <image data-key-picture href={IMAGES[p.picture]} x={p.x - pic / 2} y={p.y - pic / 2} width={pic} height={pic} />}
+      {p.picture && <image data-key-picture href={p.picture} x={p.x - pic / 2} y={p.y - pic / 2} width={pic} height={pic} />}
       <rect data-pick x={p.x - 110} y={p.y - 110} width={220} height={KEY_H * (1 - KEY_BOW.cy) + 110} fill="transparent" {...(p.correct ? { 'data-correct': '1' } : {})} />
     </g>
   )
 }
 
-export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id: string) => void; phase: Phase; opening: boolean; zooming: boolean; reveal?: { right: string; wrong?: string }; showCorrect?: boolean
+/** a key: its id and its picture (Book 2: an image name; English, with a plate: the picture's file) */
+type DoorKey = { id: string; picture: string }
+
+export function Doors(p: {
+  /** the right key (Book 2: the door word, whose syllables are the plate) */
+  word: Word | DoorKey; lit: number; keys: DoorKey[]; onPick: (id: string) => void; phase: Phase; opening: boolean; zooming: boolean; reveal?: { right: string; wrong?: string }; showCorrect?: boolean
+  /** English: the words on the door, in reading order (each lights as a part) */
+  plate?: Choice[]
   /** behind the last door: the crystal (its kind); otherwise another door */
   behind?: { crystal: number }
   /** the demo carries this key to the door as the hand moves (t from 0 to 1) */
@@ -130,7 +139,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
   dir?: Dir
 }) {
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
-  const syls = (p.word.syllables ?? []).map((s) => syllable(s.item, s.mark).text + (s.tail ?? ''))
+  const syls = p.plate ? p.plate.map((c) => c.text) : (('syllables' in p.word && p.word.syllables) || []).map((s) => syllable(s.item, s.mark).text + (s.tail ?? ''))
   // the first syllable sits on the right in Hebrew and on the left in English
   const lay = doorWordLayout(syls.map((t) => inkWidth(t, alphabet)), p.dir)
   const cx = lay.cx
@@ -186,7 +195,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
           <Plate w={420} x={800} y={340} state="idle">
             {syls.map((t, i) => (
               <g key={i} data-syl={i} data-cx={cx[i]} data-lit={p.lit > i ? '1' : '0'}>
-                <Glyph text={t} px={lay.px} x={cx[i]} y={340} dim={p.lit <= i} glow={p.lit > i ? 'soft' : 'none'} lineOf={syls.join('')} alphabet={alphabet} />
+                <Glyph text={t} px={lay.px} x={cx[i]} y={340} dim={p.lit <= i} glow={p.lit > i ? 'soft' : 'none'} lineOf={syls.join(p.plate ? ' ' : '')} alphabet={alphabet} />
               </g>
             ))}
           </Plate>
@@ -204,7 +213,7 @@ export function Doors(p: { word: Word; lit: 0 | 1 | 2; keys: Word[]; onPick: (id
             // he brings the key to the door (anywhere on it)
             inZone={(q) => Math.abs(q.x - 800) < dw / 2 && q.y > 95 && q.y < 95 + dh - 20}
             demo={p.demo?.id === k.id ? { t: p.demo.t, dx: 800 - KEY_X[i], dy: 560 - KEY_Y } : undefined}>
-            <KeyShape x={KEY_X[i]} y={KEY_Y} picture={k.picture} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
+            <KeyShape x={KEY_X[i]} y={KEY_Y} picture={p.plate ? k.picture : IMAGES[k.picture]} correct={!!p.showCorrect && k.id === p.word.id} state={state} />
           </DragPick>
         )
       })}

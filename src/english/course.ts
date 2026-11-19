@@ -3,7 +3,7 @@
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
-// logic/rounds/ghosts.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
+// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
 import type { Course, CourseRounds } from '../duel2/course/types'
 import type { SavePort } from '../duel2/savePort'
 import type { TowerContent } from '../utils/duel/content'
@@ -16,6 +16,7 @@ import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
+import { enDoorKeys, enDoorRounds } from './logic/rounds/doors'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { READY_STAGES, englishStageRule } from './readyStages'
@@ -37,7 +38,7 @@ const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), pic
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
-/** the English screens' rounds: the broom's, the cauldron's, the ladder's and the ghosts' so far (the other screens come with the later English tasks) */
+/** the English screens' rounds: the broom's, the cauldron's, the ladder's, the ghosts' and the doors' so far (the other screens come with the later English tasks) */
 const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
@@ -54,8 +55,9 @@ const EN_ROUNDS: CourseRounds = {
   explanation: enGhostExplanation,
   // (the gallery's forced part is Hebrew's: the English ladder has none)
   ladderPlan: (ctx, rungs) => enLadderPlan(ctx, rungs),
-  doorWords: () => notBuilt('doors'),
-  doorKeys: () => notBuilt('doors'),
+  // a word on the door, from stage 4 a phrase on about half of them; the keys are pictures (files only)
+  doorRounds: (ctx, n) => enDoorRounds(ctx, n, { picture: wordPicture }),
+  doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),
   wordLinkFor: () => notBuilt('word link'),
   drawWords: () => notBuilt('drawing'),
   bossKinds: enBossKinds,

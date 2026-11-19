@@ -61,7 +61,7 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
     case 'ghosts':
       return <Ghosts dir={dir} signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
     case 'doors':
-      return <Doors dir={dir} word={s.word} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} behind={s.behind}
+      return <Doors dir={dir} word={s.word} plate={s.plate} lit={s.lit} keys={s.keys} onPick={pick} phase={v.phase} opening={s.opening} zooming={s.zooming} reveal={s.reveal} showCorrect={test} behind={s.behind}
         demo={demoT !== undefined ? { id: s.word.id, t: demoT } : undefined} />
     case 'crystal':
       return <Crystal kind={s.kind} onDone={() => {}} />
