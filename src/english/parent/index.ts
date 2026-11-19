@@ -4,6 +4,7 @@
 import { lazy } from 'react'
 import { confusionList, persistedState, type GameParent } from '../../parent/types'
 import { ENGLISH_AVAILABLE } from '../available'
+import { localDate } from './date'
 import { ENGLISH_SAVE_KEY, type EnglishSave } from '../saveFormat'
 import { ENGLISH_LOG } from '../telemetryLog'
 
@@ -17,8 +18,9 @@ export const englishParent: GameParent = {
     const s = persistedState<EnglishSave>(raw)
     if (!s) return null
     const done = s.placement?.done
+    const date = done ? localDate(done.at) : null
     const level = done
-      ? `Level ${done.level} (placement: ${done.answers} answers, ${new Date(done.at).toISOString().slice(0, 10)})`
+      ? `Level ${done.level} (placement: ${done.answers} answers${date ? `, ${date}` : ''})`
       : 'Not placed yet'
     return `${level} · stage ${s.stage?.stage ?? 1} · runs ${s.runs ?? 0} · best run ${s.bestRun ?? 0} · crystals ${s.crystals ?? 0}`
   },
