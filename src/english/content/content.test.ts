@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { longestPerStage } from '../testing/longest'
 import { CHAINS } from './chains.ts'
 import { PHRASES } from './phrases.ts'
 import { PLACEMENT_ROUNDS, type PlacementText } from './placementRounds.ts'
@@ -51,16 +52,6 @@ const spell = (units: string[]): string => {
     const u = unit(units[i])
     if (u.kind === 'magic-e') out += u.text[0] + unit(units[++i]).text + 'e'
     else out += u.text.replace(/^-/, '')
-  }
-  return out
-}
-
-const longestPerStage = (): Record<number, Set<string>> => {
-  const out: Record<number, Set<string>> = {}
-  for (let s = 1; s <= 9; s++) {
-    const real = WORDS.filter((w) => w.kind === 'real' && w.stage === s)
-    const max = Math.max(...real.map((w) => w.text.length))
-    out[s] = new Set(real.filter((w) => w.text.length === max).map((w) => w.text))
   }
   return out
 }

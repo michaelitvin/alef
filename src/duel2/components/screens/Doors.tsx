@@ -14,6 +14,7 @@ import { Plate } from '../Orb'
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Stage, type Dir, type Phase } from './Stage'
 import { ZOOM_MS } from '../../layout'
+import { measureText } from '../../../english/testing/measure'
 
 export const DOOR_GLYPH_PX = 110
 /** the room for the word inside the plate's frame (stage units) */
@@ -41,8 +42,9 @@ export function doorWordLayout(widths: number[], dir: Dir = 'rtl'): { px: number
 const inkWidth = (text: string, alphabet: 'hebrew' | 'latin') => {
   const b = canvasMeasurer(text, DOOR_GLYPH_PX, alphabet)
   if (b) return b.left + b.right
-  // no canvas (tests): about two thirds of the size for each letter
-  return [...text.normalize('NFD')].filter((ch) => (alphabet === 'latin' ? /[a-z]/i : /[\u05d0-\u05ea]/).test(ch)).length * DOOR_GLYPH_PX * 0.62
+  // no canvas (tests): Andika's table, or about two thirds of the size for each Hebrew letter
+  if (alphabet === 'latin') return measureText(text, DOOR_GLYPH_PX)
+  return [...text.normalize('NFD')].filter((ch) => /[\u05d0-\u05ea]/.test(ch)).length * DOOR_GLYPH_PX * 0.62
 }
 const DH = 560
 const DW = DH * (519 / 600)

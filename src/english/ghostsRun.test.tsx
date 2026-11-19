@@ -2,6 +2,7 @@
 // visit keeps one look-alike set; the answers count in the English tallies and the stage pass; after a mistake on a
 // look-alike letter the explanation names the letter and says its sound; the signs are drawn in Andika, inside the sign.
 import { render } from '@testing-library/react'
+import { measureText } from './testing/measure'
 import { describe, expect, it, vi } from 'vitest'
 import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
 import { RunController } from '../duel2/controller'
@@ -167,7 +168,7 @@ describe('the ghosts\' signs on the English path', () => {
     expect(t.style.fontFamily).toContain('Andika')
     const px = Number(t.getAttribute('font-size'))
     expect(px).toBeLessThan(GHOST_GLYPH_PX)
-    expect(px * 0.55 * 'stop'.length).toBeLessThanOrEqual(160 * 0.8)
+    expect(measureText('stop', px)).toBeLessThanOrEqual(160 * 0.8)
     expect(Number(sign({ kind: 'unit', id: 'b', text: 'b', soundId: 'snd-b', itemId: 'b' }, 'ltr').getAttribute('font-size'))).toBe(GHOST_GLYPH_PX)
   })
   it('the look-alike explanation shows the letter in Andika, lit while its name and its sound play', () => {

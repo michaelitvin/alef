@@ -10,7 +10,7 @@ import { Stage, faceTransform, type Dir, type Phase } from './Stage'
 
 const GHOST_W = 290
 export const GHOST_H = GHOST_W * (600 / 574)
-const GHOST_SIGN = 160
+export const GHOST_SIGN = 160
 export const GHOST_GLYPH_PX = 100
 export const GHOST_SLOTS = [{ x: 620, top: 250 }, { x: 980, top: 205 }, { x: 1340, top: 255 }]
 

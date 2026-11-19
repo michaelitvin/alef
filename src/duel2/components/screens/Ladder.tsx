@@ -12,11 +12,11 @@ import { Glyph, latinFitPx as fitPx } from '../Glyph'
 import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
-const RUNG_W = 300
+export const RUNG_W = 300
 const LADDER_GLYPH_PX = 96
 const RUNG_Y = (k: number) => 790 - k * 150
 const PLATE_X = 1260
-const PLATE_W = 300
+export const PLATE_W = 300
 /** the plates' centres, one above the other */
 const PLATE_STEP = 170
 /** a plate's hit area's half height (its box on the screen) */
@@ -33,7 +33,7 @@ const BOX_H = 104
 const BOX_GAP = 8
 
 /** the box row's centres over the rung, left to right (the stage is ltr on the English path) */
-function rungBoxXs(n: number): { xs: number[]; w: number } {
+export function rungBoxXs(n: number): { xs: number[]; w: number } {
   const w = Math.min(BOX_MAX_W, (BOX_ROW_W - BOX_GAP * (n - 1)) / n)
   const left = LADDER_CX - (n * w + (n - 1) * BOX_GAP) / 2 + w / 2
   return { xs: Array.from({ length: n }, (_, i) => left + i * (w + BOX_GAP)), w }

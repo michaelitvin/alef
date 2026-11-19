@@ -2,16 +2,15 @@
 // marks — not by its line box (rule; a syllable with a mark below sat too high in the mockups). Measured after the font
 // loads; until then (or with no canvas) it centers by the line box.
 import { useEffect, useMemo, useState } from 'react'
+import { measureText } from '../../english/testing/measure'
 
 export interface InkBox { left: number; right: number; ascent: number; descent: number; /** advance width */ width?: number }
 export type Measurer = (text: string, px: number) => InkBox | null
 /** Hebrew (Sigalit, right to left, with nikkud) or Latin (Andika, left to right). Not `Script`: that means print or hand (data/strokes.ts). */
 export type Alphabet = 'hebrew' | 'latin'
 
-/** Andika's advance per letter, about */
-const LATIN_ADVANCE = 0.55
-/** the size of a Latin `text` on a plate, box or sign `w` wide: at most `px`, small enough that its letters fit */
-export const latinFitPx = (text: string, w: number, px: number) => Math.min(px, Math.floor((w * 0.8) / (LATIN_ADVANCE * Math.max(1, text.length))))
+/** the size of a Latin `text` on a plate, box or sign `w` wide: at most `px`, small enough that its measured width (Andika's table) is at most 0.8 of `w` */
+export const latinFitPx = (text: string, w: number, px: number) => Math.min(px, Math.floor((w * 0.8) / Math.max(0.5, measureText(text, 1))))
 
 let ctx: CanvasRenderingContext2D | null | undefined
 export const canvasMeasurer = (text: string, px: number, alphabet: Alphabet = 'hebrew'): InkBox | null => {

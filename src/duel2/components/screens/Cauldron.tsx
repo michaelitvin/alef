@@ -15,7 +15,7 @@ export const ORB_X = [450, 800, 1150]
 export const ORB_Y = 200
 const ORB_SIZE = 180
 const CAULDRON_GLYPH_PX = 190
-const POT = { x: 800, top: 480, w: 330 }
+export const POT = { x: 800, top: 480, w: 330 }
 
 export function Cauldron(p: {
   letter: Item; orbs: Mark[]; onPick: (m: MarkId) => void; phase: Phase; joined?: Syllable; reveal?: { right: MarkId; wrong?: MarkId }; correct?: MarkId
@@ -56,14 +56,14 @@ export function Cauldron(p: {
 
 /** the English tiles: four across, above the pot */
 export const TILE_X = [380, 660, 940, 1220]
-const TILE_SIZE = 170
+export const TILE_SIZE = 170
 /** the word's boxes: a row over the pot, as wide as fits */
-const BOX_Y = 395
-const BOX_H = 150
+export const BOX_Y = 395
+export const BOX_H = 150
 const BOX_ROW_W = 1100
 const BOX_MAX_W = 170
 const BOX_GAP = 14
-const PICTURE = { x: 1340, y: 640, size: 240 }
+export const PICTURE = { x: 1340, y: 640, size: 240 }
 
 /** the box row's centres, left to right (the stage is ltr on the English path) */
 export function boxXs(n: number): { xs: number[]; w: number } {

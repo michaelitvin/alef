@@ -2,6 +2,7 @@
 // mistakes count in the English tallies and the stage pass through the run's normal answer path, a new unit's
 // introduction follows its sound, and the word orbs are drawn in Andika, small enough to stay inside the orb.
 import { describe, expect, it, vi } from 'vitest'
+import { measureText } from './testing/measure'
 import { act, render } from '@testing-library/react'
 import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
 import { RunController, type BroomView } from '../duel2/controller'
@@ -206,7 +207,7 @@ describe('the broom\'s word orbs', () => {
     expect(t.style.fontFamily).toContain('Andika')
     const px = Number(t.getAttribute('font-size'))
     expect(px).toBeLessThan(BROOM_GLYPH_PX)
-    expect(px * 0.55 * 'fishing'.length).toBeLessThanOrEqual(221)
+    expect(measureText('fishing', px)).toBeLessThanOrEqual(221)
     // a unit keeps the letter's size
     expect(Number(orb({ kind: 'unit', id: 'sh', text: 'sh', soundId: 'snd-sh', itemId: 'sh' }, 'ltr').getAttribute('font-size'))).toBe(BROOM_GLYPH_PX)
   })
