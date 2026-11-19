@@ -26,7 +26,7 @@ import { LetterChecker } from './logic/recognizer'
 import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView } from './policies/draw'
-import { spellVisit, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellView } from './policies/spell'
+import { spellVisit, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellStep, type SpellView } from './policies/spell'
 import { spellFixture } from './data/spellFixtures'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
 import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
@@ -300,6 +300,8 @@ export class RunController {
   private demoNo = 0
   /** the spell book's round in progress (policies/spell.ts); its waits share the drawing's wait number and timers */
   private spell: SpellState | null = null
+  /** this visit ended with no round (the course had none at this stage): no checkpoint after it */
+  private visitEmpty = false
   private spellDone: ((end: 'next' | 'over') => void) | null = null
   /** the merchant's visit in progress (policies/merchant.ts): it survives a pause (coins in his hand included) */
   private visit: MerchantState | null = null
@@ -610,7 +612,9 @@ export class RunController {
         if (this.pass.checkpointDue) await this.runCheckpoint(t)
         if (this.screenId === 'crystal') await this.runCrystal(t)
         else await this.runScreen(t, this.screenId)
-        const r = this.passStep({ type: 'screen-done', facts: this.facts(), score: this.score })
+        const empty = this.visitEmpty
+        this.visitEmpty = false
+        const r = this.passStep({ type: 'screen-done', facts: this.facts(), score: this.score, ...(empty ? { empty: true as const } : {}) })
         if (r.end) return this.endSession(r)
         if (!r.fresh) continue
         this.roundInScreen = 0
@@ -1012,7 +1016,12 @@ export class RunController {
     }
     if (screen === 'spell') {
       // its own demo: the hand drops the first tile (policies/spell.ts); no round at this stage: the visit ends
-      while (this.roundInScreen < this.visitLen) if (!(await this.runSpellRound(t))) return
+      while (this.roundInScreen < this.visitLen) {
+        if (await this.runSpellRound(t)) continue
+        // (no round before any answer: the visit was empty, and no checkpoint follows it)
+        this.visitEmpty = this.roundInScreen === 0
+        return
+      }
       return
     }
     const demo = this.demoKey(screen, kind)
@@ -1743,8 +1752,10 @@ export class RunController {
     if (this.resuming && cur?.screen === 'spell' && !this.answered) { this.resuming = false; return cur.round }
     this.resuming = false
     this.answered = false
-    // (until a course has its own spell rounds, the gallery shows its fixture round)
-    return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course, !!this.opts.force.longSpell) : null)
+    // the gallery's long fixture (five boxes fit their page), always; else the course's round (until a course has its own
+    // spell rounds, the gallery shows its fixture round)
+    if (this.opts.force?.longSpell) return spellFixture(this.course, true)
+    return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course) : null)
   }
 
   /**
@@ -1777,6 +1788,24 @@ export class RunController {
     f?.(end)
   }
 
+  /**
+   * A box's answer on the spell book: its unit's tallies and the stage pass, through the course (as on the other screens).
+   * `tile`: the tile he dropped (a miss: his mix-up).
+   */
+  private spellAnswer(round: SpellRound, tile: string | null, a: NonNullable<SpellStep['answer']>) {
+    const asked = round.boxes[a.box].choice
+    if (!asked) return
+    const tapped = a.miss ? round.tiles.find((t) => t.unit === tile)?.choice : undefined
+    const { passed } = this.save.recordAnswer({
+      features: this.course.rounds.features(asked, 'spell'), miss: a.miss, asked, ...(tapped ? { tapped } : {}),
+      newStage: this.course.rounds.isNewStageChoice(this.stage, asked), ...(a.helped ? { helped: true } : {}),
+    })
+    if (passed) {
+      this.stage = this.save.read().stage.stage
+      this.track('stage', { stage: this.stage })
+    }
+  }
+
   /** One step of the spell round's policy, done: the views, the sounds, the heart, the saves, the telemetry, then its wait. */
   private spellStep(e: NoAt<SpellInput>) {
     const sp = this.spell
@@ -1788,6 +1817,7 @@ export class RunController {
     if (r.view) this.set({ screen: r.view })
     if (r.cue) this.cueStarted = this.now()
     for (const x of r.sfx) this.sfx(SPELL_SFX[x])
+    if (r.answer) this.spellAnswer(sp.round, e.type === 'drop' ? e.tile : null, r.answer)
     for (const op of r.save) {
       if (op.op === 'markDemo') { this.demoShown = true; this.save.markDemo(op.id) }
       else {

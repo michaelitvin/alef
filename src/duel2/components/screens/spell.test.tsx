@@ -84,8 +84,9 @@ describe('the spell book screen', () => {
     // the demo's line plays until the test lets it end
     fakeAudio.holdUntil(/^demo-spell/)
     try {
-      for (const [course, word, dir] of [[HEBREW, 'camel', 'rtl'], [ENGLISH, 'fish', 'ltr']] as [Course, string, 'rtl' | 'ltr'][]) {
-        // (neither course has spell rounds yet: Tasks 25 and 26)
+      // (Hebrew has no spell rounds yet, Task 26; English has, so here it has none, to check the fixture's page with its picture)
+      const englishFixture: Course = { ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => null } }
+      for (const [course, word, dir] of [[HEBREW, 'camel', 'rtl'], [englishFixture, 'fish', 'ltr']] as [Course, string, 'rtl' | 'ltr'][]) {
         expect(course.rounds.spellRound({ rng: () => 0.5, stage: 4, tallies: {}, recent: {}, confusions: { letters: {}, syllables: {} } })).toBeNull()
         const c = new RunController({ sandbox: true, force: { screen: 'spell', stage: 4, demo: true }, course, now: () => Date.now() })
         c.start()

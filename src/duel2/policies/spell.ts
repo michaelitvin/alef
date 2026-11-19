@@ -4,10 +4,16 @@
 // (no heart is lost; after SPELL_TRIES the right tile glows). A `near` tile (another spelling of the box's sound) is
 // forgiven once. Pure: no store, no clock, no audio. The policy works in box order; the view mirrors for right to left.
 // The write mode sends the same `drop` (the unit his finger wrote, as the recognizer judged it). The first event of a
-// visit, of any type, starts it.
+// visit, of any type, starts it. Each box is one answer on its unit, when the round gives the box's choice: its first
+// drop decides (a right tile or a forgiven near tile is right, a wrong tile a miss; the fix after it is not an answer).
+import type { Choice } from '../logic/rounds'
 import type { DrawLine, RunPatch, TrackRequest } from './draw'
 
-export interface SpellBox { unit: string; text: string; soundId: string }
+export interface SpellBox {
+  unit: string; text: string; soundId: string
+  /** what an answer on this box counts on (the course's unit); none: the box is no answer of its own */
+  choice?: Choice
+}
 export interface SpellRound {
   word: string
   wordVoice: string
@@ -78,6 +84,8 @@ export interface SpellStep {
   wait?: SpellWait
   /** the round is over */
   end?: true
+  /** box `box` was answered (its first drop): right, a miss, or right while the hint's glow showed it (`helped`) */
+  answer?: { box: number; miss: boolean; helped?: true }
 }
 
 type Flow = { k: 'open' } | { k: 'word' } | { k: 'demo' } | { k: 'answer' } | { k: 'near' } | { k: 'wrong' } | { k: 'fix' } | { k: 'cast' } | { k: 'over' }
@@ -96,19 +104,21 @@ export interface SpellState {
   mistakes: number
   /** the hint's glow shows until his next drop */
   hinted: boolean
+  /** the boxes answered (their first drop came) */
+  answered: number[]
 }
 
 /** A visit as it starts (the first event starts it). */
 export function spellVisit(ctx: { round: SpellRound; demo: boolean; at: number }): SpellState {
   return {
-    round: ctx.round, demo: ctx.demo, flow: { k: 'open' }, started: ctx.at, fixFrom: 0, replays: 0, forgiven: [], mistakes: 0, hinted: false,
+    round: ctx.round, demo: ctx.demo, flow: { k: 'open' }, started: ctx.at, fixFrom: 0, replays: 0, forgiven: [], mistakes: 0, hinted: false, answered: [],
     view: { screen: 'spell', round: ctx.round, filled: ctx.round.boxes.map(() => null), alive: false },
   }
 }
 
 /** One step of the round. Never changes `state`. */
 export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
-  const s: SpellState = { ...state, forgiven: [...state.forgiven] }
+  const s: SpellState = { ...state, forgiven: [...state.forgiven], answered: [...state.answered] }
   const r: SpellStep = { state: s, say: [], sfx: [], save: [], track: [] }
   const rd = s.round
   const show = (p: Partial<SpellView>) => { s.view = { ...s.view, ...p }; r.view = s.view }
@@ -117,6 +127,12 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
   const next = () => s.view.filled.findIndex((x) => x === null)
   const base = { word: rd.word, mode: rd.mode }
   const answer = () => go({ k: 'answer' }, { for: 'drop', idle: SPELL_IDLE_MS, hint: SPELL_HINT_MS })
+  /** the box's first drop is its answer (a box with no choice is none) */
+  const answered = (at: number, miss: boolean) => {
+    if (!rd.boxes[at].choice || s.answered.includes(at)) return
+    s.answered.push(at)
+    r.answer = { box: at, miss, ...(!miss && s.hinted ? { helped: true as const } : {}) }
+  }
 
   /** a right tile in its box (also the end of a fix) */
   const right = (at: number) => {
@@ -125,6 +141,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       r.track.push({ e: 'fix', data: { screen: 'spell', target: box.soundId, ms: Math.round(ev.at - s.fixFrom), replays: s.replays } })
       run({ fixing: false, phase: 'answer' })
     }
+    answered(at, false)
     // his drop stops the line that plays (the near line, the sound again)
     r.hush = true
     s.hinted = false
@@ -169,6 +186,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       // another spelling of this box's sound: forgiven once, the right tile glows
       if (rd.near?.[ev.tile] === box.unit && !s.forgiven.includes(ev.tile)) {
         s.forgiven.push(ev.tile)
+        answered(at, false)
         s.hinted = false
         show({ glow: box.unit })
         r.hush = true
@@ -179,6 +197,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       }
       // a mistake: the tile goes back, then the right one glows and says its sound (no heart is decided here)
       s.mistakes++
+      answered(at, true)
       s.hinted = false
       r.hush = true
       show({ wrong: { tile: ev.tile, box: at }, glow: undefined })

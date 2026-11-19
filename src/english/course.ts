@@ -3,7 +3,7 @@
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
-// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
+// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts. The other screens' rounds are built by the later English tasks, and until then calling one throws.
 import type { BlendPlan, Course, CourseHint, CourseRounds } from '../duel2/course/types'
 import type { Choice } from '../duel2/logic/rounds'
 import type { SavePort } from '../duel2/savePort'
@@ -18,6 +18,7 @@ import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
 import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
+import { enSpellRound } from './logic/spell'
 import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { blendOf } from './logic/blend'
@@ -41,7 +42,7 @@ const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), pic
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
-/** the English screens' rounds: the broom's, the cauldron's, the ladder's, the ghosts' and the doors' so far (the other screens come with the later English tasks) */
+/** the English screens' rounds: the broom's, the cauldron's, the ladder's, the ghosts', the doors' and the spell book's so far (the other screens come with the later English tasks) */
 const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
@@ -63,9 +64,8 @@ const EN_ROUNDS: CourseRounds = {
   doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),
   wordLinkFor: () => notBuilt('word link'),
   drawWords: () => notBuilt('drawing'),
-  // the spell book's English rounds come in Task 25; until then a spell visit has none and ends at once (never a throw:
-  // the English cycle holds the spell book already)
-  spellRound: () => null,
+  // a real word to spell; its picture at stages 1–3 (files only)
+  spellRound: (ctx) => enSpellRound(ctx, { picture: wordPicture, voice: hasVoice }),
   bossKinds: enBossKinds,
   bossTarget: enBossTarget,
   bossWave: enBossWave,

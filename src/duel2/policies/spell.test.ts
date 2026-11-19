@@ -171,3 +171,45 @@ describe('the spell policy', () => {
     expect(g.d.said.slice(-1)).toEqual(['w-cat'])
   })
 })
+
+describe('the spell policy: each box is an answer on its unit', () => {
+  /** the round whose boxes carry the choice their answers count on */
+  const COUNTED: SpellRound = {
+    ...ROUND, boxes: ROUND.boxes.map((b) => ({ ...b, choice: { kind: 'unit', id: b.unit, text: b.text, soundId: b.soundId, itemId: b.unit } })),
+  }
+
+  it('each right drop answers its box, once, right', () => {
+    const g = visit(false, COUNTED).open()
+    expect([g.drop('c', 0).answer, g.drop('a', 1).answer, g.drop('t', 2).answer]).toEqual([
+      { box: 0, miss: false }, { box: 1, miss: false }, { box: 2, miss: false },
+    ])
+  })
+
+  it('a forgiven near tile answers its box right; the right tile after it is no second answer', () => {
+    const g = visit(false, COUNTED).open()
+    expect(g.send({ type: 'drop', tile: 'k', box: 0 }).answer).toEqual({ box: 0, miss: false })
+    g.send({ type: 'heard' })
+    expect(g.drop('c', 0).answer).toBeUndefined()
+    expect(g.drop('a', 1).answer).toEqual({ box: 1, miss: false })
+  })
+
+  it('a wrong tile is a miss on its box; the fix after it is no second answer', () => {
+    const g = visit(false, COUNTED).open()
+    g.drop('c', 0)
+    expect(g.send({ type: 'drop', tile: 'm', box: 1 }).answer).toEqual({ box: 1, miss: true })
+    g.send({ type: 'slept' })
+    expect(g.send({ type: 'drop', tile: 'a', box: 1 }).answer).toBeUndefined()
+  })
+
+  it('a drop while the hint\'s glow shows the tile is helped', () => {
+    const g = visit(false, COUNTED).open()
+    g.send({ type: 'hint', auto: false })
+    expect(g.drop('c', 0).answer).toEqual({ box: 0, miss: false, helped: true })
+    expect(g.drop('a', 1).answer).toEqual({ box: 1, miss: false })
+  })
+
+  it('a box with no choice is no answer of its own', () => {
+    const g = visit().open()
+    expect([g.drop('c', 0).answer, g.send({ type: 'drop', tile: 'm', box: 1 }).answer]).toEqual([undefined, undefined])
+  })
+})

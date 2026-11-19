@@ -299,3 +299,15 @@ describe('the pass policy', () => {
     })
   })
 })
+
+describe('the pass policy: an empty visit', () => {
+  it('a visit that had no round is no checkpoint: the next screen comes without one', () => {
+    const p = pass({ lastEnded: 'broom' })
+    const r = p.send({ type: 'screen-done', facts: facts(), score: 0, empty: true })
+    expect(r.fresh).toBe(true)
+    expect(p.state).toMatchObject({ screen: 'ladder', checkpointDue: false })
+    // a visit with rounds still has one
+    p.done()
+    expect(p.state).toMatchObject({ screen: 'ghosts', checkpointDue: true })
+  })
+})

@@ -1,0 +1,100 @@
+// The English spell book's rounds (design Part 7): he hears a real word (never a heart word: spelling those is memory, not
+// sound) and drops the tile of each sound unit into its box; a unit of two letters is one tile in one box. At most
+// MAX_BOXES boxes. A picture at stages 1–3 for the asset plan's `S-pic` words whose file is there; none from stage 4 (he
+// spells by ear alone). The wrong tiles are units he has learned that sound like no box before stage 9 (never `k` for
+// "cat"); from stage 9 one other spelling of a box's sound may come (`ea` for `ee`), as a near miss: forgiven once.
+// The written mode (stage 4 on) comes with Task 29; until then every round is tiles.
+import type { RoundCtx } from '../../duel2/logic/rounds'
+import type { SpellBox, SpellRound } from '../../duel2/policies/spell'
+import { UNITS, unit, type Unit } from '../content/units'
+import { wordVoice } from '../content/voiceIds'
+import { WORDS, type EnWord } from '../content/words'
+import { pickWord } from './pick'
+import { letterPool, type PictureOf } from './tower'
+import { partOf } from './rounds/cauldron'
+import type { HasVoice } from './rounds/broom'
+
+/** the most boxes a page holds (the gallery's long fixture checks that five fit) */
+export const MAX_BOXES = 5
+/** the most tiles under the book (the long fixture's row: 5 boxes and 2 wrong tiles) */
+export const MAX_TILES = 7
+/** wrong tiles, when the row has room */
+const WRONG = 3
+/** the last stage that shows the word's picture */
+const PICTURE_UNTIL = 3
+/** the stage from which another spelling of a box's sound may come, as a near miss */
+const NEAR_FROM = 9
+/** of the rounds that can have one: the share with a near tile (my call) */
+const NEAR_SHARE = 0.5
+
+/** the file of a word's picture (none: no picture), and which voice files are there */
+export interface SpellDeps { picture: PictureOf; voice?: HasVoice }
+
+/** a unit as a box or a tile: its letters (an ending without its hyphen), its sound, and the choice its answer counts on */
+const boxOf = (u: Unit): SpellBox => {
+  const c = partOf(u)
+  return { unit: u.id, text: c.text, soundId: c.soundId, choice: c }
+}
+
+/**
+ * The words he can spell at `stage`: real words of his stages, MAX_BOXES units at most. No silent e: its `e` is no box of
+ * its own (cake is c · a_e · k), so the word has no left-to-right row of tiles.
+ */
+const spellWords = (stage: number) => WORDS.filter((w) => w.kind === 'real' && w.stage <= stage && w.units.length >= 2
+  && w.units.length <= MAX_BOXES && !w.units.some((u) => unit(u).kind === 'magic-e'))
+
+/** never `I` against `l` (they look the same in many fonts) */
+const iAndL = (a: string, b: string) => (a.includes('I') && b.includes('l')) || (a.includes('l') && b.includes('I'))
+
+function shuffle<T>(rng: () => number, xs: T[]): T[] {
+  const a = [...xs]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/** the tiles he can be offered at `stage`: the letters, pairs and teams he has learned, and the endings when the word has one */
+function tilePool(stage: number, units: Unit[]): Unit[] {
+  const endings = units.some((u) => u.kind === 'ending') ? UNITS.filter((u) => u.kind === 'ending' && u.stage <= stage && !u.secondOf) : []
+  return [...letterPool(stage), ...endings]
+}
+
+/**
+ * The spell book's round at his stage, or null when no word fits. The word is near the aim (its features on the spell
+ * book); a word whose voice clip is there comes first.
+ */
+export function enSpellRound(ctx: RoundCtx, deps: SpellDeps): SpellRound | null {
+  const { rng, stage } = ctx
+  const all = spellWords(stage)
+  if (!all.length) return null
+  const voiced = deps.voice ? all.filter((w) => deps.voice!(wordVoice(w.text))) : all
+  const w: EnWord = pickWord(ctx, voiced.length ? voiced : all, 'spell')
+  const units = w.units.map(unit)
+  const boxes = units.map(boxOf)
+  // one tile for each unit (a repeated unit keeps its one tile)
+  const own = boxes.filter((b, i) => boxes.findIndex((x) => x.unit === b.unit) === i)
+  const tiles: SpellBox[] = [...own]
+  const sounds = new Set(units.map((u) => u.sound))
+  const fits = (u: Unit) => !tiles.some((t) => t.unit === u.id || t.text === boxOf(u).text || iAndL(t.text, boxOf(u).text))
+  const pool = shuffle(rng, tilePool(stage, units))
+  let near: Record<string, string> | undefined
+  if (stage >= NEAR_FROM) {
+    // another spelling of a box's sound (ea for ee): one, on NEAR_SHARE of the rounds that can have one
+    const pairs = pool.filter((t) => sounds.has(t.sound) && fits(t))
+    if (pairs.length && rng() < NEAR_SHARE) {
+      const t = pairs[0]
+      tiles.push(boxOf(t))
+      near = { [t.id]: units.find((u) => u.sound === t.sound)!.id }
+    }
+  }
+  const wrong = Math.min(WRONG, MAX_TILES - tiles.length)
+  // (the other wrong tiles never sound like a box)
+  for (const t of pool) if (tiles.length - own.length < wrong + (near ? 1 : 0) && !sounds.has(t.sound) && fits(t)) tiles.push(boxOf(t))
+  const file = stage <= PICTURE_UNTIL && w.picture && w.uses.includes('S-pic') ? deps.picture(w.picture) : undefined
+  return {
+    word: w.id, wordVoice: wordVoice(w.text), boxes, tiles: shuffle(rng, tiles), mode: 'tiles',
+    ...(file ? { picture: file } : {}), ...(near ? { near } : {}),
+  }
+}

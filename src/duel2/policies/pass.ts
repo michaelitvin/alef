@@ -43,7 +43,8 @@ export interface PassFacts {
 /**
  * What the run tells the policy. `visit`: a screen's visit starts (once; a pause keeps it). `round`: a new round or
  * flight (the near miss is forgiven again). `answer`: right, wrong or a near miss. `screen-done`: the screen (or the
- * crystal) is over: the next one (`score`: the run's points, for a session's end). `checkpoint`: between two screens
+ * crystal) is over: the next one (`score`: the run's points, for a session's end; `empty`: the visit had no round, so no
+ * checkpoint follows it). `checkpoint`: between two screens
  * (`sinceVisit`: the checkpoints since his last visit, this one included; Infinity before the first; `bossNext`: a boss
  * comes next). `visited`: the merchant's visit at the checkpoint is over. `bought`: he bought a potion (his hearts now).
  * `gallery-merchant`: the gallery's merchant visit (1 heart). `crystal`: the cycle's crystal shows. `owed`: the game
@@ -52,7 +53,7 @@ export interface PassFacts {
  */
 export type PassInput =
   | { type: 'visit'; screen: ScreenId; facts: PassFacts } | { type: 'round' } | { type: 'answer'; a: 'right' | 'wrong' | 'near' }
-  | { type: 'screen-done'; facts: PassFacts; score: number }
+  | { type: 'screen-done'; facts: PassFacts; score: number; empty?: true }
   | { type: 'checkpoint'; bookOpen: boolean; coins: number; range: NumberRange; sinceVisit: number; bossNext: boolean }
   | { type: 'visited' } | { type: 'bought'; hearts: number } | { type: 'gallery-merchant' } | { type: 'crystal' } | { type: 'owed' }
   | { type: 'lost'; score: number; bestRun: number; cue?: string } | { type: 'heard' } | { type: 'slept' }
@@ -238,8 +239,9 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
         break
       }
       fresh(nx.screen)
-      // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart
-      s.checkpointDue = true
+      // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart; an empty
+      // visit (no round at this stage) is none, so two merchants never meet back to back
+      if (!ev.empty) s.checkpointDue = true
       if (!nx.newCycle) break
       r.save.push({ op: 'nextCycle' })
       // the end of a full pass: one heart comes back (up to HEARTS) at once, with a sound; no line and no pause (the

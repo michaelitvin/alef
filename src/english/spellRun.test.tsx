@@ -11,6 +11,10 @@ import { seeded, until } from '../duel2/testing/runHarness'
 import { fakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { memoryEnglishSavePort } from './savePort'
+import type { SpellBox, SpellRound } from '../duel2/policies/spell'
+import { unit } from './content/units'
+import { word } from './content/words'
+import { partOf } from './logic/rounds/cauldron'
 import type { EnglishSave } from './saveFormat'
 
 /** the English course with the fixture as its spell round, and a session of three rounds */
@@ -147,11 +151,117 @@ describe('the spell book in the run', () => {
     c.destroy()
   })
 
-  it('a course with no spell round at this stage ends the visit at once (the English course until Task 25)', async () => {
-    const c = new RunController({ course: ENGLISH, save: placed(), now: () => Date.now(), rng: seeded(7), session: { screen: 'spell' } })
+  it('a course with no spell round at this stage ends the visit at once', async () => {
+    const none: Course = { ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => null } }
+    const c = new RunController({ course: none, save: placed(), now: () => Date.now(), rng: seeded(7), session: { screen: 'spell' } })
     c.start()
     await until(c, (v) => !!v.over)
     expect(c.view.over).toMatchObject({ session: true, score: 0 })
     c.destroy()
   })
+})
+
+/** a unit as the English rounds make its box or tile: with the choice its answer counts on */
+const box = (id: string): SpellBox => { const c = partOf(unit(id)); return { unit: id, text: c.text, soundId: c.soundId, choice: c } }
+/** shop (sh · o · p) at stage 4: only sh is the stage's own unit */
+const SHOP: SpellRound = { word: 'shop', wordVoice: 'w-shop', boxes: ['sh', 'o', 'p'].map(box), tiles: ['m', 'sh', 'p', 'ch', 'o'].map(box), mode: 'tiles' }
+/** feet (f · ee · t) at stage 9, with ea as the near tile of ee */
+const FEET: SpellRound = { word: 'feet', wordVoice: 'w-feet', boxes: ['f', 'ee', 't'].map(box), tiles: ['ea', 't', 'f', 'm', 'ee'].map(box), mode: 'tiles', near: { ea: 'ee' } }
+const oneRound = (round: SpellRound): Course => ({
+  ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => round }, stages: { ...ENGLISH.stages, sessionLength: { ...ENGLISH.stages.sessionLength, spell: 1 } },
+})
+const tally = (save: ReturnType<typeof placed>, f: string) => save.read().tallies[f]
+const drop = (c: RunController, tile: string, b: number) => c.gesture({ type: 'drop', tile, box: b })
+
+describe('the spell book\'s answers count, box by box', () => {
+  it('a seeded English session plays three of the course\'s own rounds; every box counts on its unit', async () => {
+    const save = placed({ demosSeen: ['demo-spell'] })
+    const course: Course = { ...ENGLISH, stages: { ...ENGLISH.stages, sessionLength: { ...ENGLISH.stages.sessionLength, spell: 3 } } }
+    const c = new RunController({ course, save, now: () => Date.now(), rng: seeded(11), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.screen?.screen === 'spell')
+    for (let k = 0; k < 3; k++) await playRound(c, false)
+    await until(c, (v) => !!v.over)
+    expect(c.view.over).toMatchObject({ session: true, score: 3 })
+    const words = events('spell-cast').map((x) => word(x.word as string))
+    expect(words).toHaveLength(3)
+    const boxes = words.flatMap((w) => w.units)
+    expect(tally(save, 'sc:spell')).toMatchObject({ seen: boxes.length, wrong: 0 })
+    for (const u of new Set(boxes)) expect(tally(save, u)).toMatchObject({ seen: boxes.filter((x) => x === u).length, wrong: 0 })
+    // the stage's own units count toward the stage pass, all right
+    const own = boxes.filter((u) => unit(u).stage === 4).length
+    expect(save.read().stage.newAnswers).toBe('o'.repeat(own))
+    c.destroy()
+  }, 60_000)
+
+  it('a right tile is a right answer on its unit; a unit of his stage counts toward the stage pass', async () => {
+    const save = placed({ demosSeen: ['demo-spell'] })
+    const c = new RunController({ course: oneRound(SHOP), save, now: () => Date.now(), rng: seeded(1), session: { screen: 'spell' } })
+    c.start()
+    await playRound(c, false)
+    await until(c, (v) => !!v.over)
+    for (const u of ['sh', 'o', 'p']) expect(tally(save, u)).toMatchObject({ seen: 1, wrong: 0 })
+    expect(tally(save, 'sc:spell')).toMatchObject({ seen: 3, wrong: 0 })
+    expect(save.read().stage.newAnswers).toBe('o')
+    c.destroy()
+  }, 60_000)
+
+  it('a wrong tile is a miss on that box\'s unit (his mix-up is kept); the fix after it is no second answer', async () => {
+    const save = placed({ demosSeen: ['demo-spell'] })
+    const c = new RunController({ course: oneRound(SHOP), save, now: () => Date.now(), rng: seeded(1), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    drop(c, 'ch', 0)
+    await until(c, (v) => !!v.fixing)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, wrong: 1 })
+    expect(save.read().stage.newAnswers).toBe('x')
+    expect(save.read().confusions.letters.sh).toEqual({ ch: 1 })
+    drop(c, 'sh', 0)
+    await playRound(c, false)
+    await until(c, (v) => !!v.over)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, wrong: 1 })
+    expect(tally(save, 'o')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(save.read().stage.newAnswers).toBe('x')
+    c.destroy()
+  }, 60_000)
+
+  it('a forgiven near tile is a right answer on its box\'s unit (once: the right tile after it is no second answer)', async () => {
+    const save = placed({ demosSeen: ['demo-spell'], stage: { stage: 9, newAnswers: '' } })
+    const c = new RunController({ course: oneRound(FEET), save, now: () => Date.now(), rng: seeded(1), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    drop(c, 'f', 0)
+    await wait(50)
+    drop(c, 'ea', 1)
+    await until(c, (v) => spell(v).glow === 'ee')
+    expect(tally(save, 'ee')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(tally(save, 'ea')).toBeUndefined()
+    expect(save.read().stage.newAnswers).toBe('o')
+    expect(events('spell-near')).toHaveLength(1)
+    await playRound(c, false)
+    await until(c, (v) => !!v.over)
+    expect(tally(save, 'ee')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(tally(save, 't')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(save.read().stage.newAnswers).toBe('o')
+    // a clean cast: the near tile was no mistake
+    expect(events('spell-cast')).toEqual([expect.objectContaining({ mistakes: 0 })])
+    c.destroy()
+  }, 60_000)
+})
+
+describe('an empty spell visit', () => {
+  it('is no checkpoint: the screen after it comes with no merchant\'s checkpoint between', async () => {
+    const none: Course = { ...ENGLISH, rounds: { ...ENGLISH.rounds, spellRound: () => null } }
+    // a run that starts after the doors: the spell book, which has no round, then the next screen (the drawing off: the tower)
+    const settings = { ...memoryEnglishSavePort().read().settings, drawing: false }
+    const save = placed({ lastEnded: 'doors', demosSeen: ['demo-spell'], settings })
+    const checkpoints = vi.spyOn(save, 'noteCheckpoint')
+    const c = new RunController({ course: none, save, now: () => Date.now(), rng: seeded(3) })
+    c.start()
+    await until(c, (v) => !!v.screen && v.screen.screen !== 'spell')
+    expect(c.view.screen?.screen).toBe('tower')
+    expect(checkpoints).not.toHaveBeenCalled()
+    expect(events('merchant-arrive')).toEqual([])
+    c.destroy()
+  }, 60_000)
 })
