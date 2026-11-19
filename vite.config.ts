@@ -27,5 +27,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     // keep local runs light (parallel agents); CI uses the default
     maxWorkers: process.env.CI ? undefined : 2,
+    // heavy tests timed out at the 5 s default under load; the slowest keep their own 60 s
+    testTimeout: 20000,
   },
 })
