@@ -210,6 +210,22 @@
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy-girl, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
+  },
+  {
+   "name": "card",
+   "source": "src/assets/home/card.webp",
+   "method": "recolour of the Hebrew home card's picture: the stricter wizard mapping (every blue-to-magenta hue becomes one family of green, 30 percent of the original hue spread kept); gold, skin and white stay. Used as it is (the Hebrew card shows it mirrored by CSS, the English card faces the other way)",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-card, no note); the mirrored recolour rc-card-mirror is approved too and is not used",
+   "use": "src/components/home/EnglishCard.tsx"
+  },
+  {
+   "name": "card-girl",
+   "source": "src/assets/home/card-girl.webp",
+   "method": "recolour of the Hebrew home card's picture: the stricter wizard mapping (every blue-to-magenta hue becomes one family of green, 30 percent of the original hue spread kept); gold, skin and white stay. Used as it is (the Hebrew card shows it mirrored by CSS, the English card faces the other way)",
+   "script": "<scratch>/english/mock/recolor.py",
+   "review": "approved by the parent on the review kit (item rc-card-girl, no note); the mirrored recolour rc-card-girl-mirror is approved too and is not used",
+   "use": "src/components/home/EnglishCard.tsx"
   }
  ]
 }

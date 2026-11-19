@@ -14,9 +14,12 @@ const THEMES = {
   },
 } as const
 
-export function PlayButton({ theme, size }: { theme: 'duel' | 'clock'; size?: string }) {
+/** `dir`: where the triangle points: left for the Hebrew card and the clock (they read right to left), right for the English card */
+export function PlayButton({ theme, size, dir = 'left' }: { theme: 'duel' | 'clock'; size?: string; dir?: 'left' | 'right' }) {
   const id = useId().replace(/:/g, '')
   const t = THEMES[theme]
+  // pointing right: the triangle's x mirrored in the 100-wide box (the tip on the right, the base on the left)
+  const tri = dir === 'right' ? t.tri.replace(/([ML])(\d+) (\d+)/g, (_m, c, x, y) => `${c}${100 - Number(x)} ${y}`) : t.tri
   return (
     <svg viewBox="0 0 100 100" className="home-play" data-play={theme} aria-label="play" role="img"
       style={{ width: size ?? 'var(--home-play-w, clamp(52px, 15vw, 84px))', filter: `drop-shadow(0 0 10px ${t.glow})` }}>
@@ -28,9 +31,9 @@ export function PlayButton({ theme, size }: { theme: 'duel' | 'clock'; size?: st
       </defs>
       <circle cx="50" cy="50" r="46" fill={`url(#${id}r)`} />
       <circle cx="50" cy="50" r="38" fill={`url(#${id}c)`} />
-      <path data-tri d={t.tri} fill={t.triFill} stroke={t.triFill} strokeWidth={t.triStroke} strokeLinejoin="round" />
+      <path data-tri d={tri} fill={t.triFill} stroke={t.triFill} strokeWidth={t.triStroke} strokeLinejoin="round" />
       {theme === 'duel'
-        ? <path d="M78 36 A30 30 0 0 0 56 20" stroke="#ffffff88" strokeWidth="4" fill="none" strokeLinecap="round" />
+        ? <path d="M78 36 A30 30 0 0 0 56 20" transform={dir === 'right' ? 'matrix(-1 0 0 1 100 0)' : undefined} stroke="#ffffff88" strokeWidth="4" fill="none" strokeLinecap="round" />
         : <ellipse cx="62" cy="28" rx="16" ry="7" fill="#ffffff40" transform="rotate(25 62 28)" />}
     </svg>
   )

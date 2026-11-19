@@ -7,6 +7,8 @@ import { DuelCard } from '../../components/home/DuelCard'
 import { StationPath } from '../../components/home/StationPath'
 import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
+import { EnglishCard, EnglishPath } from '../../components/home/EnglishCard'
+import { useEnglishHome } from '../../components/home/englishStations'
 import { LevelShelf } from '../../components/home/LevelShelf'
 import { GearIcon } from '../../components/home/HomeIcons'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
@@ -22,6 +24,8 @@ export function HomePage() {
   const { isMobile } = useResponsive()
   const stats = useProgressStore((state) => state.stats)
   const startSession = useProgressStore((state) => state.startSession)
+
+  const english = useEnglishHome()
 
   // Start session on first visit
   if (!stats.lastSessionAt) {
@@ -85,6 +89,8 @@ export function HomePage() {
       <main className="home-box" data-home>
         <DuelCard />
         <StationPath />
+        {/* the English path (only where this build has it, and while the parent has not turned it off): left to right */}
+        {english.on && <><Separator /><EnglishCard /><EnglishPath stations={english.stations} /></>}
         <Separator />
         <ClockCard />
         <Separator />

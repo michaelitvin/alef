@@ -120,6 +120,24 @@ module.exports = {
       },
     },
     {
+      name: 'home-into-english-only-through-its-surface',
+      severity: 'error',
+      comment:
+        'The home reads the English path only through its save format, station (the open stations and their ratings come only ' +
+        'from there), available, the doors filter (a light helper over the course\'s own rule) and the green pictures.',
+      from: { path: '^src/components/home/', pathNot: TEST },
+      to: {
+        path: '^src/english/',
+        pathNot: [
+          '^src/english/saveFormat\\.ts$',
+          '^src/english/station\\.ts$',
+          '^src/english/available\\.ts$',
+          '^src/english/doorsPlayable\\.ts$',
+          '^src/english/assets/img/',
+        ],
+      },
+    },
+    {
       name: 'review-kit-is-host-and-game-free',
       severity: 'error',
       comment: 'The review kit (tools/review) knows no game: a host-local adapter gives it the items. It never imports src/.',
