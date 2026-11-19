@@ -36,10 +36,10 @@ const chosen = new Map<string, string>()
  * effects (the board is the duel's). A missing file plays nothing and the flow goes on.
  */
 export const englishDuelAudio: DuelAudio = {
-  playLine(id, onCue) {
+  playLine(id, onCue, onHeard) {
     const file = chosen.get(id) ?? fileOf(id)
     chosen.delete(id)
-    return englishAudio.playLine(file).then(() => { for (const c of LINE_CUES[id] ?? []) onCue?.(c) })
+    return englishAudio.playLine(file, onHeard ? { onHeard } : {}).then(() => { for (const c of LINE_CUES[id] ?? []) onCue?.(c) })
   },
   playSfx: (name, power) => duelSfx(name, power),
   lineAsset(id) {

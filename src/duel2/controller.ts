@@ -873,17 +873,20 @@ export class RunController {
     return !!lane
   }
 
-  /** An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. */
-  towerAnswer(r: 'right' | 'wrong', markId: string, round?: Round): 'on' | 'over' {
+  /**
+   * An answer on the tower: the run's stars, coins and streak, or a heart. 'over' when the hearts ran out. `helped`: a right
+   * answer after the hint blended the word (English): it counts as helped, as on the other screens.
+   */
+  towerAnswer(r: 'right' | 'wrong', markId: string, round?: Round, helped?: true): 'on' | 'over' {
     if (this.ending) return 'over'
     if (this.view.screen?.screen !== 'tower') return 'on'
     if (this.tower?.placement) return this.placementAnswer(r, markId)
-    this.track('answer', { screen: 'tower', target: markId, result: r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
+    this.track('answer', { screen: 'tower', target: markId, result: helped ? 'helped' : r, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
     this.save.noteTowerAnswer(r === 'right')
     // a course whose tower answers count as its other screens' (English): its tallies and the stage pass
     const facts = round && this.course.tower.facts?.(round, this.stage)
     if (facts) {
-      const { passed } = this.save.recordAnswer({ features: facts.features, miss: r !== 'right', newStage: facts.newStage })
+      const { passed } = this.save.recordAnswer({ features: facts.features, miss: r !== 'right', newStage: facts.newStage, ...(helped && r === 'right' ? { helped } : {}) })
       if (passed) {
         this.stage = this.save.read().stage.stage
         this.track('stage', { stage: this.stage })

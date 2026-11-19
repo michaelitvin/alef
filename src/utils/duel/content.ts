@@ -2,6 +2,7 @@
 // the bosses and the מגה spell are the duel's own; the rounds, the runes and the voice ids of what is said come from
 // here. HEBREW_TOWER is the first duel as it always was (its rounds, rules and lines, moved here unchanged).
 import type { Choice, Round, TowerRune } from '../../types/duel'
+import type { BlendPlan } from '../../duel2/course/types'
 import type { LineCue } from '../../assets/duel/lineCues'
 import { LINE_CUES } from '../../assets/duel/lineCues'
 import type { FeedbackPlan } from './flow'
@@ -33,6 +34,11 @@ export interface TowerContent {
    * that beats the boss): the voice ids said after its feedback (English: a new unit's introduction). Hebrew: unset.
    */
   answered?(r: Round, right: boolean): string[]
+  /**
+   * the hint that blends the words of a word round (English; the `?` shows only on a round that asks a nonsense name or a
+   * picture's word): one plan per word rune, left to right. Unset (Hebrew, the placement): no `?`.
+   */
+  hint?(r: Round): BlendPlan[]
 }
 
 /** the Hebrew screen a round is explained as: the silent mark's sound screen has its own explanation */

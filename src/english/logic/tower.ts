@@ -5,6 +5,7 @@
 // rounds (design Part 5, `englishTower`): a picture or a sound and four letter runes, a nonsense name and three word
 // runes, and from stage 6 a picture and three word runes.
 import type { TowerContent } from '../../utils/duel/content'
+import type { BlendPlan } from '../../duel2/course/types'
 import type { MakeRoundOpts } from '../../utils/duel/rounds'
 import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../utils/duel/rules'
 import type { Choice, DuelMark, Round, TowerRune } from '../../types/duel'
@@ -196,7 +197,16 @@ export interface EnTowerPort {
  * the English tower over a save (the course gives the real one, looked up on each call), its pictures, and which voice
  * files are there (a unit is asked by its sound only when its sound clip is)
  */
-export interface EnTowerDeps { save: () => EnTowerPort; picture: PictureOf; voice: (id: string) => boolean }
+export interface EnTowerDeps {
+  save: () => EnTowerPort
+  picture: PictureOf
+  voice: (id: string) => boolean
+  /**
+   * the blend of a word, for the hint of a word round (the course gives logic/blend's `blendOf`; the rounds of this file
+   * are imported by blend.ts's own imports, so it is handed in); unset: no hint
+   */
+  blend?: (w: EnWord) => BlendPlan
+}
 
 /**
  * what a round asks: a unit's letter (`by` its picture or its sound; unset: by its picture when it has one, about half of
@@ -405,7 +415,8 @@ const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text
  * The English tower: letter rounds (a picture or a sound, four letter runes), from stage 2 name rounds (a nonsense name,
  * three word runes), from stage 6 picture-word rounds. Feedback: the unit's sound, then the word ("fff. fox."). The
  * monsters never speak; the board, the waves, the bosses and the מגה spell are the duel's own. A new unit (or the
- * stage's first blend word) is asked once before its introduction (logic/intro.ts), which follows the feedback.
+ * stage's first blend word) is asked once before its introduction (logic/intro.ts), which follows the feedback. A word
+ * round has the hint (`?`): the words on its runes blend (logic/blend.ts).
  */
 export function englishTower(deps: EnTowerDeps): TowerContent {
   return {
@@ -433,6 +444,9 @@ export function englishTower(deps: EnTowerDeps): TowerContent {
     },
     twinParts: (_r, c) => (c.kind === 'rune' ? ['line-almost', ...(UNIT_IDS.has(c.mark.id) ? [soundVoice(unit(c.mark.id))] : [])] : []),
     runeOf: (r, i) => r.runeTexts![i],
+    // the `?` of a word round (a nonsense name, a picture's word): each word on the runes blends, left to right; a letter
+    // round has none (a letter is a sound, not a word to read)
+    hint: deps.blend && ((r) => (r.ask === 'name' || r.ask === 'word' ? r.runes.map((m) => deps.blend!(word(m.id))) : [])),
     answered: (r, right) => introAfter(deps.save(), isUnitRound(r) ? unit(r.target.id) : word(r.target.id), right),
   }
 }

@@ -12,6 +12,8 @@ import { RuneGlowDefs } from '../../../components/duel/RuneGlyph'
 import { ComboBurst } from '../../../components/duel/ComboBurst'
 import { Banner, Starfield } from '../../../components/duel/Starfield'
 import { Icon } from '../../../components/duel/Icon'
+import { HintIcon } from '../icons'
+import { BlendWord } from '../BlendWord'
 import { MEGA_MAX } from '../../../utils/duel/rules'
 import { duel2Telemetry } from '../../telemetry'
 import { storeSavePort } from '../../savePort'
@@ -27,7 +29,7 @@ interface TowerProps {
   /** the gallery: nothing is recorded */
   dry?: boolean
   /** (`round`: the round answered, for a course whose tower answers count: Course.tower.facts) */
-  onAnswer: (r: 'right' | 'wrong', markId: string, round?: Round) => 'on' | 'over'
+  onAnswer: (r: 'right' | 'wrong', markId: string, round?: Round, helped?: true) => 'on' | 'over'
   onDone: (lastWave: number) => void
   /** a wave ended in the middle of the visit: true ends the visit there (stage 0 passed) */
   onWaveEnd?: (wave: number) => boolean
@@ -64,7 +66,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       onIntroduced: (id) => { if (!dry) save.monsterIntroduced(id) },
       onAnswer, onDone, dry,
       // a course whose tower answers count (Course.tower.facts) gets the round answered
-      onAnswerRound: tower?.facts ? (r, round) => onAnswer(r, round.target.id, round) : undefined,
+      onAnswerRound: tower?.facts ? (r, round, helped) => (helped ? onAnswer(r, round.target.id, round, helped) : onAnswer(r, round.target.id, round)) : undefined,
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge, megaOff: !!placing,
     },
@@ -98,6 +100,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
         <Battlefield round={state.round} outcome={state.outcome} walking={state.walking} paused={state.paused}
           landscape={landscape} banner={game.banner ? <Banner v={game.banner} /> : null} bossHp={state.bossHp} speaking={game.speaking} fx={game.fx}
           resultBanner={game.feedback?.banner ?? true} onReplay={game.replayClue} points={false} timeLine={false} />
+        {game.blend && <BlendWord parts={game.blend.parts} lit={game.blend.lit} />}
         {game.celebrate && <ComboBurst key={game.celebrate.at} combo={game.celebrate.combo} />}
         <div className="nd-pad-area">
           {!placing && state.mega >= MEGA_MAX && game.lightning && state.round && !state.paused && !paused && (
@@ -106,6 +109,10 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
               transition={{ duration: 0.9, ease: 'easeOut' }} onClick={game.megaCast} aria-label="mega">
               <Icon name="bolt" size={40} />
             </motion.button>
+          )}
+          {/* the hint of a word round (English): the words on the runes blend, left to right */}
+          {game.canHint && state.walking && state.round && !state.outcome && !state.preview && !state.paused && !paused && (
+            <button type="button" className="nd-hint-btn" aria-label="hint" onClick={game.hint}><HintIcon /></button>
           )}
           {state.round && (
             <SpellPad round={state.round} outcome={state.outcome} twinTried={state.twinTried} oneRow={landscape}

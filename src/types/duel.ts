@@ -93,6 +93,8 @@ export interface Tally {
   timeout: number
   twin: number
   mega: number
+  /** of `seen`, the answers given after the hint blended the word (English; neither right nor wrong) */
+  helped?: number
 }
 
 export interface DuelStats {

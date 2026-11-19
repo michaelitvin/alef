@@ -18,6 +18,11 @@ export interface DuelTallies {
   recordDuelRound(markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }): void
   recordDuelTwin(markId: string, type: ScreenType): void
   recordDuelConfusion(askedId: string, tappedId: string): void
+  /**
+   * a right answer after the hint blended the word (English): `seen` and `helped` + 1; not right, not wrong, and not in
+   * the recent answers. Unset (the Hebrew tower has no hint): the controller never calls it
+   */
+  recordDuelHelped?(markId: string, type: ScreenType): void
   setDuelPace(pace: number): void
 }
 
@@ -59,6 +64,12 @@ export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => v
             ...t.recent, [markId]: ((t.recent[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
           },
         }
+      })
+    },
+    recordDuelHelped(markId) {
+      update((t) => {
+        const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
+        return { ...t, byMark: { ...t.byMark, [markId]: { ...b, seen: b.seen + 1, helped: (b.helped ?? 0) + 1 } } }
       })
     },
     recordDuelTwin(markId) {

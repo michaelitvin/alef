@@ -37,7 +37,7 @@ const notBuilt = (what: string): never => { throw new Error(`the English ${what}
 const a = englishAudio
 
 /** the English tower's letter and word rounds, over the real save (looked up on each call) */
-const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), picture: wordPicture, voice: (id) => id in ENGLISH_VOICE_URLS })
+const EN_TOWER: TowerContent = englishTower({ save: () => englishSavePort(), picture: wordPicture, voice: (id) => id in ENGLISH_VOICE_URLS, blend: blendOf })
 
 const hasVoice = (id: string) => id in ENGLISH_VOICE_URLS
 
@@ -75,7 +75,7 @@ const plans = (cs: Choice[]) => cs.map(blendOfChoice).filter((p): p is BlendPlan
 /**
  * The hint that blends a word (Task 21; the method is PROVISIONAL, logic/blend.ts). Where he hears the word (the broom,
  * the cauldron, the ladder): its blend. Where he reads to choose (the doors, the ghosts' words): each word on the
- * screen, left to right. The tower's words are Task 21a's; the placement has no hint.
+ * screen, left to right. The tower's words have their own `?` (EN_TOWER.hint); the placement has none.
  */
 const EN_HINT: CourseHint = {
   plan: (s) => {

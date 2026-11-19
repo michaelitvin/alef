@@ -6,6 +6,7 @@
 // dispatched; the reactions to a change (spawn the next monster, run the clock, play an outcome) run once the current
 // call is over (one React commit), or, with `reactOnCommit`, when the hook calls commit() after React rendered it.
 import type { Choice, DuelState, IconName, Next, Rng, Round } from '../../types/duel'
+import type { BlendPart, BlendPlan } from '../../duel2/course/types'
 import { duelReducer, initialDuelState, type DuelAction } from './reducer'
 import { predictedMistakeRate, type MakeRoundOpts } from './rounds'
 import { MEGA_MAX, bossFor, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from './rules'
@@ -42,7 +43,7 @@ export interface DuelEmbedded {
   /** a hit → 'right'; a miss or a timeout → 'wrong' (the forgiven twin is not an answer); 'over' stops after its feedback */
   onAnswer: (r: 'right' | 'wrong', markId: string) => 'on' | 'over'
   /** set: called instead of onAnswer, with the round answered (a course whose tower answers count: Course.tower.facts) */
-  onAnswerRound?: (r: 'right' | 'wrong', round: Round) => 'on' | 'over'
+  onAnswerRound?: (r: 'right' | 'wrong', round: Round, helped?: true) => 'on' | 'over'
   /**
    * a מגה kill (the parent brought it back, 2026-11-14): not reading, so no answer for the run (no star, no streak, no
    * heart); the run tracks it on its own
@@ -84,7 +85,8 @@ export interface DuelTelemetry {
 
 /** The duel's audio (duelAudio.ts by default; it plays through the device output's player, a fake one in tests). */
 export interface DuelAudio {
-  playLine(id: string, onCue?: (c: LineCue) => void): Promise<void>
+  /** `onHeard`: the file really plays, with its length in ms when known (the English hint's lights); never for a missing file */
+  playLine(id: string, onCue?: (c: LineCue) => void, onHeard?: (ms: number | null) => void): Promise<void>
   playSfx(name: Parameters<typeof playSfx>[0], power?: number): Promise<void>
   lineAsset(id: string): { id: string; file: string; url: string | null }
   stopAllLines(): void
@@ -147,9 +149,15 @@ export interface DuelView {
   fx: FxStyle | null
   /** How the current result is fed back (full recap / sound + name / sound only); the tower shows the banner from it. */
   feedback: FeedbackPlan | null
+  /** the `?` is there: the content has a hint and this round is a word round (English). Never in the Hebrew tower or the placement. */
+  canHint: boolean
+  /** the hint's blend plays: the word's pieces, and the units lit so far (BlendWord) */
+  blend: { parts: BlendPart[]; lit: number[] } | null
 }
 
 const TOWER_INTRO = 'tower-intro'
+/** the beat between two words of a blend */
+const BLEND_GAP_MS = 300
 /** the feedback's parts in turn: what the banner animates, and the beat before each (sound → name → word) */
 const FEEDBACK_SPEAKING = ['sound', 'name', 'word'] as const
 const FEEDBACK_GAP_MS = [0, 250, 200]
@@ -170,7 +178,7 @@ export class DuelController {
 
   private view: DuelView = {
     state: initialDuelState, banner: null, shake: null, cue: null, lightning: false, celebrate: null, speaking: null,
-    hidden: [], fx: null, feedback: null,
+    hidden: [], fx: null, feedback: null, canHint: false, blend: null,
   }
   private listeners = new Set<() => void>()
   /** the state the reactions last ran on (React's last commit) */
@@ -207,6 +215,10 @@ export class DuelController {
   private clock: Cancel = () => {}
   private pendingSpawn: Spawn | null = null
   private resumeAdvance = false
+  /** the hint's blends play: a new number ends the ones before (their lights) */
+  private blendNo = 0
+  /** the hint blended the words in this round: a right answer is helped, not right */
+  private hinted = false
 
   constructor(opts: DuelOpts) {
     this.rng = opts.rng ?? Math.random
@@ -337,9 +349,9 @@ export class DuelController {
   }
 
   /** Every voice line goes through here so telemetry knows exactly which asset played. */
-  private say(id: string, cb?: (c: LineCue) => void) {
+  private say(id: string, cb?: (c: LineCue) => void, onHeard?: (ms: number | null) => void) {
     this.track('line', this.audio.lineAsset(id))
-    return this.audio.playLine(id, cb)
+    return onHeard ? this.audio.playLine(id, cb, onHeard) : this.audio.playLine(id, cb)
   }
 
   /** the parts one after another (the first is said at once) */
@@ -381,7 +393,12 @@ export class DuelController {
     this.batch(() => {
       const token = ++this.roundToken
       this.almost = Promise.resolve()
+      this.endBlend()
+      this.hinted = false
       this.dispatch({ type: 'ROUND_READY', round: r })
+      // (the Hebrew tower and the placement have no hint)
+      const hint = (r.ask === 'name' || r.ask === 'word') && (this.content.hint?.(r).length ?? 0) > 0
+      if (hint !== this.view.canHint) this.set({ canHint: hint })
       this.spawnedAt = this.time.now()
       this.walkStartedAt = this.time.now()
       const s = this.state
@@ -515,6 +532,10 @@ export class DuelController {
     this.marksThisRun.add(r.target.id)
     const emb = this.emb
     const dry = !!emb.dry
+    this.endBlend()
+    // a right answer after the hint blended the word is helped: counted apart from right (the Hebrew tower never is)
+    const helped = this.hinted && o.kind === 'hit' && !o.mega
+    if (this.view.canHint) this.set({ canHint: false })
     // Book 2's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
     // right answer for the mastery data (`recent`) nor for the pace
     const megaInRun = o.mega
@@ -523,12 +544,16 @@ export class DuelController {
     // answer (onAnswerRound): the introduction reads the tallies as they were before this answer
     const heard = !dry && !megaInRun && (!r.boss || (o.kind === 'hit' && o.final))
     const after = heard ? this.content.answered?.(r, o.kind === 'hit') ?? [] : []
-    if (!dry) tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
+    if (!dry) {
+      if (helped && tallies.recordDuelHelped) tallies.recordDuelHelped(r.target.id, r.type)
+      else tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
+    }
     // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
     else {
       const res = o.kind === 'hit' ? 'right' : 'wrong'
-      if ((emb.onAnswerRound ? emb.onAnswerRound(res, r) : emb.onAnswer(res, r.target.id)) === 'over') this.over = true
+      const verdict = emb.onAnswerRound ? (helped ? emb.onAnswerRound(res, r, true) : emb.onAnswerRound(res, r)) : emb.onAnswer(res, r.target.id)
+      if (verdict === 'over') this.over = true
     }
     const now = this.time.now()
     const msWalk = state.walking || result === 'timeout' ? now - this.walkStartedAt : null
@@ -539,7 +564,7 @@ export class DuelController {
     if (!dry && !megaInRun) tallies.setDuelPace(pace)
     this.track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
-      round: r.id, result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
+      round: r.id, result: helped ? 'helped' : result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
       hearts: null, combo: state.combo, score: state.score, bossHp: state.bossHp,
       msShown: Math.round(now - this.spawnedAt), msWalk: Math.round(now - this.walkStartedAt),
     })
@@ -635,6 +660,7 @@ export class DuelController {
       const r = s.round
       if (!r || s.outcome || s.paused || s.preview || s.phase !== 'playing' || this.answeredRound === r.id) return
       if (this.twinRound === r.id && keyOf(c) === this.twinKey) return // same twin again: still forgiven
+      this.stopBlend()
       const now = this.time.now()
       const pos = c.kind === 'rune' ? r.runes.findIndex((m) => m.id === c.mark.id) : r.padWords.findIndex((w) => w.group === c.group)
       const correct = this.content.isCorrect(r, c)
@@ -665,6 +691,74 @@ export class DuelController {
     })
   }
 
+  /**
+   * The `?` (English word rounds): the words on the runes blend one after another, left to right: the word shows, its
+   * voice plays, and each unit lights at its time from the voice's real start. The answer after it is helped. A touch on
+   * an answer ends it. The monster keeps walking.
+   */
+  hint() {
+    const s = this.state
+    const r = s.round
+    if (!this.view.canHint || !r || !s.walking || s.outcome || s.paused || s.preview || s.phase !== 'playing' || this.answeredRound === r.id) return
+    const plans = this.content.hint?.(r) ?? []
+    if (!plans.length) return
+    this.hinted = true
+    this.track('blend-hint', { round: r.id, words: plans.length, by: 'button' })
+    void this.playBlends(plans, r.id).catch(() => {})
+  }
+
+  /** the blend ends at once: its card, its lights, its voice */
+  private endBlend() {
+    this.blendNo++
+    if (this.view.blend) this.set({ blend: null })
+  }
+  /** a touch on an answer: a blend that plays goes away with its voice (the answer stays counted as helped) */
+  private stopBlend() {
+    if (!this.view.blend) return
+    this.endBlend()
+    this.audio.stopAllLines()
+  }
+
+  /**
+   * Plays blends one word after another. A missing clip (or a missing timing) never stalls it: the lights go on to the
+   * plan's end. A newer blend, a touch, a pause or the end of the round ends it.
+   */
+  private async playBlends(plans: BlendPlan[], round: number) {
+    const no = ++this.blendNo
+    const token = this.roundToken
+    const alive = () => token === this.roundToken && no === this.blendNo && this.state.round?.id === round
+    const timers: Cancel[] = []
+    try {
+      for (let i = 0; i < plans.length && alive(); i++) {
+        const plan = plans[i]
+        if (i > 0) await this.time.sleep(BLEND_GAP_MS)
+        if (!alive()) break
+        this.set({ blend: { parts: plan.parts, lit: [] } })
+        let started: number | null = null
+        let total = plan.totalMs
+        const light = (u: number) => () => {
+          const b = this.view.blend
+          if (alive() && b) this.set({ blend: { ...b, lit: [...b.lit, u] } })
+        }
+        // from the voice's real start (its file plays); an even split is stretched to the clip's own length
+        const start = (clipMs: number | null) => {
+          started = this.time.now()
+          const k = plan.stretch && clipMs ? clipMs / plan.totalMs : 1
+          total = plan.totalMs * k
+          for (const l of plan.lights) timers.push(this.time.after(Math.round(l.atMs * k), light(l.unit)))
+        }
+        for (let k = 0; k < plan.audio.length && alive(); k++) await this.say(plan.audio[k], undefined, k === 0 ? start : undefined)
+        // a missing clip (or one that never played) ends at once: the lights run on the plan's own times, then it ends
+        if (started === null && alive()) start(null)
+        const left = started === null ? 0 : total - (this.time.now() - started)
+        if (left > 0 && alive()) await this.time.sleep(left)
+      }
+    } finally {
+      timers.forEach((c) => c())
+      if (no === this.blendNo && this.view.blend) this.set({ blend: null })
+    }
+  }
+
   /** A tap on the lightning: casts on the monster now, or on the next one when none is on the field. */
   megaCast = () => {
     this.batch(() => {
@@ -691,6 +785,7 @@ export class DuelController {
       const s = this.state
       if (s.phase !== 'playing' || this.paused) return
       this.paused = true
+      this.endBlend()
       const hidden = typeof document !== 'undefined' && document.hidden
       this.track('pause', { cause: hidden ? 'hidden' : 'button', round: s.round?.id ?? null, duringOutcome: !!s.outcome })
       this.flushLog()
@@ -761,6 +856,7 @@ export class DuelController {
     this.paused = false
     this.audio.stopAllLines()
     this.audio.mute(false) // leaving while paused must not leave the app muted
+    this.endBlend()
     this.cueTimer()
     this.clock()
     this.clock = () => {}

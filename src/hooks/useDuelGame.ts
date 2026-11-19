@@ -48,5 +48,6 @@ export function useDuelGame(opts: UseDuelGameOpts) {
     pause: () => c.pause(),
     resume: () => c.resume(),
     replayClue: () => c.replay(),
+    hint: () => c.hint(),
   }
 }

@@ -30,7 +30,7 @@ export function useRun(opts: RunOpts) {
     /** he held the home button: the run stops (RunController.exit) */
     exit: () => c.exit(),
     /** the tower's board reports its answers and the end of its visit */
-    towerAnswer: (r: 'right' | 'wrong', markId: string, round?: Round) => c.towerAnswer(r, markId, round),
+    towerAnswer: (r: 'right' | 'wrong', markId: string, round?: Round, helped?: true) => c.towerAnswer(r, markId, round, helped),
     towerDone: (lastWave: number) => c.towerDone(lastWave),
     towerWaveEnd: (wave: number) => c.towerWaveEnd(wave),
     towerMega: (markId: string) => c.towerMega(markId),

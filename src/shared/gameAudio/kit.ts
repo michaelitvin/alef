@@ -62,6 +62,8 @@ export interface PlayLineOptions {
   missing?: (file: string) => Promise<void>
   /** the words the line shows on screen, passed to the player (a test player can wait for them to show) */
   caption?: string[]
+  /** the file really plays (loaded), with its length in ms when the player knows it; never for a line with no file */
+  onHeard?: (ms: number | null) => void
 }
 
 export function createGameAudio<S extends string = string, M extends string = string>(o: GameAudioOptions<S, M>) {
@@ -207,6 +209,7 @@ export function createGameAudio<S extends string = string, M extends string = st
     duck(true)
     const s = audioPlayer().play(url, {
       kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs, caption: opts.caption,
+      ...(opts.onHeard ? { onStart: (x: Sound) => { const d = x.duration?.(); opts.onHeard!(d ? Math.round(d * 1000) : null) } } : {}),
       onPlay: (x) => { if (opts.follow) follower = opts.follow(() => x.position(), id) },
     })
     lines.add(s)
