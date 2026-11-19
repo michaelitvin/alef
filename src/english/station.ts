@@ -7,17 +7,20 @@ import { rating, screenRecent } from '../duel2/logic/mastery'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, enScreensOfStage } from './logic/stages'
 import { readEnglishSave, type EnglishSave } from './saveFormat'
 
-/** the stations of the stages up to `stage` (the drawing only while it is on), in path order */
-export function stationsUpTo(stage: number, drawing = true): ScreenId[] {
+/** whether the doors can be played at a stage (the course's filter, `enDoorsPlayable`: it needs the picture files, so the caller passes it) */
+export type DoorsPlayable = (stage: number) => boolean
+
+/** the stations of the stages up to `stage` (the drawing only while it is on; the doors only where they can be played), in path order */
+export function stationsUpTo(stage: number, drawing = true, doorsPlayable: DoorsPlayable = () => true): ScreenId[] {
   const up = Math.min(Math.max(Math.floor(stage) || 1, 1), EN_MAX_STAGE)
   const out = new Set<ScreenId>()
-  for (let s = 1; s <= up; s++) for (const id of enScreensOfStage(s)) out.add(id)
+  for (let s = 1; s <= up; s++) for (const id of enScreensOfStage(s)) if (id !== 'doors' || doorsPlayable(s)) out.add(id)
   return EN_ORDER.filter((id) => out.has(id) && (drawing || !EN_DRAWING.includes(id)))
 }
 
 /** his open stations: the ones he has opened, and the stations of every stage up to his stage; in path order */
-export function englishOpenStations(save: Partial<EnglishSave> | null = readEnglishSave()): ScreenId[] {
-  const open = new Set<ScreenId>([...(save?.openedStations ?? []), ...stationsUpTo(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true)])
+export function englishOpenStations(save: Partial<EnglishSave> | null = readEnglishSave(), doorsPlayable?: DoorsPlayable): ScreenId[] {
+  const open = new Set<ScreenId>([...(save?.openedStations ?? []), ...stationsUpTo(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, doorsPlayable)])
   return EN_ORDER.filter((id) => open.has(id))
 }
 

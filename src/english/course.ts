@@ -22,7 +22,7 @@ import { enSpellRound } from './logic/spell'
 import { enDrawWords } from './logic/draw'
 import { BASE, DESC, LATIN_STROKES, MID, TOP, isMark, latinStrokesOf } from './data/strokes'
 import { measureText } from './measure'
-import { enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
+import { enAnswerOnly, enFeatures, enIsNewStageChoice, itemOfChoice } from './logic/pick'
 import { introAfter } from './logic/intro'
 import { blendOf } from './logic/blend'
 import { word } from './content/words'
@@ -50,6 +50,7 @@ const EN_ROUNDS: CourseRounds = {
   broomTarget: (ctx, kind, avoid, screen) => enBroomTarget(ctx, kind, avoid, screen, hasVoice),
   broomWave: enBroomWave,
   features: enFeatures,
+  recordOnly: enAnswerOnly,
   isNewStageChoice: enIsNewStageChoice,
   // a new unit or heart word, asked once before its introduction (the gallery's read-only save: none, nothing written)
   introAfter: (save, c, right) => ('setIntro' in save ? introAfter(en(save), itemOfChoice(c), right).map((id) => (enLine(id) ? { line: id } : { id })) : []),

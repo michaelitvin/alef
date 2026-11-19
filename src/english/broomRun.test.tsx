@@ -78,9 +78,9 @@ describe('the English broom in the run', () => {
     expect(words.length).toBeGreaterThan(0)
     expect(log.voice.some((id) => /^(w|hw)-/.test(id))).toBe(true)
     const t = save.read().tallies
-    // a word counts under its units (or a heart word under heart:<word>), never under its own id
+    // a word counts under its units (or a heart word under heart:<word>) and, apart from the picks, under w:<word> for the parent's words view
     const blends = new Set(BLENDS.map((b) => b.id))
-    for (const f of Object.keys(t)) if (f !== 'sc:broom' && !f.startsWith('heart:') && !blends.has(f)) expect(unit(f).stage).toBeLessThanOrEqual(4)
+    for (const f of Object.keys(t)) if (f !== 'sc:broom' && !f.startsWith('heart:') && !f.startsWith('w:') && !blends.has(f)) expect(unit(f).stage).toBeLessThanOrEqual(4)
     const asked = words.filter((id) => word(id).kind === 'real')
     expect(asked.some((id) => word(id).units.every((u) => (t[u]?.seen ?? 0) > 0))).toBe(true)
     expect(t['sc:broom']?.seen ?? 0).toBeGreaterThanOrEqual(3)

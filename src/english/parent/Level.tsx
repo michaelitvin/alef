@@ -5,6 +5,8 @@ import { EN_MAX_STAGE } from '../logic/stages'
 import { seedAfterPlacement } from '../logic/placement'
 import { englishSavePort } from '../savePort'
 import { stationsUpTo } from '../station'
+import { enDoorsPlayable } from '../logic/rounds/doors'
+import { wordPicture } from '../assets/images'
 import { useEnglishStore } from '../store'
 import { englishTelemetry } from '../telemetry'
 import { localDate } from './date'
@@ -25,7 +27,7 @@ export default function Level() {
     const port = englishSavePort()
     port.setStage(chosen)
     port.seedTallies(seedAfterPlacement(chosen))
-    port.openStations(stationsUpTo(chosen, drawing !== false))
+    port.openStations(stationsUpTo(chosen, drawing !== false, (st) => enDoorsPlayable(st, { picture: wordPicture })))
     englishTelemetry.track('settings', { keys: ['stage'], stage: chosen })
     setPick(null)
   }

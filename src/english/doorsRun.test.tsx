@@ -11,7 +11,7 @@ import { Doors } from '../duel2/components/screens/Doors'
 import { fakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { PHRASES } from './content/phrases'
-import { word } from './content/words'
+import { WORDS, word } from './content/words'
 import { memoryEnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
 
@@ -58,7 +58,9 @@ describe('the English doors in the run', () => {
     expect(t['sc:doors']?.wrong ?? 0).toBeGreaterThan(0)
     // the English features: the key word's units (never a Book 2 word feature)
     for (const u of word(doors[0].key).units) expect(t[u]?.seen ?? 0).toBeGreaterThan(0)
-    expect(Object.keys(t).some((f) => f.startsWith('w:'))).toBe(false)
+    // (and for the parent's words view, w:<English word>: never a Book 2 word)
+    for (const f of Object.keys(t).filter((k) => k.startsWith('w:'))) expect(WORDS.some((w) => w.id === f.slice(2))).toBe(true)
+    expect(t[`w:${doors[0].key}`]?.seen ?? 0).toBeGreaterThan(0)
   })
 
   it('from stage 4 a door may hold a phrase: its noun is the key, and its own clip plays when it opens', async () => {

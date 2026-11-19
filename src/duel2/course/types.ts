@@ -71,6 +71,8 @@ export interface CourseRounds {
   isNewStageChoice: (stage: number, c: Choice) => boolean
   /** the features of an answer (logic/predict): what its tallies are kept under */
   features: (c: Choice, screen: ScreenId) => string[]
+  /** more features an answer is tallied under, left out of the predictions and the picks (English: `w:<word>`; Hebrew: none) */
+  recordOnly?: (c: Choice) => string[]
   /** the doors of a visit (`n` of them) */
   doorRounds: (ctx: RoundCtx, n: number) => DoorRound[]
   /** the keys of a door, the right one (`round.key`) among them */

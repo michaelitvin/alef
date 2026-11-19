@@ -1276,7 +1276,7 @@ export class RunController {
     // a right answer after the hint blended the word (English) is helped: counted apart from right (the Hebrew run never is)
     const helped = this.hinted && result === 'right'
     if (result !== 'near') this.hinted = false
-    const { passed } = this.save.recordAnswer({ features: feats, miss: result !== 'right', asked, tapped: tap, newStage, ...(helped ? { helped } : {}) })
+    const { passed } = this.save.recordAnswer({ features: asked && this.course.rounds.recordOnly ? [...feats, ...this.course.rounds.recordOnly(asked)] : feats, miss: result !== 'right', asked, tapped: tap, newStage, ...(helped ? { helped } : {}) })
     if (passed) {
       this.stage = this.save.read().stage.stage
       this.track('stage', { stage: this.stage })

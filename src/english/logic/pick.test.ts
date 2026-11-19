@@ -3,7 +3,7 @@ import type { Rng } from '../../shared/adaptive'
 import type { RoundCtx } from '../../duel2/logic/rounds'
 import { unit, unitsOfStage } from '../content/units'
 import { predict } from '../../duel2/logic/predict'
-import { enFeatures, enPrior, pickUnit, unitChoice } from './pick'
+import { enAnswerOnly, enFeatures, enPrior, pickUnit, unitChoice } from './pick'
 
 const seeded = (seed: number): Rng => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 
@@ -50,5 +50,18 @@ describe('pickUnit', () => {
     let fresh = 0
     for (let i = 0; i < 1000; i++) if (pickUnit(ctx, pool).stage === 2) fresh++
     expect(fresh).toBeGreaterThan(600)
+  })
+})
+
+describe('enAnswerOnly', () => {
+  const word = { kind: 'word' as const, id: 'map', text: 'map', soundId: '', itemId: 'map' }
+  it('a word is also tallied as w:<id>; a unit is not', () => {
+    expect(enAnswerOnly(word)).toEqual(['w:map'])
+    expect(enAnswerOnly(unitChoice(unit('m')))).toEqual([])
+    expect(enFeatures(word, 'broom')).not.toContain('w:map')
+  })
+  it('a w: tally changes no pick and no rng draw', () => {
+    const picks = (tallies: RoundCtx['tallies']) => { const ctx = ctxWith(tallies); return Array.from({ length: 50 }, () => pickUnit(ctx, POOL).id) }
+    expect(picks({ ...CALM, 'w:map': { seen: 9, wrong: 9 }, 'w:sat': { seen: 4, wrong: 4 } })).toEqual(picks(CALM))
   })
 })

@@ -22,6 +22,13 @@ export function enFeatures(c: Choice, screen: ScreenId): string[] {
   return [...own, `sc:${screen}`]
 }
 
+/**
+ * What an answer is tallied under besides `enFeatures` (the run adds it when it records, never when it predicts or picks):
+ * `w:<id>` for a word, so that the parent's words view has every word's counts from every screen. It stays out of every
+ * prediction, so no pick and no rng draw changes. (The tower keeps its own counts per word: `towerFacts`.)
+ */
+export const enAnswerOnly = (c: Choice): string[] => (c.kind === 'word' ? [`w:${c.id}`] : [])
+
 /** The English prior of a feature: the screen's prior, else a flat 0.03 (a unit id such as `w` is not a Hebrew letter feature). */
 export const enPrior = (f: string): number => (f.startsWith('sc:') ? featurePrior(f) : 0.03)
 
