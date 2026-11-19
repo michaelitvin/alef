@@ -11,6 +11,8 @@ import { fakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { isMark, latinStrokesOf } from './data/strokes'
 import { wordChoice } from './logic/rounds/broom'
+import { unitChoice } from './logic/pick'
+import { unit } from './content/units'
 import { word } from './content/words'
 import { memoryEnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
@@ -100,6 +102,29 @@ describe('the English drawing in the run', () => {
     expect(st.tallies['dr:i:print']).toMatchObject({ seen: 3 })
     expect(st.tallies.p).toMatchObject({ seen: 3, wrong: 0 })
     expect(st.tallies['sc:draw']).toMatchObject({ seen: 3 })
+    c.destroy()
+  }, 60_000)
+
+  it('qu: he hears /kw/, the hand shows q (its letter demo), and he writes q and u in two boxes; it counts on qu', async () => {
+    const item: DrawItem = { id: 'quiz', letters: ['q', 'u'], voice: 'w-quiz', firstSound: 'snd-kw', alphabet: 'latin', asked: unitChoice(unit('qu')), text: 'quiz' }
+    const save = placed(3, { demosSeen: ['demo-draw'] })
+    const c = new RunController({ course: course(() => [item]), save, now: () => Date.now(), rng: seeded(5), session: { screen: 'draw' } })
+    c.start()
+    let demo = false
+    for (let g = 0; g < 6000 && !c.view.over; g++) {
+      const s = c.view.screen as DrawView | null
+      if (s?.screen === 'draw' && s.demo && !s.demo.hint) demo = true
+      act1(c, new Set())
+      await tick()
+    }
+    expect(demo).toBe(true)
+    const v = events('draw-done')
+    expect(v.map((x) => x.letter)).toEqual(['qu', 'qu', 'qu'])
+    const st = save.read()
+    expect(st.tallies['dr:q:print']).toMatchObject({ seen: 3 })
+    expect(st.tallies['dr:u:print']).toMatchObject({ seen: 3 })
+    expect(st.tallies.qu).toMatchObject({ seen: 3, wrong: 0 })
+    expect(st.stage.newAnswers).toBe('ooo')
     c.destroy()
   }, 60_000)
 

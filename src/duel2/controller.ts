@@ -1660,9 +1660,13 @@ export class RunController {
   private latinDraw(item: DrawItem): DrawView {
     const w = this.course.writing!
     const defs = item.letters.map((l) => w.strokesOf(l))
-    const one = item.letters.length === 1
-    const rest = one && item.text ? item.text.slice(1) : ''
-    const layout = latinLayout({ defs, rest, capital: one && /[A-Z]/.test(item.letters[0]), lines: w.lines, font: w.font, unitEm: w.unitEm, em: w.em })
+    // the word's text around the boxes (none for a whole word)
+    const at = item.at ?? 0
+    const text = item.text ?? ''
+    const layout = latinLayout({
+      defs, rest: text.slice(at + item.letters.length), before: text.slice(0, at), capital: !!item.firstSound && /[A-Z]/.test(item.letters[0]),
+      lines: w.lines, font: w.font, unitEm: w.unitEm, em: w.em,
+    })
     return {
       screen: 'draw', word: { id: item.id }, script: 'print', letter: item.letters[0], layout, marks: [], strokes: [], mode: 'letter',
       alphabet: 'latin', letters: item.letters, box: 0, ...(item.picture ? { picture: item.picture } : {}),
@@ -1670,22 +1674,24 @@ export class RunController {
   }
 
   /**
-   * A Latin round's facts: each letter without its marks, its marks, and what he hears (the word, then its first sound;
-   * a capital: the line for the big letter before the sound; a whole word: the word). When he waits: the line, then the
-   * word or the sound; when it is drawn: the word.
+   * A Latin round's facts: each letter without its marks, its marks, the lines, and what he hears (the word, then its
+   * first sound; a capital: the line for the big letter before the sound; a whole word: the word). When he waits: the
+   * line, then the word or the sound (a last letter, x: the word and its sound); when it is drawn: the word.
    */
   private latinRound(item: DrawItem): LatinRound {
     const w = this.course.writing!
     const parts = item.letters.map((l) => splitMarks(w.strokesOf(l), w.isMark))
     const voice: DrawLine = { id: item.voice }
     const sound: DrawLine[] = item.firstSound ? [{ id: item.firstSound }] : []
-    const capital = item.letters.length === 1 && /[A-Z]/.test(item.letters[0])
-    const word = item.letters.length > 1
+    // a whole word has no first sound of its own
+    const word = !item.firstSound
+    const capital = !word && /[A-Z]/.test(item.letters[0])
+    const last = !!item.at
     return {
-      defs: parts.map((x) => x.body), marks: parts.map((x) => x.marks),
+      defs: parts.map((x) => x.body), marks: parts.map((x) => x.marks), lines: w.lines,
       cue: {
         start: capital ? [voice, { line: 'q-draw-big' }, ...sound] : [voice, ...sound],
-        idle: word ? [{ line: 'q-draw-word' }, voice] : capital ? [{ line: 'q-draw-big' }, ...sound] : [{ line: 'q-draw' }, voice, ...sound],
+        idle: word ? [{ line: 'q-draw-word' }, voice] : capital ? [{ line: 'q-draw-big' }, ...sound] : last ? [voice, ...sound] : [{ line: 'q-draw' }, voice, ...sound],
         end: [voice],
       },
     }
@@ -1702,9 +1708,10 @@ export class RunController {
     const def = latin ? latin.defs[0] : strokesOf(view.letter, view.script)
     const st = this.save.read()
     // the print screen has its demo; the handwriting screen uses the per-letter demos (needsDemo); a whole word, only
-    // with letters he has written alone, has the first visit's demo only
+    // with letters he has written alone, has the first visit's demo only (qu's two boxes are a letter round: q's demo)
     const firstVisit = screen === 'draw' && (this.opts.force ? !!this.opts.force.demo && !this.demoShown : !st.demosSeen.includes('demo-draw'))
-    const demo = firstVisit ? 'first' : (view.letters?.length ?? 1) === 1 && needsDemo(view.letter, view.script, st.tallies, st.recent) ? 'letter' : null
+    const wholeWord = !!latin && !this.drawCur?.firstSound
+    const demo = firstVisit ? 'first' : !wholeWord && needsDemo(view.letter, view.script, st.tallies, st.recent) ? 'letter' : null
     this.draw = drawRound({ view, def, checker: new LetterChecker(def), screen, demo, strokeNo: this.strokeNo, demoNo: this.demoNo, ...(latin ? { latin } : {}) })
     this.assets = []
     await this.guard(t, new Promise<void>((r) => {

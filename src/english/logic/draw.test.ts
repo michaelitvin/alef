@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { DrawCtx, DrawItem } from '../../duel2/course/types'
 import type { Pt, StrokeDef } from '../../duel2/data/strokes'
 import { drawLayout, latinLayout } from '../../duel2/logic/drawLayout'
-import { LetterChecker, matchMark, resample, splitMarks, type Verdict } from '../../duel2/logic/recognizer'
+import { LetterChecker, lineFeedback, matchMark, resample, splitMarks, type Verdict } from '../../duel2/logic/recognizer'
 import { drawRound, stepDraw, type DrawInput, type DrawStep, type DrawView } from '../../duel2/policies/draw'
 import { seeded } from '../../duel2/testing/runHarness'
 import { strokesOf } from '../../duel2/data/strokes'
@@ -72,6 +72,43 @@ describe('the English drawing rounds', () => {
     expect(items(2, { 'dr:a:print': { seen: 1, wrong: 1 }, ...alone('tsm') }).every((x) => x.letters.length === 1)).toBe(true)
   })
 
+  it('qu is one round in two boxes: he hears /kw/ and writes q and u; it counts on the unit qu', () => {
+    // stage 3, every letter before q in hand order written alone (not u): q is the new letter
+    const known = alone('cadgo')
+    expect(openLetters(3, known).next).toBe('q')
+    const qs = items(3, known).filter((x) => x.letters[0] === 'q')
+    expect(qs.length).toBeGreaterThan(0)
+    for (const x of qs) {
+      expect(x.letters).toEqual(['q', 'u'])
+      expect(x.firstSound).toBe('snd-kw')
+      expect(x.asked).toMatchObject({ kind: 'unit', id: 'qu' })
+      expect(x.text!.startsWith('qu')).toBe(true)
+      expect(x.at ?? 0).toBe(0)
+    }
+    // a capital Q has its small u
+    const caps = items(4, alone('cadgobhkltfijmnrpuesvwxyzq'), 150).filter((x) => x.letters[0] === 'Q')
+    expect(caps.length).toBeGreaterThan(0)
+    expect(caps.every((x) => x.letters.join('') === 'Qu' && x.text!.startsWith('Qu'))).toBe(true)
+  })
+
+  it('x, which starts no word, is the last letter of a word that ends in it, the rest of the word before its box', () => {
+    const known = alone(HAND_ORDER.slice(0, HAND_ORDER.indexOf('x')).join(''))
+    expect(openLetters(3, known).next).toBe('x')
+    const xs = items(3, known).filter((x) => x.letters.includes('x'))
+    expect(xs.length).toBeGreaterThan(0)
+    for (const x of xs.filter((i) => i.firstSound)) {
+      expect(x.letters).toEqual(['x'])
+      expect(x.text!.endsWith('x')).toBe(true)
+      expect(x.at).toBe(x.text!.length - 1)
+      expect(x.firstSound).toBe('snd-ks')
+      expect(x.asked).toMatchObject({ kind: 'unit', id: 'x' })
+    }
+    // never a capital X (a word's last letter)
+    expect(items(4, alone('cadgobhkltfijmnrpuesvwxyzq'), 150).some((x) => x.letters.includes('X'))).toBe(false)
+    // y and z come after it
+    expect(openLetters(3, alone(HAND_ORDER.slice(0, HAND_ORDER.indexOf('x') + 1).join(''))).next).toBe('y')
+  })
+
   it('capitals only after stage 3', () => {
     const known = alone('cadgobhkltfijmnrpuesvwyz')
     for (const stage of [1, 2, 3]) expect(items(stage, known).some((x) => x.letters.some((l) => /[A-Z]/.test(l)))).toBe(false)
@@ -79,9 +116,9 @@ describe('the English drawing rounds', () => {
     expect(caps.length).toBeGreaterThan(0)
     // a capital is the big letter of a word's first letter, and counts on the letter's unit
     for (const x of caps) {
-      expect(x.letters).toHaveLength(1)
       expect(x.text![0]).toBe(x.letters[0])
       expect(x.asked).toMatchObject({ kind: 'unit', id: x.letters[0] === 'Q' ? 'qu' : x.letters[0].toLowerCase() })
+      expect(x.letters).toHaveLength(x.letters[0] === 'Q' ? 2 : 1)
     }
   })
 })
@@ -122,6 +159,30 @@ describe('the Latin board', () => {
     expect(D.rest.cx).toBeGreaterThan(D.slot.right)
     // the rest is written so its letters reach the lines (one letter unit is Andika's ascender)
     expect(D.rest.px * W.unitEm).toBeCloseTo(D.u)
+    // x: the word before its box
+    const X = latinLayout({ defs: [latinStrokesOf('x')], rest: '', before: 'fo', capital: false, lines, font: W.font, unitEm: W.unitEm, em: W.em })
+    expect(X.before!.text).toBe('fo')
+    expect(X.before!.cx).toBeLessThan(X.slot.left)
+    expect(D.before).toBeUndefined()
+  })
+
+  it('a letter is told about the lines against its own lines: an x-height letter against the middle line, a descender against the descender line', () => {
+    const ink = (top: number, bottom: number, left = 0.1, right = 0.6) => ({ left, right, top, bottom })
+    const a = latinStrokesOf('a')
+    // a written from the middle line, or a little above it: no feedback; up to the top line: too tall
+    expect(lineFeedback(ink(0.37, 0.98), a, lines)).toBeNull()
+    expect(lineFeedback(ink(0.25, 0.98), a, lines)).toBeNull()
+    expect(lineFeedback(ink(0.02, 0.98), a, lines)).toMatchObject({ kind: 'tall', outside: { to: MID } })
+    // the Hebrew rule (no lines) would not tell it
+    expect(lineFeedback(ink(0.02, 0.98), a)).toBeNull()
+    // b and t reach the top line: no feedback
+    expect(lineFeedback(ink(0.0, 0.98), latinStrokesOf('b'), lines)).toBeNull()
+    expect(lineFeedback(ink(0.15, 0.98), latinStrokesOf('t'), lines)).toBeNull()
+    // g goes down to the descender line: fine; well below it: low; a, below the baseline: low
+    const g = latinStrokesOf('g')
+    expect(lineFeedback(ink(0.38, DESC), g, lines)).toBeNull()
+    expect(lineFeedback(ink(0.38, DESC + 0.35), g, lines)).toMatchObject({ kind: 'low', outside: { from: DESC } })
+    expect(lineFeedback(ink(0.38, 1.3), a, lines)).toMatchObject({ kind: 'low', outside: { from: BASE } })
   })
 })
 
@@ -223,7 +284,7 @@ function latinRun(letters: string[]) {
   const view: DrawView = { screen: 'draw', word: { id: letters.join('') }, script: 'print', letter: letters[0], layout, marks: [], strokes: [], mode: 'letter', alphabet: 'latin', letters, box: 0 }
   let st = drawRound({
     view, def: parts[0].body, checker: new LetterChecker(parts[0].body), screen: 'draw', demo: null, strokeNo: 0, demoNo: 0,
-    latin: { defs: parts.map((p) => p.body), marks: parts.map((p) => p.marks), cue: { start: [{ id: 'w-x' }], idle: [{ line: 'q-draw-word' }, { id: 'w-x' }], end: [{ id: 'w-x' }] } },
+    latin: { defs: parts.map((p) => p.body), marks: parts.map((p) => p.marks), lines: W.lines, cue: { start: [{ id: 'w-x' }], idle: [{ line: 'q-draw-word' }, { id: 'w-x' }], end: [{ id: 'w-x' }] } },
   })
   const steps: DrawStep[] = []
   let at = 0
@@ -276,6 +337,8 @@ describe('dots and crosses (the Hebrew marks rule)', () => {
     p.letter(2)
     expect(p.state.view.mode).toBe('mark')
     expect(p.said()).toContainEqual({ line: 'draw-dot', take: 1 })
+    // the view gives the missing dot's place (the verify build's hook draws it)
+    expect(p.state.view.owed).toEqual([p.state.latin!.due[0].pts])
     p.mark(1, [0.04, -0.05])
     p.step({ type: 'asked' })
     expect(p.state.view.mode).toBe('done')

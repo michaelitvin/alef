@@ -117,7 +117,7 @@ export const EN_LINES: EnLine[] = [
   line('line-how-word', 'Picture round with word runes (stages 6 to 9)', 'I', WARM, ['Which word goes with the picture?']),
   line('q-door-words', 'Phrase door, when he waits', 'I', WARM, ['What do the words say? Bring the right key.', 'Read the words, and pick a key.', 'Which key goes with the words?']),
   line('q-draw-word', 'Drawing a whole word (from stage 2), when he waits; then the word', 'I', WARM, ['Write the word:', 'Can you write:', 'Now write the whole word:']),
-  line('q-draw-big', 'Capitals (after stage 3), when he waits; then the sound', 'I', WARM, ['Now write the big letter for:']),
+  line('q-draw-big', 'Capitals (after stage 3): at the start of a capital round (after the word) and when he waits; then the sound', 'I', WARM, ['Now write the big letter for:']),
   line('intro-sound', "A new unit's introduction; then its sound and a picture word", 'I', PLAY, ["Here's a new sound:", 'Listen to this new sound:', 'A new sound:']),
   line('intro-team', 'The first two-letter unit (stage 4); then the unit', 'I', WARM, ['These two letters make one sound together:']),
   line('intro-blend', 'Stage 5; then a blend', 'I', WARM, ['Say each sound, then push them together:']),

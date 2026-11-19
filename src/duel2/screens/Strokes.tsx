@@ -2,8 +2,8 @@
 // their numbers next to the font's letter, animated by the glowing hand (tap a letter, or animate all), a speaker for the
 // letter's name, and a "looks right / wrong" mark kept on this device and exported with the telemetry. The drawing screen
 // stays out of the game until the parent has checked these (the setting in the parent area). A course with its own
-// letters (English: Latin, on four lines) adds an alphabet choice beside the script; the marks are kept in the open
-// course's save (Latin keys end in `-latin`).
+// letters (English: Latin, on four lines) shows those instead (the English page reviews no Hebrew letter); the marks are
+// kept in the open course's save (Latin keys end in `-latin`).
 import { useEffect, useState } from 'react'
 import { GlyphDefs } from '../components/Glyph'
 import { StrokeAnim } from '../components/StrokeAnim'
@@ -98,7 +98,6 @@ function LetterCard({ def, ms, playing, onPlay, latin }: { def: LetterDef; ms?: 
 
 export function Strokes({ onBack }: { onBack: () => void }) {
   const writing = useCourse().writing
-  const [alphabet, setAlphabet] = useState<'hebrew' | 'latin'>(writing ? 'latin' : 'hebrew')
   const [script, setScript] = useState<Script | 'both' | 'words'>('print')
   const [playing, setPlaying] = useState<string | 'all' | null>(null)
   const [ms, setMs] = useState(0)
@@ -116,7 +115,8 @@ export function Strokes({ onBack }: { onBack: () => void }) {
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
   }, [playing])
-  const latin = alphabet === 'latin' && writing ? writing : undefined
+  // a course with its own letters reviews those (the English page: Latin only)
+  const latin = writing
   const scripts: Script[] = latin || script === 'words' ? [] : script === 'both' ? ['print', 'hand'] : [script]
   // (each alphabet's own marks: the Latin keys end in -latin)
   const own = Object.entries(marks).filter(([k]) => k.endsWith('-latin') === !!latin).map(([, m]) => m)
@@ -133,11 +133,6 @@ export function Strokes({ onBack }: { onBack: () => void }) {
         the drawing screen joins the game only when you turn it on in the parent area.
       </p>
       <p data-reviewed>Checked: {done} of {latin ? latin.letters.length : STROKES.length}{wrong ? ` · marked wrong: ${wrong}` : ''}</p>
-      {writing && <p data-alphabet>
-        {(['latin', 'hebrew'] as const).map((a) => (
-          <button key={a} data-alphabet-choice={a} onClick={() => setAlphabet(a)} style={{ fontWeight: alphabet === a ? 700 : 400, marginRight: 6 }}>{a === 'latin' ? 'Latin (English)' : 'Hebrew'}</button>
-        ))}
-      </p>}
       <p>
         {!latin && (['print', 'hand', 'both', 'words'] as const).map((s) => (
           <button key={s} onClick={() => setScript(s)} style={{ fontWeight: script === s ? 700 : 400, marginRight: 6 }}>{s === 'both' ? 'Both' : s === 'words' ? 'Words' : SCRIPT_NAME[s]}</button>
@@ -170,10 +165,17 @@ export function Strokes({ onBack }: { onBack: () => void }) {
           </div>
         </section>
       ))}
-      <p style={{ color: '#666', fontSize: 13 }}>
-        Timing per letter: {Math.round(strokeTiming(strokesOf('א', 'print').variants[0].map((s) => s.pts)).total / 100) / 10} s for print א.
-        Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file. Handwriting: the big glyph is the font the strokes follow (Dana Yad or Ktav Yad); the game writes the words in Dana Yad.
-      </p>
+      {latin ? (
+        <p style={{ color: '#666', fontSize: 13 }}>
+          Timing per letter: {Math.round(strokeTiming(latin.strokesOf('a').variants[0].map((s) => s.pts)).total / 100) / 10} s for a.
+          The strokes follow Andika&apos;s letters, in US manuscript order (stems down first; a d g q also in one stroke); see the stroke data file.
+        </p>
+      ) : (
+        <p style={{ color: '#666', fontSize: 13 }}>
+          Timing per letter: {Math.round(strokeTiming(strokesOf('א', 'print').variants[0].map((s) => s.pts)).total / 100) / 10} s for print א.
+          Sources: etze.co.il, shlomitoltchik.com, likro.co.il, 2times2.com, Hebrew4Christians, C. Abzug (JMU); see the stroke data file. Handwriting: the big glyph is the font the strokes follow (Dana Yad or Ktav Yad); the game writes the words in Dana Yad.
+        </p>
+      )}
     </div>
   )
 }

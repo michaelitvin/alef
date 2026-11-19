@@ -525,6 +525,25 @@ describe('recognizer: a letter\'s own marks and strokes that go back (the Latin 
     expect(matchMark([[0.2, -0.6], [0.2, -0.58]], targets)).toBe(-1)
   })
 
+  it('the place of a mark is judged at his letter\'s size: a small letter has a smaller place (down to a floor), a big one a larger', () => {
+    const at = (k: number): MarkTarget => ({ shape: 'dot', pts: [[0.2, 0.15], [0.2, 0.17]], box: 0, k })
+    // 0.2 to the right of the place
+    const off: Pt[] = [[0.4, 0.16], [0.4, 0.17]]
+    expect(matchMark(off, [at(1)])).toBe(0)
+    expect(matchMark(off, [at(0.6)])).toBe(-1)
+    expect(matchMark(off, [at(0.3)])).toBe(-1)
+    // the floor: at a tiny size the place is still 0.6 of the full one (0.1 off passes at 0.3 as at 0.6)
+    const near: Pt[] = [[0.3, 0.16], [0.3, 0.17]]
+    expect(matchMark(near, [at(0.3)])).toBe(0)
+    expect(matchMark(near, [at(0.6)])).toBe(0)
+    // 0.35 off: only a big letter's place reaches it
+    const far: Pt[] = [[0.55, 0.16], [0.55, 0.17]]
+    expect(matchMark(far, [at(1)])).toBe(-1)
+    expect(matchMark(far, [at(1.6)])).toBe(0)
+    // a dot is a dot by its size on a small letter too
+    expect(matchMark([[0.15, 0.12], [0.25, 0.16]], [at(0.6)])).toBe(0)
+  })
+
   it('a stroke that goes back up its own stem passes, also wobbly, beside the way down, or lifted where it turns', () => {
     const one = (pts: Pt[][]) => { const c = new LetterChecker(nLike); const rs = pts.map((p) => c.add(p)); const s = c.settle(); if (s) rs.push(s); return c.done && !rs.some((r) => r.kind === 'wrong') }
     expect(one([draw(arch)])).toBe(true)

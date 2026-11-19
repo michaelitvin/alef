@@ -130,10 +130,17 @@ export interface DrawItem {
   firstSound?: string
   picture?: string
   alphabet: 'hebrew' | 'latin'
-  /** English: what his answer counts on (a unit for one letter, the word for a whole word): its tallies and the stage pass */
+  /**
+   * English: what his answer counts on (the unit of a letter round, qu for its two boxes; the word for a whole word):
+   * its tallies and the stage pass
+   */
   asked?: Choice
-  /** English: the word as written (the rest of it stands beside the slot of one letter) */
+  /**
+   * English: the word as written; the boxes stand for its letters from `at` (default 0: its first letters; x, which
+   * starts no word, is the last), the rest of it is written before and after them
+   */
   text?: string
+  at?: number
   /** Hebrew: the Book 2 word (the slot's letter, the bare vav and the marks come from it) */
   word?: Word
 }

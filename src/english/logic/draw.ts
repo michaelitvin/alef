@@ -3,7 +3,9 @@
 // hand order (how the hand starts: like c, a line down, down and over) decides which open letter comes first: the first
 // one he has not written alone yet is the new one, and it opens the next only once he has. From stage 2, sometimes the
 // whole three-letter word, in three boxes, only with letters he has written alone. After stage 3, sometimes the capital
-// of a letter he knows. His answer counts on the letter's unit (one letter) or on the word (a whole word).
+// of a letter he knows. His answer counts on the letter's unit (one letter) or on the word (a whole word). q is never
+// alone: its unit qu is one round in two boxes (q, u). x starts no word: he writes it as the last letter of a word
+// that ends in it (fox), the rest of the word before its box.
 import type { DrawCtx, DrawItem } from '../../duel2/course/types'
 import type { Tally } from '../../shared/adaptive'
 import { drawFeature } from '../../duel2/logic/draw'
@@ -34,11 +36,14 @@ export interface DrawDeps { picture: PictureOf; voice?: HasVoice }
 /** the sound unit a letter starts (q: qu) */
 const unitOfLetter = (l: string): Unit | undefined => UNITS.find((u) => u.id === (l === 'q' ? 'qu' : l))
 
-/** the real words he hears for a letter: they start with its unit; his stages' first (else any stage's) */
+/**
+ * the real words he hears for a letter: they start with its unit (a unit that never starts a word, x: they end in it);
+ * his stages' first (else any stage's)
+ */
 function startWords(l: string, stage: number): EnWord[] {
   const u = unitOfLetter(l)
   if (!u) return []
-  const all = WORDS.filter((w) => w.kind === 'real' && w.units[0] === u.id)
+  const all = WORDS.filter((w) => w.kind === 'real' && (u.endOnly ? w.units[w.units.length - 1] === u.id : w.units[0] === u.id))
   const his = all.filter((w) => w.stage <= stage)
   return his.length ? his : all
 }
@@ -55,7 +60,7 @@ export function writtenAlone(tallies: Record<string, Tally>): Set<string> {
 
 /**
  * The letters open at `stage`, in hand order: those he has written alone (`known`), and the first one he has not (`next`,
- * the new one). A letter that starts no word (x) is never one to write alone.
+ * the new one).
  */
 export function openLetters(stage: number, tallies: Record<string, Tally>): { known: string[]; next?: string } {
   const alone = writtenAlone(tallies)
@@ -78,17 +83,20 @@ function candidates(pool: EnWord[], used: Set<string>, deps: DrawDeps): EnWord[]
   return unused.length ? unused : from
 }
 
-/** one letter: the first letter of a heard word (a capital: its big letter), and the word's first sound */
+/**
+ * one letter: the first letter of a heard word (a capital: its big letter), and the word's first sound. q: its unit's
+ * two letters, q and u. x: the last letter of a word that ends in it, and its sound (never a capital)
+ */
 function letterItem(ctx: DrawCtx, l: string, capital: boolean, used: Set<string>, deps: DrawDeps): DrawItem {
   const u = unitOfLetter(l)!
   const from = candidates(startWords(l, ctx.stage), used, deps)
   const w = from[Math.floor(ctx.rng() * from.length)]
-  const letter = capital ? l.toUpperCase() : l
   const file = pictureOf(w, deps)
-  return {
-    id: w.id, letters: [letter], voice: wordVoice(w.text), firstSound: soundVoice(u), alphabet: 'latin', asked: unitChoice(u),
-    text: letter + w.text.slice(1), ...(file ? { picture: file } : {}),
-  }
+  const own = { id: w.id, voice: wordVoice(w.text), firstSound: soundVoice(u), alphabet: 'latin' as const, asked: unitChoice(u), ...(file ? { picture: file } : {}) }
+  if (u.endOnly) return { ...own, letters: [l], text: w.text, at: w.text.length - 1 }
+  const first = capital ? l.toUpperCase() : l
+  const letters = l === 'q' ? [first, 'u'] : [first]
+  return { ...own, letters, text: first + w.text.slice(1) }
 }
 
 /** the whole word, a box for each letter */
@@ -116,7 +124,7 @@ export function enDrawWords(ctx: DrawCtx, n = DRAW_ROUNDS, deps: DrawDeps): Draw
     else {
       const fresh = !!next && (i === 0 || !known.length || ctx.rng() < NEW_SHARE)
       const l = fresh ? next! : pickTarget(ctx.rng, known, (x) => [drawFeature(x, 'print'), unitOfLetter(x)!.id, 'sc:draw'], ctx.tallies, ctx.recent, enPrior)
-      const capital = !fresh && ctx.stage >= CAPITAL_FROM && ctx.rng() < CAPITAL_SHARE
+      const capital = !fresh && ctx.stage >= CAPITAL_FROM && !unitOfLetter(l)!.endOnly && ctx.rng() < CAPITAL_SHARE
       item = letterItem(ctx, l, capital, used, deps)
     }
     used.add(item.id)

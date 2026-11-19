@@ -8,7 +8,7 @@
 // with its own checker; the dots and bars of a letter are its marks (`matchMark`): any order once the letter is there,
 // also after the next letter; after the last letter, the line asks for those still missing.
 import type { Pt, Script, LetterDef } from '../data/strokes'
-import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, matchMark, pathLength, type Box, type LetterMark, type LineKind, type MarkBoxes, type MarkSpec, type MarkTarget, type Verdict } from '../logic/recognizer'
+import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, matchMark, pathLength, type Box, type LatinLines, type LetterMark, type LineKind, type MarkBoxes, type MarkSpec, type MarkTarget, type Verdict } from '../logic/recognizer'
 import { strokeTiming, type DrawLayout } from '../logic/drawLayout'
 import { drawFeature } from '../logic/draw'
 
@@ -34,6 +34,8 @@ export interface DrawView {
   letters?: string[]
   box?: number
   picture?: string
+  /** Latin: the marks still missing, where his letters put them (the verify build's test hook draws them) */
+  owed?: Pt[][]
 }
 
 /** wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
@@ -124,6 +126,8 @@ type Flow =
 export interface LatinRound {
   defs: LetterDef[]
   marks: LetterMark[][]
+  /** the four lines (the line feedback judges a letter against its own lines: an x-height letter against the middle one) */
+  lines: LatinLines
   cue: { start: DrawLine[]; idle: DrawLine[]; end: DrawLine[] }
 }
 
@@ -208,6 +212,11 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
   const dx = () => (s.latin ? s.view.layout.boxes?.[s.latin.box]?.dx ?? 0 : 0)
   const out = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x + d, y]) : p }
   const inn = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x - d, y]) : p }
+  /** Latin: the marks owed (the view shows those still missing) */
+  const setDue = (due: NonNullable<DrawState['latin']>['due']) => {
+    s.latin = { ...s.latin!, due }
+    show({ owed: due.filter((m) => !m.got).map((m) => m.pts) })
+  }
   /** Latin: the marks of his letters still missing */
   const missing = () => (s.latin ? s.latin.due.filter((m) => !m.got) : [])
   const markLine = (): DrawLine => ({ line: missing()[0]?.shape === 'bar' ? 'draw-cross' : 'draw-dot', take: 1 })
@@ -215,7 +224,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
   const gotMark = (i: number, pts: Pt[]) => {
     const L = s.latin!
     const t = missing()[i]
-    s.latin = { ...L, due: L.due.map((m) => (m === t ? { ...m, got: true } : m)) }
+    setDue(L.due.map((m) => (m === t ? { ...m, got: true } : m)))
     addStroke(pts, 'ok', { box: t.box, mark: true })
     r.sfx.push('stroke')
     r.track.push({ e: 'draw-mark', data: { mark: `${s.view.letters![t.box]}:${t.shape}`, ok: true } })
@@ -247,10 +256,10 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
       // the letter's marks are owed now, where his letter puts them
       const L = s.latin
       const c = s.checker
-      s.latin = { ...L, due: [...L.due, ...L.marks[L.box].map((m) => ({ ...m, pts: out(c.place(m.pts)), box: L.box, k: c.scale, got: false }))] }
+      setDue([...L.due, ...L.marks[L.box].map((m) => ({ ...m, pts: out(c.place(m.pts)), box: L.box, k: c.scale, got: false }))])
     }
     run({ phase: 'feedback' })
-    const fb = lineFeedback(s.ink, s.def)
+    const fb = lineFeedback(s.ink, s.def, s.latin?.lines)
     if (fb) {
       show({ lineFx: fb })
       r.track.push({ e: 'draw-lines', data: { letter: s.view.letter, kind: fb.kind } })
@@ -483,7 +492,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
           if (s.markTries >= DRAW_TRIES) {
             const owed = missing()
             f.targets.forEach((p, i) => addStroke(p, 'helped', s.latin ? { mark: true, box: owed[i]?.box } : undefined))
-            if (s.latin) s.latin = { ...s.latin, due: s.latin.due.map((m) => ({ ...m, got: true })) }
+            if (s.latin) setDue(s.latin.due.map((m) => ({ ...m, got: true })))
             s.helped = true
             marksEnd()
             break

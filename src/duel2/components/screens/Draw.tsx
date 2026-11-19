@@ -33,6 +33,7 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
   )
   return (
     <g data-word>
+      {L.before && text(L.before.text, L.before.cx, { 'data-before': '' })}
       {L.rest.text && text(shin ? shin.text : L.rest.text, L.rest.cx)}
       {shin?.dots.map((d, i) => <circle key={i} data-glyph cx={L.rest.cx + d.dx} cy={base + d.dy} r={d.r} style={{ ...INK, strokeWidth: 2 }} />)}
       {L.vav && text('ו', L.vav.cx, { 'data-vav': '', className: glowVav ? 'd2-vav-glow' : undefined })}
@@ -93,7 +94,8 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
     ;(window as unknown as { __d2draw?: unknown }).__d2draw = {
       layout: { x0: L.x0 + dx * L.u, top: L.top, u: L.u }, letter: v.letter, script: v.script, mode: v.mode,
       expected: def.variants[0].filter((_, i) => !(latin && writing?.isMark(v.letter, i))).map((s) => s.pts),
-      marks: () => markTargets(v.marks, { letter: bbox(ok.flatMap((s) => s.pts)), vav: L.vav?.box }),
+      // (Latin: the marks still owed, from the hook's origin, the box he writes now)
+      marks: () => (latin ? (v.owed ?? []).map((st) => st.map(([x, y]) => [x - dx, y])) : markTargets(v.marks, { letter: bbox(ok.flatMap((s) => s.pts)), vav: L.vav?.box })),
     }
   }
   const lineY = (y: number) => L.top + y * L.u
@@ -122,6 +124,12 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
           strokeOpacity={v.mode === 'done' || (latin && !now && v.mode === 'letter') ? 0.25 : 0.85} />
       })}
       <WordText L={L} glowVav={markVav} />
+      {/* the Latin board: the start dot of the letter's first stroke, in its box, until he begins it */}
+      {latin && writing && v.mode === 'letter' && !v.strokes.some((s) => (s.box ?? 0) === (v.box ?? 0) && !s.mark) && (() => {
+        const [x, y] = writing.strokesOf(v.letter).variants[0][0].pts[0]
+        const [cx, cy] = map([x + (L.boxes?.[v.box ?? 0]?.dx ?? 0), y])
+        return <circle data-start-dot cx={cx} cy={cy} r={Math.max(9, L.u * 0.06)} fill="#7dff9a" stroke="#1b0f3c" strokeWidth={3} style={{ pointerEvents: 'none' }} />
+      })()}
       <g data-strokes className={v.mode === 'done' ? 'd2-drawn' : v.glow === 'marks' ? 'd2-drawn-soft' : undefined}>
         {v.strokes.map((s) => {
           const pts = s.pts.map(map)

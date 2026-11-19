@@ -1077,7 +1077,7 @@ The builder plays only those that the tower still uses in the run (`line-how-sil
 | line-how-word | picture round with word runes (stages 6–9) | Which word goes with the picture? | I |
 | q-door-words | phrase door, when he waits | What do the words say? Bring the right key. · Read the words, and pick a key. · Which key goes with the words? | I warmly |
 | q-draw-word | drawing a whole word (from stage 2), when he waits; then the word | Write the word: · Can you write: · Now write the whole word: | I warmly |
-| q-draw-big | capitals (after stage 3), when he waits; then the sound | Now write the big letter for: | I warmly |
+| q-draw-big | capitals (after stage 3): at the start of a capital round (after the word) and when he waits; then the sound | Now write the big letter for: | I warmly |
 | intro-sound | a new unit's introduction; then its sound and a picture word | Here's a new sound: · Listen to this new sound: · A new sound: | I playful |
 | intro-team | the first two-letter unit (stage 4); then the unit | These two letters make one sound together: | I warmly |
 | intro-blend | stage 5; then a blend | Say each sound, then push them together: | I warmly |
