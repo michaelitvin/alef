@@ -151,6 +151,7 @@ export const ENGLISH: Course = {
     cancelVoice: a.cancelVoice, playSfx: a.playSfx as Course['audio']['playSfx'], startMusic: a.startMusic as Course['audio']['startMusic'],
   },
   telemetry: englishTelemetry,
+  onRunEnd: (w) => englishSavePort().setLastRunWords(w),
   log: ENGLISH_LOG,
   save: englishSavePort,
   store: () => useEnglishStore,

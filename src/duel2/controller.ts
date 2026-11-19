@@ -288,6 +288,8 @@ export class RunController {
   /** the boss of this visit (policies/broomBoss.ts): its hits survive a pause (rule: losing them is the "gives up" problem again) */
   private boss: BossState | null = null
   private bossesWon: BossKind[] = []
+  /** the words he was asked in this run, in order, once each (the course's `onRunEnd` gets them) */
+  private wordsRead: string[] = []
   private startStars = 0
   private drawPlan: DrawItem[] | null = null
   /** the drawing round on the screen (a pause starts it again) */
@@ -1269,6 +1271,7 @@ export class RunController {
     const ms = Math.round(this.now() - this.cueStarted)
     const asked = door ? door.asked : 'soundId' in target ? (target as Choice) : undefined
     const tap = tapped && 'soundId' in tapped ? (tapped as Choice) : undefined
+    if (asked?.kind === 'word' && !this.wordsRead.includes(asked.id)) this.wordsRead.push(asked.id)
     // a round the course keeps out of the stage pass (CauldronRound.noStage)
     const noStage = this.view.screen?.screen === 'cauldron' && !!this.view.screen.noStage
     // a Hebrew door word counts towards the stage from stage 4 (its last stage, the words); an English door by its key's word
@@ -1619,6 +1622,7 @@ export class RunController {
     this.course.audio.stopMusic()
     const r = await this.passRun({ type: 'lost', score: this.score, bestRun: this.save.read().bestRun, cue })
     this.token++
+    if (!this.opts.sandbox) this.course.onRunEnd?.(this.wordsRead)
     this.set({ over: { score: this.score, crystals: r.over!.crystals, best: r.over!.best, bosses: [...this.bossesWon], startStars: this.startStars }, needNext: false })
     return 'over'
   }

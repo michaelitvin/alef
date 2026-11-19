@@ -195,6 +195,7 @@ const ENGLISH: Table = {
   ...SPELL,
   settings: (r) => ({ keys: ['path'], path: r.chance(0.5) }),
   'range-set': (r) => ({ range: r.pick([10, 100, 1000]) }),
+  'parent-check': (r) => ({ word: r.pick(WORDS), ok: r.chance(0.7), run: r.int(1, 40) }),
   'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
 }
 

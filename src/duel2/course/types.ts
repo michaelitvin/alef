@@ -220,6 +220,8 @@ export interface Course {
   rounds: CourseRounds
   audio: CourseAudio
   telemetry: ReturnType<typeof createTelemetry>
+  /** the run's end, with the ids of the words he was asked in it (English: kept for the parent's check; Hebrew: unset) */
+  onRunEnd?: (words: string[]) => void
   /** the log the parent area lists and the registry seals (BOOK2_LOG, ENGLISH_LOG) */
   log: TelemetryLog
   /** lazy: the English store is created only on the English page */

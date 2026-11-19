@@ -6,6 +6,7 @@ import { englishSavePort } from '../savePort'
 import { useEnglishStore } from '../store'
 import { englishTelemetry } from '../telemetry'
 import type { EnglishSettings } from '../saveFormat'
+import OffScreenCheck from './OffScreenCheck'
 import Level from './Level'
 import Units from './Units'
 import Words from './Words'
@@ -39,6 +40,7 @@ export default function EnglishSettingsSection({ goTo }: SectionProps) {
       <Level />
       <Units />
       <Words />
+      <OffScreenCheck />
       <h3>Telemetry</h3>
       <p>
         Export or clear the English path’s event log in{' '}
