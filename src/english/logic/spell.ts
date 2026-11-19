@@ -40,7 +40,7 @@ export interface SpellDeps { picture: PictureOf; voice?: HasVoice }
  * a unit as a box or a tile: its letters (an ending without its hyphen; a magic e its vowel letter, `a` for a_e), its
  * sound, and the choice its answer counts on
  */
-const boxOf = (u: Unit): SpellBox => {
+export const boxOf = (u: Unit): SpellBox => {
   const p = partOf(u)
   const c = u.kind === 'magic-e' ? { ...p, text: u.text[0] } : p
   return { unit: u.id, text: c.text, soundId: c.soundId, choice: c }

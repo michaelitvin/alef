@@ -151,15 +151,22 @@ describe('the spell book screen: a written word', () => {
       const cx = Number(dot.getAttribute('cx'))
       expect(cx).toBeGreaterThan(Number(first.getAttribute('x')))
       expect(cx).toBeLessThan(Number(first.getAttribute('x')) + Number(first.getAttribute('width')))
-      // a stroke on the book reaches the run in letter units (the board's origin)
-      const L = s.write!.layout
+      // a stroke on the book reaches the run in letter units from the first box's origin: a touch on the start dot of j
+      // (jsdom has no screen transform: client = stage) is j's first point; one letter unit right of it is 1 more
       const pad = page.querySelector('[data-spell-write] [data-draw-pad]')!
-      fireEvent.pointerDown(pad, { pointerId: 1, clientX: 0, clientY: 0 })
-      fireEvent.pointerUp(pad, { pointerId: 1, clientX: 0, clientY: 0 })
+      const cy = Number(dot.getAttribute('cy'))
+      const u = s.write!.layout.u
+      fireEvent.pointerDown(pad, { pointerId: 1, clientX: cx, clientY: cy })
+      fireEvent.pointerMove(pad, { pointerId: 1, clientX: cx + u, clientY: cy })
+      fireEvent.pointerUp(pad, { pointerId: 1, clientX: cx + u, clientY: cy })
       expect(onStroke).toHaveBeenCalledTimes(1)
-      const [[[[x, y]]]] = onStroke.mock.calls as unknown as [[[number, number][]]][]
-      expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true)
-      expect(L.u).toBeGreaterThan(0)
+      const [[pts]] = onStroke.mock.calls as unknown as [[[number, number][]]]
+      const [x0, y0] = ENGLISH.writing!.strokesOf('j').variants[0][0].pts[0]
+      expect(pts).toHaveLength(2)
+      expect(pts[0][0]).toBeCloseTo(x0, 6)
+      expect(pts[0][1]).toBeCloseTo(y0, 6)
+      expect(pts[1][0]).toBeCloseTo(x0 + 1, 6)
+      expect(pts[1][1]).toBeCloseTo(y0, 6)
       c.destroy()
     } finally { vi.useRealTimers() }
   })

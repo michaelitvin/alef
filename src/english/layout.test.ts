@@ -23,7 +23,9 @@ import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
 import { inkEm, measureText } from './measure'
 import { BOOK as SPELL_BOOK, SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
-import { spellWriting, type SpellBox, type SpellRound } from '../duel2/policies/spell'
+import type { SpellBox, SpellRound } from '../duel2/policies/spell'
+import { spellWriting } from '../duel2/policies/spellWrite'
+import { boxOf } from './logic/spell'
 import { SPELL_BOARD } from '../duel2/logic/drawLayout'
 import { CourseProvider } from '../duel2/course/CourseContext'
 import { ENGLISH } from './course'
@@ -266,7 +268,7 @@ describe('the spell book', () => {
   // Task 29: a written word has a box per letter (up to 7: jumping), on the drawing's slate across the book's pages
   const writtenRound = (w: EnWord): SpellRound => ({
     word: w.id, wordVoice: `w-${w.text}`, tiles: [], mode: 'write',
-    boxes: w.units.map((u) => { const x = unit(u); const text = x.kind === 'magic-e' ? x.text[0] : x.text.replace(/^-/, ''); return { unit: u, text, soundId: `snd-${u}` } }),
+    boxes: w.units.map((u) => boxOf(unit(u))),
     ...(w.units.some((u) => unit(u).kind === 'magic-e') ? { tail: 'e' } : {}),
   })
   const writtenWords = WORDS.filter((w) => w.kind === 'real' && w.units.length >= 2 && w.units.length <= 5)
@@ -304,7 +306,7 @@ describe('the spell book', () => {
         expect(b.top, w.text).toBeGreaterThanOrEqual(SPELL_BOARD.top)
         expect(b.bottom, w.text).toBeLessThanOrEqual(SPELL_BOARD.bottom)
       }
-      rects.slice(1).forEach((b, i) => expect(b.left, w.text).toBeGreaterThan(rects[i].right))
+      rects.slice(1).forEach((b: { left: number }, i: number) => expect(b.left, w.text).toBeGreaterThan(rects[i].right))
       if (round.tail) expect(L.rest.cx + (L.rest.px * 0.5) / 2, w.text).toBeLessThanOrEqual(SPELL_BOARD.right)
       // a small letter (the middle line to the baseline) is at least WRITE_MIN_PX high on the screen
       expect((BASE - MID) * L.u * scale, w.text).toBeGreaterThanOrEqual(WRITE_MIN_PX)

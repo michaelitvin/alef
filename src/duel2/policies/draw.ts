@@ -8,7 +8,8 @@
 // with its own checker; the dots and bars of a letter are its marks (`matchMark`): any order once the letter is there,
 // also after the next letter; after the last letter, the line asks for those still missing.
 import type { Pt, Script, LetterDef } from '../data/strokes'
-import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, matchMark, pathLength, type Box, type LatinLines, type LetterMark, type LineKind, type MarkBoxes, type MarkSpec, type MarkTarget, type Verdict } from '../logic/recognizer'
+import { LetterChecker, bbox, judgeMarks, lineFeedback, markTargets, type Box, type LatinLines, type LetterMark, type LineKind, type MarkBoxes, type MarkSpec, type Verdict } from '../logic/recognizer'
+import { afterVerdict, boxDx, dropFaded as withoutFaded, isTap, markLine as markLineOf, missingMarks, oweMarks, rowStroke, shift, takeMark, type Owed, type RowStroke } from './latinRow'
 import { strokeTiming, type DrawLayout } from '../logic/drawLayout'
 import { drawFeature } from '../logic/draw'
 
@@ -16,7 +17,7 @@ import { drawFeature } from '../logic/draw'
  * one of his strokes on the drawing screen (letter units of the slot): live while judged, gold when right. Latin: `box`,
  * the letter's box it was drawn for; `mark`, a dot or a bar of a letter (it is not part of the letter's ink)
  */
-export interface DrawStroke { id: number; pts: Pt[]; state: 'live' | 'pending' | 'ok' | 'wrong' | 'helped' | 'mark'; box?: number; mark?: true }
+export type DrawStroke = RowStroke
 /** the round's word: its id, and its picture (Hebrew: an image name; the whole Book 2 word) */
 export interface DrawWord { id: string; picture?: string }
 export interface DrawView {
@@ -41,7 +42,7 @@ export interface DrawView {
 /** wrong tries of one stroke (or of the marks) before the hand draws it for him (no dead end) */
 export const DRAW_TRIES = 3
 /** a stroke shorter than this (letter units) is a tap, not a stroke of the letter */
-export const TAP_LEN = 0.06
+export { TAP_LEN } from './latinRow'
 /** a piece that waits for the rest of its stroke is settled after this pause */
 export const SETTLE_MS = 1000
 /** no stroke for this long: the instruction and the word (the run's IDLE_MS) */
@@ -183,7 +184,7 @@ export interface DrawState {
    * a Latin round: its facts, the box he writes now, and the marks of the letters he has written, where his letters
    * put them (`got`: drawn, or drawn for him by the hand)
    */
-  latin?: LatinRound & { box: number; due: (MarkTarget & { got: boolean })[] }
+  latin?: LatinRound & { box: number; due: Owed[] }
 }
 
 /** A round as it starts (the run sends `start` next). */
@@ -209,29 +210,28 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     show({ strokes: [...s.view.strokes, { id: ++s.strokeNo, pts, state: st, ...(s.latin ? { box: s.latin.box } : {}), ...more }] })
   // Latin: the checker judges each letter in its own box; his strokes and the hand's are where he draws them (from the
   // first box's origin)
-  const dx = () => (s.latin ? s.view.layout.boxes?.[s.latin.box]?.dx ?? 0 : 0)
-  const out = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x + d, y]) : p }
-  const inn = (p: Pt[]): Pt[] => { const d = dx(); return d ? p.map(([x, y]): Pt => [x - d, y]) : p }
+  const dx = () => (s.latin ? boxDx(s.view.layout, s.latin.box) : 0)
+  const out = (p: Pt[]): Pt[] => shift(p, dx())
+  const inn = (p: Pt[]): Pt[] => shift(p, -dx())
   /** Latin: the marks owed (the view shows those still missing) */
   const setDue = (due: NonNullable<DrawState['latin']>['due']) => {
     s.latin = { ...s.latin!, due }
     show({ owed: due.filter((m) => !m.got).map((m) => m.pts) })
   }
   /** Latin: the marks of his letters still missing */
-  const missing = () => (s.latin ? s.latin.due.filter((m) => !m.got) : [])
-  const markLine = (): DrawLine => ({ line: missing()[0]?.shape === 'bar' ? 'draw-cross' : 'draw-dot', take: 1 })
-  /** Latin: his stroke is the missing mark `i` (gold at once: a mark is not judged as a stroke of the letter) */
-  const gotMark = (i: number, pts: Pt[]) => {
-    const L = s.latin!
-    const t = missing()[i]
-    setDue(L.due.map((m) => (m === t ? { ...m, got: true } : m)))
+  const missing = () => (s.latin ? missingMarks(s.latin.due) : [])
+  const markLine = (): DrawLine => markLineOf(s.latin!.due)
+  /** Latin: his stroke is the missing mark `t` (gold at once: a mark is not judged as a stroke of the letter) */
+  const gotMark = (got: { due: Owed[]; mark: Owed }, pts: Pt[]) => {
+    const t = got.mark
+    setDue(got.due)
     addStroke(pts, 'ok', { box: t.box, mark: true })
     r.sfx.push('stroke')
     r.track.push({ e: 'draw-mark', data: { mark: `${s.view.letters![t.box]}:${t.shape}`, ok: true } })
   }
   const restyle = (f: (x: DrawStroke, i: number, all: DrawStroke[]) => DrawStroke['state'] | null) =>
     show({ strokes: s.view.strokes.map((x, i, all) => { const k = f(x, i, all); return k ? { ...x, state: k } : x }) })
-  const dropFaded = () => show({ strokes: s.view.strokes.filter((x) => x.state !== 'wrong') })
+  const dropFaded = () => show({ strokes: withoutFaded(s.view.strokes) })
   /** the glowing hand draws `strokes` (and the voice may speak meanwhile); the wait ends when both are done */
   const handDraw = (strokes: Pt[][], line?: DrawLine) => {
     const id = ++s.demoNo
@@ -255,8 +255,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     if (s.latin) {
       // the letter's marks are owed now, where his letter puts them
       const L = s.latin
-      const c = s.checker
-      setDue([...L.due, ...L.marks[L.box].map((m) => ({ ...m, pts: out(c.place(m.pts)), box: L.box, k: c.scale, got: false }))])
+      setDue([...L.due, ...oweMarks(L.marks[L.box], s.checker, L.box, dx())])
     }
     run({ phase: 'feedback' })
     const fb = lineFeedback(s.ink, s.def, s.latin?.lines)
@@ -306,8 +305,8 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
   }
   /** Latin: a stroke while he draws the marks: the nearest missing one, or a wrong mark (the hand shows them) */
   const latinMark = (pts: Pt[]) => {
-    const m = matchMark(pts, missing())
-    if (m >= 0) { gotMark(m, pts); if (missing().length) strokeWait(); else marksEnd(); return }
+    const got = takeMark(s.latin!.due, pts)
+    if (got) { gotMark(got, pts); if (missing().length) strokeWait(); else marksEnd(); return }
     r.track.push({ e: 'draw-mark', data: { mark: missing().map((t) => `${s.view.letters![t.box]}:${t.shape}`).join('+'), ok: false } })
     s.markWrong = true
     s.markTries++
@@ -341,8 +340,7 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
       ...(v.kind === 'wrong' ? { why: v.why } : {}), ...(settled ? { settled: true } : {}), ...(v.kind === 'ok' && v.joined ? { joined: true } : {}),
     } })
     // the strokes this verdict covers; a piece that waited before them was right (settled) or wrong
-    const mine = v.kind === 'ok' ? 'ok' : v.kind === 'partial' ? 'pending' : 'wrong'
-    restyle((x, i, all) => (i >= all.length - v.pieces ? mine : x.state === 'pending' ? (v.settled ? 'ok' : 'wrong') : null))
+    show({ strokes: afterVerdict(s.view.strokes, v) })
     if (v.kind === 'partial') { letterTurn(); return }
     if (v.kind === 'ok') {
       r.sfx.push('stroke')
@@ -398,12 +396,10 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
         break
       }
       // Latin: a dot or a bar of a letter he has written (also after the next letter) is that mark, not a stroke of this one
-      if (s.latin && !s.checker.hasPending && missing().length) {
-        const m = matchMark(ev.pts, missing())
-        if (m >= 0) { gotMark(m, ev.pts); letterTurn(); break }
-      }
+      const k = s.latin ? rowStroke(ev.pts, s.checker, s.latin.due) : isTap(ev.pts) ? { k: 'tap' as const } : { k: 'letter' as const }
+      if (k.k === 'mark') { gotMark(k, ev.pts); letterTurn(); break }
       // a tap is not a stroke of the letter
-      if (pathLength(ev.pts) < TAP_LEN) { letterTurn(); break }
+      if (k.k === 'tap') { letterTurn(); break }
       addStroke(ev.pts, 'live')
       judged(checker().add(inn(ev.pts)), false)
       break

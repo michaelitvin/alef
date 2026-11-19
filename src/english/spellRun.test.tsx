@@ -355,6 +355,35 @@ describe('the spell book\'s written words in the run (stage 4 on)', () => {
     c.destroy()
   }, 60_000)
 
+  it('a hint on a written word, then the pen down (a real touch): the hand goes, the unit still counts as helped', async () => {
+    const save = placed({ demosSeen: ['demo-spell', 'demo-spell-write'], tallies: alone })
+    const c = new RunController({ course: oneRound({ ...SHOP, tiles: [], mode: 'write' }), save, now: () => Date.now(), rng: seeded(4), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.hint()
+    expect(spell(c.view).write!.demo?.hint).toBe(true)
+    c.gesture({ type: 'touch', by: 'pen' })
+    expect(spell(c.view).write!.demo).toBeUndefined()
+    expect(events('hint-stop')).toHaveLength(1)
+    await play(c)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, helped: 1 })
+    expect(tally(save, 'o')?.helped ?? 0).toBe(0)
+    expect(tally(save, 'p')?.helped ?? 0).toBe(0)
+    c.destroy()
+  }, 60_000)
+
+  it('a hint in tiles mode, then the finger down on the tile (a real touch), then the drop: helped', async () => {
+    const save = placed({ demosSeen: ['demo-spell'] })
+    const c = new RunController({ course: oneRound(SHOP), save, now: () => Date.now(), rng: seeded(5), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    c.hint()
+    c.gesture({ type: 'touch', by: 'answer' })
+    drop(c, 'sh', 0)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, helped: 1 })
+    c.destroy()
+  })
+
   it('the first written word plays demo-spell-write once (a save that saw the tiles\' demo too)', async () => {
     const save = placed({ demosSeen: ['demo-spell'], tallies: alone })
     const c = new RunController({ course: oneRound({ ...SHOP, tiles: [], mode: 'write' }), save, now: () => Date.now(), rng: seeded(3), session: { screen: 'spell' } })

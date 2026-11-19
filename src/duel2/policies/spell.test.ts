@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { LetterDef, Pt } from '../data/strokes'
 import { SPELL_BOARD } from '../logic/drawLayout'
-import { DRAW_TRIES, type TrackRequest } from './draw'
-import { SPELL_HINT_MS, SPELL_IDLE_MS, WRONG_MS, spellVisit, spellWriting, stepSpell, type SpellBox, type SpellInput, type SpellRound, type SpellState, type SpellStep, type SpellWait } from './spell'
+import { DRAW_TRIES, SETTLE_MS, type TrackRequest } from './draw'
+import { spellWriting } from './spellWrite'
+import { SPELL_HINT_MS, SPELL_IDLE_MS, WRONG_MS, spellVisit, stepSpell, type SpellBox, type SpellInput, type SpellRound, type SpellState, type SpellStep, type SpellWait } from './spell'
 
 const box = (unit: string) => ({ unit, text: unit, soundId: `s-${unit}` })
 const ROUND: SpellRound = {
@@ -183,37 +184,51 @@ describe('the spell policy: each box is an answer on its unit', () => {
 
   it('each right drop answers its box, once, right', () => {
     const g = visit(false, COUNTED).open()
-    expect([g.drop('c', 0).answer, g.drop('a', 1).answer, g.drop('t', 2).answer]).toEqual([
+    expect([g.drop('c', 0).answers[0], g.drop('a', 1).answers[0], g.drop('t', 2).answers[0]]).toEqual([
       { box: 0, miss: false }, { box: 1, miss: false }, { box: 2, miss: false },
     ])
   })
 
   it('a forgiven near tile answers its box right; the right tile after it is no second answer', () => {
     const g = visit(false, COUNTED).open()
-    expect(g.send({ type: 'drop', tile: 'k', box: 0 }).answer).toEqual({ box: 0, miss: false })
+    expect(g.send({ type: 'drop', tile: 'k', box: 0 }).answers[0]).toEqual({ box: 0, miss: false })
     g.send({ type: 'heard' })
-    expect(g.drop('c', 0).answer).toBeUndefined()
-    expect(g.drop('a', 1).answer).toEqual({ box: 1, miss: false })
+    expect(g.drop('c', 0).answers[0]).toBeUndefined()
+    expect(g.drop('a', 1).answers[0]).toEqual({ box: 1, miss: false })
   })
 
   it('a wrong tile is a miss on its box; the fix after it is no second answer', () => {
     const g = visit(false, COUNTED).open()
     g.drop('c', 0)
-    expect(g.send({ type: 'drop', tile: 'm', box: 1 }).answer).toEqual({ box: 1, miss: true })
+    expect(g.send({ type: 'drop', tile: 'm', box: 1 }).answers[0]).toEqual({ box: 1, miss: true })
     g.send({ type: 'slept' })
-    expect(g.send({ type: 'drop', tile: 'a', box: 1 }).answer).toBeUndefined()
+    expect(g.send({ type: 'drop', tile: 'a', box: 1 }).answers[0]).toBeUndefined()
   })
 
   it('a drop while the hint\'s glow shows the tile is helped', () => {
     const g = visit(false, COUNTED).open()
     g.send({ type: 'hint', auto: false })
-    expect(g.drop('c', 0).answer).toEqual({ box: 0, miss: false, helped: true })
-    expect(g.drop('a', 1).answer).toEqual({ box: 1, miss: false })
+    expect(g.drop('c', 0).answers[0]).toEqual({ box: 0, miss: false, helped: true })
+    expect(g.drop('a', 1).answers[0]).toEqual({ box: 1, miss: false })
+  })
+
+  it('a hint\'s help counts also when a touch took its glow away (the finger-down before the drop); the next box is not helped', () => {
+    const g = visit(false, COUNTED).open()
+    g.send({ type: 'hint', auto: false })
+    g.send({ type: 'touch' })
+    expect(g.view.glow).toBeUndefined()
+    expect(g.drop('c', 0).answers).toEqual([{ box: 0, miss: false, helped: true }])
+    expect(g.drop('a', 1).answers).toEqual([{ box: 1, miss: false }])
+    // a miss after a hint is a miss (not helped), and the hint's help ends with it
+    const h = visit(false, COUNTED).open()
+    h.send({ type: 'hint', auto: true })
+    h.send({ type: 'touch' })
+    expect(h.send({ type: 'drop', tile: 'm', box: 0 }).answers).toEqual([{ box: 0, miss: true }])
   })
 
   it('a box with no choice is no answer of its own', () => {
     const g = visit().open()
-    expect([g.drop('c', 0).answer, g.send({ type: 'drop', tile: 'm', box: 1 }).answer]).toEqual([undefined, undefined])
+    expect([g.drop('c', 0).answers[0], g.send({ type: 'drop', tile: 'm', box: 1 }).answers[0]]).toEqual([undefined, undefined])
   })
 })
 
@@ -222,7 +237,10 @@ describe('the spell policy: a written word (stage 4 on)', () => {
   const stem = (letter: string): LetterDef => ({ letter, script: 'print', w: 0.3, variants: [[{ pts: [[0.15, 0.35], [0.15, 1]] }]] })
   const arch: Pt[] = [[0.1, 0.4], [0.1, 1], [0.1, 0.6], [0.2, 0.45], [0.35, 0.4], [0.5, 0.45], [0.58, 0.6], [0.6, 1]]
   const DEFS: Record<string, LetterDef> = {
-    s: stem('s'), p: stem('p'), h: { letter: 'h', script: 'print', w: 0.7, variants: [[{ pts: arch }]] },
+    s: stem('s'), p: stem('p'), l: stem('l'),
+    // a t-like letter: a stem, then a bar (half the bar waits for the rest of it)
+    t: { letter: 't', script: 'print', w: 0.6, variants: [[{ pts: [[0.3, 0], [0.3, 1]] }, { pts: [[0, 0.3], [0.6, 0.3]] }]] },
+    h: { letter: 'h', script: 'print', w: 0.7, variants: [[{ pts: arch }]] },
     i: { letter: 'i', script: 'print', w: 0.3, variants: [[{ pts: [[0.15, 0.4], [0.15, 1]] }, { pts: [[0.15, 0.15], [0.15, 0.18]] }]] },
   }
   const WRITING = {
@@ -233,9 +251,9 @@ describe('the spell policy: a written word (stage 4 on)', () => {
   const SHIP: SpellRound = { word: 'ship', wordVoice: 'w-ship', boxes: [unitBox('sh', 'sh'), unitBox('i', 'ih'), unitBox('p', 'p')], tiles: [], mode: 'write' }
 
   /** a written visit: `write(i, pts)` draws pts in letter i's box (letter units of that box) */
-  function written(demo = false) {
-    const write = spellWriting(SHIP, WRITING)
-    let st: SpellState = spellVisit({ round: SHIP, demo, at: 0, write })
+  function written(demo = false, round = SHIP) {
+    const write = spellWriting(round, WRITING)
+    let st: SpellState = spellVisit({ round, demo, at: 0, write })
     let wait: SpellWait | undefined
     const d = { said: [] as string[], sfx: [] as string[], track: [] as TrackRequest[], save: [] as SpellStep['save'], answers: [] as unknown[], runs: [] as unknown[], end: false }
     const send = (e: NoAt<SpellInput>) => {
@@ -245,7 +263,7 @@ describe('the spell policy: a written word (stage 4 on)', () => {
       d.sfx.push(...r.sfx)
       d.track.push(...r.track)
       d.save.push(...r.save)
-      if (r.answer) d.answers.push(r.answer)
+      d.answers.push(...r.answers)
       if (r.run) d.runs.push(r.run)
       if (r.wait) wait = r.wait
       if (r.end) d.end = true
@@ -390,6 +408,51 @@ describe('the spell policy: a written word (stage 4 on)', () => {
     expect(shown.view.demo?.strokes).toEqual([DEFS.s.variants[0][0].pts])
     // a tiles round keeps its own demo
     expect(visit(true).open().d.said).toEqual(['w-cat', 'demo-spell-1'])
+  })
+
+  describe('a piece that waits, then a stroke that is no part of the letter', () => {
+    const TL: SpellRound = { word: 'tl', wordVoice: 'w-tl', boxes: [unitBox('t', 't'), unitBox('l', 'l')], tiles: [], mode: 'write' }
+    /** t's stem, then half its bar: the half waits for the rest */
+    const waiting = () => {
+      const g = written(false, TL).open()
+      g.letter(0, 't')
+      const half = g.write(0, [[0, 0.3], [0.15, 0.3], [0.3, 0.3]])
+      expect(g.view.strokes.map((x) => x.state)).toEqual(['ok', 'pending'])
+      expect(half.wait).toMatchObject({ settle: SETTLE_MS })
+      return g
+    }
+
+    it('in the next box: the waiting piece makes t whole, the stroke is l\'s; both answers come, no mistake', () => {
+      const g = waiting()
+      const r = g.letter(1, 'l')
+      expect(r.answers).toEqual([{ box: 0, miss: false }, { box: 1, miss: false }])
+      expect(r.sfx).not.toContain('wrong')
+      expect(r.run?.phase).not.toBe('mistake')
+      expect(g.spell.alive).toBe(true)
+      expect(g.view.strokes.map((x) => [x.box, x.state])).toEqual([[0, 'ok'], [0, 'ok'], [1, 'ok']])
+    })
+
+    it('in the finished letter\'s box: the stroke fades away, as on the drawing; it is never judged as the next letter\'s', () => {
+      const g = waiting()
+      const r = g.write(0, [[0.5, 0.5], [0.5, 0.8], [0.5, 1]])
+      expect(r.answers).toEqual([{ box: 0, miss: false }])
+      expect(r.sfx).not.toContain('wrong')
+      expect(g.view.at).toBe(1)
+      expect(g.view.strokes.map((x) => [x.box, x.state])).toEqual([[0, 'ok'], [0, 'ok']])
+      expect(g.d.save).toEqual([])
+    })
+  })
+
+  it('a wrong mark, or marks the hand put in, make the word not clean (as on the drawing)', () => {
+    const g = written().open()
+    g.letter(0, 's'); g.letter(1, 'h'); g.letter(2, 'i'); g.letter(3, 'p')
+    // a bar where the dot goes is no mark
+    g.send({ type: 'stroke', pts: [[g.view.owed![0][0][0] - 0.2, 0.17], [g.view.owed![0][0][0] + 0.2, 0.17]] })
+    expect(g.view.demo?.strokes).toEqual(g.view.owed)
+    g.send({ type: 'stroke', pts: g.view.owed![0] })
+    expect(g.spell.alive).toBe(true)
+    expect(g.d.answers).toEqual([{ box: 0, miss: false }, { box: 1, miss: false }, { box: 2, miss: false }])
+    expect(g.d.save).toEqual([{ op: 'recordAnswer', features: ['spell:ship', 'sc:spell-write'], miss: true }])
   })
 
   it('a pause starts the written word again from its first letter; the units answered before stay answered', () => {

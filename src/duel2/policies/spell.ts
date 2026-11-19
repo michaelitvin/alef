@@ -1,26 +1,26 @@
 // The spell book as a policy (spec: 2026-11-16 English path, Part 7; both languages): he hears the word; one box for
 // each sound unit (or syllable); he drops the tile of each unit into its box, in order. A right drop says its unit; the
-// last one casts the spell: the word, the `spell` effect, the picture alive. A wrong tile is a mistake he fixes himself
-// (no heart is lost; after SPELL_TRIES the right tile glows). A `near` tile (another spelling of the box's sound) is
-// forgiven once. Pure: no store, no clock, no audio. The policy works in box order; the view mirrors for right to left.
-// The write mode sends the same `drop` (the unit his finger wrote, as the recognizer judged it). The first event of a
-// visit, of any type, starts it. Each box is one answer on its unit, when the round gives the box's choice: the first
-// drop decides a box (a right tile or a forgiven near tile is right, a wrong tile a miss; the fix after it is no second
-// answer, nor is the same round again after a pause: the visit starts with the boxes already answered).
-// The written mode (English, stage 4 on): one box per letter, not per unit (sh is two letters in two boxes of its one
-// unit). He writes the letters left to right, each judged by the drawing's LetterChecker in its own box as he writes it;
-// the dots and bars of i, j, t, f follow the drawing's marks rule (any order, also after the next letter; after the last
-// letter the line asks for those still missing). A unit is answered once: when its last letter is written, or at the
-// first wrong stroke in one of its letters. A wrong stroke is the calm screens' mistake: the stroke fades, the hand
-// shows the letter's strokes (the written mode's glow) and its unit's sound plays; only right strokes count then (a
-// wrong one only fades; after DRAW_TRIES the hand draws that stroke for him); the sound and the hand again while he
-// waits. The hint (as on the drawing screen): the hand shows what is left of the letter he writes.
-import type { CourseWriting } from '../course/types'
-import type { LetterDef, Pt } from '../data/strokes'
-import { SPELL_BOARD, latinLayout, type DrawLayout } from '../logic/drawLayout'
+// last one casts the spell: the word, the `spell` effect, the picture alive. A wrong tile is the calm screens' mistake:
+// it goes back, the right tile glows and says its sound, only the right tile is taken, the sound again while he waits.
+// A `near` tile (another spelling of the box's sound) is forgiven once. Pure: no store, no clock, no audio. The policy
+// works in box order; the view mirrors for right to left. The first event of a visit, of any type, starts it. Each box
+// is one answer on its unit, when the round gives the box's choice: the first drop decides a box (a right tile or a
+// forgiven near tile is right, a wrong tile a miss; the fix after it is no second answer, nor is the same round again
+// after a pause: the visit starts with the boxes already answered). After a hint, the box's answer is helped (also when
+// a touch took the hint's glow away).
+// The written mode (English, stage 4 on; spellWrite.ts, latinRow.ts): one box per letter. He writes the letters left to
+// right, each judged by its own LetterChecker in its own box; the dots and bars of i, j, t, f follow the drawing's marks
+// rule (any order, also after the next letter; after the last letter the line asks for those still missing). A unit is
+// answered once: when its last letter is written, or at the first wrong stroke in one of its letters. A wrong stroke is
+// the calm mistake: the stroke fades, the hand shows the letter (the written mode's glow) and its unit's sound plays;
+// only right strokes count then (a wrong one only fades; after DRAW_TRIES the hand draws that stroke for him); the sound
+// and the hand again while he waits. The hint (as on the drawing screen): the hand shows what is left of the letter.
+import type { Pt } from '../data/strokes'
 import type { Choice } from '../logic/rounds'
-import { LetterChecker, matchMark, pathLength, splitMarks, type LetterMark, type MarkTarget, type Verdict } from '../logic/recognizer'
-import { DRAW_TRIES, SETTLE_MS, TAP_LEN, type DrawLine, type DrawStroke, type RunPatch, type TrackRequest } from './draw'
+import { LetterChecker, type Verdict } from '../logic/recognizer'
+import { DRAW_TRIES, SETTLE_MS, type DrawLine, type RunPatch, type TrackRequest } from './draw'
+import { afterVerdict, boxDx, dropFaded as withoutFaded, inBox, markLine as markLineOf, missingMarks, oweMarks, rowStroke, shift, takeMark, type Owed } from './latinRow'
+import { writeStart, type SpellWriteCtx, type SpellWriteView, type WriteState } from './spellWrite'
 
 export interface SpellBox {
   unit: string; text: string; soundId: string
@@ -38,24 +38,6 @@ export interface SpellRound {
   mode: 'tiles' | 'write'
   /** tile → the box unit it sounds like */
   near?: Record<string, string>
-}
-
-/** the letters of a word, in order, with the box of their unit (a unit of two letters, sh, is two letters of one box) */
-export const spellLetters = (round: SpellRound): { ch: string; box: number }[] =>
-  round.boxes.flatMap((b, box) => [...b.text].map((ch) => ({ ch, box })))
-
-/** a written round's own facts: each letter without its marks (one checker each, in turn), its marks, the board */
-export interface SpellWriteCtx { defs: LetterDef[]; marks: LetterMark[][]; layout: DrawLayout }
-
-/**
- * A written round's facts from the course's writing: the letters' strokes and marks (the drawing's split), and the board
- * on the book's two pages (four lines, a box per letter, then the faint tail e).
- */
-export function spellWriting(round: SpellRound, w: Pick<CourseWriting, 'strokesOf' | 'isMark' | 'lines' | 'font' | 'unitEm' | 'em'>): SpellWriteCtx {
-  const parts = spellLetters(round).map((l) => splitMarks(w.strokesOf(l.ch), w.isMark))
-  const defs = parts.map((x) => x.body)
-  const layout = latinLayout({ defs, rest: round.tail ?? '', capital: false, lines: w.lines, font: w.font, unitEm: w.unitEm, em: w.em, board: SPELL_BOARD })
-  return { defs, marks: parts.map((x) => x.marks), layout }
 }
 
 /** a wrong tile shows this long before it goes back */
@@ -80,22 +62,6 @@ export interface SpellView {
   demo?: boolean
   /** the written mode's board */
   write?: SpellWriteView
-}
-
-/** the written word's board: its letters, one box each (`at`: the one he writes now), his strokes, the hand */
-export interface SpellWriteView {
-  layout: DrawLayout
-  letters: string[]
-  /** the letter he writes now (letters.length: every letter is written) */
-  at: number
-  /** his strokes, in letter units from the first box's origin (`box`: the letter's index) */
-  strokes: DrawStroke[]
-  /** `mark`: every letter is written, the marks still missing are asked for */
-  mode: 'letter' | 'mark' | 'done'
-  /** the glowing hand draws these strokes (the demo, the hint, the fix) */
-  demo?: { id: number; strokes: Pt[][]; hint?: true }
-  /** the marks still missing, where his letters put them */
-  owed?: Pt[][]
 }
 
 /**
@@ -123,6 +89,8 @@ export interface SpellRunPatch extends Omit<RunPatch, 'phase'> { phase?: RunPatc
  */
 export type SpellWait = { for: 'say' } | { for: 'sleep'; ms: number } | { for: 'drop'; idle: number; hint?: number; every?: true; settle?: number }
 
+export interface SpellAnswer { box: number; miss: boolean; helped?: true }
+
 export interface SpellStep {
   state: SpellState
   view?: SpellView
@@ -136,32 +104,13 @@ export interface SpellStep {
   wait?: SpellWait
   /** the round is over */
   end?: true
-  /** box `box` was answered (its first drop): right, a miss, or right while the hint's glow showed it (`helped`) */
-  answer?: { box: number; miss: boolean; helped?: true }
+  /** the boxes answered in this step (each its first drop or stroke): right, a miss, or right after a hint (`helped`) */
+  answers: SpellAnswer[]
 }
 
 type Flow =
   | { k: 'open' } | { k: 'word' } | { k: 'demo' } | { k: 'answer' } | { k: 'near' } | { k: 'wrong' } | { k: 'fix' } | { k: 'marks' }
   | { k: 'cast' } | { k: 'over' }
-
-/** a written round as it goes: the letter he writes now and its checker, and the marks owed */
-interface WriteState extends SpellWriteCtx {
-  /** each letter's box (its unit) */
-  boxOf: number[]
-  at: number
-  checker: LetterChecker
-  /** wrong strokes of this letter while he fixes it */
-  tries: number
-  /** the marks of the letters he has written, where his letters put them (`got`: drawn, or by the hand) */
-  due: (MarkTarget & { got: boolean })[]
-  markTries: number
-  strokeNo: number
-  demoNo: number
-  /** the hint showed since the last box was answered (its hand goes away at the pen; the help still counts) */
-  aided: boolean
-  /** the idle line or the hint spoke in this wait (his next stroke stops the voice) */
-  spoke: boolean
-}
 
 export interface SpellState {
   round: SpellRound
@@ -175,8 +124,10 @@ export interface SpellState {
   /** the tiles forgiven as near (once each) */
   forgiven: string[]
   mistakes: number
-  /** the hint's glow shows until his next drop */
+  /** the hint shows (the glow, or the hand) until his next drop or touch */
   hinted: boolean
+  /** a hint showed since the last box was answered: the next answer is helped (a touch that takes the hint away keeps it) */
+  aided: boolean
   /** the boxes answered (their first drop came) */
   answered: number[]
   /** the written mode */
@@ -188,29 +139,20 @@ export interface SpellState {
  * written round starts again from its first letter). `write`: a written round's facts (`spellWriting`).
  */
 export function spellVisit(ctx: { round: SpellRound; demo: boolean; at: number; answered?: number[]; write?: SpellWriteCtx }): SpellState {
-  const w = ctx.write
-  if (ctx.round.mode === 'write' && !w) throw new Error(`a written spell round needs its letters' strokes: ${ctx.round.word}`)
-  const letters = spellLetters(ctx.round)
+  if (ctx.round.mode === 'write' && !ctx.write) throw new Error(`a written spell round needs its letters' strokes: ${ctx.round.word}`)
+  const w = ctx.write ? writeStart(ctx.round, ctx.write) : null
   return {
     round: ctx.round, demo: ctx.demo, flow: { k: 'open' }, started: ctx.at, fixFrom: 0, replays: 0, forgiven: [], mistakes: 0, hinted: false,
-    answered: [...(ctx.answered ?? [])],
-    view: {
-      screen: 'spell', round: ctx.round, filled: ctx.round.boxes.map(() => null), alive: false,
-      ...(w ? { write: { layout: w.layout, letters: letters.map((l) => l.ch), at: 0, strokes: [], mode: 'letter' as const } } : {}),
-    },
-    ...(w ? {
-      write: {
-        ...w, boxOf: letters.map((l) => l.box), at: 0, checker: new LetterChecker(w.defs[0]), tries: 0, due: [], markTries: 0,
-        strokeNo: 0, demoNo: 0, aided: false, spoke: false,
-      },
-    } : {}),
+    aided: false, answered: [...(ctx.answered ?? [])],
+    view: { screen: 'spell', round: ctx.round, filled: ctx.round.boxes.map(() => null), alive: false, ...(w ? { write: w.view } : {}) },
+    ...(w ? { write: w.state } : {}),
   }
 }
 
 /** One step of the round. Never changes `state`. */
 export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
   const s: SpellState = { ...state, forgiven: [...state.forgiven], answered: [...state.answered] }
-  const r: SpellStep = { state: s, say: [], sfx: [], save: [], track: [] }
+  const r: SpellStep = { state: s, say: [], sfx: [], save: [], track: [], answers: [] }
   const rd = s.round
   const show = (p: Partial<SpellView>) => { s.view = { ...s.view, ...p }; r.view = s.view }
   const run = (p: SpellRunPatch) => { r.run = { ...r.run, ...p } }
@@ -225,12 +167,12 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
     const settle = w?.checker.hasPending && s.flow.k !== 'marks' ? { settle: SETTLE_MS } : {}
     r.wait = s.flow.k === 'fix' ? { for: 'drop', idle: SPELL_IDLE_MS, every: true, ...settle } : { for: 'drop', idle: SPELL_IDLE_MS, hint: SPELL_HINT_MS, ...settle }
   }
-  /** the box's first drop is its answer (a box with no choice is none) */
+  /** the box's first drop is its answer (a box with no choice is none); a hint since the last answer makes it helped */
   const answered = (at: number, miss: boolean) => {
     if (!rd.boxes[at].choice || s.answered.includes(at)) return
     s.answered.push(at)
-    const helped = s.write ? s.write.aided : s.hinted
-    r.answer = { box: at, miss, ...(!miss && helped ? { helped: true as const } : {}) }
+    r.answers.push({ box: at, miss, ...(!miss && s.aided ? { helped: true as const } : {}) })
+    s.aided = false
   }
   /** the end of a fix: he did the right move himself */
   const fixed = (soundId: string) => {
@@ -244,7 +186,8 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
     run({ phase: 'feedback' })
     r.sfx.push('spell')
     r.say.push(...(last ? [{ id: last.soundId }] : []), { id: rd.wordVoice })
-    r.save.push({ op: 'recordAnswer', features: [`spell:${rd.word}`, `sc:spell-${rd.mode}`], miss: s.mistakes > 0 })
+    // (written: a wrong mark, or marks the hand put in, make the word not clean, as on the drawing)
+    r.save.push({ op: 'recordAnswer', features: [`spell:${rd.word}`, `sc:spell-${rd.mode}`], miss: s.mistakes > 0 || !!s.write?.markWrong })
     r.track.push({ e: 'spell-cast', data: { ...base, ms: Math.round(ev.at - s.started), mistakes: s.mistakes } })
     go({ k: 'cast' }, { for: 'say' })
   }
@@ -269,40 +212,39 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
     cast(box)
   }
 
-  // ---- the written mode: his strokes in the letters' boxes (the drawing's checker and marks rule)
+  // ---- the written mode: his strokes in the letters' boxes (latinRow.ts: the drawing's checker and marks rule)
   const W = () => s.write!
   const setW = (p: Partial<WriteState>) => { s.write = { ...s.write!, ...p } }
   const showW = (p: Partial<SpellWriteView>) => show({ write: { ...s.view.write!, ...p } })
   /** the checker of the letter he writes now (a copy: the state it came from never changes) */
   const checker = () => { if (W().checker === state.write?.checker) setW({ checker: W().checker.clone() }); return W().checker }
   // his strokes come from the first box's origin; the checker judges each letter in its own box
-  const dx = () => W().layout.boxes?.[Math.min(W().at, W().defs.length - 1)]?.dx ?? 0
-  const out = (p: Pt[]): Pt[] => { const d = dx(); return p.map(([x, y]): Pt => [x + d, y]) }
-  const inn = (p: Pt[]): Pt[] => { const d = dx(); return p.map(([x, y]): Pt => [x - d, y]) }
-  const addStroke = (pts: Pt[], st: DrawStroke['state'], more?: Partial<DrawStroke>) => {
+  const dx = () => boxDx(W().layout, Math.min(W().at, W().defs.length - 1))
+  const out = (p: Pt[]): Pt[] => shift(p, dx())
+  const inn = (p: Pt[]): Pt[] => shift(p, -dx())
+  const strokes = () => s.view.write!.strokes
+  const addStroke = (pts: Pt[], st: SpellWriteView['strokes'][number]['state'], more?: { box?: number; mark?: true }) => {
     const id = W().strokeNo + 1
     setW({ strokeNo: id })
-    showW({ strokes: [...s.view.write!.strokes, { id, pts, state: st, box: W().at, ...more }] })
+    showW({ strokes: [...strokes(), { id, pts, state: st, box: W().at, ...more }] })
   }
-  const dropFaded = () => { if (s.view.write!.strokes.some((x) => x.state === 'wrong')) showW({ strokes: s.view.write!.strokes.filter((x) => x.state !== 'wrong') }) }
+  const dropFaded = () => { if (strokes().some((x) => x.state === 'wrong')) showW({ strokes: withoutFaded(strokes()) }) }
   /** the glowing hand draws `strokes` (a hint's goes away at the pen) */
-  const hand = (strokes: Pt[][], hint?: boolean) => {
+  const hand = (pts: Pt[][], hint?: boolean) => {
     const id = W().demoNo + 1
     setW({ demoNo: id })
-    showW({ demo: { id, strokes, ...(hint ? { hint: true as const } : {}) } })
+    showW({ demo: { id, strokes: pts, ...(hint ? { hint: true as const } : {}) } })
   }
   /** what is left of the letter he writes now, where his letter is */
   const left = () => W().checker.remaining().map(out)
-  const missing = () => W().due.filter((m) => !m.got)
-  const setDue = (due: WriteState['due']) => { setW({ due }); showW({ owed: due.filter((m) => !m.got).map((m) => m.pts) }) }
-  const markLine = (): DrawLine => ({ line: missing()[0]?.shape === 'bar' ? 'draw-cross' : 'draw-dot', take: 1 })
+  const missing = () => missingMarks(W().due)
+  const setDue = (due: Owed[]) => { setW({ due }); showW({ owed: missingMarks(due).map((m) => m.pts) }) }
   /** the box of the letter he writes now (after the last letter: the last box) */
   const boxNow = () => W().boxOf[Math.min(W().at, W().boxOf.length - 1)]
-  /** his stroke is the missing mark `i`: gold at once */
-  const gotMark = (i: number, pts: Pt[]) => {
-    const t = missing()[i]
-    setDue(W().due.map((m) => (m === t ? { ...m, got: true } : m)))
-    addStroke(pts, 'ok', { box: t.box, mark: true })
+  /** his stroke is a missing mark: gold at once */
+  const gotMark = (got: { due: Owed[]; mark: Owed }, pts: Pt[]) => {
+    setDue(got.due)
+    addStroke(pts, 'ok', { box: got.mark.box, mark: true })
     r.sfx.push('stroke')
   }
   /** a wrong stroke in a letter: the calm screens' mistake (no new mistake while he fixes one: it only fades) */
@@ -332,9 +274,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
   /** a verdict of the checker on his stroke (`null`: the pause found no piece waiting) */
   const judged = (v: Verdict | null) => {
     if (!v) { waitDrop(); return }
-    const mine = v.kind === 'ok' ? 'ok' : v.kind === 'partial' ? 'pending' : 'wrong'
-    const own = s.view.write!.strokes
-    showW({ strokes: own.map((x, i) => (i >= own.length - v.pieces ? { ...x, state: mine } : x.state === 'pending' ? { ...x, state: v.settled ? 'ok' : 'wrong' } : x)) })
+    showW({ strokes: afterVerdict(strokes(), v) })
     if (v.kind === 'partial') { waitDrop(); return }
     if (v.kind === 'wrong') { wrongStroke(v); return }
     r.sfx.push('stroke')
@@ -343,15 +283,13 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
   /** the letter is written: its marks are owed; its unit's box is filled when it was the unit's last letter */
   const letterDone = () => {
     const w = W()
-    const c = w.checker
     const box = w.boxOf[w.at]
-    setDue([...w.due, ...w.marks[w.at].map((m) => ({ ...m, pts: out(c.place(m.pts)), box: w.at, k: c.scale, got: false }))])
+    setDue([...w.due, ...oweMarks(w.marks[w.at], w.checker, w.at, dx())])
     showW({ demo: undefined })
     if (s.flow.k === 'fix') { fixed(rd.boxes[box].soundId); go({ k: 'answer' }) }
     const unitDone = w.boxOf[w.at + 1] !== box
     if (unitDone) {
       answered(box, false)
-      setW({ aided: false })
       show({ filled: s.view.filled.map((x, i) => (i === box ? rd.boxes[box].unit : x)) })
       r.sfx.push('drop')
       r.track.push({ e: 'spell-drop', data: { ...base, unit: rd.boxes[box].unit, box, ok: true } })
@@ -368,7 +306,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
     if (!missing().length) { showW({ at, mode: 'done' }); cast(rd.boxes[box]); return }
     // every letter is written: the line asks for the marks still missing
     showW({ at, mode: 'mark' })
-    r.say.push({ id: rd.boxes[box].soundId }, markLine())
+    r.say.push({ id: rd.boxes[box].soundId }, markLineOf(W().due))
     go({ k: 'marks' })
     waitDrop()
   }
@@ -378,7 +316,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
   const wrongMark = (pts: Pt[]) => {
     addStroke(pts, 'wrong', { mark: true })
     const markTries = W().markTries + 1
-    setW({ markTries })
+    setW({ markTries, markWrong: true })
     if (markTries < DRAW_TRIES) { hand(missing().map((m) => m.pts)); waitDrop(); return }
     for (const m of missing()) addStroke(m.pts, 'helped', { box: m.box, mark: true })
     setDue(W().due.map((m) => ({ ...m, got: true })))
@@ -390,25 +328,31 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
     // his stroke stops the idle line or the hint's voice of this wait
     if (W().spoke) r.hush = true
     dropFaded()
-    // a dot or a bar of a letter he has written (also while he writes the next one) is that mark
-    if (!W().checker.hasPending && missing().length) {
-      const m = matchMark(pts, missing())
-      if (m >= 0) { gotMark(m, pts); if (f === 'marks' && !missing().length) marksDone(); else waitDrop(); return }
+    if (f === 'marks') {
+      const got = takeMark(W().due, pts)
+      if (!got) { wrongMark(pts); return }
+      gotMark(got, pts)
+      if (missing().length) waitDrop(); else marksDone()
+      return
     }
-    if (f === 'marks') { wrongMark(pts); return }
-    // a tap is not a stroke of the letter
-    if (pathLength(pts) < TAP_LEN) { waitDrop(); return }
+    // a dot or a bar of a letter he has written (also while he writes the next one) is that mark; a tap is nothing
+    const k = rowStroke(pts, W().checker, W().due)
+    if (k.k === 'mark') { gotMark(k, pts); waitDrop(); return }
+    if (k.k === 'tap') { waitDrop(); return }
     addStroke(pts, 'live')
+    const box = W().at
     const v = checker().add(inn(pts))
     if (v.kind === 'wrong' && W().checker.done) {
-      // the piece that waited made the letter whole: this stroke is no part of it (it may be the next letter's, or a mark)
-      const own = s.view.write!.strokes
-      showW({ strokes: own.slice(0, -1).map((x) => (x.state === 'pending' ? { ...x, state: 'ok' } : x)) })
+      // the piece that waited made the letter whole; this stroke is no part of it. In the finished letter's box it fades
+      // (as on the drawing); elsewhere it is judged again, as the next letter's (or a mark)
+      showW({ strokes: afterVerdict(strokes(), v) })
       r.sfx.push('stroke')
+      const mine = inBox(W().layout, box, pts)
+      showW({ strokes: strokes().slice(0, -1) })
       letterDone()
       // (letterDone moved the flow on)
       const now = s.flow.k as Flow['k']
-      if (now === 'answer' || now === 'marks') stroke(pts)
+      if (!mine && (now === 'answer' || now === 'marks')) stroke(pts)
       return
     }
     judged(v)
@@ -472,7 +416,7 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
         r.say.push({ id: rd.boxes[next()].soundId })
         break
       }
-      if (s.flow.k === 'marks') { setW({ spoke: true }); r.say.push(markLine()); break }
+      if (s.flow.k === 'marks') { setW({ spoke: true }); r.say.push(markLineOf(W().due)); break }
       if (s.flow.k !== 'answer' && s.flow.k !== 'near') break
       if (s.write) setW({ spoke: true })
       r.track.push({ e: 'idle', data: { screen: 'spell', target: rd.word } })
@@ -484,22 +428,23 @@ export function stepSpell(state: SpellState, ev: SpellInput): SpellStep {
       if (s.flow.k !== 'answer' && s.flow.k !== 'near' && s.flow.k !== 'marks') break
       if (s.write) {
         // the drawing's hint: the hand shows what is left (the letter's strokes, or the marks still missing)
-        const strokes = s.flow.k === 'marks' ? missing().map((m) => m.pts) : left()
-        if (!strokes.length) break
-        s.hinted = true
-        setW({ aided: true, spoke: true })
-        hand(strokes, true)
+        const pts = s.flow.k === 'marks' ? missing().map((m) => m.pts) : left()
+        if (!pts.length) break
+        setW({ spoke: true })
+        hand(pts, true)
       } else {
         const at = next()
         if (at < 0) break
-        s.hinted = true
         show({ glow: rd.boxes[at].unit })
       }
+      s.hinted = true
+      s.aided = true
       r.track.push({ e: 'hint', data: { screen: 'spell', target: rd.word, auto: ev.auto } })
       r.say.push({ id: rd.wordVoice })
       break
     }
     case 'touch':
+      // the hint goes away (its help still counts: `aided`)
       if (!s.hinted) break
       s.hinted = false
       r.hush = true

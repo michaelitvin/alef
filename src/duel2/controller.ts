@@ -26,7 +26,8 @@ import { LetterChecker, splitMarks } from './logic/recognizer'
 import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, latinLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView, type LatinRound } from './policies/draw'
-import { spellVisit, spellWriting, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellStep, type SpellView } from './policies/spell'
+import { spellVisit, stepSpell, type SpellAnswer, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellView } from './policies/spell'
+import { spellWriting } from './policies/spellWrite'
 import { spellFixture } from './data/spellFixtures'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
 import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
@@ -1869,7 +1870,7 @@ export class RunController {
    * A box's answer on the spell book: its unit's tallies and the stage pass, through the course (as on the other screens).
    * `tile`: the tile he dropped (a miss: his mix-up).
    */
-  private spellAnswer(round: SpellRound, tile: string | null, a: NonNullable<SpellStep['answer']>) {
+  private spellAnswer(round: SpellRound, tile: string | null, a: SpellAnswer) {
     const asked = round.boxes[a.box].choice
     if (!asked) return
     const tapped = a.miss ? round.tiles.find((t) => t.unit === tile)?.choice : undefined
@@ -1895,7 +1896,7 @@ export class RunController {
     if (r.view) this.set({ screen: r.view })
     if (r.cue) this.cueStarted = this.now()
     for (const x of r.sfx) this.sfx(SPELL_SFX[x])
-    if (r.answer) this.spellAnswer(sp.round, e.type === 'drop' ? e.tile : null, r.answer)
+    for (const a of r.answers) this.spellAnswer(sp.round, e.type === 'drop' ? e.tile : null, a)
     for (const op of r.save) {
       if (op.op === 'markDemo') { this.demoShown = true; this.save.markDemo(op.id) }
       else {
