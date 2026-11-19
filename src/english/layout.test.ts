@@ -22,12 +22,18 @@ import { WORDS, type EnWord } from './content/words'
 import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
 import { inkEm, measureText } from './measure'
-import { SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
-import type { SpellBox } from '../duel2/policies/spell'
+import { BOOK as SPELL_BOOK, SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
+import { spellWriting, type SpellBox, type SpellRound } from '../duel2/policies/spell'
+import { SPELL_BOARD } from '../duel2/logic/drawLayout'
+import { CourseProvider } from '../duel2/course/CourseContext'
+import { ENGLISH } from './course'
+import { MID, BASE } from './data/strokes'
 
 /** the smallest phone and a tablet */
 const SIZES = [[740, 360], [1024, 768]] as const
 const STAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+/** a written word's small letter (middle line to baseline) is at least this high on the screen (CSS px) */
+const WRITE_MIN_PX = 30
 /** a word's measured width may fill this share of a rectangular place (the rest is its frame and air) */
 const IN_RECT = 0.9
 /**
@@ -256,6 +262,54 @@ describe('the spell book', () => {
         expect(sizeOf(t) * scale, `${row.length} boxes: ${t.textContent}`).toBeGreaterThanOrEqual(16)
       }
     }
+  })
+  // Task 29: a written word has a box per letter (up to 7: jumping), on the drawing's slate across the book's pages
+  const writtenRound = (w: EnWord): SpellRound => ({
+    word: w.id, wordVoice: `w-${w.text}`, tiles: [], mode: 'write',
+    boxes: w.units.map((u) => { const x = unit(u); const text = x.kind === 'magic-e' ? x.text[0] : x.text.replace(/^-/, ''); return { unit: u, text, soundId: `snd-${u}` } }),
+    ...(w.units.some((u) => unit(u).kind === 'magic-e') ? { tail: 'e' } : {}),
+  })
+  const writtenWords = WORDS.filter((w) => w.kind === 'real' && w.units.length >= 2 && w.units.length <= 5)
+  it('the written words: up to 7 letters (jumping), and the slate lies on the book', () => {
+    expect(Math.max(...writtenWords.map((w) => writtenRound(w).boxes.map((b) => b.text).join('').length))).toBe(7)
+    expect(SPELL_BOARD.left).toBeGreaterThanOrEqual(SPELL_BOOK.x)
+    expect(SPELL_BOARD.right).toBeLessThanOrEqual(SPELL_BOOK.x + SPELL_BOOK.w)
+    expect(SPELL_BOARD.top).toBeGreaterThanOrEqual(SPELL_BOOK.y)
+    expect(SPELL_BOARD.bottom).toBeLessThanOrEqual(SPELL_BOOK.y + SPELL_BOOK.h)
+  })
+  it.each(SIZES)('at %i×%i every written word\'s letter boxes and lines fit the slate, and a letter is big enough to write', (sw, sh) => {
+    const scale = stageBox(sw, sh, STAGE_CONTENT_TOP.spell).scale
+    const rows = new Set<number>()
+    for (const w of writtenWords) {
+      const round = writtenRound(w)
+      const write = spellWriting(round, ENGLISH.writing!)
+      const L = write.layout
+      const n = round.boxes.map((b) => b.text).join('').length
+      // the longest words of each letter count are drawn (the boxes the screen shows); the others by their layout
+      const drawn = !rows.has(n) && n >= 5
+      if (drawn) rows.add(n)
+      const rects = drawn
+        ? ([...render(h(CourseProvider, { value: ENGLISH }, h(SpellBook, {
+          view: { screen: 'spell', round, filled: round.boxes.map(() => null), alive: false, write: { layout: L, letters: [...round.boxes.map((b) => b.text).join('')], at: 0, strokes: [], mode: 'letter' } },
+          phase: 'answer', dir: 'ltr', onDrop: () => {},
+        }))).container.querySelectorAll('[data-write-box]')] as SVGRectElement[]).map((r) => {
+          const x = Number(r.getAttribute('x')); const y = Number(r.getAttribute('y'))
+          return { left: x, right: x + Number(r.getAttribute('width')), top: y, bottom: y + Number(r.getAttribute('height')) }
+        })
+        : L.boxes!
+      expect(rects, w.text).toHaveLength(n)
+      for (const b of rects) {
+        expect(b.left, w.text).toBeGreaterThanOrEqual(SPELL_BOARD.left)
+        expect(b.right, w.text).toBeLessThanOrEqual(SPELL_BOARD.right)
+        expect(b.top, w.text).toBeGreaterThanOrEqual(SPELL_BOARD.top)
+        expect(b.bottom, w.text).toBeLessThanOrEqual(SPELL_BOARD.bottom)
+      }
+      rects.slice(1).forEach((b, i) => expect(b.left, w.text).toBeGreaterThan(rects[i].right))
+      if (round.tail) expect(L.rest.cx + (L.rest.px * 0.5) / 2, w.text).toBeLessThanOrEqual(SPELL_BOARD.right)
+      // a small letter (the middle line to the baseline) is at least WRITE_MIN_PX high on the screen
+      expect((BASE - MID) * L.u * scale, w.text).toBeGreaterThanOrEqual(WRITE_MIN_PX)
+    }
+    expect([...rows]).toContain(7)
   })
   it('every unit fits its tile', () => {
     const tiles = [...new Set(UNITS.map((u) => u.text.replace(/^-/, '')))].map(spellBox)

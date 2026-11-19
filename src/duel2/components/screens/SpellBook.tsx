@@ -3,9 +3,18 @@
 // unit is one tile; the Hebrew closing letter is printed faint after the boxes, not a box). He drags the tile of each
 // unit into its box, in reading order; the last one casts the spell and the picture comes alive. The policy works in box
 // order (policies/spell.ts); this screen places box 0 where the reading starts.
+// A written word (English, stage 4 on): no tiles and no picture; the four lines across both pages, a box for each letter,
+// left to right, and the faint tail e after them. He writes each letter in its box from its start dot; his strokes turn
+// gold as they are right, and the glowing hand shows a letter (the demo, the hint, after a mistake).
 import { useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import type { SpellView } from '../../controller'
+import { useCourse } from '../../course/CourseContext'
+import type { Pt } from '../../data/strokes'
+import { SPELL_BOARD, toNorm, toStagePt } from '../../logic/drawLayout'
+import { spellLetters } from '../../policies/spell'
+import { StrokeAnim } from '../StrokeAnim'
+import { InkStrokes, WritingPad, inkWidth } from '../WritingInk'
 import { DemoHand } from '../DemoHand'
 import { DragPick } from '../DragPick'
 import { Glyph, latinFitPx, latinOrbPx } from '../Glyph'
@@ -68,15 +77,83 @@ function Book() {
   )
 }
 
+/** a written word: the four lines on the book's pages, a box per letter, his strokes, the hand */
+function WrittenWord(p: { view: SpellView; can: boolean; onStroke: (pts: Pt[]) => void }) {
+  const writing = useCourse().writing
+  const v = p.view
+  const W = v.write!
+  const L = W.layout
+  const [down, setDown] = useState(false)
+  const ink = inkWidth(L.u)
+  const map = (q: Pt) => toStagePt(L, q)
+  const boxOf = spellLetters(v.round).map((l) => l.box)
+  const now = W.mode === 'letter' && W.at < W.letters.length ? W.at : -1
+  const begun = W.strokes.some((x) => x.box === now && !x.mark)
+  const boxes = L.boxes ?? [{ ...L.slot, dx: 0 }]
+  return (
+    <g data-spell-write>
+      {/* the drawing screen's slate, on the book's pages: the four lines of school paper (the middle one dashed, the
+          descender line faint), a box per letter */}
+      <rect data-draw-board x={SPELL_BOARD.left} y={SPELL_BOARD.top} width={SPELL_BOARD.right - SPELL_BOARD.left} height={SPELL_BOARD.bottom - SPELL_BOARD.top} rx={30}
+        fill="#160a35" fillOpacity={0.86} stroke="#ffd34d" strokeOpacity={0.55} strokeWidth={5} />
+      <g data-lines data-four="" stroke="#fff6d8" strokeLinecap="round">
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.top} y2={L.lines.top} strokeWidth={4} strokeOpacity={0.6} />
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.mid} y2={L.lines.mid} strokeWidth={3} strokeOpacity={0.45} strokeDasharray="14 16" />
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.base} y2={L.lines.base} strokeWidth={5} strokeOpacity={0.6} />
+        <line x1={L.lines.left} x2={L.lines.right} y1={L.lines.below} y2={L.lines.below} strokeWidth={3} strokeOpacity={0.22} strokeDasharray="6 12" />
+      </g>
+      {boxes.map((b, i) => {
+        const filled = v.filled[boxOf[i]] !== null
+        return <rect key={i} data-write-box={i} data-filled={filled || undefined} x={b.left} y={b.top} width={b.right - b.left} height={b.bottom - b.top} rx={24}
+          className={i === now && p.can && !down && !begun ? 'd2-slot-pulse' : undefined}
+          fill="#ffd34d" fillOpacity={filled ? 0.12 : 0.06} stroke="#ffd34d" strokeWidth={5} strokeDasharray="22 14"
+          strokeOpacity={i === now ? 0.85 : 0.25} />
+      })}
+      {L.rest.text && (
+        <text data-tail x={L.rest.cx} y={L.lines.base} fontSize={L.rest.px} textAnchor="middle" opacity={0.35}
+          style={{ fontFamily: `${L.rest.font}, sans-serif`, fill: '#fff6d8' }}>{L.rest.text}</text>
+      )}
+      {/* the start dot of the letter he writes now, in its box, until he begins it */}
+      {writing && now >= 0 && !begun && (() => {
+        const [x, y] = writing.strokesOf(W.letters[now]).variants[0][0].pts[0]
+        const [cx, cy] = map([x + (boxes[now]?.dx ?? 0), y])
+        return <circle data-start-dot cx={cx} cy={cy} r={Math.max(9, L.u * 0.06)} fill="#7dff9a" stroke="#1b0f3c" strokeWidth={3} style={{ pointerEvents: 'none' }} />
+      })()}
+      <InkStrokes strokes={W.strokes} map={map} width={ink} className={v.alive ? 'd2-drawn' : undefined} />
+      {W.demo && <StrokeAnim key={W.demo.id} strokes={W.demo.strokes} map={map} width={ink} handScale={Math.max(0.8, L.u / 260)} />}
+      <WritingPad x={BOOK.x} y={BOOK.y} width={BOOK.w} height={BOOK.h} can={p.can} ink={ink} onDown={setDown}
+        onStroke={(pts) => p.onStroke(pts.map((q) => toNorm(L, q)))} />
+    </g>
+  )
+}
+
 export function SpellBook(p: {
   view: SpellView; phase: Phase; dir: Dir
-  /** after a mistake: he does the right move himself (only the glowing tile moves) */
+  /** after a mistake: he does the right move himself (only the glowing tile moves; written: only right strokes count) */
   fixing?: boolean
   /** he dropped the tile of `unit` into box `box` (box order); a tap drops it into the next empty box */
   onDrop: (unit: string, box: number) => void
+  /** a written word: his finger lifted (letter units from the first box's origin) */
+  onStroke?: (pts: Pt[]) => void
   /** test builds: the tile the next box wants */
   correct?: string
 }) {
+  const v = p.view
+  if (v.write) {
+    return (
+      <Stage bg="bg-ground" dir={p.dir}>
+        <Book />
+        <WrittenWord view={v} can={p.phase === 'answer' || (p.phase === 'mistake' && !!p.fixing)} onStroke={(pts) => p.onStroke?.(pts)} />
+      </Stage>
+    )
+  }
+  return <TileBook {...p} />
+}
+
+type SpellBookProps = Parameters<typeof SpellBook>[0]
+
+/** the tiles' book: the picture, a box per unit, the tiles under the book */
+function TileBook(p: SpellBookProps) {
   const v = p.view
   const rd = v.round
   const latin = p.dir === 'ltr'

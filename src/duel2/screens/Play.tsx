@@ -72,7 +72,7 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
     case 'spell': {
       const next = s.filled.findIndex((x) => x === null)
       return <SpellBook view={s} phase={v.phase} fixing={v.fixing} dir={dir} onDrop={(tile, box) => run.onGesture({ type: 'drop', tile, box })}
-        correct={TEST_HOOKS && next >= 0 ? s.round.boxes[next].unit : undefined} />
+        onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} correct={TEST_HOOKS && next >= 0 ? s.round.boxes[next].unit : undefined} />
     }
     case 'tower':
       // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit

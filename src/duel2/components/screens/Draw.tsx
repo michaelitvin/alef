@@ -3,19 +3,19 @@
 // draws, gold when right; a wrong one fades while the glowing hand shows it again. After the letter, its marks.
 // The Latin board (English): four lines (the top line, the dashed middle line, the baseline, a faint descender line),
 // left to right; a box for each letter he writes (one, or a whole word's), and after one box the rest of the word.
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { IMAGES } from '../../assets/images'
 import type { DrawView } from '../../controller'
 import type { Pt } from '../../data/strokes'
 import { BOARD, PIC, toNorm, toStagePt, type DrawLayout } from '../../logic/drawLayout'
 import { canvasMeasurer, drawnDots } from '../Glyph'
 import { StrokeAnim } from '../StrokeAnim'
-import { bbox, markTargets, pathLength } from '../../logic/recognizer'
+import { bbox, markTargets } from '../../logic/recognizer'
 import { strokesOf } from '../../data/strokes'
 import { TEST_HOOKS } from '../../testHooks'
-import { Stage, toStage, type Phase } from './Stage'
-import { useTouchAnswer } from '../DragPick'
+import { Stage, type Phase } from './Stage'
 import { useCourse } from '../../course/CourseContext'
+import { InkStrokes, WritingPad, inkWidth } from '../WritingInk'
 
 const poly = (p: Pt[]) => p.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
 const INK = { fill: '#fff6d8', stroke: '#1b0f3c', paintOrder: 'stroke' as const, strokeLinejoin: 'round' as const }
@@ -43,43 +43,14 @@ export function WordText({ L, glowVav }: { L: DrawLayout; glowVav: boolean }) {
 
 /** `bare`: no picture (the parent's test board) */
 export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) => void; bare?: boolean }) {
-  const touch = useTouchAnswer()
   const writing = useCourse().writing
   const v = p.view
   const L = v.layout
   const can = p.phase === 'answer'
-  const live = useRef<{ id: number; pts: Pt[] } | null>(null)
-  const liveEl = useRef<SVGPolylineElement | null>(null)
   /** his finger is down (the slot stops pulsing: it no longer needs to call him) */
   const [down, setDown] = useState(false)
-  /** strokes cut off because the hand or the voice began: they fade instead of vanishing */
-  const [discarded, setDiscarded] = useState<{ id: number; pts: Pt[] }[]>([])
-  useEffect(() => {
-    if (!discarded.length) return
-    const timer = window.setTimeout(() => setDiscarded([]), 950)
-    return () => window.clearTimeout(timer)
-  }, [discarded])
-  /** the screen → stage mapping, taken once when the finger goes down (not on every move) */
-  const inv = useRef<DOMMatrix | null>(null)
-  const w = Math.max(9, L.u * 0.085)
+  const w = inkWidth(L.u)
   const map = (q: Pt) => toStagePt(L, q)
-  const at = (e: React.PointerEvent): Pt => {
-    const m = inv.current
-    if (m) return [m.a * e.clientX + m.c * e.clientY + m.e, m.b * e.clientX + m.d * e.clientY + m.f]
-    const q = toStage(e.currentTarget as Element, e.clientX, e.clientY)
-    return [q.x, q.y]
-  }
-  const show = () => { if (liveEl.current) liveEl.current.setAttribute('points', live.current ? poly(live.current.pts) : '') }
-  const end = (e: React.PointerEvent) => {
-    const s = live.current
-    if (!s || s.id !== e.pointerId) return
-    live.current = null
-    inv.current = null
-    setDown(false)
-    show()
-    if (can) p.onStroke(s.pts.map((q) => toNorm(L, q)))
-    else setDiscarded((d) => [...d, { id: s.id, pts: s.pts }])
-  }
   const ok = v.strokes.filter((s) => s.state === 'ok' || s.state === 'helped')
   const latin = v.alphabet === 'latin'
   /** the ink of the letter he writes now (Latin: in its own box, not its marks) */
@@ -130,25 +101,7 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
         const [cx, cy] = map([x + (L.boxes?.[v.box ?? 0]?.dx ?? 0), y])
         return <circle data-start-dot cx={cx} cy={cy} r={Math.max(9, L.u * 0.06)} fill="#7dff9a" stroke="#1b0f3c" strokeWidth={3} style={{ pointerEvents: 'none' }} />
       })()}
-      <g data-strokes className={v.mode === 'done' ? 'd2-drawn' : v.glow === 'marks' ? 'd2-drawn-soft' : undefined}>
-        {v.strokes.map((s) => {
-          const pts = s.pts.map(map)
-          const gold = s.state === 'ok' || s.state === 'helped'
-          const color = gold ? '#ffd34d' : s.state === 'wrong' ? '#ff8a7a' : '#ffffff'
-          const tap = s.pts.length < 2 || pathLength(s.pts) < 0.05
-          const cls = s.state === 'wrong' ? 'd2-stroke-fade' : undefined
-          // gold strokes glow with a halo under them (no blur filter: cheap on the old tablet)
-          return tap
-            ? <g key={s.id} className={cls}>
-              {gold && <circle className="d2-halo" cx={pts[0][0]} cy={pts[0][1]} r={w * 1.4} fill="#ffd34d" opacity={0.3} />}
-              <circle data-stroke={s.state} cx={pts[0][0]} cy={pts[0][1]} r={w * 0.7} fill={color} />
-            </g>
-            : <g key={s.id} className={cls} opacity={s.state === 'pending' ? 0.75 : 1}>
-              {gold && <polyline className="d2-halo" points={poly(pts)} fill="none" stroke="#ffd34d" strokeOpacity={0.3} strokeWidth={w * 2.6} strokeLinecap="round" strokeLinejoin="round" />}
-              <polyline data-stroke={s.state} points={poly(pts)} fill="none" stroke={color} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
-            </g>
-        })}
-      </g>
+      <InkStrokes strokes={v.strokes} map={map} width={w} className={v.mode === 'done' ? 'd2-drawn' : v.glow === 'marks' ? 'd2-drawn-soft' : undefined} />
       {v.lineFx && (
         <g data-linefx={v.lineFx.kind} className="d2-linefx">
           {v.lineFx.outside && (
@@ -165,34 +118,8 @@ export function Draw(p: { view: DrawView; phase: Phase; onStroke: (pts: Pt[]) =>
       {v.demo && <StrokeAnim key={v.demo.id} strokes={v.demo.strokes} map={map} width={w} handScale={Math.max(0.8, L.u / 260)} />}
       {/* his finger: all the stage beside the picture takes strokes (a letter may poke out of the slot, or above the board);
           a tap is a dot (marks) */}
-      <rect data-draw-pad x={0} y={95} width={PIC.x - PIC.size / 2 - 20} height={805} fill="transparent"
-        style={{ cursor: can ? 'crosshair' : 'default' }}
-        onPointerDown={(e) => {
-          if (!can || live.current) return
-          e.preventDefault()
-          ;(e.target as Element).setPointerCapture?.(e.pointerId)
-          const svg = (e.currentTarget as Element).closest('svg') as SVGSVGElement | null
-          const ctm = svg?.getScreenCTM?.()
-          inv.current = ctm && typeof ctm.inverse === 'function' ? ctm.inverse() : null
-          setDown(true)
-          // the pen goes down: a hint's hand goes away at once (rule)
-          touch?.('pen')
-          live.current = { id: e.pointerId, pts: [at(e)] }
-          show()
-        }}
-        onPointerMove={(e) => {
-          const s = live.current
-          if (!s || s.id !== e.pointerId) return
-          const q = at(e)
-          const last = s.pts[s.pts.length - 1]
-          if (Math.hypot(q[0] - last[0], q[1] - last[1]) < 3) return
-          s.pts.push(q)
-          show()
-        }}
-        onPointerUp={end}
-        onPointerCancel={() => { live.current = null; inv.current = null; setDown(false); show() }} />
-      {discarded.map((d) => <polyline key={d.id} data-discarded className="d2-stroke-fade" points={poly(d.pts)} fill="none" stroke="#ffffff" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />)}
-      <polyline ref={liveEl} data-live points="" fill="none" stroke="#ffffff" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }} />
+      <WritingPad x={0} y={95} width={PIC.x - PIC.size / 2 - 20} height={805} can={can} ink={w} onDown={setDown}
+        onStroke={(pts) => p.onStroke(pts.map((q) => toNorm(L, q)))} />
     </Stage>
   )
 }

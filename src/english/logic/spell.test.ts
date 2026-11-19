@@ -8,6 +8,7 @@ import { seeded } from '../../duel2/testing/runHarness'
 import { unit } from '../content/units'
 import { word } from '../content/words'
 import { enLine } from '../data/lines'
+import type { Tally } from '../../shared/adaptive'
 import { MAX_BOXES, MAX_TILES, enSpellRound, type SpellDeps } from './spell'
 
 const ctxAt = (stage: number, seed: number): RoundCtx => ({ rng: seeded(seed), stage, tallies: {}, recent: {}, confusions: { letters: {}, syllables: {} } })
@@ -142,5 +143,43 @@ describe('the English spell book', () => {
     expect(enLine('spell-near')?.variations).toBe(1)
     expect(enLine('q-spell')?.variations).toBe(3)
     for (const id of ['demo-spell', 'spell-near', 'q-spell']) for (const t of enLine(id)!.en) expect(t).not.toContain('!')
+  })
+
+  describe('the written words (stage 4 on)', () => {
+    /** the tallies of letters written alone (a clean drawing each) */
+    const wrote = (letters: string): Record<string, Tally> => Object.fromEntries([...letters].map((l) => [`dr:${l}:print`, { seen: 1 }]))
+    const at = (stage: number, seed: number, tallies: Record<string, Tally>) => enSpellRound({ ...ctxAt(stage, seed), tallies }, allFiles)!
+    /** the letters a word is written with: its boxes' (a magic e's box is its vowel; the tail e is printed) */
+    const lettersOf = (r: SpellRound) => r.boxes.flatMap((b) => [...b.text])
+
+    it('stage 4 words with an unwritten letter stay tiles', () => {
+      const some = wrote('catsdogpinmu')
+      const all = [4, 6, 9].flatMap((s) => Array.from({ length: 150 }, (_, i) => at(s, i + 1, some)))
+      const written = all.filter((r) => r.mode === 'write')
+      const tiles = all.filter((r) => r.mode === 'tiles')
+      expect(written.length).toBeGreaterThan(0)
+      expect(tiles.length).toBeGreaterThan(0)
+      for (const r of written) expect(lettersOf(r).every((l) => 'catsdogpinmu'.includes(l)), r.word).toBe(true)
+      for (const r of tiles) expect(lettersOf(r).every((l) => 'catsdogpinmu'.includes(l)), r.word).toBe(false)
+      // a letter drawn with a mistake or with help is not written alone
+      const helped = { ...wrote('atsdogpinmu'), 'dr:c:print': { seen: 2, wrong: 1, helped: 1 } }
+      expect(Array.from({ length: 150 }, (_, i) => at(4, i + 1, helped)).filter((r) => r.mode === 'write' && lettersOf(r).includes('c'))).toEqual([])
+    })
+
+    it('a written round has no tiles and no picture; before stage 4 every round is tiles', () => {
+      const every = wrote('abcdefghijklmnopqrstuvwxyz')
+      for (let seed = 1; seed <= 100; seed++) {
+        const r = at(5, seed, every)
+        expect(r.mode).toBe('write')
+        expect(r.tiles).toEqual([])
+        expect(r.picture).toBeUndefined()
+        expect(r.near).toBeUndefined()
+        for (const s of [1, 2, 3]) expect(at(s, seed, every).mode).toBe('tiles')
+      }
+      // a silent-e word: the vowel's box and the faint tail e, as with tiles
+      const cake = Array.from({ length: 300 }, (_, i) => at(6, i + 1, every)).find((r) => r.tail === 'e')!
+      expect(cake.mode).toBe('write')
+      expect(lettersOf(cake).join('') + 'e').toBe(word(cake.word).text)
+    })
   })
 })

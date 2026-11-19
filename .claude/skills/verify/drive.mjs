@@ -596,6 +596,37 @@ const CHECKS = {
       report('spell (5 boxes)', r)
       await shot(page, vp, 'en-spell-long')
     }
+    // the spell book's written word (stage 4 on): a box per letter, the longest (jumping, 7 letters), on the slate on the
+    // book's pages; a small letter (the middle line to the baseline) at least 30 px high
+    {
+      await seedEnglish(page, base, 4)
+      await page.goto(`${base}duel2/?course=en#/gallery/spell-write`, { waitUntil: 'domcontentloaded' })
+      await page.locator('[data-write-box]').first().waitFor({ timeout: 20_000 }).catch(() => {})
+      await page.evaluate(() => document.fonts.ready)
+      const g = await page.evaluate(() => {
+        const rect = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom } }
+        const book = document.querySelector('[data-book]')
+        const slate = document.querySelector('[data-spell-write] [data-draw-board]')
+        const lines = [...document.querySelectorAll('[data-spell-write] [data-lines] line')].map((l) => l.getBoundingClientRect().top)
+        return {
+          book: book && rect(book), slate: slate && rect(slate), boxes: [...document.querySelectorAll('[data-write-box]')].map(rect),
+          small: lines.length === 4 ? lines[2] - lines[1] : 0,
+          view: { w: window.innerWidth, h: window.innerHeight },
+        }
+      })
+      const out = (a, b) => a.left < b.left - 0.5 || a.right > b.right + 0.5 || a.top < b.top - 0.5 || a.bottom > b.bottom + 0.5
+      if (g.boxes.length !== 7) problems.push(`spell (written): ${g.boxes.length} letter boxes, not 7`)
+      if (!g.book || !g.slate) problems.push('spell (written): no book or no slate')
+      else {
+        if (out(g.slate, g.book)) problems.push('spell (written): the slate leaves the book')
+        g.boxes.forEach((b, i) => { if (out(b, g.slate)) problems.push(`spell (written): letter box ${i} leaves the slate`) })
+        g.boxes.slice(1).forEach((b, i) => { if (b.left < g.boxes[i].right) problems.push(`spell (written): letter boxes ${i} and ${i + 1} overlap`) })
+        if (g.boxes.some((b) => b.right > g.view.w || b.bottom > g.view.h || b.left < 0)) problems.push('spell (written): a letter box is off the screen')
+      }
+      if (g.small < 30) problems.push(`spell (written): a small letter is ${g.small.toFixed(0)} px high (under 30)`)
+      note(`spell (written, 7 letters): ${g.boxes.length} boxes, a small letter ${g.small.toFixed(0)} px high`)
+      await shot(page, vp, 'en-spell-write')
+    }
     if (problems.length) throw new Error(`${problems.length} misfit(s):\n     ${problems.join('\n     ')}`)
   },
 }

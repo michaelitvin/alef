@@ -25,6 +25,7 @@ export const GALLERY: GalleryEntry[] = [
   { id: 'doors', label: 'Door corridor — read the word', force: { screen: 'doors', stage: 4, demo: true } },
   { id: 'spell', label: 'Spell book — put each sound in its box', force: { screen: 'spell', stage: 4, demo: true } },
   { id: 'spell-long', label: 'Spell book — the longest word (5 boxes)', force: { screen: 'spell', stage: 4, demo: true, longSpell: true }, courses: ['en'] },
+  { id: 'spell-write', label: 'Spell book — a written word, the longest (7 letters)', force: { screen: 'spell', stage: 4, demo: true, longSpell: 'write' }, courses: ['en'] },
   { id: 'crystal', label: 'Crystal (the reward)', force: { screen: 'crystal', stage: 4 } },
   { id: 'dot-intro', label: 'Dotted letters — the introduction (ב/בּ, כ/כּ, פ/פּ, שׂ/שׁ)', force: { screen: 'dot', stage: 3, fixed: 'dot' } },
   { id: 'boss-dot', label: 'Flight boss — the dot thief (בּ/ב, כּ/כ, פּ/פ)', force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'dot' } },

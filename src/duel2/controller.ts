@@ -26,7 +26,7 @@ import { LetterChecker, splitMarks } from './logic/recognizer'
 import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, latinLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView, type LatinRound } from './policies/draw'
-import { spellVisit, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellStep, type SpellView } from './policies/spell'
+import { spellVisit, spellWriting, stepSpell, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellStep, type SpellView } from './policies/spell'
 import { spellFixture } from './data/spellFixtures'
 import { composeCoins, priceAt, type NumberRange } from './logic/merchant'
 import { bossDue, bossVisit, stepBoss, type BossInput, type BossLine, type BossState, type BossStep, type BossView } from './policies/broomBoss'
@@ -161,7 +161,7 @@ export interface View {
 }
 /** he touches an answer (finger-down on a choice, before a drag or a tap ends) or puts the pen down: a hint goes away */
 type TouchGesture = { type: 'touch'; by: 'answer' | 'pen' }
-/** the spell book: he dropped the tile of `tile` (its unit) into box `box` (in box order, the reading's) */
+/** the spell book: he dropped the tile of `tile` (its unit) into box `box` (in box order, the reading's); a written word takes `stroke`s */
 type DropGesture = { type: 'drop'; tile: string; box: number }
 
 export interface RunOpts {
@@ -173,8 +173,8 @@ export interface RunOpts {
     boss?: BossKind
     /** the gallery: the tower's boss visit */
     towerBoss?: boolean
-    /** the gallery: the spell book's long fixture round (English's 5 boxes) */
-    longSpell?: boolean
+    /** the gallery: the spell book's long fixture round (English's 5 boxes); `write`: the same word written (7 letters) */
+    longSpell?: boolean | 'write'
   }
   /**
    * A session from the home screen's path (spec: one duel, Part 3): one visit of this screen (SESSION_LENGTH), then the
@@ -203,7 +203,7 @@ let heartFlashes = 0
 /** an input of a policy, before the run stamps its time */
 type NoAt<T> = T extends unknown ? Omit<T, 'at'> : never
 /** the spell book's effects: a tile lands (the lock's click), a wrong tile (the hit), the spell */
-const SPELL_SFX: Record<SpellSfx, Duel2Sfx> = { drop: 'lock', wrong: 'hit', spell: 'spell' }
+const SPELL_SFX: Record<SpellSfx, Duel2Sfx> = { drop: 'lock', wrong: 'hit', spell: 'spell', stroke: 'stroke' }
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
@@ -364,6 +364,8 @@ export class RunController {
     // (the spell policy takes a drop only while it waits for one, and only into the next box)
     if (g.type === 'drop') { if (this.view.screen?.screen === 'spell') this.spellStep({ type: 'drop', tile: g.tile, box: g.box }); return }
     if (g.type === 'coin' || g.type === 'hand' || g.type === 'potion' || g.type === 'decline') { this.merchantStep(g); return }
+    // (a written word on the spell book: the spell policy takes a stroke only while it waits for one)
+    if (g.type === 'stroke' && this.view.screen?.screen === 'spell') { this.spellStep({ type: 'stroke', pts: g.pts }); return }
     if (g.type === 'stroke') {
       if (this.view.phase !== 'answer' || !this.strokeWait || this.view.screen?.screen !== 'draw') return
       // a stroke stops a hint's hand at once (he shows that he knows)
@@ -1826,22 +1828,25 @@ export class RunController {
     this.spellAnswered = []
     // the gallery's long fixture (five boxes fit their page), always; else the course's round (until a course has its own
     // spell rounds, the gallery shows its fixture round)
-    if (this.opts.force?.longSpell) return spellFixture(this.course, true)
+    if (this.opts.force?.longSpell) return spellFixture(this.course, true, this.opts.force.longSpell === 'write')
     return this.course.rounds.spellRound(this.ctx()) ?? (this.opts.force ? spellFixture(this.course) : null)
   }
 
   /**
    * One round of the spell book (policies/spell.ts decides, the run does what it says): the word; the demo when needed;
-   * he drops each unit's tile into its box; the last one casts the spell. A wrong tile costs a heart, as on the calm
-   * screens. False: the course has no round at this stage (the visit ends).
+   * he drops each unit's tile into its box (a written word: he writes each letter in its box); the last one casts the
+   * spell. A wrong tile (or a wrong stroke) costs a heart, as on the calm screens. False: the course has no round at this stage (the visit ends).
    */
   private async runSpellRound(t: number): Promise<boolean> {
     this.passStep({ type: 'round' })
     this.syncMult()
     const round = this.buildSpell()
     if (!round) return false
-    const demo = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !this.save.read().demosSeen.includes('demo-spell')
-    this.spell = spellVisit({ round, demo, at: this.now(), answered: this.spellAnswered })
+    // (a written word has its own demo: the hand writes the first letter)
+    const demoId = round.mode === 'write' ? 'demo-spell-write' : 'demo-spell'
+    const demo = this.opts.force ? !!this.opts.force.demo && !this.demoShown : !this.save.read().demosSeen.includes(demoId)
+    const write = round.mode === 'write' && this.course.writing ? spellWriting(round, this.course.writing) : undefined
+    this.spell = spellVisit({ round, demo, at: this.now(), answered: this.spellAnswered, ...(write ? { write } : {}) })
     this.assets = []
     const end = await this.guard(t, new Promise<'next' | 'over'>((r) => {
       this.spellDone = r
@@ -1928,6 +1933,7 @@ export class RunController {
         }
         idle()
         if (w.hint !== undefined) this.drawTimers.push(this.time.after(w.hint, () => { if (live()) this.spellStep({ type: 'hint', auto: true }) }))
+        if (w.settle !== undefined) this.drawTimers.push(this.time.after(w.settle, () => { if (on()) this.spellStep({ type: 'settle' }) }))
       }
     } else if (parts.length) void this.course.audio.sayParts(parts)
     if (r.end) this.spellEnd('next')

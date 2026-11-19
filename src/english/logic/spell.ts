@@ -5,13 +5,15 @@
 // "cat"); from stage 9 one other spelling of a box's sound may come (`ea` for `ee`), as a near miss: forgiven once.
 // A silent-e word that ends in its e (cake, not cakes): the magic-e unit's box shows its vowel letter (`a`, says "ay"),
 // and the closing `e` is printed, faint, and is not a box (the round's `tail`, as the Hebrew closing letter).
-// The written mode (stage 4 on) comes with Task 29; until then every round is tiles.
+// From stage 4 he writes the word instead (`mode: 'write'`, one box per letter), when every letter of its boxes is one he
+// has written alone on the drawing screen; a word with a letter he has not stays tiles. A written round has no tiles.
 import type { RoundCtx } from '../../duel2/logic/rounds'
 import type { SpellBox, SpellRound } from '../../duel2/policies/spell'
 import { unit, type Unit } from '../content/units'
 import { wordVoice } from '../content/voiceIds'
 import { WORDS, type EnWord } from '../content/words'
 import { pickWord } from './pick'
+import { writtenAlone } from './draw'
 import type { PictureOf } from './tower'
 import { partOf, tilePool } from './rounds/cauldron'
 import type { HasVoice } from './rounds/broom'
@@ -24,6 +26,8 @@ export const MAX_TILES = 7
 const WRONG = 3
 /** the last stage that shows the word's picture */
 const PICTURE_UNTIL = 3
+/** the stage from which he writes the word (design Part 7: no picture, then written) */
+const WRITE_FROM = 4
 /** the stage from which another spelling of a box's sound may come, as a near miss */
 const NEAR_FROM = 9
 /** of the rounds that can have one: the share with a near tile (my call) */
@@ -98,6 +102,11 @@ export function enSpellRound(ctx: RoundCtx, deps: SpellDeps): SpellRound | null 
   // (the other wrong tiles never sound like a box)
   for (const t of pool) if (tiles.length - own.length < wrong + (near ? 1 : 0) && !sounds.has(t.sound) && fits(t)) tiles.push(boxOf(t))
   const file = stage <= PICTURE_UNTIL && w.picture && w.uses.includes('S-pic') ? deps.picture(w.picture) : undefined
+  // (the letters of its boxes: a magic e's box is its vowel letter, the tail e is printed)
+  const alone = stage >= WRITE_FROM ? writtenAlone(ctx.tallies) : new Set<string>()
+  if (stage >= WRITE_FROM && boxes.every((b) => [...b.text].every((ch) => alone.has(ch)))) {
+    return { word: w.id, wordVoice: wordVoice(w.text), boxes, tiles: [], mode: 'write', ...(units.some((u) => u.kind === 'magic-e') ? { tail: 'e' } : {}) }
+  }
   return {
     word: w.id, wordVoice: wordVoice(w.text), boxes, tiles: shuffle(rng, tiles), mode: 'tiles',
     ...(units.some((u) => u.kind === 'magic-e') ? { tail: 'e' } : {}), ...(file ? { picture: file } : {}), ...(near ? { near } : {}),

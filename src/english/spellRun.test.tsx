@@ -16,6 +16,8 @@ import { unit } from './content/units'
 import { word } from './content/words'
 import { partOf } from './logic/rounds/cauldron'
 import type { EnglishSave } from './saveFormat'
+import { resample, splitMarks } from '../duel2/logic/recognizer'
+import { isMark, latinStrokesOf } from './data/strokes'
 
 /** the English course with the fixture as its spell round, and a session of three rounds */
 const COURSE: Course = {
@@ -287,4 +289,89 @@ describe('an empty spell visit', () => {
     expect(events('merchant-arrive')).toEqual([])
     c.destroy()
   }, 60_000)
+})
+
+describe('the spell book\'s written words in the run (stage 4 on)', () => {
+  /** every letter written alone on the drawing screen: the course's rounds from stage 4 are written */
+  const alone = Object.fromEntries([...'abcdefghijklmnopqrstuvwxyz'].map((l) => [`dr:${l}:print`, { seen: 1 }]))
+  const tick = () => act(async () => { await vi.advanceTimersByTimeAsync(50) })
+  /** he writes each letter in its box as the data has it, then the marks still missing where his letters put them */
+  function writeOne(c: RunController) {
+    const v = c.view
+    const s = v.screen as SpellView | null
+    if (s?.screen !== 'spell' || !s.write || s.alive) return
+    if (!(v.phase === 'answer' || (v.phase === 'mistake' && v.fixing))) return
+    const W = s.write
+    if (W.strokes.some((x) => x.state === 'live' || x.state === 'pending')) return
+    if (W.mode === 'mark') { c.gesture({ type: 'stroke', pts: W.owed![0] }); return }
+    if (W.mode !== 'letter') return
+    const dx = W.layout.boxes![W.at].dx
+    const body = splitMarks(latinStrokesOf(W.letters[W.at]), isMark).body.variants[0]
+    const done = W.strokes.filter((x) => x.box === W.at && !x.mark && (x.state === 'ok' || x.state === 'helped')).length
+    if (done < body.length) c.gesture({ type: 'stroke', pts: resample(body[done].pts, 30).map(([x, y]) => [x + dx, y] as [number, number]) })
+  }
+  async function play(c: RunController) { for (let g = 0; g < 6000 && !c.view.over; g++) { writeOne(c); await tick() } }
+
+  it('a seeded session writes the course\'s words letter by letter; every unit counts once, also a unit of two letters', async () => {
+    const save = placed({ demosSeen: ['demo-spell', 'demo-spell-write'], tallies: alone })
+    const course: Course = { ...ENGLISH, stages: { ...ENGLISH.stages, sessionLength: { ...ENGLISH.stages.sessionLength, spell: 3 } } }
+    const c = new RunController({ course, save, now: () => Date.now(), rng: seeded(12), session: { screen: 'spell' } })
+    c.start()
+    await play(c)
+    expect(c.view.over).toMatchObject({ session: true, score: 3 })
+    const casts = events('spell-cast')
+    expect(casts.map((x) => x.mode)).toEqual(['write', 'write', 'write'])
+    expect(casts.every((x) => x.mistakes === 0)).toBe(true)
+    const words = casts.map((x) => word(x.word as string))
+    const boxes = words.flatMap((w) => w.units)
+    // one answer per unit (sh: two letters, one answer), on the screen's tally and the unit's
+    expect(tally(save, 'sc:spell')).toMatchObject({ seen: boxes.length, wrong: 0 })
+    for (const u of new Set(boxes)) expect(tally(save, u)).toMatchObject({ seen: boxes.filter((x) => x === u).length, wrong: 0 })
+    expect(save.read().stage.newAnswers).toBe('o'.repeat(boxes.filter((u) => unit(u).stage === 4).length))
+    for (const w of words) expect(tally(save, `spell:${w.id}`)).toMatchObject({ seen: 1, wrong: 0 })
+    expect(tally(save, 'sc:spell-write')).toMatchObject({ seen: 3 })
+    c.destroy()
+  }, 120_000)
+
+  it('a two-letter unit (sh of shop) is answered once, when its second letter is written; a wrong stroke is its miss', async () => {
+    const shop: SpellRound = { ...SHOP, tiles: [], mode: 'write' }
+    const save = placed({ demosSeen: ['demo-spell', 'demo-spell-write'], tallies: alone })
+    const c = new RunController({ course: oneRound(shop), save, now: () => Date.now(), rng: seeded(2), session: { screen: 'spell' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer')
+    expect(spell(c.view).write!.letters).toEqual(['s', 'h', 'o', 'p'])
+    // s, then a flat line where h goes: the miss is sh's
+    for (let g = 0; g < 200 && spell(c.view).write!.at === 0; g++) { writeOne(c); await tick() }
+    expect(tally(save, 'sh')).toBeUndefined()
+    const dx = spell(c.view).write!.layout.boxes![1].dx
+    c.gesture({ type: 'stroke', pts: [[dx + 0.05, 0.7], [dx + 0.3, 0.7], [dx + 0.6, 0.7]] })
+    await until(c, (v) => !!v.fixing)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, wrong: 1 })
+    await play(c)
+    expect(tally(save, 'sh')).toMatchObject({ seen: 1, wrong: 1 })
+    expect(tally(save, 'o')).toMatchObject({ seen: 1, wrong: 0 })
+    expect(events('spell-drop').filter((x) => x.ok === false)).toEqual([expect.objectContaining({ unit: 'sh', box: 0, letter: 'h', mode: 'write' })])
+    expect(events('spell-cast')).toEqual([expect.objectContaining({ word: 'shop', mode: 'write', mistakes: 1 })])
+    c.destroy()
+  }, 60_000)
+
+  it('the first written word plays demo-spell-write once (a save that saw the tiles\' demo too)', async () => {
+    const save = placed({ demosSeen: ['demo-spell'], tallies: alone })
+    const c = new RunController({ course: oneRound({ ...SHOP, tiles: [], mode: 'write' }), save, now: () => Date.now(), rng: seeded(3), session: { screen: 'spell' } })
+    // the demo's line plays until the test lets it end
+    fakeAudio.holdUntil(/^demo-spell-write/)
+    try {
+      c.start()
+      await until(c, (v) => v.phase === 'demo')
+      // the hand writes the first letter, s
+      expect(spell(c.view).write!.demo?.strokes).toHaveLength(splitMarks(latinStrokesOf('s'), isMark).body.variants[0].length)
+      fakeAudio.release()
+      await until(c, (v) => v.phase === 'answer')
+    } finally { fakeAudio.holdUntil(null) }
+    expect(spell(c.view).write!.demo).toBeUndefined()
+    expect(fakeAudio.said().filter((id) => id === 'demo-spell-write-1')).toHaveLength(1)
+    expect(save.read().demosSeen).toContain('demo-spell-write')
+    expect(fakeAudio.said()).not.toContain('demo-spell-1')
+    c.destroy()
+  })
 })

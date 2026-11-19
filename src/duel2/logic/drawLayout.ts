@@ -10,6 +10,8 @@ export const DRAW_FONT: Record<Script, string> = { print: 'Sigalit', hand: "'Dan
 /** the board (dark slate) and the picture beside it; kept clear of the top bar at phone size */
 export const BOARD = { left: 40, right: 1250, top: 175, bottom: 885 }
 export const PIC = { x: 1425, y: 470, size: 290 }
+/** the spell book's written words: the board on its two open pages (inside SpellBook's BOOK, with its margins) */
+export const SPELL_BOARD = { left: 150, right: 1450, top: 95, bottom: 630 }
 const U_MAX = 290
 const PAD = 0.18
 /** the gap between the slot and the rest of the word (letter units) */
@@ -107,11 +109,15 @@ const BOX_GAP = 0.14
  * The Latin board (left to right): the word's text before the boxes (`before`), the boxes of the letters he writes (one,
  * qu's two, or a whole word's), then the rest of the word (`rest`). Four lines at the course's heights; for a capital the top line is at the capitals' top (they stop short
  * of the ascender: on school paper they touch the top line). `em`: a text's width in em; one letter unit is `unitEm` em.
+ * The spell book's written words use the same board on its pages (`board`: SPELL_BOARD).
  */
 export function latinLayout(p: {
   defs: LetterDef[]; rest: string; before?: string; capital: boolean; font: string; unitEm: number; em: (text: string) => number
   lines: { top: number; mid: number; base: number; desc: number; cap: number }
+  /** where the board is (default: the drawing screen's BOARD) */
+  board?: { left: number; right: number; top: number; bottom: number }
 }): DrawLayout {
+  const B = p.board ?? BOARD
   const pts = p.defs.flatMap((d) => d.variants.flatMap((v) => v.flatMap((st) => st.pts)))
   const defTop = Math.min(...pts.map((q) => q[1]))
   const defBottom = Math.max(...pts.map((q) => q[1]))
@@ -121,11 +127,11 @@ export function latinLayout(p: {
   const needTop = Math.min(p.lines.top - 0.15, defTop - PAD)
   const needBottom = Math.max(p.lines.desc + 0.1, defBottom + PAD)
   const totalW = widths.reduce((a, w) => a + w, 0) + BOX_GAP * (widths.length - 1) + (p.rest ? GAP + restW : 0) + (p.before ? beforeW + GAP : 0)
-  const bw = BOARD.right - BOARD.left - 60
-  const bh = BOARD.bottom - BOARD.top - 30
+  const bw = B.right - B.left - 60
+  const bh = B.bottom - B.top - 30
   const u = Math.min(U_MAX, bh / (needBottom - needTop), bw / totalW)
-  const top = (BOARD.top + BOARD.bottom) / 2 - ((needTop + needBottom) / 2) * u
-  const cx = (BOARD.left + BOARD.right) / 2
+  const top = (B.top + B.bottom) / 2 - ((needTop + needBottom) / 2) * u
+  const cx = (B.left + B.right) / 2
   let edge = cx - (totalW * u) / 2
   const beforeCx = edge + (beforeW * u) / 2
   if (p.before) edge += (beforeW + GAP) * u
@@ -144,7 +150,7 @@ export function latinLayout(p: {
   const y = (v: number) => top + v * u
   return {
     script: 'print', u, x0, top, alphabet: 'latin',
-    lines: { top: y(p.capital ? p.lines.cap : p.lines.top), mid: y(p.lines.mid), base: y(p.lines.base), below: y(p.lines.desc), left: BOARD.left + 20, right: BOARD.right - 20 },
+    lines: { top: y(p.capital ? p.lines.cap : p.lines.top), mid: y(p.lines.mid), base: y(p.lines.base), below: y(p.lines.desc), left: B.left + 20, right: B.right - 20 },
     slot: rects[0], boxes,
     rest: { text: p.rest, cx: restLeft + (restW * u) / 2, px: u / p.unitEm, font: p.font },
     ...(p.before ? { before: { text: p.before, cx: beforeCx } } : {}),

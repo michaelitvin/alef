@@ -126,3 +126,41 @@ describe('the spell book screen', () => {
 
 const listedEnglish = () => [...render(<CourseProvider value={ENGLISH}><Gallery onBack={() => {}} onStart={() => {}} /></CourseProvider>)
   .container.querySelectorAll('[data-entry]')].map((e) => e.getAttribute('data-entry'))
+
+describe('the spell book screen: a written word', () => {
+  it('the gallery\'s written word (English only): the slate on the book, a box per letter, the start dot; no tiles, no picture; his stroke in letter units', async () => {
+    expect(listedEnglish()).toContain('spell-write')
+    expect([...render(<CourseProvider value={HEBREW}><Gallery onBack={() => {}} onStart={() => {}} /></CourseProvider>).container.querySelectorAll('[data-entry]')]
+      .map((e) => e.getAttribute('data-entry'))).not.toContain('spell-write')
+    vi.useFakeTimers()
+    try {
+      const c = new RunController({ sandbox: true, force: { screen: 'spell', stage: 4, longSpell: 'write' }, course: ENGLISH, now: () => Date.now() })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const s = c.view.screen as SpellView
+      expect(s.write!.letters).toEqual([...'jumping'])
+      const onStroke = vi.fn()
+      const page = render(<CourseProvider value={ENGLISH}><SpellBook view={s} phase="answer" dir="ltr" onDrop={vi.fn()} onStroke={onStroke} /></CourseProvider>).container
+      expect(page.querySelectorAll('[data-write-box]')).toHaveLength(7)
+      expect(page.querySelectorAll('[data-spell-write] [data-lines] line')).toHaveLength(4)
+      expect(page.querySelectorAll('[data-tile]')).toHaveLength(0)
+      expect(page.querySelector('[data-spell-picture]')).toBeNull()
+      // the start dot of j, in the first box
+      const dot = page.querySelector('[data-start-dot]')!
+      const first = page.querySelector('[data-write-box="0"]')!
+      const cx = Number(dot.getAttribute('cx'))
+      expect(cx).toBeGreaterThan(Number(first.getAttribute('x')))
+      expect(cx).toBeLessThan(Number(first.getAttribute('x')) + Number(first.getAttribute('width')))
+      // a stroke on the book reaches the run in letter units (the board's origin)
+      const L = s.write!.layout
+      const pad = page.querySelector('[data-spell-write] [data-draw-pad]')!
+      fireEvent.pointerDown(pad, { pointerId: 1, clientX: 0, clientY: 0 })
+      fireEvent.pointerUp(pad, { pointerId: 1, clientX: 0, clientY: 0 })
+      expect(onStroke).toHaveBeenCalledTimes(1)
+      const [[[[x, y]]]] = onStroke.mock.calls as unknown as [[[number, number][]]][]
+      expect(Number.isFinite(x) && Number.isFinite(y)).toBe(true)
+      expect(L.u).toBeGreaterThan(0)
+      c.destroy()
+    } finally { vi.useRealTimers() }
+  })
+})
