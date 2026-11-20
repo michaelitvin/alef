@@ -116,7 +116,9 @@ export class PlayController {
     this.o.setRun?.(s.runs + 1)
     const { events, playDay } = this.o.save.beginRun()
     const at = frontier(this.o.save.get().ladder, s.settings)
-    this.o.track('run-start', { ship: s.ship, rung: at, frontier: at, playDay })
+    const mode = this.o.save.get().ladder.mode
+    // `rung` only when a placement probes another rung than the frontier
+    this.o.track('run-start', { ship: s.ship, ...(mode.kind === 'placement' ? { rung: mode.at } : {}), frontier: at, playDay })
     this.trackLadder(events)
     void this.nextRound()
   }
@@ -227,15 +229,24 @@ export class PlayController {
   private sayOf(item: Item): Say | undefined {
     const s = this.o.save.get()
     const heard = (id: string) => s.heard[id] ?? 0
-    if (item.kind === 'jumps' && item.hole !== 3 && heard('missing-jumps') < MISSING_TIMES) return { line: 'missing', count: 'missing-jumps' }
     const id = introOf(item)
-    if (id) {
+    const intro = (): Say | undefined => {
+      if (!id) return undefined
       const today = s.intro.day === s.ladder.day
       const first = heard(id) < INTRO_TIMES
       const again = today && (s.intro.mistakes[id] ?? 0) >= AGAIN_AFTER && !s.intro.again.includes(id)
       const silent = !this.o.audio.hasLine(id)
       if ((first || again) && (!silent || (this.silentPlays[id] ?? 0) < INTRO_TIMES)) return { line: id, first, again, silent }
+      return undefined
     }
+    // the kind's intro comes first on first sight; the missing-jumps line only after it has been heard
+    if (id && heard(id) < INTRO_TIMES) {
+      const first = intro()
+      if (first) return first
+    }
+    if (item.kind === 'jumps' && item.hole !== 3 && heard('missing-jumps') < MISSING_TIMES) return { line: 'missing', count: 'missing-jumps' }
+    const again = intro()
+    if (again) return again
     if (item.kind === 'sum' && item.hole !== 'c' && heard('missing') < MISSING_TIMES) return { line: 'missing', count: 'missing' }
     return undefined
   }

@@ -7,7 +7,7 @@ import * as audio from './audio/spaceCatAudio'
 import type { Engine, Hud, PodsWhen } from './canvas/engine'
 import type { RoundContent } from './content'
 import { MISSING_TIMES, PlayController, T1_POD_ROUNDS, T2_POD_ROUNDS, TIP_TIMES, type EndInfo, type LevelDoneInfo } from './controller'
-import { LADDER_START, type Ladder } from './logic/ladder/index'
+import { LADDER_START, placementMode, type Ladder } from './logic/ladder/index'
 import type { RoundResult } from './logic/round'
 import { RUNGS, rungDef, type RungId } from './logic/rungs'
 import { memorySavePort } from './savePort'
@@ -450,13 +450,17 @@ describe('the play controller', () => {
     expect(p.events.filter(([e]) => e === 'placement').map(([, f]) => f!.phase)).toEqual(['start', 'end'])
   })
 
-  it('run-start has the frontier and playDay', async () => {
+  it('run-start has the frontier and playDay, and the probe rung only during a placement', async () => {
     const a = setup({ ...played, ladder: { ...practiceAt4, lastAt: undefined } })
     a.ctl.start()
-    expect(a.events[0]).toEqual(['run-start', { ship: 1, rung: '4', frontier: '4', playDay: true }])
+    expect(a.events[0]).toEqual(['run-start', { ship: 1, frontier: '4', playDay: true }])
     const b = setup({ ...played, ladder: { ...practiceAt4, lastAt: Date.now() - 1000 } })
     b.ctl.start()
-    expect(b.events[0]).toEqual(['run-start', { ship: 1, rung: '4', frontier: '4', playDay: false }])
+    expect(b.events[0]).toEqual(['run-start', { ship: 1, frontier: '4', playDay: false }])
+    const mode = placementMode('migration', '12', 4, 10)
+    const c = setup({ ...played, ladder: { ...practiceAt4, mode, lastAt: undefined } })
+    c.ctl.start()
+    expect(c.events[0]).toEqual(['run-start', { ship: 1, rung: '12', frontier: '4', playDay: true }])
   })
 
   it('the compare intro plays twice, then again after 3 mirrored picks in a play day, once', async () => {
@@ -623,5 +627,25 @@ describe('the play controller', () => {
     expect(fake.said().filter((x) => x === 'missing-1')).toHaveLength(MISSING_TIMES)
     expect(t.port.get().heard['missing-jumps']).toBe(MISSING_TIMES)
     expect(t.port.get().heard.missing).toBe(2)
+  })
+
+  it('a jump row with its ring not last plays the jumps intro on first sight, before the missing-number line', async () => {
+    // some seed starts its first jump round with the ring not last
+    let found = false
+    for (let seed = 1; seed <= 40 && !found; seed++) {
+      const t = setup({ ...practiceAt('S2'), heard: { demo: 1, missing: 2 } }, seed)
+      let seen: { middle: boolean; intro: number; missing: number } | undefined
+      t.ctl.start()
+      await drive(t, (c) => {
+        if (c.kind === 'jumps' && !seen) seen = { middle: c.box[3] !== null, intro: t.port.get().heard.jumps ?? 0, missing: t.port.get().heard['missing-jumps'] ?? 0 }
+        return right
+      }, () => seen !== undefined)
+      if (seen!.middle) {
+        found = true
+        expect(seen).toEqual({ middle: true, intro: 1, missing: 0 })
+      }
+      t.ctl.destroy()
+    }
+    expect(found).toBe(true)
   })
 })
