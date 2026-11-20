@@ -18,7 +18,8 @@ import '../../components/home/home.css'
 
 /**
  * HomePage (spec: one duel, Part 4; the approved mock): the duel card and the path of its minigames, a separator, the
- * clock card, a separator, and the older activities as a shelf of small icons. Right to left throughout.
+ * clock card, a separator, the English card and path where they are open (the parent: English before the cat), the
+ * Space Cat card, a separator, and the older activities as a shelf of small icons. Right to left throughout.
  */
 export function HomePage() {
   const navigate = useNavigate()
@@ -86,15 +87,16 @@ export function HomePage() {
         </p>
       </motion.header>
 
-      {/* the duel and its path, the clock, Space Cat, the older activities (the approved mock's layout and values) */}
+      {/* the duel and its path, the clock, the English path (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
       <main className="home-box" data-home>
         <DuelCard />
         <StationPath />
-        {/* the English path (only where this build has it, and while the parent has not turned it off): left to right */}
-        {english.on && <><Separator /><EnglishCard /><EnglishPath stations={english.stations} /></>}
         <Separator />
         <ClockCard />
         <Separator />
+        {/* the English path, right before the cat (the parent's order; only where this build has it, and while the
+            parent has not turned it off): left to right */}
+        {english.on && <><EnglishCard /><EnglishPath stations={english.stations} /><Separator /></>}
         <SpaceCatCard />
         <Separator />
         <LevelShelf />

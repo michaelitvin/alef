@@ -177,11 +177,14 @@ describe('the English card and path on home (English path design, Part 1)', () =
   })
   afterEach(() => { en.available = false })
 
-  it('the English card sits after the Hebrew path and before the clock', async () => {
-    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'english', 'english-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+  it('the English card and its path sit right before the Space Cat card (the parent\'s order: English before the cat)', async () => {
+    const p = parts(await pageEn())
+    expect(p).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'english', 'english-path', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(p[p.indexOf('spacecat') - 1]).toBe('separator')
+    expect(p[p.indexOf('spacecat') - 2]).toBe('english-path')
   })
 
-  it('no English card on production', async () => {
+  it('no English card on production: the order is the Hebrew home\'s, as before the English path', async () => {
     en.available = false
     const c = await pageEn()
     expect(parts(c)).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
