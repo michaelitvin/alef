@@ -6,7 +6,7 @@ import { rungDef, type RungId } from './logic/rungs'
 import type { RoundResult } from './logic/round'
 import { PLACED_V1, RANGE_V1, migrateV1 } from './migrate'
 import { memorySavePort } from './savePort'
-import { DEFAULT_SAVE, DEFAULT_SETTINGS, HISTORY_KEEP, SAVE_KEY, SAVE_VERSION, savedShip } from './saveFormat'
+import { DEFAULT_SAVE, DEFAULT_SETTINGS, SAVE_KEY, SAVE_VERSION, savedShip } from './saveFormat'
 import { useSpaceCatStore } from './store'
 
 const it1 = itemById('2+3=5/c')!
@@ -26,12 +26,11 @@ describe('space cat store', () => {
   })
   it('the constants', () => {
     expect(SAVE_VERSION).toBe(2)
-    expect(HISTORY_KEEP).toBe(40)
   })
   it('a fresh save starts the first placement', () => {
     expect(store().ladder).toEqual(LADDER_START)
     expect(store().ladder.mode).toMatchObject({ kind: 'placement', why: 'first', at: '1', jump: 8, max: 16 })
-    expect(store().history).toEqual([])
+    expect('history' in store()).toBe(false)
     expect(store().intro).toEqual({ day: 0, mistakes: {}, again: [] })
     expect(store().speed).toEqual({ small: { arrivalMs: 8000, underMs: [], hold: 0 } })
   })
@@ -81,28 +80,18 @@ describe('space cat store', () => {
     expect(store().ladder.lastAt).toBe(5000)
     expect(store().ladder.mode).toMatchObject({ kind: 'placement', probes: 1 })
   })
-  it('a rung passed in practice is in the history and holds its band\'s speed', () => {
+  it('a rung passed in practice holds its band\'s speed', () => {
     useSpaceCatStore.setState({ ladder: { ...LADDER_START, day: 1, mode: { kind: 'practice' } } })
     let events: unknown[] = []
     for (let i = 0; i < 3; i++) events = store().recordRound(it1, result(), { part: 'frontier', fast: true, now: 1000 + i }).events
     expect(events).toContainEqual({ e: 'ladder', rung: '1', change: 'passed', by: 'fast' })
-    expect(store().history).toEqual([{ t: 1002, rung: '1', change: 'passed', by: 'fast' }])
     expect(store().speed.small.hold).toBeGreaterThan(0)
   })
-  it('the history keeps the last 40 changes', () => {
-    const many = Array.from({ length: 45 }, (_, i) => ({ t: i, rung: '1' as RungId, change: 'strike' as const }))
-    useSpaceCatStore.setState({ history: many, ladder: { ...LADDER_START, day: 1, mode: { kind: 'practice' } } })
-    for (let i = 0; i < 3; i++) store().recordRound(it1, result(), { part: 'frontier', fast: true, now: 100 + i })
-    const h = store().history
-    expect(h).toHaveLength(HISTORY_KEEP)
-    expect(h[h.length - 1]).toMatchObject({ rung: '1', change: 'passed', t: 102 })
-    expect(h[0].t).toBe(6)
-  })
-  it('a demo or cut round changes no ladder, speed or history', () => {
-    const before = { ladder: store().ladder, speed: store().speed, history: store().history }
+  it('a demo or cut round changes no ladder or speed', () => {
+    const before = { ladder: store().ladder, speed: store().speed }
     store().recordRound(it1, result(), { demo: true })
     store().recordRound(it1, result({ result: 'wrong' }), { cut: true })
-    expect({ ladder: store().ladder, speed: store().speed, history: store().history }).toEqual(before)
+    expect({ ladder: store().ladder, speed: store().speed }).toEqual(before)
   })
   it('takeRound gives an item and a part and writes the ladder back', () => {
     const t = store().takeRound(() => 0.3)
@@ -264,11 +253,6 @@ describe('the migration of a version 1 save', () => {
     expect(at(6)).toBe('12')
     expect(rungDef(at(7)).order).toBeGreaterThan(rungDef('T2').order)
   })
-  it('history holds one migration entry, for the highest placed rung', () => {
-    expect(migrateV1(v1({ ladder: { ...V1_LADDER, top: 1 } })).history).toEqual([])
-    const h = migrateV1(v1({ ladder: { ...V1_LADDER, top: 8 } })).history
-    expect(h).toEqual([{ t: expect.any(Number), rung: 'T5', change: 'placed', by: 'migration' }])
-  })
   it('the range maps', () => {
     expect(RANGE_V1).toEqual({ 1: '1', 2: '3', 3: '5', 4: '6', 5: '7', 6: '11', 7: 'T2', 8: 'T5', 9: 'T6' })
     for (const [old, now] of Object.entries(RANGE_V1)) {
@@ -306,6 +290,14 @@ describe('the migration of a version 1 save', () => {
     expect(s.items[it1.id].seen).toBe(3)
     expect(typeof s.takeRound).toBe('function')
     expect(JSON.parse(localStorage.getItem(SAVE_KEY)!).version).toBe(2)
+  })
+  it('a v2 save that still has a `history` list is read without it', async () => {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ state: { best: 7, history: [{ t: 1, rung: '1', change: 'passed' }] }, version: 2 }))
+    vi.resetModules()
+    const fresh = (await import('./store')).useSpaceCatStore
+    await Promise.resolve()
+    expect(fresh.getState().best).toBe(7)
+    expect('history' in fresh.getState()).toBe(false)
   })
   it('the staging copy migrates the same (a `staging:` key through the prefixed storage)', async () => {
     const real = window.localStorage

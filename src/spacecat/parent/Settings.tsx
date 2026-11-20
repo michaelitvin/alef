@@ -3,6 +3,7 @@
 // flight, the game's sounds, and the way to the Data section. Each change is tracked as `settings` by the parent.
 import { useEffect, useState, type ReactNode } from 'react'
 import { useDeviceSettings } from '../../shared/deviceSettings'
+import { readLog } from '../../shared/telemetryChunks'
 import type { SectionProps } from '../../parent/types'
 import { playSfx, startTune, stopTune } from '../audio/spaceCatAudio'
 import { SFX_NAMES, type SfxName } from '../audio/sfx'
@@ -13,7 +14,9 @@ import { predictItem, priorOf, type ItemStats } from '../logic/predict'
 import type { FixedArrival } from '../logic/speed'
 import type { Settings as SettingsT } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
+import { SPACECAT_LOG } from '../telemetryLog'
 import { RUNG_TEXT, STRANDS, STRAND_TITLE, changeText, rungStatus, rungsOfStrand, whereHeIs, workingOn } from './ladderText'
+import { recentChanges } from './recentChanges'
 import { rungTallies, shareText } from './rungs'
 import { sumText } from './sumText'
 
@@ -62,7 +65,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
     .sort((a, b) => b.p - a.p)
     .slice(0, HARD_ROWS)
   const where = whereHeIs(s.ladder, s.settings)
-  const recent = s.history.slice(-RECENT_ROWS).reverse()
+  const recent = recentChanges(readLog(SPACECAT_LOG.key), RECENT_ROWS)
   const findAgain = () => {
     if (!window.confirm('Find his level again? Every rung goes back to "not yet" and the game checks him from the start. His points, ships and hard sums stay.')) return
     s.findLevelAgain()

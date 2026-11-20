@@ -74,14 +74,16 @@ describe('Space Cat\'s section in the parent area', () => {
 
   it('Recent changes: newest first, with the date and a plain line', () => {
     const t = (d: string) => new Date(`${d}T12:00:00`).getTime()
-    useSpaceCatStore.setState({ history: [
-      { t: t('2026-11-01'), rung: '14', change: 'passed', by: 'fast' },
-      { t: t('2026-11-02'), rung: '15', change: 'strike' },
-      { t: t('2026-11-03'), rung: '15', change: 'held', days: 2 },
-      { t: t('2026-11-04'), rung: 'C1', change: 'placed', by: 'placement' },
-      { t: t('2026-11-05'), rung: '15', change: 'free' },
-      { t: t('2026-11-06'), rung: '13', change: 'unpassed', by: 'recheck' },
-    ] })
+    const ladder = (d: string, f: Record<string, unknown>) => ({ t: t(d), s: 'a', run: 0, e: 'ladder', ...f })
+    localStorage.setItem(SPACECAT_LOG.key, JSON.stringify({ v: 1, events: [
+      ladder('2026-11-01', { rung: '14', change: 'passed', by: 'fast' }),
+      { t: t('2026-11-01') + 1, s: 'a', run: 0, e: 'round', item: '1+1=2/c' },
+      ladder('2026-11-02', { rung: '15', change: 'strike' }),
+      ladder('2026-11-03', { rung: '15', change: 'held', days: 2 }),
+      ladder('2026-11-04', { rung: 'C1', change: 'placed', by: 'placement' }),
+      ladder('2026-11-05', { rung: '15', change: 'free' }),
+      ladder('2026-11-06', { rung: '13', change: 'unpassed', by: 'recheck' }),
+    ] }))
     const { container } = render(<SpaceCatSettings goTo={() => {}} />)
     expect([...container.querySelectorAll('[data-recent] li')].map((x) => x.textContent)).toEqual([
       '2026-11-06: back to "not yet" (re-check): 2-digit ± 1-digit, no regrouping',

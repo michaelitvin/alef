@@ -4,7 +4,7 @@
 import { isEarned, isOn, frontier, statusText } from '../logic/ladder/frontier'
 import { RUNGS, rungDef, type RungId, type Strand } from '../logic/rungs'
 import type { Ladder, LadderSettings } from '../logic/ladder/state'
-import type { HistoryEntry } from '../saveFormat'
+import type { ChangeRow } from './recentChanges'
 
 /** the design's rung names and examples (parent text, English; no rung numbers) */
 export const RUNG_TEXT: Record<RungId, { name: string; example: string }> = {
@@ -85,7 +85,7 @@ export function rungStatus(l: Ladder, r: RungId, set: LadderSettings): string {
 const BY: Record<string, string> = { recheck: 're-check', warmup: 'warm-up', migration: 'update', placement: 'placement', probation: 'probation', rejump: 'placement' }
 
 /** one saved change in plain English: "passed (fast): 2-digit ± tens" */
-export function changeText(h: HistoryEntry): string {
+export function changeText(h: ChangeRow): string {
   const name = rungDef(h.rung) ? RUNG_TEXT[h.rung].name : String(h.rung)
   const via = h.by && BY[h.by] ? ` (${BY[h.by]})` : ''
   switch (h.change) {

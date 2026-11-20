@@ -620,3 +620,5 @@ text, `GLOSSARY.md`, `src/spacecat/README.md`, `asset-sources/spacecat/README.md
 ### Task 14: The playtest build
 
 - Read `<scratch>/build-play.sh`, check that it does not overwrite committed voice files, run it from the worktree.
+
+> Update: the parent decided the save keeps no `history` list (`HistoryEntry`, `HISTORY_KEEP`, `toHistory`, `keepHistory` are gone). The parent area's *Recent changes* reads the telemetry `ladder` events (`src/spacecat/parent/recentChanges.ts`).

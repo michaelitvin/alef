@@ -543,8 +543,8 @@ against the draft; where the check found a gap, it says *Found* and what changed
   four intros plays again after its own typical mistake 3 times in a play day.
   *Noted:* "Start with a simple version; add a mechanic only when the data shows a need." This design adds a lot, but
   the parent asked for each part, after the data of his playtests (he reached the top too soon).
-- **Parent tracking.** Every round with its rung, kind, part of the mix and speed; every ladder change; the history kept
-  in the save so the parent sees it after old telemetry is evicted; the one budget of ADR 0007; the roll-up takes the
+- **Parent tracking.** Every round with its rung, kind, part of the mix and speed; every ladder change; the parent area reads
+  the level history from these `ladder` events (the save keeps no history list: the parent's decision); the one budget of ADR 0007; the roll-up takes the
   new ids and the signs. The old rung names and the old `rung` event retire (rule: remove retired items from the
   parent's stats): the table shows the new rungs only, the old stats are in them.
 - **Parent settings (new rule).** Each new setting has a label and an explanation with an example round; no rung number

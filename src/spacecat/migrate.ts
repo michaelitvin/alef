@@ -3,7 +3,7 @@
 import { MIGRATION_JUMP, MIGRATION_PROBES, offered, placementMode, type Ladder } from './logic/ladder/index'
 import { RUNGS, type RungId } from './logic/rungs'
 import { SPEED_START } from './logic/speed'
-import { DEFAULT_SAVE, DEFAULT_SETTINGS, type HistoryEntry, type Settings, type SpaceCatSave } from './saveFormat'
+import { DEFAULT_SAVE, DEFAULT_SETTINGS, type Settings, type SpaceCatSave } from './saveFormat'
 
 /** a parent's numeric range of version 1 → the rung it stands for */
 export const RANGE_V1: Record<number, RungId> = { 1: '1', 2: '3', 3: '5', 4: '6', 5: '7', 6: '11', 7: 'T2', 8: 'T5', 9: 'T6' }
@@ -22,7 +22,7 @@ const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object
 const num = (x: unknown, d: number) => (typeof x === 'number' && Number.isFinite(x) ? x : d)
 
 /** a version 1 save (or anything that was stored) → a version 2 save */
-export function migrateV1(old: unknown, now: number = Date.now()): SpaceCatSave {
+export function migrateV1(old: unknown): SpaceCatSave {
   if (!isObj(old)) return DEFAULT_SAVE
   const o = old
   const top = isObj(o.ladder) && typeof o.ladder.top === 'number' && o.ladder.top in PLACED_V1 ? o.ladder.top : undefined
@@ -56,6 +56,5 @@ export function migrateV1(old: unknown, now: number = Date.now()): SpaceCatSave 
   const above = highest ? offered(base, settings).find((r) => RUNGS.find((d) => d.id === r)!.order > highest.order) : '1'
   const at = above ?? offered(base, settings).find((r) => !placed.includes(r)) ?? '1'
   const ladder: Ladder = { ...base, mode: placementMode('migration', at, MIGRATION_JUMP, MIGRATION_PROBES) }
-  const history: HistoryEntry[] = highest ? [{ t: now, rung: highest.id, change: 'placed', by: 'migration' }] : []
-  return { ...kept, ladder, history }
+  return { ...kept, ladder }
 }

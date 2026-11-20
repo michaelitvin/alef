@@ -1,18 +1,14 @@
 // Space Cat's save format: its key, its defaults and the light read of the chosen ship. No side effects (no store is
 // created), so the home card and the parent area can read it without writing.
-import { LADDER_START, type By, type Change, type Ladder, type LadderSettings } from './logic/ladder/state'
+import { LADDER_START, type Ladder, type LadderSettings } from './logic/ladder/state'
 import type { ItemStats } from './logic/predict'
-import type { Band, RungId } from './logic/rungs'
+import type { Band } from './logic/rungs'
 import { SPEED_START, type FixedArrival, type SpeedState } from './logic/speed'
 
 export const SAVE_KEY = 'alef-spacecat'
 export const SAVE_VERSION = 2
-/** the save keeps this many of the last ladder changes (for the parent area's recent changes) */
-export const HISTORY_KEEP = 40
 
 export interface Settings extends LadderSettings { arrival: 'auto' | FixedArrival; flightMusic: boolean }
-
-export interface HistoryEntry { t: number; rung: RungId; change: Change; by?: By; days?: number }
 
 export interface SpaceCatSave {
   items: Record<string, ItemStats>
@@ -34,8 +30,6 @@ export interface SpaceCatSave {
   sinceZero: number
   runs: number
   settings: Settings
-  /** the last HISTORY_KEEP ladder changes, oldest first */
-  history: HistoryEntry[]
   /** the intros' counters of one play day (`day` is the ladder's play-day counter they were counted on) */
   intro: { day: number; mistakes: Record<string, number>; again: string[] }
 }
@@ -49,7 +43,7 @@ export const DEFAULT_INTRO: SpaceCatSave['intro'] = { day: 0, mistakes: {}, agai
 
 export const DEFAULT_SAVE: SpaceCatSave = {
   items: {}, ladder: LADDER_START, speed: { small: SPEED_START }, totalPoints: 0, best: 0, ships: [1], ship: 1, heard: {}, sinceZero: 0, runs: 0,
-  settings: DEFAULT_SETTINGS, history: [], intro: DEFAULT_INTRO,
+  settings: DEFAULT_SETTINGS, intro: DEFAULT_INTRO,
 }
 
 /** The ship he chose, from the raw saved text (the persist wrapper's `{ state }`, or a bare save); 1 when missing or unreadable. */

@@ -13,7 +13,7 @@ import { rungDef, type Band } from './logic/rungs'
 import { shipsReached } from './logic/run'
 import { afterRound, HOLD_ROUNDS, speedOfBand } from './logic/speed'
 import { migrateV1 } from './migrate'
-import { DEFAULT_SAVE, HISTORY_KEEP, SAVE_KEY, SAVE_VERSION, type HistoryEntry, type Settings, type SpaceCatSave } from './saveFormat'
+import { DEFAULT_SAVE, SAVE_KEY, SAVE_VERSION, type Settings, type SpaceCatSave } from './saveFormat'
 
 export { DEFAULT_SAVE, DEFAULT_SETTINGS, SAVE_KEY } from './saveFormat'
 
@@ -46,9 +46,6 @@ const markOf = (r: RoundResult['result']): Mark => (r === 'right' ? 'o' : r === 
 
 export type SpaceCatState = SpaceCatSave & Actions
 
-const toHistory = (events: LadderEvent[], t: number): HistoryEntry[] =>
-  events.flatMap((e) => (e.e === 'ladder' ? [{ t, rung: e.rung, change: e.change, ...(e.by ? { by: e.by } : {}), ...(e.days !== undefined ? { days: e.days } : {}) }] : []))
-const keepHistory = (h: HistoryEntry[]) => h.slice(-HISTORY_KEEP)
 /** the intro counters of the ladder's play day (counters of an earlier day start afresh) */
 const introOfDay = (s: SpaceCatSave): SpaceCatSave['intro'] => (s.intro.day === s.ladder.day ? s.intro : { day: s.ladder.day, mistakes: {}, again: [] })
 
@@ -83,7 +80,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         }
         if (holdSpeed && holdSpeed !== band) speed = holdBand(speed, holdSpeed)
         set({
-          items: { ...s.items, [it.id]: stat }, ladder, speed, history: keepHistory([...s.history, ...toHistory(events, now)]), ...after,
+          items: { ...s.items, [it.id]: stat }, ladder, speed, ...after,
         })
         return { events }
       },
@@ -91,7 +88,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         const s = get()
         const r = beginRun(s.ladder, { now, set: s.settings })
         set({
-          ladder: r.ladder, history: keepHistory([...s.history, ...toHistory(r.events, now)]),
+          ladder: r.ladder,
           ...(r.holdSpeed ? { speed: holdBand(s.speed, r.holdSpeed) } : {}),
           ...(r.playDay && s.intro.day !== r.ladder.day ? { intro: { day: r.ladder.day, mistakes: {}, again: [] } } : {}),
         })
@@ -138,6 +135,12 @@ export const useSpaceCatStore = create<SpaceCatState>()(
       // Version 2 is the ladder's save shape; version 1 (the nine rungs) is converted by migrate.ts. When SpaceCatSave
       // changes again, raise `version` and convert older saves here (never drop his progress: rule). Fields added later
       // take their defaults from the initial state (persist merges).
+      // A save of this version from before the parent area read the ladder events had a `history` list: drop it.
+      merge: (saved, current) => {
+        const rest: Record<string, unknown> = { ...(saved as Record<string, unknown> | undefined) }
+        delete rest.history
+        return { ...current, ...rest } as SpaceCatState
+      },
       migrate: (state, version) => (version < 2 ? migrateV1(state) : state) as SpaceCatState,
     },
   ),
