@@ -3,11 +3,11 @@
 // (`logs`, from the light telemetryLog.ts, never the instance): the registry registers it on every game page.
 import { lazy } from 'react'
 import { persistedState, type GameParent, type Mixup } from '../../parent/types'
-import { RUNGS } from '../logic/ladder'
-import { oldTopOf } from './rungs'
-import { SAVE_KEY, type SpaceCatSave } from '../saveFormat'
+import { RUNGS } from '../logic/rungs'
+import { DEFAULT_SETTINGS, SAVE_KEY, type SpaceCatSave } from '../saveFormat'
 import { SPACECAT_LOG } from '../telemetryLog'
-import { RUNG_NAME, rungTallies, shareText } from './rungs'
+import { RUNG_TEXT, whereHeIs, workingOn } from './ladderText'
+import { rungTallies, shareText } from './rungs'
 import { sumText } from './sumText'
 
 export const spaceCatParent: GameParent = {
@@ -19,14 +19,17 @@ export const spaceCatParent: GameParent = {
   summary: (raw) => {
     const s = persistedState<SpaceCatSave>(raw)
     if (!s) return null
-    return `Rung ${(s.ladder as { top?: number } | undefined)?.top ?? (s.ladder?.rungs ? oldTopOf(s.ladder) : 1)} · runs ${s.runs ?? 0} · best ${s.best ?? 0} · points ${s.totalPoints ?? 0}`
+    // a save with no new-format ladder (never played, or unreadable) reads as a fresh one
+    const w = s.ladder?.rungs ? whereHeIs(s.ladder, { ...DEFAULT_SETTINGS, ...s.settings }) : null
+    const on = w ? `Working on: ${workingOn(w)} · passed ${w.passed} of ${RUNGS.length}` : `Working on: ${RUNG_TEXT['1'].name} · passed 0 of ${RUNGS.length}`
+    return `${on} · runs ${s.runs ?? 0} · best ${s.best ?? 0} · points ${s.totalPoints ?? 0}`
   },
   // the share of right answers on each rung he has played (time-outs count as not right), as on his settings page
   details: (raw) => {
     const s = persistedState<SpaceCatSave>(raw)
     if (!s) return []
     const t = rungTallies(s.items ?? {})
-    const items = RUNGS.filter((r) => t.get(r.id)?.seen).map((r) => `${r.id}. ${RUNG_NAME[r.id]}: ${shareText(t.get(r.id))} right`)
+    const items = RUNGS.filter((r) => t.get(r.id)?.seen).map((r) => `${RUNG_TEXT[r.id].name}: ${shareText(t.get(r.id))} right`)
     return items.length ? [{ id: 'spacecat-rungs', title: 'Right answers per rung', items }] : []
   },
   mixups: (raw) => {
