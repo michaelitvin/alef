@@ -95,6 +95,11 @@ describe('Space Cat\'s section in the parent area', () => {
     ])
   })
 
+  it('the range list is never wider than the area (its longest option is wider than a phone held upright)', () => {
+    const { container } = render(<SpaceCatSettings goTo={() => {}} />)
+    expect((container.querySelector('select[aria-label="range"]') as HTMLElement).style.maxWidth).toBe('100%')
+  })
+
   it('the range list is grouped by strand and changes the range', () => {
     const { container } = render(<SpaceCatSettings goTo={() => {}} />)
     const groups = [...container.querySelectorAll('select[aria-label="range"] optgroup')]

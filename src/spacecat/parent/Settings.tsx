@@ -121,7 +121,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
       <h3>Settings</h3>
       <label style={{ display: 'block' }}>
         Highest level (הרמה הגבוהה ביותר){' '}
-        <select aria-label="range" value={s.settings.range} onChange={(e) => set({ range: e.target.value as SettingsT['range'] })}>
+        <select aria-label="range" style={{ maxWidth: '100%' }} value={s.settings.range} onChange={(e) => set({ range: e.target.value as SettingsT['range'] })}>
           <option value="auto">automatic</option>
           {STRANDS.map((strand) => (
             <optgroup key={strand} label={STRAND_TITLE[strand]}>
