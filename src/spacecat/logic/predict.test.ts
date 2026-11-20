@@ -27,8 +27,8 @@ describe('prediction', () => {
     expect(PRIOR_FIRST).toBe(0.25)
     expect(PRIOR_NEW_RUNG).toBe(0.3)
     expect(ZERO_EVERY).toBe(15)
-    expect(priorOf(itemsOfRung(1)[0])).toBe(PRIOR_FIRST)
-    expect(priorOf(itemsOfRung(2)[0])).toBe(PRIOR_NEW_RUNG)
+    expect(priorOf(itemsOfRung('1')[0])).toBe(PRIOR_FIRST)
+    expect(priorOf(itemsOfRung('2')[0])).toBe(PRIOR_NEW_RUNG)
   })
   it('pushMark keeps 12', () => {
     let r: string | undefined
@@ -39,11 +39,11 @@ describe('prediction', () => {
   })
   it('never the same fact twice in a row', () => {
     const rng = lcg(1)
-    const cands = itemsOfRung(1)
+    const cands = itemsOfRung('1')
     for (let i = 0; i < 1000; i++) expect(pickNext(rng, cands, {}, { fact: '+2,3', sinceZero: 0 }).fact).not.toBe('+2,3')
   })
   it('aims at one in five', () => {
-    const base = itemsOfRung(2).filter((i) => !isZeroFact(i))
+    const base = itemsOfRung('2').filter((i) => !isZeroFact(i))
     const three = [base[0], base[2], base[4]]
     const st: Record<string, ItemStats> = {}
     // heavy lifetime tallies make the predictions near 0.05, 0.2 and 0.6
@@ -59,7 +59,7 @@ describe('prediction', () => {
   })
   it('zero facts at most 1 in 15', () => {
     const rng = lcg(3)
-    const cands = [...itemsOfRung(1), ...itemsOfRung(2)]
+    const cands = [...itemsOfRung('1'), ...itemsOfRung('2')]
     expect(cands.some(isZeroFact)).toBe(true)
     let last: { fact?: string; sinceZero: number } = { sinceZero: 0 }
     const zeroAt: number[] = []
@@ -72,7 +72,7 @@ describe('prediction', () => {
     for (let i = 1; i < zeroAt.length; i++) expect(zeroAt[i] - zeroAt[i - 1]).toBeGreaterThanOrEqual(ZERO_EVERY)
   })
   it('falls back when dropping leaves nothing', () => {
-    const only = itemsOfRung(1).filter(isZeroFact)
+    const only = itemsOfRung('1').filter(isZeroFact)
     const it = pickNext(lcg(2), only, {}, { sinceZero: 0 })
     expect(only).toContain(it)
   })

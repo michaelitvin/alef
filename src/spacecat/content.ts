@@ -1,7 +1,7 @@
 // The plug-in interface for a round's content: a reading galaxy can later implement the same shape. Space Cat's own
 // content is a sum: a box of tokens with one ring, and four numbers on the planets.
 import type { Rng } from '../shared/adaptive'
-import type { Item } from './logic/facts'
+import { maxOfRung, type Item } from './logic/facts'
 import { placeLanes, wrongAnswers } from './logic/wrongs'
 
 export interface RoundContent {
@@ -16,7 +16,9 @@ export interface RoundContent {
   fact: string
 }
 
-export function makeRound(rng: Rng, it: Item, shipLane: number, max: number, confusion?: number): RoundContent {
+export function makeRound(rng: Rng, it: Item, shipLane: number, confusion?: number): RoundContent {
+  if (it.kind !== 'sum') throw new Error('TEMPORARY: comparisons and jump rows come with the next task')
+  const max = maxOfRung(it.rung)
   const wrongs = wrongAnswers(rng, it.answer, max, confusion)
   const { labels, rightLane } = placeLanes(rng, it.answer, wrongs, shipLane)
   const tok = (hole: 'a' | 'b' | 'c', n: number) => (it.hole === hole ? null : String(n))

@@ -1,6 +1,7 @@
 // The ladder's rungs as the parent reads them, and his share of right answers per rung, from the saved item stats. No
 // store or audio module: the light parent index (the Progress section's detail list) uses it too.
-import { itemById, type RungId } from '../logic/facts'
+import { itemById } from '../logic/facts'
+import { oldRungOf, type RungId } from '../logic/ladder'
 import type { ItemStats } from '../logic/predict'
 
 export const RUNG_NAME: Record<RungId, string> = {
@@ -17,10 +18,12 @@ export function rungTallies(items: Record<string, ItemStats | undefined>): Map<R
   for (const [id, st] of Object.entries(items)) {
     const it = itemById(id)
     if (!it || !st) continue
-    const t = out.get(it.rung) ?? { seen: 0, right: 0 }
+    const rung = oldRungOf(it)
+    if (rung === undefined) continue
+    const t = out.get(rung) ?? { seen: 0, right: 0 }
     t.seen += st.seen ?? 0
     t.right += (st.seen ?? 0) - (st.wrong ?? 0) - (st.timeout ?? 0)
-    out.set(it.rung, t)
+    out.set(rung, t)
   }
   return out
 }

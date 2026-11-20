@@ -3,7 +3,7 @@
 // (`logs`, from the light telemetryLog.ts, never the instance): the registry registers it on every game page.
 import { lazy } from 'react'
 import { persistedState, type GameParent, type Mixup } from '../../parent/types'
-import { RUNGS } from '../logic/facts'
+import { RUNGS } from '../logic/ladder'
 import { SAVE_KEY, type SpaceCatSave } from '../saveFormat'
 import { SPACECAT_LOG } from '../telemetryLog'
 import { RUNG_NAME, rungTallies, shareText } from './rungs'

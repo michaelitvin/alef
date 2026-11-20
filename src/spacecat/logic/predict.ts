@@ -27,7 +27,7 @@ export function predictItem(s: ItemStats | undefined, prior: number): number {
   return (asWrong + asRight) / 2
 }
 
-export const priorOf = (it: Item): number => (it.rung === 1 ? PRIOR_FIRST : PRIOR_NEW_RUNG)
+export const priorOf = (it: Item): number => (it.rung === '1' ? PRIOR_FIRST : PRIOR_NEW_RUNG)
 
 export function pickNext(
   rng: Rng, candidates: Item[], stats: Record<string, ItemStats>, last: { fact?: string; sinceZero: number },

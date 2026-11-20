@@ -8,8 +8,8 @@ import type { Track } from '../parent/types'
 import type * as SpaceCatAudio from './audio/spaceCatAudio'
 import type { Engine, Hud } from './canvas/engine'
 import { makeRound, type RoundContent } from './content'
-import { itemById, maxNumber, type Item } from './logic/facts'
-import { candidates, openRungs } from './logic/ladder'
+import { itemById, type Item } from './logic/facts'
+import { candidates, oldRungOf } from './logic/ladder'
 import { pickNext } from './logic/predict'
 import type { RoundResult } from './logic/round'
 import { RUN_START, applyResult, nextLevel, type Run } from './logic/run'
@@ -182,10 +182,9 @@ export class PlayController {
     const item = demo
       ? itemById(DEMO_ITEM)!
       : pickNext(this.o.rng, candidates(s.ladder, s.settings), s.items, { fact: s.lastFact, sinceZero: s.sinceZero })
-    const max = maxNumber(openRungs(s.ladder, s.settings))
-    const content = makeRound(this.o.rng, item, this.shipLane, max, confusionOf(s.items[item.id]?.picks))
-    const missing = !demo && item.hole !== 'c' && (s.heard.missing ?? 0) < MISSING_TIMES
-    const cur: Current = { item, content, demo, missing, rung: item.rung }
+    const content = makeRound(this.o.rng, item, this.shipLane, confusionOf(s.items[item.id]?.picks))
+    const missing = !demo && item.kind === 'sum' && item.hole !== 'c' && (s.heard.missing ?? 0) < MISSING_TIMES
+    const cur: Current = { item, content, demo, missing, rung: oldRungOf(item) ?? 0 }
     this.cur = cur
     this.o.engine.play(content, arrivalInForce(s.speed, s.settings.arrival), { frozen: true })
     return this.begin(cur)

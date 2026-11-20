@@ -1,7 +1,6 @@
 // Space Cat's save format: its key, its defaults and the light read of the chosen ship. No side effects (no store is
 // created), so the home card and the parent area can read it without writing.
-import type { RungId } from './logic/facts'
-import type { LadderState } from './logic/ladder'
+import type { LadderState, RungId } from './logic/ladder'
 import { LADDER_START } from './logic/ladder'
 import type { ItemStats } from './logic/predict'
 import { SPEED_START, type FixedArrival, type SpeedState } from './logic/speed'

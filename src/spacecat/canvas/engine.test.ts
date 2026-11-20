@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SfxName } from '../audio/sfx'
 import type { RoundContent } from '../content'
 import { makeRound } from '../content'
-import { RUNGS, itemsOfRung, maxNumber, type RungId } from '../logic/facts'
+import { RUNGS, itemsOfOldRung } from '../logic/ladder'
 import type { RoundResult } from '../logic/round'
 import { WIDE, portraitGeom } from './draw'
 import { CLEAR_MS, MARK_MS } from './effects'
@@ -219,11 +219,10 @@ describe('the engine', () => {
     const rng = lcg(7)
     window.__scText = []
     for (const { id } of RUNGS) {
-      const items = itemsOfRung(id)
-      const open = RUNGS.filter((r) => r.id <= id).map((r) => r.id as RungId)
+      const items = itemsOfOldRung(id)
       for (let n = 0; n < 50; n++) {
         const it = items[Math.floor(rng() * items.length)]
-        engine.play(makeRound(rng, it, 1, maxNumber(open)), 8000)
+        engine.play(makeRound(rng, it, 1), 8000)
         clock.tick(32)
       }
     }
