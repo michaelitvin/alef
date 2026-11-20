@@ -13,6 +13,11 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 | React's view of the play flow | `usePlay.ts` (a thin bridge: one controller and one canvas engine per mount, `useSyncExternalStore`) |
 | Pure rules: facts and rungs, prediction and the next sum, the ladder, wrong answers and lanes, speed, one round's state machine, the run | `logic/*.ts` |
 | The content of a round (the plug-in for other kinds of question) | `content.ts` (`makeRound`) |
+| The 31 rungs: order, strand, needs, switch and band | `logic/rungs.ts` |
+| The wrong planets that a known mistake picks (the misconception of each rung) | `logic/misconceptions.ts` |
+| The speed rules, kept per band of difficulty | `logic/fast.ts` |
+| The ladder: its state, the frontier, the mix of rounds, practice, placement, play days, the warm-up and the re-check. API: `beginRun`, `chooseRound`, `afterAnswer`, `relevel` | `logic/ladder/` |
+| The four intro lines (comparison, jumps, times, divide) and their cue times | `audio/intros.ts` |
 | The save (`alef-spacecat`) | `saveFormat.ts` (key, defaults, the light read for the home card and the parent area), `store.ts`, `savePort.ts` (the controller's port; `memorySavePort` for tests) |
 | Its telemetry log | `telemetryLog.ts` (`SPACECAT_LOG` and its `rollup`, light), `telemetry.ts` (the instance); analysis: `scripts/spacecat/analyse.ts` |
 | The canvas: game loop, planet renderer, drawing, particles, input | `canvas/` (`engine.ts`, `planet.ts`, `draw.ts`, `effects.ts`, `input.ts`) |
@@ -36,6 +41,7 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 ## Known friction
 
 - The coded effects are takes of the kit but not of its voice queue: `quiet()` keeps an effect and a line apart.
-- The round content is sums only (`content.ts` is the place for another kind).
+- The round content has three kinds (a sum, a comparison, a jump row) behind `makeRound` in `content.ts`.
+- The four intro lines are silent until the parent picks takes. Their cue times in `audio/intros.ts` are nominal: tune them to the word times of the chosen take.
 - On a phone held upright the four lanes fill the width, so a planet at the ship's row cannot grow past its lane; it
   starts at 0.6 of that size instead of the original's 0.4. The parent reviews these sizes (2026-11-18).
