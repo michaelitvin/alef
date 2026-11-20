@@ -514,13 +514,27 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   time is it.
 - Pause the game when the tablet locks or the child switches to another app. Stop all sound, music too, and cover the game while it is paused.
   After the pause, continue with the same question.
-- Place a skilled child fast. Start with a placement check: ask each item once early, and let a clean result move him on
-  at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
+- Place a skilled child fast. Start with a placement check: ask a few items across the range early (each item once,
+  or a search that jumps up after a fast right answer and down after a mistake), and let a clean result move him on at
+  once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
   visit, and do not make the visits shorter while the check can still pass.
   Reason: a child who already knows the content gets bored in a long grind, and the next things to learn come late.
   Example (book 2): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. The parent:
   "a placement check is a good idea for other things as well". Now the first 10 answers ask each mark once, and 10 right
   answers in a row (each mark's latest answer right) open the minigames.
+- Make the placement check look like normal play: the same rounds, hearts and points. Do not show or say that it is a
+  check. Check the level again from time to time with a short probe upward, and stop the probe at the first mistake.
+  Reason: the child must not feel tested, and his level changes between visits. A one-time check gets old.
+  Example (Space Cat, the parent, 2026-11-20): "placement should be updated once in a while". A probe costs a heart like
+  any mistake; every 5 play days, or after a visit in which he moved up 2 rungs fast, up to 3 probes test the rungs above
+  his level.
+- Turn all content on by default, and let the adaptive rules decide what the child sees. When he clearly does not know a
+  part (he fails it again after an easier pause), hold it back for a while, then offer it again. Use the parent's
+  switches to turn content off, not to turn it on.
+  Reason: content behind a switch that is off never reaches the child, and the parent must not guess what he is ready
+  for. Example (Space Cat, the parent, 2026-11-20): "The game should adapt. Hold it back for a while if the kid clearly
+  doesn't know the item yet." Times and divide were off until the parent turned them on; now they are on, and a rung
+  with 2 strikes is held for 2 play days (then 4, then 7).
 - Make a new minigame available from the start. Do not lock it behind levels.
 - Calculate how many answers a usual run has before the hearts run out (at 1 mistake in 5). Make sure that every screen
   comes up in a usual run.
@@ -535,6 +549,17 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
   Example (duel): a simple random repeat of mistakes was sufficient for v1.
 - A simple, repetitive drill is acceptable if it teaches the target skill and the child likes it.
   Example (duel): the child loved the duel. Monotony is the main open problem.
+
+## Parent settings
+
+- Give every parent setting a label and a one- or two-line explanation that a parent understands without the design.
+  Say what the child sees (an example round, such as "7 ◯ 5") and what changes when the setting is on or off. Do not use
+  internal words or numbers (rung numbers, step ids, "galaxy").
+  Reason: the parent must know what a switch does before he changes it, and other parents use the parent area too.
+  Example (Space Cat, the parent, 2026-11-20): "a parent must understand from its label and description what it refers
+  to". "Times (rungs 7 and 8)" became "Times (×): from 3 + 3 + 3 to the tables up to 10 × 10".
+- In a right-to-left paragraph, put a math example in a left-to-right span. Reason: the browser mirrors `<` and `>` in
+  right-to-left text, which changes their meaning.
 
 ## Parent tracking
 
