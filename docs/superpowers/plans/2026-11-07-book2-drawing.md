@@ -1,6 +1,6 @@
 # Book 2 — drawing letters: implementation plan
 
-Spec: [2026-11-07-book2-drawing-design.md](../specs/2026-11-07-book2-drawing-design.md). Rules: [minigame-rules.md](../../minigame-rules.md).
+Spec: [2026-11-07-book2-drawing-design.md](../specs/2026-11-07-book2-drawing-design.md). Rules: [minigame-rules/](../../minigame-rules/README.md).
 Work test-first (vitest): a failing test, watch it fail, the code, the test passes. Keep every existing test green.
 
 ## Coordinates (shared by data, recognizer and screen)

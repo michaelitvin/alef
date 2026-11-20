@@ -28,27 +28,28 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 
 ## Minigame Design Rules
 
-[docs/minigame-rules.md](docs/minigame-rules.md) holds the parent's rules: speech instead of text, audio sequencing,
-symbol ambiguity, adaptive difficulty, parent tracking and asset review. Before you build or review a child-facing
-screen, read the sections that your task touches (find their lines with `grep -n '^## ' docs/minigame-rules.md`):
+[docs/minigame-rules/](docs/minigame-rules/README.md) holds the parent's rules: speech instead of text, audio
+sequencing, symbol ambiguity, adaptive difficulty, parent tracking and asset review, one file per subject. Before you
+build or review a child-facing screen, read the files that your task touches (all in `docs/minigame-rules/`):
 
-| Task | Sections |
+| Task | Files |
 | --- | --- |
-| Always | Communication on the screen, Working with the parent, Verification |
-| Voice lines and pronunciation | Voice lines: wording, Voice: delivery and emotion, Pronunciation |
-| Images, layout and art | Visuals, Art generation |
-| Screen and game code | Interaction, Game play and learning, Parent tracking |
-| Sound and music | Music and sound effects |
-| Asset review | Review of generated assets |
+| Always | `communication.md`, `working-with-the-parent.md`, `verification.md` |
+| Voice lines and pronunciation | `voice-wording.md`, `voice-delivery.md`, `pronunciation.md` |
+| Images, layout and art | `visuals.md`, `art-generation.md` |
+| Screen and game code | `interaction-controls.md`, `interaction-input.md`, `game-play-learning.md`, `game-play-story.md`, `parent-tracking.md` |
+| Sound and music | `music-and-sound.md` |
+| Asset review | `asset-review.md` |
 
-A new design, a spec, or a rule-by-rule review of a spec reads the whole file.
+A new design, a spec, or a rule-by-rule review of a spec reads the whole folder.
 
 When the parent gives significant steering on a minigame (a correction, a new preference, a review note
-that applies to more than one item), add it to that file as a general rule. Write it in ASD-STE100 style
+that applies to more than one item), add it as a general rule to the file of its subject (see the index in
+[docs/minigame-rules/README.md](docs/minigame-rules/README.md)). Write it in ASD-STE100 style
 with a reason or an example. Change or remove a rule that the new steering replaces.
 
-For a new minigame, work in this order: brainstorm → mockups built from parts (see *Art generation* in the rules) →
-spec → rule-by-rule review of the spec plus a builder check (see *Working with the parent*) → plan → build. Agree on the
+For a new minigame, work in this order: brainstorm → mockups built from parts (see `art-generation.md`) →
+spec → rule-by-rule review of the spec plus a builder check (see `working-with-the-parent.md`) → plan → build. Agree on the
 image budget at the start.
 
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in

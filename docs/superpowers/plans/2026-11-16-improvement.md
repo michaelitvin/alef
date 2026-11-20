@@ -520,7 +520,7 @@ above unchanged and green.
 - [ ] Build with `vite build --mode verify` (turns on `TEST_HOOKS`), serve with `vite preview`. Cover: home (cards,
   path, the gear gate with a year), Book 2 (cover → play → a round, `window.__d2audio` audio log, `#/glyphs`,
   `#/tower-glyphs`, `#/summary`), the clock (cover → workshop → a round), the area (each section opens).
-- [ ] Keep the rules from `docs/minigame-rules.md` *Verification*: real touch events (CDP `Input.dispatchTouchEvent`),
+- [ ] Keep the rules from `docs/minigame-rules/verification.md`: real touch events (CDP `Input.dispatchTouchEvent`),
   look at screenshots, scan child screens for text. Drop the Edge recipe. Keep the `speechSynthesis` recorder as the
   recipe for the stories (`SpeechProvider` still speaks with it) and keep the current *Gotchas* (bidi, Hebrew literals
   by codepoint, feedback windows).

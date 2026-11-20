@@ -5,8 +5,8 @@
 Puck) after three voice tests; no bulk audio until the parent says so (Part 4). Generated files are host-local until a
 stage's assets are approved.
 **Source of truth:** [the English path design](../specs/2026-11-16-english-path-design.md) (Parts 2, 3, 4, 5, 7, 8,
-10). Rules: [docs/minigame-rules.md](../../minigame-rules.md) (Voice, Pronunciation, Visuals, Art generation, Review of
-generated assets). Provenance format: [asset-sources/duel2/README.md](../../../asset-sources/duel2/README.md); this
+10). Rules: [docs/minigame-rules/](../../minigame-rules/README.md) (voice-*, pronunciation, visuals, art-generation, asset-review).
+Provenance format: [asset-sources/duel2/README.md](../../../asset-sources/duel2/README.md); this
 path records into `asset-sources/english/` (`images.json`, `audio.json`) in the same format.
 **Model-agnostic:** the image model and the generation strategy are decided elsewhere. This plan counts images and
 takes; cost is a function of the price per image (`P_img`) and per 1,000 voice characters (`P_kc`).
@@ -848,7 +848,7 @@ wizard sprite, the girl's included (rule: look at one walking frame of each spri
 | Recoloured (no cost; all approved) | 31 + the two home cards mirrored |
 | **Pictures used in the English path** | **126** + the spell book |
 
-Spent on pictures: about $3.3 (156 Flash images: 148 by batch at about $0.02, 8 interactive at about $0.04). Review lessons, now in `docs/minigame-rules.md` and applied: the word appears only on hover or tap; a note on a
+Spent on pictures: about $3.3 (156 Flash images: 148 by batch at about $0.02, 8 interactive at about $0.04). Review lessons, now in `docs/minigame-rules/` and applied: the word appears only on hover or tap; a note on a
 name means "a child may call it something else", so the picture is dropped or redrawn, never argued for.
 
 ---

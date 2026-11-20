@@ -121,7 +121,7 @@ function aboutNote(about: TelemetryAbout) {
   return {
     game: about.game,
     repo: REPO,
-    docs: [...about.docs, 'docs/minigame-rules.md'],
+    docs: [...about.docs, 'docs/minigame-rules/README.md'],
     code: about.code ?? [],
     howToAnalyse: `Clone ${REPO}, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the `
       + 'docs above (the telemetry section of each design says what every event means) and the code that sends the events, '

@@ -1,6 +1,6 @@
 // The way home from a game to alef's home screen (the hub of all the games), the same in every game: a house in the
 // held button (src/shared/HoldButton.tsx: a 2 s hold, a tap only shows the hint), in the top-left corner of the game's
-// child screens (rule: docs/minigame-rules.md, Interaction). Each game places it with its own class.
+// child screens (rule: docs/minigame-rules/interaction-controls.md). Each game places it with its own class.
 import { HoldButton } from './HoldButton'
 
 /** the house: cream walls, a gold roof, a dark door, in the ring's 56-unit box */

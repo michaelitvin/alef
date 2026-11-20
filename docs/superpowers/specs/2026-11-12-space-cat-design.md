@@ -1,7 +1,7 @@
 # Space Cat — a flying sums game, adapted from Space Cat Math
 
 Status: approved by the parent (2026-11-12). A review pass on his behalf ran the same day and fixed the points that a
-builder could not settle; it also fits the design to the home screen of *one duel*, which merges first. Read [docs/minigame-rules.md](../../minigame-rules.md) before building: every
+builder could not settle; it also fits the design to the home screen of *one duel*, which merges first. Read [docs/minigame-rules/](../../minigame-rules/README.md) before building: every
 rule there applies. The section *Rule review* below says how this design meets each group of rules and where the
 parent decided an exception.
 
@@ -349,7 +349,7 @@ asset-sources/spacecat/        origin record of the pictures and the tune, voice
 
 ## Rule review
 
-How the design meets [docs/minigame-rules.md](../../minigame-rules.md), by section.
+How the design meets [docs/minigame-rules/](../../minigame-rules/README.md), by section.
 
 - **Communication on the screen.** No text at all (the credit is on the home page, not in the game). Digits and signs are the
   learning content. The voice does not say what the screen shows; the sum is never read aloud (the parent's decision,
