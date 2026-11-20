@@ -465,7 +465,7 @@ wheck | wh e ck | |
 lenk | l e nk | |
 jish | j i sh | |
 zoss | z o ss | |
-rull | r u ll | |
+vill | v i ll | |
 `),
   ...parse('nonsense', 5, `
 sluk | s l u k | | sl-

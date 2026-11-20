@@ -259,7 +259,7 @@ skunk (`nk`), dress, grass (`ss`), clock (`ck`).
 **Coverage:** `ff`, `zz` and `th₂` have no picture, `th` has one (teeth): they are asked by sound ("the wizard says a
 sound") and in word runes. My call: `th` (/θ/, thin) is the main reading, `th₂` (/ð/, this) the second.
 
-**Nonsense (12):** chim, shap, thog, fesh, chob, shom, thip, wheck, lenk, jish, zoss, rull.
+**Nonsense (12):** chim, shap, thog, fesh, chob, shom, thip, wheck, lenk, jish, zoss, vill.
 
 ### 1.8 Stage 5 — two consonants together
 
