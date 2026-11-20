@@ -1,5 +1,5 @@
 {
- "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json).",
+ "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json). The four ladder lines (compare, jumps, times, divide; 2026-11-20) have no file until the parent picks: the game plays them silent, with their glows.",
  "files": [
   {
    "id": "demo-1",
@@ -502,6 +502,154 @@
       },
       "seed": 101
      }
+    }
+   ]
+  },
+  {
+   "id": "jumps-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/jumps-1.mp3",
+   "where": "The first two jump rows, after the numbers have hopped in (the arcs glow on קפיצות; the ring pulses on עכשיו). Again after 3 picks of the last number + 1 in a play day.",
+   "caption": "סוֹפְרִים בִּקְפִיצוֹת שָׁווֹת. אֵיזֶה מִסְפָּר בָּא עַכְשָׁו?",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": null,
+   "takes": [
+    {
+     "take": "clips/jumps-1/v1.mp3",
+     "request": {
+      "text": "[playful] סוֹפְרִים בִּקְפִיצוֹת שָׁווֹת. [playful] אֵיזֶה מִסְפָּר בָּא עַכְשָׁו?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    },
+    {
+     "take": "clips/jumps-1/v2.mp3",
+     "request": {
+      "text": "[playful] סוֹפְרִים בִּקְפִיצוֹת שָׁווֹת. [playful] אֵיזֶה מִסְפָּר בָּא עַכְשָׁו?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    }
+   ]
+  },
+  {
+   "id": "times-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/times-1.mp3",
+   "where": "The first two × rounds, with the equal-groups dots (they appear on קבוצות). Again after 3 picks of the sum in a play day.",
+   "caption": "כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכֻלָּן יַחַד?",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": null,
+   "takes": [
+    {
+     "take": "clips/times-1/v1.mp3",
+     "request": {
+      "text": "[warmly] כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. [warmly] כַּמָּה יֵשׁ בְּכוּלָּן יַחַד?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    },
+    {
+     "take": "clips/times-1/v2.mp3",
+     "request": {
+      "text": "[warmly] כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. [warmly] כַּמָּה יֵשׁ בְּכוּלָּן יַחַד?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    }
+   ]
+  },
+  {
+   "id": "compare-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/compare-1.mp3",
+   "where": "The first two comparison rounds, after the arrival sound (the three sign planets glow on סימן; the open side of < and > on הצד הפתוח; the bigger number swells on הגדול; = glows on שווה). Again after 3 mirrored-sign picks in a play day.",
+   "caption": "אֵיזֶה סִימָן מַתְאִים? הַצַּד הַפָּתוּחַ פּוֹנֶה אֶל הַמִּסְפָּר הַגָּדוֹל. וְאִם הַמִּסְפָּרִים שָׁוִים, בּוֹחֲרִים בְּסִימַן שָׁוֶה.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": null,
+   "takes": [
+    {
+     "take": "clips/compare-1/v1.mp3",
+     "request": {
+      "text": "[warmly] אֵיזֶה סִימָן מַתְאִים? [warmly] הַצַּד הַפָּתוּחַ פּוֹנֶה אֶל הַמִּסְפָּר הַגָּדוֹל. [warmly] וְאִם הַמִּסְפָּרִים שָׁוִים, בּוֹחֲרִים בְּסִימַן שָׁוֶה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    },
+    {
+     "take": "clips/compare-1/v2.mp3",
+     "request": {
+      "text": "[warmly] אֵיזֶה סִימָן מַתְאִים? [warmly] הַצַּד הַפָּתוּחַ פּוֹנֶה אֶל הַמִּסְפָּר הַגָּדוֹל. [warmly] וְאִם הַמִּסְפָּרִים שָׁוִים, בּוֹחֲרִים בְּסִימַן שָׁוֶה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    }
+   ]
+  },
+  {
+   "id": "divide-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/divide-1.mp3",
+   "where": "The first two ÷ rounds, while the dots fall into the groups (on לחלק). Again after 3 picks of the divisor or the difference in a play day.",
+   "caption": "חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכָל קְבוּצָה?",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": null,
+   "takes": [
+    {
+     "take": "clips/divide-1/v1.mp3",
+     "request": {
+      "text": "[warmly] חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. [warmly] כַּמָּה יֵשׁ בְּכֹל קְבוּצָה?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     },
+     "edit": "sentence pauses set to 0.8 s"
+    },
+    {
+     "take": "clips/divide-1/v2.mp3",
+     "request": {
+      "text": "[warmly] חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. [warmly] כַּמָּה יֵשׁ בְּכֹל קְבוּצָה?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     },
+     "edit": "sentence pauses set to 0.8 s"
     }
    ]
   }
