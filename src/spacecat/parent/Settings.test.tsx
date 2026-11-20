@@ -52,7 +52,7 @@ describe('Space Cat\'s section in the parent area', () => {
     expect(row('1').textContent).toBe('plus, sum to 53 + 2 = ◌passed75% of 4')
     expect(row('1').querySelector('bdi')!.getAttribute('dir')).toBe('ltr')
     expect(row('4').getAttribute('data-status')).toBe('placed')
-    expect(row('4').textContent).toContain('placed (not checked yet)')
+    expect(row('4').textContent).toContain('placed (unchecked)')
     expect(row('3').textContent).toContain('held: back in 2 play days')
     expect(row('5').getAttribute('data-status')).toBe('working on now')
     expect(row('6').getAttribute('data-status')).toBe('not yet')
@@ -93,6 +93,21 @@ describe('Space Cat\'s section in the parent area', () => {
       '2026-11-02: a strike on: 2-digit ± 1-digit with regrouping',
       '2026-11-01: passed (fast): 2-digit ± tens',
     ])
+  })
+
+  it('Recent changes: one placement is one row, "Placed: N rungs, up to <rung>"', () => {
+    const t0 = new Date('2026-11-07T12:00:00').getTime()
+    const rungs = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'H1', 'C1', 'C2', 'S1', 'S2', 'T1', 'T2', 'T3', 'T4a']
+    localStorage.setItem(SPACECAT_LOG.key, JSON.stringify({ v: 1, events: [
+      { t: t0, s: 'a', run: 0, e: 'placement', phase: 'start', kind: 'first', probes: 0, mistakes: 0, frontier: null },
+      ...rungs.map((rung, i) => ({ t: t0 + i * 1000, s: 'a', run: 0, e: 'ladder', rung, change: 'placed', by: 'placement' })),
+      { t: t0 + 60_000, s: 'a', run: 0, e: 'ladder', rung: '15', change: 'strike' },
+    ] }))
+    const { container } = render(<SpaceCatSettings goTo={() => {}} />)
+    const rows = [...container.querySelectorAll('[data-recent] li')].map((x) => x.textContent)
+    expect(rows).toHaveLength(2)
+    expect(rows[0]).toBe('2026-11-07: a strike on: 2-digit ± 1-digit with regrouping')
+    expect(rows[1]).toMatch(/^2026-11-07: Placed: 28 rungs, up to \S/)
   })
 
   it('a rung\'s example stays on one line (a phone held upright broke "3 + 2 = ◌" before the ring)', () => {

@@ -389,7 +389,7 @@ label and explanation, without this document; no rung numbers or ids in a label.
 - **A summary line** at the top: "Working on: 2-digit ± 1-digit with regrouping (45 + 9). Passed 19 of 31 rungs. 1 held."
 - **The table of rungs**, in the order, grouped by strand, each with its name and an example (`45 + 9 = ◯`), its status
   and his share of right answers:
-  - *not yet*, *working on now*, *passed*, *placed (not checked yet)*, *held: back in 2 play days*, *switched off*,
+  - *not yet*, *working on now*, *passed*, *placed (unchecked)*, *held: back in 2 play days*, *switched off*,
     *above the range*.
 - **Recent changes**: the last 20 changes of the ladder with their date: placed, passed (fast or slow), strike, held,
   back from hold, back to "not yet", re-check. Read from the save (see *Tracking*), so that it stays when old telemetry

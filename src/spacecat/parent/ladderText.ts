@@ -78,7 +78,7 @@ const days = (n: number) => `${n} play day${n === 1 ? '' : 's'}`
 export function rungStatus(l: Ladder, r: RungId, set: LadderSettings): string {
   const t = statusText(l, r, set)
   if (t === 'held') return `held: back in ${days(Math.max(1, (l.rungs[r]?.freeOn ?? l.day) - l.day))}`
-  if (t === 'placed') return 'placed (not checked yet)'
+  if (t === 'placed') return 'placed (unchecked)'
   return t
 }
 
@@ -90,7 +90,9 @@ export function changeText(h: ChangeRow): string {
   const via = h.by && BY[h.by] ? ` (${BY[h.by]})` : ''
   switch (h.change) {
     case 'passed': return `passed${h.by === 'fast' || h.by === 'slow' ? ` (${h.by})` : via}: ${name}`
-    case 'placed': return `placed${via}: ${name}`
+    case 'placed':
+      if (h.count && h.count > 1) return `Placed${h.by === 'placement' ? '' : via}: ${h.count} rungs, up to ${name}`
+      return `placed${via}: ${name}`
     case 'strike': return `a strike on: ${name}`
     case 'held': return `held${h.days ? ` for ${days(h.days)}` : ''}: ${name}`
     case 'free': return `back from hold: ${name}`
