@@ -5,6 +5,7 @@ import { HEART_EMPTY, HEART_FULL, HEART_GLOW, HEART_PATH } from '../../shared/he
 import { LOGICAL, layoutFor } from '../layout'
 import { TEST_HOOKS } from '../testHooks'
 import { HAND_CUFF, HAND_PATH } from './handPath'
+import { drawSign, isSign, type SignStyle } from './signs'
 
 declare global {
   interface Window { __scText?: string[] }
@@ -90,6 +91,33 @@ export function geomFor(w: number, h: number): Geom {
   return portraitGeom(Math.min(PORTRAIT_H.max, Math.max(PORTRAIT_H.min, H)))
 }
 
+/** a planet at the ship's row is at least this many CSS px across, at every size (rule: large targets) */
+export const PLANET_MIN_PX = 56
+
+/** three lanes (a comparison): wider apart than four; in the wide layout this far apart, in portrait at these shares of the width */
+export const LANES3 = { wideGap: 300, portrait: [1 / 6, 1 / 2, 5 / 6] } as const
+
+/** the x of each lane's centre for a round of n lanes (3 or 4), in a layout's geometry (which has 4) */
+export function lanesFor(G: Geom, n: number): number[] {
+  if (n !== 3) return G.lanes
+  return G.W > G.H ? [-1, 0, 1].map((i) => G.W / 2 + i * LANES3.wideGap) : LANES3.portrait.map((f) => f * G.W)
+}
+
+/**
+ * The half-width the sum box may have and stay clear of the top bar, when the bar shares the box's rows (the wide
+ * layout): between the progress dots and the points (with `digits` digits). Infinity when the bar has its own rows.
+ */
+export function barClearHalf(G: Geom, digits: number): number {
+  if (G.box.cy - G.box.h / 2 > G.topY + G.pointsSize * 0.55) return Infinity
+  const dotsRight = G.dotY === G.topY ? G.dotX + 6 * G.dotStep + G.dotR : -Infinity
+  const pointsLeft = G.heartX - 2 * G.heartStep - G.starGap - G.pointsSize * 0.85 - digits * 0.62 * G.pointsSize
+  return Math.min(G.W / 2 - dotsRight, pointsLeft - G.W / 2) - BAR_CLEAR
+}
+/** the space kept between the box and the top bar's dots or points (logical px) */
+export const BAR_CLEAR = 12
+/** the box's top when it is too wide to sit beside the top bar: under the bar's points */
+export const boxTopUnderBar = (G: Geom): number => G.topY + G.pointsSize * 0.55 + 6
+
 /** the held house's size and its inset from the screen's edge (CSS px; src/shared/HomeButton.tsx) */
 export const HOUSE_PX = 56, HOUSE_INSET = 8
 
@@ -167,12 +195,15 @@ export function drawHand(g: CanvasRenderingContext2D, x: number, y: number, s: n
   g.fillStyle = '#7a3fd0'; g.fill(); g.strokeStyle = '#3a1a6a'; g.stroke(); g.restore()
 }
 
-/** the number on a plain dark disc in the middle of a planet */
-export function numDisc(g: CanvasRenderingContext2D, s: string, x: number, y: number, r: number, alpha = 1): void {
+/** the number (or a comparison sign, drawn as a path) on a plain dark disc in the middle of a planet */
+export function numDisc(g: CanvasRenderingContext2D, s: string, x: number, y: number, r: number, alpha = 1, sign: SignStyle = {}): void {
   g.save(); g.globalAlpha = alpha
   g.beginPath(); g.arc(x, y, r * 0.58, 0, Math.PI * 2); g.fillStyle = 'rgba(12,8,40,.88)'; g.fill()
-  g.font = FONT(r * (s.length > 1 ? 0.58 : 0.72)); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'
-  drawText(g, s, x, y + r * 0.04)
+  if (isSign(s)) drawSign(g, s, x, y, r * 0.86, sign)
+  else {
+    g.font = FONT(r * (s.length > 1 ? 0.58 : 0.72)); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'
+    drawText(g, s, x, y + r * 0.04)
+  }
   g.restore()
 }
 
@@ -199,33 +230,106 @@ export function drawTopBar(
   return { pointsAt: { x: sx - sz * 0.6, y } }
 }
 
-/** the x centre of each token of the sum box, and the box's width */
-export function boxLayout(g: CanvasRenderingContext2D, G: Geom, box: (string | null)[]): { xs: number[]; total: number } {
-  const B = G.box
-  g.font = FONT(B.font)
-  const ws = box.map((t) => (t === null ? B.font * 1.05 : g.measureText(t).width))
-  const total = ws.reduce((a, b) => a + b, 0) + B.gap * (box.length - 1)
-  let x = G.W / 2 - total / 2
-  return { total, xs: ws.map((w) => { const c = x + w / 2; x += w + B.gap; return c }) }
+/** a jump row's gaps are this many times the sum box's gap */
+export const JUMP_GAP = 2.6
+/** the box keeps at least this share of the width free at each side; its font shrinks when a row does not fit */
+export const BOX_SIDE = 0.025
+/** a jump row's numbers hop in one by one, each in this long, from the left; then the ring is shown */
+export const HOP_MS = 250
+/** the ring pops in this long after the numbers */
+const RING_POP_MS = 200
+/** the `arcs` cue lights each arc in turn this long */
+export const ARC_GLOW_MS = 450
+
+/** ms from a jump row's start until its ring is shown (boxIn resolves then) */
+export const boxInMs = (box: (string | null)[]): number => box.filter((t) => t !== null).length * HOP_MS
+
+export interface BoxLayout { xs: number[]; ws: number[]; total: number; font: number; gap: number }
+
+/**
+ * The x centre of each token of the sum box, and the box's width. The font shrinks (with the gaps) so that the box
+ * fits the width; it is measured with the font that is loaded now, so the next frame after the font loads is right.
+ */
+export function boxLayout(g: CanvasRenderingContext2D, G: Geom, box: (string | null)[], jumps = false): BoxLayout {
+  const B = G.box, gap0 = B.gap * (jumps ? JUMP_GAP : 1)
+  const measure = (font: number) => {
+    g.font = FONT(font)
+    const ws = box.map((t) => (t === null ? font * 1.05 : g.measureText(t).width))
+    const gap = (gap0 * font) / B.font
+    return { ws, gap, font, total: ws.reduce((a, b) => a + b, 0) + gap * (box.length - 1) }
+  }
+  let m = measure(B.font)
+  const avail = G.W * (1 - 2 * BOX_SIDE), need = m.total + B.font
+  if (need > avail) m = measure((B.font * avail) / need)
+  let x = G.W / 2 - m.total / 2
+  return { ...m, xs: m.ws.map((w) => { const c = x + w / 2; x += w + m.gap; return c }) }
 }
 
-/** The sum box, top centre: digits and signs, and a dashed ring for the hole (no "?"). Returns the ring's centre. */
-export function drawBox(g: CanvasRenderingContext2D, G: Geom, box: (string | null)[], clock: number, pulse: boolean): { x: number; y: number } {
-  const B = G.box, lay = boxLayout(g, G, box), pad = B.font * 0.5, w = lay.total + pad * 2, x = G.W / 2 - w / 2, y = B.cy - B.h / 2
+export interface BoxOpts {
+  /** a jump row: wide gaps and the arcs */
+  jumps?: boolean
+  /** a jump row: ms since it started to come in (the hop); omitted, all is in */
+  hopMs?: number
+  /** the `arcs` cue: the arc that glows now */
+  arcGlow?: number | null
+  /** the scale of each token (the bigger number's swell) */
+  scale?: number[]
+}
+
+const easeHop = (u: number) => (u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2)
+
+/**
+ * The sum box, top centre: digits and signs, and a dashed ring for the hole (no "?"). A jump row has wide gaps, no
+ * commas and a faint arc over each pair of neighbours; its numbers hop in one by one from the left, then the ring.
+ * Returns the ring's centre and the box's font.
+ */
+export function drawBox(
+  g: CanvasRenderingContext2D, G: Geom, box: (string | null)[], clock: number, pulse: boolean, o: BoxOpts = {},
+): { x: number; y: number; font: number; xs: number[] } {
+  const B = G.box, lay = boxLayout(g, G, box, o.jumps), f = lay.font
+  const pad = f * 0.5, w = lay.total + pad * 2, x = G.W / 2 - w / 2, y = B.cy - B.h / 2
   g.beginPath(); g.roundRect(x, y, w, B.h, B.h * 0.28); g.fillStyle = 'rgba(16,10,52,.9)'; g.fill()
   g.lineWidth = 5 * G.k + 1; g.strokeStyle = '#ffd84a'; g.stroke()
-  g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = FONT(B.font)
+  g.textAlign = 'center'; g.textBaseline = 'middle'
+  // the hop: the k-th number (from the left) comes in at k × HOP_MS, from its left neighbour's place; then the ring
+  const order: number[] = []
+  box.forEach((t, i) => { if (t !== null) order.push(i) })
+  const hop = o.hopMs ?? Infinity, ringAt = order.length * HOP_MS
+  const shown = (i: number) => (box[i] === null ? hop >= ringAt : hop >= order.indexOf(i) * HOP_MS)
+  if (o.jumps) {
+    for (let i = 0; i + 1 < box.length; i++) {
+      if (!shown(i) || !shown(i + 1)) continue
+      const x0 = lay.xs[i] + lay.ws[i] * 0.2, x1 = lay.xs[i + 1] - lay.ws[i + 1] * 0.2, yA = B.cy - f * 0.44
+      const lit = o.arcGlow === i
+      g.save(); g.lineWidth = (lit ? 5 : 3) * G.k + 1; g.lineCap = 'round'
+      g.strokeStyle = lit ? 'rgba(255,232,120,.95)' : 'rgba(255,216,74,.38)'
+      if (lit) { g.shadowColor = '#ffd84a'; g.shadowBlur = 16 }
+      g.beginPath(); g.moveTo(x0, yA); g.quadraticCurveTo((x0 + x1) / 2, B.cy - f * 0.84, x1, yA); g.stroke(); g.restore()
+    }
+  }
   let ring = { x: G.W / 2, y: B.cy }
   box.forEach((t, i) => {
     const cx = lay.xs[i]
-    if (t !== null) { g.fillStyle = '#fff'; drawText(g, t, cx, B.cy + B.font * 0.04); return }
-    const k = pulse ? 1 + 0.14 * Math.sin(clock * 7) : 1
+    if (t !== null) {
+      const k = order.indexOf(i), u = (hop - k * HOP_MS) / HOP_MS
+      if (u < 0) return
+      let tx = cx, ty = B.cy
+      if (u < 1) {
+        const from = i > 0 ? lay.xs[i - 1] : cx, e = easeHop(u)
+        tx = from + (cx - from) * e; ty = B.cy - Math.sin(Math.PI * u) * f * 0.45
+      }
+      g.font = FONT(f * (o.scale?.[i] ?? 1)); g.fillStyle = '#fff'; drawText(g, t, tx, ty + f * 0.04)
+      return
+    }
+    ring = { x: cx, y: B.cy }
+    if (hop < ringAt) return
+    const pop = Math.min(1, (hop - ringAt) / RING_POP_MS), pk = 0.5 + 0.5 * pop
+    const k = (pulse ? 1 + 0.14 * Math.sin(clock * 7) : 1) * pk
     g.save(); g.setLineDash([10 * G.k + 2, 8 * G.k + 2]); g.lineWidth = 5 * G.k + 1; g.strokeStyle = pulse ? '#fff6a8' : '#ffd84a'
     if (pulse) { g.shadowColor = '#ffd84a'; g.shadowBlur = 24 + 14 * Math.sin(clock * 7) }
-    g.beginPath(); g.arc(cx, B.cy, B.font * 0.5 * k, 0, Math.PI * 2); g.stroke(); g.restore()
-    ring = { x: cx, y: B.cy }
+    g.beginPath(); g.arc(cx, B.cy, f * 0.5 * k, 0, Math.PI * 2); g.stroke(); g.restore()
   })
-  return ring
+  return { ...ring, font: f, xs: lay.xs }
 }
 
 /** the space picture covering the whole screen (device px), dimmed a little; plain dark before it loads */
