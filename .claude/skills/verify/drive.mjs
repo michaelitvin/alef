@@ -94,8 +94,16 @@ const INIT = (pinVisible) => {
 // ---- touch: real touch events through CDP (Input.dispatchTouchEvent), as the minigame rules ask ----
 async function centre(loc) {
   await loc.waitFor({ state: 'visible' })
-  const b = await loc.boundingBox()
+  let b = await loc.boundingBox()
   if (!b) throw new Error('no box to touch')
+  // a touch lands only inside the viewport: a centre below or above it is scrolled into view first, as a finger
+  // scrolls to it (no wait for the element to be still: the games animate)
+  const vh = loc.page().viewportSize()?.height ?? Infinity
+  if (b.y + b.height / 2 < 0 || b.y + b.height / 2 > vh) {
+    await loc.evaluate((e) => e.scrollIntoView({ block: 'center' }))
+    b = await loc.boundingBox()
+    if (!b) throw new Error('no box to touch')
+  }
   return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
 }
 /** a tap at the element's centre, or at `at` (a point inside the element's box) */
