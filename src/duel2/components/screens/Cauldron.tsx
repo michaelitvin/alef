@@ -1,6 +1,6 @@
 // 2 · Cauldron: a letter over a bubbling pot; three vowel orbs above. He drags the vowel he heard into the pot (or taps it);
 // the mark joins the letter. The English cauldron (CauldronWord): the word he hears in boxes, one of them empty, and four
-// tiles above; the right tile fills the box (after a thrown `e`, the word turns and its picture comes).
+// tiles above; he drops a tile on the pot or on the empty box; the right tile fills the box (after a thrown `e`, the word turns and its picture comes).
 import { useRef } from 'react'
 import { useImages } from '../../course/CourseContext'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
@@ -73,9 +73,18 @@ export function boxXs(n: number): { xs: number[]; w: number } {
   return { xs: Array.from({ length: n }, (_, i) => left + i * (w + BOX_GAP)), w }
 }
 
+/** how far around the empty box a drop still counts (stage units): generous for small fingers */
+export const GAP_MARGIN = 60
+
+/** is the finger over the pot, or (while the box is empty) over the empty box and its margin? */
+export function overPotOrGap(q: { x: number; y: number }, gapBox?: { x: number; w: number }): boolean {
+  if (Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top) return true
+  return !!gapBox && Math.abs(q.x - gapBox.x) < gapBox.w / 2 + GAP_MARGIN && Math.abs(q.y - BOX_Y) < BOX_H / 2 + GAP_MARGIN
+}
+
 /**
  * The English cauldron: the word's parts in boxes over the pot (`boxes[gap]` empty until it is made), four tiles above.
- * He drags the missing part into the pot (or taps it); when it is made, the box fills, and after a thrown `e` the
+ * He drags the missing part into the pot or onto the empty box (or taps it); when it is made, the box fills, and after a thrown `e` the
  * picture of the word it makes shows (`shown`: the word before it, with its own picture, if any).
  */
 export function CauldronWord(p: {
@@ -90,6 +99,7 @@ export function CauldronWord(p: {
   const can = p.phase === 'answer'
   const potH = POT.w * (600 / 496)
   const { xs, w } = boxXs(p.boxes.length)
+  const gapBox = p.joined ? undefined : { x: xs[p.gap], w }
   const picture = p.joined ? p.target.picture : (p.shown ?? p.target).picture
   return (
     <Stage bg="bg-ground" dir={p.dir} ref={svgRef}>
@@ -117,7 +127,7 @@ export function CauldronWord(p: {
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         return (
           <DragPick key={c.id} attrs={{ 'data-tile': c.id, ...(p.correct === c.id ? { 'data-correct-orb': '1' } : {}) }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
-            onPick={() => p.onPick(c.id)} inZone={(q) => Math.abs(q.x - POT.x) < POT.w * 0.6 && q.y > POT.top}>
+            onPick={() => p.onPick(c.id)} inZone={(q) => overPotOrGap(q, gapBox)}>
             <Orb size={TILE_SIZE} x={x} y={y} state={state} testCorrect={p.correct === c.id}>
               <Glyph text={c.text} px={latinOrbPx(c.text, TILE_SIZE, 110)} x={x} y={y} alphabet="latin" />
             </Orb>

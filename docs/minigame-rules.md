@@ -407,6 +407,10 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - When the screen shows a place where a choice goes (a pot, a ladder rung, a door), let the child drag the choice there.
   Accept a tap too. Make the drop zone large, and let a choice that is dropped elsewhere fly back.
   Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.
+- When the screen shows the gap that an answer fills, accept a drop on the gap as well as on the main target. Make the
+  gap's drop area larger than the box.
+  Reason: the child sees the gap as the place the answer goes.
+  Example: the English cauldron accepts a letter dropped on the empty box of `c_t` or on the pot. (the parent, 2026-11-20)
 - While the child drags a choice, make its drop place glow. Make it glow more when the choice is over it.
   Reason: the child does not always know where to drop the choice.
   Example (merchant): the parent: "it's not clear where the coins should be dropped"; now the merchant's open hand glows
