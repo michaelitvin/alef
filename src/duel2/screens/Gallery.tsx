@@ -3,6 +3,7 @@
 import type { RunOpts } from '../controller'
 import { useCourse } from '../course/CourseContext'
 import type { CourseId } from '../course/types'
+import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 
 export interface GalleryEntry {
   id: string; label: string; force: NonNullable<RunOpts['force']>
@@ -14,6 +15,8 @@ export interface GalleryEntry {
 /** the entries listed on `course`'s page, each with that course's label and force */
 export const galleryFor = (course: CourseId): GalleryEntry[] => GALLERY
   .filter((e) => !e.courses || e.courses.includes(course))
+  // (the Hebrew spell book is listed only where it is out: src/shared/hebrewSpell.ts)
+  .filter((e) => course !== 'he' || HEBREW_SPELL_AVAILABLE || e.force.screen !== 'spell')
   .map((e) => (course === 'en' && e.en ? { ...e, label: e.en.label ?? e.label, force: { ...e.force, ...e.en.force } } : e))
 export const GALLERY: GalleryEntry[] = [
   { id: 'tower', label: 'Tower — two waves (the first duel, in the run)', force: { screen: 'tower', stage: 1 } },

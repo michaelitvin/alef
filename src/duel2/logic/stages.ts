@@ -1,6 +1,7 @@
 // Stages (spec: Content → Stages): letters → plain syllables → the dot changes the sound → words. A stage passes like a
 // clock level: the first 5 answers on its new items all right, or 8 of the last 10.
 import type { ScreenId } from './predict'
+import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 
 const FAST_FORWARD = 5
 const PASS_WINDOW = 10
@@ -34,5 +35,6 @@ export function screensOfStage(stage: number): ScreenId[] {
   if (stage === 1) return ['broom', 'ghosts']
   if (stage < 4) return ['broom', 'cauldron', 'ladder', 'ghosts']
   // the spell book opens with the doors (writing after reading: it comes after them in the cycle)
-  return ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell']
+  // (and only where the Hebrew spell book is out: src/shared/hebrewSpell.ts)
+  return HEBREW_SPELL_AVAILABLE ? ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell'] : ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
 }

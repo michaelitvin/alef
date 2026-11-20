@@ -36,6 +36,14 @@ To release (two edits on `main`, then the ordinary release):
 2. When all nine are in it, set `ENGLISH_RELEASED = true` (`available.ts`). `release.test.tsx` fails if the two do not agree.
 3. Check on staging, with `/verify` (`englishFit` too), then fast-forward `release` ([CLAUDE.md](../../CLAUDE.md), *Deployment*).
 
+### The Hebrew spell book has its own gate
+
+The spell book also came into the Hebrew cycle (stage 4, after the doors) with this branch, but it has no Hebrew voice
+files yet (`demo-spell`, `q-spell`) and no `s-book` art. `HEBREW_SPELL_RELEASED` (`src/shared/hebrewSpell.ts`) holds it
+back on production: the Hebrew cycle, the home path, the station link and the gallery are then those of before the
+spell book. Staging, dev and tests have it. To release it: make the voice lines and the art, have the parent review them,
+set `HEBREW_SPELL_RELEASED = true` on `main`, check on staging, then fast-forward `release`. `hebrewSpellGate.test.tsx` builds the production flag.
+
 A stage is *ready* in the staging and production builds only when its voice clips exist (`content/ready.ts`: strict);
 dev, tests and the verify build open every stage that has words.
 
