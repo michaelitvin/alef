@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { SIGN_STROKE, drawSign, isSign, openSide, signPath } from './signs'
+import { SIGN_STROKE, drawSign, isSign, openSide, signCueRing, signPath } from './signs'
 
 /** a context that records which drawing calls were made */
 function spyContext() {
@@ -51,5 +51,22 @@ describe('the comparison signs', () => {
   it('knows a sign from a number', () => {
     expect(['<', '=', '>'].every(isSign)).toBe(true)
     expect(['5', '+', '×', ''].some(isSign)).toBe(false)
+  })
+  it('the cue ring: signs on every sign planet, equal on =, open on < and > (the open cue glows as clearly as the others)', () => {
+    const on = (...c: string[]) => new Set(c)
+    expect(['<', '=', '>'].map((l) => signCueRing(l, on('signs')))).toEqual([true, true, true])
+    expect(['<', '=', '>'].map((l) => signCueRing(l, on('equal')))).toEqual([false, true, false])
+    expect(['<', '=', '>'].map((l) => signCueRing(l, on('open')))).toEqual([true, false, true])
+    expect(['<', '=', '>'].map((l) => signCueRing(l, on('bigger')))).toEqual([false, false, false])
+  })
+  it('the open side\'s light reaches past the sign\'s dark disc, at full strength', () => {
+    const radii: number[] = []
+    const stops: string[] = []
+    const { ctx, props } = spyContext()
+    props.createRadialGradient = (...a: number[]) => { radii.push(a[5]); return { addColorStop: (_o: number, c: string) => stops.push(c) } }
+    drawSign(ctx, '<', 0, 0, 100, { openGlow: 1 })
+    // the disc's radius is about 0.67 of the sign's size: from the open side (0.3), the light reaches past its edge
+    expect(Math.max(...radii)).toBeGreaterThanOrEqual(0.75 * 100)
+    expect(stops[0]).toMatch(/,1\)$/)
   })
 })

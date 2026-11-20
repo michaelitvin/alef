@@ -14,6 +14,7 @@ import { CLEAR_MS, Effects, MARK_MS, MARK_POD_MS, drawCueRing, drawFlyNumber, dr
 import { attachInput, type Intent } from './input'
 import { PLANET_AIR, PlanetRenderer } from './planet'
 import { PODS_GAP, drawPods, podLayout, podsY0, type PodLayout } from './pods'
+import { signCueRing } from './signs'
 import { TEST_HOOKS } from '../testHooks'
 
 /** What the verify build's driver reads each frame (client CSS px): where to touch, and which lane is right. */
@@ -426,12 +427,12 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       // a timed-out planet slides on past the ship; a longer mark slides it as far, more slowly
       const pDraw = res && res.result === 'timeout' ? 1 + (markMs / 1000) * 1.2 * (MARK_MS / markHold) : p
       const glow = phase === 'flight' && !frozen && inputOn && !hand
-      const openGlow = cues.has('open') ? 0.7 + 0.3 * Math.sin(ambient * 6) : 0
+      const openGlow = cues.has('open') ? 0.85 + 0.15 * Math.sin(ambient * 6) : 0
       for (let i = 0; i < content.labels.length; i++) {
         if (gone[i]) continue
         const at = planetPos(G, i, pDraw, offs[i]), label = content.labels[i]
         if (res && i === content.rightLane) drawRightRing(g, G, at, fade)
-        else if (!res && content.kind === 'compare' && (cues.has('signs') || (cues.has('equal') && label === '='))) drawCueRing(g, G, at, fade, ambient)
+        else if (!res && content.kind === 'compare' && signCueRing(label, cues)) drawCueRing(g, G, at, fade, ambient)
         drawPlanet(i, at, fade, glow)
         if (!(res && i === content.rightLane)) numDisc(g, label, at.x, at.y, at.r, fade, { openGlow })
       }

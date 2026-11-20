@@ -31,20 +31,37 @@ export interface SignStyle {
   color?: string
   /** a glow of this colour around the strokes */
   glow?: string
-  /** 0 to 1: a soft light on the open side of `<` and `>` (the `open` cue) */
+  /** 0 to 1: a bright light on the open side of `<` and `>` (the `open` cue) */
   openGlow?: number
 }
 
 export const SIGN_COLOR = '#ffffff'
+/** the radius of the open side's light, per unit of size (the dark disc is about 0.67) */
+const OPEN_GLOW_R = 0.85
+
+/**
+ * whether a sign planet gets the pulsing cue ring (as every cue's glow): `signs` all three, `equal` the `=`, `open` the
+ * `<` and `>` (whose open sides light up too)
+ */
+export function signCueRing(label: string, cues: { has(c: string): boolean }): boolean {
+  if (!isSign(label)) return false
+  return cues.has('signs') || (cues.has('equal') && label === '=') || (cues.has('open') && label !== '=')
+}
 
 /** draws the sign centred at (x, y), `size` high */
 export function drawSign(g: CanvasRenderingContext2D, sign: Sign, x: number, y: number, size: number, style: SignStyle = {}): void {
   g.save()
   if (style.openGlow && sign !== '=') {
-    const o = openSide(sign, size), cx = x + o.x, r = size * 0.6
+    // bright and wide: past the sign's dark disc onto the planet, so that it reads on a small planet on a phone
+    const o = openSide(sign, size), cx = x + o.x, r = size * OPEN_GLOW_R
     const gr = g.createRadialGradient(cx, y, 0, cx, y, r)
-    gr.addColorStop(0, `rgba(255,232,120,${0.95 * style.openGlow})`); gr.addColorStop(1, 'rgba(255,232,120,0)')
+    gr.addColorStop(0, `rgba(255,240,150,${style.openGlow})`)
+    gr.addColorStop(0.45, `rgba(255,216,74,${0.75 * style.openGlow})`)
+    gr.addColorStop(1, 'rgba(255,216,74,0)')
+    // added light: over the dark disc it reads as yellow light, not as a brown tint
+    g.globalCompositeOperation = 'lighter'
     g.fillStyle = gr; g.beginPath(); g.arc(cx, y, r, 0, Math.PI * 2); g.fill()
+    g.globalCompositeOperation = 'source-over'
   }
   g.strokeStyle = style.color ?? SIGN_COLOR
   g.lineWidth = SIGN_STROKE * size
