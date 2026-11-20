@@ -1,5 +1,5 @@
-// The hint that blends a word, in the English run (design Part 5; the method, lightsOnNormalWord, is PROVISIONAL until
-// the parent picks one by ear): the `?` blends the words of the screen, and the answer after it counts as helped; after
+// The hint that blends a word, in the English run (design Part 5; the method is units then word, the parent's choice of
+// 2026-11-20, and lightsOnNormalWord is its fallback for a missing unit clip): the `?` blends the words of the screen, and the answer after it counts as helped; after
 // every second miss on a word round the right word blends too; a missing clip never stalls it. The cauldron's made word
 // blends, a thrown e's turn says the short word and then the long one, and a thrown e never counts towards the stage.
 import { act } from '@testing-library/react'
@@ -188,10 +188,60 @@ describe('the hint that blends a word', () => {
     expect(blends).toEqual([false, true, false, true])
   })
 
+  it('units then word: each unit says its own sound and lights as it plays, then the word with all lit', async () => {
+    vi.useFakeTimers()
+    try {
+      const r = await playBlend(word('fish'))
+      expect(fakeAudio.said().filter((id) => id.startsWith('snd-') || id === 'w-fish')).toEqual(['snd-f', 'snd-ih', 'snd-sh', 'w-fish'])
+      expect(r.lit).toEqual([0, 1, 2])
+      expect(r.ended).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a magic-e unit says its long sound and lights both its letters', async () => {
+    vi.useFakeTimers()
+    try {
+      const w = word('cake')
+      const r = await playBlend(w)
+      expect(fakeAudio.said().filter((id) => id.startsWith('snd-') || id === 'w-cake')).toEqual(['snd-k', 'snd-ay', 'snd-k', 'w-cake'])
+      expect(r.lit).toEqual([0, 1, 2])
+      expect(blendOf(w).parts.filter((x) => x.unit === 1).map((x) => x.text)).toEqual(['a', 'e'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a heart word plays just the word', async () => {
+    vi.useFakeTimers()
+    try {
+      const r = await playBlend(word('a'))
+      expect(fakeAudio.said().filter((id) => id.startsWith('snd-') || id.endsWith('-a'))).toEqual(['hw-a'])
+      expect(r.lit).toEqual([0])
+      expect(r.ended).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a missing unit clip falls back to the units lighting while the normal word plays, and never stalls', async () => {
+    vi.useFakeTimers()
+    try {
+      fakeAudio.missing = (id) => id === 'snd-ih'
+      const r = await playBlend(word('fish'))
+      expect(fakeAudio.said()).toContain('w-fish')
+      expect(r.lit).toEqual([0, 1, 2])
+      expect(r.ended).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('a missing word clip still lights the units and ends', async () => {     // Review Focus 1
     vi.useFakeTimers()
     try {
-      fakeAudio.missing = (id) => id === 'w-fish'
+      fakeAudio.missing = (id) => id === 'w-fish' || id.startsWith('snd-')
       const r = await playBlend(word('fish'))
       expect(r.lit).toEqual([0, 1, 2])
       expect(r.ended).toBe(true)
@@ -206,6 +256,7 @@ describe('the hint that blends a word', () => {
   it('with no timing, the lights split the clip\'s real length from its real start: a 1.4 s clip', async () => {
     vi.useFakeTimers()
     try {
+      fakeAudio.missing = (id) => id.startsWith('snd-')
       fakeAudio.durationOf = (id) => (id === 'w-fish' ? 1400 : null)
       fakeAudio.onVoice((id) => new Promise((r) => setTimeout(r, id === 'w-fish' ? 1400 : 10)))
       const r = await playBlend(word('fish'))
@@ -221,6 +272,7 @@ describe('the hint that blends a word', () => {
   it('the lights start when the clip is really heard (its file loaded), not when it is asked for', async () => {
     vi.useFakeTimers()
     try {
+      fakeAudio.missing = (id) => id.startsWith('snd-')
       fakeAudio.loadMs = 300
       fakeAudio.durationOf = (id) => (id === 'w-fish' ? 1400 : null)
       fakeAudio.onVoice((id) => new Promise((r) => setTimeout(r, id === 'w-fish' ? 1700 : 10)))

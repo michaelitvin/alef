@@ -1,9 +1,10 @@
 // The hint's blend (design Part 5, "the hint blends a word"): the plan of a word, which the run plays and the hint card
-// (BlendWord) lights. PROVISIONAL: the method in use, `lightsOnNormalWord`, is the spec's last fallback (no slowed
-// audio: the units light in turn while the normal word plays). It is here only so that the hint works while the parent
-// picks the method by ear. A later method (a slowed take, the units' own sounds) replaces `BLEND_METHOD` and nothing else.
+// (BlendWord) lights. The parent chose the method on 2026-11-20: `unitsThenWord` ("s… a… t… sat"): each unit's own
+// sound clip (`snd-<sound>`) plays in turn and lights its unit, then the word plays with all units lit. No slowed
+// recording is needed. `lightsOnNormalWord` stays as the fallback for a word whose unit clip is missing.
 import type { BlendPart, BlendPlan } from '../../duel2/course/types'
 import { unit } from '../content/units'
+import { soundVoice } from '../content/voiceIds'
 import type { EnWord } from '../content/words'
 import { wordChoice } from './rounds/broom'
 
@@ -51,8 +52,7 @@ export function blendParts(w: EnWord): BlendPart[] {
 const unitCount = (w: EnWord) => Math.max(1, w.units.length)
 
 /**
- * PROVISIONAL (the spec's last fallback, until the parent picks the method by ear): no slowed audio; the units light
- * one after another while the normal word plays. With a timing, each unit lights where it starts in the clip; without
+ * The fallback (a unit clip is missing): no unit sounds; the units light one after another while the normal word plays. With a timing, each unit lights where it starts in the clip; without
  * one, the clip's length is split evenly by unit, a two-letter unit being one part (`stretch`: the run knows the length
  * only once the clip plays; FALLBACK_WORD_MS when the clip is missing).
  */
@@ -65,10 +65,22 @@ export const lightsOnNormalWord: BlendMethod = (w, timing) => {
 }
 
 /**
+ * The parent's method (2026-11-20): units then word. Each unit says its own sound (`snd-<sound>`: a magic-e unit its long
+ * sound, an ending its sound) and lights, then the word plays with all units lit. A heart word is one part: just the
+ * word. `fallback` is the plan for a missing unit clip (the controllers use it then), so nothing goes silent or stalls.
+ */
+export const unitsThenWord: BlendMethod = (w, timing) => {
+  const base = lightsOnNormalWord(w, timing)
+  if (!w.units.length) return base
+  const steps = w.units.map((id, i) => ({ audio: soundVoice(unit(id)), units: [i] }))
+  return { ...base, steps, fallback: base }
+}
+
+/**
  * the method in use (swap this one line for another method)
  * @alias
  */
-export const BLEND_METHOD: BlendMethod = lightsOnNormalWord
+export const BLEND_METHOD: BlendMethod = unitsThenWord
 
 /** the plan of a word by the method in use, with its clip's timing when the asset track has one */
 export const blendOf = (w: EnWord): BlendPlan => BLEND_METHOD(w, WORD_TIMINGS[wordChoice(w).soundId] ?? null)

@@ -18,7 +18,7 @@ import { HEBREW_TOWER, type TowerContent } from './content'
 import { progressTallies, type DuelTallies } from './tallies'
 import type { LineCue } from '../../assets/duel/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../../assets/duel/sprites'
-import { BLEND_GAP_MS, scheduleBlend } from '../../shared/blendSchedule'
+import { BLEND_GAP_MS, playUnitsThenWord, scheduleBlend } from '../../shared/blendSchedule'
 import { realSleeper, type Cancel, type Sleeper } from '../../shared/sleeper'
 
 /** What the announcement banner shows while the wizard speaks (rendered by the tower). */
@@ -766,16 +766,29 @@ export class DuelController {
     const timers: Cancel[] = []
     try {
       for (let i = 0; i < plans.length && alive(); i++) {
-        const plan = plans[i]
+        let plan = plans[i]
         if (i > 0) await this.time.sleep(BLEND_GAP_MS)
         if (!alive()) break
         this.set({ blend: { parts: plan.parts, lit: [] } })
-        let started: number | null = null
-        let total = plan.totalMs
         const light = (u: number) => () => {
           const b = this.view.blend
-          if (alive() && b) this.set({ blend: { ...b, lit: [...b.lit, u] } })
+          if (alive() && b && !b.lit.includes(u)) this.set({ blend: { ...b, lit: [...b.lit, u] } })
         }
+        if (plan.steps) {
+          // units then word; a missing unit clip: the word's fallback blend (the normal word, the units in turn)
+          const all = plan.parts.map((p) => p.unit).filter((u, k, a) => a.indexOf(u) === k)
+          const done = await playUnitsThenWord(plan.steps, plan.audio[0], all, {
+            say: (id, onHeard) => this.say(id, undefined, () => onHeard()),
+            sleep: (ms) => this.time.sleep(ms),
+            light: (us) => us.forEach((u) => light(u)()),
+            alive,
+          })
+          if (done) continue
+          this.set({ blend: { parts: plan.parts, lit: [] } })
+          plan = plan.fallback ?? { ...plan, steps: undefined }
+        }
+        let started: number | null = null
+        let total = plan.totalMs
         // from the voice's real start (its file plays); an even split is stretched to the clip's own length
         const start = (clipMs: number | null) => {
           started = this.time.now()

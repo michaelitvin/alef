@@ -2,7 +2,7 @@
 // that wait for next, explanations, hints, demos, the dotted-letter introduction, the word link, celebrations, the hearts
 // (for the whole run; one comes back at the end of each pass) and the run's end. React reads `view` through subscribe(); gestures come in through gesture().
 // Pausing aborts the flow at its next await; resume restarts the same round from the start.
-import { BLEND_GAP_MS, scheduleBlend } from '../shared/blendSchedule'
+import { BLEND_GAP_MS, playUnitsThenWord, scheduleBlend } from '../shared/blendSchedule'
 import type { Rng } from '../shared/adaptive'
 import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
@@ -1564,16 +1564,29 @@ export class RunController {
     const timers: Cancel[] = []
     try {
       for (let i = 0; i < plans.length && alive(); i++) {
-        const plan = plans[i]
+        let plan = plans[i]
         if (i > 0) await this.sleep(t, BLEND_GAP_MS)
         if (!alive()) break
         this.set({ overlay: { kind: 'blend', parts: plan.parts, lit: [] } })
-        let started: number | null = null
-        let total = plan.totalMs
         const light = (u: number) => () => {
           const o = this.view.overlay
-          if (alive() && o?.kind === 'blend') this.set({ overlay: { ...o, lit: [...o.lit, u] } })
+          if (alive() && o?.kind === 'blend' && !o.lit.includes(u)) this.set({ overlay: { ...o, lit: [...o.lit, u] } })
         }
+        if (plan.steps) {
+          // units then word; a missing unit clip: the word's fallback blend (the normal word, the units in turn)
+          const all = plan.parts.map((p) => p.unit).filter((u, k, a) => a.indexOf(u) === k)
+          const done = await playUnitsThenWord(plan.steps, plan.audio[0], all, {
+            say: (id, onHeard) => this.say(t, [{ id, onHeard: () => onHeard() }]),
+            sleep: (ms) => this.sleep(t, ms),
+            light: (us) => us.forEach((u) => light(u)()),
+            alive,
+          })
+          if (done) continue
+          this.set({ overlay: { kind: 'blend', parts: plan.parts, lit: [] } })
+          plan = plan.fallback ?? { ...plan, steps: undefined }
+        }
+        let started: number | null = null
+        let total = plan.totalMs
         // from the voice's real start (its file plays); an even split is stretched to the clip's own length
         const start = (clipMs: number | null) => {
           started = this.now()

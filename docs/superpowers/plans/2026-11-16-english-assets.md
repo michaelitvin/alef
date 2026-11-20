@@ -23,7 +23,7 @@ In this plan, **"my call"** marks a decision made here that the parent has not c
   (`c·a_e·k` = cake). In stage 5, each consonant of a blend is its own unit; the blend pattern is in brackets
   (`s·t·o·p [st-]`).
 - **A word belongs to the stage of its highest unit.** It uses no unit above that stage. A builder script checks this for
-  every word, chain, set and round in this file, and that every word on a screen is in a list (so it has audio and a slow word).
+  every word, chain, set and round in this file, and that every word on a screen is in a list (so it has audio).
 - **Default uses.** Every real word (not a heart word) can appear in: the broom (word rounds), the cauldron, the tower's
   word runes, the spell book (at most 5 boxes), the drawing (whole word, from stage 2, only letters he has written alone),
   and the doors' wrong-key pool if it has a picture. The **Uses** column lists only the specific uses:
@@ -935,7 +935,7 @@ and a full stop ("B."), where the letter name is wanted.
   and `uh` and keep the one the listener hears as "uh".
 - **Door phrases (18)**: one take each, `[warm, clear] a big duck`, played when the door opens (as Book 2's door words).
 - **Two-syllable words** (sister, winter, under, jumping…): check the stress by measurement (rule).
-- **The approved word take is also the hint's slow word** (3.4): one take serves both.
+- **The approved word take is also the hint's last word** (3.4): one take serves both.
 
 ### 3.3 Nonsense words (102)
 
@@ -947,13 +947,10 @@ lowercase spelling (rule: change the spoken text, not the screen).
 
 ### 3.4 The hint's slow word (no recordings of its own)
 
-The parent's method (2026-11-17: "wouldn't it be better to just halve the speed with pitch correction?"), now in the
-design: the hint plays the approved word take at **0.5× with the pitch kept**. It is made from the word's file (WSOLA
-time stretch, host-local `slow_blend.py`), so it needs no TTS request and no review of its own beyond a sample. The unit
-light times are the word's own times scaled by 2: Gemini TTS returns no character timestamps, so the builder finds them
-by a forced alignment of each word take (or by measurement), once per word. This replaces the 414 stretched recordings of
-the first plan. Six slow words (sat, fish, map, cat, frog, pin) in two stretch settings are in the parent's review now; a
-listener hears each as the natural word.
+The parent's method (2026-11-20): **units then word**. The hint plays each unit's own sound clip (`snd-<sound>`) in turn,
+lighting that unit, then the normal word take with all units lit. No slowed recording is needed, only the unit sounds
+(3.1) and the words. The unit light times come from the real start of each clip, so no forced alignment is needed. The
+first plan's 414 stretched recordings, the half-speed words and the host-local stretch script are not used.
 
 ### 3.5 Voice lines
 
@@ -1109,7 +1106,7 @@ no word); spell book (demo-spell → word → each drop's unit sound → word); 
 | Word, picture-only word, heart word | `[warm, clear] fish` | 1 (a second only if the screen fails it) | 1 (sample review) |
 | Door phrase | `[warm, clear] a big duck` | 1 | 1 |
 | Nonsense word | `[one made-up word, read as a word that rhymes with map, not spelled out] vap` | 1 | 1 |
-| Slow word (hint) | none: the word take at 0.5×, pitch kept (3.4) | — | a sample |
+| Slow word (hint) | none: the unit sounds, then the word take (3.4) | — | — |
 | Instruction / content line | `[warmly, to a 7-year-old] …` | 2 | the best 1–2 |
 | Dramatic line | `[excited, to a 7-year-old] …` | 2 | the best 1–2 |
 | Merchant | his voice, `[playful, a friendly market trader] …` | 2 | the best 1–2 |
@@ -1129,7 +1126,7 @@ The listener is unsure on lone stop sounds (t heard as t, p or "kuh" across runs
 **Pacing.** The interactive Gemini TTS endpoint answered 429 (quota) after a few parallel calls; about one call in 7 s
 works (about 500 an hour). For the bulk, use the Batch API (`batchGenerateContent` is listed for
 `gemini-3.8-flash-tts`; the pictures' batch of 108 finished in under an hour), then screen, then retake the failures
-interactively. Speech plays at 1.15× in the game (rule), slow words at 0.5× of the word take.
+interactively. Speech plays at 1.15× in the game (rule), no slow words (the hint plays the unit sounds, then the word).
 
 ### 3.7 Sound totals
 
@@ -1142,7 +1139,7 @@ interactively. Speech plays at 1.15× in the game (rule), slow words at 0.5× of
 | Heart words | 33 | 33 | all |
 | Door phrases | 18 | 18 | all |
 | Nonsense words | 102 (8 approved) | 94 | all |
-| Slow words | 313 + 102 | none (derived) | a sample |
+| Slow words | 0 | none (the hint plays unit sounds, then the word) | — |
 | Voice lines | 139 (5 approved) | about 270 (2 each) | the best 1–2 each |
 | Merchant voice audition | 4 voices | 8 | all |
 | **Total** | **about 1,100 items** | **about 910 requests**, plus about 25 % retakes | |
@@ -1168,10 +1165,10 @@ Sound effects and music: the Hebrew run's, unchanged.
 
 ### 4.2 Next, in this order
 
-1. The parent decides short a and the slow words (in review now).
+1. The parent decides short a (the slow words are decided: units then word, 2026-11-20).
 2. **The merchant's voice**: 4 Gemini voices × 2 lines (3.5); the parent picks.
 3. **Stage 1 batch**: the stage-1 sounds still to make (p, f, n); 24 words, 13 picture-only words, 4 heart words, 12
-   nonsense words, their slow words; **all 139 lines** (every screen opens at stage 1 except the ghosts); the stage-1
+   nonsense words; **all 139 lines** (every screen opens at stage 1 except the ghosts); the stage-1
    placement words. Batch request, screen, then the review page.
 4. **Stages 2–9**, one batch per stage, in the order the game needs them (rule), each reviewed before the next is heard
    (generation can run ahead: rule "do not stop work while a review is open"). Stage 2 adds the letter names b d p n u,
@@ -1224,7 +1221,7 @@ flash model: cents. Spent so far on voice: 314 ElevenLabs credits (tests 1–2) 
   the estimate, the voice stays under $12.
 - About 25 % of requests fail the screen and are made again (the tests: 2 of 9 words leaked a direction, 4 of 16 sounds
   failed).
-- Slow words cost nothing (made from the word takes); their unit times come from a forced alignment of each word take.
+- There are no slow words: the hint plays the unit sounds, then the word (2026-11-20).
 - The merchant's second Gemini voice costs the same as Puck.
 
 ---
@@ -1235,7 +1232,7 @@ flash model: cents. Spent so far on voice: 314 ElevenLabs credits (tests 1–2) 
 
 Answered: the image route and budget (Flash, Batch API, 1 take, $10 cap), the word list size (keep it), phrase doors
 (the noun's picture only), the voice (Puck), the hint's slow word (half speed, pitch kept). Still open:
-1. **Short a and the slow words** (in review now).
+1. **Short a** (in review now; the slow words are decided: units then word, 2026-11-20).
 2. **The merchant's voice**: Algenib, Gacrux, Umbriel or Sadachbia (3.5).
 3. **Words for a child in Israel** (1.18): keep or replace snow, stamp, barn, igloo?
 4. **The Hebrew spell book** (design Part 7): in this build? If yes, the same sprite serves, and the Hebrew lines
@@ -1257,7 +1254,7 @@ Answered: the image route and budget (Flash, Batch API, 1 take, $10 cap), the wo
 - In stage 5 a ladder rung may add or remove one consonant (`lip → slip`).
 - Placement choices that differ only in a unit of the stage: the design's `vap · vip · map` became `vap · zap · lap`.
 - The spell book shows its picture in stages 1–3 only.
-- Nonsense words get slow words too (the hint reads the tower's name runes); they are derived, so they cost nothing.
+- Nonsense words blend the same way (the hint reads the tower's name runes): unit sounds, then the word.
 - No girl forms in English (a girl is a "wizard" too, as the design says).
 - `spell-near` does not name letters; the other spelling's tile glows instead.
 - The crystals are recoloured (the parent approved all recolours, 2026-11-17).
@@ -1268,7 +1265,7 @@ Answered: the image route and budget (Flash, Batch API, 1 take, $10 cap), the wo
 
 - A script checks every word, chain, set, round and phrase in Part 1: units only of the stage or below, every on-screen
   word in a list, no chain asks a word twice, nonsense not in a dictionary and not a homophone of a word in one.
-- Gemini TTS gives no character timestamps: find each word take's unit times by a forced alignment, for the hint's
-  lights (scaled by 2 for the slow word).
+- Gemini TTS gives no character timestamps. The hint no longer needs them: each unit lights from the start of its own
+  sound clip (2026-11-20).
 - Keep the screen strict: the parent sees only takes that pass it.
 - The first duel's tower lines: confirm which ones the run's tower still plays (13 are drafted).

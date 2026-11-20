@@ -72,7 +72,8 @@ dev, tests and the verify build open every stage that has words.
   `box`), a silent `e` in a spell word is a faint tail, and `cating` is a written wrong choice (the alternative is `catting`).
 - **The parent's word and heart-word review.** The word lists, the heart-word spread (`I` in stage 4), the nonsense
   words and the boss families (look-alike letters, short vowels, digraphs, one-unit-apart words) are the builder's calls.
-  The hint method (`lightsOnNormalWord`) is provisional and can be swapped.
+  The hint method is `unitsThenWord` (the parent chose it on 2026-11-20): each unit's `snd-` clip lights its unit, then the
+  word plays with all lit. `lightsOnNormalWord` is its fallback for a missing unit clip.
 - **The purple `StationCover`.** `src/duel2/screens/StationCover.tsx` shows the Hebrew path's purple station art on an
   English link. The `/verify` home check should run with the two paths.
 - **Art in code and a few placeholders.** The spell station's picture on home is an SVG placeholder, and the spell

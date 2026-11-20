@@ -77,8 +77,10 @@ describe('the English tower\'s hint', () => {
     expect(plans).toHaveLength(3)
     const before = p.said.length
     p.c.hint()
-    await settle(() => p.said.length - before >= 3 && p.c.getView().blend === null)
-    expect(p.said.slice(before)).toEqual(p.round.runes.map((m) => wordVoice(word(m.id).text)))
+    // each word: its units' own sounds in turn, then the word
+    const want = p.round.runes.flatMap((m) => [...(blendOf(word(m.id)).steps ?? []).map((x) => x.audio), wordVoice(word(m.id).text)])
+    await settle(() => p.said.length - before >= want.length && p.c.getView().blend === null)
+    expect(p.said.slice(before)).toEqual(want)
     expect(p.events.find((x) => x.e === 'blend-hint')?.data).toMatchObject({ words: 3, by: 'button' })
     p.c.destroy()
   })

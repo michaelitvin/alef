@@ -191,7 +191,9 @@ export interface BlendPart { text: string; unit: number }
  * no clip); and the word's pieces, which the hint card (BlendWord) draws. `stretch`: the times split `totalMs` evenly
  * (no timing of the clip): the run stretches them to the clip's real length once it plays; a missing clip keeps them
  */
-export interface BlendPlan { audio: string[]; lights: { unit: number; atMs: number }[]; totalMs: number; parts: BlendPart[]; stretch?: true }
+export interface BlendPlan { audio: string[]; lights: { unit: number; atMs: number }[]; totalMs: number; parts: BlendPart[]; stretch?: true
+  /** units then word (English): each unit's own clip lights its units, then `audio` (the word) with all lit; `fallback` is the plan for a missing unit clip */
+  steps?: { audio: string; units: number[] }[]; fallback?: BlendPlan }
 
 /**
  * The hint that blends a word (English): `plan`, the blends of a screen (where he hears the word: its word; where he

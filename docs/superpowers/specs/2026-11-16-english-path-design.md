@@ -256,14 +256,14 @@ playtest.
 
 - The hint button is the game's question mark (rule: not a wand; the mock still shows a wand). On a screen that shows a
   word, it plays the word's blend: a spark moves under the word from left to
-  right, each sound unit lights up as the voice reaches it, and the voice says the word slowly, then normally. A unit of
-  two letters (`sh`) has one line under it and lights up as one.
-- **How the slow word is made is open** (the parent, 2026-11-17). The voice's own stretched words "sound weird", and
-  the word take at half speed with the pitch kept "sound[s] baddd". In review now: the word at 0.7× (gentle); only the
-  vowel and the s/f/sh parts stretched, the stop sounds kept (held); the approved unit sounds in a row, then the word
-  (units). If all fail: no slowed audio, the units light in turn while the normal word plays, or each unit's sound plays
-  as it lights. Only the parent's ear judges this: a listening model rated the takes he called bad as perfect.
-  Whatever the method, the units' light times come from the word's measured alignment.
+  right, each sound unit lights up as its own sound plays, and then the voice says the word normally, with all units lit
+  ("s… a… t… sat"). A unit of two letters (`sh`) has one line under it and lights up as one.
+- **The slow-word hint is units then word (the parent decided, 2026-11-20).** The stretched words and the half-speed word
+  failed by ear. The game plays each unit's own sound clip (`snd-<sound>`) in turn and lights that unit as its clip
+  plays, pauses a short while, and then plays the normal word with all units lit. A heart word is one part: it plays
+  just the word. A magic-e unit plays its long sound and lights both its letters. An ending plays its sound. If a unit
+  clip is missing, the hint falls back to the units lighting in turn while the normal word plays. No slowed recording
+  is needed: only the unit sounds and the words.
 - **Which word:** on a screen where he hears the target (broom, cauldron, ladder, spell book), the target. On a screen
   where he reads to choose (tower words, doors, ghost words), each word on the screen in turn, left to right; the
   answer then counts as helped. In the placement check there is no hint.
@@ -394,7 +394,7 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
   the English lines of the run, the merchant, the bosses, demos and info taps; plus girl forms where marked. Generated
   progressively in stage order (rule), reviewed on the review page with the picture or glyph beside each item. Real
   words in a large set get one take (rule: the review exception); sound units and nonsense words get two or more. The
-  slow words for the hint are made from the word takes (Part 5) and are not recorded.
+  hint (Part 5) plays the unit sounds and the words; it needs no slowed recordings.
 
 ### Pronunciation (rules: voice, pronunciation)
 
@@ -405,7 +405,7 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
   to a listener ("what is said, how many sounds, any letter names?"), and measured (length, voiced bursts).
 - **Nonsense words:** written so that the voice cannot spell them out ("vap." may become "V, A, P"): the spike finds a
   spelling that works (for example a respelling, or the word inside quotes), checked the same way.
-- **Slow words:** made from approved takes by the method the parent picks (Part 5); not recorded.
+- **Slow words:** none. The hint plays the unit sounds, then the word (Part 5, 2026-11-20).
 - **Short sounds:** keep them short; a cut of the vowel from a word take is acceptable (the parent found the first
   short-a takes "too prolonged").
 - **Words:** said once, warmly and clearly, with less play than a narrator line (rule).
@@ -415,7 +415,7 @@ Record each shipped asset's request in `asset-sources/english/` (CLAUDE.md).
 
 The ElevenLabs spike (Will) failed the sounds and the stretched words. A second spike with Gemini TTS (Puck) passed:
 the parent approved the nonsense words, the sounds m, s, sh, o, t, b, i, and Puck's words and lines. Short a is being
-shortened. The stretched words failed, and so did the half-speed word; the slow-word method is open (Part 5).
+shortened. The stretched words failed, and so did the half-speed word; the hint became units then word (Part 5, 2026-11-20).
 
 ### Releases (my call)
 

@@ -1,7 +1,7 @@
-// The hint's blend (design Part 5): the plan of a word by the method in use, lightsOnNormalWord (PROVISIONAL, until the
-// parent picks the method by ear): the units light in turn while the normal word plays.
+// The hint's blend (design Part 5): the plan of a word by the method in use, unitsThenWord (the parent's choice, 2026-11-20):
+// each unit's own sound lights it, then the word plays. lightsOnNormalWord is the fallback for a missing unit clip.
 import { describe, expect, it } from 'vitest'
-import { BLEND_METHOD, FALLBACK_WORD_MS, blendOf, blendParts, lightsOnNormalWord } from './blend'
+import { BLEND_METHOD, FALLBACK_WORD_MS, blendOf, blendParts, lightsOnNormalWord, unitsThenWord } from './blend'
 import { WORDS, word } from '../content/words'
 
 describe('the blend of a word', () => {
@@ -25,9 +25,19 @@ describe('the blend of a word', () => {
     expect(lightsOnNormalWord(word('fish'), t)).toEqual(lightsOnNormalWord(word('fish'), null))
   })
 
-  it('the method in use is lightsOnNormalWord, and a word with no timing yet gets its fallback', () => {
-    expect(BLEND_METHOD).toBe(lightsOnNormalWord)
-    expect(blendOf(word('fish'))).toEqual(lightsOnNormalWord(word('fish'), null))
+  it('the method in use is unitsThenWord: the units\' sounds in turn, then the word, with the fallback plan beside them', () => {
+    expect(BLEND_METHOD).toBe(unitsThenWord)
+    const p = blendOf(word('fish'))
+    expect(p.steps).toEqual([{ audio: 'snd-f', units: [0] }, { audio: 'snd-ih', units: [1] }, { audio: 'snd-sh', units: [2] }])
+    expect(p.audio).toEqual(['w-fish'])
+    expect(p.fallback).toEqual(lightsOnNormalWord(word('fish'), null))
+  })
+
+  it('a magic-e unit plays its long sound, an ending its sound, a heart word only the word', () => {
+    expect(blendOf(word('cake')).steps?.map((x) => x.audio)).toEqual(['snd-k', 'snd-ay', 'snd-k'])
+    expect(blendOf(word('jumped')).steps?.slice(-1)[0]?.audio).toMatch(/^snd-/)
+    expect(blendOf(word('a')).steps).toBeUndefined()
+    expect(blendOf(word('a')).audio).toEqual(['hw-a'])
   })
 
   it('the pieces: a two-letter unit is one piece, a silent e lights with its vowel, a heart word is whole', () => {
