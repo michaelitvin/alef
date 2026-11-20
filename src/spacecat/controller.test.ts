@@ -102,17 +102,40 @@ describe('the play controller', () => {
     expect(engine.content!.fact).not.toBe('+1,1')
   })
 
-  it('input is off while the demo line plays', async () => {
+  it('input is on and the planets move while the demo line plays; the line is not cut', async () => {
     const { engine, ctl } = setup()
     fake.holdUntil(/^demo/)
     ctl.start()
     await settle()
     expect(fake.said()).toEqual(['demo-1'])
-    expect(engine.input).toBe(false)
-    expect(engine.frozen).toBe(true)
+    expect(engine.input).toBe(true)
+    expect(engine.frozen).toBe(false)
     expect(ctl.getView().phase).toBe('demo')
+    finish(engine, 'right')
+    await settle()
+    expect(fake.live().filter((s) => s.kind === 'voice')).toHaveLength(1)
     fake.release()
     await playing(engine)
+  })
+
+  it('the missing-number line is spoken while he plays and is not cut', async () => {
+    const { engine, port, ctl } = setup({ ...played, ladder: { top: 4, topRecent: '', topMistake: false, streak: 0 } })
+    fake.holdUntil(/^missing/)
+    ctl.start()
+    for (let i = 0; i < 20; i++) {
+      await settle()
+      if (fake.said().some((s) => s.startsWith('missing'))) break
+      finish(engine, 'right')
+      if (ctl.getView().phase === 'between') ctl.nextLevel()
+    }
+    expect(fake.said().some((s) => s.startsWith('missing'))).toBe(true)
+    expect(engine.input).toBe(true)
+    expect(engine.frozen).toBe(false)
+    expect(port.get().heard.missing ?? 0).toBe(0)
+    expect(fake.live().filter((s) => s.kind === 'voice')).toHaveLength(1)
+    fake.release()
+    await settle()
+    expect(port.get().heard.missing).toBe(1)
   })
 
   it('the zoom tip shows at most two times', async () => {

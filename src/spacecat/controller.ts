@@ -193,8 +193,8 @@ export class PlayController {
 
   /**
    * A round starts (again, after a pause: the engine has restarted it). The planets stand still until the voice and the
-   * last effect have ended, then the arrival sound plays; the demo or the missing-number line comes 0.4 s after it with
-   * his touches off; then the planets move.
+   * last effect have ended, then the arrival sound plays and the planets move with his touches on. The demo or the
+   * missing-number line comes 0.4 s after the arrival sound and is spoken while he already plays.
    */
   private async begin(cur: Current): Promise<void> {
     const my = ++this.epoch
@@ -205,22 +205,28 @@ export class PlayController {
     await this.o.audio.quiet()
     if (!live()) return
     const arrival = this.o.audio.playSfx('new-sum')
-    if (cur.demo || cur.missing) {
-      const hand = cur.demo ? this.o.engine.demoHand('drag', cur.content.rightLane, DEMO_HAND_MS) : Promise.resolve()
-      if (cur.missing) this.o.engine.pulseRing(true)
-      await arrival
-      await this.o.sleeper.sleep(SFX_TO_VOICE_MS)
-      if (!live()) return
-      await Promise.all([this.o.audio.say(cur.demo ? 'demo' : 'missing'), hand])
-      if (!live()) return
-      if (cur.missing) {
-        this.o.engine.pulseRing(false)
-        this.o.save.markHeard('missing')
-      }
-    }
+    // the planets move and his touches work at once: he may start while the instruction is spoken. The line is never
+    // cut; a line that wants to start behind it waits in the voice queue (a round's arrival sound waits for `quiet()`).
     this.o.engine.setInput(true)
     this.o.engine.resume()
-    this.set({ phase: 'flight' })
+    if (cur.demo || cur.missing) void this.instruct(cur, arrival, live)
+    else this.set({ phase: 'flight' })
+  }
+
+  /** the demo hand or the missing-number ring, and the line, while the round already runs */
+  private async instruct(cur: Current, arrival: Promise<void>, live: () => boolean): Promise<void> {
+    const hand = cur.demo ? this.o.engine.demoHand('drag', cur.content.rightLane, DEMO_HAND_MS) : Promise.resolve()
+    if (cur.missing) this.o.engine.pulseRing(true)
+    await arrival
+    await this.o.sleeper.sleep(SFX_TO_VOICE_MS)
+    // the round ended or he left in the meantime: the line stays unsaid
+    const heard = live() ? await this.o.audio.say(cur.demo ? 'demo' : 'missing') : false
+    await hand
+    if (cur.missing) {
+      this.o.engine.pulseRing(false)
+      if (heard) this.o.save.markHeard('missing')
+    }
+    if (live() && this.view.phase !== 'tip') this.set({ phase: 'flight' })
   }
 
   /** he rests under the right planet: the zoom tip, at most TIP_TIMES (the planets stop so no round sound falls on the line) */

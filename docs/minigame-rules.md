@@ -309,6 +309,9 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Do not accept answer taps while an instruction plays. Keep a power-button tap that comes between rounds, and use it in the next round. A hint or an explanation is not an instruction (see the skip rule below).
   Accept answer taps while the answers themselves are read aloud. A tap stops the reading.
   Example (clock): the child had to wait until all three answers were read before he could choose.
+  Exception (Space Cat, the parent, 2026-11-20): the child can start to play while the demo or the missing-number line is
+  spoken. Do not cut the line. A line that would start during it waits behind it in the voice queue; sound effects can
+  overlap it. Reason: "the kid should be able to start playing while instructions are audioed".
 - Show a speaker icon on everything that plays a sound when the child taps it, next to the text it says again. A tap on
   the text alone is not enough: the child does not know that the text can speak.
   Example (clock): Set the clock had no way to hear the time again, and the time caption in Find the clock played on a tap
