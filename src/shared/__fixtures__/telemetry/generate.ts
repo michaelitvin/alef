@@ -185,30 +185,71 @@ function spaceCatSum(r: R) {
   return { item: `${a}${plus ? '+' : '-'}${b}=${c}/${hole}`, labels, lane, right }
 }
 
+/** the rung ids the ladder walks (src/spacecat/logic/rungs.ts) */
+const SC_RUNGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'H1', 'C1', 'C2', 'S1', 'S2', 'T1', 'T2', 'T3', 'T4a', 'T4b', 'T5', 'T6']
+const SC_PARTS = ['frontier', 'frontier', 'frontier', 'below', 'review', 'warmup', 'probe', 'guard']
+const scRung = (r: R) => r.pick(SC_RUNGS)
+/** a comparison round: three sign planets, the right one in its lane */
+function spaceCatCompare(r: R) {
+  const a = r.int(1, 20), b = r.chance(0.15) ? a : r.int(1, 20)
+  const right = a < b ? '<' : a > b ? '>' : '='
+  return { item: `${a}?${b}`, labels: ['<', '=', '>'], lane: ['<', '=', '>'].indexOf(right), right }
+}
+/** a jump row round: the row with one hole, the missing number in its lane */
+function spaceCatJumps(r: R) {
+  const step = r.pick([2, 5, 10]), first = step * r.int(0, 4), hole = r.int(2, 3)
+  const row = [0, 1, 2, 3].map((i) => first + step * i)
+  const right = row[hole]!
+  const lane = r.int(0, 3)
+  const labels = [0, 1, 2, 3].map((i) => String(i === lane ? right : Math.max(0, right + (i - lane) * step)))
+  return { item: row.map((n, i) => (i === hole ? '_' : String(n))).join(','), labels, lane, right }
+}
+
 /** Space Cat's events (src/spacecat/controller.ts; the parent area's sections track into the open game's log) */
 const SPACECAT: Record<string, (r: R, t: number) => Record<string, unknown>> = {
-  'run-start': (r) => ({ ship: r.int(1, 3), rung: r.int(1, 6) }),
+  'run-start': (r) => {
+    const frontier = r.chance(0.2) ? null : scRung(r)
+    return { ship: r.int(1, 3), rung: frontier, frontier, playDay: r.chance(0.5) }
+  },
   round: (r) => {
-    const { item, labels, lane, right } = spaceCatSum(r)
-    if (r.chance(0.04)) return { item, labels, rung: r.int(1, 6), level: r.int(1, 5), ship: r.int(1, 3), cut: true }
+    const kind = r.pick(['sum', 'sum', 'sum', 'sum', 'compare', 'jumps'] as const)
+    const { item, labels, lane, right } = kind === 'compare' ? spaceCatCompare(r) : kind === 'jumps' ? spaceCatJumps(r) : spaceCatSum(r)
+    const part = r.pick(SC_PARTS)
+    const rung = kind === 'compare' ? r.pick(['C1', 'C2']) : kind === 'jumps' ? r.pick(['S1', 'S2']) : scRung(r)
+    if (r.chance(0.04)) return { item, labels, rung, kind, part, level: r.int(1, 5), ship: r.int(1, 3), cut: true }
     const result = r.pick(['right', 'right', 'right', 'wrong', 'timeout'])
-    const endLane = result === 'right' ? lane : r.int(0, 3)
+    const endLane = result === 'right' ? lane : r.int(0, labels.length - 1)
     const end = result === 'right' && r.chance(0.3) ? 'zoom' : 'arrival'
     const endMs = r.int(1200, 8000)
+    const chosen = kind === 'compare' ? labels[endLane]! : Number(labels[endLane])
     return {
-      item, labels, startLane: r.int(0, 3), endLane, number: result === 'right' ? right : Number(labels[endLane]), result, end,
-      lastLaneMs: r.chance(0.1) ? null : r.int(300, endMs), endMs, arrivalMs: r.pick([8000, 6500, 5000, 4000]), rung: r.int(1, 6),
+      item, labels, startLane: r.int(0, labels.length - 1), endLane, number: result === 'right' ? (kind === 'compare' ? right : Number(right)) : chosen, result, end,
+      lastLaneMs: r.chance(0.1) ? null : r.int(300, endMs), endMs, arrivalMs: r.pick([8000, 6500, 5000, 4000]), rung, kind, part, fast: result === 'right' && r.chance(0.4),
       level: r.int(1, 5), ship: r.int(1, 3), ...(r.chance(0.02) ? { demo: true } : {}),
     }
   },
+  // the controller still tracks the old `rung` event; this entry goes when it stops (the call-site test needs the name)
   rung: (r) => ({ rung: r.int(2, 9) }),
+  ladder: (r) => {
+    const change = r.pick(['placed', 'passed', 'strike', 'held', 'free', 'unpassed'] as const)
+    const by = r.pick({ placed: ['placement', 'migration'], passed: ['fast', 'slow', 'rejump', 'recheck', 'warmup'], strike: ['probation'], held: ['slow'], free: ['recheck'], unpassed: ['probation', 'recheck'] }[change])
+    return { rung: scRung(r), change, by, ...(change === 'held' ? { days: r.pick([1, 2, 3, 5]) } : {}) }
+  },
+  placement: (r) => {
+    const phase = r.pick(['start', 'end'] as const)
+    return {
+      phase, kind: r.pick(['first', 'migration', 'recheck', 'parent']), probes: phase === 'start' ? 0 : r.int(4, 16), mistakes: phase === 'start' ? 0 : r.int(0, 4),
+      frontier: phase === 'start' || r.chance(0.1) ? null : scRung(r),
+    }
+  },
+  warmup: (r) => ({ rung: scRung(r), how: r.pick(['fast', 'slow', 'forgot']), rounds: r.int(1, 5) }),
   'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120) }),
   ship: (r) => ({ ship: r.int(2, 3) }),
   pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'flight', 'between']) }),
   abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'between']) }),
   'run-end': (r) => ({ points: r.int(0, 120), levels: r.int(1, 8), best: r.int(0, 150) }),
   settings: (r) => (r.chance(0.5)
-    ? { ...r.pick([{ range: r.pick(['auto', 3, 6]) }, { times: r.chance(0.5) }, { divide: r.chance(0.5) }, { arrival: r.pick(['auto', 8000, 5000]) }, { flightMusic: r.chance(0.5) }]), by: 'parent' }
+    ? { ...r.pick([{ range: r.pick(['auto', '6', 'C1', 'T4b']) }, { times: r.chance(0.5) }, { divide: r.chance(0.5) }, { compare: r.chance(0.5) }, { jumps: r.chance(0.5) }, { missing100: r.chance(0.5) }, { hundreds: r.chance(0.5) }, { relevel: true }, { arrival: r.pick(['auto', 8000, 5000]) }, { flightMusic: r.chance(0.5) }]), by: 'parent' }
     : { keys: ['sfx'], sfx: r.chance(0.5) }),
   player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'parent' }),
   'storage-persist': (r) => ({ persisted: r.chance(0.5) }),

@@ -1,7 +1,8 @@
 // Space Cat's telemetry, from the parent area's one export (Data section). Reads only the export file.
 //   node scripts/spacecat/analyse.ts <alef-telemetry-…json>
-// Prints: the days that come only from roll-ups, per run (answers, levels, points, how it ended), per rung (right share,
-// time-outs), the 15 hardest sums with his wrong picks, the arrival time over the rounds, and the rung openings.
+// Prints: the days that come only from roll-ups, per run (answers, levels, points, how it ended), per rung (by the ladder's
+// ids: right share, time-outs), per part of the mix (answers, right share, fast share), the ladder changes in time order,
+// each placement and each warm-up, the 15 hardest items with his wrong picks, and the arrival time over the rounds.
 // Event names and fields: the spec's *Tracking* and src/spacecat/controller.ts. Plain Node: erasable TypeScript only.
 import { readFileSync } from 'node:fs'
 
@@ -28,6 +29,11 @@ const rounds = events.filter((e) => e.e === 'round')
 const counted = rounds.filter((e) => e.demo !== true && e.cut !== true)
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '-')
 const sumText = (id: string) => {
+  const cmp = /^(\d+)\?(\d+)$/.exec(id)
+  if (cmp) return `${cmp[1]} ◌ ${cmp[2]}`
+  const thrice = /^(\d+)\+(\d+)\+(\d+)=(\d+)\/c$/.exec(id)
+  if (thrice) return `${thrice[1]} + ${thrice[2]} + ${thrice[3]} = ◌`
+  if (/^[\d_]+(,[\d_]+)+$/.test(id)) return id.split(',').map((x) => (x === '_' ? '◌' : x)).join(', ')
   const m = /^(\d+)([-+x/])(\d+)=(\d+)\/([abc])$/.exec(id)
   if (!m) return id
   const op = ({ '+': '+', '-': '−', x: '×', '/': '÷' } as Record<string, string>)[m[2]!]
@@ -75,29 +81,58 @@ for (const [k, evs] of runs) {
   console.log(`  ${day(evs[0]!.t)} ${k}: ${rs.length} answers, ${pct(right, rs.length)} right, ${evs.filter((e) => e.e === 'level-done').length} level(s) done; ${end}`)
 }
 
-console.log('\nPer rung')
-const rungs = new Map<number, { n: number; right: number; timeout: number }>()
+console.log('\nPer rung (the ladder\'s ids)')
+const rungs = new Map<string, { n: number; right: number; timeout: number }>()
 for (const e of counted) {
-  const r = Number(e.rung)
+  const r = String(e.rung)
   const x = rungs.get(r) ?? { n: 0, right: 0, timeout: 0 }
   x.n++
   if (e.result === 'right') x.right++
   if (e.result === 'timeout') x.timeout++
   rungs.set(r, x)
 }
-for (const [r, x] of [...rungs].sort((a, b) => a[0] - b[0])) console.log(`  rung ${r}: ${x.n} answers, ${pct(x.right, x.n)} right, ${x.timeout} time-outs`)
+const rungKey = (r: string): [number, string] => (/^\d+$/.test(r) ? [Number(r), ''] : [100, r])
+for (const [r, x] of [...rungs].sort((a, b) => rungKey(a[0])[0] - rungKey(b[0])[0] || rungKey(a[0])[1].localeCompare(rungKey(b[0])[1]))) {
+  console.log(`  rung ${r}: ${x.n} answers, ${pct(x.right, x.n)} right, ${x.timeout} time-outs`)
+}
 
-console.log('\nThe 15 hardest sums (mistake share, at least 2 answers)')
+console.log('\nPer part of the mix')
+const parts = new Map<string, { n: number; right: number; fast: number }>()
+for (const e of counted) {
+  const k = typeof e.part === 'string' ? e.part : '(none: an older round)'
+  const x = parts.get(k) ?? { n: 0, right: 0, fast: 0 }
+  x.n++
+  if (e.result === 'right') x.right++
+  if (e.fast === true) x.fast++
+  parts.set(k, x)
+}
+for (const [k, x] of [...parts].sort((a, b) => b[1].n - a[1].n)) console.log(`  ${k.padEnd(10)} ${x.n} answers, ${pct(x.right, x.n)} right, ${pct(x.fast, x.n)} fast`)
+
+console.log('\nLadder changes (in time order)')
+const changes = events.filter((e) => e.e === 'ladder')
+if (!changes.length) console.log('  none')
+for (const e of changes) console.log(`  ${day(e.t)} ${e.s}:${e.run} rung ${e.rung}: ${e.change}${e.by ? ` (${e.by})` : ''}${typeof e.days === 'number' ? `, ${e.days} play day(s)` : ''}`)
+
+console.log('\nPlacements')
+const placements = events.filter((e) => e.e === 'placement')
+if (!placements.length) console.log('  none')
+for (const e of placements) {
+  console.log(e.phase === 'start' ? `  ${day(e.t)} ${e.s}:${e.run} ${e.kind}: started` : `  ${day(e.t)} ${e.s}:${e.run} ${e.kind}: ended after ${e.probes} probes, ${e.mistakes} mistake(s), frontier ${e.frontier ?? 'none'}`)
+}
+
+console.log('\nWarm-ups')
+const warmups = events.filter((e) => e.e === 'warmup')
+if (!warmups.length) console.log('  none')
+for (const e of warmups) console.log(`  ${day(e.t)} ${e.s}:${e.run} rung ${e.rung}: ${e.how} after ${e.rounds} round(s)`)
+
+console.log('\nThe 15 hardest items (mistake share, at least 2 answers)')
 const hard = [...items].filter(([, t]) => t.n >= 2).sort((a, b) => (b[1].wrong + b[1].timeout) / b[1].n - (a[1].wrong + a[1].timeout) / a[1].n || b[1].n - a[1].n).slice(0, 15)
 for (const [id, t] of hard) {
   const picks = Object.entries(t.picks).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k}×${n}`).join(' ')
-  console.log(`  ${sumText(id).padEnd(14)} ${t.n - t.wrong - t.timeout}/${t.n} right, ${t.timeout} time-outs${picks ? `, picked ${picks}` : ''}`)
+  console.log(`  ${sumText(id).padEnd(18)} ${t.n - t.wrong - t.timeout}/${t.n} right, ${t.timeout} time-outs${picks ? `, picked ${picks}` : ''}`)
 }
 
 console.log('\nArrival time over the rounds (ms, every 10th counted round)')
 const arr = counted.filter((e) => typeof e.arrivalMs === 'number')
 for (let i = 0; i < arr.length; i += 10) console.log(`  round ${i + 1}: ${arr[i]!.arrivalMs} (${day(arr[i]!.t)})`)
 if (arr.length) console.log(`  last: ${arr[arr.length - 1]!.arrivalMs}`)
-
-console.log('\nRung openings')
-for (const e of events.filter((x) => x.e === 'rung')) console.log(`  ${day(e.t)}: rung ${e.rung}`)

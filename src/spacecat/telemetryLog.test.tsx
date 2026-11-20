@@ -38,6 +38,18 @@ describe('Space Cat\'s telemetry log', () => {
     ])
   })
 
+  it('a comparison\'s chosen sign is kept', () => {
+    const facts = spaceCatFacts([
+      ev('round', { item: '7?5', rung: 'C1', kind: 'compare', result: 'wrong', number: '<', endMs: 2100 }, 1),
+      ev('round', { item: '7?5', rung: 'C1', kind: 'compare', result: 'right', number: '>', endMs: 1800 }, 2),
+    ])
+    expect(facts).toEqual([
+      { item: '7?5', ok: false, ms: 2100, chosen: '<', t: 1 },
+      { item: '7?5', ok: true, ms: 1800, t: 2 },
+    ])
+    expect(SPACECAT_LOG.about.docs).toContain('docs/superpowers/specs/2026-11-20-space-cat-ladder-design.md')
+  })
+
   it('the log is registered', async () => {
     await import('../parent/registry')
     expect(registeredLogs().map((l) => l.key)).toContain(SPACECAT_LOG.key)

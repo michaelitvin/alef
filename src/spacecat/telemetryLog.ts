@@ -8,7 +8,7 @@ export const SPACECAT_LOG: TelemetryLog = {
   game: 'spacecat',
   about: {
     game: 'Space Cat (flying sums)',
-    docs: ['docs/superpowers/specs/2026-11-12-space-cat-design.md'],
+    docs: ['docs/superpowers/specs/2026-11-12-space-cat-design.md', 'docs/superpowers/specs/2026-11-20-space-cat-ladder-design.md'],
     code: ['src/spacecat/telemetry.ts', 'src/spacecat/controller.ts'],
   },
   rollup: spaceCatFacts,
@@ -17,7 +17,7 @@ export const SPACECAT_LOG: TelemetryLog = {
 /**
  * What an evicted chunk of Space Cat's log keeps (checked against src/spacecat/controller.ts): one fact per `round`. The
  * item is the item id (`3+4=7/c`); right is `result: 'right'`; the latency is `endMs`; what he chose is the number he
- * ended on, or `'timeout'`. A demo round (the hand showed the answer) and a round cut by a pause are special: counted
+ * ended on (for a comparison, the sign: `'<'`, `'='`, `'>'`), or `'timeout'`. A demo round (the hand showed the answer) and a round cut by a pause are special: counted
  * apart, never as right or wrong, as they count in no tally.
  */
 export function spaceCatFacts(events: TelemetryEvent[]): RollupFact[] {
