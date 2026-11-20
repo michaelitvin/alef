@@ -8,7 +8,7 @@ const TOP = 5
 const DAYS = 7
 /** the ledger's games that have a section here (English only where it can be opened: production shows no English column) */
 const COLUMNS = PLAYTIME_GAMES.filter((g) => GAMES.some((p) => p.id === g))
-const TITLE: Record<PlaytimeGame, string> = { book2: 'Book 2', clock: 'Clock', lessons: 'Lessons', english: 'English' }
+const TITLE: Record<PlaytimeGame, string> = { book2: 'Book 2', clock: 'Clock', lessons: 'Lessons', spacecat: 'Space Cat', english: 'English' }
 /** whole minutes, but a short play shows as `<1` rather than as nothing */
 const minutes = (ms: number) => (ms <= 0 ? '0' : ms < 60_000 ? '<1' : String(Math.round(ms / 60_000)))
 
@@ -16,7 +16,7 @@ export function ProgressSection() {
   return (
     <div>
       <h4 style={{ marginBottom: 4 }}>Minutes played, last 7 days</h4>
-      <table data-playtime>
+      <div className="pa-wide"><table data-playtime>
         <thead><tr><th>Day</th>{COLUMNS.map((g) => <th key={g}>{TITLE[g]}</th>)}</tr></thead>
         <tbody>
           {lastDays(DAYS).map((d) => (
@@ -26,7 +26,7 @@ export function ProgressSection() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       {GAMES.map((g) => {
         const raw = rawSave(g.saveKey)
         const line = g.summary(raw)

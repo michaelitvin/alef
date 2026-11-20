@@ -7,8 +7,8 @@
 import { useEffect, useRef } from 'react'
 import { safeSetItem } from './saveStorage'
 
-export type PlaytimeGame = 'book2' | 'clock' | 'lessons' | 'english'
-export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['book2', 'clock', 'lessons', 'english']
+export type PlaytimeGame = 'book2' | 'clock' | 'lessons' | 'spacecat' | 'english'
+export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['book2', 'clock', 'lessons', 'spacecat', 'english']
 export const PLAYTIME_KEY = 'alef-playtime'
 export const PLAYTIME_KEEP_DAYS = 60
 /** how often a visible, running screen writes its time (ms) */
@@ -58,7 +58,7 @@ export function lastDays(n: number, now = Date.now(), doc: Playtime = readPlayti
     const d = new Date(now); d.setDate(d.getDate() - i)
     const day = dayKey(d)
     const row = doc.days[day] ?? {}
-    out.push({ day, ms: { book2: row.book2 ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0, english: row.english ?? 0 } })
+    out.push({ day, ms: { book2: row.book2 ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0, spacecat: row.spacecat ?? 0, english: row.english ?? 0 } })
   }
   return out
 }

@@ -32,10 +32,10 @@ describe('the home page (spec: one duel, Part 4)', () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
   })
 
-  it('the home page: duel card, path, separator, clock card, separator, shelf — and none of the old cards', () => {
+  it('the home page: duel card, path, separator, clock card, separator, Space Cat card, separator, shelf — and none of the old cards', () => {
     const c = page()
     const parts = [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
-    expect(parts).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'shelf'])
+    expect(parts).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     // one duel card (the old duel and Book 2 cards are gone), one clock card, no big level cards
     expect(c.querySelectorAll('a[href$="duel2/"]').length).toBe(1)
     expect(c.querySelectorAll('[aria-label="clock"]').length).toBe(1)
@@ -53,6 +53,34 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(clk.querySelector('[data-play="clock"]')).not.toBeNull()
     expect(clk.querySelectorAll('img').length).toBe(3)
     expect(clk.querySelector('[data-learn="clock"]')!.textContent).toBe('מה לומדים: לקרוא שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.')
+  })
+
+  it('the space cat card: its art, three planets 3 4 7, its play button, its parent line and its credit line', () => {
+    const c = page()
+    const sc = c.querySelector('[data-home-part="spacecat"]')!
+    expect(sc.querySelector('a[href$="spacecat/"]')).not.toBeNull()
+    expect([...sc.querySelectorAll('[data-planet]')].map((e) => e.getAttribute('data-planet'))).toEqual(['3', '4', '7'])
+    expect(sc.querySelector('[data-play="spacecat"]')).not.toBeNull()
+    expect(sc.querySelector('[data-learn="spacecat"]')!.textContent).toBe('מה לומדים: חיבור וחיסור עד 10, מספר חסר בתרגיל, ואחר כך חיבור וחיסור עד 20. המשחק מתאים את עצמו לילד, גם במהירות.')
+    expect(sc.querySelector('[data-credit="spacecat"]')!.textContent).toBe('קרדיט: איגור אבא של ריי')
+    // the credit is its own line, below the learn line
+    expect(sc.querySelector('[data-learn="spacecat"]')!.nextElementSibling).toBe(sc.querySelector('[data-credit="spacecat"]'))
+  })
+
+  it('the card follows the saved ship', () => {
+    localStorage.setItem('alef-spacecat', JSON.stringify({ state: { ship: 3 }, version: 1 }))
+    expect(page().querySelector('[data-home-part="spacecat"] [data-ship]')!.getAttribute('data-ship')).toBe('3')
+  })
+
+  it('the home never writes the Space Cat save', () => {
+    const writes: string[] = []
+    const set = Storage.prototype.setItem
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, k: string, v: string) { writes.push(k); set.call(this, k, v) })
+    try {
+      page()
+      expect(writes.filter((k) => k.includes('spacecat'))).toEqual([])
+      expect(localStorage.getItem('alef-spacecat')).toBeNull()
+    } finally { spy.mockRestore() }
   })
 
   it('the shelf opens an unlocked level and ignores a locked one', () => {
@@ -150,19 +178,19 @@ describe('the English card and path on home (English path design, Part 1)', () =
   afterEach(() => { en.available = false })
 
   it('the English card sits after the Hebrew path and before the clock', async () => {
-    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'english', 'english-path', 'separator', 'clock', 'separator', 'shelf'])
+    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'english', 'english-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
   })
 
   it('no English card on production', async () => {
     en.available = false
     const c = await pageEn()
-    expect(parts(c)).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'shelf'])
+    expect(parts(c)).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     expect(c.querySelector('a[href*="course=en"]')).toBeNull()
   })
 
   it('turning the path off hides the card', async () => {
     englishSavePort().setSettings({ path: false })
-    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'shelf'])
+    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     cleanup()
     englishSavePort().setSettings({ path: true })
     expect(parts(await pageEn())).toContain('english')

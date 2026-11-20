@@ -1,0 +1,509 @@
+{
+ "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json).",
+ "files": [
+  {
+   "id": "demo-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/demo-1.mp3",
+   "where": "The demo round (first run, first round), while the hand shows the way",
+   "caption": "צָרִיךְ לָטוּס אֶל כּוֹכַב הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/demo-1/v3.mp3",
+   "takes": [
+    {
+     "take": "clips/demo-1/v1.mp3",
+     "request": {
+      "text": "[warmly] צָרִיךְ לָטוּס אֶל כּוֹכַב הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/demo-1/v2.mp3",
+     "request": {
+      "text": "[warmly] צָרִיךְ לָטוּס אֶל כּוֹכַב הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    },
+    {
+     "take": "clips/demo-1/v3.mp3",
+     "request": {
+      "text": "[warmly] צָרִיךְ לָטוּס אֶל כּוֹכַב־הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     }
+    }
+   ],
+   "note": "Takes 1 and 2 paused inside כּוֹכַב הַלֶּכֶת; take 3 joins the two words with a maqaf in the spoken text."
+  },
+  {
+   "id": "zoom-tip-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/zoom-tip-1.mp3",
+   "where": "The zoom tip: he rests under the right planet (at most two times)",
+   "caption": "אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/zoom-tip-1/v4.mp3",
+   "takes": [
+    {
+     "take": "clips/zoom-tip-1/v1.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/zoom-tip-1/v2.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    },
+    {
+     "take": "clips/zoom-tip-1/v3.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק לְמַעְלָֽה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     }
+    },
+    {
+     "take": "clips/zoom-tip-1/v4.mp3",
+     "request": {
+      "text": "[playful] אֶפְשָׁר לְזַנֵּק למעלה וּלְהַגִּיעַ מַהֵר.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 103
+     }
+    }
+   ],
+   "note": "The parent rejected take 2: the stress of לְמַעְלָה. Take 3 has a meteg on the last syllable (לְמַעְלָֽה), take 4 the word without nikkud."
+  },
+  {
+   "id": "missing-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/missing-1.mp3",
+   "where": "The first two rounds with the ring not at the end, before the planets move",
+   "caption": "אֵיזֶה מִסְפָּר חָסֵר?",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/missing-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/missing-1/v1.mp3",
+     "request": {
+      "text": "[warmly] אֵיזֶה מִסְפָּר חָסֵר?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/missing-1/v2.mp3",
+     "request": {
+      "text": "[warmly] אֵיזֶה מִסְפָּר חָסֵר?",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    }
+   ]
+  },
+  {
+   "id": "level-done-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/level-done-1.mp3",
+   "where": "Level done (the first two times), after the fanfare",
+   "caption": "כָּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/level-done-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/level-done-1/v1.mp3",
+     "request": {
+      "text": "[excited] כֹּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/level-done-1/v2.mp3",
+     "request": {
+      "text": "[excited] כֹּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 101
+     }
+    }
+   ],
+   "edit": "Audio edit, not a new take: the pause between the two sentences was 0.36 s; silence was inserted at its middle to make it 0.8 s (ffmpeg, re-encoded mp3 128 kb/s mono 44.1 kHz). The original take is kept in the review folder."
+  },
+  {
+   "id": "level-done-2",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/level-done-2.mp3",
+   "where": "Level done (the first two times), after the fanfare",
+   "caption": "יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/level-done-2/v4.mp3",
+   "takes": [
+    {
+     "take": "clips/level-done-2/v1.mp3",
+     "request": {
+      "text": "[excited] יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/level-done-2/v2.mp3",
+     "request": {
+      "text": "[excited] יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 101
+     }
+    },
+    {
+     "take": "clips/level-done-2/v3.mp3",
+     "request": {
+      "text": "[excited] יֽוֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 102
+     }
+    },
+    {
+     "take": "clips/level-done-2/v4.mp3",
+     "request": {
+      "text": "[excited] יופי של טיסה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 103
+     }
+    }
+   ],
+   "note": "The parent rejected take 2: the stress of יֹפִי (it must be YO-fi). Take 3 is spoken from יֽוֹפִי (the clock game's spelling), take 4 from the plain יופי של טיסה."
+  },
+  {
+   "id": "new-ship-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/new-ship-1.mp3",
+   "where": "Level done: a new ship (each of the two ships)",
+   "caption": "חֲלָלִית חֲדָשָׁה.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/new-ship-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/new-ship-1/v1.mp3",
+     "request": {
+      "text": "[excited] חֲלָלִית חֲדָשָׁה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/new-ship-1/v2.mp3",
+     "request": {
+      "text": "[excited] חֲלָלִית חֲדָשָׁה.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0
+      },
+      "seed": 101
+     }
+    }
+   ]
+  },
+  {
+   "id": "out-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/out-1.mp3",
+   "where": "End of the run (the first two times)",
+   "caption": "נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/out-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/out-1/v1.mp3",
+     "request": {
+      "text": "[warmly] נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/out-1/v2.mp3",
+     "request": {
+      "text": "[warmly] נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    }
+   ],
+   "edit": "Audio edit, not a new take: the pause between the two sentences was 0.47 s; silence was inserted at its middle to make it 0.8 s (ffmpeg, re-encoded mp3 128 kb/s mono 44.1 kHz). The original take is kept in the review folder."
+  },
+  {
+   "id": "info-hearts-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/info-hearts-1.mp3",
+   "where": "A tap on the hearts (once for a burst of taps)",
+   "caption": "אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/info-hearts-1/v6.mp3",
+   "takes": [
+    {
+     "take": "clips/info-hearts-1/v1.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. כֹּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/info-hearts-1/v2.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. כֹּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    },
+    {
+     "take": "clips/info-hearts-1/v3.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 102
+     },
+     "edit": "pauses between the sentences set to 0.8 s"
+    },
+    {
+     "take": "clips/info-hearts-1/v4.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כֹּל שָׁלָב הֵם מִתְמַלְּאִים.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 103
+     },
+     "edit": "pauses between the sentences set to 0.8 s"
+    },
+    {
+     "take": "clips/info-hearts-1/v5.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 104
+     },
+     "edit": "pauses between the sentences set to 0.8 s"
+    },
+    {
+     "take": "clips/info-hearts-1/v6.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַלְּבָבוֹת. [warmly] כֹּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 105
+     },
+     "edit": "pauses between the sentences set to 0.8 s"
+    }
+   ],
+   "note": "The parent rejected take 2 (odd pacing) and take 4 (a pause after וּבְסוֹף). The line now has no וּבְסוֹף: takes 5 and 6 say the new wording, with a tag for each sentence, and their pauses between the sentences were set to 0.8 s with an audio edit. Takes 1-4 have the old wording."
+  },
+  {
+   "id": "info-points-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/info-points-1.mp3",
+   "where": "A tap on the points (once for a burst of taps)",
+   "caption": "אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/info-points-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/info-points-1/v1.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/info-points-1/v2.mp3",
+     "request": {
+      "text": "[playful] אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    }
+   ],
+   "edit": "Audio edit, not a new take: the pause between the two sentences was 0.41 s; silence was inserted at its middle to make it 0.8 s (ffmpeg, re-encoded mp3 128 kb/s mono 44.1 kHz). The original take is kept in the review folder."
+  },
+  {
+   "id": "info-best-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/info-best-1.mp3",
+   "where": "A tap on his best (once for a burst of taps)",
+   "caption": "זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/info-best-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/info-best-1/v1.mp3",
+     "request": {
+      "text": "[playful] זֶה הַשִּׂי: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/info-best-1/v2.mp3",
+     "request": {
+      "text": "[playful] זֶה הַשִּׂי: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    }
+   ]
+  },
+  {
+   "id": "info-ship-locked-1",
+   "kind": "tts",
+   "file": "src/spacecat/assets/audio/voice/info-ship-locked-1.mp3",
+   "where": "A tap on a locked ship on the cover (once for a burst of taps)",
+   "caption": "אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק.",
+   "voice": "bIHbv24MWmeRgasZH58o",
+   "chosen": "clips/info-ship-locked-1/v2.mp3",
+   "takes": [
+    {
+     "take": "clips/info-ship-locked-1/v1.mp3",
+     "request": {
+      "text": "[playful] אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 1
+     }
+    },
+    {
+     "take": "clips/info-ship-locked-1/v2.mp3",
+     "request": {
+      "text": "[playful] אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק.",
+      "model_id": "eleven_v4",
+      "language_code": "he",
+      "voice_settings": {
+       "stability": 0.5
+      },
+      "seed": 101
+     }
+    }
+   ]
+  }
+ ]
+}

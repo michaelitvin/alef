@@ -38,7 +38,7 @@ export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
         Best score: <span data-duel-best>{d?.bestScore ?? 0}</span>. Best wave: <span data-duel-wave>{d?.bestWave ?? 0}</span>.
       </p>
       {rows.length > 0 && <>
-        <table data-duel-marks style={{ borderCollapse: 'collapse' }}>
+        <div className="pa-wide"><table data-duel-marks style={{ borderCollapse: 'collapse' }}>
           {head('Mark (most misses first)')}
           <tbody>
             {rows.map((m) => (
@@ -48,8 +48,8 @@ export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
               </tr>
             ))}
           </tbody>
-        </table>
-        <table data-duel-types style={{ borderCollapse: 'collapse', marginTop: 12 }}>
+        </table></div>
+        <div className="pa-wide"><table data-duel-types style={{ borderCollapse: 'collapse', marginTop: 12 }}>
           {head('Screen')}
           <tbody>
             {(['A', 'B', 'C'] as const).map((k) => (
@@ -59,7 +59,7 @@ export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </>}
       <p>
         Its old event log is kept as it is: export it in{' '}

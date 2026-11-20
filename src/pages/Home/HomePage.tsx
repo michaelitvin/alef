@@ -9,6 +9,7 @@ import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
 import { EnglishCard, EnglishPath } from '../../components/home/EnglishCard'
 import { useEnglishHome } from '../../components/home/englishStations'
+import { SpaceCatCard } from '../../components/home/SpaceCatCard'
 import { LevelShelf } from '../../components/home/LevelShelf'
 import { GearIcon } from '../../components/home/HomeIcons'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
@@ -85,7 +86,7 @@ export function HomePage() {
         </p>
       </motion.header>
 
-      {/* the duel and its path, the clock, the older activities (the approved mock's layout and values) */}
+      {/* the duel and its path, the clock, Space Cat, the older activities (the approved mock's layout and values) */}
       <main className="home-box" data-home>
         <DuelCard />
         <StationPath />
@@ -93,6 +94,8 @@ export function HomePage() {
         {english.on && <><Separator /><EnglishCard /><EnglishPath stations={english.stations} /></>}
         <Separator />
         <ClockCard />
+        <Separator />
+        <SpaceCatCard />
         <Separator />
         <LevelShelf />
       </main>

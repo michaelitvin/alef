@@ -44,7 +44,7 @@ export default function ClockSettings({ goTo }: SectionProps) {
       </label>
       <h3>Progress</h3>
       <p data-clock-progress>Level {s.progress.level} (recent new-time answers: {s.progress.newAnswers || '—'}) · rounds {s.roundNo} · gears {s.gears} · workdays {s.workdays} · best streak {s.bestStreak}</p>
-      <table data-clock-features style={{ borderCollapse: 'collapse' }}>
+      <div className="pa-wide"><table data-clock-features style={{ borderCollapse: 'collapse' }}>
         <thead><tr><th align="left">Feature</th><th>Seen</th><th>Wrong</th><th>Recent</th><th>Predicted miss</th></tr></thead>
         <tbody>
           {rows.map(([f, t]) => (
@@ -55,7 +55,7 @@ export default function ClockSettings({ goTo }: SectionProps) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <h3>Top confusions (asked → chosen)</h3>
       <ul>{confusions.map((c) => <li key={c.asked + c.chosen}>{c.asked} → {c.chosen} ×{c.n}</li>)}</ul>
       <h3>Telemetry</h3>

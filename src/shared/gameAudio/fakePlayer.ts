@@ -5,6 +5,7 @@
 //   audio.voiceMs = 300                     // each voice part lasts 300 ms (default 0: it ends at once)
 //   audio.durationOf = (id) => 1400         // the length (ms) a voice reports once it starts (default: voiceMs, if any)
 //   audio.loadMs = 300                      // a voice or effect is heard (onStart) this long after the call (default 0)
+//   audio.sfxMs = 300                       // each effect lasts 300 ms (default 0); coded urls are plain urls here
 //   audio.onVoice((id, e) => …)             // or the test's own timing per voice part (resolve false: not heard);
 //                                           // `e.caption` is the line's words on screen (playLine's caption)
 //   audio.holdUntil(/^q-/); audio.release() // voice parts that match wait for release (one id, or all)
@@ -25,6 +26,7 @@ export interface FakePlayer extends AudioPlayer {
   durationOf: ((id: string) => number | null) | null
   /** a sound is really heard (PlayOptions.onStart) this long after its call: its file loading (default 0: at once) */
   loadMs: number
+  sfxMs: number
   exists: ((id: string) => boolean) | null
   missing: ((id: string) => boolean) | null
   /** a sound has started */
@@ -58,6 +60,7 @@ export function createFakePlayer(): FakePlayer {
     voiceMs: 0,
     durationOf: null,
     loadMs: 0,
+    sfxMs: 0,
     exists: null,
     missing: null,
     onPlay: null,
@@ -110,7 +113,10 @@ export function createFakePlayer(): FakePlayer {
         else if (holdRe?.test(o.id)) held.push({ id: o.id, end: () => end() })
         else if (fake.voiceMs > 0) window.setTimeout(() => end(), fake.voiceMs)
         else end()
-      } else if (o.kind === 'sfx') end()
+      } else if (o.kind === 'sfx') {
+        if (fake.sfxMs > 0) window.setTimeout(() => end(), fake.sfxMs)
+        else end()
+      }
       // music plays until it is stopped
       return sound
     },
@@ -139,6 +145,7 @@ export function createFakePlayer(): FakePlayer {
       fake.voiceMs = 0
       fake.durationOf = null
       fake.loadMs = 0
+      fake.sfxMs = 0
       fake.exists = null
       fake.missing = null
       fake.onPlay = null

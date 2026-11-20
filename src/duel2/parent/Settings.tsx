@@ -22,10 +22,10 @@ export default function Book2Settings({ goTo }: SectionProps) {
   const conf = (c: Record<string, Record<string, number>>) => Object.entries(c)
     .flatMap(([a, row]) => Object.entries(row).map(([b, n]) => ({ a, b, n }))).sort((x, y) => y.n - x.n).slice(0, 10)
   const table = (r: { k: string; seen: number; wrong: number }[], label: (k: string) => string) => (
-    <table style={{ borderCollapse: 'collapse' }}>
+    <div className="pa-wide"><table style={{ borderCollapse: 'collapse' }}>
       <thead><tr><th style={{ textAlign: 'left' }}>Item</th><th>Seen</th><th>Wrong / near</th></tr></thead>
       <tbody>{r.map((x) => <tr key={x.k}><td>{label(x.k)}</td><td>{x.seen}</td><td>{x.wrong}</td></tr>)}</tbody>
-    </table>
+    </table></div>
   )
   return (
     <div data-book2-settings>
@@ -61,7 +61,7 @@ export default function Book2Settings({ goTo }: SectionProps) {
         ))}
       </p>
       <h3>Money</h3>
-      <table data-money style={{ borderCollapse: 'collapse' }}>
+      <div className="pa-wide"><table data-money style={{ borderCollapse: 'collapse' }}>
         <tbody>
           <tr><td>Merchant visits</td><td data-money-visits>{s.merchant?.visits ?? 0}</td></tr>
           <tr><td>Potions bought</td><td data-money-purchases>{s.merchant?.purchases ?? 0}</td></tr>
@@ -71,7 +71,7 @@ export default function Book2Settings({ goTo }: SectionProps) {
           <tr><td>Hints</td><td data-money-hints>{s.merchant?.hints ?? 0}</td></tr>
           <tr><td>Coin level (0: one or two coins make the price; 1: three or more; 2: and a coin that is too big)</td><td data-money-level>{s.merchant?.level ?? 0}</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <h3>By screen</h3>
       {table(rows('sc:'), (k) => k)}
       <h3>By letter (hardest first)</h3>

@@ -230,6 +230,47 @@ const ENGLISH: Table = {
 /** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */
 const BOOK2_SPELL: Table = { ...SPELL }
 
+/** a Space Cat item id (`a+b=c/hole`) and its four lane numbers, the right one in its lane */
+function spaceCatSum(r: R) {
+  const plus = r.chance(0.6)
+  const a = r.int(1, 9), b = r.int(0, plus ? 10 - a : a)
+  const c = plus ? a + b : a - b
+  const hole = r.pick(['c', 'c', 'c', 'a', 'b'])
+  const right = hole === 'a' ? a : hole === 'b' ? b : c
+  const lane = r.int(0, 3)
+  const labels = [0, 1, 2, 3].map((i) => String(i === lane ? right : Math.max(0, right + (i - lane) * r.pick([1, 2]))))
+  return { item: `${a}${plus ? '+' : '-'}${b}=${c}/${hole}`, labels, lane, right }
+}
+
+/** Space Cat's events (src/spacecat/controller.ts; the parent area's sections track into the open game's log) */
+const SPACECAT: Table = {
+  'run-start': (r) => ({ ship: r.int(1, 3), rung: r.int(1, 6) }),
+  round: (r) => {
+    const { item, labels, lane, right } = spaceCatSum(r)
+    if (r.chance(0.04)) return { item, labels, rung: r.int(1, 6), level: r.int(1, 5), ship: r.int(1, 3), cut: true }
+    const result = r.pick(['right', 'right', 'right', 'wrong', 'timeout'])
+    const endLane = result === 'right' ? lane : r.int(0, 3)
+    const end = result === 'right' && r.chance(0.3) ? 'zoom' : 'arrival'
+    const endMs = r.int(1200, 8000)
+    return {
+      item, labels, startLane: r.int(0, 3), endLane, number: result === 'right' ? right : Number(labels[endLane]), result, end,
+      lastLaneMs: r.chance(0.1) ? null : r.int(300, endMs), endMs, arrivalMs: r.pick([8000, 6500, 5000, 4000]), rung: r.int(1, 6),
+      level: r.int(1, 5), ship: r.int(1, 3), ...(r.chance(0.02) ? { demo: true } : {}),
+    }
+  },
+  rung: (r) => ({ rung: r.int(2, 9) }),
+  'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120) }),
+  ship: (r) => ({ ship: r.int(2, 3) }),
+  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'flight', 'between']) }),
+  abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'between']) }),
+  'run-end': (r) => ({ points: r.int(0, 120), levels: r.int(1, 8), best: r.int(0, 150) }),
+  settings: (r) => (r.chance(0.5)
+    ? { ...r.pick([{ range: r.pick(['auto', 3, 6]) }, { times: r.chance(0.5) }, { divide: r.chance(0.5) }, { arrival: r.pick(['auto', 8000, 5000]) }, { flightMusic: r.chance(0.5) }]), by: 'parent' }
+    : { keys: ['sfx'], sfx: r.chance(0.5) }),
+  player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'parent' }),
+  'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
+}
+
 /** how often an event comes, against 1 for the rest (a session is mostly answers, as the child's are) */
 const WEIGHT: Record<string, number> = {
   answer: 30, 'tower-answer': 4, replay: 4, idle: 2, mult: 2, 'draw-stroke': 6, 'merchant-offer': 2, pause: 1.5, resume: 1.5,
@@ -298,14 +339,16 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
 export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, true, 7, o)
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
+/** Space Cat's log */
+export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPACECAT, false, 13, o)
 /** the English path's log (`g: 'english'`) */
 export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
 const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 
-/** every event name the generators can send (Book 2, the tower, the clock, the English path, the Hebrew spell book) */
+/** every event name the generators can send (Book 2, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
-  ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK),
+  ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
   ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(BOOK2_SPELL),
 ])
 
@@ -318,6 +361,7 @@ export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 /** the logs the goldens are made of (small, so the golden files stay small) */
 export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
 export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
+export const GOLDEN_SPACECAT = () => spaceCatEvents({ eventsPerSession: 6 })
 export const GOLDEN_ENGLISH = () => englishEvents({ eventsPerSession: 12 })
 export const GOLDEN_BOOK2_SPELL = () => book2SpellEvents({ eventsPerSession: 12 })
 

@@ -1,4 +1,4 @@
-// The home cards' vector play button (the approved mock): a gold (duel) or brass (clock) rim, a dark centre, and the
+// The home cards' vector play button (the approved mock): a gold (duel), brass (clock) or silver-blue (Space Cat) rim, a dark centre, and the
 // triangle pointing LEFT (rule: with no motion, the play triangle follows the reading direction; Hebrew reads right to
 // left). Decorative: the card around it is the link.
 import { useId } from 'react'
@@ -12,10 +12,14 @@ const THEMES = {
     rim: ['#fff1c0', '#e0b26a', '#9a6a28'], centre: ['#b07a3e', '#4a2a10'], glow: '#ffcf7a99',
     tri: 'M60 30 L28 50 L60 70 Z', triFill: '#fff6e0', triStroke: 5,
   },
+  spacecat: {
+    rim: ['#e8f4ff', '#7fb2ff', '#2b4f9a'], centre: ['#2b4f9a', '#0a1440'], glow: '#7fb2ff99',
+    tri: 'M60 30 L28 50 L60 70 Z', triFill: '#eef6ff', triStroke: 5,
+  },
 } as const
 
-/** `dir`: where the triangle points: left for the Hebrew card and the clock (they read right to left), right for the English card */
-export function PlayButton({ theme, size, dir = 'left' }: { theme: 'duel' | 'clock'; size?: string; dir?: 'left' | 'right' }) {
+/** `dir`: where the triangle points: left for the Hebrew card, the clock and Space Cat (they read right to left), right for the English card */
+export function PlayButton({ theme, size, dir = 'left' }: { theme: 'duel' | 'clock' | 'spacecat'; size?: string; dir?: 'left' | 'right' }) {
   const id = useId().replace(/:/g, '')
   const t = THEMES[theme]
   // pointing right: the triangle's x mirrored in the 100-wide box (the tip on the right, the base on the left)

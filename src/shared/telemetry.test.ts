@@ -139,10 +139,10 @@ describe('the storage budget', () => {
     expect(QUOTA_CHARS - all - 250_000).toBeGreaterThanOrEqual(50_000)
   })
 
-  it('the play-time ledger (60 days, 3 games, 10-digit ms) fits in the room left for the saves, with staging\'s copy', async () => {
+  it('the play-time ledger (60 days, 4 games, 10-digit ms) fits in the room left for the saves, with staging\'s copy', async () => {
     const { PLAYTIME_KEEP_DAYS } = await import('./playtime')
     const days: Record<string, unknown> = {}
-    for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { book2: 86_400_000, clock: 86_400_000, lessons: 86_400_000 }
+    for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { book2: 86_400_000, clock: 86_400_000, lessons: 86_400_000, spacecat: 86_400_000 }
     const one = JSON.stringify({ v: 1, days }).length
     expect(one).toBeLessThan(6_000)
     const all = liveBudget(false) + rollupBudget(false) + FROZEN_WORST + liveBudget(true) + rollupBudget(true)
