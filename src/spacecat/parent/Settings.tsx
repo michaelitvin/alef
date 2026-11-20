@@ -1,7 +1,7 @@
 // Space Cat's section in the parent area (src/parent; parent text, English allowed), in the spec's order: where he is on
 // the ladder, the sums he finds hard, the highest level and the switches, find his level again, the time for one sum, music during
 // flight, the game's sounds, and the way to the Data section. Each change is tracked as `settings` by the parent.
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useDeviceSettings } from '../../shared/deviceSettings'
 import { readLog } from '../../shared/telemetryChunks'
 import type { SectionProps } from '../../parent/types'
@@ -9,13 +9,13 @@ import { playSfx, startTune, stopTune } from '../audio/spaceCatAudio'
 import { SFX_NAMES, type SfxName } from '../audio/sfx'
 import { itemById } from '../logic/facts'
 import { statusText } from '../logic/ladder/index'
-import { RUNGS } from '../logic/rungs'
+import { RUNGS, rungDef } from '../logic/rungs'
 import { predictItem, priorOf, type ItemStats } from '../logic/predict'
-import type { FixedArrival } from '../logic/speed'
+import { speedOfBand, type FixedArrival } from '../logic/speed'
 import type { Settings as SettingsT } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
 import { SPACECAT_LOG } from '../telemetryLog'
-import { RUNG_TEXT, STRANDS, STRAND_TITLE, changeText, rungStatus, rungsOfStrand, whereHeIs, workingOn } from './ladderText'
+import { BAND_TEXT, RUNG_TEXT, STRANDS, STRAND_TITLE, changeText, rungStatus, rungsOfStrand, whereHeIs, workingOn } from './ladderText'
 import { recentChanges } from './recentChanges'
 import { rungTallies, shareText } from './rungs'
 import { sumText } from './sumText'
@@ -41,12 +41,13 @@ const SWITCHES: { key: SwitchKey; label: string; hebrew: string; explain: ReactN
   { key: 'hundreds', label: 'Hundreds in the head', hebrew: 'מאות בעל פה', explain: <>Sums with 3-digit numbers that need no carrying, like {L('240 + 30')} or {L('500 − 200')}.</> },
 ]
 
-const median = (xs: number[]) => {
+const median = (xs: number[] | undefined) => {
+  if (!xs) return null
   if (!xs.length) return null
   const s = [...xs].sort((a, b) => a - b), m = Math.floor(s.length / 2)
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
-const topPick = (picks: Record<string, number>) => Object.entries(picks).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+const topPick = (picks: Record<string, number> | undefined) => Object.entries(picks ?? {}).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 const right = (s: ItemStats) => s.seen - s.wrong - s.timeout
 
 export default function SpaceCatSettings({ goTo, track }: SectionProps) {
@@ -65,7 +66,9 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
     .sort((a, b) => b.p - a.p)
     .slice(0, HARD_ROWS)
   const where = whereHeIs(s.ladder, s.settings)
-  const recent = recentChanges(readLog(SPACECAT_LOG.key), RECENT_ROWS)
+  // decoding the log is slow: read it again only when the ladder or the run count changed
+  const recent = useMemo(() => recentChanges(readLog(SPACECAT_LOG.key), RECENT_ROWS), [s.ladder, s.runs])
+  const band = where.frontier ? rungDef(where.frontier).band : 'small'
   const findAgain = () => {
     if (!window.confirm('Find his level again? Every rung goes back to "not yet" and the game checks him from the start. His points, ships and hard sums stay.')) return
     s.findLevelAgain()
@@ -152,7 +155,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
       <div data-arrival>
         <label style={{ display: 'block' }}>
           <input type="radio" name="sc-arrival" aria-label="automatic time" checked={s.settings.arrival === 'auto'} onChange={() => set({ arrival: 'auto' })} />{' '}
-          Automatic (now <span data-arrival-auto>{(s.speed.small.arrivalMs / 1000).toFixed(1)} s</span>)
+          Automatic (now <span data-arrival-auto>{(speedOfBand(s.speed, band).arrivalMs / 1000).toFixed(1)} s</span> for {BAND_TEXT[band]})
         </label>
         {([8000, 5000, 4000] as FixedArrival[]).map((ms) => (
           <label key={ms} style={{ display: 'block' }}>

@@ -2,7 +2,7 @@
 // the plain-English line of a saved change. Pure (logic modules only; no store, audio or telemetry), so the light parent
 // index uses it too.
 import { isEarned, isOn, frontier, statusText } from '../logic/ladder/frontier'
-import { RUNGS, rungDef, type RungId, type Strand } from '../logic/rungs'
+import { RUNGS, rungDef, type Band, type RungId, type Strand } from '../logic/rungs'
 import type { Ladder, LadderSettings } from '../logic/ladder/state'
 import type { ChangeRow } from './recentChanges'
 
@@ -40,6 +40,9 @@ export const RUNG_TEXT: Record<RungId, { name: string; example: string }> = {
   T5: { name: 'tables to 10 × 10', example: '7 × 8 = ◌' },
   T6: { name: 'divide to 10 × 10', example: '56 ÷ 8 = ◌' },
 }
+
+/** how the parent area names a speed band */
+export const BAND_TEXT: Record<Band, string> = { small: 'sums to 20', big: 'sums to 100', hundreds: 'hundreds' }
 
 export const STRAND_TITLE: Record<Strand, string> = {
   plus: 'Plus and minus', compare: 'Comparison', times: 'Counting in jumps, times and divide',
@@ -82,7 +85,7 @@ export function rungStatus(l: Ladder, r: RungId, set: LadderSettings): string {
   return t
 }
 
-const BY: Record<string, string> = { recheck: 're-check', warmup: 'warm-up', migration: 'update', placement: 'placement', probation: 'probation', rejump: 'placement' }
+const BY: Record<string, string> = { recheck: 're-check', warmup: 'warm-up', migration: 'update', placement: 'placement', probation: 'probation', rejump: 'moved up fast' }
 
 /** one saved change in plain English: "passed (fast): 2-digit ± tens" */
 export function changeText(h: ChangeRow): string {

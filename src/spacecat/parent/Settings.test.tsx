@@ -11,6 +11,7 @@ import { DEFAULT_SAVE, DEFAULT_SETTINGS, SAVE_KEY } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
 import { SPACECAT_LOG } from '../telemetryLog'
 import { spaceCatParent } from '.'
+import { changeText } from './ladderText'
 import { sumText } from './sumText'
 import SpaceCatSettings from './Settings'
 
@@ -18,7 +19,7 @@ const audio = installFakeAudio()
 const initial = useSpaceCatStore.getState()
 const stat = (seen: number, wrong: number, timeout: number, picks: Record<string, number> = {}, times: number[] = []) =>
   ({ seen, wrong, timeout, recent: 'o'.repeat(seen - wrong - timeout) + 'x'.repeat(wrong) + 't'.repeat(timeout), times, picks })
-const literal = (state: object) => JSON.stringify({ state, version: 1 })
+const literal = (state: object, version = 2) => JSON.stringify({ state, version })
 
 beforeEach(() => {
   useSpaceCatStore.setState({ ...initial, ...DEFAULT_SAVE }, true)
@@ -184,6 +185,7 @@ describe('Space Cat\'s section in the parent area', () => {
     useSpaceCatStore.setState({ speed: { small: { arrivalMs: 6400, underMs: [], hold: 0 } } })
     const { container } = render(<SpaceCatSettings goTo={() => {}} />)
     expect(container.querySelector('[data-arrival-auto]')!.textContent).toBe('6.4 s')
+    expect(container.querySelector('[data-arrival] label')!.textContent!.trim()).toBe('Automatic (now 6.4 s for sums to 20)')
     fireEvent.click(screen.getByLabelText('4 s'))
     expect(useSpaceCatStore.getState().settings.arrival).toBe(4000)
     expect(useSpaceCatStore.getState().speed.small.arrivalMs).toBe(6400)
@@ -238,6 +240,34 @@ describe('Space Cat\'s section in the parent area', () => {
     const placing = literal({ ...base, ladder: LADDER_START })
     expect(spaceCatParent.summary(placing)).toBe('Working on: finding his level · passed 0 of 31 · runs 3 · best 12 · points 40')
     for (const bad of [null, '{x']) expect(spaceCatParent.summary(bad)).toBeNull()
+  })
+
+  it('a version 1 save is read as migrated, not as fresh (old rung 6)', () => {
+    const v1 = literal({
+      items: { '3+4=7/c': stat(4, 1, 0) }, ladder: { top: 6, topRecent: '', topMistake: false, streak: 0 },
+      speed: { arrivalMs: 6000, underMs: [], hold: 0 }, runs: 5, best: 9, totalPoints: 30, settings: { range: 'auto' },
+    }, 1)
+    expect(spaceCatParent.summary(v1)).toBe('Working on: finding his level · passed 10 of 31 · runs 5 · best 9 · points 30')
+    const rows = spaceCatParent.details!(v1)
+    expect(rows).toHaveLength(1)
+    expect(rows[0].items.some((x) => x.endsWith('right'))).toBe(true)
+  })
+
+  it('Settings renders with partial item stats', () => {
+    useSpaceCatStore.setState({ items: { '3+4=7/b': { seen: 3, wrong: 1 }, '1+3=4/c': { seen: 2, times: [1000] }, '2+2=4/c': { seen: 1, picks: { 5: 1 } } } as never })
+    const { container } = render(<SpaceCatSettings goTo={() => {}} />)
+    expect(container.querySelectorAll('[data-hard] [data-item]').length).toBe(3)
+  })
+
+  it('Automatic shows the time of the frontier\'s band, with the band named', () => {
+    const big = { ...LADDER_START, mode: { kind: 'practice' as const }, rungs: Object.fromEntries((['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'C1', 'S1', 'T1'] as const).map((r) => [r, { ...NEW_RUNG, status: 'passed' as const }])) }
+    useSpaceCatStore.setState({ ladder: big, speed: { small: { arrivalMs: 6400, underMs: [], hold: 0 }, big: { arrivalMs: 4200, underMs: [], hold: 0 } } })
+    const { container } = render(<SpaceCatSettings goTo={() => {}} />)
+    expect(container.querySelector('[data-arrival] label')!.textContent!.trim()).toBe('Automatic (now 4.2 s for sums to 100)')
+  })
+
+  it('a re-jump reads "placed (moved up fast)"', () => {
+    expect(changeText({ t: 1, rung: '10', change: 'placed', by: 'rejump' })).toBe('placed (moved up fast): plus, crossing ten')
   })
 
   it('the summary survives a save with no ladder yet', () => {

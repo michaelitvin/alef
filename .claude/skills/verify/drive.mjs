@@ -1104,7 +1104,7 @@ async function run() {
         const page = await context.newPage()
         const notes = []
         const errors = []
-        page.on('pageerror', (e) => errors.push(e.message))
+        page.on('pageerror', (e) => errors.push(e.stack ?? e.message))
         const t0 = Date.now()
         try {
           await CHECKS[name](page, base, vp, (s) => notes.push(s))
