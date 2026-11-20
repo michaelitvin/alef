@@ -2,7 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { copyUnprefixedOver, prefixedStorage, STAGING_PREFIX } from '../shared/stagingStorage'
 import { itemById } from './logic/facts'
 import { LADDER_START, MIGRATION_JUMP, MIGRATION_PROBES, needsClosure } from './logic/ladder/index'
+import { afterProbe } from './logic/ladder/placement'
 import { rungDef, type RungId } from './logic/rungs'
+import { SPEED_START } from './logic/speed'
 import type { RoundResult } from './logic/round'
 import { PLACED_V1, RANGE_V1, migrateV1 } from './migrate'
 import { memorySavePort } from './savePort'
@@ -249,9 +251,45 @@ describe('the migration of a version 1 save', () => {
     const at = (top: number) => (migrateV1(v1({ ladder: { ...V1_LADDER, top } })).ladder.mode as { at: RungId }).at
     expect(at(1)).toBe('1')
     expect(at(2)).toBe('4')
-    expect(at(5)).toBe('C1')
+    expect(at(5)).toBe('8')
     expect(at(6)).toBe('12')
     expect(rungDef(at(7)).order).toBeGreaterThan(rungDef('T2').order)
+    expect(at(8)).toBe('12')
+  })
+  it('the placement probes only the plus and minus strand that has no switch', () => {
+    const m = migrateV1(v1({ ladder: { ...V1_LADDER, top: 8 } })).ladder.mode
+    expect(m).toMatchObject({ kind: 'placement', why: 'migration', plusOnly: true })
+    // every probe is wrong or slow in turn: the walk never reaches a new strand or a switched rung
+    let ladder = migrateV1(v1({ ladder: { ...V1_LADDER, top: 8 } })).ladder
+    const set = DEFAULT_SETTINGS
+    const probed: RungId[] = []
+    for (let i = 0; i < 30 && ladder.mode.kind === 'placement'; i++) {
+      probed.push(ladder.mode.at)
+      const out = afterProbe(ladder, ladder.mode, { mark: i % 3 === 2 ? 'x' : 'o', fast: i % 2 === 0, set })
+      ladder = out.ladder
+    }
+    for (const r of probed) { expect(rungDef(r).strand).toBe('plus'); expect(rungDef(r).switch).toBeUndefined() }
+    expect(probed.some((r) => ['T6', 'H1', 'C1', 'C2', 'S1', 'S2', 'T4b'].includes(r))).toBe(false)
+  })
+  it('a wrong probe at the top of the plus strand never walks into T6, H1 or C1', () => {
+    let ladder = migrateV1(v1({ ladder: { ...V1_LADDER, top: 8 } })).ladder
+    const seen: RungId[] = []
+    while (ladder.mode.kind === 'placement') {
+      seen.push(ladder.mode.at)
+      ladder = afterProbe(ladder, ladder.mode, { mark: 'x', fast: false, set: DEFAULT_SETTINGS }).ladder
+    }
+    expect(seen.filter((r) => ['T6', 'H1', 'C1'].includes(r))).toEqual([])
+    expect(ladder.rungs.T6).toBeUndefined()
+  })
+  it('an old speed with no finite arrival time starts from SPEED_START; a hold that is not a number becomes 0', () => {
+    expect(migrateV1(v1({ speed: { underMs: [] } })).speed).toEqual({ small: SPEED_START })
+    expect(migrateV1(v1({ speed: { arrivalMs: Infinity, underMs: [1], hold: 1 } })).speed).toEqual({ small: SPEED_START })
+    expect(migrateV1(v1({ speed: { arrivalMs: 5000, underMs: [1, 'x'], hold: 'y' } })).speed).toEqual({ small: { arrivalMs: 5000, underMs: [1], hold: 0 } })
+  })
+  it('a partial item stat is filled in', () => {
+    const s = migrateV1(v1({ items: { [it1.id]: { seen: 2 }, '1+1=2/c': null } }))
+    expect(s.items[it1.id]).toEqual({ seen: 2, wrong: 0, timeout: 0, recent: '', times: [], picks: {} })
+    expect(s.items['1+1=2/c']).toEqual({ seen: 0, wrong: 0, timeout: 0, recent: '', times: [], picks: {} })
   })
   it('the range maps', () => {
     expect(RANGE_V1).toEqual({ 1: '1', 2: '3', 3: '5', 4: '6', 5: '7', 6: '11', 7: 'T2', 8: 'T5', 9: 'T6' })

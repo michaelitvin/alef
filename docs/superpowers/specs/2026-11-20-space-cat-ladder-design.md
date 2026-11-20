@@ -450,6 +450,9 @@ The save `alef-spacecat` goes from version 1 to 2 (`store.ts` `migrate`; rule: n
   3 rounds.
 - **Then a short placement** at the start of his next run: from the rung above the highest placed one, with a jump of
   **4** and at most **10 probes** (*my call*: a child stuck at old rung 6 moves on in his first run after the update).
+  The probes walk only the plus and minus rungs that have no switch (the strand he played in version 1). They never
+  probe the new strands (C1, C2, S1, S2, T*, H1) or a rung of a switch: those stay unplaced until normal practice, the
+  re-check or the parent's "find his level again" reaches them.
   No demo. That run counts as a play day and as his last placement (the play-day counter starts at 1), and, like the
   first run ever, it has no warm-up and no re-check. The time of his last answer is unknown in a v1 save; it is set at
   the end of that run.
@@ -476,7 +479,7 @@ The log stays Space Cat's one log (`SPACECAT_LOG`), with no cap of its own: ever
 - **`placement`** at the start and the end of a placement or re-check: `{ phase: 'start' | 'end', kind: 'first' |
   'migration' | 'recheck' | 'parent', probes, mistakes, frontier }`.
 - **`warmup`** at its end: `{ rung, how: 'fast' | 'slow' | 'forgot', rounds }`.
-- **`run-start`** gains `playDay` (true when the run starts a play day) and `frontier`.
+- **`run-start`** gains `playDay` (true when the run starts a play day) and `frontier`; `rung` is sent only when a placement probes a rung.
 - **The save keeps the last 40 ladder changes** (`{ t, rung, change, by }`), for the parent area's *Recent changes*. The
   telemetry has the same events for the export and the analysis script (`scripts/spacecat/analyse.ts` learns the new
   events).

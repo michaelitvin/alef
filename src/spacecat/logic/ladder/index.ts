@@ -10,7 +10,7 @@ import { applyPractice, markGuard } from './practice'
 import { FIRST_JUMP, FIRST_PROBES, placementMode, type Ladder, type LadderEvent, type LadderSettings, type Part } from './state'
 
 export { frontier, needsClosure, offered, statusText } from './frontier'
-export { MIGRATION_JUMP, MIGRATION_PROBES } from './placement'
+export { MIGRATION_JUMP, MIGRATION_PROBES, probeList } from './placement'
 export { beginRun } from './playDay'
 export { FIRST_JUMP, FIRST_PROBES, LADDER_START, placementMode } from './state'
 export type { By, Change, Ladder, LadderEvent, LadderSettings, Mode, Part, RungState, Status } from './state'

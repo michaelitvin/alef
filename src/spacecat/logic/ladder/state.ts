@@ -40,6 +40,8 @@ export interface PlacementMode {
   /** slow right answers per rung */
   rights: Partial<Record<RungId, number>>
   failed: RungId[]
+  /** the probes walk only the plus and minus rungs that have no switch (the strand a version 1 save played) */
+  plusOnly?: boolean
 }
 export interface WarmupMode { kind: 'warmup'; rung: RungId; recent: string; fastRun: number; strikes: number; rounds: number; reviewLeft: number }
 export interface RecheckMode { kind: 'recheck'; at: RungId; probes: number }

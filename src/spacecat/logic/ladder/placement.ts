@@ -45,11 +45,15 @@ export function placeWithNeeds(l: Ladder, r: RungId, by: 'placement' | 'migratio
 const pickFrom = (rng: Rng, r: RungId, stats: Record<string, ItemStats>, last: { fact?: string; sinceZero: number }): Item =>
   pickNext(rng, itemsOfRung(r), stats, last)
 
+/** the rungs a placement probes: the offered ones, or (the migration) only the plus and minus rungs that have no switch */
+export const probeList = (l: Ladder, m: PlacementMode, set: LadderSettings): RungId[] =>
+  offered(l, set).filter((r) => !m.plusOnly || (rungDef(r).strand === 'plus' && rungDef(r).switch === undefined))
+
 /** the probe of a placement: an item of the rung `at` (mapped onto the offered rungs) */
 export function choosePlacement(
   l: Ladder, m: PlacementMode, ctx: { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: { fact?: string; sinceZero: number } },
 ): { item: Item; ladder: Ladder } {
-  const list = offered(l, ctx.set)
+  const list = probeList(l, m, ctx.set)
   const at = list[positionIn(list, m.at)] ?? '1'
   return { item: pickFrom(ctx.rng, at, ctx.stats, ctx.last), ladder: at === m.at ? l : { ...l, mode: { ...m, at } } }
 }
@@ -71,7 +75,7 @@ export function afterProbe(l: Ladder, m: PlacementMode, a: { mark: Mark; fast: b
   if (m.probes === 0) {
     events.push({ e: 'placement', phase: 'start', kind: m.why, probes: 0, mistakes: 0, frontier: frontier(l, a.set) })
   }
-  const list = offered(l, a.set)
+  const list = probeList(l, m, a.set)
   if (list.length === 0) return { ladder: endPlacement(l, m, a.set, events), events }
   const top = list.length - 1
   let pos = positionIn(list, m.at)
