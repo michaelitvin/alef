@@ -3,7 +3,7 @@
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
-// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts, the drawing logic/draw.ts (on the Latin board: EN_WRITING). Calling a member not built yet throws (the word link).
+// logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts, the drawing logic/draw.ts (on the Latin board: EN_WRITING).
 import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from '../duel2/course/types'
 import type { Choice } from '../duel2/logic/rounds'
 import type { SavePort } from '../duel2/savePort'
@@ -17,8 +17,8 @@ import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
-import { englishStationsUpTo } from './doorsPlayable'
-import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
+import { englishDoorsPlayable, englishStationsUpTo } from './doorsPlayable'
+import { enDoorKeys, enDoorRounds } from './logic/rounds/doors'
 import { enSpellRound } from './logic/spell'
 import { enDrawWords } from './logic/draw'
 import { BASE, DESC, LATIN_STROKES, MID, TOP, isMark, latinStrokesOf } from './data/strokes'
@@ -38,8 +38,6 @@ import type { EnglishSave } from './saveFormat'
 import { useEnglishStore } from './store'
 import { englishTelemetry } from './telemetry'
 import { ENGLISH_LOG } from './telemetryLog'
-
-const notBuilt = (what: string): never => { throw new Error(`the English ${what} is not built yet`) }
 
 const a = englishAudio
 
@@ -69,7 +67,8 @@ const EN_ROUNDS: CourseRounds = {
   // a word on the door, from stage 4 a phrase on about half of them; the keys are pictures (files only)
   doorRounds: (ctx, n) => enDoorRounds(ctx, n, { picture: wordPicture }),
   doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),
-  wordLinkFor: () => notBuilt('word link'),
+  // (never asked on English: `maybeWordLink` returns early for non-syllables)
+  wordLinkFor: () => undefined,
   // the first letter of a heard word, sometimes a whole word or a capital (pictures: files only)
   drawWords: (ctx, n) => enDrawWords(ctx, n, { picture: wordPicture, voice: hasVoice }),
   // a real word to spell; its picture at stages 1–3 (files only)
@@ -132,7 +131,7 @@ export const ENGLISH: Course = {
     maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING,
     // the doors only where a door can be made (stage 1's pictures, map and fan, have no file yet): they come back by
     // themselves when one lands
-    screensOfStage: (s) => enScreensOfStage(s).filter((x) => x !== 'doors' || enDoorsPlayable(s, { picture: wordPicture })),
+    screensOfStage: (s) => enScreensOfStage(s).filter((x) => x !== 'doors' || englishDoorsPlayable(s)),
     // enRecordStageAnswer over READY_STAGES: the same rule as the English save's
     recordStageAnswer: englishStageRule, visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH,
   },
