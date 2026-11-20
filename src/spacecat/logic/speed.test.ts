@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  AIM_FACTOR, ARRIVAL_MAX, ARRIVAL_MIN, ARRIVAL_START, HOLD_ROUNDS, MAX_STEP, MIN_SAMPLES, SAMPLES, SPEED_START, TIMEOUT_SLOWER,
-  afterRound, arrivalInForce, type SpeedState,
+  AIM_FACTOR, ARRIVAL_MAX, ARRIVAL_MIN, ARRIVAL_START, BAND_STEP_MS, HOLD_ROUNDS, MAX_STEP, MIN_SAMPLES, SAMPLES, SPEED_START, TIMEOUT_SLOWER,
+  afterRound, arrivalInForce, speedOfBand, type SpeedState,
 } from './speed'
 
 type R = Parameters<typeof afterRound>[1]
@@ -92,5 +92,26 @@ describe('speed', () => {
     expect(arrivalInForce(s, 4000)).toBe(4000)
     expect(arrivalInForce(s, 'auto')).toBe(6500)
     expect(s.arrivalMs).toBe(6500)
+  })
+})
+
+const at = (arrivalMs: number): SpeedState => ({ arrivalMs, underMs: [1], hold: 2 })
+
+describe('one arrival time per band', () => {
+  it('the step', () => expect(BAND_STEP_MS).toBe(2000))
+  it('a band he has: its own state', () => {
+    const big = at(7000)
+    expect(speedOfBand({ small: at(5000), big }, 'big')).toBe(big)
+  })
+  it('a new band starts at the band below + 2 s, with no samples', () => {
+    expect(speedOfBand({ small: at(5000) }, 'big')).toEqual({ arrivalMs: 7000, underMs: [], hold: 0 })
+    expect(speedOfBand({ small: at(5000) }, 'hundreds')).toEqual({ arrivalMs: 9000, underMs: [], hold: 0 })
+    expect(speedOfBand({ small: at(5000), big: at(6000) }, 'hundreds').arrivalMs).toBe(8000)
+  })
+  it('at most the longest arrival time', () => {
+    expect(speedOfBand({ small: at(9500) }, 'big').arrivalMs).toBe(ARRIVAL_MAX)
+  })
+  it('no small band yet: the start', () => {
+    expect(speedOfBand({}, 'small')).toEqual(SPEED_START)
   })
 })

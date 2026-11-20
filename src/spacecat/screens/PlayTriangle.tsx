@@ -1,7 +1,7 @@
 // The play triangle of every Space Cat screen: the home card's silver-blue button, larger, glowing; the triangle points
-// left (spec: the ship moves up, so the triangle follows the reading direction). It acts on pointer-down, so the
+// right (the standard play sign; the parent asked for it, 2026-11-20). It acts on pointer-down, so the
 // cover's play unlocks the audio inside the tap. `loading`: a turning ring while play waits for the preload.
-export const TRIANGLE_PATH = 'M58 30 L24 50 L58 70 Z'
+export const TRIANGLE_PATH = 'M42 30 L76 50 L42 70 Z'
 
 export function PlayTriangle({ onPress, loading, className = '', size }: { onPress: () => void; loading?: boolean; className?: string; size?: number }) {
   return (

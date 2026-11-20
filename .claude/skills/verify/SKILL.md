@@ -22,12 +22,14 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatTurn`, `spacecatArea`,
+  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
   `telemetry`, `englishFit`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
   (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
   (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
   `tabletSide`, which run only when named: Space Cat plays upright and on its side; and the English fit check's `fit-740x360`,
   `fit-1024x768`).
+  Space Cat's seeds (`scSeed(frontier)`) are version 2 saves in practice; `scSeedV1(top)` is a save of the first design,
+  for the migration.
 - **The English fit check.** `englishFit` needs the staging verify build (the English page is open only on staging):
   `ALEF_STAGING=1 npx vite build --mode verify --outDir dist-verify`, and run the driver with `ALEF_STAGING=1` too (its
   preview then serves `/alef/staging/`). On any other build it prints `SKIP`. It takes about 6 minutes per size.
@@ -47,11 +49,14 @@ and no boy or girl yet. Each check gets its own page.
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
 | `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
-| `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input off, a tap on a planet does nothing), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
+| `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input on while its line plays), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
 | `spacecatPause` | a forced hide (the tablet locks) during the demo, a zoom and the missing-number line: the pause cover, silence, and the same step again after play |
-| `spacecatRungs` | rungs 2 to 9 from a seeded save (7 to 9 with times and divide on): a right, a wrong and a time-out answer each, a screenshot of each rung's sum |
+| `spacecatRungs` | rungs of each strand from a seeded save (the frontier at the rung, the intros heard): a right, a wrong and a time-out answer each, a screenshot of each rung's round |
+| `spacecatKinds` | a save with the frontier at `C1`, `S1`, `T1`, `T2`, `T4a` and `15`: the first round of the new kind (a comparison on 3 lanes, a jump row, dots from the start, times, divide, a 2-digit sum with regrouping), its intro's cues (two screenshots a cue: the glows pulse; the probe's `cues`), a screenshot in flight and after the right answer. Fails when the planets do not move after the intro (they stand still while it plays) |
+| `spacecatPlacement` | a fresh save: the demo, then the placement's probes (one wrong) until it ends; the area's *Where he is*; the export's `placement` end with a frontier and rounds with `part: 'probe'` |
+| `spacecatMigration` | a version 1 save at old rung 6: the area shows 1 to 7 and 9 to 11 placed (8 not), the migration's placement plays, the save is version 2, his points stay |
 | `spacecatTurn` | a seeded save; the screen turns mid-round and back: the round and the ship's lane stay, and a right answer in each shape ends right |
-| `spacecatArea` | the gate on Space Cat's cover, every section, the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays |
+| `spacecatArea` | the gate on Space Cat's cover, every section; *Where he is*, the rung table (31 rungs in 3 strands) and *Recent changes*; the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays; last, *Find his level again* starts a placement |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
 | `englishFit` | at 740×360 and 1024×768 (its own sizes), the English screens at real scale, measured in the page (the font's ink on a canvas at the drawn size, `getBoundingClientRect`): every Latin glyph in an orb stays inside the orb's gold ring (0.41 of the sprite's width from its centre), every glyph in a box inside its box's outline; the broom (stages 4 and 6, watched 20 s each, until words came), the cauldron (4, 6), the ladder's making rung clear of the built rungs and the wizard, the tower's `?` clear of the tower, the spell book's 5-box word (its boxes on their page), and its longest written word (jumping: 7 letter boxes on the slate on the book, none overlapping, a small letter at least 30 px high). Each screen is opened with a seeded save (`?course=en&station=<screen>`) or a test-build link `#/gallery/<entry>` (the spell book: `spell-long`, `spell-write`). |
 
@@ -62,8 +67,8 @@ failure names the elements that pass the edge. A wide box that scrolls on purpos
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.
 
-Space Cat's checks read the verify build's probe `window.__scRound` (the round's lanes, planets and right lane in
-client pixels; `src/spacecat/canvas/engine.ts`) to touch the right place, and fail on any letter on a child screen
+Space Cat's checks read the verify build's probe `window.__scRound` (the round's lanes (3 or 4), planets and right lane in
+client pixels, its kind, box and labels, the pods and the intro cues glowing now; `src/spacecat/canvas/engine.ts`) to touch the right place, and fail on any letter on a child screen
 (the DOM outside the parent area, and `window.__scText`, every string the canvas drew).
 
 The driver also lists visible Latin or Hebrew text on the play screens (a note, not a failure: compare it with the rule

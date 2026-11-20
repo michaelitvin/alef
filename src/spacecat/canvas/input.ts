@@ -1,11 +1,15 @@
-// Drag, flick, tap and keys on the stage, turned into intents for the engine. The stage has `touch-action: none`.
+// Drag, flick (it carries the logical x where the finger went down), tap and keys on the stage, turned into intents for the engine. The stage has `touch-action: none`.
 
-/** an upward move longer than this share of the stage's height ... */
+/**
+ * A flick (a zoom) is detected during the touch, from the finger's last FLICK_MS: it moved up by more than this share of
+ * the stage's height, and more up than sideways (a slow drift up while he steers, or a diagonal drag, is no flick).
+ * The original uses the same 0.07, from the touch-down point within 400 ms; here it is the last 150 ms, so a flick
+ * after steering, with no lift, counts too.
+ */
 export const FLICK_FRACTION = 0.07
-/** ... within this many ms of the finger going down is a flick (a zoom) */
-export const FLICK_MS = 400
+export const FLICK_MS = 150
 
-export type Intent = { type: 'drag'; x: number } | { type: 'release' } | { type: 'flick' } | { type: 'tapPlanet'; lane: number }
+export type Intent = { type: 'drag'; x: number } | { type: 'release' } | { type: 'flick'; x: number } | { type: 'tapPlanet'; lane: number }
   | { type: 'key'; dir: -1 | 1 } | { type: 'keyZoom' } | { type: 'touch' }
 
 export interface InputOpts {
@@ -22,7 +26,7 @@ type PE = PointerEvent & { pointerId: number }
 
 /** Listens on the stage (pointers) and the window (keys); returns a function that removes the listeners. */
 export function attachInput(el: HTMLElement, opts: InputOpts, on: (i: Intent) => void): () => void {
-  let down: { id: number; y: number; at: number; flicked: boolean } | null = null
+  let down: { id: number; flicked: boolean; trail: { cx: number; cy: number; lx: number; at: number }[] } | null = null
 
   const onDown = (e: Event) => {
     const p = e as PE
@@ -32,7 +36,7 @@ export function attachInput(el: HTMLElement, opts: InputOpts, on: (i: Intent) =>
     const lane = opts.planetAt(q.x, q.y)
     if (lane !== null) { on({ type: 'tapPlanet', lane }); return }
     try { el.setPointerCapture?.(p.pointerId) } catch { /* the pointer is gone already */ }
-    down = { id: p.pointerId, y: p.clientY, at: performance.now(), flicked: false }
+    down = { id: p.pointerId, flicked: false, trail: [{ cx: p.clientX, cy: p.clientY, lx: q.x, at: performance.now() }] }
     on({ type: 'drag', x: q.x })
   }
   const onMove = (e: Event) => {
@@ -40,9 +44,14 @@ export function attachInput(el: HTMLElement, opts: InputOpts, on: (i: Intent) =>
     if (!down || p.pointerId !== down.id) return
     if (!opts.enabled()) { down = null; return }
     if (down.flicked) return
-    if (down.y - p.clientY > FLICK_FRACTION * opts.height() && performance.now() - down.at < FLICK_MS) {
+    const at = performance.now(), lx = opts.toLogical(p.clientX, p.clientY).x
+    down.trail.push({ cx: p.clientX, cy: p.clientY, lx, at })
+    while (down.trail.length > 1 && at - down.trail[0].at > FLICK_MS) down.trail.shift()
+    const oldest = down.trail[0], up = oldest.cy - p.clientY
+    if (up > FLICK_FRACTION * opts.height() && up > Math.abs(p.clientX - oldest.cx)) {
+      // the zoom is in the lane under the finger now (an upward move is mostly vertical)
       down.flicked = true
-      on({ type: 'flick' })
+      on({ type: 'flick', x: lx })
       return
     }
     on({ type: 'drag', x: opts.toLogical(p.clientX, p.clientY).x })

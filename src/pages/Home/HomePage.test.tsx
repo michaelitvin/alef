@@ -61,7 +61,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(sc.querySelector('a[href$="spacecat/"]')).not.toBeNull()
     expect([...sc.querySelectorAll('[data-planet]')].map((e) => e.getAttribute('data-planet'))).toEqual(['3', '4', '7'])
     expect(sc.querySelector('[data-play="spacecat"]')).not.toBeNull()
-    expect(sc.querySelector('[data-learn="spacecat"]')!.textContent).toBe('מה לומדים: חיבור וחיסור עד 10, מספר חסר בתרגיל, ואחר כך חיבור וחיסור עד 20. המשחק מתאים את עצמו לילד, גם במהירות.')
+    expect(sc.querySelector('[data-learn="spacecat"]')!.textContent).toBe('מה לומדים: חיבור וחיסור עד 100, השוואת מספרים, ספירה בקפיצות, כפל וחילוק. המשחק מוצא לבד את הרמה של הילד ומתאים את עצמו, גם במהירות.')
     expect(sc.querySelector('[data-credit="spacecat"]')!.textContent).toBe('קרדיט: איגור אבא של ריי')
     // the credit is its own line, below the learn line
     expect(sc.querySelector('[data-learn="spacecat"]')!.nextElementSibling).toBe(sc.querySelector('[data-credit="spacecat"]'))

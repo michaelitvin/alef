@@ -15,7 +15,8 @@ export interface RoundResult {
   result: 'right' | 'wrong' | 'timeout'
   end: 'zoom' | 'arrival'
   lane: number
-  number: number
+  /** the label he ended on ('' for a cut round) */
+  number: string
   points: 0 | 1 | 2
   lastLaneMs: number | null
   endMs: number
@@ -24,7 +25,7 @@ export interface RoundResult {
 }
 
 export interface RoundState {
-  labels: number[]
+  labels: string[]
   rightLane: number
   startLane: number
   lane: number
@@ -36,18 +37,18 @@ export interface RoundState {
   done: RoundResult | null
 }
 
-export function startRound(labels: number[], rightLane: number, shipLane: number, arrivalMs: number): RoundState {
+export function startRound(labels: string[], rightLane: number, shipLane: number, arrivalMs: number): RoundState {
   return { labels, rightLane, startLane: shipLane, lane: shipLane, arrivalMs, input: false, zoomAt: null, lastLaneAt: null, underAt: null, done: null }
 }
 
 /** The lane nearest to a position x (in lane units); an exact tie goes to the ship's current lane. */
-export function nearestLane(x: number, current: number): number {
+export function nearestLane(x: number, current: number, lanes: number = LANES): number {
   const lo = Math.floor(x)
   const frac = x - lo
   let lane: number
   if (Math.abs(frac - 0.5) < 1e-9) lane = current === lo + 1 ? lo + 1 : lo
   else lane = frac < 0.5 ? lo : lo + 1
-  return Math.min(LANES - 1, Math.max(0, lane))
+  return Math.min(lanes - 1, Math.max(0, lane))
 }
 
 function finish(s: RoundState, end: 'zoom' | 'arrival', t: number): RoundState {

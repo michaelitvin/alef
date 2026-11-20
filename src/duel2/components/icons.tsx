@@ -1,9 +1,5 @@
 // Book 2 icons: inline SVG only (no emoji: rule). One meaning each.
-export const HeartIcon = () => (
-  <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden>
-    <path fill="#ff5a7a" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C14.1 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z" />
-  </svg>
-)
+export { HeartIcon } from '../../shared/heart'
 /** "say it again": a speaker with sound waves */
 export const SpeakerIcon = () => (
   <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden data-icon="speaker">

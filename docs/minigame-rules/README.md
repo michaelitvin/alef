@@ -17,7 +17,7 @@ too, girls as well: the rules say "he", but each game speaks to a girl in the fe
 | [interaction-input.md](interaction-input.md) | taps, drags, drawing, demos, screen shape |
 | [game-play-learning.md](game-play-learning.md) | difficulty, mistakes, hints, pace, runs |
 | [game-play-story.md](game-play-story.md) | story, rewards, bosses, new mechanics |
-| [parent-tracking.md](parent-tracking.md) | telemetry |
+| [parent-tracking.md](parent-tracking.md) | telemetry, the parent's settings |
 | [asset-review.md](asset-review.md) | the review page and takes |
 | [working-with-the-parent.md](working-with-the-parent.md) | questions, notes, design checks, git |
 | [verification.md](verification.md) | scans, screenshots, touch tests, QA |

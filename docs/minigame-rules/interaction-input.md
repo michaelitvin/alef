@@ -8,6 +8,9 @@
   the next round. Accept answer taps while the answers themselves are read aloud: a tap stops the reading. A hint or an
   explanation is not an instruction (see the skip rule in [game-play-learning.md](game-play-learning.md)).
   Example (clock): the child had to wait until all three answers were read before he could choose.
+  Exception (Space Cat, the parent, 2026-11-20): the child can start to play while the demo or the missing-number line is
+  spoken. Do not cut the line. A line that would start during it waits behind it in the voice queue; sound effects can
+  overlap it. Reason: "the kid should be able to start playing while instructions are audioed".
 - Give the child few, large, clear choices. Make each choice large enough for a finger on a phone on its side: at least
   about 56 CSS px, with space between choices so that a finger does not hit the next one.
   Example (duel): a choice from 6 pictures was too hard, even for an adult. That screen was removed.

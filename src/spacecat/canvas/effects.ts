@@ -1,7 +1,9 @@
 // The feedback of a round's end: particles, the flash, the shake, a heart that breaks, the right number flying into the
 // ring and the "+2" of an early zoom. Sizes and timings are the builder's (spec), taken from the plan mock.
+import type { RoundContent } from '../content'
 import type { Geom } from './draw'
 import { FONT, drawText } from './draw'
+import { drawSign, isSign } from './signs'
 
 /** the mark of a round's result holds this long, then the screen clears */
 export const MARK_MS = 800
@@ -9,6 +11,26 @@ export const MARK_MS = 800
 export const CLEAR_MS = 200
 /** the flown number reaches the ring after this long */
 export const FLY_MS = 450
+/** after a wrong answer or a time-out on a round with pods, the mark holds this long, so that the groups can be seen */
+export const MARK_POD_MS = 1500
+/** a comparison: when the flown sign reaches the ring, the bigger number swells to this size and back in SWELL_MS */
+export const SWELL = 1.15, SWELL_MS = 400
+/** the `bigger` cue swells the bigger number in this period, while it is on */
+export const SWELL_CUE_PERIOD_MS = 800
+
+/**
+ * The scale of each token of the box. A comparison's bigger number (both for =) swells once when the flown sign reaches
+ * the ring (`markMs`, after the result; null in flight), and keeps swelling while the `bigger` cue is on (`cueMs`).
+ */
+export function swellScale(c: Pick<RoundContent, 'box' | 'bigger'>, markMs: number | null, cueMs: number | null): number[] {
+  const out = c.box.map(() => 1)
+  if (c.bigger === undefined) return out
+  let k = 0
+  if (markMs !== null && markMs >= FLY_MS && markMs <= FLY_MS + SWELL_MS) k = Math.sin((Math.PI * (markMs - FLY_MS)) / SWELL_MS)
+  if (cueMs !== null) k = Math.max(k, 0.5 - 0.5 * Math.cos((2 * Math.PI * cueMs) / SWELL_CUE_PERIOD_MS))
+  for (const i of c.bigger === 'both' ? [0, 2] : [c.bigger]) out[i] = 1 + (SWELL - 1) * k
+  return out
+}
 /** a heart breaks in this long */
 export const HEART_BREAK_MS = 900
 
@@ -80,16 +102,34 @@ export class Effects {
   }
 }
 
-/** the right number flying from its planet into the ring; after ms since the result */
+/**
+ * The right number (or a comparison's sign, drawn as a path) flying from its planet into the ring; after ms since the
+ * result. `hold` is the mark's length, `font` the box's (it shrinks for a long row).
+ */
 export function drawFlyNumber(
   g: CanvasRenderingContext2D, G: Geom, s: string, from: { x: number; y: number }, ring: { x: number; y: number }, ms: number,
+  o: { hold?: number; font?: number } = {},
 ): void {
+  const hold = o.hold ?? MARK_MS, font = o.font ?? G.box.font
   const k = ease(Math.min(1, ms / FLY_MS)), x = from.x + (ring.x - from.x) * k, y = from.y + (ring.y - from.y) * k
-  const size = G.box.font * (0.7 + 0.3 * k), fade = ms > MARK_MS ? Math.max(0, 1 - (ms - MARK_MS) / CLEAR_MS) : 1
-  g.save(); g.globalAlpha = fade; g.font = FONT(size); g.textAlign = 'center'; g.textBaseline = 'middle'
-  g.fillStyle = k >= 1 ? '#7dffa8' : '#fff'; g.shadowColor = '#4cff8a'; g.shadowBlur = k >= 1 ? 22 : 8
-  drawText(g, s, x, y + size * 0.04)
+  const size = font * (0.7 + 0.3 * k), fade = ms > hold ? Math.max(0, 1 - (ms - hold) / CLEAR_MS) : 1
+  const col = k >= 1 ? '#7dffa8' : '#fff'
+  g.save(); g.globalAlpha = fade
+  if (isSign(s)) {
+    drawSign(g, s, x, y, size * 0.9, { color: col, glow: '#4cff8a' })
+  } else {
+    g.font = FONT(size); g.textAlign = 'center'; g.textBaseline = 'middle'
+    g.fillStyle = col; g.shadowColor = '#4cff8a'; g.shadowBlur = k >= 1 ? 22 : 8
+    drawText(g, s, x, y + size * 0.04)
+  }
   g.restore()
+}
+
+/** a cue's gold ring around a planet (the `signs` and `equal` cues), pulsing with the clock (s) */
+export function drawCueRing(g: CanvasRenderingContext2D, G: Geom, p: { x: number; y: number; r: number }, alpha: number, clock: number): void {
+  const k = 0.6 + 0.4 * Math.sin(clock * 6)
+  g.save(); g.globalAlpha = alpha * k; g.beginPath(); g.arc(p.x, p.y, p.r + 12 * G.k, 0, Math.PI * 2)
+  g.strokeStyle = '#ffd84a'; g.lineWidth = 8 * G.k; g.shadowColor = '#ffd84a'; g.shadowBlur = 22; g.stroke(); g.restore()
 }
 
 /** the green ring on the right planet after a wrong answer or a time-out (and on a right one, briefly) */

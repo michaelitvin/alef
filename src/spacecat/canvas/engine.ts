@@ -7,11 +7,14 @@ import { IMAGES } from '../assets/images'
 import type { RoundContent } from '../content'
 import { nearestLane, startRound, step, type RoundEvent, type RoundResult, type RoundState } from '../logic/round'
 import {
-  MAX_OFFSET, WIDE, drawBackground, drawBox, drawHand, drawTopBar, fit, geomFor, laneUnits, numDisc, planetPos, type Geom,
+  ARC_GLOW_MS, MAX_OFFSET, WIDE, barClearHalf, boxInMs, boxLayout, boxTopUnderBar, drawBackground, drawBox, drawHand, drawTopBar, fit, geomFor, lanesFor, laneUnits, numDisc,
+  planetPos, type Geom,
 } from './draw'
-import { CLEAR_MS, Effects, MARK_MS, drawFlyNumber, drawRightRing } from './effects'
+import { CLEAR_MS, Effects, MARK_MS, MARK_POD_MS, drawCueRing, drawFlyNumber, drawRightRing, swellScale } from './effects'
 import { attachInput, type Intent } from './input'
 import { PLANET_AIR, PlanetRenderer } from './planet'
+import { PODS_GAP, drawPods, podLayout, podsY0, type PodLayout } from './pods'
+import { signCueRing } from './signs'
 import { TEST_HOOKS } from '../testHooks'
 
 /** What the verify build's driver reads each frame (client CSS px): where to touch, and which lane is right. */
@@ -19,7 +22,36 @@ export interface RoundProbe {
   /** rounds put on the screen so far (a restart counts) */
   n: number
   phase: 'idle' | 'flight' | 'mark'; frozen: boolean; input: boolean; right: number | null; shipLane: number | null
+  /** the round's lanes (3 or 4) and its planets, one per lane */
   lanes: number[]; shipY: number; planets: { x: number; y: number; r: number }[]; result: string | null
+  /** the round's kind, its box (null is the ring) and its planets' labels */
+  kind: RoundContent['kind'] | null; box: (string | null)[]; labels: string[]
+  /** whether the equal-groups pods are on the screen now */
+  pods: boolean
+  /** the intro cues glowing now */
+  cues: Cue[]
+}
+
+/** the moments of an intro line that make a part of the round glow (audio/intros.ts) */
+export type Cue = 'signs' | 'open' | 'bigger' | 'equal' | 'arcs' | 'ring' | 'pods' | 'share'
+/**
+ * When a round's pods are shown (only rounds whose content has pods): from the start; when the `pods` or `share` cue
+ * comes; or only in the mark of a wrong answer or a time-out (MARK_POD_MS).
+ */
+export type PodsWhen = 'start' | 'cue' | 'mistake'
+
+/**
+ * A round's geometry: the layout's, with the round's lanes (3 or 4); a box too wide to sit beside the top bar
+ * (`fit.boxW`, its full width, with the points' digits) moves down under the bar; the planets start lower when the
+ * round has pods or the box moved, so that nothing that moves goes under them.
+ */
+export function roundGeom(base: Geom, c: Pick<RoundContent, 'labels' | 'pods'>, fit?: { boxW: number; digits: number }): Geom {
+  const lanes = lanesFor(base, c.labels.length)
+  let box = base.box
+  if (fit && fit.boxW / 2 > barClearHalf(base, fit.digits)) box = { ...box, cy: Math.max(box.cy, boxTopUnderBar(base) + box.h / 2) }
+  const G = { ...base, lanes, box }
+  const clear = box.cy + box.h / 2 + PODS_GAP + G.R * G.start + MAX_OFFSET * 0.4
+  return { ...G, y0: c.pods ? podsY0(G, c.pods) : Math.max(base.y0, clear) }
 }
 declare global {
   interface Window { __scRound?: RoundProbe }
@@ -35,8 +67,15 @@ export interface Engine {
   setScreen(w: number, h: number): void
   setShip(n: 1 | 2 | 3): void
   setHud(h: Hud): void
-  /** frozen: the planets stand still until resume() */
-  play(c: RoundContent, arrivalMs: number, opts?: { frozen?: boolean }): void
+  /**
+   * frozen: the planets stand still until resume(). pods (rounds whose content has pods; default 'mistake'): when the
+   * equal groups are shown. The ship glides to the nearest lane of the round's lane count.
+   */
+  play(c: RoundContent, arrivalMs: number, opts?: { frozen?: boolean; pods?: PodsWhen }): void
+  /** an intro's cue: make its part of the round glow while on (cleared at the next play) */
+  cue(name: Cue, on: boolean): void
+  /** a jump row: resolves when its numbers have hopped in and the ring shows; at once for other kinds */
+  boxIn(): Promise<void>
   /** stop and start the planets (demo, tips, pause) */
   freeze(): void
   resume(): void
@@ -56,8 +95,15 @@ export interface Engine {
 
 /** the ship glides to its lane at this speed (logical px per s in the wide layout) */
 export const SHIP_SPEED = 2600
-/** a zoom climbs at this speed */
+/** a zoom climbs at this speed (logical px per s in the wide layout) */
 export const ZOOM_SPEED = 1900
+/**
+ * The original's zoom climbs 1500 px/s on its 960 px high screen: 1.5625 screen heights per s. A zoom is never slower
+ * than that, on any screen shape (scaled by k alone, a portrait zoom was 1.23 heights per s and felt slow).
+ */
+export const ZOOM_HEIGHTS_PER_S = 1500 / 960
+/** the zoom's speed in the logical px per s of this geometry */
+export const zoomSpeed = (g: Pick<Geom, 'k' | 'H'>): number => Math.max(ZOOM_SPEED * g.k, ZOOM_HEIGHTS_PER_S * g.H)
 /** resting under the right planet this long without a zoom calls onFirstParkedUnderRight */
 export const PARKED_MS = 600
 /** a wrong or time-out's heart sound follows its effect after this long */
@@ -92,12 +138,14 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   const fx = new Effects()
   const stars = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), s: Math.random() * 2.2 + 1, v: Math.random() * 0.06 + 0.02 }))
 
+  /** the layout's geometry (4 lanes), and the round's (its lanes and its planets' start) */
+  let base: Geom = WIDE
   let G: Geom = WIDE
   let shipN: 1 | 2 | 3 = 1
   let hud: Hud = { dots: 0, points: 0, hearts: 3 }
   let hudAtStart: Hud = hud
   let shownPoints = 0
-  let last: { c: RoundContent; arrivalMs: number; frozen: boolean; lane: number } | null = null
+  let last: { c: RoundContent; arrivalMs: number; frozen: boolean; pods?: PodsWhen; x: number } | null = null
   let content: RoundContent | null = null
   let round: RoundState | null = null
   let phase: 'idle' | 'flight' | 'mark' = 'idle'
@@ -121,8 +169,28 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   let ringPulse = false
   let hand: Hand | null = null
   let plays = 0
+  let markHold = MARK_MS
+  const cues = new Set<Cue>()
+  /** ms since the `bigger` cue came on */
+  let biggerMs = 0
+  /** ms since the round was put on the screen (a jump row's hop), counted also while frozen */
+  let boxMs = 0
+  let boxWaiters: (() => void)[] = []
+  let pods: { when: PodsWhen; L: PodLayout; shown: boolean; ms: number; share: boolean; color: string } | null = null
+  let ringAt = { x: 0, y: 0 }
+  let firstAt = { x: 0, y: 0 }
+  let boxFont = 0
 
-  const laneOf = (x: number) => nearestLane(laneUnits(G, x), round?.lane ?? 1)
+  /** the round's geometry, with the box measured in the canvas's font and the points as they may be by the round's end */
+  const geomOf = (c: RoundContent): Geom => {
+    if (!g) return roundGeom(base, c)
+    const lay = boxLayout(g, base, c.box, c.kind === 'jumps')
+    return roundGeom(base, c, { boxW: lay.total + lay.font, digits: String(Math.round(hud.points) + 2).length })
+  }
+  const flushBoxIn = () => { const w = boxWaiters; boxWaiters = []; w.forEach((r) => r()) }
+  const showPods = (share: boolean) => { if (pods) { pods.shown = true; pods.ms = 0; pods.share = share } }
+
+  const laneOf = (x: number) => nearestLane(laneUnits(G, x), round?.lane ?? 1, round?.labels.length)
   const send = (e: RoundEvent) => {
     if (!round) return
     round = step(round, e)
@@ -154,14 +222,22 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     switch (i.type) {
       case 'touch': return
       case 'drag': ship.tx = clamp(i.x, lo, hi); pendingZoom = false; return
-      case 'release': ship.tx = G.lanes[nearestLane(laneUnits(G, ship.tx), round.lane)]; return
+      case 'release': ship.tx = G.lanes[nearestLane(laneUnits(G, ship.tx), round.lane, round.labels.length)]; return
       case 'key': {
-        const cur = nearestLane(laneUnits(G, ship.tx), round.lane)
+        const cur = nearestLane(laneUnits(G, ship.tx), round.lane, round.labels.length)
         ship.tx = G.lanes[clamp(cur + i.dir, 0, G.lanes.length - 1)]
         return
       }
       case 'tapPlanet': ship.tx = G.lanes[i.lane]; pendingZoom = true; return
-      case 'flick': case 'keyZoom': startZoom()
+      case 'flick': {
+        // the swipe counts at the lane where the finger went down: the ship is there at once and flies straight up
+        const lane = nearestLane(laneUnits(G, i.x), round.lane, round.labels.length)
+        ship.x = ship.tx = G.lanes[lane]
+        send({ type: 'lane', lane, t })
+        startZoom()
+        return
+      }
+      case 'keyZoom': startZoom()
     }
   }
 
@@ -196,6 +272,10 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       } else {
         hooks.sfx('timeout')
       }
+      if (pods) {
+        markHold = MARK_POD_MS
+        if (!pods.shown) showPods(c.pods!.share)
+      }
       if (hud.hearts > 0) fx.breakHeart(hud.hearts - 1)
       hud = { ...hud, hearts: Math.max(0, hud.hearts - 1) }
       heartSfxDue = true
@@ -205,6 +285,10 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   function update(dt: number) {
     ambient += dt
     fx.update(G, dt)
+    boxMs += dt * 1000
+    if (cues.has('bigger')) biggerMs += dt * 1000
+    if (pods?.shown) pods.ms += dt * 1000
+    if (boxWaiters.length && content && boxMs >= boxInMs(content.box)) flushBoxIn()
     for (const s of stars) {
       s.y += s.v * dt * (phase === 'flight' && !frozen ? 1 : 0.3)
       if (s.y > 1) { s.y = 0; s.x = Math.random() }
@@ -243,7 +327,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     t += dt * 1000
     p = Math.min(1, t / r.arrivalMs)
     if (zooming) {
-      ship.zoomY += ZOOM_SPEED * G.k * dt
+      ship.zoomY += zoomSpeed(G) * dt
       const pp = planetPos(G, round!.lane, p, offs[round!.lane])
       if (G.shipY - ship.zoomY - G.shipS * 0.45 <= pp.y + pp.r * 0.8) send({ type: 'hit', t })
     } else if (p >= 1) {
@@ -263,7 +347,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     } else if (res.result === 'right') {
       ship.zoomY = Math.max(0, ship.zoomY - SHIP_SPEED * G.k * dt)
     }
-    if (markMs >= MARK_MS + CLEAR_MS) {
+    if (markMs >= markHold + CLEAR_MS) {
       phase = 'idle'
       ship.spin = 0
       ship.zoomY = 0
@@ -339,22 +423,34 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     g.globalAlpha = 1
     const res = phase === 'mark' ? round!.done : null
     if (content && phase !== 'idle') {
-      const fade = res && markMs > MARK_MS ? Math.max(0, 1 - (markMs - MARK_MS) / CLEAR_MS) : 1
-      const pDraw = res && res.result === 'timeout' ? 1 + (markMs / 1000) * 1.2 : p
+      const fade = res && markMs > markHold ? Math.max(0, 1 - (markMs - markHold) / CLEAR_MS) : 1
+      // a timed-out planet slides on past the ship; a longer mark slides it as far, more slowly
+      const pDraw = res && res.result === 'timeout' ? 1 + (markMs / 1000) * 1.2 * (MARK_MS / markHold) : p
       const glow = phase === 'flight' && !frozen && inputOn && !hand
-      for (let i = 0; i < 4; i++) {
+      const openGlow = cues.has('open') ? 0.85 + 0.15 * Math.sin(ambient * 6) : 0
+      for (let i = 0; i < content.labels.length; i++) {
         if (gone[i]) continue
-        const at = planetPos(G, i, pDraw, offs[i])
+        const at = planetPos(G, i, pDraw, offs[i]), label = content.labels[i]
         if (res && i === content.rightLane) drawRightRing(g, G, at, fade)
+        else if (!res && content.kind === 'compare' && signCueRing(label, cues)) drawCueRing(g, G, at, fade, ambient)
         drawPlanet(i, at, fade, glow)
-        if (!(res && i === content.rightLane)) numDisc(g, content.labels[i], at.x, at.y, at.r, fade)
+        if (!(res && i === content.rightLane)) numDisc(g, label, at.x, at.y, at.r, fade, { openGlow })
       }
     }
     drawShip()
     const top = drawTopBar(g, G, { dots: hud.dots, points: shownPoints, hearts: hud.hearts }, fx.heartBreak)
     if (content && phase !== 'idle') {
-      const ring = drawBox(g, G, content.box, ambient, ringPulse)
-      if (res) drawFlyNumber(g, G, content.flyNumber, flyFrom, ring, markMs)
+      const jumps = content.kind === 'jumps'
+      const arcGlow = jumps && cues.has('arcs') ? Math.floor((ambient * 1000) / ARC_GLOW_MS) % (content.box.length - 1) : null
+      const scale = swellScale(content, res ? markMs : null, cues.has('bigger') ? biggerMs : null)
+      const box = drawBox(g, G, content.box, ambient, ringPulse || cues.has('ring'), { jumps, hopMs: jumps ? boxMs : undefined, arcGlow, scale })
+      ringAt = { x: box.x, y: box.y }; firstAt = { x: box.xs[0], y: G.box.cy }; boxFont = box.font
+      if (pods?.shown) {
+        const glow = cues.has('pods') || cues.has('share') ? 0.6 + 0.4 * Math.sin(ambient * 6) : 0
+        const fade = res && markMs > markHold ? Math.max(0, 1 - (markMs - markHold) / CLEAR_MS) : 1
+        drawPods(g, pods.L, { t: pods.ms, share: pods.share, from: firstAt, glow, alpha: fade, color: pods.color })
+      }
+      if (res) drawFlyNumber(g, G, content.flyNumber, flyFrom, ringAt, markMs, { hold: markHold, font: boxFont })
     }
     drawHandNow()
     fx.drawPlus(g, G, top.pointsAt)
@@ -391,7 +487,9 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     window.__scRound = {
       n: plays, phase, frozen, input: inputOn && phase === 'flight' && !!round && !round.done, right: content?.rightLane ?? null,
       shipLane: round?.lane ?? null, lanes: G.lanes.map(cx), shipY: cy(G.shipY), result: round?.done?.result ?? null,
-      planets: [0, 1, 2, 3].map((i) => { const at = planetPos(G, i, p, offs[i]); return { x: cx(at.x), y: cy(at.y), r: at.r * f.scale } }),
+      planets: G.lanes.map((_, i) => { const at = planetPos(G, i, p, offs[i]); return { x: cx(at.x), y: cy(at.y), r: at.r * f.scale } }),
+      kind: content?.kind ?? null, box: content?.box ?? [], labels: content?.labels ?? [], pods: !!pods?.shown && phase !== 'idle',
+      cues: [...cues],
     }
   }
 
@@ -403,7 +501,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     height: () => rect().height,
     planetAt: (x, y) => {
       if (zooming || !round) return null
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < round.labels.length; i++) {
         if (gone[i]) continue
         const at = planetPos(G, i, p, offs[i])
         if (Math.hypot(x - at.x, y - at.y) < at.r * 1.15) return i
@@ -416,19 +514,31 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   const engine: Engine = {
     setScreen(w, h) {
       const lane = laneOf(ship.x), tLane = laneOf(ship.tx)
-      G = geomFor(w, h)
+      base = geomFor(w, h)
+      G = content ? geomOf(content) : base
+      if (pods && content?.pods) pods.L = podLayout(G, content.pods.groups, content.pods.each)
       ship.x = G.lanes[lane]; ship.tx = G.lanes[tLane]
     },
     setShip(n) { shipN = n },
     setHud(h) { hud = { ...h }; if (phase !== 'flight') hudAtStart = hud },
     play(c, arrivalMs, opts) {
       endHand()
+      flushBoxIn()
       plays++
-      const lane = round ? round.lane : laneOf(ship.x)
-      ship.x = ship.tx = G.lanes[lane]
-      last = { c, arrivalMs, frozen: !!opts?.frozen, lane }
+      // the ship is in its lane of the last round; it glides to the nearest lane of this round's count
+      const x = round ? G.lanes[round.lane] : ship.tx
+      const before = round?.lane ?? laneOf(x)
+      G = geomOf(c)
+      const lane = nearestLane(laneUnits(G, x), Math.min(before, c.labels.length - 1), c.labels.length)
+      ship.x = x; ship.tx = G.lanes[lane]
+      last = { c, arrivalMs, frozen: !!opts?.frozen, pods: opts?.pods, x }
       content = c
-      round = startRound(c.labels.map(Number), c.rightLane, lane, arrivalMs)
+      round = startRound(c.labels, c.rightLane, lane, arrivalMs)
+      cues.clear(); biggerMs = 0; boxMs = 0; markHold = MARK_MS
+      const when = opts?.pods ?? 'mistake'
+      pods = c.pods
+        ? { when, L: podLayout(G, c.pods.groups, c.pods.each), shown: when === 'start', ms: 0, share: c.pods.share, color: PLANET_AIR[Math.floor(Math.random() * PLANET_AIR.length)] }
+        : null
       phase = 'flight'
       frozen = !!opts?.frozen
       t = 0; p = 0
@@ -449,6 +559,18 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       return new Promise<void>((resolve) => { hand = { kind, lane, ms: 0, total: ms, from: ship.x, resolve } })
     },
     pulseRing(on) { ringPulse = on },
+    cue(name, on) {
+      if (!on) { cues.delete(name); return }
+      if (name === 'bigger' && !cues.has('bigger')) biggerMs = 0
+      cues.add(name)
+      if (!content?.pods || phase !== 'flight') return
+      if (name === 'share') showPods(content.pods.share)
+      else if (name === 'pods' && !pods?.shown) showPods(false)
+    },
+    boxIn() {
+      if (!content || content.kind !== 'jumps' || boxMs >= boxInMs(content.box)) return Promise.resolve()
+      return new Promise<void>((resolve) => { boxWaiters.push(resolve) })
+    },
     restart() {
       if (!last) return
       const l = last
@@ -457,8 +579,8 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       hud = { ...hudAtStart }
       shownPoints = hud.points
       round = null
-      ship.x = ship.tx = G.lanes[l.lane]
-      engine.play(l.c, l.arrivalMs, { frozen: l.frozen })
+      ship.x = ship.tx = l.x
+      engine.play(l.c, l.arrivalMs, { frozen: l.frozen, pods: l.pods })
     },
     onEnd: () => {},
     destroy() {
@@ -466,6 +588,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       cancel()
       detach()
       endHand()
+      flushBoxIn()
     },
   }
   return engine

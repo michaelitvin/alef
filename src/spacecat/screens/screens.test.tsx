@@ -60,10 +60,10 @@ describe('the cover', () => {
     expect(container.querySelector('.home-btn')).not.toBeNull()
   })
 
-  it('every play triangle points left', () => {
+  it('every play triangle points right', () => {
     const xs = TRIANGLE_PATH.match(/-?\d+(\.\d+)?/g)!.map(Number).filter((_, i) => i % 2 === 0)
     const ys = TRIANGLE_PATH.match(/-?\d+(\.\d+)?/g)!.map(Number).filter((_, i) => i % 2 === 1)
-    const tip = xs.indexOf(Math.min(...xs))
+    const tip = xs.indexOf(Math.max(...xs))
     expect(xs.filter((x) => x === xs[tip])).toHaveLength(1)
     expect(ys[tip]).toBe(50)
     for (const c of [cover().container, render(<LevelDone info={{ level: 1, points: 7, newShips: [] }} onNext={() => {}} />).container]) {

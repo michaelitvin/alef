@@ -183,9 +183,31 @@ _Avoid_: sounding out
 A Space Cat run is made of **rounds** (one sum each) and **levels**.
 
 **Rung**:
-One step of the sums ladder (for example plus with sums to 5, or the missing number). He opens the next rung by answering;
-the parent can cap the range and switch times and divide on.
+One step of the Space Cat ladder. There are 31 rungs in three strands, in one fixed order. Each rung needs some earlier
+rungs. The game offers a rung when its needs are passed or placed. The parent can cap the range and switch the kinds
+(comparison, jumps, times, divide and the rest) off.
 _Avoid_: level, stage
+
+**Strand**:
+A line of rungs that build on each other: plus and minus; comparison; counting in jumps and times.
+
+**Frontier**:
+The rung he works on now. Most sums come from it.
+
+**Passed**:
+A rung he showed that he knows. Its sums come back as review.
+
+**Placed**:
+A rung that placement jumped over or confirmed. It counts as passed, but on probation until he answers it again.
+
+**Held**:
+A rung he clearly failed. The game does not offer it for a number of play days.
+
+**Play day**:
+A visit that starts 12 hours or more after his last answer. Holds and re-checks count play days, not calendar days.
+
+**Probe**:
+A round that tests a rung above the frontier. It looks like any other round.
 
 **Level** (Space Cat):
 7 right answers; then the hearts fill again. Not the clock's *Level*.

@@ -19,13 +19,26 @@
   and a choice that differs in the vowel only is the right test of it. Example: the ladder's rungs change one letter at
   a time (`lip`, `slip`), and the cauldron makes `cap` into `cape`. The rule stays for the Hebrew path and the clock.
 - Record confusions by direction (the item asked, the item tapped). Put the confused item on the board when its pair is asked.
-- Place a skilled child fast. Start with a placement check: ask each item once early, and let a clean result move him on
-  at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
+- Place a skilled child fast. Start with a placement check: ask a few items across the range early (each item once, or a
+  search that jumps up after a fast right answer and down after a mistake), and let a clean result move him on at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
   visit, and do not make the visits shorter while the check can still pass.
   Reason: a child who already knows the content gets bored in a long grind, and the next things to learn come late.
   Example (book 2): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. Now the
   first 10 answers ask each mark once, and 10 right answers in a row (each mark's latest answer right) open the
   minigames. The parent wants a placement check for other things as well.
+- Make the placement check look like normal play: the same rounds, hearts and points. Do not show or say that it is a
+  check. Check the level again from time to time with a short probe upward, and stop the probe at the first mistake.
+  Reason: the child must not feel tested, and his level changes between visits. A one-time check gets old.
+  Example (Space Cat, the parent, 2026-11-20): "placement should be updated once in a while". A probe costs a heart like
+  any mistake; every 5 play days, or after a visit in which he moved up 2 rungs fast, up to 3 probes test the rungs above
+  his level.
+- Turn all content on by default, and let the adaptive rules decide what the child sees. When he clearly does not know a
+  part (he fails it again after an easier pause), hold it back for a while, then offer it again. Use the parent's
+  switches to turn content off, not to turn it on.
+  Reason: content behind a switch that is off never reaches the child, and the parent must not guess what he is ready
+  for. Example (Space Cat, the parent, 2026-11-20): "The game should adapt. Hold it back for a while if the kid clearly
+  doesn't know the item yet." Times and divide were off until the parent turned them on; now they are on, and a rung
+  with 2 strikes is held for 2 play days (then 4, then 7).
 - Do not let the child make a state that cannot exist. Make the controls move only between valid states. Do not show
   one either, also in decorations, demos and bonus games.
   Example (clock): the short hand moved freely while the long hand stayed, which made impossible times. Now the short hand

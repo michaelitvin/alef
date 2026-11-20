@@ -2,13 +2,14 @@
 import { vi } from 'vitest'
 import type { EngineClock } from './engine'
 
-/** a 2D context that accepts every call and property; fillText calls are recorded in `texts` */
-export function recordingContext(): { ctx: CanvasRenderingContext2D; texts: string[]; restore: () => void } {
+/** a 2D context that accepts every call and property; fillText calls are recorded in `texts`, with their font in `fonts` */
+export function recordingContext(): { ctx: CanvasRenderingContext2D; texts: string[]; fonts: string[]; restore: () => void } {
   const texts: string[] = []
+  const fonts: string[] = []
   const props: Record<string | symbol, unknown> = {}
   const gradient = { addColorStop: () => {} }
   const special: Record<string, (...a: unknown[]) => unknown> = {
-    fillText: (s: unknown) => { texts.push(String(s)) },
+    fillText: (s: unknown) => { texts.push(String(s)); fonts.push(String(props.font)) },
     measureText: (s: unknown) => ({ width: String(s).length * 40 }),
     createRadialGradient: () => gradient,
     createLinearGradient: () => gradient,
@@ -20,7 +21,7 @@ export function recordingContext(): { ctx: CanvasRenderingContext2D; texts: stri
     set: (_t, k, v) => { props[k] = v; return true },
   }) as CanvasRenderingContext2D
   const spy = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => ctx as never)
-  return { ctx, texts, restore: () => spy.mockRestore() }
+  return { ctx, texts, fonts, restore: () => spy.mockRestore() }
 }
 
 /** frames run only when the test steps them, 16 ms apart */

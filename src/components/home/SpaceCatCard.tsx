@@ -13,7 +13,7 @@ import { SAVE_KEY, savedShip } from '../../spacecat/saveFormat'
 import { PlayButton } from './PlayButton'
 
 const SPACECAT_HREF = () => `${import.meta.env.BASE_URL}spacecat/`
-const SPACECAT_LEARN = 'חיבור וחיסור עד 10, מספר חסר בתרגיל, ואחר כך חיבור וחיסור עד 20. המשחק מתאים את עצמו לילד, גם במהירות.'
+const SPACECAT_LEARN = 'חיבור וחיסור עד 100, השוואת מספרים, ספירה בקפיצות, כפל וחילוק. המשחק מוצא לבד את הרמה של הילד ומתאים את עצמו, גם במהירות.'
 /** the parent's credit, exactly */
 const SPACECAT_CREDIT = 'קרדיט: איגור אבא של ריי'
 const SHIPS = [ship1, ship2, ship3]

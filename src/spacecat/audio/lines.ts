@@ -34,6 +34,10 @@ export const LINES: LineDef[] = [
   line('info-points', 'A tap on the points (once for a burst of taps)', ['אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת.'], 0.5, 'playful'),
   line('info-best', 'A tap on his best (once for a burst of taps)', ['זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת.'], 0.5, 'playful'),
   line('info-ship-locked', 'A tap on a locked ship on the cover (once for a burst of taps)', ['אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק.'], 0.5, 'playful'),
+  line('compare', 'The first two comparison rounds, before the planets move; again after 3 mirrored-sign mistakes in a play day', ['אֵיזֶה סִימָן מַתְאִים? הַצַּד הַפָּתוּחַ פּוֹנֶה אֶל הַמִּסְפָּר הַגָּדוֹל. וְאִם הַמִּסְפָּרִים שָׁוִים, בּוֹחֲרִים בְּסִימַן שָׁוֶה.'], 0.5, 'warmly'),
+  line('jumps', 'The first two jump rounds, after the numbers have hopped in; again after 3 picks of "the last number + 1" in a play day', ['סוֹפְרִים בִּקְפִיצוֹת שָׁווֹת. אֵיזֶה מִסְפָּר בָּא עַכְשָׁו?'], 0.5, 'playful'),
+  line('times', 'The first two times rounds, with the pods; again after 3 picks of the sum in a play day', ['כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכֻלָּן יַחַד?'], 0.5, 'warmly'),
+  line('divide', 'The first two divide rounds, while the dots fall into the pods; again after 3 picks of the divisor or the difference in a play day', ['חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכָל קְבוּצָה?'], 0.5, 'warmly'),
   line('new-best', 'The end screen: a new best (each time; it is rare)', ['שִׂיא חָדָשׁ.'], 0.5, undefined, 'duel2/new-best-1'),
 ]
 
