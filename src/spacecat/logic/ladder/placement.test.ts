@@ -70,9 +70,9 @@ describe('placement', () => {
   })
   it('stops when the jump is 1 and the rung above the highest confirmed has failed', () => {
     // 1 fast; 8 slow (jump 4); 8 wrong (jump 2, down to 7); 7 fast (up 2 to 8); 8 wrong (jump 1, down to C1);
-    // C1 fast: confirmed, and the rung above it (8) has failed
-    const { ladder, probed } = answer(LADDER_START, 'FoxFxF')
-    expect(probed).toEqual(['1', '8', '8', '7', '8', 'C1'])
+    // C1 fast (up to 8); 8 wrong: the rung above the highest confirmed (C1) has failed at the jump of 1
+    const { ladder, probed } = answer(LADDER_START, 'FoxFxFx')
+    expect(probed).toEqual(['1', '8', '8', '7', '8', 'C1', '8'])
     expect(ladder.mode.kind).toBe('practice')
     expect(placed(ladder)).toEqual(['1', '2', '3', '4', '5', '6', '7', 'C1'])
   })

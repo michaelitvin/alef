@@ -100,9 +100,10 @@ export function afterProbe(l: Ladder, m: PlacementMode, a: { mark: Mark; fast: b
   }
   next.at = list[pos]
   const highest = Math.max(-1, ...next.confirmed.map((r) => list.indexOf(r)))
-  const above = list[highest + 1]
-  const stop = next.inRow >= 2 || next.probes >= next.max || next.confirmed.includes(list[top]) ||
-    (next.jump === 1 && above !== undefined && next.failed.includes(above))
+  const failedAt = (i: number) => list[i] !== undefined && next.failed.includes(list[i])
+  // the jump is 1 and the walk is back at (or under) a confirmed rung whose rung above has failed: nothing is left to learn
+  const narrowed = next.jump === 1 && (a.mark === 'o' ? pos <= highest && failedAt(pos + 1) : list.indexOf(at) <= highest + 1)
+  const stop = next.inRow >= 2 || next.probes >= next.max || next.confirmed.includes(list[top]) || narrowed
   const ladder = { ...l, mode: next }
   return { ladder: stop ? endPlacement(ladder, next, a.set, events) : ladder, events }
 }
