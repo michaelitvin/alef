@@ -86,7 +86,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
             <tr><th colSpan={4} align="left">{STRAND_TITLE[strand]}</th></tr>
             {rungsOfStrand(strand).map((id) => (
               <tr key={id} data-rung={id} data-status={statusText(s.ladder, id, s.settings)}>
-                <td>{RUNG_TEXT[id].name}</td><td><Ltr>{RUNG_TEXT[id].example}</Ltr></td>
+                <td>{RUNG_TEXT[id].name}</td><td style={{ whiteSpace: 'nowrap' }}><Ltr>{RUNG_TEXT[id].example}</Ltr></td>
                 <td align="center">{rungStatus(s.ladder, id, s.settings)}</td><td align="center">{shareText(tallies.get(id))}</td>
               </tr>
             ))}

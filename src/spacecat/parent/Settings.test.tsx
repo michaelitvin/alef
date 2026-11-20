@@ -95,6 +95,13 @@ describe('Space Cat\'s section in the parent area', () => {
     ])
   })
 
+  it('a rung\'s example stays on one line (a phone held upright broke "3 + 2 = ◌" before the ring)', () => {
+    const { container } = render(<SpaceCatSettings goTo={() => {}} />)
+    const cell = container.querySelector('[data-rungs] [data-rung="1"]')!.children[1] as HTMLElement
+    expect(cell.textContent).toBe('3 + 2 = ◌')
+    expect(cell.style.whiteSpace).toBe('nowrap')
+  })
+
   it('the range list is never wider than the area (its longest option is wider than a phone held upright)', () => {
     const { container } = render(<SpaceCatSettings goTo={() => {}} />)
     expect((container.querySelector('select[aria-label="range"]') as HTMLElement).style.maxWidth).toBe('100%')
