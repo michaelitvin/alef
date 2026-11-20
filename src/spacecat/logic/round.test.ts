@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { EARLY_ZOOM, nearestLane, startRound, step, type RoundEvent, type RoundResult, type RoundState } from './round'
 
-// labels [4, 5, 6, 7]: the right answer is on lane 1; the ship starts on lane 0 unless said otherwise
-const begin = (ship = 0, arrival = 8000) => startRound([4, 5, 6, 7], 1, ship, arrival)
+// labels '4', '5', '6', '7': the right answer is on lane 1; the ship starts on lane 0 unless said otherwise
+const begin = (ship = 0, arrival = 8000) => startRound(['4', '5', '6', '7'], 1, ship, arrival)
 const run = (s: RoundState, ...ev: RoundEvent[]) => ev.reduce(step, s)
 const res = (s: RoundState): RoundResult => {
   expect(s.done).not.toBeNull()
@@ -12,7 +12,7 @@ const res = (s: RoundState): RoundResult => {
 describe('the round', () => {
   it('zoom on the right planet early gives 2', () => {
     const r = res(run(begin(), { type: 'lane', lane: 1, t: 1000 }, { type: 'zoom', t: 2000 }, { type: 'hit', t: 2400 }))
-    expect(r).toMatchObject({ result: 'right', end: 'zoom', points: 2, lane: 1, number: 5, endMs: 2400, underMs: 1000, lastLaneMs: 1000, startedUnder: false })
+    expect(r).toMatchObject({ result: 'right', end: 'zoom', points: 2, lane: 1, number: '5', endMs: 2400, underMs: 1000, lastLaneMs: 1000, startedUnder: false })
   })
   it('zoom at 96% gives 1', () => {
     expect(EARLY_ZOOM).toBe(0.95)
@@ -25,7 +25,7 @@ describe('the round', () => {
   })
   it('steered onto a wrong planet is wrong', () => {
     const r = res(run(begin(), { type: 'lane', lane: 2, t: 3000 }, { type: 'arrive', t: 8000 }))
-    expect(r).toMatchObject({ result: 'wrong', points: 0, number: 6, underMs: null })
+    expect(r).toMatchObject({ result: 'wrong', points: 0, number: '6', underMs: null })
   })
   it('a zoom on a wrong planet is wrong with no points', () => {
     const r = res(run(begin(), { type: 'lane', lane: 3, t: 100 }, { type: 'zoom', t: 200 }, { type: 'hit', t: 500 }))
@@ -77,5 +77,10 @@ describe('the round', () => {
     expect(nearestLane(1.49, 2)).toBe(1)
     expect(nearestLane(-2, 0)).toBe(0)
     expect(nearestLane(9, 0)).toBe(3)
+    // three lanes (a comparison)
+    expect(nearestLane(9, 0, 3)).toBe(2)
+    expect(nearestLane(1.5, 1, 3)).toBe(1)
+    expect(nearestLane(1.51, 1, 3)).toBe(2)
+    expect(nearestLane(-2, 2, 3)).toBe(0)
   })
 })

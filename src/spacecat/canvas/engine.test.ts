@@ -17,7 +17,7 @@ const lcg = (seed: number) => {
 const content = (rightLane = 1): RoundContent => {
   const labels = ['3', '4', '6', '7']
   labels[rightLane] = '5'
-  return { box: ['2', '+', '3', '=', null], labels, rightLane, flyNumber: '5', itemId: '2+3=5/c', fact: '+2,3' }
+  return { kind: 'sum', rung: '3', box: ['2', '+', '3', '=', null], labels, rightLane, flyNumber: '5', itemId: '2+3=5/c', fact: '+2,3' }
 }
 const G = WIDE
 

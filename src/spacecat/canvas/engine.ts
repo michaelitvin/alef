@@ -129,7 +129,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
   let hand: Hand | null = null
   let plays = 0
 
-  const laneOf = (x: number) => nearestLane(laneUnits(G, x), round?.lane ?? 1)
+  const laneOf = (x: number) => nearestLane(laneUnits(G, x), round?.lane ?? 1, round?.labels.length)
   const send = (e: RoundEvent) => {
     if (!round) return
     round = step(round, e)
@@ -161,16 +161,16 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     switch (i.type) {
       case 'touch': return
       case 'drag': ship.tx = clamp(i.x, lo, hi); pendingZoom = false; return
-      case 'release': ship.tx = G.lanes[nearestLane(laneUnits(G, ship.tx), round.lane)]; return
+      case 'release': ship.tx = G.lanes[nearestLane(laneUnits(G, ship.tx), round.lane, round.labels.length)]; return
       case 'key': {
-        const cur = nearestLane(laneUnits(G, ship.tx), round.lane)
+        const cur = nearestLane(laneUnits(G, ship.tx), round.lane, round.labels.length)
         ship.tx = G.lanes[clamp(cur + i.dir, 0, G.lanes.length - 1)]
         return
       }
       case 'tapPlanet': ship.tx = G.lanes[i.lane]; pendingZoom = true; return
       case 'flick': {
         // the swipe counts at the lane where the finger went down: the ship is there at once and flies straight up
-        const lane = nearestLane(laneUnits(G, i.x), round.lane)
+        const lane = nearestLane(laneUnits(G, i.x), round.lane, round.labels.length)
         ship.x = ship.tx = G.lanes[lane]
         send({ type: 'lane', lane, t })
         startZoom()
@@ -443,7 +443,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       ship.x = ship.tx = G.lanes[lane]
       last = { c, arrivalMs, frozen: !!opts?.frozen, lane }
       content = c
-      round = startRound(c.labels.map(Number), c.rightLane, lane, arrivalMs)
+      round = startRound(c.labels, c.rightLane, lane, arrivalMs)
       phase = 'flight'
       frozen = !!opts?.frozen
       t = 0; p = 0

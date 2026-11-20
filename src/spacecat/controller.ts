@@ -268,7 +268,7 @@ export class PlayController {
     const s = this.o.save.get()
     const { opened } = this.o.save.recordRound(cur.item, r, { demo: cur.demo })
     this.o.track('round', {
-      item: cur.item.id, labels: cur.content.labels, startLane: this.shipLane, endLane: r.lane, number: r.number, result: r.result,
+      item: cur.item.id, labels: cur.content.labels, startLane: this.shipLane, endLane: r.lane, number: numberOf(r.number), result: r.result,
       end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs: arrivalInForce(s.speed, s.settings.arrival), rung: cur.rung,
       level: this.run.level, ship: s.ship, ...(cur.demo ? { demo: true } : {}),
     })
@@ -301,13 +301,16 @@ export class PlayController {
   }
 
   private cutResult(): RoundResult {
-    return { result: 'timeout', end: 'arrival', lane: this.shipLane, number: 0, points: 0, lastLaneMs: null, endMs: 0, underMs: null, startedUnder: false }
+    return { result: 'timeout', end: 'arrival', lane: this.shipLane, number: '', points: 0, lastLaneMs: null, endMs: 0, underMs: null, startedUnder: false }
   }
 }
 
-/** his most frequent wrong pick for an item, as a number */
-function confusionOf(picks: Record<string, number> | undefined): number | undefined {
+/** his most frequent wrong pick for an item, as the planet showed it (digits, or a sign) */
+function confusionOf(picks: Record<string, number> | undefined): string | undefined {
   let best: [string, number] | undefined
   for (const e of Object.entries(picks ?? {})) if (!best || e[1] > best[1]) best = e
-  return best ? Number(best[0]) : undefined
+  return best?.[0]
 }
+
+/** the telemetry keeps a number for a numeric label, else the sign string */
+const numberOf = (label: string): number | string => (/^\d+$/.test(label) ? Number(label) : label)

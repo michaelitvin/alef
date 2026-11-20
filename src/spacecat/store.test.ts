@@ -7,7 +7,7 @@ import { useSpaceCatStore } from './store'
 
 const it1 = itemById('2+3=5/c')!
 const result = (r: Partial<RoundResult> = {}): RoundResult => ({
-  result: 'right', end: 'arrival', lane: 1, number: 5, points: 1, lastLaneMs: 1000, endMs: 8000, underMs: 1000, startedUnder: false, ...r,
+  result: 'right', end: 'arrival', lane: 1, number: '5', points: 1, lastLaneMs: 1000, endMs: 8000, underMs: 1000, startedUnder: false, ...r,
 })
 const store = () => useSpaceCatStore.getState()
 
@@ -43,9 +43,15 @@ describe('space cat store', () => {
     expect(store().items).toEqual({})
   })
   it('a wrong pick is recorded by the number picked', () => {
-    store().recordRound(it1, result({ result: 'wrong', number: 8, points: 0, underMs: null }))
+    store().recordRound(it1, result({ result: 'wrong', number: '8', points: 0, underMs: null }))
     expect(store().items[it1.id].picks['8']).toBe(1)
     expect(store().items[it1.id]).toMatchObject({ wrong: 1, recent: 'x' })
+  })
+  it('a wrong pick on a comparison is recorded by its sign and moves no old rung', () => {
+    const cmp = itemById('7?5')!
+    store().recordRound(cmp, result({ result: 'wrong', number: '<', points: 0, underMs: null }))
+    expect(store().items[cmp.id].picks['<']).toBe(1)
+    expect(store().ladder.top).toBe(1)
   })
   it('a time-out is marked t', () => {
     store().recordRound(it1, result({ result: 'timeout', points: 0, underMs: null }))

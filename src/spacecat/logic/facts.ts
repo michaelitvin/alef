@@ -7,7 +7,7 @@ export type Op = '+' | '−' | '×' | '÷'
 /** which place is the ring: a op b = c */
 export type Hole = 'c' | 'a' | 'b'
 export type Sign = '<' | '=' | '>'
-type Kind = 'sum' | 'compare' | 'jumps'
+export type Kind = 'sum' | 'compare' | 'jumps'
 
 interface ItemBase {
   kind: Kind

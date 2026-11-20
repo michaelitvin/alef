@@ -26,7 +26,7 @@ export function spaceCatFacts(events: TelemetryEvent[]): RollupFact[] {
     if (e.e !== 'round' || typeof e.item !== 'string') continue
     if (e.demo === true || e.cut === true) { facts.push({ item: e.item, special: true, t: e.t }); continue }
     const ok = e.result === 'right'
-    const chosen = e.result === 'timeout' ? 'timeout' : typeof e.number === 'number' ? String(e.number) : undefined
+    const chosen = e.result === 'timeout' ? 'timeout' : typeof e.number === 'number' || typeof e.number === 'string' ? String(e.number) : undefined
     facts.push({ item: e.item, ok, t: e.t, ...(typeof e.endMs === 'number' ? { ms: e.endMs } : {}), ...(!ok && chosen ? { chosen } : {}) })
   }
   return facts

@@ -70,7 +70,7 @@ const played = { runs: 1, heard: { demo: 1 } }
 function finish(e: FakeEngine, result: 'right' | 'wrong' | 'timeout', points: 0 | 1 | 2 = result === 'right' ? 1 : 0) {
   const c = e.content!
   const lane = result === 'right' ? c.rightLane : (c.rightLane + 1) % 4
-  const r: RoundResult = { result, end: points === 2 ? 'zoom' : 'arrival', lane, number: Number(c.labels[lane]), points, lastLaneMs: 1000, endMs: 3000, underMs: result === 'right' ? 1000 : null, startedUnder: false }
+  const r: RoundResult = { result, end: points === 2 ? 'zoom' : 'arrival', lane, number: c.labels[lane], points, lastLaneMs: 1000, endMs: 3000, underMs: result === 'right' ? 1000 : null, startedUnder: false }
   e.onEnd(r)
 }
 const playing = async (e: FakeEngine) => { await settle(); expect(e.frozen).toBe(false); expect(e.input).toBe(true) }
