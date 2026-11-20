@@ -1,7 +1,7 @@
 // The English section's level: what the placement found, running it again, and the stage he starts at. Neither action
 // closes a station or lowers a rating (src/english/station.ts): a lower stage only changes where the cycle goes on.
 import { useState } from 'react'
-import { EN_MAX_STAGE } from '../logic/stages'
+import { READY_STAGES } from '../readyStages'
 import { seedAfterPlacement } from '../logic/placement'
 import { englishSavePort } from '../savePort'
 import { englishStationsUpTo } from '../doorsPlayable'
@@ -15,6 +15,8 @@ export default function Level() {
   const drawing = useEnglishStore((s) => s.settings.drawing)
   const [pick, setPick] = useState<number | null>(null)
   const chosen = pick ?? stage
+  // only the stages that can be played (his own stays listed, so the box shows where he is)
+  const stageOptions = [...new Set([...READY_STAGES, stage])].sort((a, b) => a - b)
   const done = placement.done
   const date = done ? localDate(done.at) : null
   const again = () => {
@@ -43,7 +45,7 @@ export default function Level() {
         <label>
           Start stage{' '}
           <select data-start-stage value={chosen} onChange={(e) => setPick(Number(e.target.value))}>
-            {Array.from({ length: EN_MAX_STAGE }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
+            {stageOptions.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>{' '}
         <button type="button" data-set-stage disabled={chosen === stage} onClick={start}>Start at stage {chosen}</button>
