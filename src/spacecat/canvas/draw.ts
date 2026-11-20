@@ -1,6 +1,7 @@
 // The play screen's geometry and its drawing parts. The sizes of the ship, the star and the points are the ones the
 // parent approved in the plan mock; the planets' linear growth is the original's. Every string drawn on the canvas goes
 // through drawText(), so that the no-text scan sees it.
+import { HEART_EMPTY, HEART_FULL, HEART_GLOW, HEART_PATH } from '../../shared/heart'
 import { LOGICAL, layoutFor } from '../layout'
 import { TEST_HOOKS } from '../testHooks'
 import { HAND_CUFF, HAND_PATH } from './handPath'
@@ -60,8 +61,8 @@ const portShipS = 128, portR = 66
 /** the wide layout: a tablet in landscape and a phone on its side */
 export const WIDE: Geom = {
   W: LOGICAL.wide.w, H: LOGICAL.wide.h, lanes: [0, 1, 2, 3].map((i) => 800 + (i - 1.5) * 240), shipY: wideShipY, shipS: wideShipS, R: wideR,
-  start: 0.4, y0: 285, yArr: wideShipY - wideShipS * 0.5 - wideR, topY: 62, dotY: 62, dotX: 190, dotStep: 42, dotR: 13, heartS: 1,
-  heartX: 1515, heartStep: 68, pointsSize: 64, starGap: 100, houseW: 150, box: { cy: 128, h: 124, font: 86, gap: 26 }, k: 1,
+  start: 0.4, y0: 285, yArr: wideShipY - wideShipS * 0.5 - wideR, topY: 62, dotY: 62, dotX: 190, dotStep: 42, dotR: 13, heartS: 1.15,
+  heartX: 1510, heartStep: 84, pointsSize: 64, starGap: 100, houseW: 150, box: { cy: 128, h: 124, font: 86, gap: 26 }, k: 1,
 }
 
 /** the portrait play area's height: the screen's own shape, from the still screens' 960 up to a tall phone's */
@@ -77,7 +78,7 @@ export function portraitGeom(H: number): Geom {
   return {
     W, H, lanes: [0.125, 0.375, 0.625, 0.875].map((f) => f * W), shipY, shipS: portShipS, R: portR, start: 0.6,
     y0: 330, yArr: shipY - portShipS * 0.5 - portR, topY: 50, dotY: 116, dotX: W / 2 - 3 * dotStep, dotStep, dotR: 15,
-    heartS: 0.62, heartX: 503, heartStep: 41, pointsSize: 50, starGap: 70, houseW: 96, box: { cy: 202, h: 104, font: 68, gap: 18 },
+    heartS: 0.9, heartX: 497, heartStep: 60, pointsSize: 50, starGap: 62, houseW: 96, box: { cy: 202, h: 104, font: 68, gap: 18 },
     k: 0.62,
   }
 }
@@ -123,11 +124,16 @@ export const laneUnits = (G: Geom, x: number) => (x - G.lanes[0]) / (G.lanes[1] 
 
 // ---------- drawn icons (no emoji), from the plan mock
 
+let heartPath: Path2D | null | undefined
+/** the shared life heart (src/shared/heart.tsx) in a box 68 s units wide, centred at (x, y); a lost one is its ghost */
 export function heart(g: CanvasRenderingContext2D, x: number, y: number, s: number, on: boolean): void {
-  g.save(); g.translate(x, y); g.scale(s, s); g.beginPath(); g.moveTo(0, 13)
-  g.bezierCurveTo(-30, -6, -16, -30, 0, -13); g.bezierCurveTo(16, -30, 30, -6, 0, 13)
-  g.fillStyle = on ? '#ff4d6d' : 'rgba(255,255,255,.12)'; g.fill()
-  g.lineWidth = 2.5; g.strokeStyle = on ? '#ffb3c1' : 'rgba(255,255,255,.4)'; g.stroke()
+  if (heartPath === undefined) heartPath = typeof Path2D === 'undefined' ? null : new Path2D(HEART_PATH)
+  const k = (68 * s) / 24
+  g.save(); g.translate(x - 12 * k, y - 12.4 * k); g.scale(k, k)
+  if (on) { g.shadowColor = HEART_GLOW; g.shadowBlur = 6 * k }
+  g.fillStyle = on ? HEART_FULL : HEART_EMPTY.fill
+  if (heartPath) g.fill(heartPath)
+  if (!on && heartPath) { g.lineWidth = 1.2; g.strokeStyle = HEART_EMPTY.stroke; g.stroke(heartPath) }
   g.restore()
 }
 
@@ -145,7 +151,7 @@ export function brokenHeart(g: CanvasRenderingContext2D, x: number, y: number, s
   heart(g, x, y, s, false)
   for (const side of [-1, 1]) {
     g.save(); g.translate(x + side * t * 22 * s, y + t * t * 60 * s); g.rotate(side * t * 0.8); g.globalAlpha = 1 - t
-    g.beginPath(); g.rect(side < 0 ? -40 * s : 0, -40 * s, 40 * s, 80 * s); g.clip(); heart(g, 0, 0, s, true); g.restore()
+    g.beginPath(); g.rect(side < 0 ? -34 * s : 0, -34 * s, 34 * s, 68 * s); g.clip(); heart(g, 0, 0, s, true); g.restore()
   }
 }
 
