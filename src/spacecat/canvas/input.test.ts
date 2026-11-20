@@ -51,6 +51,24 @@ describe('input', () => {
     expect(got.filter((i) => i.type === 'flick')).toHaveLength(1)
     expect(got.filter((i) => i.type === 'drag')).toHaveLength(1)
   })
+  it('a flick carries the finger\'s logical x', () => {
+    pointer(el, 'pointerdown', 150, 800)
+    now = 100
+    pointer(el, 'pointermove', 150, 800 - FLICK_FRACTION * H - 1)
+    expect(got.find((i) => i.type === 'flick')).toEqual({ type: 'flick', x: 300 })
+  })
+  it('a flick after steering in the same touch is a flick, at the lane under the finger', () => {
+    pointer(el, 'pointerdown', 100, 800)
+    for (let i = 1; i <= 5; i++) { now = i * 60; pointer(el, 'pointermove', 100 + i * 60, 800) }
+    now = 360
+    pointer(el, 'pointermove', 400, 800 - FLICK_FRACTION * H - 1)
+    expect(got.find((i) => i.type === 'flick')).toEqual({ type: 'flick', x: 800 })
+  })
+  it('a slow diagonal drag is no flick', () => {
+    pointer(el, 'pointerdown', 100, 800)
+    for (let i = 1; i <= 20; i++) { now = i * 60; pointer(el, 'pointermove', 100 + i * 15, 800 - i * 4) }
+    expect(got.some((i) => i.type === 'flick')).toBe(false)
+  })
   it('a slow upward move is no flick', () => {
     pointer(el, 'pointerdown', 100, 800)
     now = FLICK_MS + 50

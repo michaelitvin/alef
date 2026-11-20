@@ -168,7 +168,15 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
         return
       }
       case 'tapPlanet': ship.tx = G.lanes[i.lane]; pendingZoom = true; return
-      case 'flick': case 'keyZoom': startZoom()
+      case 'flick': {
+        // the swipe counts at the lane where the finger went down: the ship is there at once and flies straight up
+        const lane = nearestLane(laneUnits(G, i.x), round.lane)
+        ship.x = ship.tx = G.lanes[lane]
+        send({ type: 'lane', lane, t })
+        startZoom()
+        return
+      }
+      case 'keyZoom': startZoom()
     }
   }
 

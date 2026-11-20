@@ -74,6 +74,55 @@ describe('the engine', () => {
     expect(ends[0]).toMatchObject({ result: 'right', end: 'zoom', points: 2, lane: 1 })
     expect(sfx).toContain('right-zoom')
   })
+  // the ship starts in lane 1; a swipe up counts at the lane where the finger went down, however far that is
+  for (const [name, from] of [['in the ship\'s own lane', 1], ['one lane away', 2], ['two lanes away', 3], ['one lane away, on the left', 0]] as const) {
+    it(`a swipe up that starts ${name} zooms from that lane at once`, () => {
+      engine.play(content(from), 8000)
+      clock.tick(500)
+      pointer(canvas, 'pointerdown', G.lanes[from], 860)
+      clock.tick(30)
+      pointer(canvas, 'pointermove', G.lanes[from], 860 - 0.1 * G.H)
+      clock.tick(3000)
+      expect(ends).toHaveLength(1)
+      expect(ends[0]).toMatchObject({ result: 'right', end: 'zoom', points: 2, lane: from })
+    })
+  }
+  it('a swipe up from another lane is a wrong pick there, not a step to the side', () => {
+    engine.play(content(1), 8000)
+    clock.tick(500)
+    pointer(canvas, 'pointerdown', G.lanes[3], 860)
+    clock.tick(30)
+    pointer(canvas, 'pointermove', G.lanes[3], 860 - 0.1 * G.H)
+    clock.tick(3000)
+    expect(ends[0]).toMatchObject({ result: 'wrong', end: 'zoom', lane: 3 })
+  })
+  it('one touch: steer two lanes, then flick up with no lift: it zooms in the lane reached', () => {
+    engine.play(content(3), 8000)
+    clock.tick(500)
+    pointer(canvas, 'pointerdown', G.lanes[1], 860)
+    for (let i = 1; i <= 8; i++) { clock.tick(60); pointer(canvas, 'pointermove', G.lanes[1] + (G.lanes[3] - G.lanes[1]) * (i / 8), 860) }
+    clock.tick(400)
+    expect(ends).toEqual([])
+    pointer(canvas, 'pointermove', G.lanes[3], 860)
+    clock.tick(30)
+    pointer(canvas, 'pointermove', G.lanes[3], 860 - 0.1 * G.H)
+    clock.tick(3000)
+    expect(ends[0]).toMatchObject({ result: 'right', end: 'zoom', points: 2, lane: 3 })
+  })
+  it('a slow diagonal drag steers only: no zoom', () => {
+    engine.play(content(3), 8000)
+    clock.tick(500)
+    pointer(canvas, 'pointerdown', G.lanes[1], 860)
+    for (let i = 1; i <= 20; i++) {
+      clock.tick(60)
+      pointer(canvas, 'pointermove', G.lanes[1] + (G.lanes[3] - G.lanes[1]) * (i / 20), 860 - 0.05 * G.H * (i / 20))
+    }
+    clock.tick(100)
+    pointer(canvas, 'pointerup', G.lanes[3], 860)
+    expect(ends).toEqual([])
+    clock.tick(500)
+    expect(sfx).not.toContain('right-zoom')
+  })
   it('a drag released between lanes glides to the nearest', () => {
     engine.play(content(3), 8000)
     pointer(canvas, 'pointerdown', G.lanes[1], 860)
