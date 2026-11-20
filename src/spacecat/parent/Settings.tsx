@@ -48,6 +48,8 @@ const median = (xs: number[] | undefined) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
 const topPick = (picks: Record<string, number> | undefined) => Object.entries(picks ?? {}).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
+/** the rows of Recent changes; the ladder and the run count only say when the log has changed */
+const readRecent = (_ladder: unknown, _runs: number) => recentChanges(readLog(SPACECAT_LOG.key), RECENT_ROWS)
 const right = (s: ItemStats) => s.seen - s.wrong - s.timeout
 
 export default function SpaceCatSettings({ goTo, track }: SectionProps) {
@@ -67,7 +69,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
     .slice(0, HARD_ROWS)
   const where = whereHeIs(s.ladder, s.settings)
   // decoding the log is slow: read it again only when the ladder or the run count changed
-  const recent = useMemo(() => recentChanges(readLog(SPACECAT_LOG.key), RECENT_ROWS), [s.ladder, s.runs])
+  const recent = useMemo(() => readRecent(s.ladder, s.runs), [s.ladder, s.runs])
   const band = where.frontier ? rungDef(where.frontier).band : 'small'
   const findAgain = () => {
     if (!window.confirm('Find his level again? Every rung goes back to "not yet" and the game checks him from the start. His points, ships and hard sums stay.')) return
