@@ -4,9 +4,9 @@ import type { RoundContent } from '../content'
 import { makeRound } from '../content'
 import { RUNGS, itemsOfRung, maxNumber, type RungId } from '../logic/facts'
 import type { RoundResult } from '../logic/round'
-import { WIDE } from './draw'
+import { WIDE, portraitGeom } from './draw'
 import { CLEAR_MS, MARK_MS } from './effects'
-import { PARKED_MS, createEngine, type Engine } from './engine'
+import { PARKED_MS, ZOOM_HEIGHTS_PER_S, createEngine, zoomSpeed, type Engine } from './engine'
 import { manualClock, recordingContext } from './testCanvas'
 
 const lcg = (seed: number) => {
@@ -99,6 +99,13 @@ describe('the engine', () => {
     pointer(canvas, 'pointerdown', G.lanes[3], y)
     clock.tick(3000 + MARK_MS + CLEAR_MS)
     expect(ends[0]).toMatchObject({ result: 'right', end: 'zoom', lane: 3 })
+  })
+  it('a zoom climbs at least as fast as the original, in screen heights per second, on every screen shape', () => {
+    for (const g of [WIDE, portraitGeom(960), portraitGeom(1080), portraitGeom(1200)]) {
+      expect(zoomSpeed(g) / g.H).toBeGreaterThanOrEqual(ZOOM_HEIGHTS_PER_S - 1e-9)
+    }
+    expect(zoomSpeed(portraitGeom(960))).toBeCloseTo(1500)
+    expect(zoomSpeed(WIDE)).toBe(1900)
   })
   it('keys move one lane per press and up zooms', () => {
     engine.play(content(2), 8000)

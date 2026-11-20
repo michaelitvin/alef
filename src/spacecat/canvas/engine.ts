@@ -56,8 +56,15 @@ export interface Engine {
 
 /** the ship glides to its lane at this speed (logical px per s in the wide layout) */
 export const SHIP_SPEED = 2600
-/** a zoom climbs at this speed */
+/** a zoom climbs at this speed (logical px per s in the wide layout) */
 export const ZOOM_SPEED = 1900
+/**
+ * The original's zoom climbs 1500 px/s on its 960 px high screen: 1.5625 screen heights per s. A zoom is never slower
+ * than that, on any screen shape (scaled by k alone, a portrait zoom was 1.23 heights per s and felt slow).
+ */
+export const ZOOM_HEIGHTS_PER_S = 1500 / 960
+/** the zoom's speed in the logical px per s of this geometry */
+export const zoomSpeed = (g: Pick<Geom, 'k' | 'H'>): number => Math.max(ZOOM_SPEED * g.k, ZOOM_HEIGHTS_PER_S * g.H)
 /** resting under the right planet this long without a zoom calls onFirstParkedUnderRight */
 export const PARKED_MS = 600
 /** a wrong or time-out's heart sound follows its effect after this long */
@@ -243,7 +250,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
     t += dt * 1000
     p = Math.min(1, t / r.arrivalMs)
     if (zooming) {
-      ship.zoomY += ZOOM_SPEED * G.k * dt
+      ship.zoomY += zoomSpeed(G) * dt
       const pp = planetPos(G, round!.lane, p, offs[round!.lane])
       if (G.shipY - ship.zoomY - G.shipS * 0.45 <= pp.y + pp.r * 0.8) send({ type: 'hit', t })
     } else if (p >= 1) {
