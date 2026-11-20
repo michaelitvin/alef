@@ -57,14 +57,14 @@ type FakeEngine = ReturnType<typeof fakeEngine>
 const settle = async (n = 6) => { for (let i = 0; i < n; i++) await new Promise((r) => setTimeout(r, 0)) }
 
 const live: PlayController[] = []
-function setup(save: Partial<SpaceCatSave> = {}) {
+function setup(save: Partial<SpaceCatSave> = {}, rngSeed = 1) {
   const engine = fakeEngine()
   const port = memorySavePort(save)
   const events: [string, Record<string, unknown> | undefined][] = []
   const log = { runs: [] as number[], flushedAt: [] as number[] }
   const levels: LevelDoneInfo[] = []
   const ends: EndInfo[] = []
-  let seed = 1
+  let seed = rngSeed
   const ctl = new PlayController({
     engine: engine as unknown as Engine, audio, save: port, track: (ev, f) => events.push([ev, f]), sleeper: instantSleeper(),
     setRun: (n) => log.runs.push(n), flush: () => log.flushedAt.push(events.length),
@@ -571,6 +571,24 @@ describe('the play controller', () => {
     // the intro's two rounds are T2's first T2_POD_ROUNDS tallied ones: after them, pods only in a mistake's mark
     expect(T2_POD_ROUNDS).toBe(INTRO_TIMES)
     expect(t2[INTRO_TIMES]).toBe('mistake')
+  })
+
+  it('a times or divide intro round is a fact whose groups fit (at most 36 dots), of the same rung', async () => {
+    for (const at of ['T2', 'T4b'] as const) {
+      for (let seed = 1; seed <= 12; seed++) {
+        const t = setup(practiceAt(at), seed * 7919)
+        t.ctl.start()
+        await drive(t, () => ({ result: 'right', underMs: 7000 }), () => t.engine.pods.filter((p) => p === 'cue').length >= INTRO_TIMES, 40)
+        const intro = t.engine.plays.filter((_, i) => t.engine.pods[i] === 'cue')
+        expect(intro.length, `${at} seed ${seed}: ${t.engine.plays.map((c) => c.itemId).join(' ')}`).toBe(INTRO_TIMES)
+        for (const c of intro) {
+          expect(c.pods, `${at} seed ${seed}: ${c.itemId}`).toBeDefined()
+          expect(c.pods!.groups * c.pods!.each).toBeLessThanOrEqual(36)
+          expect(c.rung).toMatch(/^T/)
+        }
+        t.ctl.destroy()
+      }
+    }
   })
 
   it('a jump round waits for the hop before the arrival sound', async () => {

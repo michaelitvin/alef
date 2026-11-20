@@ -37,6 +37,9 @@ function podsOf(it: SumItem): Pods | undefined {
   return it.op === '×' && it.a * it.b <= PODS_PRODUCT_MAX ? { groups: it.a, each: it.b, share: false } : undefined
 }
 
+/** whether a round of this item shows the equal groups (a pod rung, at most PODS_PRODUCT_MAX dots) */
+export const hasPods = (it: Item): boolean => it.kind === 'sum' && podsOf(it) !== undefined
+
 const digits = (s: string | undefined): number | undefined => (s !== undefined && /^\d+$/.test(s) ? Number(s) : undefined)
 
 /** `confusion` is his most frequent wrong pick for the item, as the planet showed it (digits, or a sign) */

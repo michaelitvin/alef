@@ -8,8 +8,8 @@ import type { Track } from '../parent/types'
 import { AGAIN_AFTER, INTRO_CUES, INTRO_LINE_MS, INTRO_TIMES, introMistake, introOf, type IntroId } from './audio/intros'
 import type * as SpaceCatAudio from './audio/spaceCatAudio'
 import type { Cue, Engine, Hud, PodsWhen } from './canvas/engine'
-import { makeRound, type RoundContent } from './content'
-import { itemById, type Item } from './logic/facts'
+import { hasPods, makeRound, type RoundContent } from './content'
+import { itemById, itemsOfRung, type Item } from './logic/facts'
 import { isFast } from './logic/fast'
 import { frontier, type LadderEvent, type Part } from './logic/ladder/index'
 import { rungDef, type RungId } from './logic/rungs'
@@ -205,9 +205,11 @@ export class PlayController {
     const s = this.o.save.get()
     const demo = !(s.heard.demo > 0) && s.runs === 0
     const taken = demo ? { item: itemById(DEMO_ITEM)!, part: 'frontier' as Part } : this.o.save.takeRound(this.o.rng)
-    const { item, part } = taken
+    const say = demo ? undefined : this.sayOf(taken.item)
+    // the times and divide intros show the groups: their round is a fact whose dots fit (the design: only to 36)
+    const item = say?.line === 'times' || say?.line === 'divide' ? withPods(taken.item, say.line, this.o.rng) : taken.item
+    const { part } = taken
     const content = makeRound(this.o.rng, item, this.shipLane, confusionOf(s.items[item.id]?.picks))
-    const say = demo ? undefined : this.sayOf(item)
     if (say && say.line !== 'missing' && say.silent) this.silentPlays[say.line] = (this.silentPlays[say.line] ?? 0) + 1
     const cur: Current = { item, content, demo, say, part }
     this.cur = cur
@@ -446,6 +448,16 @@ export class PlayController {
 function podsFromStart(it: Item, items: Record<string, { seen: number }>): boolean {
   const max = it.rung === 'T1' ? T1_POD_ROUNDS : it.rung === 'T2' ? T2_POD_ROUNDS : 0
   return max > 0 && talliedOf(it.rung, items) < max
+}
+
+/**
+ * An intro round's item: this one when its groups fit on the screen, else a random item of its rung with the same intro
+ * whose groups fit (none such: this one, and the intro plays without its groups)
+ */
+function withPods(it: Item, id: IntroId, rng: Rng): Item {
+  if (hasPods(it)) return it
+  const fit = itemsOfRung(it.rung).filter((x) => introOf(x) === id && hasPods(x))
+  return fit.length ? fit[Math.floor(rng() * fit.length)] : it
 }
 
 /** the tallied rounds of a rung's items */
