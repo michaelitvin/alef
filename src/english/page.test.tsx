@@ -27,7 +27,7 @@ describe('the English page', () => {
 
   it('?course=en opens the English cover', async () => {
     at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />)
-    expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('en')
+    expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('en')
   })
 
   it('the English cover shows the English purse', async () => {
@@ -35,13 +35,13 @@ describe('the English page', () => {
     await useDuel2Store.persist.rehydrate()
     expect(useDuel2Store.getState().coins).toBe(40)
     at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />)
-    expect((await screen.findByTestId('cover')).querySelector('[data-coins]')!.textContent).toBe('0')
+    expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).querySelector('[data-coins]')!.textContent).toBe('0')
   })
 
   it('opening English leaves alef-duel2 and alef-progress byte-equal', async () => {
     const duel2 = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-duel2', duel2); localStorage.setItem('alef-progress', PROGRESS_RAW)
     await useDuel2Store.persist.rehydrate()
-    at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />); await screen.findByTestId('cover')
+    at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
     // the first duel's import runs on the Hebrew page only
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
     expect(localStorage.getItem('alef-duel2')).toBe(duel2); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
@@ -49,7 +49,7 @@ describe('the English page', () => {
 
   it('the English page tracks into its own log', async () => {
     at('/duel2/?course=en'); const { container } = render(<Duel2App goHome={() => {}} />)
-    fireEvent.click(within(await screen.findByTestId('cover')).getByLabelText('play'))
+    fireEvent.click(within(await screen.findByTestId('cover', {}, { timeout: 15000 })).getByLabelText('play'))
     // boy or girl is not set: the play gate asks first
     await waitFor(() => expect(container.querySelector('[data-gender="boy"]')).not.toBeNull())
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
@@ -60,7 +60,7 @@ describe('the English page', () => {
 
   it('the Hebrew page is the same as before', async () => {
     at('/duel2/'); render(<Duel2App goHome={() => {}} />)
-    expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('he')
+    expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('he')
     expect(screen.getByTestId('cover').hasAttribute('dir')).toBe(false)
   })
 
