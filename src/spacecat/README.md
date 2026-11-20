@@ -20,7 +20,7 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 | The four intro lines (comparison, jumps, times, divide) and their cue times | `audio/intros.ts` |
 | The save (`alef-spacecat`) | `saveFormat.ts` (key, defaults, the light read for the home card and the parent area), `store.ts`, `savePort.ts` (the controller's port; `memorySavePort` for tests) |
 | Its telemetry log | `telemetryLog.ts` (`SPACECAT_LOG` and its `rollup`, light), `telemetry.ts` (the instance); analysis: `scripts/spacecat/analyse.ts` |
-| The canvas: game loop, planet renderer, drawing, particles, input | `canvas/` (`engine.ts`, `planet.ts`, `draw.ts`, `effects.ts`, `input.ts`) |
+| The canvas: game loop, planet renderer, drawing, particles, input, the comparison signs as paths, the equal-groups pods | `canvas/` (`engine.ts`, `planet.ts`, `draw.ts`, `effects.ts`, `input.ts`, `signs.ts`, `pods.ts`) |
 | Screens: cover, play, level done, end, pause cover | `screens/` |
 | Its part in the shared parent area | `parent/` (`index.ts` light; `Settings.tsx`, `reset.ts` lazy) |
 | Voice on the shared kit, the coded effects and the tune behind the player port, the line table | `audio/` (`spaceCatAudio.ts`, `coded.ts`, `synth.ts`, `tune.ts`, `lines.ts`) |
