@@ -236,7 +236,7 @@ the role "the game's narrator"; this game has no speaking character.
 | New ship | חֲלָלִית חֲדָשָׁה. | each of the two ships |
 | Hearts run out | נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב. | the first two times |
 | New best | שִׂיא חָדָשׁ. | each time; it is rare. Book 2's approved take `new-best-1` (the same narrator, no gender) is reused: no new take |
-| Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב, וּבְסוֹף כָּל שָׁלָב הֵם מִתְמַלְּאִים. | once for a burst of taps |
+| Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב. | once for a burst of taps |
 | Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת. | once for a burst of taps; no עוֹד (its stress is wrong in this voice) |
 | Tap on his best | זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת. | once for a burst of taps |
 | Tap on a locked ship | אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק. | once for a burst of taps |
