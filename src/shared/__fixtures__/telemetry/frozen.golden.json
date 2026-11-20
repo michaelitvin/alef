@@ -11,7 +11,7 @@
     "docs": [
      "docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md",
      "docs/adr/0004-one-telemetry-log-per-game.md",
-     "docs/minigame-rules.md"
+     "docs/minigame-rules/README.md"
     ],
     "code": [
      "src/hooks/useDuelGame.ts"

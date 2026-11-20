@@ -2,7 +2,7 @@
 
 Status: approved by the parent in conversation (2026-11-07: "implement ... your recommendation for strokes and
 drawing"). Builds on [the Book 2 design](2026-10-19-duel-book-2-design.md). Read
-[docs/minigame-rules.md](../../minigame-rules.md) first: every rule applies (speech instead of text, demos that do the
+[docs/minigame-rules/](../../minigame-rules/README.md) first: every rule applies (speech instead of text, demos that do the
 gesture with a hand, no way out on child screens, effects before the voice, praise words only twice, …).
 
 ## Why

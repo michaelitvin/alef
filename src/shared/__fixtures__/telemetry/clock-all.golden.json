@@ -10,7 +10,7 @@
     "repo": "https://github.com/michaelitvin/alef",
     "docs": [
      "docs/superpowers/specs/2026-10-15-clock-workshop-design.md",
-     "docs/minigame-rules.md"
+     "docs/minigame-rules/README.md"
     ],
     "code": [
      "src/clock/telemetry.ts"

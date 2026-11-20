@@ -16,7 +16,7 @@ after the plan (see *Handoff*).
 
 **Spec:** [docs/superpowers/specs/2026-11-11-one-duel-design.md](../specs/2026-11-11-one-duel-design.md) — Part 1,
 Part 5, and the parts of *Details settled after the review* named in each task. Read it and
-[docs/minigame-rules.md](../../minigame-rules.md) first.
+[docs/minigame-rules/](../../minigame-rules/README.md) first.
 
 **The four plans:** 1 (this) stakes and coins · 2 the merchant · 3 the first duel inside the run (stage 0, migration,
 shorter visits) · 4 the home screen and path sessions. Each ships on its own; 2 needs 1's coin balance.
@@ -242,7 +242,7 @@ it('no potion flies in after a lost heart', async () => {
 **Files:**
 - Modify: `src/duel2/controller.ts` (`gainStar`, the boss win's `addStars(10)`, `View.mult`, the streak celebration at
   5 and 10), `src/duel2/components/TopBar.tsx`, `src/duel2/screens/Play.tsx:67`, `src/duel2/screens/Cover.tsx:19,57`,
-  `src/duel2/data/lines.ts` (`mult-up`, `info-coins` rewrite), `docs/minigame-rules.md` (the "rewards at several paces"
+  `src/duel2/data/lines.ts` (`mult-up`, `info-coins` rewrite), `docs/minigame-rules/game-play-story.md` (the "rewards at several paces"
   example), `src/duel2/duel2.css` (the badge)
 - Test: `src/duel2/useRun.test.tsx`, `src/duel2/components/parts.test.tsx`
 

@@ -17,7 +17,7 @@ saves, the shared audio kit (Howler adapter, `installFakeAudio()` in tests), Vit
 
 **Spec:** `docs/superpowers/specs/2026-11-16-english-path-design.md` (approved 2026-11-18, the Hebrew spell book in this
 build). Content source: `docs/superpowers/plans/2026-11-16-english-assets.md` (Part 1 word lists, Part 3 voice lines).
-Read both, then `CLAUDE.md`, `docs/minigame-rules.md`, `src/shared/README.md`, `src/duel2/README.md`,
+Read both, then `CLAUDE.md`, `docs/minigame-rules/`, `src/shared/README.md`, `src/duel2/README.md`,
 `src/parent/README.md`, `tools/review/README.md`, ADRs 0001–0007.
 
 ## Global Constraints
@@ -1385,7 +1385,7 @@ Hidden when `!ENGLISH_AVAILABLE` or the parent turned the path off.
 
 ### Task 37: Docs and rules
 
-**Files:** `docs/minigame-rules.md` (the three rule changes of the design's *Rule changes* section, in ASD-STE100 style
+**Files:** `docs/minigame-rules/` (the three rule changes of the design's *Rule changes* section, in ASD-STE100 style
 with reasons); `GLOSSARY.md` (course, English path, sound unit, heart word, nonsense word, placement walk, spell book,
 blend); `docs/adr/0008-one-engine-two-courses.md` (why a course seam in one app, and the tower's content seam instead
 of a new tower); `src/english/README.md` (where things are, tests, known friction); `CLAUDE.md` (a map row for the

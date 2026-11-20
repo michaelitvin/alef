@@ -2,10 +2,10 @@
 
 **Date:** 2026-11-16
 **Status:** Approved by the parent on 2026-11-18, with the Hebrew spell book in this build (Part 7). Brainstormed with the parent on 2026-11-10 to 2026-11-16. A builder check ran on
-this document, and a rule-by-rule review against `docs/minigame-rules.md`; their findings are answered here.
+this document, and a rule-by-rule review against `docs/minigame-rules/`; their findings are answered here.
 **Builds on:** `main` as of 2026-11-18 (the shared shell, audio kit, parent area, telemetry and review kit), [Book 2](2026-10-19-duel-book-2-design.md), [one duel](2026-11-11-one-duel-design.md),
 [Book 2 drawing](2026-11-07-book2-drawing-design.md), [the flight bosses](2026-11-07-book2-flight-boss-design.md),
-[girls](2026-11-07-girls-design.md), and ADRs 0001–0007. Read [docs/minigame-rules.md](../../minigame-rules.md) first: every rule applies.
+[girls](2026-11-07-girls-design.md), and ADRs 0001–0007. Read [docs/minigame-rules/](../../minigame-rules/README.md) first: every rule applies.
 **Mockups:** an HTML page built from the game's own parts, reviewed with the parent frame by frame. It is host-local,
 outside the repo. This document describes everything it shows.
 
@@ -172,7 +172,7 @@ The order follows UFLI Foundations (a US programme). The parent decided all nine
 - **The words of a round differ only in the part the stage tests**, and every word uses only units of that stage or
   below, so only reading the whole word works. This breaks the
   rule "make wrong answers clearly different" on purpose; the parent decided it is allowed for words on this path
-  (record the exception in `docs/minigame-rules.md`, Game play and learning).
+  (record the exception in `docs/minigame-rules/game-play-learning.md`).
 - **The walk** (s = the stage asked; each stage keeps its right and wrong counts):
 
   | Event | Before his first miss | After it |
@@ -467,7 +467,7 @@ Another session builds Space Cat (`feature/spacecat`, spec `2026-11-12-space-cat
 separate Vite entry. Both add a card to home: the English card goes after the Hebrew duel card, Space Cat after the
 clock. Coordinate the home order and the `vite.config.ts` / knip entry lists when the second of the two merges.
 
-## Rule changes to record in `docs/minigame-rules.md` when this is built
+## Rule changes to record in `docs/minigame-rules/` when this is built
 
 - **Communication on the screen:** "Do not use Latin letters for Hebrew sounds" stays; add that on the English path,
   Latin letters are the learning content, and no Hebrew letter or nikkud appears there.
