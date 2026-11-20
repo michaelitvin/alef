@@ -493,15 +493,11 @@ const CHECKS = {
     if ((await scScreen(page)) !== 'cover') throw new Error('a tap on the cover\'s house left the cover')
     await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
     await scUntilScreen(page, 'play')
-    // the demo: the hand shows the answer while its line plays; a tap on a planet then does nothing
+    // the demo: the hand shows the answer while its line plays; he can already play (input on, the planets move)
     await page.locator('.sc-stage[data-phase="demo"]').waitFor({ timeout: 30_000 })
     await page.waitForTimeout(300)
     const d = await scProbe(page)
-    if (d.input) throw new Error('input is on during the demo line')
-    const pl = d.planets[(d.right + 1) % 4]
-    await page.touchscreen.tap(pl.x, pl.y)
-    await page.waitForTimeout(200)
-    if ((await page.locator('.sc-stage').getAttribute('data-phase')) === 'demo' && (await scProbe(page)).result) throw new Error('a tap on a planet during the demo ended the round')
+    if (!d.input || d.frozen) throw new Error('input is off or the planets stand still during the demo line')
     await shot(page, vp, 'sc-demo')
     // the demo round: he answers it (the hand showed him); park under the right planet: the zoom tip comes
     let r = await scRound(page, d.n - 1)
