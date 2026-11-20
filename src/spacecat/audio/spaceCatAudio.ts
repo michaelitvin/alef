@@ -51,12 +51,22 @@ function fileOf(id: string): string | undefined {
   return lineAudioId(id, i + 1)
 }
 
+/** the line has a take to play (a line with no take yet is silent: its intro still shows its glows) */
+export function hasLine(id: string): boolean {
+  const line = LINES.find((l) => l.id === id)
+  if (!line) return false
+  return kit.hasFile(line.reuse ? line.reuse.split('/').pop()! : lineAudioId(id, 1))
+}
+
 let lastVoice: Promise<unknown> = Promise.resolve()
-/** says a line (after anything queued); true when it was heard. An unknown line or a missing file: at once, false. */
-export function say(id: string): Promise<boolean> {
+/**
+ * Says a line (after anything queued); true when it was heard. An unknown line or a missing file: at once, false.
+ * `onStart` runs as the line starts to play (an intro's cues are timed from it).
+ */
+export function say(id: string, opts: { onStart?: () => void } = {}): Promise<boolean> {
   const file = fileOf(id)
   if (!file) return Promise.resolve(false)
-  const p = kit.say([file])
+  const p = kit.sayParts([{ id: file, onStart: opts.onStart }])
   lastVoice = Promise.all([lastVoice, p])
   return p
 }

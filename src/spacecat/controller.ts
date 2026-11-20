@@ -1,18 +1,18 @@
-// Space Cat's play flow as a framework-free controller (as Book 2's RunController): it picks each sum, hands it to the
-// canvas engine, runs the demo, the zoom tip and the missing-number line, records each round, and calls the screens'
-// callbacks at a level's end and the run's end. Every wait goes through the Sleeper (ADR 0005); the rules that need no
-// time are in logic/. usePlay.ts is its thin React bridge.
+// Space Cat's play flow as a framework-free controller (as Book 2's RunController): it takes each round from the ladder,
+// hands it to the canvas engine, runs the demo, the zoom tip, the missing-number line and the intros of the new kinds
+// with their glows, records each round, and calls the screens' callbacks at a level's end and the run's end. Every wait
+// goes through the Sleeper (ADR 0005); the rules that need no time are in logic/. usePlay.ts is its thin React bridge.
 import type { Rng } from '../shared/adaptive'
 import type { Sleeper } from '../shared/sleeper'
 import type { Track } from '../parent/types'
+import { AGAIN_AFTER, INTRO_CUES, INTRO_LINE_MS, INTRO_TIMES, introMistake, introOf, type IntroId } from './audio/intros'
 import type * as SpaceCatAudio from './audio/spaceCatAudio'
-import type { Engine, Hud } from './canvas/engine'
+import type { Cue, Engine, Hud, PodsWhen } from './canvas/engine'
 import { makeRound, type RoundContent } from './content'
 import { itemById, type Item } from './logic/facts'
-import { oldRungOf } from './logic/ladder'
 import { isFast } from './logic/fast'
-import { frontier, type Part } from './logic/ladder/index'
-import { rungDef } from './logic/rungs'
+import { frontier, type LadderEvent, type Part } from './logic/ladder/index'
+import { rungDef, type RungId } from './logic/rungs'
 import type { RoundResult } from './logic/round'
 import { RUN_START, applyResult, nextLevel, type Run } from './logic/run'
 import { arrivalInForce, speedOfBand } from './logic/speed'
@@ -22,8 +22,10 @@ import type { SpaceCatSavePort } from './savePort'
 export const DEMO_ITEM = '1+1=2/c'
 /** the demo hand drags to the right planet and back in this long; the zoom tip's flick shows this long */
 export const DEMO_HAND_MS = 3200, TIP_HAND_MS = 2400
-/** the zoom tip and the missing-number line show at most this many times */
+/** the zoom tip and the missing-number line (of sums; of jump rows, its own count) show at most this many times */
 export const TIP_TIMES = 2, MISSING_TIMES = 2
+/** the equal-groups pods show from the start on the first this many tallied rounds of T1, and of T2 (the design) */
+export const T1_POD_ROUNDS = 5, T2_POD_ROUNDS = 2
 /** a voice line starts this long after the effect before it (spec *Voice*: about 0.4 s) */
 export const SFX_TO_VOICE_MS = 400
 /** the ship starts in this lane in a new run */
@@ -34,7 +36,7 @@ export interface EndInfo { points: number; newBest: boolean; best: number; level
 
 export interface PlayOpts {
   engine: Engine
-  audio: Pick<typeof SpaceCatAudio, 'say' | 'playSfx' | 'quiet' | 'stopAll' | 'stopVoice' | 'startTune' | 'stopTune'>
+  audio: Pick<typeof SpaceCatAudio, 'say' | 'hasLine' | 'playSfx' | 'quiet' | 'stopAll' | 'stopVoice' | 'startTune' | 'stopTune'>
   save: SpaceCatSavePort
   /** the run's telemetry (Space Cat's log: telemetry.ts) */
   track: Track
@@ -48,11 +50,23 @@ export interface PlayOpts {
   onEnd: (info: EndInfo) => void
 }
 
-/** demo: the first round's hand and line; tip: the zoom tip; missing: the missing-number line; between: a level done or the end */
-export type PlayPhase = 'demo' | 'tip' | 'missing' | 'flight' | 'between'
+/**
+ * demo: the first round's hand and line; tip: the zoom tip; missing: the missing-number line; intro: an intro line of a
+ * new kind; between: a level done or the end
+ */
+export type PlayPhase = 'demo' | 'tip' | 'missing' | 'intro' | 'flight' | 'between'
 export interface PlayView { paused: boolean; hud: Hud; phase: PlayPhase }
 
-interface Current { item: Item; content: RoundContent; demo: boolean; missing: boolean; rung: number; part: Part }
+/**
+ * The line a round says while he already plays: the missing-number line (counted in `heard` under `count`), or an intro.
+ * An intro: `first` (one of its first INTRO_TIMES), `again` (after AGAIN_AFTER of its mistake today), `silent` (no take:
+ * its glows play on their own timeline and nothing is counted).
+ */
+type Say =
+  | { line: 'missing'; count: 'missing' | 'missing-jumps' }
+  | { line: IntroId; first: boolean; again: boolean; silent: boolean }
+
+interface Current { item: Item; content: RoundContent; demo: boolean; say?: Say; part: Part }
 
 export class PlayController {
   private o: PlayOpts
@@ -69,6 +83,8 @@ export class PlayController {
   private shipLane = START_LANE
   private tipEnd: (() => void) | null = null
   private dead = false
+  /** the silent intros played in this run (a line with no take plays its glows at most INTRO_TIMES a run) */
+  private silentPlays: Partial<Record<IntroId, number>> = {}
 
   constructor(o: PlayOpts) {
     this.o = o
@@ -95,9 +111,12 @@ export class PlayController {
     this.o.engine.setShip(s.ship)
     this.setHud()
     this.music()
+    this.silentPlays = {}
     this.o.setRun?.(s.runs + 1)
-    this.o.save.beginRun()
-    this.o.track('run-start', { ship: s.ship, rung: frontier(this.o.save.get().ladder, s.settings) ?? '' })
+    const { events, playDay } = this.o.save.beginRun()
+    const at = frontier(this.o.save.get().ladder, s.settings)
+    this.o.track('run-start', { ship: s.ship, rung: at, frontier: at, playDay })
+    this.trackLadder(events)
     void this.nextRound()
   }
 
@@ -123,7 +142,9 @@ export class PlayController {
     if (this.inRound) {
       const c = this.cur
       this.o.save.recordRound(c.item, this.cutResult(), { cut: true })
-      this.o.track('round', { item: c.item.id, labels: c.content.labels, rung: c.rung, level: this.run.level, ship: this.o.save.get().ship, cut: true })
+      this.o.track('round', {
+        item: c.item.id, labels: c.content.labels, rung: c.item.rung, kind: c.item.kind, part: c.part, level: this.run.level, ship: this.o.save.get().ship, cut: true,
+      })
       this.o.engine.restart()
       void this.begin(this.cur)
     } else this.o.engine.resume()
@@ -185,49 +206,129 @@ export class PlayController {
     const taken = demo ? { item: itemById(DEMO_ITEM)!, part: 'frontier' as Part } : this.o.save.takeRound(this.o.rng)
     const { item, part } = taken
     const content = makeRound(this.o.rng, item, this.shipLane, confusionOf(s.items[item.id]?.picks))
-    const missing = !demo && item.kind === 'sum' && item.hole !== 'c' && (s.heard.missing ?? 0) < MISSING_TIMES
-    const cur: Current = { item, content, demo, missing, rung: oldRungOf(item) ?? 0, part }
+    const say = demo ? undefined : this.sayOf(item)
+    if (say && say.line !== 'missing' && say.silent) this.silentPlays[say.line] = (this.silentPlays[say.line] ?? 0) + 1
+    const cur: Current = { item, content, demo, say, part }
     this.cur = cur
-    this.o.engine.play(content, arrivalInForce(speedOfBand(s.speed, rungDef(item.rung).band), s.settings.arrival), { frozen: true })
+    const pods: PodsWhen = say?.line === 'times' || say?.line === 'divide' ? 'cue' : podsFromStart(item, s.items) ? 'start' : 'mistake'
+    this.o.engine.play(content, arrivalInForce(speedOfBand(s.speed, rungDef(item.rung).band), s.settings.arrival), { frozen: true, pods })
     return this.begin(cur)
   }
 
   /**
+   * The line this round says. A jump row with its ring not last: the missing-number line, its first MISSING_TIMES (its
+   * own count). A round of a new kind: its intro, the first INTRO_TIMES heard, or again after AGAIN_AFTER of its mistake
+   * on this play day (once a day); a silent intro at most INTRO_TIMES a run. A sum with its ring not at the end: the
+   * missing-number line, its first MISSING_TIMES.
+   */
+  private sayOf(item: Item): Say | undefined {
+    const s = this.o.save.get()
+    const heard = (id: string) => s.heard[id] ?? 0
+    if (item.kind === 'jumps' && item.hole !== 3 && heard('missing-jumps') < MISSING_TIMES) return { line: 'missing', count: 'missing-jumps' }
+    const id = introOf(item)
+    if (id) {
+      const today = s.intro.day === s.ladder.day
+      const first = heard(id) < INTRO_TIMES
+      const again = today && (s.intro.mistakes[id] ?? 0) >= AGAIN_AFTER && !s.intro.again.includes(id)
+      const silent = !this.o.audio.hasLine(id)
+      if ((first || again) && (!silent || (this.silentPlays[id] ?? 0) < INTRO_TIMES)) return { line: id, first, again, silent }
+    }
+    if (item.kind === 'sum' && item.hole !== 'c' && heard('missing') < MISSING_TIMES) return { line: 'missing', count: 'missing' }
+    return undefined
+  }
+
+  /**
    * A round starts (again, after a pause: the engine has restarted it). The planets stand still until the voice and the
-   * last effect have ended, then the arrival sound plays and the planets move with his touches on. The demo or the
-   * missing-number line comes 0.4 s after the arrival sound and is spoken while he already plays.
+   * last effect have ended (a jump row: and its numbers have hopped in), then the arrival sound plays and the planets
+   * move with his touches on. The demo, the missing-number line or an intro comes 0.4 s after the arrival sound and is
+   * spoken while he already plays.
    */
   private async begin(cur: Current): Promise<void> {
     const my = ++this.epoch
     const live = () => my === this.epoch && !this.dead && this.cur === cur
     this.inRound = true
     this.o.engine.setInput(false)
-    this.set({ phase: cur.demo ? 'demo' : cur.missing ? 'missing' : 'flight' })
+    this.set({ phase: cur.demo ? 'demo' : cur.say?.line === 'missing' ? 'missing' : cur.say ? 'intro' : 'flight' })
     await this.o.audio.quiet()
     if (!live()) return
+    // the numbers of a jump row hop in on the engine's own clock while the planets stand still
+    if (cur.item.kind === 'jumps') {
+      await this.o.engine.boxIn()
+      if (!live()) return
+    }
     const arrival = this.o.audio.playSfx('new-sum')
     // the planets move and his touches work at once: he may start while the instruction is spoken. The line is never
     // cut; a line that wants to start behind it waits in the voice queue (a round's arrival sound waits for `quiet()`).
     this.o.engine.setInput(true)
     this.o.engine.resume()
-    if (cur.demo || cur.missing) void this.instruct(cur, arrival, live)
+    if (cur.demo || cur.say) void this.instruct(cur, arrival, live)
     else this.set({ phase: 'flight' })
   }
 
-  /** the demo hand or the missing-number ring, and the line, while the round already runs */
+  /** the demo hand, the missing-number ring or an intro's glows, and the line, while the round already runs */
   private async instruct(cur: Current, arrival: Promise<void>, live: () => boolean): Promise<void> {
+    const say = cur.say
     const hand = cur.demo ? this.o.engine.demoHand('drag', cur.content.rightLane, DEMO_HAND_MS) : Promise.resolve()
-    if (cur.missing) this.o.engine.pulseRing(true)
+    if (say?.line === 'missing') this.o.engine.pulseRing(true)
     await arrival
     await this.o.sleeper.sleep(SFX_TO_VOICE_MS)
     // the round ended or he left in the meantime: the line stays unsaid
-    const heard = live() ? await this.o.audio.say(cur.demo ? 'demo' : 'missing') : false
+    let heard = false
+    if (!say || say.line === 'missing') heard = live() ? await this.o.audio.say(cur.demo ? 'demo' : 'missing') : false
+    else heard = await this.intro(say.line, say.silent, live)
     await hand
-    if (cur.missing) {
+    if (say?.line === 'missing') {
       this.o.engine.pulseRing(false)
-      if (heard) this.o.save.markHeard('missing')
+      if (heard) this.o.save.markHeard(say.count)
+    } else if (say && heard) {
+      if (say.first) this.o.save.markHeard(say.line)
+      if (say.again) this.o.save.markIntroAgain(say.line)
     }
     if (live() && this.view.phase !== 'tip') this.set({ phase: 'flight' })
+  }
+
+  /**
+   * An intro line with its glows, timed from the line's start (INTRO_CUES); true when it was heard. A line with no take:
+   * the glows alone, on the take's timeline from now, and false (nothing is counted).
+   */
+  private async intro(id: IntroId, silent: boolean, live: () => boolean): Promise<boolean> {
+    if (!live()) return false
+    if (silent) {
+      const end = this.cueTimeline(id, live)
+      await this.o.sleeper.sleep(INTRO_LINE_MS[id])
+      end()
+      return false
+    }
+    const timeline = { end: () => {} }
+    const heard = await this.o.audio.say(id, { onStart: () => { timeline.end = this.cueTimeline(id, live) } })
+    timeline.end()
+    return heard
+  }
+
+  /** runs an intro's cues from now: each glows until the next one; the returned function ends the last (and the rest) */
+  private cueTimeline(id: IntroId, live: () => boolean): () => void {
+    let on: Cue | null = null
+    let done = false
+    const off = () => {
+      if (on && live()) this.o.engine.cue(on, false)
+      on = null
+    }
+    void (async () => {
+      let t = 0
+      for (const c of INTRO_CUES[id]) {
+        await this.o.sleeper.sleep(c.at - t)
+        t = c.at
+        // the round ended (the next play clears every cue) or the line did
+        if (done || !live()) return
+        off()
+        this.o.engine.cue(c.cue, true)
+        on = c.cue
+      }
+    })()
+    return () => {
+      done = true
+      off()
+    }
   }
 
   /** he rests under the right planet: the zoom tip, at most TIP_TIMES (the planets stop so no round sound falls on the line) */
@@ -270,13 +371,19 @@ export class PlayController {
     const s = this.o.save.get()
     const band = speedOfBand(s.speed, rungDef(cur.item.rung).band)
     const arrivalMs = arrivalInForce(band, s.settings.arrival)
-    this.o.save.recordRound(cur.item, r, { demo: cur.demo, part: cur.part, fast: isFast(r, band, arrivalMs) })
+    const fast = isFast(r, band, arrivalMs)
+    const { events } = this.o.save.recordRound(cur.item, r, { demo: cur.demo, part: cur.part, fast })
     this.o.track('round', {
       item: cur.item.id, labels: cur.content.labels, startLane: this.shipLane, endLane: r.lane, number: numberOf(r.number), result: r.result,
-      end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs, rung: cur.rung,
+      end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs, rung: cur.item.rung, kind: cur.item.kind, part: cur.part, fast,
       level: this.run.level, ship: s.ship, ...(cur.demo ? { demo: true } : {}),
     })
+    this.trackLadder(events)
     if (cur.demo) this.o.save.markHeard('demo')
+    else if (r.result === 'wrong') {
+      const mistake = introMistake(cur.item, r.number)
+      if (mistake) this.o.save.noteIntroMistake(mistake)
+    }
     this.shipLane = r.lane
     const { run, levelDone, over } = applyResult(this.run, r)
     this.run = run
@@ -284,6 +391,23 @@ export class PlayController {
     if (over) return this.endRun()
     if (levelDone) return this.levelDone()
     void this.nextRound()
+  }
+
+  /** the ladder's changes, one literal event name each (ADR 0007: the golden test finds every call site) */
+  private trackLadder(events: LadderEvent[]) {
+    for (const ev of events) {
+      switch (ev.e) {
+        case 'ladder':
+          this.o.track('ladder', { rung: ev.rung, change: ev.change, ...(ev.by ? { by: ev.by } : {}), ...(ev.days !== undefined ? { days: ev.days } : {}) })
+          break
+        case 'placement':
+          this.o.track('placement', { phase: ev.phase, kind: ev.kind, probes: ev.probes, mistakes: ev.mistakes, frontier: ev.frontier })
+          break
+        case 'warmup':
+          this.o.track('warmup', { rung: ev.rung, how: ev.how, rounds: ev.rounds })
+          break
+      }
+    }
   }
 
   private levelDone() {
@@ -306,6 +430,19 @@ export class PlayController {
   private cutResult(): RoundResult {
     return { result: 'timeout', end: 'arrival', lane: this.shipLane, number: '', points: 0, lastLaneMs: null, endMs: 0, underMs: null, startedUnder: false }
   }
+}
+
+/** the equal-groups pods from the round's start: the first T1_POD_ROUNDS tallied rounds of T1, T2_POD_ROUNDS of T2 */
+function podsFromStart(it: Item, items: Record<string, { seen: number }>): boolean {
+  const max = it.rung === 'T1' ? T1_POD_ROUNDS : it.rung === 'T2' ? T2_POD_ROUNDS : 0
+  return max > 0 && talliedOf(it.rung, items) < max
+}
+
+/** the tallied rounds of a rung's items */
+function talliedOf(rung: RungId, items: Record<string, { seen: number }>): number {
+  let n = 0
+  for (const [id, st] of Object.entries(items)) if (itemById(id)?.rung === rung) n += st.seen
+  return n
 }
 
 /** his most frequent wrong pick for an item, as the planet showed it (digits, or a sign) */

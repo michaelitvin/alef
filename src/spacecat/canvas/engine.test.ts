@@ -3,9 +3,8 @@ import type { SfxName } from '../audio/sfx'
 import type { RoundContent } from '../content'
 import { makeRound } from '../content'
 import { itemsOfRung } from '../logic/facts'
-import { RUNGS, itemsOfOldRung } from '../logic/ladder'
 import type { RoundResult } from '../logic/round'
-import type { RungId } from '../logic/rungs'
+import { RUNGS, type RungId } from '../logic/rungs'
 import { HOP_MS, WIDE, portraitGeom } from './draw'
 import { CLEAR_MS, FLY_MS, MARK_MS, MARK_POD_MS, SWELL, SWELL_MS, swellScale } from './effects'
 import { PARKED_MS, ZOOM_HEIGHTS_PER_S, createEngine, zoomSpeed, type Engine } from './engine'
@@ -235,7 +234,7 @@ describe('the engine', () => {
     const rng = lcg(7)
     window.__scText = []
     for (const { id } of RUNGS) {
-      const items = itemsOfOldRung(id)
+      const items = itemsOfRung(id)
       for (let n = 0; n < 50; n++) {
         const it = items[Math.floor(rng() * items.length)]
         engine.play(makeRound(rng, it, 1), 8000)

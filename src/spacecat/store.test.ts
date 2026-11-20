@@ -124,6 +124,28 @@ describe('space cat store', () => {
     expect(store().ladder.day).toBe(2)
     expect(store().intro.day).toBe(2)
   })
+  it('the intros\' mistakes and replays are counted per play day', () => {
+    store().beginRun(1000)
+    store().noteIntroMistake('compare')
+    store().noteIntroMistake('compare')
+    store().noteIntroMistake('jumps')
+    store().markIntroAgain('compare')
+    expect(store().intro).toEqual({ day: 1, mistakes: { compare: 2, jumps: 1 }, again: ['compare'] })
+    // a second replay of the same line on one day is written once
+    store().markIntroAgain('compare')
+    expect(store().intro.again).toEqual(['compare'])
+    store().recordRound(it1, result(), { now: 2000 })
+    store().beginRun(2000 + 13 * 3600_000)
+    expect(store().intro).toEqual({ day: 2, mistakes: {}, again: [] })
+  })
+  it('an intro counter from another play day starts afresh', () => {
+    useSpaceCatStore.setState({ ladder: { ...LADDER_START, day: 3 }, intro: { day: 2, mistakes: { compare: 2 }, again: ['times'] } })
+    store().noteIntroMistake('compare')
+    expect(store().intro).toEqual({ day: 3, mistakes: { compare: 1 }, again: [] })
+    useSpaceCatStore.setState({ intro: { day: 2, mistakes: { compare: 2 }, again: [] } })
+    store().markIntroAgain('jumps')
+    expect(store().intro).toEqual({ day: 3, mistakes: {}, again: ['jumps'] })
+  })
   it('findLevelAgain keeps items, points and settings and starts a placement from rung 1', () => {
     store().recordRound(it1, result())
     store().endRun(7)

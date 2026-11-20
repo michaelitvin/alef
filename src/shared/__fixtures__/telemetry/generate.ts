@@ -228,8 +228,6 @@ const SPACECAT: Record<string, (r: R, t: number) => Record<string, unknown>> = {
       level: r.int(1, 5), ship: r.int(1, 3), ...(r.chance(0.02) ? { demo: true } : {}),
     }
   },
-  // the controller still tracks the old `rung` event; this entry goes when it stops (the call-site test needs the name)
-  rung: (r) => ({ rung: r.int(2, 9) }),
   ladder: (r) => {
     const change = r.pick(['placed', 'passed', 'strike', 'held', 'free', 'unpassed'] as const)
     const by = r.pick({ placed: ['placement', 'migration'], passed: ['fast', 'slow', 'rejump', 'recheck', 'warmup'], strike: ['probation'], held: ['slow'], free: ['recheck'], unpassed: ['probation', 'recheck'] }[change])
@@ -245,7 +243,7 @@ const SPACECAT: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   warmup: (r) => ({ rung: scRung(r), how: r.pick(['fast', 'slow', 'forgot']), rounds: r.int(1, 5) }),
   'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120) }),
   ship: (r) => ({ ship: r.int(2, 3) }),
-  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'flight', 'between']) }),
+  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'intro', 'flight', 'between']) }),
   abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'between']) }),
   'run-end': (r) => ({ points: r.int(0, 120), levels: r.int(1, 8), best: r.int(0, 150) }),
   settings: (r) => (r.chance(0.5)

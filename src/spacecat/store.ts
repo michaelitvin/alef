@@ -34,6 +34,10 @@ export interface Actions {
   unlockShips: (level: number) => (2 | 3)[]
   chooseShip: (n: 1 | 2 | 3) => void
   markHeard: (id: string) => void
+  /** an intro's typical mistake (audio/intros.ts), counted on the ladder's play day */
+  noteIntroMistake: (id: string) => void
+  /** an intro played again after its mistakes: at most once a play day */
+  markIntroAgain: (id: string) => void
   setSettings: (p: Partial<Settings>) => void
   reset: () => void
 }
@@ -45,6 +49,8 @@ export type SpaceCatState = SpaceCatSave & Actions
 const toHistory = (events: LadderEvent[], t: number): HistoryEntry[] =>
   events.flatMap((e) => (e.e === 'ladder' ? [{ t, rung: e.rung, change: e.change, ...(e.by ? { by: e.by } : {}), ...(e.days !== undefined ? { days: e.days } : {}) }] : []))
 const keepHistory = (h: HistoryEntry[]) => h.slice(-HISTORY_KEEP)
+/** the intro counters of the ladder's play day (counters of an earlier day start afresh) */
+const introOfDay = (s: SpaceCatSave): SpaceCatSave['intro'] => (s.intro.day === s.ladder.day ? s.intro : { day: s.ladder.day, mistakes: {}, again: [] })
 
 /** hold a band's speed after a rung opened there: the band's next HOLD_ROUNDS rounds do not get shorter */
 const holdBand = (speed: SpaceCatSave['speed'], band: Band): SpaceCatSave['speed'] => ({
@@ -112,6 +118,14 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       },
       chooseShip: (n) => { if (get().ships.includes(n)) set({ ship: n }) },
       markHeard: (id) => set((s) => ({ heard: { ...s.heard, [id]: (s.heard[id] ?? 0) + 1 } })),
+      noteIntroMistake: (id) => set((s) => {
+        const i = introOfDay(s)
+        return { intro: { ...i, mistakes: { ...i.mistakes, [id]: (i.mistakes[id] ?? 0) + 1 } } }
+      }),
+      markIntroAgain: (id) => set((s) => {
+        const i = introOfDay(s)
+        return { intro: i.again.includes(id) ? i : { ...i, again: [...i.again, id] } }
+      }),
       setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
       reset: () => set({ ...DEFAULT_SAVE, settings: get().settings }),
 })

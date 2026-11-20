@@ -61,32 +61,25 @@
      "t": 1790869503127,
      "s": "muppgm00-2jhhi",
      "run": 1,
-     "e": "rung",
-     "rung": 2
+     "e": "ladder",
+     "rung": "13",
+     "change": "placed",
+     "by": "placement"
     },
     {
-     "t": 1790869506973,
+     "t": 1790869504838,
      "s": "muppgm00-2jhhi",
      "run": 1,
-     "e": "ladder",
-     "rung": "T4b",
-     "change": "passed",
-     "by": "slow"
-    },
-    {
-     "t": 1790950388963,
-     "s": "mur1m5eo-5rd1f",
-     "run": 1,
      "e": "placement",
-     "phase": "start",
-     "kind": "migration",
-     "probes": 0,
-     "mistakes": 0,
-     "frontier": null
+     "phase": "end",
+     "kind": "first",
+     "probes": 6,
+     "mistakes": 3,
+     "frontier": "4"
     },
     {
-     "t": 1790950388963,
-     "s": "mur1m5eo-5rd1f",
+     "t": 1790962200000,
+     "s": "mur8nhs0-rky9m",
      "run": 1,
      "e": "warmup",
      "rung": "5",
@@ -94,65 +87,65 @@
      "rounds": 1
     },
     {
-     "t": 1790950396483,
-     "s": "mur1m5eo-5rd1f",
+     "t": 1790962207520,
+     "s": "mur8nhs0-rky9m",
      "run": 1,
      "e": "level-done",
      "level": 3,
      "points": 53
     },
     {
-     "t": 1790950404642,
-     "s": "mur1m5eo-5rd1f",
+     "t": 1790962215679,
+     "s": "mur8nhs0-rky9m",
      "run": 1,
      "e": "ship",
      "ship": 3
     },
     {
-     "t": 1790950412967,
-     "s": "mur1m5eo-5rd1f",
+     "t": 1790962224004,
+     "s": "mur8nhs0-rky9m",
      "run": 1,
      "e": "pause",
      "phase": "flight"
     },
     {
-     "t": 1791045543752,
-     "s": "musm9rc0-na2xu",
-     "run": 2,
+     "t": 1790962231656,
+     "s": "mur8nhs0-rky9m",
+     "run": 1,
      "e": "abandon",
-     "level": 1,
-     "points": 93,
+     "level": 6,
+     "points": 25,
      "phase": "flight"
     },
     {
-     "t": 1791045550892,
-     "s": "musm9rc0-na2xu",
-     "run": 2,
+     "t": 1791037627140,
+     "s": "mushk080-2lwft",
+     "run": 4,
      "e": "run-end",
      "points": 110,
      "levels": 8,
      "best": 22
     },
     {
-     "t": 1791045552285,
-     "s": "musm9rc0-na2xu",
-     "run": 2,
+     "t": 1791037628533,
+     "s": "mushk080-2lwft",
+     "run": 4,
      "e": "settings",
      "range": "6",
      "by": "parent"
     },
     {
-     "t": 1791045554264,
-     "s": "musm9rc0-na2xu",
-     "run": 2,
+     "t": 1791037630512,
+     "s": "mushk080-2lwft",
+     "run": 4,
      "e": "player",
      "gender": "girl",
      "by": "parent"
     },
     {
-     "t": 1791045561090,
-     "s": "musm9rc0-na2xu",
-     "run": 2,
+     "t": 1791037637338,
+     "s": "mushk080-2lwft",
+     "run": 4,
      "e": "storage-persist",
      "persisted": false
     },
@@ -218,7 +211,7 @@
      "run": 1,
      "e": "pause",
      "g": "spacecat",
-     "phase": "missing"
+     "phase": "intro"
     },
     {
      "t": 1791220340214,
@@ -1086,7 +1079,7 @@
      "run": 4,
      "e": "pause",
      "g": "spacecat",
-     "phase": "missing"
+     "phase": "intro"
     },
     {
      "t": 1791984420567,
@@ -2034,7 +2027,7 @@
      "run": 5,
      "e": "pause",
      "g": "spacecat",
-     "phase": "flight"
+     "phase": "intro"
     },
     {
      "t": 1792772590112,
@@ -2931,7 +2924,7 @@
      "run": 5,
      "e": "pause",
      "g": "spacecat",
-     "phase": "between"
+     "phase": "flight"
     },
     {
      "t": 1793629571506,

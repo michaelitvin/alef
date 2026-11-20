@@ -283,6 +283,8 @@ export function createGameAudio<S extends string = string, M extends string = st
     /** nothing is playing or waiting in the voice queue */
     voiceIdle: () => pending.size === 0,
     voiceFile,
+    /** the voice file of `id` (after the feminine choice) is there to play */
+    hasFile: (id: string): boolean => !!urlOf(voiceFile(id)),
     playLine,
     playSfx,
     startMusic,

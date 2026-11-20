@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { applySound } from '../../shared/gameAudio/output'
 import { codedSource } from '../../shared/gameAudio/coded'
-import { playSfx, quiet, say, sayAfterSfx, sayInfo, startTune, stopAll, stopTune, stopVoice } from './spaceCatAudio'
+import { hasLine, playSfx, quiet, say, sayAfterSfx, sayInfo, startTune, stopAll, stopTune, stopVoice } from './spaceCatAudio'
 import { CODED_SFX, TUNE_URL } from './coded'
 import { SFX_NAMES } from './sfx'
 import { TUNE_DUCK, TUNE_GAIN } from './tune'
@@ -31,6 +31,24 @@ describe('Space Cat on the audio kit', () => {
   it('say resolves at once for an unknown id', async () => {
     expect(await say('no-such-line')).toBe(false)
     expect(audio.said()).toEqual([])
+  })
+
+  it('hasLine: a line with a take; a missing file or an unknown line has none', () => {
+    expect(hasLine('compare')).toBe(true)
+    expect(hasLine('new-best')).toBe(true)
+    expect(hasLine('no-such-line')).toBe(false)
+    audio.missing = (id) => id === 'compare-1'
+    expect(hasLine('compare')).toBe(false)
+    expect(hasLine('jumps')).toBe(true)
+  })
+
+  it('say runs onStart as the line starts', async () => {
+    const started: string[] = []
+    const p = say('jumps', { onStart: () => started.push(audio.said().join()) })
+    expect(await p).toBe(true)
+    // onStart comes just before the file plays
+    expect(started).toEqual([''])
+    expect(audio.said()).toEqual(['jumps-1'])
   })
 
   it('a missing file resolves at once and is not heard', async () => {
