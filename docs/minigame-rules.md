@@ -121,6 +121,16 @@ Put a new rule in the section that agrees with its subject. Keep the rules gener
 - Play speech a little faster, with the pitch kept. Cut the silence at the start and the end of each file.
   Example (duel): speech plays at 1.15×. Reason: slow speech made all of the game feel slow.
 - To remove a part of an approved take, cut the audio. Do not record it again, unless the parent asks.
+- Make all takes of one set sound like one speaker in one session: the same pitch, the same calm tone, the same length
+  for the same kind of item. Measure the pitch and the length against the approved takes and reject outliers before review.
+  Example (English): two word takes sounded female, "we" was "much more jolly than others", and the r, v and ng sounds
+  were "longer than others".
+- Make the last consonant of a word audible. Check for a burst or hiss in the end of each take.
+  Example (English): "at", "it", "dot" and "tif" were rejected with a silent last consonant, "cup" with a weak p.
+- Keep the voice directions out of the spoken text. Reject a take that says a word that is not in the text.
+  Example (English): retakes said "clearly hop" and "clearly, log".
+- When you cut the silence, keep the natural end of the word (approximately 120 ms of decay) and cut a breath before it.
+  Example (English): "he" and "bath" were "abrupt"; "I" and "have" started with a breath.
 
 ## Pronunciation
 
