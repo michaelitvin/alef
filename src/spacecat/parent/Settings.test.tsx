@@ -40,21 +40,21 @@ describe('Space Cat\'s section in the parent area', () => {
     const status = (r: number) => container.querySelector(`[data-rung="${r}"]`)!.getAttribute('data-status')
     expect(status(1)).toBe('open')
     expect(status(2)).toBe('closed')
-    expect(status(7)).toBe('switched off')
+    expect(status(7)).toBe('closed')
     fireEvent.change(screen.getByLabelText('range'), { target: { value: '3' } })
-    expect(useSpaceCatStore.getState().settings.range).toBe(3)
+    expect(useSpaceCatStore.getState().settings.range).toBe('5')
     expect([1, 2, 3, 4].map(status)).toEqual(['open', 'open', 'open', 'closed'])
     fireEvent.click(screen.getByLabelText('times'))
-    expect(status(7)).toBe('closed')
+    expect(status(7)).toBe('switched off')
   })
 
   it('a fixed time shows and the automatic value is kept', () => {
-    useSpaceCatStore.setState({ speed: { arrivalMs: 6400, underMs: [], hold: 0 } })
+    useSpaceCatStore.setState({ speed: { small: { arrivalMs: 6400, underMs: [], hold: 0 } } })
     const { container } = render(<SpaceCatSettings goTo={() => {}} />)
     expect(container.querySelector('[data-arrival-auto]')!.textContent).toBe('6.4 s')
     fireEvent.click(screen.getByLabelText('4 s'))
     expect(useSpaceCatStore.getState().settings.arrival).toBe(4000)
-    expect(useSpaceCatStore.getState().speed.arrivalMs).toBe(6400)
+    expect(useSpaceCatStore.getState().speed.small.arrivalMs).toBe(6400)
     expect(container.querySelector('[data-arrival-auto]')!.textContent).toBe('6.4 s')
   })
 
@@ -90,7 +90,7 @@ describe('Space Cat\'s section in the parent area', () => {
     const track = vi.fn()
     render(<SpaceCatSettings goTo={() => {}} track={track} />)
     fireEvent.click(screen.getByLabelText('divide'))
-    expect(track).toHaveBeenCalledWith('settings', { divide: true, by: 'parent' })
+    expect(track).toHaveBeenCalledWith('settings', { divide: false, by: 'parent' })
   })
 
   it('summary and mixups read a literal save and give null / [] for none or bad JSON', () => {

@@ -6,9 +6,10 @@ import * as audio from './audio/spaceCatAudio'
 import type { Engine, Hud } from './canvas/engine'
 import type { RoundContent } from './content'
 import { MISSING_TIMES, PlayController, TIP_TIMES, type EndInfo, type LevelDoneInfo } from './controller'
+import { LADDER_START, type Ladder } from './logic/ladder/index'
 import type { RoundResult } from './logic/round'
 import { memorySavePort } from './savePort'
-import type { SpaceCatSave } from './saveFormat'
+import { DEFAULT_SETTINGS, type SpaceCatSave } from './saveFormat'
 
 const fake = installFakeAudio()
 
@@ -62,6 +63,11 @@ function setup(save: Partial<SpaceCatSave> = {}) {
   })
   live.push(ctl)
   return { engine, port, events, log, levels, ends, ctl }
+}
+/** he works on rung 4: rungs 1 to 3 are placed, the placement is over */
+const practiceAt4: Ladder = {
+  ...LADDER_START, day: 1, checkedOn: 1, mode: { kind: 'practice' },
+  rungs: Object.fromEntries((['1', '2', '3'] as const).map((r) => [r, { status: 'placed', recent: '', fastRun: 0, strikes: 0, holds: 0, probation: 0 }])),
 }
 /** a run that is not the first (no demo) */
 const played = { runs: 1, heard: { demo: 1 } }
@@ -119,7 +125,7 @@ describe('the play controller', () => {
   })
 
   it('the missing-number line is spoken while he plays and is not cut', async () => {
-    const { engine, port, ctl } = setup({ ...played, ladder: { top: 4, topRecent: '', topMistake: false, streak: 0 } })
+    const { engine, port, ctl } = setup({ ...played, ladder: practiceAt4 })
     fake.holdUntil(/^missing/)
     ctl.start()
     for (let i = 0; i < 20; i++) {
@@ -188,7 +194,7 @@ describe('the play controller', () => {
 
   it('the missing-number line plays the first two times only', async () => {
     // only rung 4 open in range: every item has its ring not at the end
-    const { engine, ctl } = setup({ ...played, ladder: { top: 4, topRecent: '', topMistake: false, streak: 0 } })
+    const { engine, ctl } = setup({ ...played, ladder: practiceAt4 })
     ctl.start()
     let n = 0
     for (let i = 0; i < 30 && n < 4; i++) {
@@ -334,7 +340,7 @@ describe('the play controller', () => {
 
   it('music during flight follows the setting', async () => {
     applySound({ sfx: true, music: true, volume: 0.8 })
-    const a = setup({ ...played, settings: { range: 'auto', times: false, divide: false, arrival: 'auto', flightMusic: true } })
+    const a = setup({ ...played, settings: { ...DEFAULT_SETTINGS, flightMusic: true } })
     a.ctl.start()
     expect(fake.live().some((e) => e.kind === 'music')).toBe(true)
     a.ctl.destroy()

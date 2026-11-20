@@ -4,6 +4,7 @@
 import { lazy } from 'react'
 import { persistedState, type GameParent, type Mixup } from '../../parent/types'
 import { RUNGS } from '../logic/ladder'
+import { oldTopOf } from './rungs'
 import { SAVE_KEY, type SpaceCatSave } from '../saveFormat'
 import { SPACECAT_LOG } from '../telemetryLog'
 import { RUNG_NAME, rungTallies, shareText } from './rungs'
@@ -18,7 +19,7 @@ export const spaceCatParent: GameParent = {
   summary: (raw) => {
     const s = persistedState<SpaceCatSave>(raw)
     if (!s) return null
-    return `Rung ${s.ladder?.top ?? 1} · runs ${s.runs ?? 0} · best ${s.best ?? 0} · points ${s.totalPoints ?? 0}`
+    return `Rung ${(s.ladder as { top?: number } | undefined)?.top ?? (s.ladder?.rungs ? oldTopOf(s.ladder) : 1)} · runs ${s.runs ?? 0} · best ${s.best ?? 0} · points ${s.totalPoints ?? 0}`
   },
   // the share of right answers on each rung he has played (time-outs count as not right), as on his settings page
   details: (raw) => {

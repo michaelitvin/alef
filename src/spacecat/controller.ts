@@ -9,11 +9,13 @@ import type * as SpaceCatAudio from './audio/spaceCatAudio'
 import type { Engine, Hud } from './canvas/engine'
 import { makeRound, type RoundContent } from './content'
 import { itemById, type Item } from './logic/facts'
-import { candidates, oldRungOf } from './logic/ladder'
-import { pickNext } from './logic/predict'
+import { oldRungOf } from './logic/ladder'
+import { isFast } from './logic/fast'
+import { frontier, type Part } from './logic/ladder/index'
+import { rungDef } from './logic/rungs'
 import type { RoundResult } from './logic/round'
 import { RUN_START, applyResult, nextLevel, type Run } from './logic/run'
-import { arrivalInForce } from './logic/speed'
+import { arrivalInForce, speedOfBand } from './logic/speed'
 import type { SpaceCatSavePort } from './savePort'
 
 /** the demo round's sum (spec *The first time*) */
@@ -50,7 +52,7 @@ export interface PlayOpts {
 export type PlayPhase = 'demo' | 'tip' | 'missing' | 'flight' | 'between'
 export interface PlayView { paused: boolean; hud: Hud; phase: PlayPhase }
 
-interface Current { item: Item; content: RoundContent; demo: boolean; missing: boolean; rung: number }
+interface Current { item: Item; content: RoundContent; demo: boolean; missing: boolean; rung: number; part: Part }
 
 export class PlayController {
   private o: PlayOpts
@@ -94,7 +96,8 @@ export class PlayController {
     this.setHud()
     this.music()
     this.o.setRun?.(s.runs + 1)
-    this.o.track('run-start', { ship: s.ship, rung: s.ladder.top })
+    this.o.save.beginRun()
+    this.o.track('run-start', { ship: s.ship, rung: frontier(this.o.save.get().ladder, s.settings) ?? '' })
     void this.nextRound()
   }
 
@@ -179,14 +182,13 @@ export class PlayController {
   private nextRound(): Promise<void> {
     const s = this.o.save.get()
     const demo = !(s.heard.demo > 0) && s.runs === 0
-    const item = demo
-      ? itemById(DEMO_ITEM)!
-      : pickNext(this.o.rng, candidates(s.ladder, s.settings), s.items, { fact: s.lastFact, sinceZero: s.sinceZero })
+    const taken = demo ? { item: itemById(DEMO_ITEM)!, part: 'frontier' as Part } : this.o.save.takeRound(this.o.rng)
+    const { item, part } = taken
     const content = makeRound(this.o.rng, item, this.shipLane, confusionOf(s.items[item.id]?.picks))
     const missing = !demo && item.kind === 'sum' && item.hole !== 'c' && (s.heard.missing ?? 0) < MISSING_TIMES
-    const cur: Current = { item, content, demo, missing, rung: oldRungOf(item) ?? 0 }
+    const cur: Current = { item, content, demo, missing, rung: oldRungOf(item) ?? 0, part }
     this.cur = cur
-    this.o.engine.play(content, arrivalInForce(s.speed, s.settings.arrival), { frozen: true })
+    this.o.engine.play(content, arrivalInForce(speedOfBand(s.speed, rungDef(item.rung).band), s.settings.arrival), { frozen: true })
     return this.begin(cur)
   }
 
@@ -266,13 +268,14 @@ export class PlayController {
     this.inRound = false
     this.epoch++
     const s = this.o.save.get()
-    const { opened } = this.o.save.recordRound(cur.item, r, { demo: cur.demo })
+    const band = speedOfBand(s.speed, rungDef(cur.item.rung).band)
+    const arrivalMs = arrivalInForce(band, s.settings.arrival)
+    this.o.save.recordRound(cur.item, r, { demo: cur.demo, part: cur.part, fast: isFast(r, band, arrivalMs) })
     this.o.track('round', {
       item: cur.item.id, labels: cur.content.labels, startLane: this.shipLane, endLane: r.lane, number: numberOf(r.number), result: r.result,
-      end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs: arrivalInForce(s.speed, s.settings.arrival), rung: cur.rung,
+      end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs, rung: cur.rung,
       level: this.run.level, ship: s.ship, ...(cur.demo ? { demo: true } : {}),
     })
-    if (opened) this.o.track('rung', { rung: opened })
     if (cur.demo) this.o.save.markHeard('demo')
     this.shipLane = r.lane
     const { run, levelDone, over } = applyResult(this.run, r)

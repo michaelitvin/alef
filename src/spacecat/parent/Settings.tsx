@@ -7,12 +7,13 @@ import type { SectionProps } from '../../parent/types'
 import { playSfx, startTune, stopTune } from '../audio/spaceCatAudio'
 import { SFX_NAMES, type SfxName } from '../audio/sfx'
 import { itemById } from '../logic/facts'
-import { RUNGS, openRungs, type RungId } from '../logic/ladder'
+import { RUNGS } from '../logic/ladder'
+import { RANGE_V1 } from '../migrate'
 import { predictItem, priorOf, type ItemStats } from '../logic/predict'
 import type { FixedArrival } from '../logic/speed'
 import type { Settings as SettingsT } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
-import { RUNG_NAME, rungTallies, shareText } from './rungs'
+import { RUNG_NAME, oldRangeOf, openOldRungs, rungTallies, shareText } from './rungs'
 import { sumText } from './sumText'
 
 const SFX_LABEL: Record<SfxName, string> = {
@@ -38,7 +39,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
     s.setSettings(p)
     track?.('settings', { ...p, by: 'parent' })
   }
-  const open = openRungs(s.ladder, s.settings)
+  const open = openOldRungs(s.ladder, s.settings)
   const items = Object.entries(s.items).map(([id, st]) => ({ id, st, it: itemById(id) })).filter((x) => x.it)
   const tallies = rungTallies(s.items)
   const hard = items
@@ -87,7 +88,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
       <h3>Range</h3>
       <label style={{ display: 'block' }}>
         Highest rung{' '}
-        <select aria-label="range" value={String(s.settings.range)} onChange={(e) => set({ range: e.target.value === 'auto' ? 'auto' : (Number(e.target.value) as RungId) })}>
+        <select aria-label="range" value={String(oldRangeOf(s.settings.range))} onChange={(e) => set({ range: e.target.value === 'auto' ? 'auto' : RANGE_V1[Number(e.target.value)] })}>
           <option value="auto">automatic (the game opens rungs as he is ready)</option>
           {RUNGS.map((r) => <option key={r.id} value={r.id}>up to rung {r.id}</option>)}
         </select>
@@ -103,7 +104,7 @@ export default function SpaceCatSettings({ goTo, track }: SectionProps) {
       <div data-arrival>
         <label style={{ display: 'block' }}>
           <input type="radio" name="sc-arrival" aria-label="automatic time" checked={s.settings.arrival === 'auto'} onChange={() => set({ arrival: 'auto' })} />{' '}
-          Automatic (now <span data-arrival-auto>{(s.speed.arrivalMs / 1000).toFixed(1)} s</span>)
+          Automatic (now <span data-arrival-auto>{(s.speed.small.arrivalMs / 1000).toFixed(1)} s</span>)
         </label>
         {([8000, 5000, 4000] as FixedArrival[]).map((ms) => (
           <label key={ms} style={{ display: 'block' }}>
