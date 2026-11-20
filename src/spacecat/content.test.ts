@@ -13,12 +13,12 @@ const rng = (): Rng => {
 
 describe('makeRound', () => {
   it('puts the ring at the hole', () => {
-    expect(makeRound(rng(), itemById('3+4=7/c')!, 0, 10).box).toEqual(['3', '+', '4', '=', null])
-    expect(makeRound(rng(), itemById('3+4=7/b')!, 0, 10).box).toEqual(['3', '+', null, '=', '7'])
-    expect(makeRound(rng(), itemById('3+4=7/a')!, 0, 10).box).toEqual([null, '+', '4', '=', '7'])
+    expect(makeRound(rng(), itemById('3+4=7/c')!, 0).box).toEqual(['3', '+', '4', '=', null])
+    expect(makeRound(rng(), itemById('3+4=7/b')!, 0).box).toEqual(['3', '+', null, '=', '7'])
+    expect(makeRound(rng(), itemById('3+4=7/a')!, 0).box).toEqual([null, '+', '4', '=', '7'])
   })
   it('the right lane holds the answer', () => {
-    const r = makeRound(rng(), itemById('3+4=7/b')!, 2, 10)
+    const r = makeRound(rng(), itemById('3+4=7/b')!, 2)
     expect(r.labels).toHaveLength(4)
     expect(r.labels[r.rightLane]).toBe('4')
     expect(r.flyNumber).toBe('4')
