@@ -10,7 +10,7 @@ import type { MakeRoundOpts } from '../../utils/duel/rounds'
 import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../utils/duel/rules'
 import type { Choice, DuelMark, Round, TowerRune } from '../../types/duel'
 import { pickTarget, type ScreenId } from '../../duel2/logic/predict'
-import type { Choice as RunChoice, RoundCtx } from '../../duel2/logic/rounds'
+import { shuffle, type Choice as RunChoice, type RoundCtx } from '../../duel2/logic/rounds'
 import { NEW_SHARE } from '../../duel2/logic/stages'
 import { PLACEMENT_ROUNDS, type PlacementText } from '../content/placementRounds'
 import { UNITS, unit, type Unit, type UnitKind } from '../content/units'
@@ -85,14 +85,6 @@ export function choosePlacementRound(
   return cands[Math.floor(rng() * cands.length) % cands.length]
 }
 
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 const textOf = (x: string | PlacementText) => (typeof x === 'string' ? word(x).text : x.text)
 const mark = (id: string, text: string): DuelMark => ({ id, name: text, group: 'a' })

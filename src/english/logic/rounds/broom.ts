@@ -3,7 +3,7 @@
 // a heart word among heart or decodable words. The course ignores the run's `kind` (letters or syllables, a Hebrew
 // choice): the stage decides. No orb carries a picture: he finds the word by its letters, not by a picture.
 import type { ScreenId } from '../../../duel2/logic/predict'
-import type { Choice, Kind, RoundCtx } from '../../../duel2/logic/rounds'
+import { shuffle, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
 import { unit } from '../../content/units'
 import { heartVoice, wordVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'
@@ -51,14 +51,6 @@ function addOrDrop(a: string[], b: string[]): boolean {
   return long.some((_, i) => long.filter((_, j) => j !== i).every((x, j) => x === short[j]))
 }
 
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 /** what he hears: two choices that sound alike may not meet in a wave */
 const heardAs = (c: Choice) => (c.kind === 'word' ? `w:${HOMOPHONE[c.text] ?? c.text}` : c.soundId)

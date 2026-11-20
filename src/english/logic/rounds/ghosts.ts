@@ -6,7 +6,7 @@
 // its target may come twice (else the answer would be "the other one"). Never `I` against `l`. The run keeps a visit's
 // set by the signs of the round before (`prevSigns`), else by `avoid` (the sound of the target before).
 import { pickTarget } from '../../../duel2/logic/predict'
-import { CONFUSION_GROUP_MIN, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
+import { shuffle, CONFUSION_GROUP_MIN, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
 import type { ScreenId } from '../../../duel2/logic/predict'
 import type { Highlight } from '../../../duel2/viewTypes'
 import { GHOST_WORD_SETS, LOOKALIKE_LETTERS } from '../../content/sets'
@@ -79,14 +79,6 @@ function ownSets(ctx: RoundCtx, kind: Kind): string[][] {
   return out
 }
 
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 const pick = <T,>(rng: () => number, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
 
 /**

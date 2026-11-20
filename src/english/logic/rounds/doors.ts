@@ -3,7 +3,7 @@
 // shows the phrase's one noun. Never a heart word alone on a door. The door never says its word before he picks (the run
 // plays `q-door`, or `q-door-words` on a phrase, only when he waits); it is said when the door opens.
 import type { DoorKey, DoorRound } from '../../../duel2/course/types'
-import type { RoundCtx } from '../../../duel2/logic/rounds'
+import { shuffle, type RoundCtx } from '../../../duel2/logic/rounds'
 import { PHRASES } from '../../content/phrases'
 import { phraseVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'
@@ -27,14 +27,6 @@ const fileOf = (w: EnWord, d: DoorsDeps) => (w.picture ? d.picture(w.picture) : 
 /** a word without its ending (cats → c a t, fishing → f i sh): keys of one stem show the same thing */
 const stem = (w: EnWord) => w.units.filter((u) => !u.startsWith('-')).join(' ')
 
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 /** the words that go on a door alone: real door words (`D`) of his stages, with a picture file */
 const doorWords = (stage: number, d: DoorsDeps) => WORDS.filter((w) => w.kind === 'real' && w.uses.includes('D') && w.stage <= stage && !!fileOf(w, d))

@@ -4,7 +4,7 @@
 // the word turns, and its picture comes or changes where the words have one (cap → cape has none: word only).
 import type { CauldronRound } from '../../../duel2/course/types'
 import { pickTarget } from '../../../duel2/logic/predict'
-import type { Choice, RoundCtx } from '../../../duel2/logic/rounds'
+import { shuffle, type Choice, type RoundCtx } from '../../../duel2/logic/rounds'
 import { NEW_SHARE } from '../../../duel2/logic/stages'
 import { UNITS, unit, type Unit } from '../../content/units'
 import { WORDS, type EnWord } from '../../content/words'
@@ -46,14 +46,6 @@ const iAndL = (a: string, b: string) => (a.includes('I') && b.includes('l')) || 
 /** two tiles may not sound alike or look alike */
 const fits = (out: Choice[], c: Choice) => !out.some((o) => o.id === c.id || o.soundId === c.soundId || o.text === c.text || iAndL(o.text, c.text))
 
-function shuffle<T>(rng: () => number, xs: T[]): T[] {
-  const a = [...xs]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
 
 /** the item he taps most often when `id` is asked, if he did it CONFUSION_MIN times */
 function partnerOf(ctx: RoundCtx, id: string): string | null {
