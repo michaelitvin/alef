@@ -17,7 +17,7 @@ import { PLACEMENT_WALK_MS, choosePlacementRound, placementTower } from './logic
 import { word } from './content/words'
 import { unitsOfStage } from './content/units'
 import { MEGA_MAX } from '../utils/duel/rules'
-import { enScreensOfStage } from './logic/stages'
+import { englishStationsUpTo } from './doorsPlayable'
 import { readLog } from '../shared/telemetry'
 
 installFakeAudio()
@@ -164,12 +164,20 @@ describe('the placement in the run', () => {
     expect(save.read().placement).toMatchObject({ state: null, requested: false, runs: 1 })
     // the units below his level are seeded as known, and every station open at his level is open
     expect(save.read().tallies['m']).toMatchObject({ seen: 3, wrong: 0 })
-    expect([...save.read().openedStations].sort()).toEqual([...enScreensOfStage(9)].sort())
+    expect([...save.read().openedStations].sort()).toEqual([...englishStationsUpTo(9, true)].sort())
     // the visit ended after the last answer (the cycle goes on)
     expect(board(run).ended).toBe(true)
     const events = readLog(ENGLISH.log.key).map((e) => e.e)
     expect(events.filter((e) => e === 'placement-answer')).toHaveLength(7)
     expect(events).toContain('placement-done')
+  })
+
+  it('a child placed at level 1 opens no doors station, and with the drawing off no draw station at any level', async () => {
+    const low = memoryEnglishSavePort(); await placementWith(low, 'always-wrong')
+    expect(low.read().stage.stage).toBe(1); expect(low.read().openedStations).not.toContain('doors')
+    expect(low.read().openedStations).toContain('tower')
+    const off = memoryEnglishSavePort(); off.setSettings({ drawing: false }); await placementWith(off, 'always-right')
+    expect(off.read().openedStations).not.toContain('draw'); expect(off.read().openedStations).toContain('doors')
   })
 
   it('a child who misses everything is placed at stage 1, with all his hearts', async () => {

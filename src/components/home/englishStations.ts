@@ -20,7 +20,7 @@ const STATIONS: { id: ScreenId; learn: string }[] = [
   { id: 'draw', learn: 'writing letters' },
 ]
 
-export function englishStationStates(doorsPlayable?: DoorsPlayable): StationState[] {
+export function englishStationStates(doorsPlayable: DoorsPlayable): StationState[] {
   const save = readEnglishSave()
   const open = englishOpenStations(save, doorsPlayable)
   const ratings = englishStationRatings(save)

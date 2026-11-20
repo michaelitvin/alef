@@ -17,6 +17,7 @@ import { enBossKinds, enBossTarget, enBossWave } from './logic/rounds/boss'
 import { enCauldronRound } from './logic/rounds/cauldron'
 import { enLadderPlan } from './logic/rounds/ladder'
 import { enGhostExplanation, enGhostRound, enGhostVisitKind } from './logic/rounds/ghosts'
+import { englishStationsUpTo } from './doorsPlayable'
 import { enDoorKeys, enDoorRounds, enDoorsPlayable } from './logic/rounds/doors'
 import { enSpellRound } from './logic/spell'
 import { enDrawWords } from './logic/draw'
@@ -145,7 +146,7 @@ export const ENGLISH: Course = {
     due: (save) => { const p = (save.read() as Partial<EnglishSave>).placement; return !!p && placementDue(p) },
     tower: (save) => placementTower(en(save), READY_STAGES, wordPicture),
     walkMs: PLACEMENT_WALK_MS,
-    answer: (save, right, target, at) => placementAnswer(en(save), right, target, at, READY_STAGES, enScreensOfStage),
+    answer: (save, right, target, at) => placementAnswer(en(save), right, target, at, READY_STAGES, (level) => englishStationsUpTo(level, (save.read() as Partial<EnglishSave>).settings?.drawing ?? true)),
   },
   // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
   audio: {

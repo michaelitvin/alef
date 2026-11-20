@@ -9,6 +9,11 @@ import { clearGender } from '../shared/player'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { englishSavePort } from './savePort'
 import { useEnglishStore } from './store'
+import { cycleOf } from '../duel2/logic/run'
+import { ENGLISH } from './course'
+import { englishDoorsPlayable, englishStationsUpTo } from './doorsPlayable'
+import { englishOpenStations, englishPlayableStations } from './station'
+import { readEnglishSave } from './saveFormat'
 import { enDoorsPlayable } from './logic/rounds/doors'
 import { wordPicture } from './assets/images'
 installFakeAudio()
@@ -43,5 +48,24 @@ describe('a station link of the English path', () => {
     saveAt(doorsStage!)
     at('/duel2/?course=en&station=doors'); const { container } = render(<Duel2App goHome={() => {}} />)
     await waitFor(() => expect(station(container)).toBe('doors'), { timeout: 10_000 })
+  })
+
+  it('the parent lowers the start stage 2 to 1: home keeps the ghosts open, and its link opens the cover (the cycle at stage 1 has none)', async () => {
+    saveAt(2); englishSavePort().openStations(englishStationsUpTo(2, true))
+    englishSavePort().setStage(1)
+    const save = readEnglishSave()
+    expect(englishOpenStations(save, englishDoorsPlayable)).toContain('ghosts')
+    expect(englishPlayableStations(save, englishDoorsPlayable)).not.toContain('ghosts')
+    at('/duel2/?course=en&station=ghosts'); const { container } = render(<Duel2App goHome={() => {}} />)
+    await screen.findByTestId('cover', {}, { timeout: 10_000 })
+    expect(station(container)).toBeNull()
+  })
+
+  it('the stations his stage plays now are exactly the course cycle at that stage and setting (home and link agree)', () => {
+    for (const drawing of [true, false]) for (const stage of [1, 2, 5]) {
+      saveAt(stage); englishSavePort().setSettings({ drawing })
+      const playable = englishPlayableStations(readEnglishSave(), englishDoorsPlayable)
+      expect(playable).toEqual(cycleOf(stage, drawing, true, ENGLISH.stages))
+    }
   })
 })

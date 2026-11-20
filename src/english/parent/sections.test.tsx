@@ -8,6 +8,7 @@ import { ENGLISH } from '../course'
 import { englishOpenStations, englishStationRatings } from '../station'
 import { enDoorsPlayable } from '../logic/rounds/doors'
 import { wordPicture } from '../assets/images'
+import { englishDoorsPlayable } from '../doorsPlayable'
 import { stationsUpTo } from '../station'
 import { englishSavePort } from '../savePort'
 import { readEnglishSave } from '../saveFormat'
@@ -33,7 +34,7 @@ describe('the English section: level, sound units, words', () => {
       recent: { 'sc:broom': 'ooooo', 'sc:cauldron': 'ooxo' }, tower: { byMark: {}, confusions: {}, recent: { a: 'ooo' }, pace: 1 },
       tallies: { a: { seen: 9, wrong: 1 } },
     })
-    const open = englishOpenStations(readEnglishSave())
+    const open = englishOpenStations(readEnglishSave(), englishDoorsPlayable)
     const ratings = englishStationRatings(readEnglishSave())
     expect(open).toContain('doors')
     expect(ratings.broom).toBe(3)
@@ -42,7 +43,7 @@ describe('the English section: level, sound units, words', () => {
     fireEvent.click(el(container, '[data-set-stage]'))
     expect(useEnglishStore.getState().stage.stage).toBe(2)
     expect(useEnglishStore.getState().stage.newAnswers).toBe('')
-    for (const id of open) expect(englishOpenStations(readEnglishSave())).toContain(id)
+    for (const id of open) expect(englishOpenStations(readEnglishSave(), englishDoorsPlayable)).toContain(id)
     expect(englishStationRatings(readEnglishSave())).toEqual(ratings)
     expect(useEnglishStore.getState().tallies.a).toEqual({ seen: 9, wrong: 1 })
     expect(useEnglishStore.getState().openedStations).toEqual(expect.arrayContaining(open))
@@ -56,8 +57,8 @@ describe('the English section: level, sound units, words', () => {
     expect(useEnglishStore.getState().stage.stage).toBe(1)
     expect(enDoorsPlayable(1, { picture: wordPicture })).toBe(false)
     expect(useEnglishStore.getState().openedStations).not.toContain('doors')
-    expect(englishOpenStations(readEnglishSave(), (s) => enDoorsPlayable(s, { picture: wordPicture }))).not.toContain('doors')
-    expect(stationsUpTo(1)).toContain('doors')
+    expect(englishOpenStations(readEnglishSave(), englishDoorsPlayable)).not.toContain('doors')
+    expect(stationsUpTo(1, true, () => true)).toContain('doors')
   })
 
   it('a higher start stage seeds the lower stages and opens their stations', () => {
@@ -67,7 +68,7 @@ describe('the English section: level, sound units, words', () => {
     const s = useEnglishStore.getState()
     expect(s.stage.stage).toBe(4)
     expect(s.tallies.m?.seen).toBeGreaterThan(0)
-    expect(englishOpenStations(readEnglishSave())).toEqual(expect.arrayContaining(['tower', 'broom', 'ghosts', 'cauldron']))
+    expect(englishOpenStations(readEnglishSave(), englishDoorsPlayable)).toEqual(expect.arrayContaining(['tower', 'broom', 'ghosts', 'cauldron']))
   })
 
   it('run the placement again: the next run starts in the placement', () => {

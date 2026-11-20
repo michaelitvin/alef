@@ -11,16 +11,26 @@ import { readEnglishSave, type EnglishSave } from './saveFormat'
 export type DoorsPlayable = (stage: number) => boolean
 
 /** the stations of the stages up to `stage` (the drawing only while it is on; the doors only where they can be played), in path order */
-export function stationsUpTo(stage: number, drawing = true, doorsPlayable: DoorsPlayable = () => true): ScreenId[] {
+export function stationsUpTo(stage: number, drawing: boolean, doorsPlayable: DoorsPlayable): ScreenId[] {
   const up = Math.min(Math.max(Math.floor(stage) || 1, 1), EN_MAX_STAGE)
   const out = new Set<ScreenId>()
   for (let s = 1; s <= up; s++) for (const id of enScreensOfStage(s)) if (id !== 'doors' || doorsPlayable(s)) out.add(id)
   return EN_ORDER.filter((id) => out.has(id) && (drawing || !EN_DRAWING.includes(id)))
 }
 
-/** his open stations: the ones he has opened, and the stations of every stage up to his stage; in path order */
-export function englishOpenStations(save: Partial<EnglishSave> | null = readEnglishSave(), doorsPlayable?: DoorsPlayable): ScreenId[] {
-  const open = new Set<ScreenId>([...(save?.openedStations ?? []), ...stationsUpTo(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, doorsPlayable)])
+/** the stations his stage can play now (the course's cycle without the tower's rule): what a station link can open */
+export function englishPlayableStations(save: Partial<EnglishSave> | null, doorsPlayable: DoorsPlayable): ScreenId[] {
+  return stationsUpTo(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, doorsPlayable)
+}
+
+/**
+ * His open stations, the one list the home reads: the ones he has opened (the placement, the parent's start stage and
+ * `Level.start` save `stationsUpTo`, so they are filtered the same way) and the ones his stage plays now; in path order.
+ * A station opened earlier stays open when the parent lowers the stage; its link then opens the cover (the cycle at his
+ * stage does not play it), see `englishPlayableStations`.
+ */
+export function englishOpenStations(save: Partial<EnglishSave> | null, doorsPlayable: DoorsPlayable): ScreenId[] {
+  const open = new Set<ScreenId>([...(save?.openedStations ?? []), ...englishPlayableStations(save, doorsPlayable)])
   return EN_ORDER.filter((id) => open.has(id))
 }
 
