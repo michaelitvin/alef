@@ -11,6 +11,7 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 | Book 1, the first duel (Book 2's tower) | the tower screen of Book 2; no page of its own | `src/utils/duel/controller.ts` (the flow; `src/hooks/useDuelGame.ts` is its React bridge), `src/utils/duel/`, `src/components/duel/` |
 | Book 2 (the run; the first duel is its tower) | `duel2/index.html` → `src/duel2/main.tsx` | [src/duel2/README.md](src/duel2/README.md) |
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
+| Space Cat (flying sums) | `spacecat/index.html` → `src/spacecat/main.tsx` | [src/spacecat/README.md](src/spacecat/README.md) |
 | Code two or more games share (`gameAudio/`, `shell/`, `parentGate/`, device settings, telemetry, saves) | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
 | The parent area: one screen for every game, behind the gate | `src/parent/`; each game's part in `src/<game>/parent/index.ts` | [src/parent/README.md](src/parent/README.md) |
 | Asset review kit (not a game: node tools and the review page; host adapters give it the items) | `tools/review/` (`server.ts`, `cli.ts`) | [tools/review/README.md](tools/review/README.md) |

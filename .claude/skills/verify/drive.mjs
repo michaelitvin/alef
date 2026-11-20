@@ -9,7 +9,8 @@
 //   ALEF_VERIFY_URL  the app's base URL (ends in /alef/), as the browser reaches it. Not set: start `vite preview` of
 //                    dist-verify/ here and stop it at the end.
 //   ALEF_VERIFY_ONLY a comma-separated list of checks to run (default: all; the names are in CHECKS below)
-//   ALEF_VERIFY_SIZES a comma-separated list of sizes to run (default: all; the names are in VIEWPORTS below)
+//   ALEF_VERIFY_SIZES a comma-separated list of sizes to run (default: every size not marked optIn; the names are in
+//                    VIEWPORTS below)
 //
 // Every run opens its own browser context and closes it in a finally, also when a check fails or throws, on Ctrl-C
 // and at the deadline: a tab left open on a shared browser keeps animating and eats its CPU. It never closes a browser
@@ -26,8 +27,14 @@ const VIEWPORTS = [
   { name: 'tablet', width: 1180, height: 820 },
   // a phone held upright: only the parent area's checks (the games are played sideways), which assert at each section
   // that nothing scrolls sideways
-  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea'] },
-  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea'] },
+  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea', 'spacecatArea'] },
+  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea', 'spacecatArea'] },
+  // Space Cat plays upright and on its side, on a phone and a tablet: its sweep sizes run only when named
+  { name: 'phoneUp', width: 412, height: 915, mobile: true, optIn: true },
+  { name: 'phoneSide', width: 915, height: 412, mobile: true, optIn: true },
+  { name: 'phoneUpSmall', width: 390, height: 844, mobile: true, optIn: true },
+  { name: 'tabletUp', width: 800, height: 1280, optIn: true },
+  { name: 'tabletSide', width: 1280, height: 800, optIn: true },
 ]
 /** the parent gate's year: any year 18 to 100 years back opens it (src/shared/parentGate/acceptYear.ts) */
 const YEAR_OK = new Date().getFullYear() - 40
@@ -40,13 +47,21 @@ mkdirSync(shots, { recursive: true })
 const INIT = (pinVisible) => {
   // on a shared browser another client's tab can come to the front and hide ours: the game would pause (its pause
   // cover) and draw nothing. Pin the page visible there (the pause on hiding is then not covered).
+  // A check can still force a pause: it sets window.__visOverride = 'hidden' and dispatches visibilitychange itself.
   if (pinVisible) {
-    Object.defineProperty(Document.prototype, 'visibilityState', { configurable: true, get: () => 'visible' })
-    Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: () => false })
-    window.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true)
+    Object.defineProperty(Document.prototype, 'visibilityState', { configurable: true, get: () => window.__visOverride ?? 'visible' })
+    Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: () => window.__visOverride === 'hidden' })
+    window.addEventListener('visibilitychange', (e) => { if (!window.__visForced) e.stopImmediatePropagation() }, true)
+  }
+  // A shared browser's GPU canvases can hang a screenshot of a page that draws every frame: draw 2D canvases on the CPU.
+  const getContext = HTMLCanvasElement.prototype.getContext
+  HTMLCanvasElement.prototype.getContext = function (type, opts) {
+    return getContext.call(this, type, type === '2d' ? { ...opts, willReadFrequently: true } : opts)
   }
   window.__spoken = []
   window.__d2audio = []
+  window.__scAudio = []
+  window.__scText = []
   class Utterance {
     constructor(text) { this.text = text; this.lang = ''; this.rate = 1; this.voice = null; this.onend = null; this.onstart = null; this.onerror = null }
   }
@@ -217,12 +232,114 @@ async function shot(page, vp, name) {
   }
 }
 
+
+// ---- Space Cat: touch on the canvas, read through the verify build's probe (window.__scRound, client CSS px) ----
+const scProbe = (page) => page.evaluate(() => window.__scRound ?? null)
+/** the next round that takes his touch (after the demo, a tip or the missing-number line has let go) */
+async function scRound(page, afterN, timeout = 60_000) {
+  await page.waitForFunction((n) => {
+    const r = window.__scRound
+    return document.querySelector('.sc-root')?.getAttribute('data-screen') !== 'play' || (r && r.n > n && r.phase === 'flight' && r.input && !r.frozen)
+  }, afterN, { timeout, polling: 100 })
+  // null: the play screen went (level done, the end)
+  return (await scScreen(page)) === 'play' ? scProbe(page) : null
+}
+/** a finger along points [x, y], one move every `stepMs` */
+async function touchPath(page, pts, stepMs = 30) {
+  await page.bringToFront()
+  const cdp = await page.context().newCDPSession(page)
+  try {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: pts[0][0], y: pts[0][1] }] })
+    for (const [x, y] of pts.slice(1)) {
+      await page.waitForTimeout(stepMs)
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] })
+    }
+    await page.waitForTimeout(stepMs)
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+  } finally {
+    await cdp.detach().catch(() => {})
+  }
+}
+const line = (x0, y0, x1, y1, n = 8) => Array.from({ length: n + 1 }, (_, i) => [x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * i) / n])
+/** drag the ship sideways from its lane to x (the finger at the ship's row) */
+const scDragTo = (page, r, x) => touchPath(page, line(r.lanes[r.shipLane], r.shipY, x, r.shipY))
+/** a flick up (a zoom): a fast move up, a fifth of the screen */
+const scFlick = (page, r, vp) => touchPath(page, line(r.lanes[r.shipLane ?? 0], r.shipY, r.lanes[r.shipLane ?? 0], r.shipY - vp.height * 0.2, 4), 15)
+/** the round ends: its mark shows, then the next round or a screen comes */
+async function scEnded(page, n, timeout = 30_000) {
+  await page.waitForFunction((k) => { const r = window.__scRound; return !r || r.n > k || r.phase !== 'flight' }, n, { timeout, polling: 100 })
+  await page.waitForFunction(() => { const r = window.__scRound; return !r || r.phase !== 'mark' || r.result }, null, { timeout, polling: 100 })
+}
+/**
+ * One round, answered as asked: 'right' or 'wrong' (steer, then flick), 'timeout' (no touch, when the ship is not under
+ * the right planet already; else it answers wrong), or 'arrive' (steer to the right planet and wait for it).
+ */
+async function scAnswer(page, vp, how, after) {
+  const r = await scRound(page, after)
+  if (!r) return { n: after, did: 'none', result: null }
+  const wrongLane = (r.right + (r.shipLane === (r.right + 1) % 4 ? 2 : 1)) % 4
+  let did = how
+  if (how === 'timeout' && r.shipLane === r.right) did = 'wrong'
+  if (did === 'right' || did === 'arrive') { if (r.shipLane !== r.right) await scDragTo(page, r, r.lanes[r.right]) }
+  if (did === 'wrong') await scDragTo(page, r, r.lanes[wrongLane])
+  if (did === 'right' || did === 'wrong') { await page.waitForTimeout(250); await scFlick(page, { ...r, shipLane: did === 'right' ? r.right : wrongLane }, vp) }
+  await page.waitForFunction((n) => { const x = window.__scRound; return x && (x.n > n || x.result) }, r.n, { timeout: 30_000, polling: 100 })
+  const result = (await scProbe(page)).result
+  return { n: r.n, did, result }
+}
+/** the screen part showing: cover, play, level, end, parent */
+const scScreen = (page) => page.locator('.sc-root').getAttribute('data-screen')
+async function scUntilScreen(page, want, timeout = 60_000) {
+  await page.locator(`.sc-root[data-screen="${want}"]`).waitFor({ timeout })
+}
+/** the child-screen scan (rule): no letters in the DOM outside the parent area, and only digits and signs on the canvas */
+async function scNoText(page) {
+  const dom = await page.evaluate(() => {
+    const c = document.body.cloneNode(true)
+    c.querySelectorAll('[data-parent-area],style,script').forEach((n) => n.remove())
+    return (c.textContent.match(/[A-Za-zא-ת][^\n]{0,30}/g) ?? [])
+  })
+  const canvas = await page.evaluate(() => (window.__scText ?? []).filter((t) => !/^[0-9+−×÷=]+$/.test(t)))
+  if (dom.length) throw new Error(`text on a child screen: ${JSON.stringify(dom.slice(0, 5))}`)
+  if (canvas.length) throw new Error(`text drawn on the canvas: ${JSON.stringify(canvas.slice(0, 5))}`)
+}
+/** a pause as the tablet locking does it (the page hides), then the page shows again */
+async function scHide(page, hidden) {
+  await page.evaluate((h) => {
+    window.__visForced = true
+    window.__visOverride = h ? 'hidden' : 'visible'
+    document.dispatchEvent(new Event('visibilitychange'))
+    window.__visForced = false
+  }, hidden)
+}
+/** the audio log since `from`: the order, and what touches what (rule) */
+async function scAudioSummary(page, from = 0) {
+  const log = (await page.evaluate(() => window.__scAudio ?? [])).slice(from)
+  let minGap = Infinity
+  for (let i = 1; i < log.length; i++) {
+    if (log[i].kind === 'voice' && log[i - 1].kind === 'sfx') minGap = Math.min(minGap, log[i].t - log[i - 1].t)
+  }
+  return { n: log.length, order: log.map((e) => `${e.kind[0]}:${e.id}`).join(' '), minSfxToVoice: Number.isFinite(minGap) ? Math.round(minGap) : null }
+}
+const SC_SAVE = 'alef-spacecat'
+/** a seeded save at a rung (the demo and the tips heard), as the store persists it */
+const scSeed = (top, extra = {}) => JSON.stringify({
+  version: 1,
+  state: {
+    items: {}, ladder: { top, topRecent: '', topMistake: false, streak: 0 }, speed: { arrivalMs: 8000, underMs: [], hold: 0 }, totalPoints: 30, best: 12,
+    ships: [1, 2], ship: 2, heard: { demo: 1, 'zoom-tip': 2, missing: 2, 'level-done': 2, out: 2 }, sinceZero: 0, runs: 3,
+    settings: { range: 'auto', times: top >= 7, divide: top >= 9, arrival: 'auto', flightMusic: false }, ...extra,
+  },
+})
+
 // ---- the checks: each gets a fresh page in the run's context, and its own notes ----
 const CHECKS = {
   async home(page, base, vp, note) {
     await page.goto(base, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-card="duel"]').waitFor()
     await page.locator('[data-card="clock"]').waitFor()
+    await page.locator('[data-card="spacecat"]').waitFor()
+    note(`Space Cat's credit: ${await page.locator('[data-credit="spacecat"]').textContent()}`)
     const open = await page.locator('[data-path] [data-station][data-open="true"]').count()
     if (!open) throw new Error('no open station on the path')
     note(`${open} open station(s)`)
@@ -362,6 +479,297 @@ const CHECKS = {
     await shot(page, vp, 'clock-area')
   },
 
+  async spacecat(page, base, vp, note) {
+    // a fresh start: the cover, the demo, the first zoom tip, a level with a wrong answer and a time-out, level done,
+    // a lost run, the end screen, play again; the touches the plan lists; the house
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await page.waitForTimeout(800)
+    await shot(page, vp, 'sc-cover')
+    await scNoText(page)
+    // a tap on the house stays on the cover
+    await tap(page, page.locator('.sc-root [aria-label="home (hold)"]').first())
+    await page.waitForTimeout(400)
+    if ((await scScreen(page)) !== 'cover') throw new Error('a tap on the cover\'s house left the cover')
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    // the demo: the hand shows the answer while its line plays; a tap on a planet then does nothing
+    await page.locator('.sc-stage[data-phase="demo"]').waitFor({ timeout: 30_000 })
+    await page.waitForTimeout(300)
+    const d = await scProbe(page)
+    if (d.input) throw new Error('input is on during the demo line')
+    const pl = d.planets[(d.right + 1) % 4]
+    await page.touchscreen.tap(pl.x, pl.y)
+    await page.waitForTimeout(200)
+    if ((await page.locator('.sc-stage').getAttribute('data-phase')) === 'demo' && (await scProbe(page)).result) throw new Error('a tap on a planet during the demo ended the round')
+    await shot(page, vp, 'sc-demo')
+    // the demo round: he answers it (the hand showed him); park under the right planet: the zoom tip comes
+    let r = await scRound(page, d.n - 1)
+    if (r.shipLane !== r.right) await scDragTo(page, r, r.lanes[r.right])
+    const tip = await page.locator('.sc-stage[data-phase="tip"]').waitFor({ timeout: 6000 }).then(() => true, () => false)
+    if (tip) { await page.waitForTimeout(900); await shot(page, vp, 'sc-zoom-tip') }
+    note(tip ? 'the zoom tip showed after he parked under the right planet' : 'no zoom tip (the round ended first)')
+    await scFlick(page, { ...(await scProbe(page)), shipLane: r.right }, vp)
+    await scEnded(page, r.n)
+    let n = r.n
+    // the touches at the edges, over two rounds that then end right with a zoom (no heart lost): a release between two
+    // lanes and a slow upward drag (no zoom); a drag that starts on the top bar (it steers)
+    const finishRight = async (k) => {
+      const q = await scProbe(page)
+      if (q.n === k && !q.result) {
+        if (q.shipLane !== q.right) { await scDragTo(page, q, q.lanes[q.right]); await page.waitForTimeout(250) }
+        await scFlick(page, { ...q, shipLane: q.right }, vp)
+      }
+      await page.waitForFunction((x) => { const p = window.__scRound; return !p || p.n > x || p.result }, k, { timeout: 30_000, polling: 100 })
+      return (await scProbe(page)).result
+    }
+    r = await scRound(page, n)
+    const mid = (r.lanes[1] + r.lanes[2]) / 2
+    await touchPath(page, line(r.lanes[r.shipLane], r.shipY, mid, r.shipY))
+    await page.waitForTimeout(500)
+    const snapped = (await scProbe(page)).shipLane
+    if (snapped !== 1 && snapped !== 2) throw new Error(`a release between lanes 2 and 3 parked in lane ${snapped + 1}`)
+    await touchPath(page, line(r.lanes[snapped], r.shipY, r.lanes[snapped], r.shipY - vp.height * 0.25, 20), 80)
+    await page.waitForTimeout(300)
+    if ((await scProbe(page)).result) throw new Error('a slow upward drag zoomed')
+    note(`the release-between round: ${await finishRight(r.n)}`)
+    await scEnded(page, r.n, 40_000)
+    r = await scRound(page, r.n)
+    const topY = Math.min(...r.planets.map((q) => q.y)) / 3
+    const want = (r.shipLane + 2) % 4
+    await touchPath(page, line(r.lanes[r.shipLane], topY, r.lanes[want], topY))
+    await page.waitForTimeout(600)
+    const now = await scProbe(page)
+    if (now.shipLane !== want) note(`a drag on the top bar did not steer (lane ${now.shipLane + 1}, wanted ${want + 1})`)
+    note(`the top-bar round: ${await finishRight(r.n)}`)
+    await scEnded(page, r.n, 40_000)
+    n = r.n
+    // the rest of the level: right answers with a wrong one and a time-out among them
+    const plan = ['right', 'wrong', 'right', 'timeout', 'right', 'right', 'right', 'right', 'right', 'right']
+    const results = []
+    for (const how of plan) {
+      if ((await scScreen(page)) !== 'play') break
+      if (!results.length) {
+        // the flight as he sees it (a screenshot can be slow: it is taken here, where the round has time to spare)
+        const f = await scRound(page, n)
+        if (f) { await page.waitForTimeout(1500); await shot(page, vp, 'sc-flight') }
+      }
+      const a = await scAnswer(page, vp, how, n)
+      if (a.did === 'none') break
+      results.push(`${a.did}→${a.result}`)
+      n = a.n
+      if (a.did === 'wrong' && results.filter((x) => x.startsWith('wrong')).length === 1) await shot(page, vp, 'sc-wrong-mark')
+    }
+    note(`level 1: ${results.join(' ')}`)
+    await scUntilScreen(page, 'level', 40_000)
+    await page.waitForTimeout(1500)
+    await shot(page, vp, 'sc-level-done')
+    await scNoText(page)
+    await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    // lose the run: wrong answers until the hearts run out
+    for (let i = 0; i < 3; i++) { const a = await scAnswer(page, vp, 'wrong', n); n = a.n; if (i === 0) await page.waitForTimeout(100) }
+    await scUntilScreen(page, 'end', 40_000)
+    await page.waitForTimeout(1500)
+    await shot(page, vp, 'sc-end')
+    await scNoText(page)
+    if (!(await page.locator('.sc-root[data-screen="end"] [aria-label="home (hold)"]').count())) throw new Error('no house on the end screen')
+    // play again: a new run, no demo now
+    await tap(page, page.locator('.sc-root[data-screen="end"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    r = await scRound(page, 0)
+    if ((await page.locator('.sc-stage').getAttribute('data-phase')) === 'demo') throw new Error('the demo came again in the second run')
+    const audio = await scAudioSummary(page)
+    note(`audio: ${audio.n} events, smallest effect→voice gap ${audio.minSfxToVoice} ms`)
+    note(`audio order: ${audio.order.slice(0, 600)}`)
+    note(`canvas strings: ${JSON.stringify(await page.evaluate(() => window.__scText))}`)
+    await scNoText(page)
+    // the house: a short hold stays, a 2 s hold goes to alef's home screen (never the game's cover)
+    const house = page.locator('.sc-stage [aria-label="home (hold)"]')
+    await hold(page, house, 600)
+    await page.waitForTimeout(400)
+    if ((await scScreen(page)) !== 'play') throw new Error('a short hold on the house left the play screen')
+    await hold(page, house, 2300)
+    await page.waitForURL((u) => !u.pathname.includes('/spacecat/'), { timeout: 20_000 })
+    note(`after the house: ${new URL(page.url()).pathname}`)
+  },
+
+  async spacecatPause(page, base, vp, note) {
+    // pauses (the page hides): during the demo, during flight and a zoom, during the missing-number line
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate((k) => localStorage.removeItem(k), SC_SAVE)
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await page.locator('.sc-stage[data-phase="demo"]').waitFor({ timeout: 30_000 })
+    await page.waitForTimeout(800)
+    const before = (await page.evaluate(() => window.__scAudio.length))
+    await scHide(page, true)
+    await page.locator('.sc-stage[data-paused]').waitFor()
+    await page.waitForTimeout(1200)
+    await shot(page, vp, 'sc-pause')
+    await scNoText(page)
+    const during = await scAudioSummary(page, before)
+    await scHide(page, false)
+    await tap(page, page.locator('.sc-pause [aria-label="play"]'))
+    await page.locator('.sc-stage:not([data-paused])[data-phase="demo"]').waitFor({ timeout: 10_000 })
+    note(`pause in the demo: the demo starts again; audio during the pause: ${during.order || 'none'}`)
+    // a pause in flight, during a zoom: the same sum from the top, no heart lost
+    let r = await scRound(page, 0)
+    await scEnded(page, r.n, 60_000).catch(() => {})
+    r = await scRound(page, r.n)
+    await scDragTo(page, r, r.lanes[r.right])
+    await scFlick(page, { ...r, shipLane: r.right }, vp)
+    await page.waitForTimeout(120)
+    await scHide(page, true)
+    await page.locator('.sc-stage[data-paused]').waitFor()
+    await scHide(page, false)
+    await tap(page, page.locator('.sc-pause [aria-label="play"]'))
+    const again = await scRound(page, r.n)
+    if (again.right !== r.right) note(`after the pause the right lane moved (${r.right + 1} → ${again.right + 1}): a fresh sum, not the same one?`)
+    note(`pause in a zoom: round ${r.n} → ${again.n}, ${again.result ? 'ended at once' : 'from the top'}`)
+    // the missing-number line: rung 4 seeded, the line not heard yet
+    await page.goto('about:blank')
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed(4, { heard: { demo: 1, 'zoom-tip': 2 }, settings: { range: 4, times: false, divide: false, arrival: 'auto', flightMusic: false } })])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    let n = 0
+    let seen = false
+    for (let i = 0; i < 12 && !seen; i++) {
+      const got = await page.locator('.sc-stage[data-phase="missing"]').waitFor({ timeout: 12_000 }).then(() => true, () => false)
+      if (got) { seen = true; break }
+      const a = await scAnswer(page, vp, 'right', n)
+      n = a.n
+    }
+    if (!seen) { note('no missing-number round in 12 rounds at rung 4'); return }
+    await page.waitForTimeout(700)
+    await shot(page, vp, 'sc-missing')
+    await scHide(page, true)
+    await page.locator('.sc-stage[data-paused]').waitFor()
+    await scHide(page, false)
+    await tap(page, page.locator('.sc-pause [aria-label="play"]'))
+    await page.locator('.sc-stage:not([data-paused])[data-phase="missing"]').waitFor({ timeout: 10_000 })
+    note('pause in the missing-number line: the line starts again')
+    await scNoText(page)
+  },
+
+  async spacecatRungs(page, base, vp, note) {
+    // each rung 2 to 9 (7 to 9 with the switches on): a seeded save, then right, wrong and time-out answers
+    const out = []
+    for (const top of [2, 3, 4, 5, 6, 7, 8, 9]) {
+      await page.goto('about:blank')
+      await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+      await page.evaluate(([k, v]) => { localStorage.setItem(k, v); window.__scText.length = 0 }, [SC_SAVE, scSeed(top)])
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+      await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+      await scUntilScreen(page, 'play')
+      const res = []
+      let n = 0
+      for (const how of ['right', 'wrong', 'timeout']) {
+        if ((await scScreen(page)) !== 'play') break
+        const r = await scRound(page, n)
+        if (!r) break
+        if (how === 'right') { await page.waitForTimeout(600); await shot(page, vp, `sc-rung${top}`) }
+        const a = await scAnswer(page, vp, how, r.n - 1)
+        n = a.n
+        res.push(`${a.did}→${a.result}`)
+      }
+      const strings = await page.evaluate(() => window.__scText.slice())
+      await scNoText(page)
+      out.push(`rung ${top}: ${res.join(' ')}; drew ${strings.filter((t) => /[+−×÷]/.test(t)).join('') || '-'}`)
+    }
+    for (const o of out) note(o)
+  },
+
+  async spacecatTurn(page, base, vp, note) {
+    // the screen turns mid-round (a phone or a tablet rotated): the layout follows the new shape, the round goes on in
+    // the same lane, and he answers it in the new layout; then it turns back
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed(2)])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    const turned = { ...vp, width: vp.height, height: vp.width }
+    const res = []
+    let n = 0
+    try {
+      for (const [i, size] of [turned, vp].entries()) {
+        const r = await scRound(page, n)
+        if (!r) throw new Error('no round to turn in')
+        await page.setViewportSize({ width: size.width, height: size.height })
+        await page.waitForTimeout(700)
+        const q = await scProbe(page)
+        if (q.n !== r.n || q.result) throw new Error(`the turn ended the round (n ${r.n} → ${q.n}, ${q.result})`)
+        if (q.shipLane !== r.shipLane) throw new Error(`the turn moved the ship (lane ${r.shipLane + 1} → ${q.shipLane + 1})`)
+        await shot(page, vp, `sc-turned-${i ? 'back' : 'over'}`)
+        const a = await scAnswer(page, size, 'right', r.n - 1)
+        n = a.n
+        res.push(`${size.width}×${size.height}: ${a.result}`)
+      }
+    } finally {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+    }
+    note(`turned mid-round, then answered: ${res.join(', ')}`)
+    await scNoText(page)
+  },
+
+  async spacecatArea(page, base, vp, note) {
+    // the gate from the cover, each section, the device's sound (effects off holds in the game), the export
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await page.evaluate(() => {
+      window.__downloads = []
+      const make = URL.createObjectURL.bind(URL)
+      URL.createObjectURL = (b) => { void b.text().then((t) => window.__downloads.push(t)); return make(b) }
+    })
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spacecat"]')
+    note(`area sections: ${(await eachSection(page)).join(' ')}`)
+    await shot(page, vp, 'sc-area')
+    await page.locator('[data-spacecat-settings]').scrollIntoViewIfNeeded()
+    await shot(page, vp, 'sc-area-settings')
+    const data = page.locator('[data-telemetry-export]')
+    await data.scrollIntoViewIfNeeded()
+    const count = await data.locator('[data-log="alef-spacecat-telemetry"] [data-log-count]').textContent()
+    note(`Space Cat's log: ${count}`)
+    await shot(page, vp, 'sc-area-data')
+    await tap(page, data.locator('[data-telemetry-download]'))
+    await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
+    const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
+    const part = doc.games?.find((g) => g.key === 'alef-spacecat-telemetry')
+    if (!part) throw new Error('the export has no Space Cat part')
+    note(`export: ${doc.games.map((g) => `${g.key} ${g.events.length}`).join(', ')}; Space Cat's events: ${[...new Set(part.events.map((e) => e.e))].join(' ')}`)
+    // the export of every game: tick each log
+    const picks = data.locator('[data-log-pick]')
+    for (let i = 0; i < await picks.count(); i++) if (!(await picks.nth(i).isChecked())) await tap(page, picks.nth(i))
+    await tap(page, data.locator('[data-telemetry-download]'))
+    await page.waitForFunction(() => window.__downloads.length > 1, null, { timeout: 10_000 })
+    const every = JSON.parse(await page.evaluate(() => window.__downloads[1]))
+    if (every.games.length < 3 || !every.games.some((g) => g.key === 'alef-spacecat-telemetry')) throw new Error(`the export of every game: ${every.games.map((g) => g.key).join(' ')}`)
+    note(`export of every game: ${every.games.map((g) => `${g.key} ${g.events.length}`).join(', ')}`)
+    // effects off on this device: in the game no coded effect plays, a voice still does
+    await page.locator('[data-section="sound"]').scrollIntoViewIfNeeded()
+    const sfx = page.locator('[data-sound-sfx]')
+    if (await sfx.isChecked()) await tap(page, sfx)
+    await page.locator('[data-parent-close]').scrollIntoViewIfNeeded()
+    await tap(page, page.locator('[data-parent-close]'))
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    const from = await page.evaluate(() => window.__scAudio.length)
+    await tap(page, page.locator('[data-info]').first())
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    const r = await scRound(page, 0)
+    await scAnswer(page, vp, 'wrong', r.n - 1)
+    await page.waitForTimeout(1500)
+    const a = await scAudioSummary(page, from)
+    note(`effects off: ${a.order}`)
+    if (/s:/.test(a.order)) throw new Error(`a coded effect played with effects off: ${a.order}`)
+  },
+
   async telemetry(page, base, vp, note) {
     // after the play checks (one context per size, so their events are in this storage): the Data section of Book 2's
     // area counts them, shows the storage line, and a Download gives the export
@@ -435,7 +843,7 @@ async function run() {
   const sizes = process.env.ALEF_VERIFY_SIZES?.split(',').map((s) => s.trim())
   console.log(`base ${base}  browser ${cdp ? 'connected' : 'launched'}  shots ${shots}`)
   let failed = 0
-  for (const vp of VIEWPORTS.filter((v) => !sizes || sizes.includes(v.name))) {
+  for (const vp of VIEWPORTS.filter((v) => (sizes ? sizes.includes(v.name) : !v.optIn))) {
     // one context per size: its own storage (a fresh save, boy or girl not set yet), touch on
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, hasTouch: true, isMobile: !!vp.mobile, locale: 'he-IL' })
     contexts.add(context)

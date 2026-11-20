@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Verify alef changes end-to-end in a real browser with touch on. Builds the verify build (test hooks on), drives the home, Book 2, the clock and the parent gate and area at a phone and a tablet size, and saves screenshots. Use after a change to a child-facing screen, before a playtest build or a release.
+description: Verify alef changes end-to-end in a real browser with touch on. Builds the verify build (test hooks on), drives the home, Book 2, the clock, Space Cat and the parent gate and area at a phone and a tablet size, and saves screenshots. Use after a change to a child-facing screen, before a playtest build or a release.
 ---
 
 # Verifying alef changes
@@ -22,9 +22,11 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `telemetry`). `telemetry` reads the events the play checks
-  left in the same size's storage, so run it with `book2` (and `clock`). `ALEF_VERIFY_SIZES=upright390` runs only
-  those sizes (names: `phone`, `tablet`, `upright390`, `upright412`).
+  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatTurn`, `spacecatArea`,
+  `telemetry`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
+  (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
+  (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
+  `tabletSide`, which run only when named: Space Cat plays upright and on its side).
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
@@ -41,6 +43,11 @@ and no boy or girl yet. Each check gets its own page.
 | `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
 | `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
+| `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input off, a tap on a planet does nothing), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
+| `spacecatPause` | a forced hide (the tablet locks) during the demo, a zoom and the missing-number line: the pause cover, silence, and the same step again after play |
+| `spacecatRungs` | rungs 2 to 9 from a seeded save (7 to 9 with times and divide on): a right, a wrong and a time-out answer each, a screenshot of each rung's sum |
+| `spacecatTurn` | a seeded save; the screen turns mid-round and back: the round and the ship's lane stay, and a right answer in each shape ends right |
+| `spacecatArea` | the gate on Space Cat's cover, every section, the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
 
 **Nothing scrolls sideways.** At the year pad and at every section of the area (and Book 2's gallery and stroke
@@ -49,6 +56,10 @@ failure names the elements that pass the edge. A wide box that scrolls on purpos
 
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.
+
+Space Cat's checks read the verify build's probe `window.__scRound` (the round's lanes, planets and right lane in
+client pixels; `src/spacecat/canvas/engine.ts`) to touch the right place, and fail on any letter on a child screen
+(the DOM outside the parent area, and `window.__scText`, every string the canvas drew).
 
 The driver also lists visible Latin or Hebrew text on the play screens (a note, not a failure: compare it with the rule
 *speech instead of text*). Text in `[data-parent-text]` and numbers in `[data-num]` are skipped. Any page error fails
@@ -63,9 +74,11 @@ the check.
   a `hasTouch` context), not mouse or synthetic pointer events (`docs/minigame-rules.md`, *Verification*).
 - Look at every screenshot before you show it: missing-font squares, characters shown two times, sprites that move
   backwards, shapes cut at the edges.
+- On a shared browser, a 2D canvas that draws every frame can hang a screenshot: the driver's init script makes every
+  2D canvas a CPU one (`willReadFrequently`).
 - On a shared browser, another client's tab can come to the front and hide yours: the game pauses (its pause cover)
   and a hidden tab draws no frames, so a screenshot waits forever. With `ALEF_CDP_URL` the driver pins the page
-  visible (so the pause on hiding is not checked there) and brings its page to the front before each touch and
+  visible (a check forces a hide itself: `window.__visOverride`, then a `visibilitychange`) and brings its page to the front before each touch and
   screenshot. A screenshot that times out is printed, not a failure.
 - A shared browser can be slow. Measure a hold with the page's own clock (`performance.now()` at pointer down and up),
   not with the driver's wall clock.

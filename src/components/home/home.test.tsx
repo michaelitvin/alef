@@ -15,7 +15,7 @@ const KINDS: LevelKind[] = ['letters', 'nikkud', 'syllables', 'words', 'sentence
 
 describe('home parts (spec: one duel, Part 4)', () => {
   it('the play button points left', () => {
-    for (const theme of ['duel', 'clock'] as const) {
+    for (const theme of ['duel', 'clock', 'spacecat'] as const) {
       const { container, unmount } = render(<PlayButton theme={theme} />)
       const d = container.querySelector('[data-tri]')!.getAttribute('d')!
       const xs = [...d.matchAll(/[ML]\s*(\d+)/g)].map((m) => Number(m[1]))

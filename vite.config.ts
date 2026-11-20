@@ -19,6 +19,7 @@ export default defineConfig({
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         clock: fileURLToPath(new URL('./clock/index.html', import.meta.url)),
         duel2: fileURLToPath(new URL('./duel2/index.html', import.meta.url)),
+        spacecat: fileURLToPath(new URL('./spacecat/index.html', import.meta.url)),
       },
     },
   },

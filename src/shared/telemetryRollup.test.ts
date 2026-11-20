@@ -3,9 +3,10 @@ import { MS_EDGES, emptyRollup, foldChunk, foldEvents, foldOldDays, msBin, readR
 import { chunkKey, rollupKey } from './telemetryChunks'
 import { rollupsFor, type RollupFact, type TelemetryEvent } from './telemetry'
 import { STAGING_PREFIX, copyUnprefixedOver } from './stagingStorage'
-import { book2Events, clockEvents } from './__fixtures__/telemetry/generate'
+import { book2Events, clockEvents, spaceCatEvents } from './__fixtures__/telemetry/generate'
 import { BOOK2_LOG, book2Facts } from '../duel2/telemetryLog'
 import { CLOCK_LOG, clockFacts } from '../clock/telemetryLog'
+import { spaceCatFacts } from '../spacecat/telemetryLog'
 import { lessonsParent } from '../lessons/parent'
 
 beforeEach(() => localStorage.clear())
@@ -50,7 +51,7 @@ const flat = (r: Rollup) => {
 }
 
 describe('folding chunks into a roll-up', () => {
-  it.each([['Book 2', book2Events, book2Facts], ['the clock', clockEvents, clockFacts]] as const)(
+  it.each([['Book 2', book2Events, book2Facts], ['the clock', clockEvents, clockFacts], ['Space Cat', spaceCatEvents, spaceCatFacts]] as const)(
     '%s: per item and day, the same counts, wrongs, nears, mix-ups, abandons and histogram as the raw events', (_, gen, facts) => {
       const evs = gen({ days: 20 })
       const r = emptyRollup()

@@ -3,6 +3,7 @@
 //
 //   const audio = installFakeAudio()            // in a describe: installs it before each test, resets it, removes it after
 //   audio.voiceMs = 300                     // each voice part lasts 300 ms (default 0: it ends at once)
+//   audio.sfxMs = 300                       // each effect lasts 300 ms (default 0); coded urls are plain urls here
 //   audio.onVoice((id, e) => …)             // or the test's own timing per voice part (resolve false: not heard);
 //                                           // `e.caption` is the line's words on screen (playLine's caption)
 //   audio.holdUntil(/^q-/); audio.release() // voice parts that match wait for release (one id, or all)
@@ -19,6 +20,7 @@ export interface FakeEntry { kind: SoundKind; id: string; url: string; at: numbe
 
 export interface FakePlayer extends AudioPlayer {
   voiceMs: number
+  sfxMs: number
   exists: ((id: string) => boolean) | null
   missing: ((id: string) => boolean) | null
   /** a sound has started */
@@ -50,6 +52,7 @@ export function createFakePlayer(): FakePlayer {
 
   const fake: FakePlayer = {
     voiceMs: 0,
+    sfxMs: 0,
     exists: null,
     missing: null,
     onPlay: null,
@@ -92,7 +95,10 @@ export function createFakePlayer(): FakePlayer {
         else if (holdRe?.test(o.id)) held.push({ id: o.id, end: () => end() })
         else if (fake.voiceMs > 0) window.setTimeout(() => end(), fake.voiceMs)
         else end()
-      } else if (o.kind === 'sfx') end()
+      } else if (o.kind === 'sfx') {
+        if (fake.sfxMs > 0) window.setTimeout(() => end(), fake.sfxMs)
+        else end()
+      }
       // music plays until it is stopped
       return sound
     },
@@ -119,6 +125,7 @@ export function createFakePlayer(): FakePlayer {
       held = []
       playing.clear()
       fake.voiceMs = 0
+      fake.sfxMs = 0
       fake.exists = null
       fake.missing = null
       fake.onPlay = null

@@ -6,7 +6,7 @@ import { lastDays, PLAYTIME_GAMES, type PlaytimeGame } from '../../shared/playti
 
 const TOP = 5
 const DAYS = 7
-const TITLE: Record<PlaytimeGame, string> = { book2: 'Book 2', clock: 'Clock', lessons: 'Lessons' }
+const TITLE: Record<PlaytimeGame, string> = { book2: 'Book 2', clock: 'Clock', lessons: 'Lessons', spacecat: 'Space Cat' }
 /** whole minutes, but a short play shows as `<1` rather than as nothing */
 const minutes = (ms: number) => (ms <= 0 ? '0' : ms < 60_000 ? '<1' : String(Math.round(ms / 60_000)))
 

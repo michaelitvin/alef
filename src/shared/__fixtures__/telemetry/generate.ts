@@ -173,6 +173,47 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
 }
 
+/** a Space Cat item id (`a+b=c/hole`) and its four lane numbers, the right one in its lane */
+function spaceCatSum(r: R) {
+  const plus = r.chance(0.6)
+  const a = r.int(1, 9), b = r.int(0, plus ? 10 - a : a)
+  const c = plus ? a + b : a - b
+  const hole = r.pick(['c', 'c', 'c', 'a', 'b'])
+  const right = hole === 'a' ? a : hole === 'b' ? b : c
+  const lane = r.int(0, 3)
+  const labels = [0, 1, 2, 3].map((i) => String(i === lane ? right : Math.max(0, right + (i - lane) * r.pick([1, 2]))))
+  return { item: `${a}${plus ? '+' : '-'}${b}=${c}/${hole}`, labels, lane, right }
+}
+
+/** Space Cat's events (src/spacecat/controller.ts; the parent area's sections track into the open game's log) */
+const SPACECAT: Record<string, (r: R, t: number) => Record<string, unknown>> = {
+  'run-start': (r) => ({ ship: r.int(1, 3), rung: r.int(1, 6) }),
+  round: (r) => {
+    const { item, labels, lane, right } = spaceCatSum(r)
+    if (r.chance(0.04)) return { item, labels, rung: r.int(1, 6), level: r.int(1, 5), ship: r.int(1, 3), cut: true }
+    const result = r.pick(['right', 'right', 'right', 'wrong', 'timeout'])
+    const endLane = result === 'right' ? lane : r.int(0, 3)
+    const end = result === 'right' && r.chance(0.3) ? 'zoom' : 'arrival'
+    const endMs = r.int(1200, 8000)
+    return {
+      item, labels, startLane: r.int(0, 3), endLane, number: result === 'right' ? right : Number(labels[endLane]), result, end,
+      lastLaneMs: r.chance(0.1) ? null : r.int(300, endMs), endMs, arrivalMs: r.pick([8000, 6500, 5000, 4000]), rung: r.int(1, 6),
+      level: r.int(1, 5), ship: r.int(1, 3), ...(r.chance(0.02) ? { demo: true } : {}),
+    }
+  },
+  rung: (r) => ({ rung: r.int(2, 9) }),
+  'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120) }),
+  ship: (r) => ({ ship: r.int(2, 3) }),
+  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'flight', 'between']) }),
+  abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'between']) }),
+  'run-end': (r) => ({ points: r.int(0, 120), levels: r.int(1, 8), best: r.int(0, 150) }),
+  settings: (r) => (r.chance(0.5)
+    ? { ...r.pick([{ range: r.pick(['auto', 3, 6]) }, { times: r.chance(0.5) }, { divide: r.chance(0.5) }, { arrival: r.pick(['auto', 8000, 5000]) }, { flightMusic: r.chance(0.5) }]), by: 'parent' }
+    : { keys: ['sfx'], sfx: r.chance(0.5) }),
+  player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'parent' }),
+  'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
+}
+
 /** how often an event comes, against 1 for the rest (a session is mostly answers, as the child's are) */
 const WEIGHT: Record<string, number> = {
   answer: 30, 'tower-answer': 4, replay: 4, idle: 2, mult: 2, 'draw-stroke': 6, 'merchant-offer': 2, pause: 1.5, resume: 1.5,
@@ -199,15 +240,19 @@ export interface FixtureOpts {
 /** a session id as the game makes one: `<base36 ms>-<5 chars>` */
 const sessionId = (r: R, t: number) => `${t.toString(36)}-${Math.floor(r.next() * 36 ** 5).toString(36).padStart(5, '0')}`
 
-function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
-  const r = rng(o.seed ?? (game === 'book2' ? 7 : 11))
+type Game = 'book2' | 'clock' | 'spacecat'
+const TABLES: Record<Game, Record<string, (r: R, t: number) => Record<string, unknown>>> = { book2: BOOK2, clock: CLOCK, spacecat: SPACECAT }
+const SEEDS: Record<Game, number> = { book2: 7, clock: 11, spacecat: 13 }
+
+function generate(game: Game, o: FixtureOpts): TelemetryEvent[] {
+  const r = rng(o.seed ?? SEEDS[game])
   const days = o.days ?? 45
   const perDay = o.sessionsPerDay ?? 1
   const perSession = o.eventsPerSession ?? 150
   const oldDays = o.oldDays ?? 3
   const start = o.start ?? FIXTURE_START
   const out: TelemetryEvent[] = []
-  const names = game === 'book2' ? Object.keys(BOOK2) : Object.keys(CLOCK)
+  const names = Object.keys(TABLES[game])
   const tower = Object.keys(TOWER)
   let t = start
   // walk every name once first, so each appears in a fixture of any size
@@ -226,7 +271,7 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
         const env: TelemetryEvent = d < oldDays ? { t, s, run, e: '' } : { t, s, run, e: '', g: game }
         const [towerTurn, name] = cover.shift() ?? (game === 'book2' && r.chance(0.35) ? [true, weighted(r, tower)] : [false, weighted(r, names)])
         const e = name === 'tower-answer' ? 'answer' : name
-        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : (game === 'book2' ? BOOK2 : CLOCK)[name]!(r, t)
+        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : TABLES[game][name]!(r, t)
         env.e = e
         out.push({ ...env, ...data })
       }
@@ -240,10 +285,12 @@ function generate(game: 'book2' | 'clock', o: FixtureOpts): TelemetryEvent[] {
 export const book2Events = (o: FixtureOpts = {}) => generate('book2', o)
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', o)
+/** Space Cat's log */
+export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', o)
 
-/** every event name the generators can send (Book 2, the tower, the clock) */
+/** every event name the generators can send (Book 2, the tower, the clock, Space Cat) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
-  ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK),
+  ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
 ])
 
 /** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
@@ -255,6 +302,7 @@ export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 /** the logs the goldens are made of (small, so the golden files stay small) */
 export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
 export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
+export const GOLDEN_SPACECAT = () => spaceCatEvents({ eventsPerSession: 6 })
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>

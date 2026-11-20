@@ -30,7 +30,8 @@ export interface AskGender {
 export interface GameShellOptions {
   /** the game's preload: starts on mount; play waits for it */
   preload: () => Promise<void>
-  askGender: AskGender
+  /** the boy/girl question; unset: the game has no line in a boy or girl form, so the gate never asks (Space Cat) */
+  askGender?: AskGender
   /** the child is still where play was tapped (a tap that left the cover meanwhile starts nothing) */
   canStart: () => boolean
   /** the game starts (its play screen) */
@@ -70,7 +71,8 @@ export function useGameShell(o: GameShellOptions): GameShell {
     unlockAudioOutput()
     busy.current = true
     setLoading(true)
-    const gendered = !!getGender()
+    // a game with no question plays as if boy or girl were set
+    const gendered = !c.askGender || !!getGender()
     const welcome = gendered && c.welcome ? c.welcome() : Promise.resolve()
     void Promise.all([welcome, c.preload()]).finally(() => {
       busy.current = false
@@ -88,16 +90,16 @@ export function useGameShell(o: GameShellOptions): GameShell {
   }
 
   const a = o.askGender
-  const question = asking ? (
+  const question = asking && a ? (
     <GenderQuestion boySrc={a.boySrc} girlSrc={a.girlSrc} line={a.line} play={a.play} stop={a.stop} cues={a.cues}
       onChoose={(g) => {
         setGender(g, 'child')
-        opts.current.askGender.onChosen?.(g)
+        opts.current.askGender?.onChosen?.(g)
         setAsking(false)
         // a game with a welcome goes through the gate again (the welcome now speaks to him or her)
         if (opts.current.welcome) play()
         else opts.current.onPlay()
       }} />
   ) : null
-  return { play, loading, asking, question: question && a.className ? <div className={a.className}>{question}</div> : question }
+  return { play, loading, asking, question: question && a?.className ? <div className={a.className}>{question}</div> : question }
 }

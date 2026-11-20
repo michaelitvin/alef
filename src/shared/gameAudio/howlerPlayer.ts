@@ -1,6 +1,8 @@
 // The Howler adapter of the player port (port.ts): one Howl per file, play-once with a safety timeout, the speech rate.
-// The only module of the games' audio that imports Howler.
+// The only module of the games' audio that imports Howler. It also plays coded sound (`coded:` urls, coded.ts) on
+// Howler's context into its master gain.
 import { Howl, Howler } from 'howler'
+import { codedSource, isCoded } from './coded'
 import type { AudioPlayer, PlayOptions, Sound } from './port'
 
 /** Playtest (duel): the recorded speech felt slow and made the whole game feel slow. */
@@ -70,6 +72,7 @@ export function unlockAudio() {
  * file to load before it starts (while a file loads, Howler queues every call and a stop can land behind the play). */
 export const howlerPlayer: AudioPlayer = {
   play(url, o) {
+    if (isCoded(url)) return codedSound(url, o)
     const h = getHowl(url, !!o.loop, !!o.html5)
     if (o.kind === 'music') return musicSound(h, o)
     if (o.volume !== undefined) h.volume(o.volume)
@@ -89,7 +92,7 @@ export const howlerPlayer: AudioPlayer = {
     })
     return sound
   },
-  preload: (url, html5) => { getHowl(url, false, html5) },
+  preload: (url, html5) => { if (!isCoded(url)) getHowl(url, false, html5) },
   setMute: (on) => { Howler.mute(on) },
   setVolume: (v) => { Howler.volume(v) },
   unlock: unlockAudio,
@@ -122,5 +125,63 @@ function musicSound(h: Howl, o: PlayOptions): Sound {
   }
   if (h.state() !== 'loaded') h.once('load', start)
   else start()
+  return sound
+}
+
+/** Howler's WebAudio parts (not in its types) */
+interface HowlerWebAudio { ctx: AudioContext | null; masterGain: GainNode | null; usingWebAudio: boolean; autoSuspend: boolean }
+const howlerAudio = () => Howler as unknown as HowlerWebAudio
+
+/**
+ * A coded sound: its source plays into one GainNode of its own (gain = the volume) that ends in Howler's master gain.
+ * It ends after the source's length (a one-shot also at its timeout) or on stop; the fade ramps its gain. Howler
+ * suspends its context 30 s after its own last WebAudio sound and coded nodes do not count for it, so the first coded
+ * play turns that off. With no WebAudio it ends at once.
+ */
+function codedSound(url: string, o: PlayOptions): Sound {
+  const H = howlerAudio()
+  if (!H.ctx && H.usingWebAudio) Howler.volume() // Howler sets its context up on first use
+  const source = codedSource(url)
+  const ctx = H.ctx, master = H.masterGain
+  if (!H.usingWebAudio || !ctx || !master || !source) {
+    const none: Sound = { done: Promise.resolve(), stop() {}, pause() {}, resume() {}, fade() {}, position: () => null, playing: () => false }
+    o.onPlay?.(none)
+    return none
+  }
+  H.autoSuspend = false
+  if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
+  const gain = ctx.createGain()
+  gain.gain.value = o.volume ?? 1
+  gain.connect(master)
+  const play = source({ ctx, out: gain })
+  let ended = false
+  let finish: () => void = () => {}
+  let timer: number | undefined
+  const end = () => {
+    if (ended) return
+    ended = true
+    if (timer !== undefined) window.clearTimeout(timer)
+    play.stop()
+    window.setTimeout(() => gain.disconnect(), 100)
+    finish()
+  }
+  const sound: Sound = {
+    done: new Promise<void>((r) => { finish = r }),
+    stop: end,
+    pause() {},
+    resume() {},
+    fade(to, ms) {
+      const t = ctx.currentTime
+      gain.gain.cancelScheduledValues(t)
+      gain.gain.setValueAtTime(gain.gain.value, t)
+      gain.gain.linearRampToValueAtTime(to, t + ms / 1000)
+    },
+    position: () => null,
+    playing: () => !ended,
+  }
+  const oneShot = o.kind !== 'music'
+  const ms = play.lengthMs === null ? (oneShot ? o.timeoutMs : undefined) : Math.min(play.lengthMs, oneShot ? (o.timeoutMs ?? Infinity) : Infinity)
+  if (ms !== undefined) timer = window.setTimeout(end, ms)
+  o.onPlay?.(sound)
   return sound
 }

@@ -21,13 +21,19 @@ _Avoid_: duel2 (that is the code folder), duel v2
 A separate game about reading an analogue clock, played as a workday of customers.
 _Avoid_: clock app
 
+**Space Cat**:
+A separate game of flying sums: the cat's ship steers to the planet with the right number. Adapted by permission from
+Igor's *Space Cat Math*.
+_Avoid_: space game
+
 **Home**:
 The child's first screen: the cards of the games and the path of open stations.
 
 ## Book 2: a run
 
 **Run**:
-One adventure from the duel card, from the first screen until the hearts run out.
+One adventure from the duel card, from the first screen until the hearts run out. Space Cat has runs too: from its play
+triangle until the hearts run out.
 
 **Screen**:
 One minigame of Book 2 (tower, broom, ghosts, cauldron, ladder, doors, draw).
@@ -73,7 +79,8 @@ _Avoid_: run (a session is not a run)
 What the child can lose: the hearts, and with them the run.
 
 **Heart**:
-One life of the run. A run starts with 3, and the hearts do not refill at a new screen.
+One life of the run. A run starts with 3, and in Book 2 the hearts do not refill at a new screen. In Space Cat they fill
+again at each level.
 
 **Star**:
 One right answer, in a total that only grows.
@@ -138,6 +145,34 @@ The clock workshop's reward.
 
 **Bonus**:
 The short extra game at the end of every workday.
+
+## Space Cat
+
+A Space Cat run is made of **rounds** (one sum each) and **levels**.
+
+**Rung**:
+One step of the sums ladder (for example plus with sums to 5, or the missing number). He opens the next rung by answering;
+the parent can cap the range and switch times and divide on.
+_Avoid_: level, stage
+
+**Level** (Space Cat):
+7 right answers; then the hearts fill again. Not the clock's *Level*.
+
+**Lane**:
+One of the four columns the planets fly down, each with one number.
+
+**Zoom**:
+A flick up that flies the ship to its planet early, for 2 points.
+
+**Ship**:
+The cat's ship. There are three; the second opens at level 4, the third at level 7.
+
+**Points**:
+Space Cat's count, drawn with a star. They stay inside the game.
+_Avoid_: stars (Book 2's)
+
+**Missing number**:
+A sum with the ring in the place of the first or the second number, not the answer.
 
 ## People
 
