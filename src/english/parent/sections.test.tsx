@@ -49,15 +49,15 @@ describe('the English section: level, sound units, words', () => {
     expect(useEnglishStore.getState().openedStations).toEqual(expect.arrayContaining(open))
   })
 
-  it('at stage 1 the doors are not opened (the run does not play them there yet)', () => {
+  it('at stage 1 the doors are opened (its door words have pictures)', () => {
     const { container } = section()
     englishSavePort().setStage(3)
     fireEvent.change(el(container, '[data-start-stage]'), { target: { value: '1' } })
     fireEvent.click(el(container, '[data-set-stage]'))
     expect(useEnglishStore.getState().stage.stage).toBe(1)
-    expect(enDoorsPlayable(1, { picture: wordPicture })).toBe(false)
-    expect(useEnglishStore.getState().openedStations).not.toContain('doors')
-    expect(englishOpenStations(readEnglishSave(), englishDoorsPlayable)).not.toContain('doors')
+    expect(enDoorsPlayable(1, { picture: wordPicture })).toBe(true)
+    expect(useEnglishStore.getState().openedStations).toContain('doors')
+    expect(englishOpenStations(readEnglishSave(), englishDoorsPlayable)).toContain('doors')
     expect(stationsUpTo(1, true, () => true)).toContain('doors')
   })
 

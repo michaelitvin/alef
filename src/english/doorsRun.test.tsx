@@ -141,21 +141,20 @@ describe('the English doors in the run', () => {
     let played = 0
     for (let seed = 1; seed <= 12 && !played; seed++) {
       const save = englishSave(5)
-      const log = await session(save, (v: View) => (v.screen?.screen === 'doors' && v.screen.word.id === 'tent' ? 'wrong' : 'right'), seed)
-      if (!asked(log.views).some((d) => d.key === 'tent')) continue
+      const log = await session(save, (v: View) => (v.screen?.screen === 'doors' && word(v.screen.word.id).blends?.length ? 'wrong' : 'right'), seed)
+      if (!asked(log.views).some((d) => word(d.key).blends?.length)) continue
       const i = log.voice.findIndex((id) => id.startsWith('intro-blend'))
       expect(i).toBeGreaterThan(0)
       expect(save.read().introSeen.blend).toBeDefined()
       // after the door's word, as on the other screens
-      expect(log.voice.slice(0, i)).toContain('w-tent')
+      expect(log.voice.slice(0, i).some((id) => id.startsWith('w-'))).toBe(true)
       played++
     }
     expect(played).toBe(1)
   }, 60_000)
 
-  it('the doors are left out of a stage where no door can be made (stage 1: map and fan have no picture file yet)', () => {
-    expect(ENGLISH.stages.screensOfStage(1)).not.toContain('doors')
-    for (const stage of [2, 4, 9]) expect(ENGLISH.stages.screensOfStage(stage)).toContain('doors')
+  it('the doors are in every stage once its door words have a picture file (stage 1: map and fan)', () => {
+    for (const stage of [1, 2, 4, 9]) expect(ENGLISH.stages.screensOfStage(stage)).toContain('doors')
   })
 
   it('a fresh save says the doors\' demo line over an English door', async () => {

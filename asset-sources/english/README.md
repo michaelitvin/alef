@@ -19,5 +19,21 @@ card's recolours (`card*`) are approved too and belong to the home card task.
 
 ## `audio.json`
 
-The ElevenLabs requests of the English voices and sounds, one entry for each file in `src/english/assets/audio/`, in the
-format of `../duel2/audio.json`. It is written when the voice clips are shipped (the voice tasks), not by this task.
+One entry for each file in `src/english/assets/audio/voice/`: `{id, file, take, source_sha256, where, caption, request,
+processing, earlier_takes}`. `request` is the Gemini text-to-speech request of the chosen take (model, voice, and the
+`prompt`: the direction in brackets followed by the spoken text). `earlier_takes` lists the other takes of the item with
+the parent's verdict and note. Text-to-speech output changes from run to run: keep the MP3; the request only gets a
+similar take. Written by `node scripts/english/export-assets.ts` (see below), never by hand.
+
+## `pictures.json`
+
+One entry for each word picture `src/english/assets/img/pw-<key>.webp`: `{key, file, take, source_sha256, caption, model,
+reference, aspect, prompt, processing}`. The prompt is the Gemini image request of the chosen take.
+
+## Shipping the approved assets
+
+`node scripts/english/export-assets.ts --adapter <english adapter of the review kit>` ships every item whose review
+status is ok (voice to MP3, mono, 96 kbit/s, with the approved trim and speed; pictures as approved; recolours only where
+a file already exists). It encodes again only a file whose approved take changed, rewrites `audio.json` and
+`pictures.json`, and prints the approved items with no game id and the game ids with no approved item. Options:
+`--dry-run`, `--force`. It needs `gst-launch-1.0` with the lame and xingmux plugins.

@@ -154,11 +154,13 @@ describe('the English doors', () => {
         expect(wordPicture(word(round.key).picture!)).toBeDefined()
       }
     }
-    // stage 1's door words have no file yet (map, fan): no door plays there (never a stage-2 word on a stage-1 plate)
-    expect(enDoorsPlayable(1, d)).toBe(false)
+    // with no file for map and fan (stage 1's door words), no door plays there (never a stage-2 word on a stage-1 plate)
+    const noStage1 = { picture: (k: string) => (k === 'map' || k === 'fan' ? undefined : wordPicture(k)) }
+    expect(enDoorsPlayable(1, noStage1)).toBe(false)
+    expect(enDoorsPlayable(1, d)).toBe(true)
     expect(enDoorsPlayable(2, d)).toBe(true)
     expect(enDoorsPlayable(1, deps)).toBe(true)
-    expect(() => enDoorRounds(ctxAt(1), 6, d)).toThrow()
+    expect(() => enDoorRounds(ctxAt(1), 6, noStage1)).toThrow()
     for (const { round } of doors(1, 40)) expect(word(round.key).stage).toBe(1)
     // with no file for duck, no door asks it, and no key shows it
     const noDuck = { picture: (k: string) => (k === 'duck' ? undefined : k) }

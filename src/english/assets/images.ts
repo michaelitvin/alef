@@ -21,8 +21,8 @@ const RENAMED: Record<string, string> = { lion: 'word-a', chick: 'word-e', penci
 /** Book 2 pictures the English path does not reuse (asset plan 2.1: another name, or another first sound) */
 const NOT_REUSED = new Set(['ball', 'eye', 'island', 'silent', 'rose'])
 
-/** The file of a word's picture (its EnWord.picture key): Book 2's picture word of that name; undefined: no file yet. */
+/** The file of a word's picture (its EnWord.picture key): the English path's own `img/pw-<key>.webp`, else Book 2's picture word of that name; undefined: no file yet. */
 export function wordPicture(key: string): string | undefined {
   if (NOT_REUSED.has(key)) return undefined
-  return (RENAMED[key] && ENGLISH_IMAGES[RENAMED[key]]) || ENGLISH_IMAGES[`pw-${key}`] || ENGLISH_IMAGES[`word-${key}`]
+  return GREEN[`pw-${key}`] || (RENAMED[key] && ENGLISH_IMAGES[RENAMED[key]]) || ENGLISH_IMAGES[`pw-${key}`] || ENGLISH_IMAGES[`word-${key}`]
 }

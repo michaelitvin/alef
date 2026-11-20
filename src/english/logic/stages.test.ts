@@ -56,8 +56,7 @@ describe('the English stages', () => {
   })
   it('the course\'s stages are these, with the ready stages', () => {
     expect(ENGLISH.stages).toMatchObject({ maxStage: 9, order: EN_ORDER, drawing: ['draw'], visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH })
-    // (the course leaves the doors out where no door has a picture file: stage 1's map and fan, for now)
-    expect(ENGLISH.stages.screensOfStage(1)).toEqual(enScreensOfStage(1).filter((x) => x !== 'doors'))
+    expect(ENGLISH.stages.screensOfStage(1)).toEqual(enScreensOfStage(1))
     expect(ENGLISH.stages.screensOfStage(2)).toEqual(enScreensOfStage(2))
     // tests are not strict: every stage is ready
     expect(ENGLISH.stages.recordStageAnswer({ stage: 8, newAnswers: 'oooo' }, true)).toEqual({ progress: { stage: 9, newAnswers: '' }, passed: true })

@@ -172,9 +172,9 @@ describe('the placement in the run', () => {
     expect(events).toContain('placement-done')
   })
 
-  it('a child placed at level 1 opens no doors station, and with the drawing off no draw station at any level', async () => {
+  it('a child placed at level 1 opens the doors station (stage 1 has its door pictures), and with the drawing off no draw station at any level', async () => {
     const low = memoryEnglishSavePort(); await placementWith(low, 'always-wrong')
-    expect(low.read().stage.stage).toBe(1); expect(low.read().openedStations).not.toContain('doors')
+    expect(low.read().stage.stage).toBe(1); expect(low.read().openedStations).toContain('doors')
     expect(low.read().openedStations).toContain('tower')
     const off = memoryEnglishSavePort(); off.setSettings({ drawing: false }); await placementWith(off, 'always-right')
     expect(off.read().openedStations).not.toContain('draw'); expect(off.read().openedStations).toContain('doors')

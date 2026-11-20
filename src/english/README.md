@@ -60,13 +60,16 @@ dev, tests and the verify build open every stage that has words.
 
 ## Known friction
 
-- **No voice files yet.** `assets/audio/voice/` is empty. A missing clip plays nothing and the flow goes on, but a
-  strict build (staging, production) opens no stage until a stage's clips exist (the stage list falls back to stage 1).
-  Dev, tests and the verify build open all stages. The spoken lines have no English take timings, so glow cues on
-  `howLine` are not synchronised.
-- **No word pictures yet.** The game looks for `pw-<word>.webp` in `assets/img/` (`wordPicture` in `assets/images.ts`;
-  a `word-<word>` file also works). The doors are skipped at stage 1 until a stage-1 door word has its picture, and a
-  picture round with no file falls back to a name round.
+- **Voice files and word pictures: the approved ones are in; some are not.** `assets/audio/voice/` holds the approved
+  clips and `assets/img/pw-<word>.webp` the approved word pictures. They are shipped by
+  `node scripts/english/export-assets.ts --adapter <the review kit's English adapter>` (see `asset-sources/english/`): it
+  ships only items whose review status is ok, and it is safe to run again (it encodes only what changed). What is left:
+  the merchant lines `m-*` have no voice take yet; a missing clip plays nothing and the flow goes on; a strict build
+  (staging, production) opens a stage only when all its clips exist (the list falls back to stage 1). The spoken lines
+  have no English take timings, so glow cues on `howLine` are not synchronised.
+- **Word pictures that are still missing.** `apple`, `egg`, `frog`, `pig`, `sun`, `umbrella` have no picture anywhere.
+  `wordPicture` (`assets/images.ts`) takes the English `pw-<word>.webp` first, then Book 2's. The doors are skipped at
+  stage 1 until a stage-1 door word has its picture, and a picture round with no file falls back to a name round.
 - **Stroke and line review still to do.** The parent has not reviewed the Latin strokes (`#/strokes` in test builds) or
   the written lines. Some calls wait for the parent: `x` is asked as the last letter of words that end in it (`fox`,
   `box`), a silent `e` in a spell word is a faint tail, and `cating` is a written wrong choice (the alternative is `catting`).

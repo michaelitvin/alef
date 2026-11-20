@@ -35,14 +35,6 @@ describe('a station link of the English path', () => {
     expect(container.querySelector('[data-testid="cover"]')).toBeNull()
   })
 
-  it('the doors link opens the cover at stage 1 (no door can be made there yet)', async () => {
-    saveAt(1)
-    expect(enDoorsPlayable(1, { picture: wordPicture })).toBe(false)
-    at('/duel2/?course=en&station=doors'); const { container } = render(<Duel2App goHome={() => {}} />)
-    expect((await screen.findByTestId('cover', {}, { timeout: 10_000 })).getAttribute('data-course')).toBe('en')
-    expect(station(container)).toBeNull()
-  })
-
   it('a doors link on a save where the doors play opens the English doors session', async () => {
     expect(doorsStage, 'a stage that plays the doors').toBeDefined()
     saveAt(doorsStage!)

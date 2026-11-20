@@ -199,15 +199,14 @@ describe('the English card and path on home (English path design, Part 1)', () =
     expect(parts(await pageEn())).toContain('english')
   })
 
-  it('a fresh device shows the tower open, the ghosts and the doors closed, and no open doors station', async () => {
+  it('a fresh device shows the tower open, the ghosts closed', async () => {
     const c = await pageEn()
     expect(stations(c).map((e) => e.getAttribute('data-station'))).toEqual(expect.arrayContaining(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw']))
     expect(stations(c).length).toBe(8)
     const o = open(c)
     expect(o).toContain('tower')
-    // stage 1 opens every screen but the ghosts (design Part 5), and the doors only once a door can be made (the carry-over)
-    expect(o).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'spell', 'draw'])
-    expect(o).not.toContain('doors')
+    // stage 1 opens every screen but the ghosts (design Part 5), and the doors too (stage 1's door words have their pictures)
+    expect(o).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'doors', 'spell', 'draw'])
     expect(o).not.toContain('ghosts')
   })
 

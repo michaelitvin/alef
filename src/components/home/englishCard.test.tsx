@@ -62,6 +62,6 @@ describe('the English path', () => {
   it('the wizard stands at the newest open reading station', () => {
     const { container } = render(<EnglishPath stations={englishStationStates(englishDoorsPlayable)} />)
     expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
-    expect(container.querySelector('[data-wizard]')!.closest('[data-station]')!.getAttribute('data-station')).toBe('ladder')
+    expect(container.querySelector('[data-wizard]')!.closest('[data-station]')!.getAttribute('data-station')).toBe('doors')
   })
 })
