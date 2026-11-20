@@ -56,7 +56,7 @@
    "where": "The zoom tip: he rests under the right planet (at most two times)",
    "caption": "אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר.",
    "voice": "bIHbv24MWmeRgasZH58o",
-   "chosen": null,
+   "chosen": "clips/zoom-tip-1/v4.mp3",
    "takes": [
     {
      "take": "clips/zoom-tip-1/v1.mp3",
@@ -187,7 +187,7 @@
    "where": "Level done (the first two times), after the fanfare",
    "caption": "יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב.",
    "voice": "bIHbv24MWmeRgasZH58o",
-   "chosen": null,
+   "chosen": "clips/level-done-2/v4.mp3",
    "takes": [
     {
      "take": "clips/level-done-2/v1.mp3",
@@ -318,7 +318,7 @@
    "where": "A tap on the hearts (once for a burst of taps)",
    "caption": "אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב.",
    "voice": "bIHbv24MWmeRgasZH58o",
-   "chosen": null,
+   "chosen": "clips/info-hearts-1/v6.mp3",
    "takes": [
     {
      "take": "clips/info-hearts-1/v1.mp3",
