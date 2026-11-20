@@ -28,9 +28,20 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 
 ## Minigame Design Rules
 
-Before you design, build or review a child-facing minigame or screen, read
-[docs/minigame-rules.md](docs/minigame-rules.md). It holds the parent's rules: speech instead of text,
-audio sequencing, symbol ambiguity, adaptive difficulty, parent tracking and asset review.
+[docs/minigame-rules.md](docs/minigame-rules.md) holds the parent's rules: speech instead of text, audio sequencing,
+symbol ambiguity, adaptive difficulty, parent tracking and asset review. Before you build or review a child-facing
+screen, read the sections that your task touches (find their lines with `grep -n '^## ' docs/minigame-rules.md`):
+
+| Task | Sections |
+| --- | --- |
+| Always | Communication on the screen, Working with the parent, Verification |
+| Voice lines and pronunciation | Voice lines: wording, Voice: delivery and emotion, Pronunciation |
+| Images, layout and art | Visuals, Art generation |
+| Screen and game code | Interaction, Game play and learning, Parent tracking |
+| Sound and music | Music and sound effects |
+| Asset review | Review of generated assets |
+
+A new design, a spec, or a rule-by-rule review of a spec reads the whole file.
 
 When the parent gives significant steering on a minigame (a correction, a new preference, a review note
 that applies to more than one item), add it to that file as a general rule. Write it in ASD-STE100 style
@@ -45,10 +56,28 @@ When you ship a generated asset (voice, sound, music, image), record the request
 
 ## Checks
 
-`npm run check && npm test` before every commit. `npm run check` is the type check, lint, dependency-cruiser (the boundary rules in
+While you work on a task, run the tests of what you changed: `npx vitest related --run <changed files>` and
+`npx tsc --noEmit`. Run the full `npm run check && npm test` before a merge into `main`, before a push and before a
+playtest build (the full suite has ~1,800 tests and is slow on this machine). `npm run check` is the type check, lint,
+dependency-cruiser (the boundary rules in
 `.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
 real build, use the `/verify` skill (it drives the verify build in a browser with touch on). The test timeout is 20 s
 (`vite.config.ts`): the run tests are slow under load.
+
+## Working with agents (tokens are the scarce resource)
+
+Every turn re-reads the whole context, so cost is turns × context size.
+
+- Opus plans, orchestrates and reviews: specs, plans, design and code reviews, and the final whole-branch review. Give
+  those subagents `model: opus` explicitly.
+- Sonnet implements a task that a detailed plan describes. The project settings make it the default subagent model.
+  Use Opus for a large engine refactor and for a bug that Sonnet did not fix.
+- One subagent does one task in a fresh context. If a task needs more than about 40 tool calls, split it. QA is its
+  own agent: it returns a list of findings, and other agents fix them.
+- Put several checks in one shell command. Read a line range, not a whole file.
+- Do not poll. Agent results arrive by themselves; set at most one fallback timer of an hour or more.
+- Screenshots stay in subagents. They return a text verdict; send images to the parent without reading them first.
+- At the end of each phase, write the state into the plan or the spec, and start a new session from it.
 
 ## Deployment (GitHub Pages: production and staging)
 
