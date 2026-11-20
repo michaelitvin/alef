@@ -51,6 +51,10 @@ For a new minigame, work in this order: brainstorm → mockups built from parts 
 spec → rule-by-rule review of the spec plus a builder check (see *Working with the parent*) → plan → build. Agree on the
 image budget at the start.
 
+For a feature in an existing game, write one short design (about a page: what changes, the parent's decisions, the
+tasks), have it reviewed, and build its independent tasks in parallel. Do not write a separate plan. Do not add
+extras that the parent did not ask for; offer them as one line instead.
+
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
 `asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
 
