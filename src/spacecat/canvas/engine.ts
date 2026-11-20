@@ -27,6 +27,8 @@ export interface RoundProbe {
   kind: RoundContent['kind'] | null; box: (string | null)[]; labels: string[]
   /** whether the equal-groups pods are on the screen now */
   pods: boolean
+  /** the intro cues glowing now */
+  cues: Cue[]
 }
 
 /** the moments of an intro line that make a part of the round glow (audio/intros.ts) */
@@ -486,6 +488,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       shipLane: round?.lane ?? null, lanes: G.lanes.map(cx), shipY: cy(G.shipY), result: round?.done?.result ?? null,
       planets: G.lanes.map((_, i) => { const at = planetPos(G, i, p, offs[i]); return { x: cx(at.x), y: cy(at.y), r: at.r * f.scale } }),
       kind: content?.kind ?? null, box: content?.box ?? [], labels: content?.labels ?? [], pods: !!pods?.shown && phase !== 'idle',
+      cues: [...cues],
     }
   }
 

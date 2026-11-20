@@ -277,7 +277,8 @@ async function scEnded(page, n, timeout = 30_000) {
 async function scAnswer(page, vp, how, after) {
   const r = await scRound(page, after)
   if (!r) return { n: after, did: 'none', result: null }
-  const wrongLane = (r.right + (r.shipLane === (r.right + 1) % 4 ? 2 : 1)) % 4
+  const k = r.lanes.length
+  const wrongLane = (r.right + (r.shipLane === (r.right + 1) % k ? 2 : 1)) % k
   let did = how
   if (how === 'timeout' && r.shipLane === r.right) did = 'wrong'
   if (did === 'right' || did === 'arrive') { if (r.shipLane !== r.right) await scDragTo(page, r, r.lanes[r.right]) }
@@ -321,9 +322,11 @@ async function scAudioSummary(page, from = 0) {
   }
   return { n: log.length, order: log.map((e) => `${e.kind[0]}:${e.id}`).join(' '), minSfxToVoice: Number.isFinite(minGap) ? Math.round(minGap) : null }
 }
+/** a round's box as text (◯ is the ring) */
+const scBoxText = (r) => r.box.map((t) => t ?? '◯').join(r.kind === 'jumps' ? ',' : '')
 const SC_SAVE = 'alef-spacecat'
-/** a seeded save at a rung (the demo and the tips heard), as the store persists it */
-const scSeed = (top, extra = {}) => JSON.stringify({
+/** a version 1 save (the first design's nine rungs) at old rung `top`, as that store persisted it: the migration's input */
+const scSeedV1 = (top, extra = {}) => JSON.stringify({
   version: 1,
   state: {
     items: {}, ladder: { top, topRecent: '', topMistake: false, streak: 0 }, speed: { arrivalMs: 8000, underMs: [], hold: 0 }, totalPoints: 30, best: 12,
@@ -331,6 +334,34 @@ const scSeed = (top, extra = {}) => JSON.stringify({
     settings: { range: 'auto', times: top >= 7, divide: top >= 9, arrival: 'auto', flightMusic: false }, ...extra,
   },
 })
+/** the 31 rungs in the ladder's order (src/spacecat/logic/rungs.ts): every rung before the frontier is passed in a seed */
+const SC_ORDER = ['1', '2', '3', '4', '5', '6', '7', 'C1', '8', '9', '10', '11', '12', 'S1', 'T1', '13', '14', 'C2', 'T2', '15', '16', 'S2', 'T3', '17', '18', 'T4a', 'T4b', '19', 'H1', 'T5', 'T6']
+/** the demo, the tips and the missing-number lines heard; the four intros not yet */
+const SC_HEARD = { demo: 1, 'zoom-tip': 2, missing: 2, 'missing-jumps': 2, 'level-done': 2, out: 2 }
+const SC_SETTINGS = { range: 'auto', compare: true, jumps: true, times: true, divide: true, missing100: true, hundreds: true, arrival: 'auto', flightMusic: false }
+/**
+ * A version 2 save in practice with the frontier at `frontier` (every rung before it in the order passed), played a
+ * minute ago (no new play day: no warm-up, no re-check), as the store persists it.
+ */
+const scSeed = (frontier, extra = {}) => {
+  const passed = SC_ORDER.slice(0, SC_ORDER.indexOf(frontier))
+  if (!SC_ORDER.includes(frontier)) throw new Error(`no rung ${frontier}`)
+  return JSON.stringify({
+    version: 2,
+    state: {
+      items: {},
+      ladder: {
+        rungs: Object.fromEntries(passed.map((id) => [id, { status: 'passed', recent: '', fastRun: 0, strikes: 0, holds: 0 }])),
+        day: 1, lastAt: Date.now() - 60_000, checkedOn: 1, fastPasses: { today: 0, lastDay: 0 }, passes: [], mode: { kind: 'practice' },
+        strikeLeft: 0, guardLeft: 0, lastMarks: '', recheckDue: false,
+      },
+      speed: { small: { arrivalMs: 8000, underMs: [], hold: 0 } }, totalPoints: 30, best: 12, ships: [1, 2], ship: 2, heard: SC_HEARD,
+      sinceZero: 0, runs: 3, settings: SC_SETTINGS, intro: { day: 1, mistakes: {}, again: [] }, ...extra,
+    },
+  })
+}
+/** the save as stored now (the persist wrapper's state and version) */
+const scSaved = (page) => page.evaluate((k) => { const j = JSON.parse(localStorage.getItem(k) ?? 'null'); return j && { version: j.version, ...j.state } }, SC_SAVE)
 
 // ---- the checks: each gets a fresh page in the run's context, and its own notes ----
 const CHECKS = {
@@ -532,7 +563,7 @@ const CHECKS = {
     await scEnded(page, r.n, 40_000)
     r = await scRound(page, r.n)
     const topY = Math.min(...r.planets.map((q) => q.y)) / 3
-    const want = (r.shipLane + 2) % 4
+    const want = (r.shipLane + 2) % r.lanes.length
     await touchPath(page, line(r.lanes[r.shipLane], topY, r.lanes[want], topY))
     await page.waitForTimeout(600)
     const now = await scProbe(page)
@@ -624,10 +655,10 @@ const CHECKS = {
     const again = await scRound(page, r.n)
     if (again.right !== r.right) note(`after the pause the right lane moved (${r.right + 1} → ${again.right + 1}): a fresh sum, not the same one?`)
     note(`pause in a zoom: round ${r.n} → ${again.n}, ${again.result ? 'ended at once' : 'from the top'}`)
-    // the missing-number line: rung 4 seeded, the line not heard yet
+    // the missing-number line: the frontier at rung 6 (the ring at b), the line not heard yet
     await page.goto('about:blank')
     await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
-    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed(4, { heard: { demo: 1, 'zoom-tip': 2 }, settings: { range: 4, times: false, divide: false, arrival: 'auto', flightMusic: false } })])
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed('6', { heard: { demo: 1, 'zoom-tip': 2 } })])
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
     await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
@@ -640,7 +671,7 @@ const CHECKS = {
       const a = await scAnswer(page, vp, 'right', n)
       n = a.n
     }
-    if (!seen) { note('no missing-number round in 12 rounds at rung 4'); return }
+    if (!seen) { note('no missing-number round in 12 rounds at rung 6'); return }
     await page.waitForTimeout(700)
     await shot(page, vp, 'sc-missing')
     await scHide(page, true)
@@ -653,12 +684,14 @@ const CHECKS = {
   },
 
   async spacecatRungs(page, base, vp, note) {
-    // each rung 2 to 9 (7 to 9 with the switches on): a seeded save, then right, wrong and time-out answers
+    // rungs of each strand from a seeded save (the frontier there, the intros heard): a right, a wrong and a time-out
+    // answer each, a screenshot of each rung's first round
     const out = []
-    for (const top of [2, 3, 4, 5, 6, 7, 8, 9]) {
+    for (const at of ['2', '4', '6', '9', '11', '12', '13', '17', '19', 'H1', 'C2', 'S2', 'T3', 'T4b', 'T6']) {
       await page.goto('about:blank')
       await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
-      await page.evaluate(([k, v]) => { localStorage.setItem(k, v); window.__scText.length = 0 }, [SC_SAVE, scSeed(top)])
+      const seed = scSeed(at, { heard: { ...SC_HEARD, compare: 2, jumps: 2, times: 2, divide: 2 } })
+      await page.evaluate(([k, v]) => { localStorage.setItem(k, v); window.__scText.length = 0 }, [SC_SAVE, seed])
       await page.reload({ waitUntil: 'domcontentloaded' })
       await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
       await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
@@ -669,23 +702,199 @@ const CHECKS = {
         if ((await scScreen(page)) !== 'play') break
         const r = await scRound(page, n)
         if (!r) break
-        if (how === 'right') { await page.waitForTimeout(600); await shot(page, vp, `sc-rung${top}`) }
+        if (how === 'right') { await page.waitForTimeout(600); await shot(page, vp, `sc-rung${at}`) }
         const a = await scAnswer(page, vp, how, r.n - 1)
         n = a.n
-        res.push(`${a.did}→${a.result}`)
+        res.push(`${scBoxText(r)} ${a.did}→${a.result}`)
       }
-      const strings = await page.evaluate(() => window.__scText.slice())
       await scNoText(page)
-      out.push(`rung ${top}: ${res.join(' ')}; drew ${strings.filter((t) => /[+−×÷]/.test(t)).join('') || '-'}`)
+      out.push(`rung ${at}: ${res.join('; ')}`)
     }
     for (const o of out) note(o)
+  },
+
+  async spacecatKinds(page, base, vp, note) {
+    // the new kinds of round, each from a save with its rung at the frontier and its intro not heard yet: a comparison
+    // (three lanes, the drawn signs), a jump row (it hops in), the same number added (dots from the start), times (the
+    // pods on the intro's cue), divide (the pods share) and a 2-digit sum with regrouping. Each: the intro's cues, a
+    // screenshot in flight and after the right answer
+    const KINDS = [
+      { at: 'C1', name: 'compare', is: (r) => r.kind === 'compare', lanes: 3 },
+      { at: 'S1', name: 'jumps', is: (r) => r.kind === 'jumps', lanes: 4 },
+      { at: 'T1', name: 'thrice', is: (r) => r.kind === 'sum' && r.box.filter((t) => t === '+').length === 2, lanes: 4, pods: true },
+      { at: 'T2', name: 'times', is: (r) => r.kind === 'sum' && r.box.includes('×'), lanes: 4 },
+      { at: 'T4a', name: 'divide', is: (r) => r.kind === 'sum' && r.box.includes('÷'), lanes: 4 },
+      { at: '15', name: 'regroup', is: (r) => r.kind === 'sum' && r.box.some((t) => t && t.length === 2) && !r.box.includes('×') && !r.box.includes('÷'), lanes: 4 },
+    ]
+    const problems = []
+    for (const k of KINDS) {
+      await page.goto('about:blank')
+      await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+      await page.evaluate(([key, v]) => { localStorage.setItem(key, v); window.__scText.length = 0; window.__scAudio.length = 0 }, [SC_SAVE, scSeed(k.at)])
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+      await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+      await scUntilScreen(page, 'play')
+      let n = 0
+      let found = null
+      const seen = []
+      for (let i = 0; i < 8 && !found; i++) {
+        if ((await scScreen(page)) === 'level') { await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]')); await scUntilScreen(page, 'play') }
+        const r = await scRound(page, n)
+        if (!r) break
+        seen.push(scBoxText(r))
+        if (!k.is(r)) { n = (await scAnswer(page, vp, 'right', r.n - 1)).n; continue }
+        found = r
+        if (r.lanes.length !== k.lanes) problems.push(`${k.name}: ${r.lanes.length} lanes, wanted ${k.lanes}`)
+        // the intro (if any) as it plays: each cue's glow, a screenshot at each new cue
+        // (two screenshots a cue: a glow pulses). He does not answer while the line plays: the round may end first
+        const cues = []
+        const t0 = Date.now()
+        const phase = await page.locator('.sc-stage').getAttribute('data-phase')
+        let endedIn = null
+        if (phase === 'intro') {
+          while (Date.now() - t0 < 15_000) {
+            const q = await scProbe(page)
+            if (!q || q.n !== r.n || q.result) { endedIn = q?.result ?? 'ended'; break }
+            const fresh = q.cues.filter((c) => !cues.includes(c))
+            for (const c of fresh) {
+              cues.push(c)
+              await shot(page, vp, `sc-kind-${k.name}-cue-${c}`)
+              await page.waitForTimeout(250)
+              await shot(page, vp, `sc-kind-${k.name}-cue-${c}-2`)
+            }
+            if ((await page.locator('.sc-stage').getAttribute('data-phase')) !== 'intro') break
+            await page.waitForTimeout(60)
+          }
+          const t = Math.round((Date.now() - t0) / 100) / 10
+          note(`${k.name}: intro ${endedIn ? `still playing when the round ended (${endedIn}) after ${t} s` : `ended after ${t} s with the round still in flight`}; cues ${cues.join(' ') || '-'}`)
+        } else {
+          await page.waitForTimeout(900)
+        }
+        const q = await scProbe(page)
+        if (!endedIn && k.pods && !q.pods) problems.push(`${k.name}: no pods in flight`)
+        if (!endedIn) await shot(page, vp, `sc-kind-${k.name}-flight`)
+        // the round he answers: this one, or (it ended in the intro) the next of the same seed
+        const a = await scAnswer(page, vp, 'right', endedIn ? r.n : r.n - 1)
+        await page.waitForTimeout(500)
+        await shot(page, vp, `sc-kind-${k.name}-after`)
+        if (a.result !== 'right') problems.push(`${k.name}: ${a.did}→${a.result}`)
+        note(`${k.name} (${k.at}): ${scBoxText(r)} labels ${r.labels.join(' ')}; intro ${phase === 'intro' ? 'played' : 'none'}, cues ${cues.join(' ') || '-'}; pods ${q.pods}; ${a.result}`)
+      }
+      if (!found) problems.push(`${k.name}: none in 8 rounds (${seen.join(', ')})`)
+      const audio = await scAudioSummary(page)
+      note(`${k.name} audio: ${audio.order.slice(0, 300)}`)
+      await scNoText(page)
+    }
+    if (problems.length) throw new Error(problems.join('; '))
+  },
+
+  async spacecatPlacement(page, base, vp, note) {
+    // a fresh save: the demo, then the placement's probes until it ends with a frontier; the export holds the placement
+    // events and the probe rounds; the parent area says where he is
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate((k) => localStorage.removeItem(k), SC_SAVE)
+    const since = Date.now()
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    let n = 0
+    const walk = []
+    let mode = 'placement'
+    // right answers, with one wrong among the first probes, until the placement ends
+    for (let i = 0; i < 30 && mode === 'placement'; i++) {
+      const sc = await scScreen(page)
+      if (sc === 'level') { await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]')); await scUntilScreen(page, 'play') }
+      if (sc === 'end') throw new Error('the run ended in the placement')
+      const r = await scRound(page, n)
+      if (!r) continue
+      if (i === 3) await shot(page, vp, 'sc-placement-probe')
+      const a = await scAnswer(page, vp, i === 4 ? 'wrong' : 'right', r.n - 1)
+      n = a.n
+      await page.waitForTimeout(300)
+      const s = await scSaved(page)
+      mode = s?.ladder?.mode?.kind ?? 'none'
+      walk.push(`${scBoxText(r)}${a.result === 'right' ? '' : `(${a.result})`}${mode === 'placement' ? `→${s.ladder.mode.at}` : ''}`)
+    }
+    note(`probes: ${walk.join(' ')}`)
+    if (mode === 'placement') throw new Error('the placement did not end in 30 rounds')
+    const s = await scSaved(page)
+    const placed = Object.entries(s.ladder.rungs).filter(([, v]) => v.status === 'placed' || v.status === 'passed').map(([k]) => k)
+    note(`after the placement: mode ${mode}, ${placed.length} rungs placed (${placed.join(' ')})`)
+    await scAudioSummary(page).then((a) => note(`audio: ${a.order.slice(0, 400)}`))
+    // the parent area: where he is, and the export's events
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await page.evaluate(() => {
+      window.__downloads = []
+      const make = URL.createObjectURL.bind(URL)
+      URL.createObjectURL = (b) => { void b.text().then((t) => window.__downloads.push(t)); return make(b) }
+    })
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spacecat"]')
+    const where = (await page.locator('[data-where]').textContent()).trim()
+    note(`where he is: ${where}`)
+    if (!/^Working on: /.test(where) || /finding/i.test(where)) throw new Error(`where he is: ${where}`)
+    await page.locator('[data-where]').scrollIntoViewIfNeeded()
+    await shot(page, vp, 'sc-placement-area')
+    const data = page.locator('[data-telemetry-export]')
+    await data.scrollIntoViewIfNeeded()
+    await tap(page, data.locator('[data-telemetry-download]'))
+    await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
+    const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
+    const ev = (doc.games?.find((g) => g.key === 'alef-spacecat-telemetry')?.events ?? []).filter((e) => typeof e.t !== 'number' || e.t >= since)
+    const pl = ev.filter((e) => e.e === 'placement')
+    const probes = ev.filter((e) => e.e === 'round' && e.part === 'probe')
+    note(`export: placement ${pl.map((e) => `${e.phase}(${e.kind}${e.phase === 'end' ? ` ${e.probes} probes, ${e.mistakes} mistakes, frontier ${e.frontier}` : ''})`).join(' ')}; ${probes.length} probe rounds`)
+    if (!pl.some((e) => e.phase === 'end' && e.frontier)) throw new Error('no placement end with a frontier in the export')
+    if (!probes.length) throw new Error("no round with part 'probe' in the export")
+  },
+
+  async spacecatMigration(page, base, vp, note) {
+    // a version 1 save at old rung 6: it loads as version 2 with its rungs placed (1 to 7, 9 to 11; 8 not), the
+    // migration's placement plays, nothing breaks
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeedV1(6)])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await shot(page, vp, 'sc-migration-cover')
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spacecat"]')
+    // the settings section loads lazily: wait for its table
+    await page.locator('[data-rungs] [data-rung]').first().waitFor()
+    const status = await page.locator('[data-rungs] [data-rung]').evaluateAll((rows) => Object.fromEntries(rows.map((r) => [r.getAttribute('data-rung'), r.getAttribute('data-status')])))
+    const placed = Object.keys(status).filter((k) => status[k] === 'placed')
+    note(`placed: ${placed.join(' ')}; where: ${(await page.locator('[data-where]').textContent()).trim()}`)
+    const want = ['1', '2', '3', '4', '5', '6', '7', '9', '10', '11']
+    if (want.some((r) => status[r] !== 'placed') || status['8'] === 'placed' || placed.length !== want.length) throw new Error(`the placed rungs: ${placed.join(' ')}`)
+    await page.locator('[data-rungs]').scrollIntoViewIfNeeded()
+    await shot(page, vp, 'sc-migration-area')
+    await page.locator('[data-parent-close]').scrollIntoViewIfNeeded()
+    await tap(page, page.locator('[data-parent-close]'))
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
+    await scUntilScreen(page, 'play')
+    let n = 0
+    const res = []
+    for (let i = 0; i < 4; i++) {
+      const r = await scRound(page, n)
+      if (!r) break
+      if ((await page.locator('.sc-stage').getAttribute('data-phase')) === 'demo') throw new Error('the demo came after a migration')
+      const a = await scAnswer(page, vp, 'right', r.n - 1)
+      n = a.n
+      res.push(`${scBoxText(r)} ${a.result}`)
+    }
+    const s = await scSaved(page)
+    note(`rounds: ${res.join(', ')}; save version ${s.version}, mode ${s.ladder.mode.kind}${s.ladder.mode.at ? ` at ${s.ladder.mode.at}` : ''}; points ${s.totalPoints}`)
+    if (s.version !== 2) throw new Error(`the save is version ${s.version}`)
+    if (s.totalPoints < 30) throw new Error('the migration lost his points')
+    await scNoText(page)
   },
 
   async spacecatTurn(page, base, vp, note) {
     // the screen turns mid-round (a phone or a tablet rotated): the layout follows the new shape, the round goes on in
     // the same lane, and he answers it in the new layout; then it turns back
     await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
-    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed(2)])
+    await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SC_SAVE, scSeed('3')])
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
     await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
@@ -726,8 +935,21 @@ const CHECKS = {
     await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spacecat"]')
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
     await shot(page, vp, 'sc-area')
+    // the ladder's view: where he is, the rungs by strand, the recent changes (the ladder events of the runs before)
     await page.locator('[data-spacecat-settings]').scrollIntoViewIfNeeded()
     await shot(page, vp, 'sc-area-settings')
+    await page.locator('[data-rungs] [data-rung]').first().waitFor()
+    const where = (await page.locator('[data-where]').textContent()).trim()
+    const rows = await page.locator('[data-rungs] [data-rung]').count()
+    const strands = await page.locator('[data-rungs] [data-strand]').evaluateAll((b) => b.map((x) => `${x.getAttribute('data-strand')} ${x.querySelectorAll('[data-rung]').length}`))
+    const recent = await page.locator('[data-recent] li').allTextContents()
+    note(`where he is: ${where}; ${rows} rungs (${strands.join(', ')}); recent: ${recent.slice(0, 4).join(' | ') || 'none'}`)
+    if (rows !== 31 || strands.length !== 3) throw new Error(`the rung table: ${rows} rows, strands ${strands.join(', ')}`)
+    if (!/^Working on: .*Passed \d+ of 31 rungs/.test(where.replace(/\s+/g, ' '))) throw new Error(`where he is: ${where}`)
+    await page.locator('[data-recent], [data-rungs]').last().scrollIntoViewIfNeeded()
+    await shot(page, vp, 'sc-area-recent')
+    await page.locator('[data-relevel-box]').scrollIntoViewIfNeeded()
+    await shot(page, vp, 'sc-area-switches')
     const data = page.locator('[data-telemetry-export]')
     await data.scrollIntoViewIfNeeded()
     const count = await data.locator('[data-log="alef-spacecat-telemetry"] [data-log-count]').textContent()
@@ -764,6 +986,17 @@ const CHECKS = {
     const a = await scAudioSummary(page, from)
     note(`effects off: ${a.order}`)
     if (/s:/.test(a.order)) throw new Error(`a coded effect played with effects off: ${a.order}`)
+    // find his level again (last: it starts a placement): the confirm, then the area says he is being placed
+    await page.goto(`${base}spacecat/`, { waitUntil: 'domcontentloaded' })
+    await page.locator('.sc-root[data-screen="cover"]:not([data-loading])').waitFor({ timeout: 90_000 })
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spacecat"]')
+    page.once('dialog', (d) => void d.accept())
+    await page.locator('[data-relevel]').scrollIntoViewIfNeeded()
+    await tap(page, page.locator('[data-relevel]'))
+    await page.waitForTimeout(500)
+    const after = await scSaved(page)
+    note(`find his level again: mode ${after.ladder.mode.kind} (${after.ladder.mode.why ?? '-'}); where: ${(await page.locator('[data-where]').textContent()).trim()}`)
+    if (after.ladder.mode.kind !== 'placement') throw new Error('find his level again started no placement')
   },
 
   async telemetry(page, base, vp, note) {

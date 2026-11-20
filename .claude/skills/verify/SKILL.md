@@ -22,11 +22,13 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatTurn`, `spacecatArea`,
+  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
   `telemetry`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
   (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
   (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
   `tabletSide`, which run only when named: Space Cat plays upright and on its side).
+  Space Cat's seeds (`scSeed(frontier)`) are version 2 saves in practice; `scSeedV1(top)` is a save of the first design,
+  for the migration.
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
@@ -45,9 +47,12 @@ and no boy or girl yet. Each check gets its own page.
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 | `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input on while its line plays), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
 | `spacecatPause` | a forced hide (the tablet locks) during the demo, a zoom and the missing-number line: the pause cover, silence, and the same step again after play |
-| `spacecatRungs` | rungs 2 to 9 from a seeded save (7 to 9 with times and divide on): a right, a wrong and a time-out answer each, a screenshot of each rung's sum |
+| `spacecatRungs` | rungs of each strand from a seeded save (the frontier at the rung, the intros heard): a right, a wrong and a time-out answer each, a screenshot of each rung's round |
+| `spacecatKinds` | a save with the frontier at `C1`, `S1`, `T1`, `T2`, `T4a` and `15`: the first round of the new kind (a comparison on 3 lanes, a jump row, dots from the start, times, divide, a 2-digit sum with regrouping), its intro's cues (two screenshots a cue: the glows pulse; the probe's `cues`), a screenshot in flight and after the right answer. Notes when the round ends before its intro line |
+| `spacecatPlacement` | a fresh save: the demo, then the placement's probes (one wrong) until it ends; the area's *Where he is*; the export's `placement` end with a frontier and rounds with `part: 'probe'` |
+| `spacecatMigration` | a version 1 save at old rung 6: the area shows 1 to 7 and 9 to 11 placed (8 not), the migration's placement plays, the save is version 2, his points stay |
 | `spacecatTurn` | a seeded save; the screen turns mid-round and back: the round and the ship's lane stay, and a right answer in each shape ends right |
-| `spacecatArea` | the gate on Space Cat's cover, every section, the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays |
+| `spacecatArea` | the gate on Space Cat's cover, every section; *Where he is*, the rung table (31 rungs in 3 strands) and *Recent changes*; the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays; last, *Find his level again* starts a placement |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
 
 **Nothing scrolls sideways.** At the year pad and at every section of the area (and Book 2's gallery and stroke
@@ -57,8 +62,8 @@ failure names the elements that pass the edge. A wide box that scrolls on purpos
 **The gate** (2 s hold, then the year of birth) is checked each time: a short hold opens nothing, a child's year closes
 the pad, an adult's year (any year 18 to 100 years back) opens the area.
 
-Space Cat's checks read the verify build's probe `window.__scRound` (the round's lanes, planets and right lane in
-client pixels; `src/spacecat/canvas/engine.ts`) to touch the right place, and fail on any letter on a child screen
+Space Cat's checks read the verify build's probe `window.__scRound` (the round's lanes (3 or 4), planets and right lane in
+client pixels, its kind, box and labels, the pods and the intro cues glowing now; `src/spacecat/canvas/engine.ts`) to touch the right place, and fail on any letter on a child screen
 (the DOM outside the parent area, and `window.__scText`, every string the canvas drew).
 
 The driver also lists visible Latin or Hebrew text on the play screens (a note, not a failure: compare it with the rule
