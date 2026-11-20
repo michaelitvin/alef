@@ -3,6 +3,7 @@
 // the first duel's history and the flight speed. The frame has the close, boy or girl, sound, reset and developer tools.
 import { useDuel2Store, type Duel2Settings } from '../store'
 import { duel2Telemetry } from '../telemetry'
+import { setNumberRange, useNumberRange } from '../../shared/numberRange'
 import { ITEMS } from '../logic/content'
 import type { SectionProps } from '../../parent/types'
 import { FirstDuelHistory } from './FirstDuelHistory'
@@ -12,6 +13,7 @@ const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
 export default function Book2Settings({ goTo }: SectionProps) {
   const s = useDuel2Store()
+  const range = useNumberRange()
   const setSettings = (p: Partial<Duel2Settings>) => { s.setSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
   const rows = (prefix: string) => Object.entries(s.tallies).filter(([k]) => k.startsWith(prefix))
     .map(([k, t]) => ({ k: k.slice(prefix.length), seen: t.seen ?? 0, wrong: t.wrong ?? 0 }))
@@ -54,7 +56,7 @@ export default function Book2Settings({ goTo }: SectionProps) {
       <p>
         {([10, 100, 1000] as const).map((r) => (
           <label key={r} style={{ marginRight: 14 }}>
-            <input type="radio" name="d2-range" data-range={r} checked={(s.settings.range ?? 100) === r} onChange={() => setSettings({ range: r })} /> Up to {r}
+            <input type="radio" name="d2-range" data-range={r} checked={range === r} onChange={() => { setNumberRange(r); setSettings({ range: r }) }} /> Up to {r}
           </label>
         ))}
       </p>

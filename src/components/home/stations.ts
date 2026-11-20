@@ -6,6 +6,7 @@ import type { Duel2Save } from '../../duel2/store'
 import { SAVE_VERSION, migrateSave } from '../../duel2/saveFormat'
 import { openScreens } from '../../duel2/station'
 import { rating, screenRecent } from '../../duel2/logic/mastery'
+import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 import { useProgressStore } from '../../stores/progressStore'
 
 export interface Station {
@@ -16,16 +17,20 @@ export interface Station {
   pic: 'img' | 'orb' | 'glyph' | 'hand'
 }
 
-const STATIONS: Station[] = [
+const ALL_STATIONS: Station[] = [
   { id: 'tower', learn: 'ניקוד לפי צליל', pic: 'img' },
   { id: 'broom', learn: 'אותיות והברות לפי צליל', pic: 'orb' },
   { id: 'ghosts', learn: 'אותיות דומות', pic: 'img' },
   { id: 'cauldron', learn: 'בניית הברה', pic: 'img' },
   { id: 'ladder', learn: 'משפחות הברות, דגש', pic: 'img' },
   { id: 'doors', learn: 'קריאת מילים', pic: 'img' },
+  { id: 'spell', learn: 'כתיב מילים', pic: 'img' },
   { id: 'draw', learn: 'אותיות דפוס', pic: 'glyph' },
   { id: 'draw-hand', learn: 'אותיות כתב יד', pic: 'hand' },
 ]
+
+/** the Hebrew path's stations: the spell book only where it is out (src/shared/hebrewSpell.ts) */
+const STATIONS = ALL_STATIONS.filter((s) => s.id !== 'spell' || HEBREW_SPELL_AVAILABLE)
 
 // ---- the state of the path, read from the saves (the home never creates or writes the Book 2 save)
 

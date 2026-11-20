@@ -1,6 +1,6 @@
 // 6 · The crystal behind the last door, in its own moment: a quartz or amethyst crystal with a burst of light.
 import { useEffect, useState } from 'react'
-import { IMAGES } from '../../assets/images'
+import { useImages } from '../../course/CourseContext'
 import { Stage } from './Stage'
 import { ArriveLight, takeArrivedThroughLight } from './Doors'
 
@@ -8,6 +8,7 @@ const CRYSTAL_MS = 3200
 const COLORS = [['#f4f7ff', '#b9c7ff'], ['#e6c8ff', '#8a4fd8'], ['#ffd6ea', '#d86fa8'], ['#e8ddd2', '#8a7660']]
 
 export function Crystal(p: { kind: number; onDone: () => void }) {
+  const images = useImages()
   useEffect(() => {
     const t = window.setTimeout(p.onDone, CRYSTAL_MS)
     return () => window.clearTimeout(t)
@@ -18,7 +19,7 @@ export function Crystal(p: { kind: number; onDone: () => void }) {
   const [arrive] = useState(takeArrivedThroughLight)
   const k = ((p.kind % 4) + 4) % 4
   const [a, b] = COLORS[k]
-  const img = IMAGES[`s-crystal-${k + 1}`]
+  const img = images[`s-crystal-${k + 1}`]
   return (
     <Stage bg="bg-sky">
       <defs>

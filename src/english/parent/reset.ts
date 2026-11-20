@@ -1,0 +1,5 @@
+// The English path's reset for the parent area, loaded on demand (parent/index.ts must not import the store). It resets
+// the English save only (alef-english), never Book 2's.
+import { useEnglishStore } from '../store'
+
+export default function resetEnglish() { useEnglishStore.getState().resetProgress() }

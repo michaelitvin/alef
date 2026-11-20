@@ -1,6 +1,7 @@
 // The run controller as a React hook: one controller per mount; the tablet lock (page hidden) pauses it (rule).
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { RunController, type RunOpts } from './controller'
+import type { Round } from '../types/duel'
 
 export function useRun(opts: RunOpts) {
   const ref = useRef<RunController | null>(null)
@@ -29,7 +30,7 @@ export function useRun(opts: RunOpts) {
     /** he held the home button: the run stops (RunController.exit) */
     exit: () => c.exit(),
     /** the tower's board reports its answers and the end of its visit */
-    towerAnswer: (r: 'right' | 'wrong', markId: string) => c.towerAnswer(r, markId),
+    towerAnswer: (r: 'right' | 'wrong', markId: string, round?: Round, helped?: true) => c.towerAnswer(r, markId, round, helped),
     towerDone: (lastWave: number) => c.towerDone(lastWave),
     towerWaveEnd: (wave: number) => c.towerWaveEnd(wave),
     towerMega: (markId: string) => c.towerMega(markId),

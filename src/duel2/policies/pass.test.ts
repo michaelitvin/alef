@@ -12,7 +12,7 @@ function freeze<T>(x: T): T {
   return x
 }
 
-/** stage 4, drawing off, the book open: tower → broom → cauldron → ladder → ghosts → doors */
+/** stage 4, drawing off, the book open: tower → broom → cauldron → ladder → ghosts → doors → (crystal) → spell */
 const facts = (f: Partial<PassFacts> = {}): PassFacts => ({
   stage: 4, draw: false, bookOpen: true, recent: {}, duelRecent: {}, cycleNo: 0, towerTail: '', ...f,
 })
@@ -43,24 +43,25 @@ describe('the pass policy', () => {
   describe('where a run starts, and the cycle', () => {
     it('a run starts after the screen where the last ended; a session or the gallery at its screen; full hearts', () => {
       expect(pass({ lastEnded: 'ladder' }).state).toMatchObject({ screen: 'ghosts', hearts: { left: HEARTS, nearMissUsed: false }, full: false })
-      expect(pass({ lastEnded: 'doors' }).state).toMatchObject({ screen: 'tower', full: true })
+      expect(pass({ lastEnded: 'doors' }).state).toMatchObject({ screen: 'spell', full: false })
+      expect(pass({ lastEnded: 'spell' }).state).toMatchObject({ screen: 'tower', full: true })
       expect(pass({ mode: 'session', screen: 'cauldron' }).state).toMatchObject({ screen: 'cauldron', full: false })
       expect(pass({ mode: 'gallery', screen: 'broom' }).state.screen).toBe('broom')
       expect(pass({ facts: facts({ bookOpen: false }) }).state).toMatchObject({ screen: 'tower', full: true })
     })
 
-    it('screens in their cycle, with a checkpoint between two; the doors, then their crystal (no checkpoint between)', () => {
-      const p = pass({ lastEnded: 'doors' })
+    it('screens in their cycle, with a checkpoint between two; the doors, then their crystal (no checkpoint between), then the spell book', () => {
+      const p = pass({ lastEnded: 'spell' })
       const seen: string[] = [p.state.screen]
       let r = p.done()
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 8; i++) {
         if (i) r = p.done()
         seen.push(p.state.screen)
         expect(p.state.checkpointDue).toBe(p.state.screen !== 'crystal')
         expect(!!r.fresh).toBe(p.state.screen !== 'crystal')
         if (p.state.checkpointDue) p.send({ type: 'visited' })
       }
-      expect(seen).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'crystal', 'tower'])
+      expect(seen).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'crystal', 'spell', 'tower'])
       expect(r.save).toEqual([{ op: 'nextCycle' }])
     })
 
@@ -78,6 +79,8 @@ describe('the pass policy', () => {
     it('skipped doors: their crystal still comes at the end of the cycle, then the next cycle', () => {
       const f = facts({ recent: mastered('doors'), cycleNo: 1 })
       const p = pass({ lastEnded: 'ladder' })
+      p.done(f)
+      expect(p.state).toMatchObject({ screen: 'spell', crystalOwed: true })
       p.done(f)
       expect(p.state).toMatchObject({ screen: 'crystal', crystalOwed: false, afterCrystal: { screen: 'tower', newCycle: true } })
     })
@@ -105,6 +108,9 @@ describe('the pass policy', () => {
       const f = facts({ recent: mastered('doors'), cycleNo: 1 })
       expect(p.state.screen).toBe('ghosts')
       expect(p.done(f).track).toEqual([{ e: 'skip', data: { screen: 'doors', cycle: 1 } }])
+      // (the spell book comes after the skipped doors, before the cycle's end)
+      expect(p.state.screen).toBe('spell')
+      p.done(f)
       expect(p.state).toMatchObject({ screen: 'crystal', crystalOwed: false, afterCrystal: { screen: 'tower', newCycle: true } })
       expect(p.send({ type: 'crystal' }).save).toEqual([{ op: 'addCrystal' }])
       p.done(f)
@@ -112,10 +118,10 @@ describe('the pass policy', () => {
     })
 
     it('is paid once when the run ends or closes before the cycle\'s end', () => {
-      // drawing on: the drawing screens come after the skipped doors, before the cycle's end
+      // the spell book and the drawing screens come after the skipped doors, before the cycle's end
       const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true }) })
       p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1 }))
-      expect(p.state.screen).toBe('draw')
+      expect(p.state.screen).toBe('spell')
       expect(p.state.crystalOwed).toBe(true)
       expect(p.send({ type: 'owed' }).save).toEqual([{ op: 'addCrystal', owed: true }])
       expect(p.send({ type: 'owed' }).save).toEqual([])
@@ -157,12 +163,15 @@ describe('the pass policy', () => {
       expect(p.state.full).toBe(false)
       p.lose(2)
       p.done() // the crystal
+      p.done() // the spell book
       let r = p.done()
       // the run started near the cycle's end: no heart there
       expect(r.heal).toBeUndefined()
       expect(p.state).toMatchObject({ screen: 'tower', full: true, hearts: { left: 1 } })
       for (let i = 0; i < 6; i++) p.done()
       expect(p.state.screen).toBe('crystal')
+      p.done()
+      expect(p.state.screen).toBe('spell')
       r = p.done()
       expect(r).toMatchObject({ heal: true, run: { hearts: 2, passHeart: 1 }, sfx: ['potion'] })
       expect(r.track).toEqual([{ e: 'pass-heart', data: { hearts: 2 } }])
@@ -170,8 +179,8 @@ describe('the pass policy', () => {
     })
 
     it('no heart when all three are there, nor at stage 0 (the tower alone)', () => {
-      const p = pass({ lastEnded: 'doors' })
-      for (let i = 0; i < 7; i++) expect(p.done().heal).toBeUndefined()
+      const p = pass({ lastEnded: 'spell' })
+      for (let i = 0; i < 8; i++) expect(p.done().heal).toBeUndefined()
       const s0 = pass({ facts: facts({ bookOpen: false }) })
       s0.lose()
       const r = s0.done(facts({ bookOpen: false }))
@@ -291,11 +300,23 @@ describe('the pass policy', () => {
       const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true }) })
       p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1 }))
       const r = p.send({ type: 'lost', score: 1, bestRun: 9 })
-      expect(r.save).toEqual([{ op: 'addCrystal', owed: true }, { op: 'endRun', screen: 'draw', score: 1 }])
-      expect(r.track[0]).toEqual({ e: 'run-end', data: { screen: 'draw', score: 1, crystals: 1 } })
+      expect(r.save).toEqual([{ op: 'addCrystal', owed: true }, { op: 'endRun', screen: 'spell', score: 1 }])
+      expect(r.track[0]).toEqual({ e: 'run-end', data: { screen: 'spell', score: 1, crystals: 1 } })
       const c = pass({ lastEnded: 'ghosts' })
       c.done()
       expect(c.send({ type: 'lost', score: 0, bestRun: 0 }).save).toEqual([{ op: 'endRun', screen: 'doors', score: 0 }])
     })
+  })
+})
+
+describe('the pass policy: an empty visit', () => {
+  it('a visit that had no round is no checkpoint: the next screen comes without one', () => {
+    const p = pass({ lastEnded: 'broom' })
+    const r = p.send({ type: 'screen-done', facts: facts(), score: 0, empty: true })
+    expect(r.fresh).toBe(true)
+    expect(p.state).toMatchObject({ screen: 'ladder', checkpointDue: false })
+    // a visit with rounds still has one
+    p.done()
+    expect(p.state).toMatchObject({ screen: 'ghosts', checkpointDue: true })
   })
 })

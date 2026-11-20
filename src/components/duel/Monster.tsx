@@ -30,8 +30,10 @@ function BossMove({ id }: { id: string }) {
   )
 }
 
-export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay, remainingMs }: {
+export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay, remainingMs, holdX = null }: {
   round: Round; walking: boolean; startX: number; endX: number; bossHp: number; onReplay: () => void; remainingMs: number
+  /** the walk is held (the hint's blend plays): the monster stands at this x (%) */
+  holdX?: number | null
 }) {
   const mute = round.type === 'B' && round.target.group === 'silent'
   const continuing = Boolean(round.startFrac) // a boss picking up where it stood: no pop-in
@@ -43,9 +45,9 @@ export function WalkingMonster({ round, walking, startX, endX, bossHp, onReplay,
       className={`nd-monster${round.boss ? ` nd-boss nd-boss-${round.monster}` : ''}`}
       style={{ x: '-50%' }}
       initial={{ left: `${startX}%`, scale: continuing ? 1 : 0 }}
-      animate={{ left: walking ? `${endX}%` : `${startX}%`, scale: 1 }}
+      animate={{ left: holdX !== null ? `${holdX}%` : walking ? `${endX}%` : `${startX}%`, scale: 1 }}
       transition={{
-        left: { duration: walking ? remainingMs / 1000 : 0, ease: 'linear' },
+        left: { duration: walking && holdX === null ? remainingMs / 1000 : 0, ease: 'linear' },
         scale: round.boss ? { duration: 0.7, type: 'spring', bounce: 0.55 } : { duration: 0.35, type: 'spring' },
       }}
     >

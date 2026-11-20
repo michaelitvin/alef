@@ -1,13 +1,16 @@
 // No way past the gate by history (plan Task 14): the area is a route in the main app, so the gate must show again when
 // the child comes back to it with Back or Forward.
 import { act, fireEvent, render } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes, useNavigate, type NavigateFunction } from 'react-router-dom'
 import { HomePage } from '../pages/Home/HomePage'
 import { ParentPage } from '../pages/Parent/ParentPage'
 import { HOLD_MS } from '../shared/HoldButton'
 import { enterYear } from '../shared/parentGate/testing'
 import { takeGatePass } from './gateToken'
+
+// the home loads the English doors filter by import(): have it loaded, so that no import is still running at teardown
+beforeAll(async () => { await import('../english/doorsPlayable') })
 
 let go: NavigateFunction
 function Nav() { go = useNavigate(); return null }

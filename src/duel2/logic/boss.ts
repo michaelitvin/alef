@@ -1,7 +1,7 @@
 // The flight boss (spec 2026-11-07-book2-flight-boss-design): on every second broom visit of a run a boss throws waves of
 // two orbs, each made of one of his real mix-ups. 8 right catches beat it. Four kinds, discovered one by one.
 import type { Rng } from '../../shared/adaptive'
-import { GROUP_MARKS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, type MarkId, type Stage, type VowelGroup } from './content.ts'
+import { GROUP_MARKS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, type MarkId, type VowelGroup } from './content.ts'
 import { features, pickTarget } from './predict'
 import { syllableChoice, type Choice, type Conf, type RoundCtx } from './rounds'
 import { syllable } from './content.ts'
@@ -21,7 +21,7 @@ const UNBEATEN_BONUS = 3
 export const isBossVisit = (broomVisit: number) => broomVisit >= 2 && broomVisit % 2 === 0
 
 /** dot and shin kinds need the dotted letters (stage 3); the others stage 2 (syllables) */
-export const bossOpen = (kind: BossKind, stage: Stage) => stage >= (kind === 'dot' || kind === 'shin' ? 3 : 2)
+export const bossOpen = (kind: BossKind, stage: number) => stage >= (kind === 'dot' || kind === 'shin' ? 3 : 2)
 
 const DOT_PAIRS: [string, string][] = [['bet', 'vet'], ['kaf', 'khaf'], ['pe', 'fe']]
 const SHIN_PAIRS: [string, string][] = [['shin', 'sin']]
@@ -46,14 +46,22 @@ export function bossScores(conf: { letters: Conf; vowels: Conf }): Record<BossKi
 }
 
 /**
+ * The kinds a course's bosses can be now and how often he made each kind's mix-up (a course with its own content: the
+ * English course; unset: Book 2's gates `bossOpen` and scores `bossScores`)
+ */
+export interface BossKinds { open: BossKind[]; scores: Record<BossKind, number> }
+
+/**
  * The kind of this boss: the one whose mix-up he makes most, a kind he has not beaten when the scores are close, never the
  * kind of the boss before, and only kinds his stage has opened. Null when none is open (stage 1: letters only).
  */
-export function chooseBoss(o: { stage: Stage; confusions: { letters: Conf; vowels: Conf }; beaten: BossKind[]; last: BossKind | null; rng: Rng }): BossKind | null {
-  let avail = BOSS_KINDS.filter((k) => bossOpen(k, o.stage))
+export function chooseBoss(o: {
+  stage: number; confusions: { letters: Conf; vowels: Conf }; beaten: BossKind[]; last: BossKind | null; rng: Rng; kinds?: BossKinds
+}): BossKind | null {
+  let avail = o.kinds ? BOSS_KINDS.filter((k) => o.kinds!.open.includes(k)) : BOSS_KINDS.filter((k) => bossOpen(k, o.stage))
   if (!avail.length) return null
   if (avail.length > 1) avail = avail.filter((k) => k !== o.last)
-  const raw = bossScores(o.confusions)
+  const raw = o.kinds?.scores ?? bossScores(o.confusions)
   const score = (k: BossKind) => raw[k] + (o.beaten.includes(k) ? 0 : UNBEATEN_BONUS)
   const top = Math.max(...avail.map(score))
   const best = avail.filter((k) => score(k) === top)
@@ -61,16 +69,16 @@ export function chooseBoss(o: { stage: Stage; confusions: { letters: Conf; vowel
 }
 
 const pick = <T,>(rng: Rng, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
-const items = (stage: Stage) => (stage >= 3 ? (id: string) => !!id : (id: string) => !itemOf(id).soft)
+const items = (stage: number) => (stage >= 3 ? (id: string) => !!id : (id: string) => !itemOf(id).soft)
 
-function pairsOf(kind: BossKind, stage: Stage): [string, string][] {
+function pairsOf(kind: BossKind, stage: number): [string, string][] {
   const ok = items(stage)
   const ps = kind === 'dot' ? DOT_PAIRS : kind === 'shin' ? SHIN_PAIRS : MIMIC_PAIRS
   return ps.filter(([a, b]) => ok(a) && ok(b))
 }
 
 /** Every syllable a boss of this kind can ask for. */
-function pool(kind: BossKind, stage: Stage): Choice[] {
+function pool(kind: BossKind, stage: number): Choice[] {
   const ok = items(stage)
   if (kind === 'bat') {
     const ids = [...new Set(MIMIC_PAIRS.flat().concat(DOT_PAIRS.flat(), ['lamed', 'mem', 'nun', 'shin', 'qof', 'tav', 'samech']))].filter(ok)
@@ -82,7 +90,7 @@ function pool(kind: BossKind, stage: Stage): Choice[] {
 }
 
 /** The other members of the target's pairs, with the same vowel. */
-function twinsOf(kind: BossKind, stage: Stage, itemId: string, m: MarkId): string[] {
+function twinsOf(kind: BossKind, stage: number, itemId: string, m: MarkId): string[] {
   return pairsOf(kind, stage).flatMap(([a, b]) => (a === itemId ? [b] : b === itemId ? [a] : [])).filter((id) => isAllowed(id, m))
 }
 

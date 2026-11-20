@@ -5,8 +5,9 @@ import { pickNearTarget, predictedMistakeRate, type Rng, type Tally } from '../.
 import type { Item, Mark } from './content.ts'
 
 /** 'draw' is drawing in print, 'draw-hand' drawing in handwriting; 'tower' is the first duel's screen (its own rules:
- * `features()` is not called for it, its adaptive data stays in the first duel's save) */
-export type ScreenId = 'tower' | 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'doors' | 'draw' | 'draw-hand'
+ * `features()` is not called for it, its adaptive data stays in the first duel's save); 'spell' is the spell book (no
+ * course's order holds it yet) */
+export type ScreenId = 'tower' | 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'doors' | 'draw' | 'draw-hand' | 'spell'
 type Target = { item: Item; mark?: Mark } | { wordId: string }
 
 export function features(target: Target, screen: ScreenId): string[] {
@@ -17,7 +18,7 @@ export function features(target: Target, screen: ScreenId): string[] {
 }
 
 const SCREEN_PRIOR: Record<string, number> = { broom: 0.05, doors: 0.1 }
-function featurePrior(f: string): number {
+export function featurePrior(f: string): number {
   const [k, v] = f.split(':')
   if (k === 'l') return 0.1
   if (k === 'v') return 0.08
@@ -26,12 +27,12 @@ function featurePrior(f: string): number {
   return SCREEN_PRIOR[v] ?? 0.03
 }
 
-export function predict(feats: string[], tallies: Record<string, Tally>, recent: Record<string, string>): number {
+export function predict(feats: string[], tallies: Record<string, Tally>, recent: Record<string, string>, prior: (f: string) => number = featurePrior): number {
   let ok = 1
-  for (const f of feats) ok *= 1 - predictedMistakeRate(tallies[f], recent[f], featurePrior(f))
+  for (const f of feats) ok *= 1 - predictedMistakeRate(tallies[f], recent[f], prior(f))
   return 1 - ok
 }
 
-export function pickTarget<T>(rng: Rng, candidates: T[], featuresOf: (c: T) => string[], tallies: Record<string, Tally>, recent: Record<string, string>): T {
-  return candidates[pickNearTarget(rng, candidates.map((c) => predict(featuresOf(c), tallies, recent)))]
+export function pickTarget<T>(rng: Rng, candidates: T[], featuresOf: (c: T) => string[], tallies: Record<string, Tally>, recent: Record<string, string>, prior: (f: string) => number = featurePrior): T {
+  return candidates[pickNearTarget(rng, candidates.map((c) => predict(featuresOf(c), tallies, recent, prior)))]
 }

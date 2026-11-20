@@ -9,7 +9,8 @@ export type DuelAction =
   /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
   | { type: 'ROUND_PREVIEW'; round: Round }
   | { type: 'WALK_START' }
-  | { type: 'CHOOSE'; choice: Choice; effect: EffectPreset }
+  /** `verdict`: the course's judgement of the tap (the controller's TowerContent); unset: the Hebrew rules */
+  | { type: 'CHOOSE'; choice: Choice; effect: EffectPreset; verdict?: { correct: boolean; twin: boolean } }
   | { type: 'TIMEOUT' }
   | { type: 'MEGA'; effect: EffectPreset }
   | { type: 'SCREEN_EXPLAINED'; key: string }
@@ -91,9 +92,10 @@ export function duelReducer(s: DuelState, a: DuelAction): DuelState {
     case 'CHOOSE': {
       if (!canAnswer(s)) return s
       const r = s.round!
-      if (isCorrect(r, a.choice)) return hit(s, keyOf(a.choice), false, a.effect)
-      if (isTwin(r, a.choice) && keyOf(a.choice) === s.twinTried) return s // same twin again: still forgiven, ignored
-      if (isTwin(r, a.choice) && !s.twinTried) return { ...s, twinTried: keyOf(a.choice) }
+      const { correct, twin } = a.verdict ?? { correct: isCorrect(r, a.choice), twin: isTwin(r, a.choice) }
+      if (correct) return hit(s, keyOf(a.choice), false, a.effect)
+      if (twin && keyOf(a.choice) === s.twinTried) return s // same twin again: still forgiven, ignored
+      if (twin && !s.twinTried) return { ...s, twinTried: keyOf(a.choice) }
       return miss(s, keyOf(a.choice))
     }
     case 'TIMEOUT':

@@ -146,6 +146,38 @@ The clock workshop's reward.
 **Bonus**:
 The short extra game at the end of every workday.
 
+## The English path
+
+**Course**:
+What a run teaches: the Hebrew course (letters, nikkud, syllables) or the English course (sound units and words). One
+Book 2 engine plays both; the course gives it the content ([ADR 0008](docs/adr/0008-one-engine-two-courses.md)).
+_Avoid_: language, mode
+
+**English path**:
+The English course on Book 2's page (`?course=en`): reading and spelling with Latin letters in nine stages, with its own
+save, its own home path and its own parent section. It is open on staging, and hidden on production until all nine stages are reviewed.
+_Avoid_: Book 3, English game
+
+**Sound unit**:
+One letter or a group of letters that makes one sound (`s`, `sh`, `a_e`, `igh`). It is the item the English course tracks, as a mark is in Hebrew. A word is a sequence of sound units.
+_Avoid_: phoneme, phonogram
+
+**Heart word**:
+A word that breaks the sound rules (`the`, `a`, `I`). It is learned whole, never has a picture key, and is not in placement, nonsense rounds, ladder chains or the spell book.
+
+**Nonsense word**:
+A word made from a stage's sound units that is not a real word (`vap`). It makes the child read the sounds, not remember a shape. Monsters in the tower carry them.
+
+**Placement walk**:
+The English placement check inside the tower: the monsters walk at a fixed pace (no adaptation) and each answer is credited to the sound units of its word, until the child's stage is found.
+
+**Spell book**:
+The screen where the child builds a word in boxes from tiles. Both courses have one. The English one also has a written form: he writes the letters of a word on four lines.
+
+**Blend**:
+The hint of the English path: the word is said as one stretched sound while its sound units light in turn. It plays after every second miss, and for a made word.
+_Avoid_: sounding out
+
 ## Space Cat
 
 A Space Cat run is made of **rounds** (one sum each) and **levels**.

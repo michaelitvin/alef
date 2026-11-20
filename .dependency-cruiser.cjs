@@ -16,7 +16,7 @@ module.exports = {
       name: 'logic-never-imports-ui',
       severity: 'error',
       comment: 'Pure logic must not import components or screens.',
-      from: { path: '^src/(duel2/logic|clock/logic|spacecat/logic|utils/duel)/', pathNot: TEST },
+      from: { path: '^src/(duel2/logic|clock/logic|spacecat/logic|utils/duel|english/logic)/', pathNot: TEST },
       to: { path: ['^src/(duel2|clock)/(components|screens)/', '^src/spacecat/(components|screens|canvas)/', '^src/components/'] },
     },
     {
@@ -84,6 +84,15 @@ module.exports = {
       to: { path: ['^src/duel2/(components|screens)/', '^src/stores/'] },
     },
     {
+      name: 'run-engine-is-course-free',
+      severity: 'error',
+      comment:
+        'The run engine (Book 2\'s controller.ts, logic/ and policies/, and the first duel in src/utils/duel) never imports the ' +
+        'English course (src/english): a course reaches the run only as the Course it is given (RunOpts.course).',
+      from: { path: ['^src/duel2/(controller|logic/|policies/)', '^src/utils/duel/'] },
+      to: { path: '^src/english/' },
+    },
+    {
       name: 'run-policies-are-pure',
       severity: 'error',
       comment:
@@ -99,7 +108,7 @@ module.exports = {
         'The shared parent area (src/parent) reaches a game only through its declared src/<game>/parent/index.ts (the registry); ' +
         'the game screens it shows are lazy imports made by those files.',
       from: { path: '^src/parent/', pathNot: TEST },
-      to: { path: '^src/', pathNot: ['^src/parent/', '^src/shared/', '^src/(duel2|clock|lessons|spacecat)/parent/index\\.ts$'] },
+      to: { path: '^src/', pathNot: ['^src/parent/', '^src/shared/', '^src/(duel2|clock|lessons|spacecat|english)/parent/index\\.ts$'] },
     },
     {
       name: 'game-parent-index-is-light',
@@ -108,9 +117,10 @@ module.exports = {
         'A game\'s parent/index.ts loads with the area on every page: no store (creating one writes its save), no audio (it builds ' +
         'a kit), no telemetry (an instance rewrites its log on pagehide). Its screens and its reset are modules of their own, ' +
         'loaded with import() (a dynamic import of the store itself would hide a static one: depcruise merges the two).',
-      from: { path: '^src/(duel2|clock|lessons|spacecat)/parent/index\\.ts$' },
+      from: { path: '^src/(duel2|clock|lessons|spacecat|english)/parent/index\\.ts$' },
       to: {
-        path: ['/store\\.ts$', '^src/stores/', '/audio/', '/telemetry\\.ts$'],
+        // the English kit is src/english/audio.ts
+        path: ['/store\\.ts$', '^src/stores/', '/audio/', '/audio\\.ts$', '/telemetry\\.ts$'],
       },
     },
     {
@@ -125,6 +135,45 @@ module.exports = {
           '^src/duel2/station\\.ts$',
           '^src/duel2/logic/(mastery|predict)\\.ts$',
           '^src/duel2/assets/img/',
+        ],
+      },
+    },
+    {
+      name: 'home-into-english-only-through-its-surface',
+      severity: 'error',
+      comment:
+        'The home reads the English path only through its save format, station (the open stations and their ratings come only ' +
+        'from there), available, the doors filter (a light helper over the course\'s own rule) and the green pictures. ' +
+        'This rule sees direct imports only: it cannot catch what the allowed files import in turn (doorsPlayable pulls in the ' +
+        'words and the picture map), so the home loads doorsPlayable with import() and only where English is available.',
+      from: { path: '^src/components/home/', pathNot: TEST },
+      to: {
+        path: '^src/english/',
+        pathNot: [
+          '^src/english/saveFormat\\.ts$',
+          '^src/english/station\\.ts$',
+          '^src/english/available\\.ts$',
+          '^src/english/doorsPlayable\\.ts$',
+          '^src/english/assets/img/',
+        ],
+      },
+    },
+    {
+      name: 'hebrew-page-never-loads-english-statically',
+      severity: 'error',
+      comment:
+        'The Hebrew page (duel2, the shared components, the pages, the parent area) never imports the English path statically, ' +
+        'so that production ships no English words. Allowed: available, saveFormat, station, the green pictures and the English ' +
+        'parent index (it is empty where English is unavailable). The English course arrives by import() only, which ' +
+        'is a dynamic dependency and is left out here. Direct imports only: a transitive import is not checked here (nothing inspects the built chunks), so keep the allowed files free of imports of the English words.',
+      from: { path: '^src/(duel2|components|pages|parent)/', pathNot: TEST },
+      to: {
+        path: '^src/english/',
+        dependencyTypesNot: ['dynamic-import'],
+        pathNot: [
+          '^src/english/(available|saveFormat|station)\\.ts$',
+          '^src/english/assets/img/',
+          '^src/english/parent/index\\.ts$',
         ],
       },
     },

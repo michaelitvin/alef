@@ -3,7 +3,7 @@ import { syllable } from '../logic/content.ts'
 import { WORDS, wordLinkFor } from './words.ts'
 import { LINES, lineAudioId, lineById } from './lines.ts'
 
-const PER_ROUND = ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end', 'boss-arrive', 'boss-win']
+const PER_ROUND = ['q-cauldron', 'q-ladder', 'q-ghosts', 'q-ghosts-letter', 'q-door', 'target-new', 'almost', 'streak', 'ladder-top', 'crystal', 'run-end', 'boss-arrive', 'boss-win', 'q-spell']
 
 describe('words', () => {
   const doors = WORDS.filter((w) => w.door)

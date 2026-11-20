@@ -183,6 +183,14 @@
 .nd-landscape .nd-pad-area { padding: 6px 24px 40px; }
 .nd-landscape .nd-rune { height: 96px; }
 .nd-landscape .nd-mega-btn { top: -62px; }
+/* the hint (?) of a word round: above the pad's top edge, right of the tower (Tower.tsx measures the tower and sets its
+   left; these lefts hold until then), as the מגה button is in its middle */
+.nd-hint-btn {
+  position: absolute; top: -58px; left: 14px; width: 48px; height: 48px; padding: 8px; border-radius: 50%;
+  border: 3px solid #ffd34d; background: #160a35e6; color: #ffd34d; box-shadow: 0 0 16px #ffd34d88; z-index: 10; cursor: pointer;
+}
+.nd-hint-btn svg { width: 100%; height: 100%; display: block; }
+.nd-landscape .nd-hint-btn { top: -62px; left: 24px; }
 
 .nd-wave-banner { font-size: 72px; }
 

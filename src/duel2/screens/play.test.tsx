@@ -8,7 +8,7 @@ vi.mock('../useRun', () => ({
 }))
 import { Play } from './Play'
 
-const base: View = { phase: 'answer', hearts: 1, screen: { screen: 'ghosts', signs: [], target: { id: 'x', soundId: 'x' } as never }, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
+const base: View = { course: { id: 'he', dir: 'rtl' }, phase: 'answer', hearts: 1, screen: { screen: 'ghosts', signs: [], target: { id: 'x', soundId: 'x' } as never }, overlay: null, needNext: false, hintAvailable: false, paused: false, over: null, score: 0, mult: 1 }
 
 describe('play', () => {
   it('the defeat scene hides the screen\'s own wizard: only the falling one is on the screen', async () => {
@@ -26,5 +26,18 @@ describe('play', () => {
     const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(/\.d2-root\[data-defeat\] \[data-wizard\], \.d2-root\[data-defeat\] \.nd-wizard \{ visibility: hidden; \}/)
     b.unmount()
+  })
+  it('the root carries the course and its direction', () => {
+    state.view = { ...base, course: { id: 'en', dir: 'ltr' } }
+    const a = render(<Play opts={{}} onOver={() => {}} />)
+    const root = a.container.querySelector('[data-screen="play"]')!
+    expect(root.getAttribute('data-course')).toBe('en')
+    expect(root.getAttribute('dir')).toBe('ltr')
+    a.unmount()
+    state.view = base
+    const b = render(<Play opts={{}} onOver={() => {}} />)
+    const he = b.container.querySelector('[data-screen="play"]')!
+    expect(he.getAttribute('data-course')).toBe('he')
+    expect(he.hasAttribute('dir')).toBe(false)
   })
 })

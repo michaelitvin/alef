@@ -39,8 +39,8 @@ describe('the parent area', () => {
     } finally { vi.unstubAllGlobals(); resetPersistRequestForTest() }
   })
 
-  it('every game registers its part; the registry knows book2, the clock, Space Cat and the lessons', () => {
-    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'spacecat', 'lessons'])
+  it('every game registers its part; the registry knows book2, the clock, Space Cat, the lessons and English', () => {
+    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'spacecat', 'lessons', 'english'])
   })
 
   it('progress: each game\'s line and top mix-ups come from its raw save, and no other game\'s save is written', async () => {

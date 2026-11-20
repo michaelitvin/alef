@@ -114,6 +114,14 @@ export const LINES: LineDef[] = [
   line('line-tall', 'Drawing: the letter pokes above the top line (it still counts)', ['הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.'], 0.5, 'warmly'),
   line('line-low', 'Drawing: the letter sinks below the baseline (it still counts)', ['קְצָת נָמוּךְ.'], 0.5, 'warmly'),
   line('line-small', 'Drawing: the letter is much too small (it still counts)', ['בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.'], 0.5, 'warmly'),
+  // the spell book (English path, Part 7): no voice files yet (a missing file never stalls the visit). A box holds a
+  // syllable; "a part of the word" says it without the word הֲבָרָה, which he does not know.
+  line('demo-spell', 'Spell book, first visit: after the word, while the hand drops its first tile', [
+    'בּוֹא נִכְתֹּב אֶת הַמִּלָּה בַּסֵּפֶר: תִּגְרֹר לְכָל קֻפְסָה אֶת הַחֵלֶק שֶׁלָּהּ, לְפִי הַסֵּדֶר.',
+  ], 0.5, 'warmly'),
+  line('q-spell', 'Spell book, when he waits: then the word', [
+    'תִּכְתֹּב אֶת הַמִּלָּה:', 'בּוֹא נִכְתֹּב אֶת הַמִּלָּה:', 'אֵיךְ כּוֹתְבִים אֶת הַמִּלָּה:',
+  ], 0.5, 'warmly'),
   // the merchant (spec: one duel, Part 2). His own voice; no numbers spoken (every count is shown); no "!"; the parent
   // wrote the opening line and the D2 line. Variations beyond the spec's table are mine, to be checked by the parent.
   mline('m-hello', 'Merchant: he walks in at a checkpoint (the opening; the first take is the parent\'s line)', [
@@ -194,6 +202,8 @@ const FE: Record<string, (string | null)[]> = {
   'q-draw': ['תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:', null, null],
   'draw-again': ['בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.', null, 'תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.'],
   'line-small': ['בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.'],
+  'demo-spell': ['בּוֹאִי נִכְתֹּב אֶת הַמִּלָּה בַּסֵּפֶר: תִּגְרְרִי לְכָל קֻפְסָה אֶת הַחֵלֶק שֶׁלָּהּ, לְפִי הַסֵּדֶר.'],
+  'q-spell': ['תִּכְתְּבִי אֶת הַמִּלָּה:', 'בּוֹאִי נִכְתֹּב אֶת הַמִּלָּה:', null],
   // the merchant: check the feminine forms by ear on his voice before mass recording (spec), reword where they fail
   'm-hello': [
     'שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?',

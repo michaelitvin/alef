@@ -2,7 +2,7 @@
 
 Status: draft for the parent (2026-11-20). It replaces the section *Finding his level* of
 [the Space Cat design](2026-11-12-space-cat-design.md) and adds to its *Voice*, *The parent area* and *Tracking*.
-Everything else in that design stays. Read [docs/minigame-rules.md](../../minigame-rules.md) before building: every
+Everything else in that design stays. Read [docs/minigame-rules/](../../minigame-rules/README.md) before building: every
 rule there applies. The section *Rule review* at the end says how this design meets them.
 
 The research behind it (the curriculum sources, the simulations) was given to the parent on 2026-11-20 and is not in
@@ -502,7 +502,7 @@ The log stays Space Cat's one log (`SPACECAT_LOG`), with no cap of its own: ever
 
 ## Rule review
 
-How the design meets [docs/minigame-rules.md](../../minigame-rules.md), section by section. I checked each rule
+How the design meets [docs/minigame-rules/](../../minigame-rules/README.md), section by section. I checked each rule
 against the draft; where the check found a gap, it says *Found* and what changed.
 
 - **Communication on the screen.** No text: digits and the signs `+ − × ÷ = < >` are the learning content, drawn as

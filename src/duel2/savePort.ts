@@ -4,12 +4,13 @@
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import { duel2State, useDuel2Store, type Duel2Actions, type Duel2Save } from './store'
 import { useProgressStore } from '../stores/progressStore'
+import { getNumberRange, type NumberRange } from '../shared/numberRange'
 
 /** the save's actions the run calls */
 const WRITES = [
   'recordAnswer', 'setPace', 'endRun', 'addStar', 'addCoins', 'spendCoins', 'markBossBeaten', 'setLastBoss', 'markBossNewHeard',
   'notePraise', 'addCrystal', 'markDemo', 'markDotIntro', 'noteDrawRound', 'noteMerchant', 'setMerchantFlag', 'merchantPaid',
-  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'noteTowerAnswer', 'openBook', 'nextCycle', 'noteBroomSession',
+  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'monsterIntroduced', 'noteTowerAnswer', 'openBook', 'nextCycle', 'noteBroomSession',
 ] as const satisfies readonly (keyof Duel2Actions)[]
 type SaveWrites = Pick<Duel2Actions, (typeof WRITES)[number]>
 
@@ -18,23 +19,27 @@ export interface SavePort extends SaveWrites {
   read(): Readonly<Duel2Save>
   /** the first duel's recent answers per mark (o / x, newest last) */
   firstDuelRecent(): Readonly<Record<string, string>>
+  /** the parent's number range for shopping (one setting for both paths, never read from a save's own settings) */
+  range(): NumberRange
 }
 
 type AnyFn = (...a: unknown[]) => unknown
 
-function portOver(store: StoreApi<Duel2Save & Duel2Actions>, firstDuelRecent: () => Record<string, string>): SavePort {
+/** the port over a run's store (Book 2's, or another course's with more fields) */
+export function portOver<S extends Duel2Save & Duel2Actions>(store: StoreApi<S>, firstDuelRecent: () => Record<string, string>, range: () => NumberRange): SavePort {
   const writes = Object.fromEntries(WRITES.map((k) => [k, (...a: unknown[]) => (store.getState()[k] as AnyFn)(...a)])) as unknown as SaveWrites
-  return { ...writes, read: () => store.getState(), firstDuelRecent }
+  return { ...writes, read: () => store.getState(), firstDuelRecent, range }
 }
 
 /** the real saves: Book 2's store (`alef-duel2`) and the lessons' store, where the first duel keeps its answers */
-export const storeSavePort: SavePort = portOver(useDuel2Store, () => useProgressStore.getState().duel?.recent ?? {})
+export const storeSavePort: SavePort = portOver(useDuel2Store, () => useProgressStore.getState().duel?.recent ?? {}, getNumberRange)
 
 /** a save in memory (tests): a fresh save with `initial` over it; the writes work as in the real save */
 export function memorySavePort(initial: Partial<Duel2Save> = {}, firstDuelRecent: Record<string, string> = {}): SavePort {
   const store = createStore<Duel2Save & Duel2Actions>()(duel2State)
   store.setState(initial)
-  return portOver(store, () => firstDuelRecent)
+  // a test sets the range in the save's settings, as Book 2's save did
+  return portOver(store, () => firstDuelRecent, () => store.getState().settings.range ?? 100)
 }
 
 /**
@@ -43,5 +48,5 @@ export function memorySavePort(initial: Partial<Duel2Save> = {}, firstDuelRecent
  */
 export function readOnlySavePort(base: SavePort): SavePort {
   const writes = Object.fromEntries(WRITES.map((k) => [k, () => undefined])) as unknown as SaveWrites
-  return { ...writes, recordAnswer: () => ({ passed: false }), spendCoins: () => false, read: base.read, firstDuelRecent: base.firstDuelRecent }
+  return { ...writes, recordAnswer: () => ({ passed: false }), spendCoins: () => false, read: base.read, firstDuelRecent: base.firstDuelRecent, range: base.range }
 }

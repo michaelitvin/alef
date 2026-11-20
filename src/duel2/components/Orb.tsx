@@ -1,7 +1,7 @@
 // A round orb (choices, signs, vowel orbs) and a plate (ladder rungs, the door's word plate) in stage coordinates.
 // Tapping answers on finger-down; the hit area is larger than the drawing (moving targets are hard to tap: rule).
 import type { ReactNode } from 'react'
-import { IMAGES } from '../assets/images'
+import { useImages } from '../course/CourseContext'
 import { TEST_HOOKS } from '../testHooks'
 
 export type PickState = 'idle' | 'right' | 'wrong' | 'near' | 'reveal' | 'off'
@@ -17,6 +17,7 @@ export const HIT = 1.3
 function Picker(p: { w: number; h: number; x: number; y: number; state: PickState; onPick?: () => void; testCorrect?: boolean; round: boolean; children?: ReactNode; img: string
   /** a part of the scene, never a pick (a built rung): no hit area */
   still?: boolean }) {
+  const images = useImages()
   const ring = RING[p.state]
   const can = (p.state === 'idle' || p.state === 'reveal') && !!p.onPick
   const hw = (p.w * HIT) / 2
@@ -26,8 +27,8 @@ function Picker(p: { w: number; h: number; x: number; y: number; state: PickStat
       {ring && (p.round
         ? <circle cx={p.x} cy={p.y} r={p.w * 0.54} fill="none" stroke={ring} strokeWidth={8} className="d2-ring" />
         : <rect x={p.x - p.w * 0.54} y={p.y - p.h * 0.6} width={p.w * 1.08} height={p.h * 1.2} rx={p.h * 0.25} fill="none" stroke={ring} strokeWidth={8} className="d2-ring" />)}
-      {IMAGES[p.img]
-        ? <image href={IMAGES[p.img]} x={p.x - p.w / 2} y={p.y - p.h / 2} width={p.w} height={p.h} preserveAspectRatio="xMidYMid meet" />
+      {images[p.img]
+        ? <image href={images[p.img]} x={p.x - p.w / 2} y={p.y - p.h / 2} width={p.w} height={p.h} preserveAspectRatio="xMidYMid meet" />
         : p.round
           ? <circle cx={p.x} cy={p.y} r={p.w / 2} fill="#2a1660" stroke="#ffd34d" strokeWidth={p.w * 0.06} />
           : <rect x={p.x - p.w / 2} y={p.y - p.h / 2} width={p.w} height={p.h} rx={p.h * 0.2} fill="#2a1660" stroke="#ffd34d" strokeWidth={p.h * 0.08} />}

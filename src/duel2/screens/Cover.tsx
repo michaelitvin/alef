@@ -1,34 +1,33 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
 // orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and the held house home to alef
 // (a 2 s hold, top left, the same in every game: src/shared/HomeButton.tsx).
-import { IMAGES, useWizardArt } from '../assets/images'
-import { syllable } from '../logic/content'
-import { Glyph, GlyphDefs } from '../components/Glyph'
+import { Glyph, GlyphDefs, latinOrbPx } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'
 import { InfoTap } from '../components/InfoTap'
 import { BossShelf } from '../components/BossShelf'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
 import { SlidersGlyph } from '../components/holdGlyphs'
-import { useDuel2Store } from '../store'
+import { useCourse, useCourseSave, useWizardArt } from '../course/CourseContext'
 import { HomeButton } from '../../shared/HomeButton'
-
-const SAMPLE = [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text]
 
 export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: () => void; onParent: () => void; onHome?: () => void; loading?: boolean }) {
   const wiz = useWizardArt()
-  const coins = useDuel2Store((s) => s.coins ?? 0)
-  const crystals = useDuel2Store((s) => s.crystals ?? 0)
-  const beaten = useDuel2Store((s) => s.bossesBeaten ?? [])
+  const course = useCourse()
+  const images = course.images
+  // the open course's purse, crystals and bosses (English has its own: never Book 2's)
+  const coins = useCourseSave((s) => s.coins ?? 0)
+  const crystals = useCourseSave((s) => s.crystals ?? 0)
+  const beaten = useCourseSave((s) => s.bossesBeaten ?? [])
   return (
-    <div className="d2-root d2-cover" data-screen="cover">
+    <div {...(course.dir === 'ltr' ? { dir: 'ltr' } : {})} data-course={course.id} className="d2-root d2-cover" data-screen="cover" data-testid="cover">
       <svg className="d2-stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden>
         <GlyphDefs />
-        {IMAGES['bg-sky'] ? <image href={IMAGES['bg-sky']} width={1600} height={900} preserveAspectRatio="xMidYMid slice" /> : <rect width={1600} height={900} fill="#1b0f3c" />}
-        {SAMPLE.map((t, i) => { const oy = [150, 330, 730][i]; return (
+        {images['bg-sky'] ? <image href={images['bg-sky']} width={1600} height={900} preserveAspectRatio="xMidYMid slice" /> : <rect width={1600} height={900} fill="#1b0f3c" />}
+        {course.coverSample.texts.map((t, i) => { const oy = [150, 330, 730][i]; return (
           <g key={t} className="d2-drift" style={{ animationDelay: `${-i * 4}s` }}>
-            {IMAGES['s-orb'] ? <image href={IMAGES['s-orb']} x={-80} y={oy - 80} width={160} height={160} /> : <circle cx={0} cy={oy} r={80} fill="#2a1660" />}
-            <Glyph text={t} px={92} x={0} y={oy} />
+            {images['s-orb'] ? <image href={images['s-orb']} x={-80} y={oy - 80} width={160} height={160} /> : <circle cx={0} cy={oy} r={80} fill="#2a1660" />}
+            <Glyph text={t} px={course.coverSample.alphabet === 'latin' ? latinOrbPx(t, 160, 92) : 92} x={0} y={oy} alphabet={course.coverSample.alphabet} />
           </g>
         ) })}
         <g className="d2-bob">
@@ -47,7 +46,7 @@ export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: (
               if (!count) return null
               return (
                 <span key={k} data-crystal-kind={k} data-count={count} className="d2-shelf-crystal">
-                  {IMAGES[`s-crystal-${k + 1}`] && <img src={IMAGES[`s-crystal-${k + 1}`]} alt="" draggable={false} />}
+                  {images[`s-crystal-${k + 1}`] && <img src={images[`s-crystal-${k + 1}`]} alt="" draggable={false} />}
                   {count > 1 && <span data-num>{count}</span>}
                 </span>
               )

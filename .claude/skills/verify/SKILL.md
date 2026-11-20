@@ -23,12 +23,16 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   PID when you are done.
 - **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
   `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
-  `telemetry`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
+  `telemetry`, `englishFit`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
   (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
   (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
-  `tabletSide`, which run only when named: Space Cat plays upright and on its side).
+  `tabletSide`, which run only when named: Space Cat plays upright and on its side; and the English fit check's `fit-740x360`,
+  `fit-1024x768`).
   Space Cat's seeds (`scSeed(frontier)`) are version 2 saves in practice; `scSeedV1(top)` is a save of the first design,
   for the migration.
+- **The English fit check.** `englishFit` needs the staging verify build (the English page is open only on staging):
+  `ALEF_STAGING=1 npx vite build --mode verify --outDir dist-verify`, and run the driver with `ALEF_STAGING=1` too (its
+  preview then serves `/alef/staging/`). On any other build it prints `SKIP`. It takes about 6 minutes per size.
 - Never write a host, an address or a port into this repo (it is public). Pass them in the environment.
 
 ## What it checks
@@ -54,6 +58,7 @@ and no boy or girl yet. Each check gets its own page.
 | `spacecatTurn` | a seeded save; the screen turns mid-round and back: the round and the ship's lane stay, and a right answer in each shape ends right |
 | `spacecatArea` | the gate on Space Cat's cover, every section; *Where he is*, the rung table (31 rungs in 3 strands) and *Recent changes*; the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays; last, *Find his level again* starts a placement |
 | `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
+| `englishFit` | at 740×360 and 1024×768 (its own sizes), the English screens at real scale, measured in the page (the font's ink on a canvas at the drawn size, `getBoundingClientRect`): every Latin glyph in an orb stays inside the orb's gold ring (0.41 of the sprite's width from its centre), every glyph in a box inside its box's outline; the broom (stages 4 and 6, watched 20 s each, until words came), the cauldron (4, 6), the ladder's making rung clear of the built rungs and the wizard, the tower's `?` clear of the tower, the spell book's 5-box word (its boxes on their page), and its longest written word (jumping: 7 letter boxes on the slate on the book, none overlapping, a small letter at least 30 px high). Each screen is opened with a seeded save (`?course=en&station=<screen>`) or a test-build link `#/gallery/<entry>` (the spell book: `spell-long`, `spell-write`). |
 
 **Nothing scrolls sideways.** At the year pad and at every section of the area (and Book 2's gallery and stroke
 review), the page and the area's own scroll box must be no wider than the screen (`scrollWidth <= clientWidth + 1`); a
@@ -76,7 +81,7 @@ the check.
   check fails or throws. A tab left on a shared browser keeps animating and eats its CPU. Never close a browser that you
   did not launch; only disconnect from it. After a run, list the browser's pages and make sure none of yours is left.
 - **Real touch.** Tap and hold with CDP touch events (`Input.dispatchTouchEvent`, or playwright's `touchscreen.tap` in
-  a `hasTouch` context), not mouse or synthetic pointer events (`docs/minigame-rules.md`, *Verification*).
+  a `hasTouch` context), not mouse or synthetic pointer events (`docs/minigame-rules/verification.md`).
 - Look at every screenshot before you show it: missing-font squares, characters shown two times, sprites that move
   backwards, shapes cut at the edges.
 - On a shared browser, a 2D canvas that draws every frame can hang a screenshot: the driver's init script makes every

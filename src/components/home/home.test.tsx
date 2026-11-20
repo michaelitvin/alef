@@ -57,7 +57,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
 
   it('a brand-new player: the tower open, the rest locked, no ratings', () => {
     const { container } = render(<StationPath />)
-    expect(order(container)).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'draw', 'draw-hand'])
+    expect(order(container)).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw', 'draw-hand'])
     expect(st(container, 'tower').getAttribute('data-open')).toBe('true')
     for (const id of order(container).slice(1)) {
       expect(st(container, id!).getAttribute('data-open')).toBe('false')
@@ -66,10 +66,34 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect([...container.querySelectorAll('[data-station]')].every((e) => e.getAttribute('data-rating') === '0')).toBe(true)
   })
 
-  it('stage 2 with drawing: open stations first in path order, then the locked doors', () => {
+  it('the home path shows the spell station between doors and drawing', () => {
+    const { container } = render(<StationPath />)
+    const ids = order(container)
+    const before = ids.slice(0, ids.indexOf('draw')).filter((id) => id !== 'spell')
+    expect(ids).toEqual([...before, 'spell', 'draw', ...ids.slice(ids.indexOf('draw') + 1)])
+    expect(before[before.length - 1]).toBe('doors')
+    expect(st(container, 'spell').textContent).toContain('כתיב מילים')
+    // its picture is a book (drawn until its art lands), never an empty image
+    expect(st(container, 'spell').querySelector('[data-pic="book"]')).not.toBeNull()
+    expect(st(container, 'spell').querySelector('img:not([src])')).toBeNull()
+    // it opens with the doors (stage 4)
+    save({ stage: { stage: 3, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    act(() => { window.dispatchEvent(new Event('pageshow')) })
+    expect(st(container, 'spell').getAttribute('data-open')).toBe('false')
+    save({ stage: { stage: 4, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    act(() => { window.dispatchEvent(new Event('pageshow')) })
+    expect(st(container, 'spell').getAttribute('data-open')).toBe('true')
+    expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=spell`)
+    // the wizard stays at the doors: the spell book opens with them and follows them (writing after reading)
+    expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
+    expect(st(container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
+    expect(st(container, 'spell').querySelector('[data-wizard]')).toBeNull()
+  })
+
+  it('stage 2 with drawing: open stations first in path order, then the locked doors and spell book', () => {
     save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
     const { container } = render(<StationPath />)
-    expect(order(container)).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand', 'doors'])
+    expect(order(container)).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand', 'doors', 'spell'])
     expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
     expect(st(container, 'draw-hand').getAttribute('data-open')).toBe('true')
   })
@@ -190,8 +214,8 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   it('captions say what is learned, never the minigame’s name', () => {
     const { container } = render(<StationPath />)
     const caps = [...container.querySelectorAll('.home-cap')].map((e) => e.textContent ?? '')
-    expect(caps).toEqual(['ניקוד לפי צליל', 'אותיות והברות לפי צליל', 'אותיות דומות', 'בניית הברה', 'משפחות הברות, דגש', 'קריאת מילים', 'אותיות דפוס', 'אותיות כתב יד'])
-    for (const c of caps) expect(c).not.toMatch(/מעוף|רוחות|קדרה|סולם|דלתות|דו־קרב|מגדל|כתיבה/)
+    expect(caps).toEqual(['ניקוד לפי צליל', 'אותיות והברות לפי צליל', 'אותיות דומות', 'בניית הברה', 'משפחות הברות, דגש', 'קריאת מילים', 'כתיב מילים', 'אותיות דפוס', 'אותיות כתב יד'])
+    for (const c of caps) expect(c).not.toMatch(/מעוף|רוחות|קדרה|סולם|דלתות|דו־קרב|מגדל|כתיבה|ספר|לחשים/)
   })
 
   it('a station links to its session; the card to the cover; a locked station links nowhere', () => {

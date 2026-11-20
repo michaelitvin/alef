@@ -28,6 +28,6 @@ describe('stages', () => {
     expect(screensOfStage(1)).toEqual(['broom', 'ghosts'])
     expect(screensOfStage(2)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts'])
     expect(screensOfStage(3)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts'])
-    expect(screensOfStage(4)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'doors'])
+    expect(screensOfStage(4)).toEqual(['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell'])
   })
 })

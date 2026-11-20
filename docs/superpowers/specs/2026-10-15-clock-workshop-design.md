@@ -3,7 +3,7 @@
 **Date:** 2026-10-15
 **Status:** Brainstormed with Michael on 2026-10-14/15. He approved the structure and asked not to block on his review: build everything, fix what he rejects later. He reviews this spec in parallel with the implementation.
 **Branch:** `feature/clock`
-**Rules:** follow [docs/minigame-rules.md](../../minigame-rules.md). This spec lists only what is particular to this game.
+**Rules:** follow [docs/minigame-rules/](../../minigame-rules/README.md). This spec lists only what is particular to this game.
 
 ## Overview
 
@@ -26,7 +26,7 @@ He is the clockmaker. Animal customers come into his workshop one by one, each w
 | Captions | Read-along: spoken text shows as a caption, and each word glows when it is spoken. Hebrew alternates **print with nikkud** (Sigalit) and **cursive** (Dana Yad) round by round. English alternates **all small with no capital** ("half past three") and **ALL CAPS** ("HALF PAST THREE"). Both mixes are settings, on by default. No English cursive |
 | Seconds hand | A thin ticking seconds hand from level 5 on some clocks, as realism and as a trap (read as the minute hand). The bonus game shows what it does |
 | Scaffolds | Numbers on the face, a light past/to slice, and an outer minute ring (5, 10, 15…). They fade as levels advance |
-| Explanations | Explain each new element when it first appears, and again after a repeated mistake (rule in minigame-rules.md) |
+| Explanations | Explain each new element when it first appears, and again after a repeated mistake (rule in minigame-rules/game-play-learning.md) |
 | Audio | ElevenLabs, 1 take per item, automatic speech-to-text and length checks, generated progressively. Michael reviews a sample of each pattern and every flagged take. A full review is an option |
 | Review | Not blocking: the game uses generated takes at once. Rejected takes are replaced later |
 | Budget | Images up to $10 (Gemini). Voice, music and effects within the ElevenLabs plan credits. Stop and ask if either looks like running out |

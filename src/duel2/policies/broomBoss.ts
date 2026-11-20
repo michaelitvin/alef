@@ -4,9 +4,8 @@
 // golden frame and line). Pure: no store, no clock, no audio. `stepBoss(state, event)` returns the next state and what the
 // run must do (show, say, play, save, track, wait); the run (controller.ts) does it and sends back the events. The flight
 // itself (the waves, the catches, the mistakes) and its finale stay with the run.
-import type { Stage } from '../logic/content'
 import type { Conf } from '../logic/rounds'
-import { BOSS_COINS, BOSS_HITS, chooseBoss, isBossVisit, type BossKind } from '../logic/boss'
+import { BOSS_COINS, BOSS_HITS, chooseBoss, isBossVisit, type BossKind, type BossKinds } from '../logic/boss'
 
 export type BossPose = 'fly' | 'hit' | 'down'
 export interface BossView {
@@ -49,12 +48,14 @@ export interface BossDueCtx {
   broomSessions: number
   /** broom visits so far in this run */
   broomVisits: number
-  stage: Stage
+  stage: number
   confusions: { letters: Conf; vowels: Conf }
   beaten: BossKind[]
   last: BossKind | null
   /** the run's random numbers (in [0, 1)) */
   rng: () => number
+  /** the course's open kinds and their scores (the English course); unset: Book 2's */
+  kinds?: BossKinds
 }
 export type BossDueSaveOp = { op: 'noteBroomSession' } | { op: 'setLastBoss'; kind: BossKind }
 export interface BossDue {
@@ -75,7 +76,7 @@ export function bossDue(c: BossDueCtx): BossDue {
     broomVisits++
     if (!isBossVisit(broomVisits)) return { kind: null, broomVisits, save }
   }
-  const kind = chooseBoss({ stage: c.stage, confusions: c.confusions, beaten: c.beaten, last: c.last, rng: c.rng })
+  const kind = chooseBoss({ stage: c.stage, confusions: c.confusions, beaten: c.beaten, last: c.last, rng: c.rng, ...(c.kinds ? { kinds: c.kinds } : {}) })
   if (kind) save.push({ op: 'setLastBoss', kind })
   return { kind, broomVisits, save }
 }

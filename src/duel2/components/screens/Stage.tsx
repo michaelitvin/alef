@@ -1,7 +1,7 @@
 // The game stage: one 1600×900 SVG scaled to fit (letterboxed on a portrait phone, so the glyph stays the largest
 // element), with its background and the glyph filters.
 import type { ReactNode, SVGProps } from 'react'
-import { IMAGES } from '../../assets/images'
+import { useImages } from '../../course/CourseContext'
 import { GlyphDefs } from '../Glyph'
 
 const W = 1600
@@ -13,7 +13,8 @@ export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'e
  * background fill the rest of a wider or taller screen, so no black bars show (Michael).
  */
 function Backdrop({ bg }: { bg: string }) {
-  const url = IMAGES[bg]
+  const images = useImages()
+  const url = images[bg]
   const tiles: { x: number; y: number }[] = []
   for (const x of [-W, 0, W]) for (const y of [-H, 0, H]) tiles.push({ x, y })
   return (
@@ -31,9 +32,12 @@ function Backdrop({ bg }: { bg: string }) {
   )
 }
 
-export function Stage({ bg, children, style, ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode } & SVGProps<SVGSVGElement>) {
+/** The course's direction: English runs left to right; Hebrew renders as before, with no `dir` attribute (positions of the wizard, monsters and orbs do not change). */
+export type Dir = 'rtl' | 'ltr'
+
+export function Stage({ bg, children, style, dir = 'rtl', ...rest }: { bg: 'bg-sky' | 'bg-ground'; children: ReactNode; dir?: Dir } & Omit<SVGProps<SVGSVGElement>, 'dir'>) {
   return (
-    <svg data-stage className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}
+    <svg data-stage {...(dir === 'ltr' ? { dir } : {})} className="d2-stage" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" overflow="visible" {...rest}
       // no screen scrolls; without this the browser takes a drag as a pan and cancels it (touch-action on inner SVG parts is ignored)
       style={{ touchAction: 'none', ...style }}>
       <GlyphDefs />

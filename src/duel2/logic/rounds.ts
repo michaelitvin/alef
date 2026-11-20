@@ -5,14 +5,16 @@
 import type { Rng, Tally } from '../../shared/adaptive'
 import {
   GROUPS, GROUP_MARKS, ITEMS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, syllable,
-  type Item, type Mark, type MarkId, type Stage, type Syllable, type VowelGroup,
+  type Item, type Mark, type MarkId, type Syllable, type VowelGroup,
 } from './content.ts'
 import { features, pickTarget, type ScreenId } from './predict'
 import { NEW_SHARE } from './stages'
+import { WORDS, type Word } from '../data/words'
 
 export type Kind = 'letter' | 'syllable'
 export interface Choice {
-  kind: Kind
+  /** 'unit' and 'word': the English course's choices (Hebrew choices are letters and syllables) */
+  kind: Kind | 'unit' | 'word'
   /** item id (letter) or syllable id `<item>-<mark>` */
   id: string
   text: string
@@ -23,21 +25,28 @@ export interface Choice {
   mark?: MarkId
   /** set on the other form of a dotted letter (ב for בּ): a near miss for that target */
   nearMissOf?: string
+  /** the sound units of a word (the blend, the spell book) */
+  units?: string[]
+  picture?: string
+  heart?: true
+  nonsense?: true
 }
 export type Conf = Record<string, Record<string, number>>
 export interface RoundCtx {
   rng: Rng
-  stage: Stage
+  stage: number
   tallies: Record<string, Tally>
   recent: Record<string, string>
   /** letters: item → item; syllables: `<item>-<group>` → `<item>-<group>` (asked → tapped) */
   confusions: { letters: Conf; syllables: Conf }
 }
 
-const CONFUSION_GROUP_MIN = 3
+/** a mix-up he made this often (asked → tapped) makes a look-alike group of his own */
+export const CONFUSION_GROUP_MIN = 3
 
 const pick = <T,>(rng: Rng, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
-function shuffle<T>(rng: Rng, xs: T[]): T[] {
+/** a Fisher–Yates shuffle with the round's rng (a new array) */
+export function shuffle<T>(rng: Rng, xs: T[]): T[] {
   const a = [...xs]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1))
@@ -56,11 +65,11 @@ export function sameSound(a: Choice, b: Choice): boolean {
   return a.soundId === b.soundId
 }
 
-const openedItems = (stage: Stage): Item[] => (stage === 1 || stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
-const syllableItems = (stage: Stage): Item[] => (stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
+const openedItems = (stage: number): Item[] => (stage === 1 || stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
+const syllableItems = (stage: number): Item[] => (stage >= 3 ? ITEMS : ITEMS.filter((i) => !i.soft))
 
 /** True when the answer counts towards passing the current stage (it is on that stage's new content). */
-export function isNewStageChoice(stage: Stage, c: Choice): boolean {
+export function isNewStageChoice(stage: number, c: Choice): boolean {
   if (stage === 1) return c.kind === 'letter'
   if (stage === 2) return c.kind === 'syllable' && !itemOf(c.itemId).soft
   if (stage === 3) return c.kind === 'syllable' && itemOf(c.itemId).soft
@@ -143,7 +152,7 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
 const TWIN_WAVE_SHARE = 1 / 3
 
 /** The target and its twin (בּ/ב, כּ/כ, פּ/פ, שׁ/שׂ, same vowel) once the twin is opened (stage 3), else null. */
-function dotTwin(stage: Stage, target: Choice): Choice | null {
+function dotTwin(stage: number, target: Choice): Choice | null {
   if (target.kind !== 'syllable' || !target.mark || stage < 3) return null
   const pair = itemOf(target.itemId).pair
   if (!pair || !isAllowed(pair, target.mark)) return null
@@ -256,4 +265,16 @@ export function ghostRound(ctx: RoundCtx, kind: Kind, avoid?: string): { target:
   const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m))
   const signs = fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m))
   return { target, signs: markNearMiss(target, shuffle(rng, signs)) }
+}
+
+/** The doors' words of a visit: `n` door words of the opened stages (at least stage 2's, at most stage 3's), shuffled. */
+export function doorWords(ctx: RoundCtx, n: number): Word[] {
+  const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(ctx.stage, 3)))
+  return pool.sort(() => ctx.rng() - 0.5).slice(0, n)
+}
+
+/** The keys of a door: its word and two other door words, shuffled. */
+export function doorKeys(ctx: RoundCtx, word: Word): Word[] {
+  const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => ctx.rng() - 0.5).slice(0, 2)
+  return [word, ...others].sort(() => ctx.rng() - 0.5)
 }

@@ -14,7 +14,7 @@
      "docs/superpowers/specs/2026-11-07-book2-drawing-design.md",
      "docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md",
      "docs/adr/0004-one-telemetry-log-per-game.md",
-     "docs/minigame-rules.md"
+     "docs/minigame-rules/README.md"
     ],
     "code": [
      "src/duel2/controller.ts",

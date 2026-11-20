@@ -4,10 +4,11 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { readLog } from './telemetry'
 import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { ENGLISH_LOG } from '../english/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 import { SPACECAT_LOG } from '../spacecat/telemetryLog'
 import { DUEL_HISTORY_LOG } from '../utils/duel/telemetryHistory'
-import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_CLOCK, GOLDEN_NOW, GOLDEN_SPACECAT, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
+import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_BOOK2_SPELL, GOLDEN_CLOCK, GOLDEN_ENGLISH, GOLDEN_NOW, GOLDEN_SPACECAT, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
 
 const SINCE = GOLDEN_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
 
@@ -19,6 +20,14 @@ describe('the export goldens', () => {
 
   it('the clock: all', async () => {
     await expect(goldenExport(CLOCK_LOG, GOLDEN_CLOCK())).toMatchFileSnapshot('./__fixtures__/telemetry/clock-all.golden.json')
+  })
+
+  it('English: all', async () => {
+    await expect(goldenExport(ENGLISH_LOG, GOLDEN_ENGLISH())).toMatchFileSnapshot('./__fixtures__/telemetry/english-all.golden.json')
+  })
+
+  it('the Hebrew spell book: all', async () => {
+    await expect(goldenExport(BOOK2_LOG, GOLDEN_BOOK2_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-spell.golden.json')
   })
 
   it('Space Cat: all', async () => {
@@ -56,11 +65,11 @@ describe('the fixtures cover every event the games send', () => {
     expect([...names].filter((n) => !FIXTURE_EVENT_NAMES.has(n))).toEqual([])
   })
   it('every generator name is in a golden log', () => {
-    const inLogs = new Set([...GOLDEN_BOOK2(), ...GOLDEN_CLOCK(), ...GOLDEN_SPACECAT()].map((e) => e.e))
+    const inLogs = new Set([...GOLDEN_BOOK2(), ...GOLDEN_CLOCK(), ...GOLDEN_SPACECAT(), ...GOLDEN_ENGLISH(), ...GOLDEN_BOOK2_SPELL()].map((e) => e.e))
     expect([...FIXTURE_EVENT_NAMES].filter((n) => !inLogs.has(n))).toEqual([])
   })
   it('the logs span 40+ days in t order, with old events without g, ties in one ms and clock near t', () => {
-    for (const evs of [GOLDEN_BOOK2(), GOLDEN_CLOCK(), GOLDEN_SPACECAT()]) {
+    for (const evs of [GOLDEN_BOOK2(), GOLDEN_CLOCK(), GOLDEN_SPACECAT(), GOLDEN_ENGLISH(), GOLDEN_BOOK2_SPELL()]) {
       expect(evs.every((e, i) => i === 0 || e.t >= evs[i - 1]!.t)).toBe(true)
       expect(evs[evs.length - 1]!.t - evs[0]!.t).toBeGreaterThan(40 * 24 * 60 * 60 * 1000)
       expect(evs.some((e) => e.g === undefined)).toBe(true)

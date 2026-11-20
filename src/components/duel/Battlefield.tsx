@@ -1,10 +1,12 @@
-// The field: sky, ground, tower + wizard (left), the monster walking in from the right, effects, banners.
+// The field: sky, ground, tower + wizard (left), the monster walking in from the right (its sign shows the round's
+// picture: Round.picture on a course's round), effects, banners.
 // Tower edge and staff tip are measured from the rendered sprites, so stop point and fireball origin are right
 // in any aspect ratio, and re-measured on resize/rotation.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import type { Outcome, Round } from '../../types/duel'
-import { TOWER, useWizard } from '../../assets/duel/sprites'
+import { TOWER, useWizard, type TowerArt } from '../../assets/duel/sprites'
+import { useGender } from '../../shared/player'
 import { Explosion, type Geo } from './Explosion'
 import { LungingMonster, WalkingMonster, remainingWalkMs } from './Monster'
 import { ResultBanner } from './ResultBanner'
@@ -36,10 +38,14 @@ export function useLandscape(query = LANDSCAPE_QUERY) {
 const CAST_ANIM = { pulse: { scale: [1, 1.12, 1] }, twirl: { rotate: [0, 360] }, jump: { y: [0, -26, 0] } }
 
 interface Props {
+  /** the course's own tower and wizard pictures (English: the green ones); unset: the duel's */
+  art?: TowerArt
   round: Round | null
   outcome: Outcome | null
   walking: boolean
   paused: boolean
+  /** the walk is held (the hint's blend plays): the monster stands where it is, and the time it had left stays */
+  held?: boolean
   landscape: boolean
   banner: ReactNode | null
   bossHp?: number
@@ -55,8 +61,11 @@ interface Props {
   onReplay?: () => void
 }
 
-export function Battlefield({ round, outcome, walking, paused, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
-  const WIZARD = useWizard()
+export function Battlefield({ art, round, outcome, walking, paused, held = false, landscape, banner, bossHp = 0, speaking = null, fx = null, resultBanner = true, points = true, timeLine = true, onReplay = () => {} }: Props) {
+  const own = useWizard()
+  const girl = useGender() === 'girl'
+  const WIZARD = art ? (girl ? art.wizardGirl : art.wizard) : own
+  const TOWER_IMG = art?.tower ?? TOWER
   const fieldRef = useRef<HTMLDivElement>(null)
   const towerRef = useRef<HTMLImageElement>(null)
   const wizardRef = useRef<HTMLImageElement>(null)
@@ -96,6 +105,19 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
     walkStart.current = performance.now()
   }
   if (!walking) walkKey.current = -1
+  // a held walk: the monster stands where it was, and the time held is given back when it goes on (no restart from the edge)
+  const heldAt = useRef<number | null>(null)
+  const heldX = useRef<number | null>(null)
+  if (held && walking && round && heldAt.current === null) {
+    const now = performance.now()
+    const from = geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
+    heldAt.current = now
+    heldX.current = from - (from - geo.end) * Math.min(1, (now - walkStart.current) / round.walkMs)
+  } else if (!held && heldAt.current !== null) {
+    walkStart.current += performance.now() - heldAt.current
+    heldAt.current = null
+    heldX.current = null
+  }
   const outcomeX = useMemo(() => {
     if (!outcome || !round) return geo.start
     if (!walking) return geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)
@@ -112,7 +134,7 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
   return (
     <div className="nd-field" ref={fieldRef}>
       <div className="nd-ground" />
-      <img ref={towerRef} className="nd-tower" src={TOWER} alt="" draggable={false} onLoad={relayout} />
+      <img ref={towerRef} className="nd-tower" src={TOWER_IMG} alt="" draggable={false} onLoad={relayout} />
       <motion.img
         ref={wizardRef}
         className="nd-wizard"
@@ -138,11 +160,14 @@ export function Battlefield({ round, outcome, walking, paused, landscape, banner
 
       {round && !outcome && (
         <WalkingMonster round={round} walking={walking} startX={geo.start - (geo.start - geo.end) * (round.startFrac ?? 0)} endX={geo.end} bossHp={bossHp} onReplay={onReplay}
-          remainingMs={remainingWalkMs(round.walkMs, walkStart.current, performance.now())} />
+          remainingMs={remainingWalkMs(round.walkMs, walkStart.current, heldAt.current ?? performance.now())} holdX={heldX.current} />
       )}
       {round && outcome?.kind === 'miss' && <LungingMonster round={round} fromX={outcomeX} endX={geo.end} />}
       {round && outcome?.kind === 'hit' && <Explosion key={round.id} round={round} outcome={outcome} x={outcomeX} geo={geo} fx={fx ?? undefined} points={points} />}
-      {round && outcome && resultBanner && <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking} />}
+      {round && outcome && resultBanner && (
+        <ResultBanner mark={round.target} word={round.word} kind={outcome.kind} speaking={speaking}
+          rune={round.runeTexts?.find((x) => x.id === round.target.id)} picture={round.picture} />
+      )}
 
       {banner && (
         <motion.div className="nd-wave-banner" initial={{ scale: 0, rotate: -8 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring' }}>

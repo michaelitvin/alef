@@ -1,4 +1,4 @@
-// The monster's clue, by screen type: A picture sign (tap = hear the word), B sound / C name (tap = replay),
+// The monster's clue, by screen type: A picture sign (the course's picture, or the Hebrew picture word; tap = hear the word), B sound / C name (tap = replay),
 // B shva = the mute monster, D the rune on its shield. No text: icons and pictures only.
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
@@ -36,12 +36,15 @@ const ARRIVE = {
 
 export function Clue({ round, onReplay }: { round: Round; onReplay: () => void }) {
   const tap = useReplayTap(onReplay)
-  if (round.type === 'A')
+  if (round.type === 'A') {
+    // a course's round shows its own picture (English); a Hebrew round its picture word's
+    const src = round.runeTexts ? round.picture : WORD_PICTURE[round.word.key]
     return (
       <motion.button className="nd-clue nd-clue-sign" {...tap} aria-label="hear the word">
-        <img className="nd-word-pic" src={WORD_PICTURE[round.word.key]} alt="" draggable={false} />
+        {src && <img className="nd-word-pic" src={src} alt="" draggable={false} />}
       </motion.button>
     )
+  }
   if (round.type === 'D')
     return (
       <motion.div className="nd-clue nd-clue-shield" {...ARRIVE}>

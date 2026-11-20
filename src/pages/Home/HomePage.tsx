@@ -7,6 +7,8 @@ import { DuelCard } from '../../components/home/DuelCard'
 import { StationPath } from '../../components/home/StationPath'
 import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
+import { EnglishCard, EnglishPath } from '../../components/home/EnglishCard'
+import { useEnglishHome } from '../../components/home/englishStations'
 import { SpaceCatCard } from '../../components/home/SpaceCatCard'
 import { LevelShelf } from '../../components/home/LevelShelf'
 import { GearIcon } from '../../components/home/HomeIcons'
@@ -16,13 +18,16 @@ import '../../components/home/home.css'
 
 /**
  * HomePage (spec: one duel, Part 4; the approved mock): the duel card and the path of its minigames, a separator, the
- * clock card, a separator, and the older activities as a shelf of small icons. Right to left throughout.
+ * clock card, a separator, the English card and path where they are open (the parent: English before the cat), the
+ * Space Cat card, a separator, and the older activities as a shelf of small icons. Right to left throughout.
  */
 export function HomePage() {
   const navigate = useNavigate()
   const { isMobile } = useResponsive()
   const stats = useProgressStore((state) => state.stats)
   const startSession = useProgressStore((state) => state.startSession)
+
+  const english = useEnglishHome()
 
   // Start session on first visit
   if (!stats.lastSessionAt) {
@@ -82,13 +87,16 @@ export function HomePage() {
         </p>
       </motion.header>
 
-      {/* the duel and its path, the clock, Space Cat, the older activities (the approved mock's layout and values) */}
+      {/* the duel and its path, the clock, the English path (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
       <main className="home-box" data-home>
         <DuelCard />
         <StationPath />
         <Separator />
         <ClockCard />
         <Separator />
+        {/* the English path, right before the cat (the parent's order; only where this build has it, and while the
+            parent has not turned it off): left to right */}
+        {english.on && <><EnglishCard /><EnglishPath stations={english.stations} /><Separator /></>}
         <SpaceCatCard />
         <Separator />
         <LevelShelf />

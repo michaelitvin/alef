@@ -1,7 +1,8 @@
 // An explanation (two steps of a syllable, a dotted-letter introduction, a demo's words): plays its parts once, each
 // part glowing as it is spoken, then stays still with a replay speaker and next until he taps next (rule).
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { cancelVoice, sayParts, voiceSignal, type VoiceSignal } from '../audio/duel2Audio'
+import type { VoiceSignal } from '../../shared/gameAudio/kit'
+import { useCourse } from '../course/CourseContext'
 import { NextIcon, SpeakerIcon } from './icons'
 import type { Highlight } from '../viewTypes'
 
@@ -9,6 +10,8 @@ import type { Highlight } from '../viewTypes'
  *  already knows (Michael: explanations got him stuck). */
 /** `autoNext`: a demo goes straight on into play when its words end (Michael: stopping there on a next button was unnatural). */
 export function ExplainPanel(p: { parts: { id: string; highlight: Highlight }[]; children: (h: Highlight | null) => ReactNode; onNext: () => void; autoNext?: boolean; skippable?: boolean }) {
+  // the open course's voice
+  const { sayParts, voiceSignal, cancelVoice } = useCourse().audio
   const [h, setH] = useState<Highlight | null>(null)
   const [done, setDone] = useState(false)
   const alive = useRef(true)

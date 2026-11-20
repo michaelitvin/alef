@@ -1,7 +1,8 @@
 // Desirable difficulty, shared by the minigames: predict the chance of a mistake from recent answers (decaying)
 // blended with the lifetime rate, then choose the candidate nearest one mistake in five.
 export type Rng = () => number
-export interface Tally { seen?: number; wrong?: number; timeout?: number }
+/** `helped`: of `seen`, the answers given after a hint (not wrong, not right; English) */
+export interface Tally { seen?: number; wrong?: number; timeout?: number; helped?: number }
 
 /** Desirable difficulty: aim each round at about one mistake in five. */
 const TARGET_MISTAKE_RATE = 0.2

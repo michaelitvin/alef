@@ -1,9 +1,15 @@
-import { act, fireEvent, render } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearGender, setGender } from '../../shared/player'
 import { MemoryRouter } from 'react-router-dom'
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
 vi.mock('react-router-dom', async (orig) => ({ ...(await orig<typeof import('react-router-dom')>()), useNavigate: () => navigate }))
+// the English path is available in test builds: the Hebrew cases below run with it off (they are the Hebrew home), the English ones on
+const en = vi.hoisted(() => ({ available: false }))
+vi.mock('../../english/available', () => ({ get ENGLISH_AVAILABLE() { return en.available } }))
 import { HomePage } from './HomePage'
+import { englishSavePort } from '../../english/savePort'
+import { useEnglishStore } from '../../english/store'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 import { HOLD_MS } from '../../shared/HoldButton'
@@ -11,6 +17,13 @@ import { enterYear } from '../../shared/parentGate/testing'
 import { hasGatePass, takeGatePass } from '../../parent/gateToken'
 
 const page = () => render(<MemoryRouter><HomePage /></MemoryRouter>).container
+
+/** the English part reads the doors filter by a dynamic import: render, then let it land */
+const pageEn = async () => {
+  const c = page()
+  await act(async () => { await import('../../english/doorsPlayable'); await new Promise((r) => setTimeout(r, 0)) })
+  return c
+}
 
 describe('the home page (spec: one duel, Part 4)', () => {
   beforeEach(() => {
@@ -149,5 +162,91 @@ describe('the home page (spec: one duel, Part 4)', () => {
       takeGatePass()
       vi.useRealTimers()
     }
+  })
+})
+
+describe('the English card and path on home (English path design, Part 1)', () => {
+  const parts = (c: Element) => [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
+  const stations = (c: Element) => [...c.querySelectorAll('[data-home-part="english-path"] [data-station]')]
+  const open = (c: Element) => stations(c).filter((e) => e.getAttribute('data-open') === 'true').map((e) => e.getAttribute('data-station'))
+  beforeEach(() => {
+    localStorage.clear()
+    en.available = true
+    useEnglishStore.getState().resetProgress()
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
+  })
+  afterEach(() => { en.available = false })
+
+  it('the English card and its path sit right before the Space Cat card (the parent\'s order: English before the cat)', async () => {
+    const p = parts(await pageEn())
+    expect(p).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'english', 'english-path', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(p[p.indexOf('spacecat') - 1]).toBe('separator')
+    expect(p[p.indexOf('spacecat') - 2]).toBe('english-path')
+  })
+
+  it('no English card on production: the order is the Hebrew home\'s, as before the English path', async () => {
+    en.available = false
+    const c = await pageEn()
+    expect(parts(c)).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(c.querySelector('a[href*="course=en"]')).toBeNull()
+  })
+
+  it('turning the path off hides the card', async () => {
+    englishSavePort().setSettings({ path: false })
+    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    cleanup()
+    englishSavePort().setSettings({ path: true })
+    expect(parts(await pageEn())).toContain('english')
+  })
+
+  it('a fresh device shows the tower open, the ghosts closed', async () => {
+    const c = await pageEn()
+    expect(stations(c).map((e) => e.getAttribute('data-station'))).toEqual(expect.arrayContaining(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw']))
+    expect(stations(c).length).toBe(8)
+    const o = open(c)
+    expect(o).toContain('tower')
+    // stage 1 opens every screen but the ghosts (design Part 5), and the doors too (stage 1's door words have their pictures)
+    expect(o).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'doors', 'spell', 'draw'])
+    expect(o).not.toContain('ghosts')
+  })
+
+  it('after a placement at stage 5 every station up to stage 5 opens', async () => {
+    englishSavePort().setStage(5)
+    const o = open(await pageEn())
+    for (const id of ['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw']) expect(o, id).toContain(id)
+  })
+
+  it('a station that is open stays open when his stage is set lower', async () => {
+    englishSavePort().setStage(5)
+    englishSavePort().openStations(['ghosts', 'doors'])
+    englishSavePort().setStage(1)
+    expect(open(await pageEn())).toEqual(expect.arrayContaining(['ghosts', 'doors']))
+  })
+
+  it('the links open the English course; the card follows the player; the line for the parent', async () => {
+    const c = await pageEn()
+    const card = c.querySelector('[data-card="english"]')!
+    expect(card.getAttribute('href')).toMatch(/duel2\/\?course=en$/)
+    const p = c.querySelector('[data-home-part="english-path"]')!
+    expect(p.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/duel2\/\?course=en&station=tower$/)
+    expect(p.querySelector('[data-station="ghosts"]')!.tagName).toBe('DIV')
+    expect(c.querySelector('[data-learn="english"]')!.textContent).toBe(
+      'What he learns: the sound of each letter, blending sounds into words, spelling, then letter pairs (sh, ch, th), silent e and vowel pairs. The game finds his level in the first run.')
+    expect(card.querySelector('[data-card-art]')!.getAttribute('data-card-art')).toBe('boy')
+    cleanup()
+    setGender('girl', 'child')
+    const g = await pageEn()
+    expect(g.querySelector('[data-card="english"] [data-card-art]')!.getAttribute('data-card-art')).toBe('girl')
+    expect(g.querySelector('[data-learn="english"] b')!.textContent).toBe('What she learns:')
+    clearGender()
+  })
+
+  it('the Hebrew card and path are unchanged by the English ones', async () => {
+    const c = await pageEn()
+    const hebrew = c.querySelector('[data-home-part="path"]')!
+    expect([...hebrew.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw', 'draw-hand'])
+    expect(hebrew.getAttribute('dir')).toBeNull()
+    expect(hebrew.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/duel2\/\?station=tower$/)
+    expect(c.querySelectorAll('a[href$="duel2/"]').length).toBe(1)
   })
 })

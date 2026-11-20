@@ -6,7 +6,7 @@ import type { ComponentType, LazyExoticComponent } from 'react'
 import type { TelemetryEvent, TelemetryLog } from '../shared/telemetry'
 
 /** the games that have a part in the area (the lessons are the main app's reading course) */
-export type GameId = 'book2' | 'clock' | 'lessons' | 'spacecat'
+export type GameId = 'book2' | 'clock' | 'lessons' | 'spacecat' | 'english'
 
 /** the area's sections, top to bottom */
 export type SectionId = 'child' | 'sound' | 'progress' | 'game' | 'data' | 'developer'

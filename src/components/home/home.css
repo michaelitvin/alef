@@ -20,6 +20,25 @@
 .home-learn { direction: rtl; font-size: 12.5px; color: #4a3b20; margin: 6px 4px 0; line-height: 1.35; text-align: right; }
 .home-learn b { color: #3b1d6e; }
 
+/* the English card and path: left to right (the picture on the left, the play button on the right), a teal-green night */
+.home-card-en { direction: ltr; grid-template-columns: auto minmax(0, 1fr) auto; padding: 8px 12px 8px 10px; border-color: #ffd34db3;
+  background: radial-gradient(ellipse at 30% 20%, #3fd7a073, transparent 60%), linear-gradient(135deg, #14584a, #0b2e3a);
+  box-shadow: 0 0 24px #3fd7a06b; }
+.home-card-en .home-card-art { width: auto; max-width: 100%; object-position: left center; transform: none; filter: drop-shadow(0 0 12px #6fe8b8); }
+.home-card-en .home-pcol { padding-right: 0; padding-left: 8px; border-right: 0; border-left: 2px solid #ffd34d33; }
+.home-card-en .home-card-orb span { font-family: Andika, system-ui, sans-serif; font-weight: 700; }
+.home-card-en .home-play { filter: drop-shadow(0 0 10px #6fe8b899) !important; }
+.home-learn[dir="ltr"] { direction: ltr; text-align: left; font-size: 12px; opacity: .8; }
+.home-learn[dir="ltr"] b { color: #1c5a46; }
+.home-path.ltr { direction: ltr; }
+.home-path.ltr .home-trail { right: auto; left: 0; transform: none; }
+.home-path.ltr .home-cap { direction: ltr; opacity: .85; }
+.home-path.ltr .home-wizhere { transform: translateX(-50%); }
+.home-path.ltr .home-disc { border-color: #5fb893; }
+.home-path.ltr .home-st .home-lock { right: auto; left: -4px; }
+.home-path.ltr .latin { font-family: Andika, system-ui, sans-serif; color: #17503d; line-height: 1; }
+.home-path.ltr .home-orb span { color: #fff6d8; }
+
 /* the path of the duel's minigames: scrolls sideways only */
 .home-path { position: relative; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 40px 6px 16px; direction: rtl;
   scrollbar-width: thin; }

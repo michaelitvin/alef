@@ -143,6 +143,12 @@ const TOWER: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'voice-fallback': (r) => ({ id: `line-${r.pick(['wave', 'boss'])}` }),
 }
 
+/** the English tower's events: the tower's, and its hint (`{round, words, by}`, with `via: 'tower'` added; the run's is `{screen, by}`) */
+const TOWER_ENGLISH: Record<string, (r: R, t: number) => Record<string, unknown>> = {
+  ...TOWER,
+  'blend-hint': (r) => ({ round: r.int(1, 40), words: r.int(1, 3), by: r.pick(['button', 'miss']) }),
+}
+
 /** the clock's events (src/clock) */
 const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   round: (r) => {
@@ -172,6 +178,57 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'voice-fallback': (r) => ({ id: `he-${time(r)}` }),
   'storage-persist': (r) => ({ persisted: r.chance(0.5) }),
 }
+
+/** a generator table: each event name's fields */
+type Table = Record<string, (r: R, t: number) => Record<string, unknown>>
+
+/** the spell book's events (both languages: the English log and Book 2's) */
+const SPELL: Table = {
+  'spell-drop': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), unit: r.pick(LETTERS), box: r.int(0, 3), ...(r.chance(0.7) ? { ok: true } : { ok: false, tile: r.pick(LETTERS) }) }),
+  'spell-cast': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), ms: r.int(3000, 40_000), mistakes: r.int(0, 4) }),
+  'spell-near': (r) => ({ word: r.pick(WORDS), mode: 'tiles', tile: r.pick(LETTERS), unit: r.pick(LETTERS), box: r.int(0, 3) }),
+}
+
+/**
+ * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
+ * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
+ */
+const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
+/** each word with its units (the sounds the cauldron and the ladder ask for) */
+const EN_UNITS: Record<string, string[]> = { cat: ['c', 'a', 't'], map: ['m', 'a', 'p'], ship: ['sh', 'i', 'p'], kite: ['k', 'i', 't', 'e'], frog: ['f', 'r', 'o', 'g'] }
+const EN_WORDS = Object.keys(EN_UNITS)
+const ENGLISH: Table = {
+  // the run's answer: on the cauldron and the ladder `target` is a unit of `word`; `helped` after the hint
+  answer: (r, t) => {
+    const screen = r.pick(EN_SCREENS)
+    const result = r.pick(['right', 'right', 'right', 'wrong', 'near', 'helped'])
+    const word = r.pick(EN_WORDS)
+    const part = screen === 'cauldron' || screen === 'ladder'
+    const target = part ? r.pick(EN_UNITS[word]!) : word
+    return {
+      screen, stage: r.int(1, 9), target, ...(part ? { word } : {}),
+      tapped: result === 'right' || result === 'helped' ? target : r.chance(0.2) ? null : r.pick(part ? EN_UNITS[word]! : EN_WORDS), result, ms: r.int(400, 9000),
+      assets: [`w-${word}`, `img-${word}`], clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}),
+    }
+  },
+  'tower-answer': (r, t) => ({ screen: 'tower', target: r.pick(EN_WORDS), result: r.pick(['right', 'right', 'wrong', 'helped']), clock: clockOf(r, t), ...(r.chance(0.05) ? { gallery: true } : {}) }),
+  replay: (r) => ({ screen: r.pick([...EN_SCREENS, 'spell']), target: r.pick(EN_WORDS), phase: r.pick(['question', 'answer']) }),
+  hint: (r) => ({ target: r.pick(EN_WORDS), auto: r.chance(0.5) }),
+  idle: (r) => ({ screen: r.pick(EN_SCREENS), target: r.chance(0.1) ? null : r.pick(EN_WORDS) }),
+  explain: (r) => ({ target: r.pick(EN_WORDS) }),
+  player: (r) => ({ gender: r.pick(['boy', 'girl']), by: 'child' }),
+  'placement-start': (r) => ({ wave: r.int(1, 3) }),
+  'placement-answer': (r, t) => ({ stage: r.int(1, 9), target: r.pick(['map', 'mip', 'frog', 'sluk', 'kite']), result: r.chance(0.7) ? 'right' : 'wrong', clock: t }),
+  'placement-done': (r) => ({ level: r.int(1, 9), answers: r.int(5, 23) }),
+  ...SPELL,
+  settings: (r) => ({ keys: ['path'], path: r.chance(0.5) }),
+  'range-set': (r) => ({ range: r.pick([10, 100, 1000]) }),
+  'parent-check': (r) => ({ word: r.pick(['cat', 'map', 'ship', 'kite']), ok: r.chance(0.7), run: r.int(1, 40) }),
+  'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
+}
+
+/** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */
+const BOOK2_SPELL: Table = { ...SPELL }
 
 /** a Space Cat item id (`a+b=c/hole`) and its four lane numbers, the right one in its lane */
 function spaceCatSum(r: R) {
@@ -206,10 +263,11 @@ function spaceCatJumps(r: R) {
 }
 
 /** Space Cat's events (src/spacecat/controller.ts; the parent area's sections track into the open game's log) */
-const SPACECAT: Record<string, (r: R, t: number) => Record<string, unknown>> = {
+const SPACECAT: Table = {
   'run-start': (r) => {
     const frontier = r.chance(0.2) ? null : scRung(r)
-    return { ship: r.int(1, 3), rung: frontier, frontier, playDay: r.chance(0.5) }
+    // `rung` only when a placement probes another rung
+    return { ship: r.int(1, 3), ...(r.chance(0.1) ? { rung: scRung(r) } : {}), frontier, playDay: r.chance(0.5) }
   },
   round: (r) => {
     const kind = r.pick(['sum', 'sum', 'sum', 'sum', 'compare', 'jumps'] as const)
@@ -279,23 +337,20 @@ export interface FixtureOpts {
 /** a session id as the game makes one: `<base36 ms>-<5 chars>` */
 const sessionId = (r: R, t: number) => `${t.toString(36)}-${Math.floor(r.next() * 36 ** 5).toString(36).padStart(5, '0')}`
 
-type Game = 'book2' | 'clock' | 'spacecat'
-const TABLES: Record<Game, Record<string, (r: R, t: number) => Record<string, unknown>>> = { book2: BOOK2, clock: CLOCK, spacecat: SPACECAT }
-const SEEDS: Record<Game, number> = { book2: 7, clock: 11, spacecat: 13 }
-
-function generate(game: Game, o: FixtureOpts): TelemetryEvent[] {
-  const r = rng(o.seed ?? SEEDS[game])
+/** a log of `game`: its table's events, and the tower's (`via: 'tower'`) when `tower` is set */
+function generate(game: string, table: Table, tower: boolean, seed: number, o: FixtureOpts, towerTable: Table = TOWER): TelemetryEvent[] {
+  const r = rng(o.seed ?? seed)
   const days = o.days ?? 45
   const perDay = o.sessionsPerDay ?? 1
   const perSession = o.eventsPerSession ?? 150
   const oldDays = o.oldDays ?? 3
   const start = o.start ?? FIXTURE_START
   const out: TelemetryEvent[] = []
-  const names = Object.keys(TABLES[game])
-  const tower = Object.keys(TOWER)
+  const names = Object.keys(table)
+  const towerNames = Object.keys(towerTable)
   let t = start
   // walk every name once first, so each appears in a fixture of any size
-  const cover: [boolean, string][] = [...names.map((n): [boolean, string] => [false, n]), ...(game === 'book2' ? tower.map((n): [boolean, string] => [true, n]) : [])]
+  const cover: [boolean, string][] = [...names.map((n): [boolean, string] => [false, n]), ...(tower ? towerNames.map((n): [boolean, string] => [true, n]) : [])]
   for (let d = 0; d < days; d++) {
     if (d % 4 === 3) continue // a day without play
     t = Math.max(t, start + d * DAY + r.int(0, 3) * 60 * 60 * 1000)
@@ -308,9 +363,9 @@ function generate(game: Game, o: FixtureOpts): TelemetryEvent[] {
         t += r.chance(0.05) ? 0 : r.int(200, 9000) // two events in one millisecond now and then
         if (r.chance(0.03)) run++
         const env: TelemetryEvent = d < oldDays ? { t, s, run, e: '' } : { t, s, run, e: '', g: game }
-        const [towerTurn, name] = cover.shift() ?? (game === 'book2' && r.chance(0.35) ? [true, weighted(r, tower)] : [false, weighted(r, names)])
+        const [towerTurn, name] = cover.shift() ?? (tower && r.chance(0.35) ? [true, weighted(r, towerNames)] : [false, weighted(r, names)])
         const e = name === 'tower-answer' ? 'answer' : name
-        const data = towerTurn ? { ...TOWER[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : TABLES[game][name]!(r, t)
+        const data = towerTurn ? { ...towerTable[name]!(r, t), via: 'tower', visit: r.int(1, 6) } : table[name]!(r, t)
         env.e = e
         out.push({ ...env, ...data })
       }
@@ -321,15 +376,20 @@ function generate(game: Game, o: FixtureOpts): TelemetryEvent[] {
 }
 
 /** Book 2's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
-export const book2Events = (o: FixtureOpts = {}) => generate('book2', o)
+export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, true, 7, o)
 /** the clock's log */
-export const clockEvents = (o: FixtureOpts = {}) => generate('clock', o)
+export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** Space Cat's log */
-export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', o)
+export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPACECAT, false, 13, o)
+/** the English path's log (`g: 'english'`) */
+export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
+/** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
+const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
 
-/** every event name the generators can send (Book 2, the tower, the clock, Space Cat) */
+/** every event name the generators can send (Book 2, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
+  ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(BOOK2_SPELL),
 ])
 
 /** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
@@ -342,6 +402,8 @@ export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
 export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
 export const GOLDEN_SPACECAT = () => spaceCatEvents({ eventsPerSession: 6 })
+export const GOLDEN_ENGLISH = () => englishEvents({ eventsPerSession: 12 })
+export const GOLDEN_BOOK2_SPELL = () => book2SpellEvents({ eventsPerSession: 12 })
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>

@@ -5,11 +5,11 @@
 // the checkpoint between two screens (does the merchant come, and his price), and the run's end (its records and the
 // short defeat scene). Pure: no store, no clock, no audio. `stepPass(state, event)` returns the next state and what the
 // run must do; the run (controller.ts) keeps the loop and the time, does what a step says, and sends back the events.
-import type { Stage } from '../logic/content'
+import type { CourseStages } from '../course/types'
 import type { ScreenId } from '../logic/predict'
 import { merchantDue, priceAt, type NumberRange } from '../logic/merchant'
 import { SHORT_AFTER, screenRecent, skipInCycle, visitScale } from '../logic/mastery'
-import { SESSION_LENGTH, VISIT, cycleOf, heartsAtRunStart, newRound, nextScreen, onAnswer, passEndHeart, runStart, type Hearts } from '../logic/run'
+import { HEBREW_STAGES, cycleOf, heartsAtRunStart, newRound, nextScreen, onAnswer, passEndHeart, runStart, type Hearts } from '../logic/run'
 
 /** the defeat scene: the dizzy wizard spins and falls (spec: one duel, a short and funny end) */
 export const DEFEAT_MS = 1800
@@ -24,7 +24,9 @@ export type PassScreen = ScreenId | 'crystal'
 
 /** what the run reads from the saves when the policy needs it (they change during a run: the stage, the book, his answers) */
 export interface PassFacts {
-  stage: Stage
+  stage: number
+  /** the course's stages: its cycle, its visits and its sessions (Hebrew by default) */
+  stages?: CourseStages
   /** the parent turned the drawing screens on */
   draw: boolean
   /** Book 2's minigames are open (before: stage 0, the tower alone) */
@@ -41,7 +43,8 @@ export interface PassFacts {
 /**
  * What the run tells the policy. `visit`: a screen's visit starts (once; a pause keeps it). `round`: a new round or
  * flight (the near miss is forgiven again). `answer`: right, wrong or a near miss. `screen-done`: the screen (or the
- * crystal) is over: the next one (`score`: the run's points, for a session's end). `checkpoint`: between two screens
+ * crystal) is over: the next one (`score`: the run's points, for a session's end; `empty`: the visit had no round, so no
+ * checkpoint follows it). `checkpoint`: between two screens
  * (`sinceVisit`: the checkpoints since his last visit, this one included; Infinity before the first; `bossNext`: a boss
  * comes next). `visited`: the merchant's visit at the checkpoint is over. `bought`: he bought a potion (his hearts now).
  * `gallery-merchant`: the gallery's merchant visit (1 heart). `crystal`: the cycle's crystal shows. `owed`: the game
@@ -50,7 +53,7 @@ export interface PassFacts {
  */
 export type PassInput =
   | { type: 'visit'; screen: ScreenId; facts: PassFacts } | { type: 'round' } | { type: 'answer'; a: 'right' | 'wrong' | 'near' }
-  | { type: 'screen-done'; facts: PassFacts; score: number }
+  | { type: 'screen-done'; facts: PassFacts; score: number; empty?: true }
   | { type: 'checkpoint'; bookOpen: boolean; coins: number; range: NumberRange; sinceVisit: number; bossNext: boolean }
   | { type: 'visited' } | { type: 'bought'; hearts: number } | { type: 'gallery-merchant' } | { type: 'crystal' } | { type: 'owed' }
   | { type: 'lost'; score: number; bestRun: number; cue?: string } | { type: 'heard' } | { type: 'slept' }
@@ -131,16 +134,19 @@ export interface PassState {
   flow: Flow
 }
 
+/** the course's stages of these facts */
+const stagesOf = (f: PassFacts): CourseStages => f.stages ?? HEBREW_STAGES
+
 /**
  * A run as it starts: a session plays its screen, the gallery its forced screen, a run the screen after the one where the
  * last run ended. The hearts are full.
  */
 export function runPass(c: { mode: PassMode; screen?: PassScreen; lastEnded: ScreenId | null; facts: PassFacts }): PassState {
   const f = c.facts
-  const screen = c.screen ?? runStart(f.stage, c.lastEnded, f.draw, f.bookOpen)
+  const screen = c.screen ?? runStart(f.stage, c.lastEnded, f.draw, f.bookOpen, stagesOf(f))
   return {
     mode: c.mode, screen, hearts: heartsAtRunStart(),
-    full: c.mode === 'run' && screen === cycleOf(f.stage, f.draw, f.bookOpen)[0],
+    full: c.mode === 'run' && screen === cycleOf(f.stage, f.draw, f.bookOpen, stagesOf(f))[0],
     passHearts: 0, crystalOwed: false, afterCrystal: null, crystalGiven: false, checkpointDue: false, purchases: 0, crystals: 0,
     flow: { k: 'play' },
   }
@@ -157,14 +163,14 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
    * never the tower, never the only screen): a skipped screen has no visit and no checkpoint of its own.
    */
   const nextOf = (from: ScreenId, f: PassFacts) => {
-    let nx = nextScreen(f.stage, from, f.draw, f.bookOpen)
-    const len = cycleOf(f.stage, f.draw, f.bookOpen).length
+    let nx = nextScreen(f.stage, from, f.draw, f.bookOpen, stagesOf(f))
+    const len = cycleOf(f.stage, f.draw, f.bookOpen, stagesOf(f)).length
     for (let k = 0; k < len && s.mode !== 'session'; k++) {
       // a new cycle starts at the tower, which is never skipped
       if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.duelRecent), f.cycleNo, len)) break
       if (nx.screen === 'doors') s.crystalOwed = true
       r.track.push({ e: 'skip', data: { screen: nx.screen, cycle: f.cycleNo } })
-      nx = nextScreen(f.stage, nx.screen, f.draw, f.bookOpen)
+      nx = nextScreen(f.stage, nx.screen, f.draw, f.bookOpen, stagesOf(f))
     }
     return nx
   }
@@ -233,8 +239,9 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
         break
       }
       fresh(nx.screen)
-      // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart
-      s.checkpointDue = true
+      // between two screens (never between the doors and their crystal): the checkpoint, after the pass heart; an empty
+      // visit (no round at this stage) is none, so two merchants never meet back to back
+      if (!ev.empty) s.checkpointDue = true
       if (!nx.newCycle) break
       r.save.push({ op: 'nextCycle' })
       // the end of a full pass: one heart comes back (up to HEARTS) at once, with a sound; no line and no pause (the
@@ -322,8 +329,8 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
  * the tower at least 1 wave). The gallery plays the full visit; a session from the path its own length.
  */
 export function visitLength(mode: PassMode, screen: ScreenId, f: PassFacts): number {
-  if (mode === 'session') return SESSION_LENGTH[screen]
-  const full = VISIT[screen]
+  if (mode === 'session') return stagesOf(f).sessionLength[screen]
+  const full = stagesOf(f).visit[screen]
   if (mode === 'gallery') return full
   // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
   if (screen === 'tower' && !f.bookOpen) return full

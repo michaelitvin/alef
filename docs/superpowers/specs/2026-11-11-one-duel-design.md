@@ -4,7 +4,7 @@
 **Status:** Draft for the parent's review. Brainstormed with the parent on 2026-11-09 to 2026-11-11. A builder check ran on 2026-11-11; its questions are answered here.
 **Builds on:** [the duel](2026-10-05-nikkud-wizard-duel-design.md), [Book 2](2026-10-19-duel-book-2-design.md),
 [Book 2 drawing](2026-11-07-book2-drawing-design.md), [the flight bosses](2026-11-07-book2-flight-boss-design.md),
-[girls](2026-11-07-girls-design.md). Read [docs/minigame-rules.md](../../minigame-rules.md) first: every rule applies.
+[girls](2026-11-07-girls-design.md). Read [docs/minigame-rules/](../../minigame-rules/README.md) first: every rule applies.
 **Mockups:** the main screen and the merchant were mocked as HTML pages built from the game's own parts and reviewed
 with the parent frame by frame. They live host-local, outside the repo. This document describes everything they show.
 
@@ -83,7 +83,7 @@ My calls:
 - **Earning:** one coin for each right answer, times the streak multiplier. ×1 for a streak of 0–4, ×2 for 5–9, ×3 for
   10 or more. Today's "a coin for each 10 stars" (`COIN_EVERY`) is too slow to pay prices that he must count. Stars stay
   as the record of right answers. Coins become a balance that goes up and down.
-  This changes the rule "give rewards at several paces" in `docs/minigame-rules.md`, where coins were the slow count
+  This changes the rule "give rewards at several paces" in `docs/minigame-rules/game-play-story.md`, where coins were the slow count
   (a coin for every 10 points) that the parent asked for. The stars stay the count that is kept between plays and only
   grows; the coins become spending money. Update that rule's example when this is built.
 - **The slowdown:** a mistake slows the flight ×1.04 (today ×1.12). A catch still speeds it ×0.99.

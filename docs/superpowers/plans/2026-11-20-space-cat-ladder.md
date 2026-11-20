@@ -21,7 +21,7 @@ and the pods. Every number the design gives is a named constant with a test.
 persist, Canvas 2D, Vitest + Testing Library, ESLint, dependency-cruiser, knip.
 
 **Spec:** the ladder design above (read all of it before any task); it replaces *Finding his level* of
-`docs/superpowers/specs/2026-11-12-space-cat-design.md`. Rules: `docs/minigame-rules.md`. Map: `CLAUDE.md`,
+`docs/superpowers/specs/2026-11-12-space-cat-design.md`. Rules: `docs/minigame-rules/`. Map: `CLAUDE.md`,
 `src/spacecat/README.md`, `GLOSSARY.md`, ADR 0005 (pure policies, the controller as interpreter), ADR 0007 (telemetry).
 
 ## Global Constraints

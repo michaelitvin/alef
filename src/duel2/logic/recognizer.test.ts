@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { LETTERS, STROKES, strokesOf, type Pt, type StrokeDef } from '../data/strokes'
-import { LetterChecker, judgeMarks, judgeStroke, lineFeedback, markTargets, resample, type Box, type MarkSpec, type Verdict } from './recognizer'
+import { LetterChecker, judgeMarks, judgeStroke, lineFeedback, markTargets, matchMark, resample, splitMarks, type Box, type MarkSpec, type MarkTarget, type Verdict } from './recognizer'
 
 function rng(seed: number) {
   let a = seed >>> 0
@@ -483,5 +483,74 @@ describe('recognizer: lines (told, never failed)', () => {
   it('the part outside the lines is named for the glow', () => {
     expect(lineFeedback({ left: 0, right: 1, top: -0.5, bottom: 0.97 }, d)).toMatchObject({ kind: 'tall', outside: { from: -Infinity, to: 0 } })
     expect(lineFeedback({ left: 0, right: 1, top: 0.1, bottom: 1.5 }, d)).toMatchObject({ kind: 'low', outside: { from: 1, to: Infinity } })
+  })
+})
+
+describe('recognizer: a letter\'s own marks and strokes that go back (the Latin letters; synthetic here)', () => {
+  // a stem with a dot above it (like i), and an n-like letter: down the stem, back up it, over and down
+  const dotted = { letter: 'ı', script: 'print' as const, w: 0.3, variants: [[{ pts: [[0.15, 0.4], [0.15, 1]] as Pt[] }, { pts: [[0.15, 0.15], [0.15, 0.18]] as Pt[] }]] }
+  const crossed = { letter: 'ŧ', script: 'print' as const, w: 0.5, variants: [[{ pts: [[0.25, 0.1], [0.25, 1]] as Pt[] }, { pts: [[0.05, 0.42], [0.45, 0.42]] as Pt[] }]] }
+  const arch: Pt[] = [[0.1, 0.4], [0.1, 1], [0.1, 0.6], [0.2, 0.45], [0.35, 0.4], [0.5, 0.45], [0.58, 0.6], [0.6, 1]]
+  const nLike = { letter: 'ŋ', script: 'print' as const, w: 0.7, variants: [[{ pts: arch }]] }
+  const isMark = (l: string, i: number) => 'ıŧ'.includes(l) && i === 1
+
+  it('the marks come off the letter: the checker judges the rest; a dot is a dot, a bar a bar', () => {
+    const a = splitMarks(dotted, isMark)
+    expect(a.body.variants[0]).toHaveLength(1)
+    expect(a.marks).toEqual([{ shape: 'dot', pts: dotted.variants[0][1].pts }])
+    expect(splitMarks(crossed, isMark).marks[0].shape).toBe('bar')
+    // a letter with no marks is itself
+    expect(splitMarks(nLike, isMark).body).toBe(nLike)
+  })
+
+  it('a mark sits where his letter puts it: moved and scaled with it', () => {
+    const c = new LetterChecker(splitMarks(dotted, isMark).body)
+    expect(c.add(draw(dotted.variants[0][0], { scale: 0.8, dx: 0.4, dy: 0.2 })).kind).toBe('ok')
+    const [p] = c.place([[0.15, 0.15]])
+    expect(p[0]).toBeCloseTo(0.15 * 0.8 + 0.4, 1)
+    expect(p[1]).toBeCloseTo(0.15 * 0.8 + 0.2, 1)
+    expect(c.scale).toBeCloseTo(0.8, 1)
+  })
+
+  it('a stroke is matched to the nearest missing mark of the right kind; a mark in no mark\'s place is none', () => {
+    const dot = (box: number, x: number): MarkTarget => ({ shape: 'dot', pts: [[x, 0.15], [x, 0.18]], box, k: 1 })
+    const bar = (box: number, x: number): MarkTarget => ({ shape: 'bar', pts: [[x - 0.2, 0.42], [x + 0.2, 0.42]], box, k: 1 })
+    const targets = [dot(0, 0.2), bar(1, 1.0), dot(2, 1.8)]
+    expect(matchMark([[0.22, 0.12], [0.22, 0.14]], targets)).toBe(0)
+    expect(matchMark([[1.78, 0.2], [1.79, 0.21]], targets)).toBe(2)
+    expect(matchMark([[0.8, 0.45], [1.2, 0.43]], targets)).toBe(1)
+    // a dot where the bar goes, a bar where a dot goes, a dot far above: none
+    expect(matchMark([[1.0, 0.42], [1.0, 0.43]], targets)).toBe(-1)
+    expect(matchMark([[0.0, 0.15], [0.4, 0.15]], targets)).toBe(-1)
+    expect(matchMark([[0.2, -0.6], [0.2, -0.58]], targets)).toBe(-1)
+  })
+
+  it('the place of a mark is judged at his letter\'s size: a small letter has a smaller place (down to a floor), a big one a larger', () => {
+    const at = (k: number): MarkTarget => ({ shape: 'dot', pts: [[0.2, 0.15], [0.2, 0.17]], box: 0, k })
+    // 0.2 to the right of the place
+    const off: Pt[] = [[0.4, 0.16], [0.4, 0.17]]
+    expect(matchMark(off, [at(1)])).toBe(0)
+    expect(matchMark(off, [at(0.6)])).toBe(-1)
+    expect(matchMark(off, [at(0.3)])).toBe(-1)
+    // the floor: at a tiny size the place is still 0.6 of the full one (0.1 off passes at 0.3 as at 0.6)
+    const near: Pt[] = [[0.3, 0.16], [0.3, 0.17]]
+    expect(matchMark(near, [at(0.3)])).toBe(0)
+    expect(matchMark(near, [at(0.6)])).toBe(0)
+    // 0.35 off: only a big letter's place reaches it
+    const far: Pt[] = [[0.55, 0.16], [0.55, 0.17]]
+    expect(matchMark(far, [at(1)])).toBe(-1)
+    expect(matchMark(far, [at(1.6)])).toBe(0)
+    // a dot is a dot by its size on a small letter too
+    expect(matchMark([[0.15, 0.12], [0.25, 0.16]], [at(0.6)])).toBe(0)
+  })
+
+  it('a stroke that goes back up its own stem passes, also wobbly, beside the way down, or lifted where it turns', () => {
+    const one = (pts: Pt[][]) => { const c = new LetterChecker(nLike); const rs = pts.map((p) => c.add(p)); const s = c.settle(); if (s) rs.push(s); return c.done && !rs.some((r) => r.kind === 'wrong') }
+    expect(one([draw(arch)])).toBe(true)
+    expect(one([draw(arch, { noise: 0.03, seed: 4 })])).toBe(true)
+    expect(one([draw([[0.1, 0.4], [0.1, 1], [0.16, 0.6], [0.24, 0.46], [0.35, 0.4], [0.5, 0.45], [0.58, 0.6], [0.6, 1]])])).toBe(true)
+    expect(one([draw([[0.1, 0.4], [0.1, 1]]), draw(arch.slice(1))])).toBe(true)
+    // the stem alone, or the arch alone, is not the letter
+    expect(one([draw([[0.1, 0.4], [0.1, 1]])])).toBe(false)
   })
 })

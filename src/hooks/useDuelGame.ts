@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { DuelController, type DuelEmbedded, type DuelOpts, type DuelTelemetry } from '../utils/duel/controller'
 import type { Choice } from '../types/duel'
 
-type UseDuelGameOpts = Pick<DuelOpts, 'rng' | 'walkOverride' | 'makeRound'> & {
+type UseDuelGameOpts = Pick<DuelOpts, 'rng' | 'walkOverride' | 'makeRound' | 'content' | 'tallies' | 'audio'> & {
   embedded: DuelEmbedded
   telemetry: DuelTelemetry
 }
@@ -17,6 +17,7 @@ export function useDuelGame(opts: UseDuelGameOpts) {
   const ref = useRef<DuelController | null>(null)
   ref.current ??= new DuelController({
     rng: opts.rng, walkOverride: opts.walkOverride, makeRound: opts.makeRound,
+    content: opts.content, tallies: opts.tallies, audio: opts.audio,
     embedded: () => latest.current.embedded,
     telemetry: () => latest.current.telemetry,
     reactOnCommit: true,
@@ -47,5 +48,6 @@ export function useDuelGame(opts: UseDuelGameOpts) {
     pause: () => c.pause(),
     resume: () => c.resume(),
     replayClue: () => c.replay(),
+    hint: () => c.hint(),
   }
 }
