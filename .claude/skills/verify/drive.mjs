@@ -236,11 +236,13 @@ async function shot(page, vp, name) {
 // ---- Space Cat: touch on the canvas, read through the verify build's probe (window.__scRound, client CSS px) ----
 const scProbe = (page) => page.evaluate(() => window.__scRound ?? null)
 /** the next round that takes his touch (after the demo, a tip or the missing-number line has let go) */
-async function scRound(page, afterN, timeout = 60_000) {
-  await page.waitForFunction((n) => {
+async function scRound(page, afterN, timeout = 60_000, orIntro = false) {
+  // orIntro: also a round whose intro plays (the planets stand still until the intro has ended)
+  await page.waitForFunction(([n, intro]) => {
     const r = window.__scRound
-    return document.querySelector('.sc-root')?.getAttribute('data-screen') !== 'play' || (r && r.n > n && r.phase === 'flight' && r.input && !r.frozen)
-  }, afterN, { timeout, polling: 100 })
+    const introNow = intro && document.querySelector('.sc-stage')?.getAttribute('data-phase') === 'intro'
+    return document.querySelector('.sc-root')?.getAttribute('data-screen') !== 'play' || (r && r.n > n && r.phase === 'flight' && (introNow || (r.input && !r.frozen)))
+  }, [afterN, orIntro], { timeout, polling: 100 })
   // null: the play screen went (level done, the end)
   return (await scScreen(page)) === 'play' ? scProbe(page) : null
 }
@@ -747,10 +749,15 @@ const CHECKS = {
       const seen = []
       for (let i = 0; i < 14 && !found; i++) {
         if ((await scScreen(page)) === 'level') { await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]')); await scUntilScreen(page, 'play') }
-        const r = await scRound(page, n)
-        if (!r) break
+        const r = await scRound(page, n, 60_000, true)
+        if (!r) {
+          // the play screen went: a level done (the screen may still be on its way) goes on; the end stops
+          const level = await scUntilScreen(page, 'level', 5_000).then(() => true, () => false)
+          if (level) continue
+          break
+        }
         seen.push(scBoxText(r))
-        if (!k.is(r)) { n = (await scAnswer(page, vp, 'right', r.n - 1)).n; continue }
+        if (!k.is(r)) { await scRound(page, r.n - 1); n = (await scAnswer(page, vp, 'right', r.n - 1)).n; continue }
         found = r
         if (r.lanes.length !== k.lanes) problems.push(`${k.name}: ${r.lanes.length} lanes, wanted ${k.lanes}`)
         // the intro (if any) as it plays: each cue's glow, a screenshot at each new cue
@@ -774,20 +781,24 @@ const CHECKS = {
             await page.waitForTimeout(60)
           }
           const t = Math.round((Date.now() - t0) / 100) / 10
-          note(`${k.name}: intro ${endedIn ? `still playing when the round ended (${endedIn}) after ${t} s` : `ended after ${t} s with the round still in flight`}; cues ${cues.join(' ') || '-'}`)
+          note(`${k.name}: intro ${endedIn ? `still playing when the round ended (${endedIn}) after ${t} s` : `ended after ${t} s, then the planets moved`}; cues ${cues.join(' ') || '-'}`)
+          // the intro plays before the planets move: they move only after it (a check of the fix)
+          if (!endedIn) {
+            const moving = await scRound(page, r.n - 1, 15_000).catch(() => null)
+            if (!moving) problems.push(`${k.name}: the planets did not move after the intro`)
+          }
         } else {
           await page.waitForTimeout(900)
         }
         const q = await scProbe(page)
         if (!endedIn && k.pods && !q.pods) problems.push(`${k.name}: no pods in flight`)
-        // after an intro the planets are near the ship: answer at once (the cue screenshots show the flight)
-        if (phase !== 'intro') await shot(page, vp, `sc-kind-${k.name}-flight`)
+        if (phase === 'intro') await page.waitForTimeout(600)
+        await shot(page, vp, `sc-kind-${k.name}-flight`)
         // the round he answers: this one, or (it ended in the intro) the next of the same seed
         const a = await scAnswer(page, vp, 'right', endedIn ? r.n : r.n - 1)
         await page.waitForTimeout(500)
         await shot(page, vp, `sc-kind-${k.name}-after`)
-        // an answer steered in the round's last moment (after a long intro) can meet another planet on the way: a note
-        if (a.result !== 'right') (phase === 'intro' ? note : (x) => problems.push(x))(`${k.name}: ${a.did}→${a.result}${phase === 'intro' ? ' (answered after the intro, late in the round)' : ''}`)
+        if (a.result !== 'right') problems.push(`${k.name}: ${a.did}→${a.result}`)
         note(`${k.name} (${k.at}): ${scBoxText(r)} labels ${r.labels.join(' ')}; intro ${phase === 'intro' ? 'played' : 'none'}, cues ${cues.join(' ') || '-'}; pods ${q.pods}; ${a.result}`)
       }
       if (!found) problems.push(`${k.name}: none in 14 rounds (${seen.join(', ')})`)
