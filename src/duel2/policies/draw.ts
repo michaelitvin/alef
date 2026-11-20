@@ -71,7 +71,7 @@ export type DrawLine = { id: string } | { line: string; take?: number }
 export type DrawSfx = 'stroke' | 'drawn'
 export type DrawSaveOp =
   | { op: 'markDemo'; id: 'demo-draw' }
-  | { op: 'recordAnswer'; features: string[]; miss: boolean }
+  | { op: 'recordAnswer'; features: string[]; miss: boolean; helped?: true }
   | { op: 'noteDrawRound' }
 export interface TrackRequest { e: string; data: Record<string, unknown> }
 /** the run's view around the drawing */
@@ -326,9 +326,12 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     r.sfx.push('drawn')
     r.drawn = true
     const clean = s.wrongStrokes === 0 && !s.helped && !s.markWrong
+    // (the Latin board, English: a round the hand finished for him is `helped`, not a miss, as on the spell book; the
+    // Hebrew drawing is unchanged)
+    const helpedOnly = !!s.latin && s.helped
     // (a word: each of its letters' tallies)
     const letters = s.latin ? s.view.letters! : [v0.letter]
-    r.save.push({ op: 'recordAnswer', features: [...new Set(letters.map((l) => drawFeature(l, v0.script))), `sc:${s.screen}`], miss: !clean }, { op: 'noteDrawRound' })
+    r.save.push({ op: 'recordAnswer', features: [...new Set(letters.map((l) => drawFeature(l, v0.script))), `sc:${s.screen}`], miss: !clean && !helpedOnly, ...(helpedOnly ? { helped: true as const } : {}) }, { op: 'noteDrawRound' })
     r.track.push({ e: 'draw-done', data: { letter: letters.join(''), script: v0.script, word: v0.word.id, ms: Math.round(ev.at - s.started), wrongStrokes: s.wrongStrokes, helped: s.helped } })
     go({ k: 'done-ring' }, { for: 'sleep', ms: RING_MS })
   }

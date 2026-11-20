@@ -30,7 +30,7 @@ const events = (e: string) => (ENGLISH.telemetry.events() as { e: string }[]).fi
 const tick = () => act(async () => { await vi.advanceTimersByTimeAsync(50) })
 
 /** he writes each box's letter as the data has it, then the marks still missing where the data has them */
-function act1(c: RunController, marked: Set<string>) {
+function act1(c: RunController, marked: Set<string>, wrong = { left: 0 }) {
   const v = c.view
   const s = v.screen as DrawView | null
   if (v.needNext || v.fixing) { proceed(c); return }
@@ -44,6 +44,8 @@ function act1(c: RunController, marked: Set<string>) {
     if (!s.strokes.length) marked.clear()
     const body = splitMarks(latinStrokesOf(s.letter), isMark).body.variants[0]
     const done = s.strokes.filter((x) => (x.box ?? 0) === box && !x.mark && (x.state === 'ok' || x.state === 'helped')).length
+    // (a first stroke written backwards, `wrong.left` times: the hand then draws it for him)
+    if (done === 0 && wrong.left > 0) { wrong.left--; c.gesture({ type: 'stroke', pts: at([...body[0].pts].reverse(), dx) }); return }
     if (done < body.length) c.gesture({ type: 'stroke', pts: at(body[done].pts, dx) })
   } else if (s.mode === 'mark') {
     s.letters!.forEach((l, i) => {
@@ -83,6 +85,19 @@ describe('the English drawing in the run', () => {
     expect(st.tallies['dr:a:print']).toMatchObject({ seen: 3, wrong: 0 })
     expect(st.tallies.a).toMatchObject({ seen: 3, wrong: 0 })
     expect(st.stage.newAnswers).toBe('ooo')
+    c.destroy()
+  }, 60_000)
+
+  it('a letter the hand finished for him counts as helped on its unit, not as a wrong answer (M2); the Hebrew drawing is unchanged', async () => {
+    const save = placed(1, { demosSeen: ['demo-draw'] })
+    const c = new RunController({ course: course(), save, now: () => Date.now(), rng: seeded(3), session: { screen: 'draw' } })
+    c.start()
+    const wrong = { left: 3 }; const marked = new Set<string>()
+    for (let g = 0; g < 6000 && !c.view.over; g++) { act1(c, marked, wrong); await tick() }
+    expect(events('draw-done')[0]).toMatchObject({ helped: true })
+    const st = save.read()
+    expect(st.tallies.a).toMatchObject({ seen: 3, wrong: 0, helped: 1 })
+    expect(st.tallies['dr:a:print']).toMatchObject({ seen: 3, wrong: 0 })
     c.destroy()
   }, 60_000)
 

@@ -1758,12 +1758,12 @@ export class RunController {
    * A drawn round's answer: the drawing's tallies; where the course says what it asks (English: the unit of one letter,
    * the word of a whole word), also that one's tallies and the stage pass (as on the other screens)
    */
-  private drawAnswer(features: string[], miss: boolean) {
+  private drawAnswer(features: string[], miss: boolean, helped = false) {
     const asked = this.drawCur?.asked
-    if (!asked) { this.save.recordAnswer({ features, miss, newStage: false }); return }
+    if (!asked) { this.save.recordAnswer({ features, miss, newStage: false, ...(helped ? { helped } : {}) }); return }
     const { passed } = this.save.recordAnswer({
       features: [...new Set([...features, ...this.course.rounds.features(asked, 'draw')])], miss, asked,
-      newStage: this.course.rounds.isNewStageChoice(this.stage, asked),
+      newStage: this.course.rounds.isNewStageChoice(this.stage, asked), ...(helped ? { helped } : {}),
     })
     if (passed) {
       this.stage = this.save.read().stage.stage
@@ -1793,7 +1793,7 @@ export class RunController {
     }
     for (const op of r.save) {
       if (op.op === 'markDemo') { this.demoShown = true; this.save.markDemo(op.id) }
-      else if (op.op === 'recordAnswer') this.drawAnswer(op.features, op.miss)
+      else if (op.op === 'recordAnswer') this.drawAnswer(op.features, op.miss, !!op.helped)
       else this.save.noteDrawRound()
     }
     for (const x of r.track) this.track(x.e, x.data)
