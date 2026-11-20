@@ -33,7 +33,9 @@ function fakeEngine() {
     handDone: null as (() => void) | null,
     setScreen() {}, setShip(n: number) { calls.push(`ship ${n}`) },
     setHud(h: Hud) { e.hud = h },
-    play(c: RoundContent, _ms: number, o?: { frozen?: boolean; pods?: PodsWhen }) { e.content = c; e.plays.push(c); e.pods.push(o?.pods); e.frozen = !!o?.frozen; calls.push('play') },
+    /** the arrival time of each play */
+    arrivals: [] as number[],
+    play(c: RoundContent, ms: number, o?: { frozen?: boolean; pods?: PodsWhen }) { e.content = c; e.plays.push(c); e.arrivals.push(ms); e.pods.push(o?.pods); e.frozen = !!o?.frozen; calls.push('play') },
     cue(name: string, on: boolean) { calls.push(`cue ${name} ${on}`) },
     boxIn() { calls.push('boxIn'); return e.holdBox ? new Promise<void>((r) => { e.boxDone = r }) : Promise.resolve() },
     freeze() { e.frozen = true; calls.push('freeze') },
@@ -486,6 +488,46 @@ describe('the play controller', () => {
     const after = compares()
     await drive(t, () => right, () => compares() > after + 1)
     expect(intros()).toBe(INTRO_TIMES + 1)
+  })
+
+  it('an intro plays before the planets move: the round stays still until the line and all its cues are done (a fixed 4 s)', async () => {
+    const base = practiceAt('C1')
+    const t = setup({ ...base, settings: { ...base.settings!, arrival: 4000 } })
+    fake.holdUntil(/^compare-/)
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'compare', 60)
+    await settle(20)
+    expect(t.engine.arrivals[t.engine.arrivals.length - 1]).toBe(4000)
+    expect(fake.said()).toContain('compare-1')
+    // the line plays (held): every cue has had its time on the virtual clock, but the round has not started
+    expect(t.ctl.getView().phase).toBe('intro')
+    expect(t.engine.frozen).toBe(true)
+    expect(t.engine.input).toBe(false)
+    const from = t.engine.calls.lastIndexOf('play')
+    expect(t.engine.calls.slice(from)).not.toContain('resume')
+    expect(fake.log().filter((x) => x.id === 'new-sum').length).toBe(rounds(t.events).length)
+    fake.release()
+    await playing(t.engine)
+    const after = t.engine.calls.slice(from)
+    const resume = after.indexOf('resume')
+    for (const c of ['signs', 'open', 'bigger', 'equal']) {
+      expect(after.indexOf(`cue ${c} true`)).toBeGreaterThan(-1)
+      expect(after.indexOf(`cue ${c} true`)).toBeLessThan(resume)
+    }
+    expect(after.indexOf('cue equal false')).toBeLessThan(resume)
+    expect(t.ctl.getView().phase).toBe('flight')
+  })
+
+  it('an intro whose line ends early (its voice cut short) still shows every cue before the round moves', async () => {
+    const t = setup(practiceAt('C1'))
+    // the take ends at once (voiceMs 0): the cues still run on the take's timeline
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'compare', 60)
+    await playing(t.engine)
+    const after = t.engine.calls.slice(t.engine.calls.lastIndexOf('play'))
+    const resume = after.indexOf('resume')
+    expect(after.indexOf('cue equal true')).toBeGreaterThan(-1)
+    expect(after.indexOf('cue equal true')).toBeLessThan(resume)
   })
 
   it('a silent intro still cues its glows, counts nothing and plays at most twice a run', async () => {

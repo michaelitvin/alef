@@ -58,7 +58,8 @@ export type PlayPhase = 'demo' | 'tip' | 'missing' | 'intro' | 'flight' | 'betwe
 export interface PlayView { paused: boolean; hud: Hud; phase: PlayPhase }
 
 /**
- * The line a round says while he already plays: the missing-number line (counted in `heard` under `count`), or an intro.
+ * The line a round says: the missing-number line (while he already plays; counted in `heard` under `count`), or an intro
+ * (before the planets move).
  * An intro: `first` (one of its first INTRO_TIMES), `again` (after AGAIN_AFTER of its mistake today), `silent` (no take:
  * its glows play on their own timeline and nothing is counted).
  */
@@ -239,16 +240,18 @@ export class PlayController {
 
   /**
    * A round starts (again, after a pause: the engine has restarted it). The planets stand still until the voice and the
-   * last effect have ended (a jump row: and its numbers have hopped in), then the arrival sound plays and the planets
-   * move with his touches on. The demo, the missing-number line or an intro comes 0.4 s after the arrival sound and is
-   * spoken while he already plays.
+   * last effect have ended (a jump row: and its numbers have hopped in). An intro plays here, before the planets move
+   * (the design): the round stays still, with no arrival timer, until its line and all its cues are done. Then the
+   * arrival sound plays and the planets move with his touches on. The demo or the missing-number line comes 0.4 s after
+   * the arrival sound and is spoken while he already plays.
    */
   private async begin(cur: Current): Promise<void> {
     const my = ++this.epoch
     const live = () => my === this.epoch && !this.dead && this.cur === cur
     this.inRound = true
     this.o.engine.setInput(false)
-    this.set({ phase: cur.demo ? 'demo' : cur.say?.line === 'missing' ? 'missing' : cur.say ? 'intro' : 'flight' })
+    const say = cur.say
+    this.set({ phase: cur.demo ? 'demo' : say?.line === 'missing' ? 'missing' : say ? 'intro' : 'flight' })
     await this.o.audio.quiet()
     if (!live()) return
     // the numbers of a jump row hop in on the engine's own clock while the planets stand still
@@ -256,40 +259,42 @@ export class PlayController {
       await this.o.engine.boxIn()
       if (!live()) return
     }
+    if (!cur.demo && say && say.line !== 'missing') {
+      const heard = await this.intro(say.line, say.silent, live)
+      if (!live()) return
+      if (heard && say.first) this.o.save.markHeard(say.line)
+      if (heard && say.again) this.o.save.markIntroAgain(say.line)
+    }
     const arrival = this.o.audio.playSfx('new-sum')
     // the planets move and his touches work at once: he may start while the instruction is spoken. The line is never
     // cut; a line that wants to start behind it waits in the voice queue (a round's arrival sound waits for `quiet()`).
     this.o.engine.setInput(true)
     this.o.engine.resume()
-    if (cur.demo || cur.say) void this.instruct(cur, arrival, live)
+    if (cur.demo || say?.line === 'missing') void this.instruct(cur, arrival, live)
     else this.set({ phase: 'flight' })
   }
 
-  /** the demo hand, the missing-number ring or an intro's glows, and the line, while the round already runs */
+  /** the demo hand or the missing-number ring, and the line, while the round already runs */
   private async instruct(cur: Current, arrival: Promise<void>, live: () => boolean): Promise<void> {
-    const say = cur.say
+    const say = cur.say?.line === 'missing' ? cur.say : undefined
     const hand = cur.demo ? this.o.engine.demoHand('drag', cur.content.rightLane, DEMO_HAND_MS) : Promise.resolve()
-    if (say?.line === 'missing') this.o.engine.pulseRing(true)
+    if (say) this.o.engine.pulseRing(true)
     await arrival
     await this.o.sleeper.sleep(SFX_TO_VOICE_MS)
     // the round ended or he left in the meantime: the line stays unsaid
-    let heard = false
-    if (!say || say.line === 'missing') heard = live() ? await this.o.audio.say(cur.demo ? 'demo' : 'missing') : false
-    else heard = await this.intro(say.line, say.silent, live)
+    const heard = live() ? await this.o.audio.say(cur.demo ? 'demo' : 'missing') : false
     await hand
-    if (say?.line === 'missing') {
+    if (say) {
       this.o.engine.pulseRing(false)
       if (heard) this.o.save.markHeard(say.count)
-    } else if (say && heard) {
-      if (say.first) this.o.save.markHeard(say.line)
-      if (say.again) this.o.save.markIntroAgain(say.line)
     }
     if (live() && this.view.phase !== 'tip') this.set({ phase: 'flight' })
   }
 
   /**
-   * An intro line with its glows, timed from the line's start (INTRO_CUES); true when it was heard. A line with no take:
-   * the glows alone, on the take's timeline from now, and false (nothing is counted).
+   * An intro line with its glows, timed from the line's start (INTRO_CUES); true when it was heard. The glows always run
+   * the take's whole timeline: a line that ends early (or never starts) waits out the rest, so every cue shows. A line
+   * with no take: the glows alone, from now, and false (nothing is counted).
    */
   private async intro(id: IntroId, silent: boolean, live: () => boolean): Promise<boolean> {
     if (!live()) return false
@@ -299,9 +304,14 @@ export class PlayController {
       end()
       return false
     }
-    const timeline = { end: () => {} }
-    const heard = await this.o.audio.say(id, { onStart: () => { timeline.end = this.cueTimeline(id, live) } })
-    timeline.end()
+    const timeline = { end: null as (() => void) | null, at: 0 }
+    const heard = await this.o.audio.say(id, { onStart: () => { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) } })
+    if (live()) {
+      if (!timeline.end) { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) }
+      const left = timeline.at + INTRO_LINE_MS[id] - this.o.sleeper.now()
+      if (left > 0) await this.o.sleeper.sleep(left)
+    }
+    timeline.end?.()
     return heard
   }
 
