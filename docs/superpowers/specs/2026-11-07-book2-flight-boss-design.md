@@ -1,7 +1,7 @@
 # Book 2 — flight boss, rescue potion, gentler flight, end screen that pulls him back
 
 Status: draft for the parent's approval. Builds on [the Book 2 design](2026-10-19-duel-book-2-design.md). Read
-[docs/minigame-rules.md](../../minigame-rules.md) before building: every rule there applies (speech instead of text,
+[docs/minigame-rules/](../../minigame-rules/README.md) before building: every rule there applies (speech instead of text,
 audio order, no way out on child screens, effects ring before the voice, praise words only twice, and so on).
 
 ## Why

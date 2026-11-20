@@ -1,6 +1,6 @@
 # Girls too: לשון נקבה and a girl wizard in every game
 
-Status: approved by the parent in conversation (2026-11-07). Read [docs/minigame-rules.md](../../minigame-rules.md)
+Status: approved by the parent in conversation (2026-11-07). Read [docs/minigame-rules/](../../minigame-rules/README.md)
 first; every rule applies.
 
 ## Why

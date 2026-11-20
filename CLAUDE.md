@@ -28,27 +28,61 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 
 ## Minigame Design Rules
 
-Before you design, build or review a child-facing minigame or screen, read
-[docs/minigame-rules.md](docs/minigame-rules.md). It holds the parent's rules: speech instead of text,
-audio sequencing, symbol ambiguity, adaptive difficulty, parent tracking and asset review.
+[docs/minigame-rules/](docs/minigame-rules/README.md) holds the parent's rules: speech instead of text, audio
+sequencing, symbol ambiguity, adaptive difficulty, parent tracking and asset review, one file per subject. Before you
+build or review a child-facing screen, read the files that your task touches (all in `docs/minigame-rules/`):
+
+| Task | Files |
+| --- | --- |
+| Always | `communication.md`, `working-with-the-parent.md`, `verification.md` |
+| Voice lines and pronunciation | `voice-wording.md`, `voice-delivery.md`, `pronunciation.md` |
+| Images, layout and art | `visuals.md`, `art-generation.md` |
+| Screen and game code | `interaction-controls.md`, `interaction-input.md`, `game-play-learning.md`, `game-play-story.md`, `parent-tracking.md` |
+| Sound and music | `music-and-sound.md` |
+| Asset review | `asset-review.md` |
+
+A new design, a spec, or a rule-by-rule review of a spec reads the whole folder.
 
 When the parent gives significant steering on a minigame (a correction, a new preference, a review note
-that applies to more than one item), add it to that file as a general rule. Write it in ASD-STE100 style
+that applies to more than one item), add it as a general rule to the file of its subject (see the index in
+[docs/minigame-rules/README.md](docs/minigame-rules/README.md)). Write it in ASD-STE100 style
 with a reason or an example. Change or remove a rule that the new steering replaces.
 
-For a new minigame, work in this order: brainstorm → mockups built from parts (see *Art generation* in the rules) →
-spec → rule-by-rule review of the spec plus a builder check (see *Working with the parent*) → plan → build. Agree on the
+For a new minigame, work in this order: brainstorm → mockups built from parts (see `art-generation.md`) →
+spec → rule-by-rule review of the spec plus a builder check (see `working-with-the-parent.md`) → plan → build. Agree on the
 image budget at the start.
+
+For a feature in an existing game, write one short design (about a page: what changes, the parent's decisions, the
+tasks), have it reviewed, and build its independent tasks in parallel. Do not write a separate plan. Do not add
+extras that the parent did not ask for; offer them as one line instead.
 
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
 `asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
 
 ## Checks
 
-`npm run check && npm test` before every commit. `npm run check` is the type check, lint, dependency-cruiser (the boundary rules in
+While you work on a task, run the tests of what you changed: `npx vitest related --run <changed files>` and
+`npx tsc --noEmit`. Run the full `npm run check && npm test` before a merge into `main`, before a push and before a
+playtest build (the full suite has ~1,800 tests and is slow on this machine). `npm run check` is the type check, lint,
+dependency-cruiser (the boundary rules in
 `.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
 real build, use the `/verify` skill (it drives the verify build in a browser with touch on). The test timeout is 20 s
 (`vite.config.ts`): the run tests are slow under load.
+
+## Working with agents (tokens are the scarce resource)
+
+Every turn re-reads the whole context, so cost is turns × context size.
+
+- Opus plans, orchestrates and reviews: specs, plans, design and code reviews, and the final whole-branch review. Give
+  those subagents `model: opus` explicitly.
+- Sonnet implements a task that a detailed plan describes. The project settings make it the default subagent model.
+  Use Opus for a large engine refactor and for a bug that Sonnet did not fix.
+- One subagent does one task in a fresh context. If a task needs more than about 40 tool calls, split it. QA is its
+  own agent: it returns a list of findings, and other agents fix them.
+- Put several checks in one shell command. Read a line range, not a whole file.
+- Do not poll. Agent results arrive by themselves; set at most one fallback timer of an hour or more.
+- Screenshots stay in subagents. They return a text verdict; send images to the parent without reading them first.
+- At the end of each phase, write the state into the plan or the spec, and start a new session from it.
 
 ## Deployment (GitHub Pages: production and staging)
 

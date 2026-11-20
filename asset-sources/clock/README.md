@@ -47,6 +47,6 @@ One entry for each picture in `src/clock/assets/img/`:
 
 ## Rules
 
-Read [docs/minigame-rules.md](../../docs/minigame-rules.md) before you make new assets. It has the voice,
+Read [docs/minigame-rules/](../../docs/minigame-rules/README.md) before you make new assets. It has the voice,
 pronunciation, art and review rules. The tools read their API keys from the environment or from a gitignored `.env`.
 Do not commit a key. Do not print a key.

@@ -34,14 +34,14 @@ Book 2 is the next volume in a series of books: the duel taught the marks alone;
 
 **Anti-goals** (a failure even if it works)
 - **Any element that he does not act on.** "Don't add elements to the game that are not directly related to something that he needs to do" (Michael). Every thing on a screen is a target, a choice, the player, or the feedback.
-- Written instructions or feedback (he cannot read; see `docs/minigame-rules.md`).
+- Written instructions or feedback (he cannot read; see `docs/minigame-rules/`).
 - A slow game: long waits between rounds, feedback that takes longer than the task.
 - Letters or marks that look like Latin letters or punctuation (in the mockup, יִ in one font looked like "!").
 - Half the game that he never reaches because runs end early (see *Run*).
 
 ## Rules
 
-`docs/minigame-rules.md` applies in full. The rules that shape this design most are quoted where they apply. Two rules change meaning for this game (Michael, 2026-10-19):
+`docs/minigame-rules/` applies in full. The rules that shape this design most are quoted where they apply. Two rules change meaning for this game (Michael, 2026-10-19):
 
 - "Show a learning mark on a neutral placeholder, not on a carrier letter" applies to the duel. In Book 2 the letter carries the mark: that is the content. A mark shown **alone** (the cauldron's vowel orbs) still sits on a dotted placeholder.
 - "Make wrong answers clearly different from the right one" does not apply to the letter or the vowel in a choice: here the small difference **is** the skill (the ladder and the look-alike ghosts put look-alikes side by side on purpose). It still applies to everything else.

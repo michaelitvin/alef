@@ -76,7 +76,7 @@ the check.
   check fails or throws. A tab left on a shared browser keeps animating and eats its CPU. Never close a browser that you
   did not launch; only disconnect from it. After a run, list the browser's pages and make sure none of yours is left.
 - **Real touch.** Tap and hold with CDP touch events (`Input.dispatchTouchEvent`, or playwright's `touchscreen.tap` in
-  a `hasTouch` context), not mouse or synthetic pointer events (`docs/minigame-rules.md`, *Verification*).
+  a `hasTouch` context), not mouse or synthetic pointer events (`docs/minigame-rules/verification.md`).
 - Look at every screenshot before you show it: missing-font squares, characters shown two times, sprites that move
   backwards, shapes cut at the edges.
 - On a shared browser, a 2D canvas that draws every frame can hang a screenshot: the driver's init script makes every
