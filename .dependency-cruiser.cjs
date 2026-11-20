@@ -144,9 +144,9 @@ module.exports = {
       severity: 'error',
       comment:
         'The Hebrew page (duel2, the shared components, the pages, the parent area) never imports the English path statically, ' +
-        'so that production ships no English words. Allowed: available, saveFormat, station, measure, the green pictures and the English ' +
+        'so that production ships no English words. Allowed: available, saveFormat, station, the green pictures and the English ' +
         'parent index (it is empty where English is unavailable). The English course arrives by import() only, which ' +
-        'is a dynamic dependency and is left out here. Direct imports only: a transitive one is checked by looking into the built chunks.',
+        'is a dynamic dependency and is left out here. Direct imports only: a transitive import is not checked here (nothing inspects the built chunks), so keep the allowed files free of imports of the English words.',
       from: { path: '^src/(duel2|components|pages|parent)/', pathNot: TEST },
       to: {
         path: '^src/english/',
@@ -155,7 +155,6 @@ module.exports = {
           '^src/english/(available|saveFormat|station)\\.ts$',
           '^src/english/assets/img/',
           '^src/english/parent/index\\.ts$',
-          '^src/english/measure\\.ts$', // a width table of 52 numbers, no imports: the Hebrew screens' shared text sizing
         ],
       },
     },

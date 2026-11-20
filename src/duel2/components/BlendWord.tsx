@@ -3,7 +3,7 @@
 // last, and one line under a two-letter unit (sh, ck, ee: one sound). Drawn over the screen; it never takes a touch.
 import type { BlendPart } from '../course/types'
 import { GlyphDefs } from './Glyph'
-import { measureText } from '../../english/measure'
+import { measureText } from '../../shared/latinMeasure'
 import { LATIN_TEXT } from '../../shared/latinText'
 
 /** the card: the same place as the Hebrew hint card */
