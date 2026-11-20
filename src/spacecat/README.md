@@ -42,6 +42,6 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 
 - The coded effects are takes of the kit but not of its voice queue: `quiet()` keeps an effect and a line apart.
 - The round content has three kinds (a sum, a comparison, a jump row) behind `makeRound` in `content.ts`.
-- The four intro lines are silent until the parent picks takes. Their cue times in `audio/intros.ts` are nominal: tune them to the word times of the chosen take.
+- The cue times of the four intro lines in `audio/intros.ts` come from the word times of the takes the parent picked (2026-11-20). A new take needs new cue times.
 - On a phone held upright the four lanes fill the width, so a planet at the ship's row cannot grow past its lane; it
   starts at 0.6 of that size instead of the original's 0.4. The parent reviews these sizes (2026-11-18).
