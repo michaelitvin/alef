@@ -33,6 +33,8 @@ const SOURCES = 'asset-sources/english'
 const MP3_KBPS = 96
 /** a review item named for a picture key that is spelled another way in the game */
 const PICTURE_ALIAS: Record<string, string> = { yoyo: 'yo-yo' }
+/** a review picture that is a screen sprite, not a picture word: its file in `img/` (the English screens read it by this key) */
+const SPRITE_FILE: Record<string, string> = { spellbook: 's-book' }
 
 const args = process.argv.slice(2)
 const flag = (n: string) => args.includes('--' + n)
@@ -89,7 +91,7 @@ for (const s of states) {
   const kind = id.startsWith('pic-') ? 'picture' : id.startsWith('rc-') ? 'recolour' : 'voice'
   const gameId = kind === 'picture' ? (PICTURE_ALIAS[id.slice(4)] ?? id.slice(4)) : kind === 'recolour' ? id.slice(3) : id
   const known =
-    kind === 'picture' ? gamePictures.has(gameId)
+    kind === 'picture' ? gamePictures.has(gameId) || gameId in SPRITE_FILE
     : kind === 'recolour' ? existsSync(join(IMG_DIR, gameId + '.webp'))
     : gameVoices.has(gameId)
   if (!known) { unmapped.push(id + (s.status === 'ok' ? '' : ` (${s.status})`)); continue }
@@ -98,7 +100,7 @@ for (const s of states) {
   const src = mediaFile(s.current.id)
   if (!existsSync(src)) { notOk.push(`${id} (file missing)`); continue }
   if (kind === 'voice') voiceJobs.push({ id, gameId, state: s, src, dest: join(VOICE_DIR, gameId + '.mp3') })
-  else if (kind === 'picture') pictureJobs.push({ id, gameId, state: s, src, dest: join(IMG_DIR, `pw-${gameId}.webp`) })
+  else if (kind === 'picture') pictureJobs.push({ id, gameId, state: s, src, dest: join(IMG_DIR, `${SPRITE_FILE[gameId] ?? `pw-${gameId}`}.webp`) })
   else recolourJobs.push({ id, gameId, state: s, src, dest: join(IMG_DIR, gameId + '.webp') })
 }
 const noItem = [

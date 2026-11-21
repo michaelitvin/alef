@@ -7,9 +7,8 @@
 // left to right, and the faint tail e after them. He writes each letter in its box from its start dot; his strokes turn
 // gold as they are right, and the glowing hand shows a letter (the demo, the hint, after a mistake).
 import { useState } from 'react'
-import { IMAGES } from '../../assets/images'
 import type { SpellView } from '../../controller'
-import { useCourse } from '../../course/CourseContext'
+import { useCourse, useImages } from '../../course/CourseContext'
 import type { Pt } from '../../data/strokes'
 import { SPELL_BOARD, toNorm, toStagePt } from '../../logic/drawLayout'
 import { spellLetters } from '../../policies/spellWrite'
@@ -21,12 +20,14 @@ import { Glyph, latinFitPx, latinOrbPx } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
-/** the open book, its spine in the middle of the stage */
-export const BOOK = { x: 100, y: 50, w: 1400, h: 620 }
+/** the open book (the picture `s-book`, drawn a little wider than it is), its spine in the middle of the stage */
+export const BOOK = { x: 40, y: 30, w: 1520, h: 760 }
 const SPINE = BOOK.x + BOOK.w / 2
+/** the cream paper of the picture, as fractions of the book: each page's middle (from the book's left edge) and width, the top, the bottom */
+const PAPER = { left: 0.3, right: 0.7, w: 0.38, top: 0.07, bottom: 0.65 }
 /** a page's margin on each side: the boxes' row is at most a page less its margins */
-const PAGE_PAD = 45
-export const BOX_Y = 360
+const PAGE_PAD = 20
+export const BOX_Y = BOOK.y + BOOK.h * ((PAPER.top + PAPER.bottom) / 2)
 export const BOX_H = 150
 const BOX_MAX_W = 150
 const BOX_GAP = 14
@@ -40,14 +41,14 @@ const TILE_GAP = 26
 const DROP_AIR = 24
 
 /** the middle of the page where the reading starts (the picture's page) and of the other one (the boxes' page) */
-const pageMid = (dir: Dir, start: boolean) => ((dir === 'ltr') === start ? BOOK.x + BOOK.w / 4 : SPINE + BOOK.w / 4)
+const pageMid = (dir: Dir, start: boolean) => BOOK.x + BOOK.w * ((dir === 'ltr') === start ? PAPER.left : PAPER.right)
 
 /**
  * The boxes' centres in box order (left to right on ltr, right to left on rtl), their width, and where the faint
  * closing letter goes (after the last box, in reading order).
  */
 export function spellBoxes(n: number, dir: Dir, tail: boolean): { xs: number[]; w: number; tailX?: number } {
-  const room = BOOK.w / 2 - 2 * PAGE_PAD - (tail ? TAIL_W : 0)
+  const room = BOOK.w * PAPER.w - 2 * PAGE_PAD - (tail ? TAIL_W : 0)
   const w = Math.min(BOX_MAX_W, (room - BOX_GAP * (n - 1)) / n)
   const row = n * w + (n - 1) * BOX_GAP + (tail ? TAIL_W : 0)
   const step = dir === 'ltr' ? 1 : -1
@@ -66,7 +67,8 @@ export function spellTileXs(n: number, dir: Dir): number[] {
 
 /** the open book: its picture when it has one, else two drawn pages and a spine */
 function Book() {
-  if (IMAGES['s-book']) return <image data-book href={IMAGES['s-book']} x={BOOK.x} y={BOOK.y} width={BOOK.w} height={BOOK.h} preserveAspectRatio="none" />
+  const img = useImages()['s-book']
+  if (img) return <image data-book href={img} x={BOOK.x} y={BOOK.y} width={BOOK.w} height={BOOK.h} preserveAspectRatio="none" />
   return (
     <g data-book="drawn">
       <rect x={BOOK.x - 14} y={BOOK.y - 10} width={BOOK.w + 28} height={BOOK.h + 24} rx={26} fill="#5a2d82" stroke="#2a1145" strokeWidth={8} />

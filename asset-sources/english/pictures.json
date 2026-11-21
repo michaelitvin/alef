@@ -950,6 +950,18 @@
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
+   "key": "spellbook",
+   "file": "src/english/assets/img/s-book.webp",
+   "take": "cut/spellbook.webp",
+   "source_sha256": "31c7af6f8ef1bc1356566aa04149fa204e9379c317586c955e8e3a985751197c",
+   "caption": "spell book",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "16:9",
+   "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. A big old magic spell book lying open, seen from the front and a little above: two wide blank cream parchment pages (completely empty, a picture and letter boxes will be placed on them), a thick brown leather cover with gold corners showing at the edges, a red ribbon bookmark. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols, no writing on the pages.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
    "key": "spoon",
    "file": "src/english/assets/img/pw-spoon.webp",
    "take": "cut/spoon.webp",

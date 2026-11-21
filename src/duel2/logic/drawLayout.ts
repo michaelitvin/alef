@@ -10,8 +10,8 @@ export const DRAW_FONT: Record<Script, string> = { print: 'Sigalit', hand: "'Dan
 /** the board (dark slate) and the picture beside it; kept clear of the top bar at phone size */
 export const BOARD = { left: 40, right: 1250, top: 175, bottom: 885 }
 export const PIC = { x: 1425, y: 470, size: 290 }
-/** the spell book's written words: the board on its two open pages (inside SpellBook's BOOK, with its margins) */
-export const SPELL_BOARD = { left: 150, right: 1450, top: 95, bottom: 630 }
+/** the spell book's written words: the board on its two open pages (inside SpellBook's BOOK: on the cream paper of its picture, clear of the covers and corners) */
+export const SPELL_BOARD = { left: 200, right: 1400, top: 120, bottom: 520 }
 const U_MAX = 290
 const PAD = 0.18
 /** the gap between the slot and the rest of the word (letter units) */

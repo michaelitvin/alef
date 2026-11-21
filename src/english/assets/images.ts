@@ -4,9 +4,16 @@ import { IMAGES } from '../../duel2/assets/images'
 /** the pictures that never turn green: the monsters, bosses, merchant, potion, coins, hearts, stars and the picture words */
 const STAYS = /^(boss-|merchant-|pw-|word-|s-potion|coin|heart|star)/
 
-/** `base` with each green file of the same key in its place (a key with no green file keeps the base's); a picture that stays is never replaced */
+/** the green files that have no Book 2 picture: the English path's own sprites */
+const ONLY_GREEN = ['s-book']
+
+/**
+ * `base` with each green file of the same key in its place (a key with no green file keeps the base's); a picture that
+ * stays is never replaced. A green file with no key in `base` is added (`ONLY_GREEN`).
+ */
 export function greenImages(base: Record<string, string>, green: Record<string, string>): Record<string, string> {
-  return Object.fromEntries(Object.entries(base).map(([k, url]) => [k, STAYS.test(k) ? url : green[k] ?? url]))
+  const own = Object.entries(green).filter(([k]) => ONLY_GREEN.includes(k) && !(k in base))
+  return { ...Object.fromEntries(Object.entries(base).map(([k, url]) => [k, STAYS.test(k) ? url : green[k] ?? url])), ...Object.fromEntries(own) }
 }
 
 const GREEN: Record<string, string> = Object.fromEntries(

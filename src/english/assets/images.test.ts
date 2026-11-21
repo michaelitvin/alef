@@ -4,8 +4,9 @@ import { IMAGES } from '../../duel2/assets/images'
 import { ENGLISH_IMAGES, greenImages } from './images'
 
 describe('the English path\'s pictures', () => {
-  it('has a picture for every key of Book 2', () => {
-    expect(Object.keys(ENGLISH_IMAGES).sort()).toEqual(Object.keys(IMAGES).sort())
+  it('has a picture for every key of Book 2, and the spell book that Book 2 does not have', () => {
+    expect(Object.keys(ENGLISH_IMAGES).sort()).toEqual([...Object.keys(IMAGES), 's-book'].sort())
+    expect(IMAGES['s-book']).toBeUndefined()
   })
 
   it('the shipped green files replace the wizard, the crystals, the props and the backgrounds', () => {
