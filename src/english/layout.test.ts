@@ -22,7 +22,7 @@ import { WORDS, type EnWord } from './content/words'
 import { blendParts } from './logic/blend'
 import { longestPerStage } from './testing/longest'
 import { inkEm, measureText } from '../shared/latinMeasure'
-import { BOOK as SPELL_BOOK, SpellBook, TILE_SIZE as SPELL_TILE, spellBoxes } from '../duel2/components/screens/SpellBook'
+import { SpellBook, TILE_SIZE as SPELL_TILE, bookGeometry, spellBoxes } from '../duel2/components/screens/SpellBook'
 import type { SpellBox, SpellRound } from '../duel2/policies/spell'
 import { spellWriting } from '../duel2/policies/spellWrite'
 import { boxOf } from './logic/spell'
@@ -232,14 +232,15 @@ describe('the spell book', () => {
   // Task 22's carry-over: the boxes on the book's page (at most 5: j u m p ing), measured in the drawn box width, and the
   // tiles; on the smallest phone a letter in a box is still at least 16 CSS px high
   const spellBox = (text: string): SpellBox => ({ unit: text, text, soundId: `snd-${text}` })
-  const drawSpell = (boxes: SpellBox[], tiles: SpellBox[]) => render(h(SpellBook, {
+  const SPELL_BOOK = bookGeometry(true).book
+  const drawSpell = (boxes: SpellBox[], tiles: SpellBox[]) => render(h(CourseProvider, { value: ENGLISH }, h(SpellBook, {
     view: { screen: 'spell', round: { word: 'w', wordVoice: 'w-w', boxes, tiles, mode: 'tiles' }, filled: boxes.map((b) => b.unit), alive: false },
     phase: 'answer', dir: 'ltr', onDrop: () => {},
-  })).container
+  }))).container
   const spelled = WORDS.filter((w) => w.kind !== 'picture-only' && w.units.length <= 5)
   it('jumping is a word of five boxes, the most the page is sized for', () => {
     expect(boxesOf('jumping').map((b) => b.text)).toEqual(['j', 'u', 'm', 'p', 'ing'])
-    const { xs, w } = spellBoxes(5, 'ltr', false)
+    const { xs, w } = spellBoxes(5, 'ltr', false, true)
     expect(xs[0] - w / 2).toBeGreaterThan(800)
     expect(xs[4] + w / 2).toBeLessThan(1500)
   })
@@ -256,7 +257,7 @@ describe('the spell book', () => {
     const scale = stageBox(sw, sh, STAGE_CONTENT_TOP.spell).scale
     expect(rows.some((r) => r.length === 5 && r.includes('ing'))).toBe(true)
     for (const row of rows) {
-      const { w: bw } = spellBoxes(row.length, 'ltr', false)
+      const { w: bw } = spellBoxes(row.length, 'ltr', false, true)
       const texts = [...drawSpell(row.map(spellBox), []).querySelectorAll('[data-box] text')] as SVGTextElement[]
       expect(texts).toHaveLength(row.length)
       for (const t of texts) {

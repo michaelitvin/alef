@@ -20,14 +20,35 @@ import { Glyph, latinFitPx, latinOrbPx } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
-/** the open book (the picture `s-book`, drawn a little wider than it is), its spine in the middle of the stage */
-export const BOOK = { x: 40, y: 30, w: 1520, h: 760 }
-const SPINE = BOOK.x + BOOK.w / 2
-/** the cream paper of the picture, as fractions of the book: each page's middle (from the book's left edge) and width, the top, the bottom */
-const PAPER = { left: 0.3, right: 0.7, w: 0.38, top: 0.07, bottom: 0.65 }
-/** a page's margin on each side: the boxes' row is at most a page less its margins */
-const PAGE_PAD = 20
-export const BOX_Y = BOOK.y + BOOK.h * ((PAPER.top + PAPER.bottom) / 2)
+/**
+ * Where the book's parts go, in stage units. With the book's picture (the English path's `s-book`, drawn a little wider
+ * than it is) the pages are the cream paper of the picture, as fractions of the book; without it (Book 2) they are the two
+ * drawn pages, and the old values stay as they were. A written word (English only) has its slate in `SPELL_BOARD`.
+ */
+export interface BookGeometry {
+  /** the open book, its spine in the middle of the stage */
+  book: { x: number; y: number; w: number; h: number }
+  /** each page's middle, from the book's left edge, as a fraction of its width: the left page, the right page */
+  mid: { left: number; right: number }
+  /** a page's width as a fraction of the book's, and its margin on each side: the boxes' row is at most a page less its margins */
+  pageW: number
+  pagePad: number
+  boxY: number
+}
+const PICTURE_BOOK = { x: 40, y: 30, w: 1520, h: 760 }
+/** the cream paper of the picture as fractions of the book: the top and the bottom */
+const PAPER = { top: 0.07, bottom: 0.65 }
+const PICTURE: BookGeometry = {
+  book: PICTURE_BOOK, mid: { left: 0.3, right: 0.7 }, pageW: 0.38, pagePad: 20,
+  boxY: PICTURE_BOOK.y + PICTURE_BOOK.h * ((PAPER.top + PAPER.bottom) / 2)
+}
+const DRAWN: BookGeometry = {
+  book: { x: 100, y: 50, w: 1400, h: 620 }, mid: { left: 0.25, right: 0.75 }, pageW: 0.5, pagePad: 45, boxY: 360,
+}
+export const bookGeometry = (hasPicture: boolean): BookGeometry => (hasPicture ? PICTURE : DRAWN)
+/** the drawn pages' book and their box row (Book 2) */
+export const BOOK = DRAWN.book
+export const BOX_Y = DRAWN.boxY
 export const BOX_H = 150
 const BOX_MAX_W = 150
 const BOX_GAP = 14
@@ -41,18 +62,19 @@ const TILE_GAP = 26
 const DROP_AIR = 24
 
 /** the middle of the page where the reading starts (the picture's page) and of the other one (the boxes' page) */
-const pageMid = (dir: Dir, start: boolean) => BOOK.x + BOOK.w * ((dir === 'ltr') === start ? PAPER.left : PAPER.right)
+const pageMid = (g: BookGeometry, dir: Dir, start: boolean) => g.book.x + g.book.w * ((dir === 'ltr') === start ? g.mid.left : g.mid.right)
 
 /**
  * The boxes' centres in box order (left to right on ltr, right to left on rtl), their width, and where the faint
- * closing letter goes (after the last box, in reading order).
+ * closing letter goes (after the last box, in reading order). `hasPicture`: the book of the picture (the English path).
  */
-export function spellBoxes(n: number, dir: Dir, tail: boolean): { xs: number[]; w: number; tailX?: number } {
-  const room = BOOK.w * PAPER.w - 2 * PAGE_PAD - (tail ? TAIL_W : 0)
+export function spellBoxes(n: number, dir: Dir, tail: boolean, hasPicture = false): { xs: number[]; w: number; tailX?: number } {
+  const g = bookGeometry(hasPicture)
+  const room = g.book.w * g.pageW - 2 * g.pagePad - (tail ? TAIL_W : 0)
   const w = Math.min(BOX_MAX_W, (room - BOX_GAP * (n - 1)) / n)
   const row = n * w + (n - 1) * BOX_GAP + (tail ? TAIL_W : 0)
   const step = dir === 'ltr' ? 1 : -1
-  const start = pageMid(dir, false) - (step * row) / 2
+  const start = pageMid(g, dir, false) - (step * row) / 2
   const xs = Array.from({ length: n }, (_, i) => start + step * (w / 2 + i * (w + BOX_GAP)))
   return { xs, w, ...(tail ? { tailX: start + step * (row - TAIL_W / 2) } : {}) }
 }
@@ -66,8 +88,9 @@ export function spellTileXs(n: number, dir: Dir): number[] {
 }
 
 /** the open book: its picture when it has one, else two drawn pages and a spine */
-function Book() {
-  const img = useImages()['s-book']
+function Book({ img }: { img?: string }) {
+  const BOOK = bookGeometry(!!img).book
+  const SPINE = BOOK.x + BOOK.w / 2
   if (img) return <image data-book href={img} x={BOOK.x} y={BOOK.y} width={BOOK.w} height={BOOK.h} preserveAspectRatio="none" />
   return (
     <g data-book="drawn">
@@ -80,7 +103,7 @@ function Book() {
 }
 
 /** a written word: the four lines on the book's pages, a box per letter, his strokes, the hand */
-function WrittenWord(p: { view: SpellView; can: boolean; onStroke: (pts: Pt[]) => void }) {
+function WrittenWord(p: { book: BookGeometry['book']; view: SpellView; can: boolean; onStroke: (pts: Pt[]) => void }) {
   const writing = useCourse().writing
   const v = p.view
   const W = v.write!
@@ -123,7 +146,7 @@ function WrittenWord(p: { view: SpellView; can: boolean; onStroke: (pts: Pt[]) =
       })()}
       <InkStrokes strokes={W.strokes} map={map} width={ink} className={v.alive ? 'd2-drawn' : undefined} />
       {W.demo && <StrokeAnim key={W.demo.id} strokes={W.demo.strokes} map={map} width={ink} handScale={Math.max(0.8, L.u / 260)} />}
-      <WritingPad x={BOOK.x} y={BOOK.y} width={BOOK.w} height={BOOK.h} can={p.can} ink={ink} onDown={setDown}
+      <WritingPad x={p.book.x} y={p.book.y} width={p.book.w} height={p.book.h} can={p.can} ink={ink} onDown={setDown}
         onStroke={(pts) => p.onStroke(pts.map((q) => toNorm(L, q)))} />
     </g>
   )
@@ -141,11 +164,12 @@ export function SpellBook(p: {
   correct?: string
 }) {
   const v = p.view
+  const img = useImages()['s-book']
   if (v.write) {
     return (
       <Stage bg="bg-ground" dir={p.dir}>
-        <Book />
-        <WrittenWord view={v} can={p.phase === 'answer' || (p.phase === 'mistake' && !!p.fixing)} onStroke={(pts) => p.onStroke?.(pts)} />
+        <Book img={img} />
+        <WrittenWord book={bookGeometry(!!img).book} view={v} can={p.phase === 'answer' || (p.phase === 'mistake' && !!p.fixing)} onStroke={(pts) => p.onStroke?.(pts)} />
       </Stage>
     )
   }
@@ -156,10 +180,13 @@ type SpellBookProps = Parameters<typeof SpellBook>[0]
 
 /** the tiles' book: the picture, a box per unit, the tiles under the book */
 function TileBook(p: SpellBookProps) {
+  const img = useImages()['s-book']
+  const g = bookGeometry(!!img)
+  const BOX_Y = g.boxY
   const v = p.view
   const rd = v.round
   const latin = p.dir === 'ltr'
-  const { xs, w, tailX } = spellBoxes(rd.boxes.length, p.dir, !!rd.tail)
+  const { xs, w, tailX } = spellBoxes(rd.boxes.length, p.dir, !!rd.tail, !!img)
   const tileXs = spellTileXs(rd.tiles.length, p.dir)
   const next = v.filled.findIndex((x) => x === null)
   const [demoT, setDemoT] = useState(0)
@@ -175,10 +202,10 @@ function TileBook(p: SpellBookProps) {
   const used = (unit: string) => rd.boxes.some((b) => b.unit === unit) && rd.boxes.every((b, i) => b.unit !== unit || v.filled[i] !== null)
   // the demo: the first box's tile moves with the hand to the first box
   const demoTile = v.demo ? rd.tiles.findIndex((x) => x.unit === rd.boxes[0].unit) : -1
-  const picX = pageMid(p.dir, true)
+  const picX = pageMid(g, p.dir, true)
   return (
     <Stage bg="bg-ground" dir={p.dir}>
-      <Book />
+      <Book img={img} />
       {rd.picture && (
         <g data-spell-picture data-alive={v.alive || undefined} className={v.alive ? 'd2-spell-alive' : undefined}>
           <image href={rd.picture} x={picX - PICTURE_SIZE / 2} y={BOX_Y - PICTURE_SIZE / 2} width={PICTURE_SIZE} height={PICTURE_SIZE} />

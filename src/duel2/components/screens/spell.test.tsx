@@ -10,7 +10,7 @@ import { fakeAudio } from '../../../shared/gameAudio/fakePlayer'
 import { ENGLISH } from '../../../english/course'
 import { CourseProvider } from '../../course/CourseContext'
 import { Gallery } from '../../screens/Gallery'
-import { BOOK, BOX_Y, SpellBook, TILE_Y, spellBoxes, spellTileXs } from './SpellBook'
+import { BOOK, BOX_Y, SpellBook, TILE_Y, bookGeometry, spellBoxes, spellTileXs } from './SpellBook'
 
 const box = (unit: string, text = unit) => ({ unit, text, soundId: `snd-${unit}` })
 /** a five-box English word (the most the spell book is sized for) */
@@ -22,6 +22,21 @@ const draw = (v: SpellView, dir: 'ltr' | 'rtl', onDrop = vi.fn(), phase: 'answer
   render(<SpellBook view={v} phase={phase} dir={dir} onDrop={onDrop} />).container
 
 describe('the spell book screen', () => {
+  it('Book 2 keeps the drawn pages and their geometry (only the course with the picture moves the book)', () => {
+    expect(bookGeometry(false)).toEqual({ book: { x: 100, y: 50, w: 1400, h: 620 }, mid: { left: 0.25, right: 0.75 }, pageW: 0.5, pagePad: 45, boxY: 360 })
+    expect(BOOK).toEqual({ x: 100, y: 50, w: 1400, h: 620 })
+    expect(BOX_Y).toBe(360)
+    // five boxes on the right page: (700 - 90 - 4 * 14) / 5 wide, centred on x = 1150; the picture's page is the left one (centre 450)
+    const { xs, w } = spellBoxes(5, 'ltr', false)
+    expect(w).toBeCloseTo((700 - 90 - 56) / 5, 9)
+    expect(xs[2]).toBeCloseTo(1150, 9)
+    expect(spellBoxes(2, 'rtl', true).xs[0]).toBeCloseTo(450 + (2 * 150 + 14 + 80) / 2 - 75, 9)
+    const c = draw(viewOf(JUMPING), 'ltr')
+    expect(c.querySelector('[data-book="drawn"]')).not.toBeNull()
+    expect(c.querySelector('rect[x="100"][y="50"][width="700"][height="620"]')).not.toBeNull()
+    expect(c.querySelector('[data-box="0"] rect')!.getAttribute('y')).toBe(String(360 - 75))
+  })
+
   it('renders one box per unit and the tiles', () => {
     const c = draw(viewOf(JUMPING), 'ltr')
     expect(c.querySelectorAll('[data-box]')).toHaveLength(5)
