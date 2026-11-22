@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import yaml from '@rollup/plugin-yaml'
 import { fileURLToPath } from 'node:url'
@@ -26,6 +27,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // agents' git worktrees live under .claude/worktrees: never run their copies of the tests
+    exclude: [...configDefaults.exclude, '.claude/**'],
     // keep local runs light (parallel agents); CI uses the default
     maxWorkers: process.env.CI ? undefined : 2,
     // heavy tests timed out at the 5 s default under load; the slowest keep their own 60 s
