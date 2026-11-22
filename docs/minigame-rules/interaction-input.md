@@ -26,6 +26,8 @@
   area larger than the box.
   Reason: the child sees the gap as the place the answer goes.
   Example (book 2): the cauldron said "throw" and the ladder showed an empty rung, but neither could be dragged.
+  Example (English ladder): a tap on the right letter on an unmarked rung said "really close", because a tap names no
+  place; only the drag was accepted. A tap on the right choice counts. Only a drop on a wrong place is "almost".
   Example (English): the cauldron accepts a letter dropped on the empty box of `c_t` or on the pot.
 - While the child drags a choice, make its drop place glow. Make it glow more when the choice is over it.
   Reason: the child does not always know where to drop the choice.

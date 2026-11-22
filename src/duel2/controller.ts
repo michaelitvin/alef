@@ -1329,9 +1329,10 @@ export class RunController {
     this.pickBox = undefined
     if (!tapped) return 'near'
     const right = tapped.id === answer.id || tapped.soundId === answer.soundId
-    // an unmarked English rung: he finds the place (design Part 5). The right part put anywhere else (or tapped) is
-    // "almost": no answer, no heart; he tries again
-    if (right && s.screen === 'ladder' && s.at !== undefined && !s.marked && box !== s.at) {
+    // an unmarked English rung: he finds the place (design Part 5). The right part dropped on another place is
+    // "almost": no answer, no heart; he tries again. A tap (no box) names no place, and a tap is always accepted
+    // (interaction-input.md), so only a drop on another place is almost
+    if (right && s.screen === 'ladder' && s.at !== undefined && !s.marked && box !== undefined && box !== s.at) {
       await this.say(t, [{ id: this.variation('almost') }])
       return 'near'
     }

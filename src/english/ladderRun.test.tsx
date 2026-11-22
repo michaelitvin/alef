@@ -104,13 +104,28 @@ describe('the English ladder in the run', () => {
       expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
       expect(c.view.hearts).toBe(hearts)
       expect((c.view.screen as typeof s).built).toEqual(s.built)
-      // a tap is no place either
-      c.gesture({ type: 'pick', id: right })
-      await wait(3000)
-      expect(c.view.phase).toBe('answer')
-      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
       // on its place it counts and the rung is built
       c.gesture({ type: 'pick', id: right, box: s.at })
+      await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
+      expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
+      expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('on an unmarked rung a TAP on the right part counts like the drop on its place (a tap names no place; it is never "almost")', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = englishSave(4)
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'ladder' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
+      const s = c.view.screen
+      if (s?.screen !== 'ladder') throw new Error('no ladder')
+      expect(s.marked).toBe(false)
+      c.gesture({ type: 'pick', id: ladderAnswerId(s) })
       await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
       expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
       expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
