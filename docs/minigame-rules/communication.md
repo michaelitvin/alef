@@ -8,19 +8,19 @@
   Example (clock): the spoken answers show a caption, and each word glows when the voice says it.
 - Show letters and nikkud only as the learning content. Do not use them as labels.
 - Do not use Latin letters for Hebrew sounds. Use picture words.
-  Reason: English phonics conflict with Hebrew vowels. Example (duel): the child heard "U" as "uh" (= kamatz).
-- On the English path, Latin letters are the learning content, so they may appear as letters, sound units and words.
-  No Hebrew letter and no nikkud appears on the English path, not even as a label.
+  Reason: English phonics conflict with Hebrew vowels. Example (tower): the child heard "U" as "uh" (= kamatz).
+- On the English course, Latin letters are the learning content, so they may appear as letters, sound units and words.
+  No Hebrew letter and no nikkud appears on the English course, not even as a label.
   Reason: a Hebrew mark next to a Latin letter would give the letter a second sound to learn.
-  Example (English path): the orbs, the runes, the boxes and the plates carry Latin text. The no-text scan
+  Example (English course): the orbs, the runes, the boxes and the plates carry Latin text. The no-text scan
   (`src/english/noText.test.tsx`) allows Latin letters only as such content.
 - Do not say what the screen already shows.
-  Example (duel): do not say "לחץ על הברק". Make the lightning appear with an animation that attracts attention.
-  Example (book 2): a heart that comes back at the end of a pass has no line (not "לֵב אֶחָד חוֹזֵר אֵלֶיךָ"). The heart
+  Example (tower): do not say "לחץ על הברק". Make the lightning appear with an animation that attracts attention.
+  Example (Spell Quest): a heart that comes back at the end of a pass has no line (not "לֵב אֶחָד חוֹזֵר אֵלֶיךָ"). The heart
   flies to the top bar at once and the hearts there flash; the game does not stop for it.
 - When the voice names an object, make the object appear at that moment, with an animation. If it is already on the
   screen, make it glow.
-  Example (duel): in "הגן על ה**מגדל**", the tower rises on "מגדל". The clue bubble appears and bounces on "בתמונה". The marks
+  Example (tower): in "הגן על ה**מגדל**", the tower rises on "מגדל". The clue bubble appears and bounces on "בתמונה". The marks
   appear on "הניקוד".
 - In an explanation that compares two things, show both from the start. Make the one that the voice names glow at that moment.
   Example (clock): "this is a digital clock" showed only the clock face, and the digital clock appeared on its word.
@@ -28,7 +28,7 @@
   when there is no choice to make.
   Example (clock): a pulsing hand button under the clock was redundant when only one hand could move. Now the hand pulses.
 - Remove icons and cues that the child does not need.
-  Example (duel): the look/listen cue icons were removed.
+  Example (tower): the look/listen cue icons were removed.
 
 ## The question of a round
 

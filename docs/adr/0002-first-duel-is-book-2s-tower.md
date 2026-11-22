@@ -1,5 +1,7 @@
 # The first duel runs inside Book 2 as the tower screen
 
+Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
+
 The parent wanted one game with one reward system. So Book 1's nikkud duel became the first screen of Book 2's run
 (spec: `docs/superpowers/specs/2026-11-11-one-duel-design.md`, Part 3), and it was not rewritten in Book 2's style.
 `src/duel2/components/screens/Tower.tsx` embeds the duel's own board and its flow (`src/utils/duel/controller.ts`,

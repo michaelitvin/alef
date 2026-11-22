@@ -1,5 +1,7 @@
 # Compact telemetry in localStorage, with one budget; no IndexedDB for now
 
+Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
+
 Each game's log was one JSON array in localStorage with its own cap (Book 2 0.7 M characters, the clock 0.5 M), and every
 flush rewrote the whole of it. A new game added a cap, so the sum grew with the games, and it had to stay under the
 origin's quota (≈2.5 M characters in the strictest browsers) beside the saves, the frozen first-duel log (up to 1 M,

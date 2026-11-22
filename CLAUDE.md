@@ -8,9 +8,8 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 | Game | Entry point | Read first |
 | --- | --- | --- |
 | The lessons and home | `index.html` → `src/main.tsx` → `src/App.tsx` (routes) | `src/stores/progressStore.ts` (save `alef-progress`) |
-| Book 1, the first duel (Book 2's tower) | the tower screen of Book 2; no page of its own | `src/utils/duel/controller.ts` (the flow; `src/hooks/useDuelGame.ts` is its React bridge), `src/utils/duel/`, `src/components/duel/` |
-| Book 2 (the run; the first duel is its tower) | `duel2/index.html` → `src/duel2/main.tsx` | [src/duel2/README.md](src/duel2/README.md) |
-| English path (Book 2's engine with the English course; `?course=en`) | `src/english/` (the course, its content, logic, save and parent part); the engine in `src/duel2/`, the seam in `src/duel2/course/` | [src/english/README.md](src/english/README.md) |
+| Spell Quest (the run, with its tower; save `alef-spellquest`; the old `duel2/` URL redirects) | `spellquest/index.html` → `src/spellquest/main.tsx`; the tower: `src/spellquest/tower/` (flow `logic/controller.ts` as `TowerController`, React bridge `useTower.ts`, `components/`) | [src/spellquest/README.md](src/spellquest/README.md) |
+| English course (Spell Quest's engine with the English course; `?course=en`) | `src/english/` (the course, its content, logic, save and parent part); the engine in `src/spellquest/`, the seam in `src/spellquest/course/` | [src/english/README.md](src/english/README.md) |
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
 | Space Cat (flying sums) | `spacecat/index.html` → `src/spacecat/main.tsx` | [src/spacecat/README.md](src/spacecat/README.md) |
 | Code two or more games share (`gameAudio/`, `shell/`, `parentGate/`, device settings, telemetry, saves) | `src/shared/` | [src/shared/README.md](src/shared/README.md) |
@@ -21,7 +20,8 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
   the tower, [0003](docs/adr/0003-audio-through-a-player-port.md) audio, [0004](docs/adr/0004-one-telemetry-log-per-game.md)
   telemetry, [0005](docs/adr/0005-run-policies-and-the-sleeper.md) run policies, [0006](docs/adr/0006-review-decisions-are-an-event-log.md)
   asset review, [0007](docs/adr/0007-compact-telemetry-in-localstorage.md) compact telemetry and its one budget,
-  [0008](docs/adr/0008-one-engine-two-courses.md) one engine for two courses.
+  [0008](docs/adr/0008-one-engine-two-courses.md) one engine for two courses,
+  [0009](docs/adr/0009-the-spell-quest-rename-moves-the-saved-keys.md) the Spell Quest rename and the move of the saved keys.
 - Designs and build plans: `docs/superpowers/specs/` and `docs/superpowers/plans/`, newest date wins. `specs/` (speckit,
   2025) is history only.
 - The TTS worker: `worker/` (deployed by hand with `wrangler deploy`). Audio catalog exports: `scripts/<game>/`.

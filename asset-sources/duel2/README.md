@@ -1,6 +1,6 @@
-# Book 2 asset sources
+# Spell Quest asset sources
 
-This folder records how each shipped asset of Book 2 (letters and syllables) was made. Use it to make a similar asset,
+This folder records how each shipped asset of Spell Quest (letters and syllables) was made. Use it to make a similar asset,
 to make a new take of an asset, or to learn which request worked.
 
 The generation tools (the ElevenLabs batch generator, the take checker, the sync script, the provenance writer, the
@@ -9,7 +9,7 @@ they stay with the assets they made.
 
 ## `audio.json`
 
-One entry for each file in `src/duel2/assets/audio/`:
+One entry for each file in `src/spellquest/assets/audio/`:
 
 | Field | Contents |
 |---|---|
@@ -24,8 +24,8 @@ One entry for each file in `src/duel2/assets/audio/`:
 
 The spoken text can differ from the caption (pronunciation fixes, see the rules). The repo exports the clip catalogue
 (id, caption, spoken text, voice settings, where it plays, the glyph to show in review) with
-`node scripts/duel2/export-audio-catalog.ts`.
+`node scripts/spellquest/export-audio-catalog.ts`.
 
 ## `images.json`
 
-One entry for each image in `src/duel2/assets/img/`: `{name, prompt, reference, model}`.
+One entry for each image in `src/spellquest/assets/img/`: `{name, prompt, reference, model}`.

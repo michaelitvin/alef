@@ -1,12 +1,12 @@
-# Duel asset sources
+# Tower asset sources
 
-This folder records how each shipped asset of the Nikkud Wizard Duel was made.
+This folder records how each shipped asset of the tower of Spell Quest (once the first duel) was made.
 Use it to make a similar asset, to make a new take of an asset, or to learn which prompt worked.
 
 | File | Contents |
 |---|---|
-| `audio.json` | One entry for each file in `src/assets/duel/audio/`: the ElevenLabs request of the chosen take, who chose it, the review note, and the earlier attempts (`history`) when a clip needed more than one round. |
-| `images.json` | One entry for each file in `src/assets/duel/sprites/`: the Gemini prompt, model, aspect and reference image. Also the retired pictures, with the reason for each. |
+| `audio.json` | One entry for each file in `src/spellquest/tower/assets/audio/`: the ElevenLabs request of the chosen take, who chose it, the review note, and the earlier attempts (`history`) when a clip needed more than one round. |
+| `images.json` | One entry for each file in `src/spellquest/tower/assets/sprites/`: the Gemini prompt, model, aspect and reference image. Also the retired pictures, with the reason for each. |
 | `reference/` | The style concept and the style anchor sheet. Every sprite uses `style-sheet-b.png` as its reference. |
 | `tools/gen.py` | ElevenLabs batch generator (speech, sound effects, music). |
 | `tools/gen_ref.py` | Gemini image generator with a style-reference image. |
@@ -30,7 +30,7 @@ The tools read `ELEVENLABS_API_KEY` and `GOOGLE_AI_STUDIO_API_KEY` from the envi
 2. Run the generator in a work folder outside the repo: `python3 path/to/tools/gen.py batch.json`.
    It writes `clips/` and `manifest.json` into the current folder. Add `--only <id> --force` to make a new version of one clip.
 3. Let the parent choose the takes on a review page. Do not ship a voice line that the parent did not hear.
-4. Copy the chosen take to `src/assets/duel/audio/voice/<id>.mp3`. Trim the silence at the start and the end.
+4. Copy the chosen take to `src/spellquest/tower/assets/audio/voice/<id>.mp3`. Trim the silence at the start and the end.
    Some shipped lines also have a longer pause between sentences (0.7–0.9 s), made with an audio edit after the parent picked the take.
    The game plays speech at 1.15× (`VOICE_RATE`), with the pitch kept.
 5. Add the chosen request to `audio.json`.

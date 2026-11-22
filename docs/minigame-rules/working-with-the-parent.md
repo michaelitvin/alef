@@ -8,7 +8,7 @@
 - Do not list an item again after the parent declines it.
 - Before you give a design to the parent, check it against each rule in this folder, one by one. Also give it to a
   reviewer who plans the build, and read the playtest fixes of the last games (their commit messages).
-  Example (book 2): the first draft had explanations that went on by themselves, no hints, one take for each syllable,
+  Example (Spell Quest): the first draft had explanations that went on by themselves, no hints, one take for each syllable,
   and runs too short to reach half of the screens.
 - When another session works in the same repository, work in a separate git worktree on your own branch.
 - Merge and push only when the parent asks. Run the tests and the build on the merged result before you push.

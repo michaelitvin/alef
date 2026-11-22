@@ -15,19 +15,19 @@
   are not memorable, drop the collection.
   Example (clock): "look, a new kind of clock" played, and then nothing special happened; the clock kinds were only case
   pictures, so the collection was dropped.
-- Make a boss harder than the stage that it ends. Example (duel): a 3-hit boss after 5-kill waves was an anticlimax.
+- Make a boss harder than the stage that it ends. Example (tower): a 3-hit boss after 5-kill waves was an anticlimax.
 - Put a new mechanic where every child gets to it regularly, not in a rare event.
-  Example (duel): a drawing task in the special power can be missed. In a boss fight it is too rare.
+  Example (tower): a drawing task in the special power can be missed. In a boss fight it is too rare.
 
 ## Rewards
 
 - Give rewards at several paces: points for each answer (the run), a count that is kept between plays and only grows
-  (book 2: all his stars), and a rare prize (a crystal per lap). Spending money is a different thing: it goes up and down.
-  Example (one duel): each right answer pays coins (more for a streak), and he spends them at the merchant, so the stars
+  (Spell Quest: all his stars), and a rare prize (a crystal per lap). Spending money is a different thing: it goes up and down.
+  Example (tower): each right answer pays coins (more for a streak), and he spends them at the merchant, so the stars
   are the count that only grows.
 - Let the child see what he collects. Show the points of the run in the top bar, the run and his best at the end, and
   all his points so far on the start screen. Digits are allowed; mark them for the no-text scan.
-  Example (book 2): the child asked "where can I see my points?". The crystals were a moment only; now the start screen
+  Example (Spell Quest): the child asked "where can I see my points?". The crystals were a moment only; now the start screen
   shows them by kind.
 - Celebrate big wins and streaks with voice and a visual effect. Give each reward its own moment. Show a progress reward
   in its own moment (when it grows, at the end of a session, on the start screen), with a voice line, not as a silent
