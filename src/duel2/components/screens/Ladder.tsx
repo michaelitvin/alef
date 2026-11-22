@@ -124,7 +124,7 @@ function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: t
   const rowGlow = held ? p.glow : p.lifted ? 'lift' : gold < 0 && (p.glow === 'cue' || p.glow === 'soft') ? p.glow : undefined
   return (
     <g data-making-rung data-marked={p.change.marked ? '1' : '0'} {...(p.lifted ? { 'data-lifted': '' } : {})}>
-      {rowGlow && <rect data-row-glow={rowGlow} {...(p.lifted ? { 'data-place-glow': '' } : {})} className={rowGlow === 'cue' || rowGlow === 'soft' ? `d2-cue d2-cue-${rowGlow}` : undefined} x={left - 10} y={p.y - BOX_H / 2 - 10} width={width + 20} height={BOX_H + 20} rx={22} fill="#ffd34d" fillOpacity={GLOW_FILL[rowGlow]} stroke="#ffd34d" strokeOpacity={rowGlow === 'over' ? 1 : 0.8} strokeWidth={rowGlow === 'over' ? 10 : 6} pointerEvents="none" />}
+      {rowGlow && <rect data-row-glow={rowGlow} {...(p.lifted ? { 'data-place-glow': '' } : {})} className={rowGlow === 'cue' || rowGlow === 'soft' ? `d2-cue d2-cue-${rowGlow}` : undefined} x={left - 2} y={p.y - BOX_H / 2 - 10} width={width + 4} height={BOX_H + 20} rx={22} fill="#ffd34d" fillOpacity={GLOW_FILL[rowGlow]} stroke="#ffd34d" strokeOpacity={rowGlow === 'over' ? 1 : 0.8} strokeWidth={rowGlow === 'over' ? 10 : 6} pointerEvents="none" />}
       {boxGlow && <rect data-box-glow={boxGlow} className={`d2-cue d2-cue-${boxGlow}`} x={xs[gold] - w / 2 - 12} y={p.y - BOX_H / 2 - 12} width={w + 24} height={BOX_H + 24} rx={24} fill="#ffd34d" fillOpacity={GLOW_FILL[boxGlow]} stroke="#ffd34d" strokeOpacity={0.9} strokeWidth={6} pointerEvents="none" />}
       {boxes.map((b, i) => (
         <g key={i} data-box={b.text ?? '_'} {...(b.mark ? { 'data-marked-box': '' } : {})}>
