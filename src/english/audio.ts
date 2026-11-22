@@ -1,8 +1,8 @@
-// The English path's audio: the shared game-audio kit with the English voices and Book 2's sound (its effects, music and
-// numbers: src/spellquest/audio/book2Sound.ts). It logs to the English log. The tower plays through `englishDuelAudio`.
+// The English path's audio: the shared game-audio kit with the English voices and Spell Quest's sound (its effects, music and
+// numbers: src/spellquest/audio/spellQuestSound.ts). It logs to the English log. The tower plays through `englishDuelAudio`.
 import { createGameAudio } from '../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../shared/gameAudio/output'
-import { BOOK2_SOUND, type Duel2Music, type Duel2Sfx } from '../spellquest/audio/book2Sound'
+import { SPELLQUEST_SOUND, type SpellQuestMusic, type SpellQuestSfx } from '../spellquest/audio/spellQuestSound'
 import type { DuelAudio } from '../utils/duel/controller'
 import { playSfx as duelSfx } from '../utils/duel/duelAudio'
 import type { LineCue } from '../assets/duel/lineCues'
@@ -10,8 +10,8 @@ import { ENGLISH_VOICE_URLS } from './assets/audioFiles'
 import { enLine, enLineAudioId } from './data/lines'
 import { englishTelemetry } from './telemetry'
 
-export const englishAudio = createGameAudio<Duel2Sfx, Duel2Music>({
-  ...BOOK2_SOUND,
+export const englishAudio = createGameAudio<SpellQuestSfx, SpellQuestMusic>({
+  ...SPELLQUEST_SOUND,
   game: 'english',
   voices: ENGLISH_VOICE_URLS,
   telemetry: englishTelemetry,

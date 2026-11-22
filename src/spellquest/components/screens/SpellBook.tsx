@@ -22,7 +22,7 @@ import { Stage, type Dir, type Phase } from './Stage'
 
 /**
  * Where the book's parts go, in stage units. With the book's picture (the English path's `s-book`, drawn a little wider
- * than it is) the pages are the cream paper of the picture, as fractions of the book; without it (Book 2) they are the two
+ * than it is) the pages are the cream paper of the picture, as fractions of the book; without it (Spell Quest) they are the two
  * drawn pages, and the old values stay as they were. A written word (English only) has its slate in `SPELL_BOARD`.
  */
 export interface BookGeometry {
@@ -46,7 +46,7 @@ const DRAWN: BookGeometry = {
   book: { x: 100, y: 50, w: 1400, h: 620 }, mid: { left: 0.25, right: 0.75 }, pageW: 0.5, pagePad: 45, boxY: 360,
 }
 export const bookGeometry = (hasPicture: boolean): BookGeometry => (hasPicture ? PICTURE : DRAWN)
-/** the drawn pages' book and their box row (Book 2) */
+/** the drawn pages' book and their box row (Spell Quest) */
 export const BOOK = DRAWN.book
 export const BOX_Y = DRAWN.boxY
 export const BOX_H = 150

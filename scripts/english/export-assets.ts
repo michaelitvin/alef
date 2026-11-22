@@ -61,13 +61,13 @@ const gameVoices = new Set<string>([
   ...EN_LINES.flatMap((l) => Array.from({ length: l.variations }, (_, i) => `${l.id}-${i + 1}`)),
 ])
 const gamePictures = new Set<string>(WORDS.flatMap((w) => (w.picture ? [w.picture] : [])))
-/** a picture word that the game already has from Book 2 or the first duel (`wordPicture` in src/english/assets/images.ts) */
-const book2Pictures = new Set([
+/** a picture word that the game already has from Spell Quest or the first duel (`wordPicture` in src/english/assets/images.ts) */
+const spellQuestPictures = new Set([
   ...readdirSync('src/spellquest/assets/img').filter((f) => f.startsWith('pw-')).map((f) => f.slice(3, -5)),
   ...readdirSync('src/assets/duel/sprites').filter((f) => f.startsWith('word-')).map((f) => f.slice(5, -5)),
 ])
-const book2Has = (key: string): boolean =>
-  !['ball', 'eye', 'island', 'silent', 'rose'].includes(key) && (book2Pictures.has(key) || key in { lion: 1, chick: 1, pencil: 1, cake: 1, bike: 1 })
+const spellQuestHas = (key: string): boolean =>
+  !['ball', 'eye', 'island', 'silent', 'rose'].includes(key) && (spellQuestPictures.has(key) || key in { lion: 1, chick: 1, pencil: 1, cake: 1, bike: 1 })
 
 // ---- what the review kit approved ----
 const adapter = await loadAdapter(adapterPath)
@@ -107,7 +107,7 @@ for (const s of states) {
 }
 const noItem = [
   ...[...gameVoices].filter((v) => !seen.has('voice:' + v)).sort(),
-  ...[...gamePictures].filter((p) => !seen.has('picture:' + p) && !book2Has(p)).sort().map((p) => 'picture:' + p),
+  ...[...gamePictures].filter((p) => !seen.has('picture:' + p) && !spellQuestHas(p)).sort().map((p) => 'picture:' + p),
 ]
 
 // ---- provenance bookkeeping ----

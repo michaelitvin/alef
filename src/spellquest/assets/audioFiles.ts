@@ -1,4 +1,4 @@
-// Book 2 audio, generated host-locally and copied in by the pipeline's sync script (asset-sources/duel2/).
+// Spell Quest audio, generated host-locally and copied in by the pipeline's sync script (asset-sources/duel2/).
 // Files arrive progressively: anything missing simply does not play. The vowel names are the duel's approved files.
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.mp3', ''), url]))
@@ -14,10 +14,10 @@ const VOWEL_NAME_FILE: Record<string, string> = {
 export const VOICE_URLS: Record<string, string> = { ...own }
 for (const [markId, file] of Object.entries(VOWEL_NAME_FILE)) if (duel[file]) VOICE_URLS[`vn-${markId}`] = duel[file]
 
-// Words the duel already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Book 2 plays those
+// Words the duel already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Spell Quest plays those
 // (rule: ship the approved take; do not record a word again).
 const duelWords = byName(import.meta.glob('../../assets/duel/audio/voice/wiz-word-*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
-/** Book 2 word id → the duel's picture-word key */
+/** Spell Quest word id → the duel's picture-word key */
 export const DUEL_WORD: Record<string, string> = {
   tent: 'tent', camel: 'camel', cake: 'u', house: 'house', rose: 'rose', book: 'book', lion: 'a', pineapple: 'pineapple',
   mouse: 'mouse', eye: 'eye', butterfly: 'butterfly', chick: 'e', tree: 'tree', fire: 'fire', door: 'door', pencil: 'i',

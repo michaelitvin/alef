@@ -5,8 +5,8 @@ import { SESSION, createTelemetry, readLog, type TelemetryEvent } from './teleme
 import { OPEN_SEAL_CHARS, chunkKey, chunkKeysOf, openJson, parseOpen, rollupKey } from './telemetryChunks'
 import { encodeChunk } from './telemetryCodec'
 import { LIVE_BUDGET } from './telemetryBudget'
-import { GOLDEN_BOOK2, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../spellquest/telemetryLog'
+import { GOLDEN_SPELLQUEST, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
+import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 
 const KEY = 'alef-sealtest-telemetry'
 const NOW = GOLDEN_NOW.getTime()
@@ -201,14 +201,14 @@ describe('sealing the open chunk', () => {
   })
 
   it('the goldens match through the chunked path (an old log sealed session by session)', async () => {
-    const evs = GOLDEN_BOOK2()
-    real.setItem(BOOK2_LOG.key, JSON.stringify({ v: 1, events: evs }))
-    const pre = goldenExport(BOOK2_LOG, readLog(BOOK2_LOG.key))
-    const t = createTelemetry(BOOK2_LOG.key, { game: 'book2' })
+    const evs = GOLDEN_SPELLQUEST()
+    real.setItem(SPELLQUEST_LOG.key, JSON.stringify({ v: 1, events: evs }))
+    const pre = goldenExport(SPELLQUEST_LOG, readLog(SPELLQUEST_LOG.key))
+    const t = createTelemetry(SPELLQUEST_LOG.key, { game: 'book2' })
     t.track('x')
     await idle(80)
-    expect(chunkKeysOf(BOOK2_LOG.key).length).toBeGreaterThan(5)
-    expect(goldenExport(BOOK2_LOG, readLog(BOOK2_LOG.key).filter((e) => e.s !== SESSION))).toBe(pre)
+    expect(chunkKeysOf(SPELLQUEST_LOG.key).length).toBeGreaterThan(5)
+    expect(goldenExport(SPELLQUEST_LOG, readLog(SPELLQUEST_LOG.key).filter((e) => e.s !== SESSION))).toBe(pre)
     t.clear()
   })
 })

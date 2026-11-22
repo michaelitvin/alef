@@ -1,8 +1,8 @@
-// What the English run reads from and writes to its save: Book 2's port (the run's writes) and the English writes, so
+// What the English run reads from and writes to its save: Spell Quest's port (the run's writes) and the English writes, so
 // that no part of the English path writes past the port. The game writes the real save (alef-english); a test runs on a
 // save in memory.
 import { createStore, type StoreApi } from 'zustand/vanilla'
-import type { Duel2Actions, Duel2Save } from '../spellquest/store'
+import type { SpellQuestActions, SpellQuestSave } from '../spellquest/store'
 import { portOver, type SavePort } from '../spellquest/savePort'
 import type { ScreenId } from '../spellquest/logic/predict'
 import type { Tally } from '../shared/adaptive'
@@ -23,13 +23,13 @@ export interface EnglishSavePort extends SavePort {
   /** adds these stations to the opened ones (it only grows) */
   openStations(ids: ScreenId[]): void
   setLastRunWords(words: string[]): void
-  /** merges the settings, `path` included (the store's own `setSettings` takes Book 2's settings only) */
+  /** merges the settings, `path` included (the store's own `setSettings` takes Spell Quest's settings only) */
   setSettings(p: Partial<EnglishSettings>): void
   /** the English tower's answers, kept in this save's `tower` */
   towerTallies(): DuelTallies
 }
 
-type EnglishState = Duel2Save & Duel2Actions & EnglishFields
+type EnglishState = SpellQuestSave & SpellQuestActions & EnglishFields
 
 const TALLY_KEYS = ['seen', 'wrong', 'timeout'] as const satisfies readonly (keyof Tally)[]
 

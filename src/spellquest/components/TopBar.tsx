@@ -11,7 +11,7 @@ import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
 import { HomeButton as SharedHomeButton } from '../../shared/HomeButton'
 
-/** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (duel2.css) */
+/** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (spellquest.css) */
 const FLASH_MS = 1700
 /** the newest flash that began: the bar remounts (after an explanation) and must not flash the same heart again */
 let flashed = 0

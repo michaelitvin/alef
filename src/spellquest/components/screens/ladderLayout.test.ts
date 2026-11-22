@@ -78,7 +78,7 @@ describe('the ladder in the band (the parent: bigger on the phone, never under t
 
   it("the bar's sizes here are the stylesheet's", async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/spellquest.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(new RegExp(`\\.d2-topbar \\{[^}]*left: ${BAR_SIDE_PX}px; right: ${BAR_SIDE_PX}px`))
     expect(css).toMatch(new RegExp(`\\.d2-topbar-side, \\.d2-topbar-mid \\{[^}]*gap: ${BAR_ITEM_GAP_PX}px`))
   })

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chunkHeader, decodeChunk, encodeChunk } from './telemetryCodec'
 import type { TelemetryEvent } from './telemetry'
-import { GOLDEN_BOOK2, GOLDEN_CLOCK, book2Events, clockEvents } from './__fixtures__/telemetry/generate'
+import { GOLDEN_SPELLQUEST, GOLDEN_CLOCK, spellQuestEvents, clockEvents } from './__fixtures__/telemetry/generate'
 
 const bySession = (evs: TelemetryEvent[]) => {
   const m = new Map<string, TelemetryEvent[]>()
@@ -18,7 +18,7 @@ const ev = (t: number, e: string, data: Record<string, unknown> = {}): Telemetry
 
 describe('the codec', () => {
   it('round-trips every session of the fixtures byte for byte', () => {
-    for (const s of [...bySession(book2Events()), ...bySession(clockEvents())]) roundTrip(s)
+    for (const s of [...bySession(spellQuestEvents()), ...bySession(clockEvents())]) roundTrip(s)
   })
 
   it('round-trips the odd shapes', () => {
@@ -66,7 +66,7 @@ describe('the codec', () => {
   })
 
   it('is deterministic: the same events give the same string (two tabs that seal one session write one value)', () => {
-    const [s] = bySession(book2Events())
+    const [s] = bySession(spellQuestEvents())
     expect(encodeChunk(s!)).toBe(encodeChunk(JSON.parse(JSON.stringify(s))))
   })
 
@@ -76,12 +76,12 @@ describe('the codec', () => {
   })
 
   it('compresses the synthetic logs against today\'s JSON: Book 2 at least 5×, the clock at least 6×', () => {
-    const r = { book2: ratio(GOLDEN_BOOK2()), clock: ratio(GOLDEN_CLOCK()), book2Big: ratio(book2Events()), clockBig: ratio(clockEvents()) }
+    const r = { book2: ratio(GOLDEN_SPELLQUEST()), clock: ratio(GOLDEN_CLOCK()), spellQuestBig: ratio(spellQuestEvents()), clockBig: ratio(clockEvents()) }
     process.stderr.write('codec ratio ' + JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k, Math.round(v * 10) / 10]))) + '\n')
     // the synthetic values are more random than a child's play (uniform picks, wide ranges), so they compress worse
-    // The synthetic Book 2 values are more random than a child's play (uniform picks over wide ranges), so they compress
+    // The synthetic Spell Quest values are more random than a child's play (uniform picks over wide ranges), so they compress
     // worse than a real log, not better: this is only a guard. A real export (the local check below) gives ≈9×.
-    expect(r.book2Big).toBeGreaterThanOrEqual(5)
+    expect(r.spellQuestBig).toBeGreaterThanOrEqual(5)
     expect(r.clockBig).toBeGreaterThanOrEqual(6)
   })
 })
@@ -124,7 +124,7 @@ describe('exact trimming (time fields, constant columns, run)', () => {
     expect(out[0]!.pad).not.toBe(out[1]!.pad)
   })
   it('the goldens still match after an encode/decode of their sessions', () => {
-    for (const evs of [GOLDEN_BOOK2(), GOLDEN_CLOCK()]) {
+    for (const evs of [GOLDEN_SPELLQUEST(), GOLDEN_CLOCK()]) {
       const back = bySession(evs).flatMap((s) => decodeChunk(encodeChunk(s))!)
       expect(JSON.stringify(back.sort((a, b) => a.t - b.t))).toBe(JSON.stringify(evs))
     }

@@ -14,7 +14,7 @@ import {
 import type { Word } from './data/words'
 import { dotIntroParts } from './logic/dotIntro'
 import { ZOOM_MS } from './layout'
-import type { Duel2Sfx } from './audio/duel2Audio'
+import type { SpellQuestSfx } from './audio/spellQuestAudio'
 import { readOnlySavePort, type SavePort } from './savePort'
 import { realSleeper, type Cancel, type Sleeper } from '../shared/sleeper'
 import { BOSS_COINS, BOSS_SLOW, type BossKind } from './logic/boss'
@@ -100,7 +100,7 @@ interface CrystalView { screen: 'crystal'; kind: number }
 export interface TowerView {
   screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
   /**
-   * a placement check: Book 2's stage 0 (the marks he has not answered yet are asked first), or the course's own
+   * a placement check: Spell Quest's stage 0 (the marks he has not answered yet are asked first), or the course's own
    * (`Course.placement`: the tower plays its rounds; a miss costs no heart and no streak, and there is no hint)
    */
   placement?: boolean
@@ -204,7 +204,7 @@ let heartFlashes = 0
 /** an input of a policy, before the run stamps its time */
 type NoAt<T> = T extends unknown ? Omit<T, 'at'> : never
 /** the spell book's effects: a tile lands (the lock's click), a wrong tile (the hit), the spell */
-const SPELL_SFX: Record<SpellSfx, Duel2Sfx> = { drop: 'lock', wrong: 'hit', spell: 'spell', stroke: 'stroke' }
+const SPELL_SFX: Record<SpellSfx, SpellQuestSfx> = { drop: 'lock', wrong: 'hit', spell: 'spell', stroke: 'stroke' }
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
@@ -574,7 +574,7 @@ export class RunController {
 
   /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
   private drawOn() { return !!this.save.read().settings.drawing }
-  /** Book 2's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
+  /** Spell Quest's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
   private bookOpen() { return !!this.opts.force || this.save.read().bookOpen !== false }
   /** the course's placement check is due (Course.placement; never in the gallery) */
   private placementDue() { return !this.opts.sandbox && !this.opts.force && !!this.course.placement?.due(this.save) }
@@ -602,7 +602,7 @@ export class RunController {
     this.set({ needNext: true })
     return this.guard(t, new Promise<void>((r) => { this.nextWaiter = r }))
   }
-  private sfx(name: Duel2Sfx) { void this.course.audio.playSfx(name) }
+  private sfx(name: SpellQuestSfx) { void this.course.audio.playSfx(name) }
   private cueId(c: Choice) { return c.soundId }
   private ctx(): RoundCtx {
     const s = this.save.read()
@@ -889,7 +889,7 @@ export class RunController {
     if (!tw.placement) this.save.setTowerWave(last + 1)
     if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
     if (tw.boss) {
-      // the boss's bonus coins, one by one (the dragon and the troll are not Book 2's bosses: no trophy)
+      // the boss's bonus coins, one by one (the dragon and the troll are not Spell Quest's bosses: no trophy)
       this.set({ phase: 'celebrate' })
       while (tw.coins < BOSS_COINS) {
         tw.coins++
@@ -900,7 +900,7 @@ export class RunController {
       }
     }
     // stage 0 passes when his marks are mastered by the duel's own measure (the slow lane) or he has shown that he
-    // knows them (the fast lane): Book 2's minigames open (once). A pass in the middle of a visit ended it at that wave.
+    // knows them (the fast lane): Spell Quest's minigames open (once). A pass in the middle of a visit ended it at that wave.
     const lane = this.stage0Passed()
     if (lane) {
       this.save.openBook()
@@ -1681,7 +1681,7 @@ export class RunController {
     return v
   }
 
-  /** Book 2's board: the word on its lines, the slot for its first letter, its bare vav and its marks */
+  /** Spell Quest's board: the word on its lines, the slot for its first letter, its bare vav and its marks */
   private hebrewDraw(word: Word, script: Script): DrawView {
     const split = splitWord(word, script)
     const def = strokesOf(split.letter, script)

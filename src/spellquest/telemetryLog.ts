@@ -1,8 +1,8 @@
-// Book 2's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
+// Spell Quest's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
 // The tower (the first duel's board) writes here too, with `via: 'tower'` (ADR 0004).
 import type { RollupFact, TelemetryEvent, TelemetryLog } from '../shared/telemetry'
 
-export const BOOK2_LOG: TelemetryLog = {
+export const SPELLQUEST_LOG: TelemetryLog = {
   key: 'alef-duel2-telemetry',
   label: 'Book 2',
   game: 'book2',
@@ -14,23 +14,23 @@ export const BOOK2_LOG: TelemetryLog = {
       'docs/adr/0004-one-telemetry-log-per-game.md'],
     code: ['src/spellquest/controller.ts', 'src/spellquest/telemetry.ts', 'src/spellquest/store.ts', 'src/utils/duel/controller.ts'],
   },
-  rollup: book2Facts,
+  rollup: spellQuestFacts,
 }
 
 /**
- * What an evicted chunk of Book 2's log keeps (checked against the call sites in src/spellquest/controller.ts and
+ * What an evicted chunk of Spell Quest's log keeps (checked against the call sites in src/spellquest/controller.ts and
  * src/utils/duel/controller.ts). An item is `<screen>:<target>`.
  * - `answer` (not the gallery's): right, wrong, near (`result`), the latency (`ms`) and what he tapped (`tapped`).
- * - The tower's answer is Book 2's own `answer` with `screen: 'tower'` (no `ms`): it takes its latency (`msShown`), its
+ * - The tower's answer is Spell Quest's own `answer` with `screen: 'tower'` (no `ms`): it takes its latency (`msShown`), its
  *   near (`twin`) and his pick (`key`) from the tower's last `choice` for the same target (the `choice` names its
  *   `round`; the tower's `round` event names the round's `target`).
- * - `replay` (Book 2's, and the tower's by its round), `idle`, `hint` and `explain` count as help on the item.
+ * - `replay` (Spell Quest's, and the tower's by its round), `idle`, `hint` and `explain` count as help on the item.
  */
-export function book2Facts(events: TelemetryEvent[]): RollupFact[] {
+export function spellQuestFacts(events: TelemetryEvent[]): RollupFact[] {
   return runFacts(events)
 }
 
-/** What a game adds to Book 2's facts (the English roll-up): its own events, and what an answer's fact becomes. */
+/** What a game adds to Spell Quest's facts (the English roll-up): its own events, and what an answer's fact becomes. */
 export interface FactHooks {
   /** an event of the game's own (not the tower's): its facts, or null to leave it to the shared rules */
   event?: (e: TelemetryEvent) => RollupFact[] | null
@@ -38,7 +38,7 @@ export interface FactHooks {
   answer?: (e: TelemetryEvent, fact: RollupFact) => RollupFact[]
 }
 
-/** The shared rules of `book2Facts`, with a game's hooks. */
+/** The shared rules of `spellQuestFacts`, with a game's hooks. */
 export function runFacts(events: TelemetryEvent[], hooks: FactHooks = {}): RollupFact[] {
   const facts: RollupFact[] = []
   const roundTarget = new Map<unknown, string>()

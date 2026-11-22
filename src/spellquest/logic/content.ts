@@ -1,4 +1,4 @@
-// Book 2 content (spec: Content): 26 consonant items (22 letters, with the dot forms of ב כ פ ש as their own items),
+// Spell Quest content (spec: Content): 26 consonant items (22 letters, with the dot forms of ב כ פ ש as their own items),
 // 9 vowel marks in 5 sound groups, and their syllables. Loaded by plain Node (catalogue script): erasable TS only.
 
 export type Stage = 1 | 2 | 3 | 4

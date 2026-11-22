@@ -57,7 +57,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   const won = [...new Set(over.bosses ?? [])]
   const confusions = useCourseSave((s) => s.confusions)
   // the next boss that waits for him: one his stage has opened first (none after a session from the path). A course with
-  // its own boss kinds (English) teases only an open one; Book 2 teases a closed one when none is open
+  // its own boss kinds (English) teases only an open one; Spell Quest teases a closed one when none is open
   const waiting = BOSS_KINDS.filter((k) => !beaten.includes(k))
   const kinds = course.rounds.bossKinds?.(stage, confusions)
   const teaser = over.session ? undefined

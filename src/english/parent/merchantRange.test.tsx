@@ -1,11 +1,11 @@
-// The number range is one setting: set from the English section, Book 2's merchant (the run controller over the real
+// The number range is one setting: set from the English section, Spell Quest's merchant (the run controller over the real
 // save port, `storeSavePort`) makes his coins from it.
 import { act } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RunController } from '../../spellquest/controller'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { setNumberRange } from '../../shared/numberRange'
-import { stopVoice } from '../../spellquest/audio/duel2Audio'
+import { stopVoice } from '../../spellquest/audio/spellQuestAudio'
 
 const fakeAudio = installFakeAudio()
 

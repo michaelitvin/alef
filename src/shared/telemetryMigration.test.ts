@@ -5,15 +5,15 @@ import { SESSION, createTelemetry, readLog } from './telemetry'
 import { chunkKeysOf, parseOpen } from './telemetryChunks'
 import { safeSetItem } from './saveStorage'
 import { STAGING_PREFIX, copyUnprefixedOver, prefixedStorage } from './stagingStorage'
-import { FROZEN_HISTORY, GOLDEN_NOW, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../spellquest/telemetryLog'
+import { FROZEN_HISTORY, GOLDEN_NOW, spellQuestEvents, goldenExport } from './__fixtures__/telemetry/generate'
+import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 
-const KEY = BOOK2_LOG.key
+const KEY = SPELLQUEST_LOG.key
 const NOW = GOLDEN_NOW.getTime()
 const real = window.localStorage
 
 /** an old log as the old build wrote it: ~20 sessions, ≈700k characters, events with and without g */
-const OLD = book2Events({ days: 27, eventsPerSession: 180 })
+const OLD = spellQuestEvents({ days: 27, eventsPerSession: 180 })
 const LITERAL = JSON.stringify({ v: 1, events: OLD })
 const str = (x: unknown) => JSON.stringify(x)
 const theirs = () => readLog(KEY).filter((e) => e.s !== SESSION)
@@ -79,12 +79,12 @@ describe('the migration of an old log', () => {
   it('seals every complete session with no loss and no doubles; the export is the same; the frozen log is untouched', async () => {
     real.setItem(KEY, LITERAL)
     real.setItem('alef-duel-telemetry', FROZEN_HISTORY)
-    const before = goldenExport(BOOK2_LOG, readLog(KEY))
+    const before = goldenExport(SPELLQUEST_LOG, readLog(KEY))
     await migrate()
     expect(chunkKeysOf(KEY).length).toBe(new Set(OLD.map((e) => e.s)).size)
     expect(parseOpen(real.getItem(KEY))!.events.every((e) => e.s === SESSION)).toBe(true)
     expect(str(theirs())).toBe(str(OLD))
-    expect(goldenExport(BOOK2_LOG, theirs())).toBe(before)
+    expect(goldenExport(SPELLQUEST_LOG, theirs())).toBe(before)
     expect(real.getItem('alef-duel-telemetry')).toBe(FROZEN_HISTORY)
     const total = Object.keys(real).filter((k) => k.startsWith('alef-duel2')).reduce((n, k) => n + k.length + real.getItem(k)!.length, 0)
     expect(total).toBeLessThan(LITERAL.length / 4)

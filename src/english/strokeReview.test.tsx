@@ -8,7 +8,7 @@ import { Draw } from '../spellquest/components/screens/Draw'
 import { drawLayout, latinLayout } from '../spellquest/logic/drawLayout'
 import { strokesOf } from '../spellquest/data/strokes'
 import type { DrawView } from '../spellquest/controller'
-import { useDuel2Store } from '../spellquest/store'
+import { useSpellQuestStore } from '../spellquest/store'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { LATIN_STROKES, latinStrokesOf } from './data/strokes'
@@ -21,14 +21,14 @@ describe('the English stroke review', () => {
   afterEach(() => { useEnglishStore.setState({ ...ENGLISH_FRESH } as never) })
 
   it('lists the 52 Latin letters on four lines (no Hebrew letter), and keeps the marks in the English save', () => {
-    const before = useDuel2Store.getState().strokeMarks
+    const before = useSpellQuestStore.getState().strokeMarks
     const { container } = render(<CourseProvider value={ENGLISH}><Strokes onBack={() => {}} /></CourseProvider>)
     expect(container.querySelectorAll('[data-latin] [data-stroke-card]').length).toBe(LATIN_STROKES.length)
     expect(container.querySelectorAll('[data-stroke-card="a-latin"] svg[data-variant]').length).toBe(2)
     expect(container.querySelectorAll('[data-stroke-card="g-latin"] svg[data-variant="1"] line[data-line]').length).toBe(4)
     fireEvent.click(container.querySelector('[data-stroke-card="a-latin"] [data-mark-ok]')!)
     expect(useEnglishStore.getState().strokeMarks['a-latin']).toBe('ok')
-    expect(useDuel2Store.getState().strokeMarks).toBe(before)
+    expect(useSpellQuestStore.getState().strokeMarks).toBe(before)
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 52/)
     // no Hebrew letter, and no choice of one
     expect(container.querySelectorAll('[data-stroke-card]').length).toBe(LATIN_STROKES.length)

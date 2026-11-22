@@ -1,4 +1,4 @@
-// Book 2: letters and syllables, a separate app in the alef repo (spec: docs/superpowers/specs/2026-10-19-duel-book-2-design.md).
+// Spell Quest: letters and syllables, a separate app in the alef repo (spec: docs/superpowers/specs/2026-10-19-duel-book-2-design.md).
 import { useEffect, useRef, useState } from 'react'
 import { GlyphSheet } from './screens/GlyphSheet'
 import { TowerGlyphSheet } from './screens/TowerGlyphSheet'
@@ -14,7 +14,7 @@ import { DrawTest } from './screens/DrawTest'
 import { useGameShell } from '../shared/shell/GameShell'
 import { VOICE_RATE } from '../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../shared/gameAudio/output'
-import { useDuel2Store } from './store'
+import { useSpellQuestStore } from './store'
 import { useProgressStore } from '../stores/progressStore'
 import type { View } from './controller'
 import { StationCover } from './screens/StationCover'
@@ -30,7 +30,7 @@ type Screen = 'cover' | 'station' | 'play' | 'summary' | 'parent' | 'gallery' | 
 /** back to the alef home screen (a session from the path ends there by itself) */
 function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
 
-/** Book 2 is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
+/** Spell Quest is a landscape game; a portrait phone shows a drawn "turn the phone" picture over everything (no text: rule). */
 function RotateHint() {
   return (
     <div className="d2-rotate" aria-hidden>
@@ -51,7 +51,7 @@ const ASK_CUES = { boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }
  * at once (the page renders as before); the English one loads first (by dynamic import, so the Hebrew page never loads
  * it), then the shell starts with it.
  */
-export default function Duel2App(props: { goHome?: () => void } = {}) {
+export default function SpellQuestApp(props: { goHome?: () => void } = {}) {
   const [id] = useState(() => (typeof location === 'undefined' ? 'he' : courseIdFromUrl(location.search, ENGLISH_AVAILABLE)))
   const [course, setCourse] = useState<Course | null>(() => (id === 'he' ? HEBREW : null))
   useEffect(() => {
@@ -81,7 +81,7 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   const [over, setOver] = useState<NonNullable<View['over']> | null>(null)
   const [runNo, setRunNo] = useState(0)
   const [entry, setEntry] = useState<GalleryEntry | null>(linked)
-  // where the parent area opens: Book 2's section from the cover, the developer tools when a developer screen goes back
+  // where the parent area opens: Spell Quest's section from the cover, the developer tools when a developer screen goes back
   const [areaAt, setAreaAt] = useState<SectionId>('game')
   const backToArea = () => { setAreaAt('developer'); setScreen('parent') }
   const screenRef = useRef(screen)
@@ -101,9 +101,9 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
     onHide: () => { if (screenRef.current === 'play') holdAudio(true) },
   })
   const loading = shell.loading
-  // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe): into Book 2's
-  // save, so on the Hebrew page only (the English page never writes Book 2's save)
-  useEffect(() => { if (course.id === 'he') useDuel2Store.getState().importFirstDuel(useProgressStore.getState().duel) }, [course])
+  // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe): into Spell Quest's
+  // save, so on the Hebrew page only (the English page never writes Spell Quest's save)
+  useEffect(() => { if (course.id === 'he') useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().duel) }, [course])
   if (TEST_HOOKS && location.hash === '#/glyphs') return <div className="d2-root"><GlyphSheet /></div>
   if (TEST_HOOKS && location.hash === '#/tower-glyphs') return <TowerGlyphSheet />
   // the end screens as they look after a full run (crystals, a trophy, the next boss, the play button) and after a

@@ -60,7 +60,7 @@ describe('the held home button (rule: a way out on a child screen needs a 2 s ho
 
   it('on the pause cover and the summary it is in the left corner, 24 px from the edge (the stylesheet)', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/spellquest.css', 'utf8').replace(/\s+/g, ' ')
     for (const where of ['pause', 'summary']) {
       const rule = css.match(new RegExp(`\\.d2-${where} \\.d2-home-btn \\{([^}]*)\\}`))![1]
       expect(rule, where).toMatch(/left: 24px;/)

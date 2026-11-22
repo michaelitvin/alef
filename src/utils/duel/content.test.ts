@@ -12,7 +12,7 @@ import type { DuelMark, Round } from '../../types/duel'
 import { instantSleeper } from '../../shared/sleeper'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
-import { useDuel2Store } from '../../spellquest/store'
+import { useSpellQuestStore } from '../../spellquest/store'
 import { Tower } from '../../spellquest/components/screens/Tower'
 import { memorySavePort } from '../../spellquest/savePort'
 
@@ -69,7 +69,7 @@ const indexOfRun = (xs: string[], run: string[]) => xs.findIndex((_, i) => run.e
 beforeEach(() => {
   localStorage.clear()
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-  useDuel2Store.getState().resetProgress()
+  useSpellQuestStore.getState().resetProgress()
 })
 
 describe('the tower on another course’s content', () => {
@@ -81,8 +81,8 @@ describe('the tower on another course’s content', () => {
       const tallies = memoryTallies()
       const save = memorySavePort()
       const events: string[] = []
-      const duel2Before = localStorage.getItem('alef-duel2')
-      const duel2State = JSON.stringify(useDuel2Store.getState())
+      const spellQuestBefore = localStorage.getItem('alef-duel2')
+      const spellQuestState = JSON.stringify(useSpellQuestStore.getState())
       const { container, unmount } = render(createElement(Tower, {
         view: { screen: 'tower', wave: 1, waves: 1, boss: false, visit: 1 }, paused: false, onAnswer, onDone: () => {},
         course: {
@@ -103,11 +103,11 @@ describe('the tower on another course’s content', () => {
       await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
       expect(indexOfRun(said, ['en-sound-m', 'en-name-m', 'en-word-moon'])).toBeGreaterThan(-1)
       unmount()
-      // what was explained is kept in the course's save, the events go to its log; Book 2's save (alef-duel2) is untouched
+      // what was explained is kept in the course's save, the events go to its log; Spell Quest's save (alef-duel2) is untouched
       expect(save.read().demosSeen).toEqual(expect.arrayContaining(['tower-intro', 'tower-screen-letter']))
       expect(events).toContain('round')
-      expect(localStorage.getItem('alef-duel2')).toBe(duel2Before)
-      expect(JSON.stringify(useDuel2Store.getState())).toBe(duel2State)
+      expect(localStorage.getItem('alef-duel2')).toBe(spellQuestBefore)
+      expect(JSON.stringify(useSpellQuestStore.getState())).toBe(spellQuestState)
     } finally {
       vi.useRealTimers()
     }

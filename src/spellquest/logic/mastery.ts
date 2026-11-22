@@ -1,4 +1,4 @@
-// Mastery (spec: one duel, Part 3): when the first duel's tower is mastered (stage 0 passes and Book 2 opens), which
+// Mastery (spec: one duel, Part 3): when the first duel's tower is mastered (stage 0 passes and Spell Quest opens), which
 // screens get a shorter visit or are skipped in every other cycle (never removed), and the 0–3 station rating.
 import type { ScreenId } from './predict'
 
@@ -41,7 +41,7 @@ export function stage0Lane(recent: Record<string, string>, markIds: string[], ta
   return towerMastered(recent, markIds) ? 'slow' : null
 }
 
-/** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Book 2's `sc:` feature */
+/** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Spell Quest's `sc:` feature */
 export function screenRecent(screen: ScreenId, d2recent: Record<string, string>, duelRecent: Record<string, string>): string {
   if (screen === 'tower') return Object.values(duelRecent).join('')
   return d2recent[`sc:${screen}`] ?? ''

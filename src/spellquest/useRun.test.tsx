@@ -3,24 +3,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { bossOpen, type BossKind } from './logic/boss'
 import { RunController, type BroomView, type SpellView, type View } from './controller'
 import { useRun } from './useRun'
-import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useDuel2Store } from './store'
+import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useSpellQuestStore } from './store'
 import { hintCoins } from './logic/merchant'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { DUEL_MARKS } from '../utils/duel/marks'
 import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
 import { BROOM_ORB, LANE_Y, flightPath, orbX } from './broomLayout'
-import { stopVoice } from './audio/duel2Audio'
+import { stopVoice } from './audio/spellQuestAudio'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 const fakeAudio = installFakeAudio()
 import { wavePos as wp } from './logic/run'
 
 const { sfxLog } = vi.hoisted(() => ({ sfxLog: [] as string[] }))
-vi.mock('./audio/duel2Audio', async (orig) => {
-  const m = await orig<typeof import('./audio/duel2Audio')>()
+vi.mock('./audio/spellQuestAudio', async (orig) => {
+  const m = await orig<typeof import('./audio/spellQuestAudio')>()
   return { ...m, playSfx: (n: string) => { sfxLog.push(n); return Promise.resolve() } }
 })
-import { duel2Telemetry } from './telemetry'
+import { spellQuestTelemetry } from './telemetry'
 import type { DrawView } from './controller'
 import { strokesOf, type Pt } from './data/strokes'
 import { bbox, markTargets, resample } from './logic/recognizer'
@@ -119,9 +119,9 @@ describe('run controller', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     towerAuto = true
-    useDuel2Store.getState().resetProgress()
+    useSpellQuestStore.getState().resetProgress()
     // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
-    useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
+    useSpellQuestStore.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -135,10 +135,10 @@ describe('run controller', () => {
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.screen?.screen === 'ghosts' && v.phase === 'question')
-    const before = useDuel2Store.getState().roundNo
+    const before = useSpellQuestStore.getState().roundNo
     c.gesture({ type: 'pick', id: rightId(c.view) })
     await until(c, (v) => v.phase === 'answer')
-    expect(useDuel2Store.getState().roundNo).toBe(before)
+    expect(useSpellQuestStore.getState().roundNo).toBe(before)
     c.destroy()
   })
 
@@ -150,13 +150,13 @@ describe('run controller', () => {
     c.gesture({ type: 'pick', id })
     c.gesture({ type: 'pick', id })
     await tick(50)
-    expect(useDuel2Store.getState().roundNo).toBe(1)
+    expect(useSpellQuestStore.getState().roundNo).toBe(1)
     c.destroy()
   })
 
   it('after a mistake he does the right move himself: no next button, only the marked answer goes on (the parent)', async () => {
     for (const force of [{ screen: 'ladder', stage: 2, fixed: 'letter' }, { screen: 'ghosts', stage: 2, kind: 'syllable' }, { screen: 'cauldron', stage: 2 }] as Force[]) {
-      useDuel2Store.getState().resetProgress()
+      useSpellQuestStore.getState().resetProgress()
       const c = make({ force })
       c.start()
       await until(c, (v) => v.phase === 'answer')
@@ -167,7 +167,7 @@ describe('run controller', () => {
       expect(c.view.phase).toBe('mistake')
       expect(c.view.needNext).toBe(false)
       expect(c.view.hearts).toBe(2)
-      const before = useDuel2Store.getState().roundNo
+      const before = useSpellQuestStore.getState().roundNo
       c.gesture({ type: 'pick', id: wrong })
       await tick(500)
       expect(c.view.phase).toBe('mistake')
@@ -180,7 +180,7 @@ describe('run controller', () => {
       if (s.screen === 'ghosts') expect(s.zapped).toBeTruthy()
       if (s.screen === 'cauldron') expect(s.joined).toBe(true)
       expect(c.view.score).toBe(score)
-      expect(useDuel2Store.getState().roundNo).toBe(before)
+      expect(useSpellQuestStore.getState().roundNo).toBe(before)
       await drain(c)
       expect(c.view.phase).toBe('answer')
       c.destroy()
@@ -188,8 +188,8 @@ describe('run controller', () => {
   })
 
   it('telemetry records his fix after a mistake, the replay button, a pause, and the flight speed (the parent: add what is missing)', async () => {
-    duel2Telemetry.clear()
-    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
+    spellQuestTelemetry.clear()
+    const events = () => (spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[])
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -229,7 +229,7 @@ describe('run controller', () => {
   })
 
   it('explanation after the same mistake twice', async () => {
-    useDuel2Store.setState({ mistakes: [], roundNo: 10 })
+    useSpellQuestStore.setState({ mistakes: [], roundNo: 10 })
     const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
     c.start()
     for (let k = 0; k < 2; k++) {
@@ -249,7 +249,7 @@ describe('run controller', () => {
   it('the first round after a demo is the round the demo showed', async () => {
     // the parent: the demo showed one letter and the round then asked about another
     for (const force of [{ screen: 'cauldron', stage: 2, demo: true }, { screen: 'ghosts', stage: 2, kind: 'syllable', demo: true }] as Force[]) {
-      useDuel2Store.setState({ demosSeen: [] })
+      useSpellQuestStore.setState({ demosSeen: [] })
       const c = make({ force })
       c.start()
       await until(c, (v) => v.overlay?.kind === 'demo')
@@ -262,7 +262,7 @@ describe('run controller', () => {
   })
 
   it('the sound to find plays again after a demo', async () => {
-    useDuel2Store.setState({ demosSeen: [] })
+    useSpellQuestStore.setState({ demosSeen: [] })
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable', demo: true } })
     c.start()
     await until(c, (v) => v.overlay?.kind === 'demo')
@@ -271,7 +271,7 @@ describe('run controller', () => {
     c.next()
     await until(c, (v) => v.phase === 'answer')
     expect(played).toContain((c.view.screen as Extract<View['screen'], { screen: 'ghosts' }>).target.soundId)
-    expect(useDuel2Store.getState().demosSeen).toContain('demo-ghosts-syllable')
+    expect(useSpellQuestStore.getState().demosSeen).toContain('demo-ghosts-syllable')
     c.destroy()
   })
 
@@ -293,7 +293,7 @@ describe('run controller', () => {
   })
 
   it('hearts last the whole run: a heart lost on the cauldron is still lost on the ladder', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'broom' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'broom' })
     const c = make()
     c.start()
     for (let k = 0; k < 2; k++) {
@@ -315,7 +315,7 @@ describe('run controller', () => {
   })
 
   describe('the end of a pass, end to end (policies/pass.test.ts covers the rules)', () => {
-    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
+    const events = () => (spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[])
     /** plays on (right answers, a careful flight, the fix and next when asked) until `pred` holds */
     async function playTo(c: RunController, pred: (v: View) => boolean, onTick?: () => void) {
       for (let guard = 0; guard < 8000 && !pred(c.view); guard++) {
@@ -347,10 +347,10 @@ describe('run controller', () => {
       await playTo(c, (v) => v.screen?.screen === 'broom', onTick)
     }
     /** stage 4 (no stage passes during the test), drawing off: broom → cauldron → ladder → ghosts → doors, the crystal, the spell book */
-    const fromStartOfCycle = () => useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
+    const fromStartOfCycle = () => useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
 
     it('gives one heart back, once, at once: no line, no pause, the top bar’s hearts flash (the parent)', async () => {
-      duel2Telemetry.clear()
+      spellQuestTelemetry.clear()
       fromStartOfCycle()
       const c = make()
       c.start()
@@ -367,7 +367,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('a lock just after the pass heart does not give it again', async () => {
-      duel2Telemetry.clear()
+      spellQuestTelemetry.clear()
       fromStartOfCycle()
       const c = make()
       c.start()
@@ -399,8 +399,8 @@ describe('run controller', () => {
     expect(bvw().waves.length).toBeGreaterThan(0)
     const maxId = Math.max(...bvw().waves.map((w) => w.id))
     const score = c.view.score
-    const stars = useDuel2Store.getState().totalStars
-    const coins = useDuel2Store.getState().coins
+    const stars = useSpellQuestStore.getState().totalStars
+    const coins = useSpellQuestStore.getState().coins
     let wavesWhenOver = -1
     for (let i = 0; i < 2000 && !c.view.over; i++) {
       // he steers into the targets now: nothing counts any more
@@ -412,13 +412,13 @@ describe('run controller', () => {
     expect(c.view.over).not.toBeNull()
     expect(wavesWhenOver).toBe(0)
     expect(c.view.score).toBe(score)
-    expect(useDuel2Store.getState().totalStars).toBe(stars)
-    expect(useDuel2Store.getState().coins).toBe(coins)
+    expect(useSpellQuestStore.getState().totalStars).toBe(stars)
+    expect(useSpellQuestStore.getState().coins).toBe(coins)
     c.destroy()
   }, 60_000)
 
   it('run ends at 0 hearts and the next run starts after that screen', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     const c = make()
     c.start()
     for (let k = 0; k < 3; k++) {
@@ -429,7 +429,7 @@ describe('run controller', () => {
       await drain(c)
     }
     await until(c, (v) => v.over !== null)
-    expect(useDuel2Store.getState().lastEnded).toBe('ladder')
+    expect(useSpellQuestStore.getState().lastEnded).toBe('ladder')
     c.destroy()
     const c2 = make()
     c2.start()
@@ -439,9 +439,9 @@ describe('run controller', () => {
   })
 
   it('a full cycle completes with no audio files', async () => {
-    // a missing file resolves at once (duel2Audio playFile): simulate every clip missing
+    // a missing file resolves at once (spellQuestAudio playFile): simulate every clip missing
     fakeAudio.onVoice(() => Promise.resolve())
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
     const c = make()
     c.start()
     for (let guard = 0; guard < 400 && c.view.screen?.screen !== 'crystal'; guard++) {
@@ -453,7 +453,7 @@ describe('run controller', () => {
     expect(c.view.screen?.screen).toBe('crystal')
     // (after the crystal: the spell book, the cycle's last screen, then the next cycle)
     await until(c, (v) => v.screen?.screen === 'spell')
-    expect(useDuel2Store.getState().crystals).toBe(1)
+    expect(useSpellQuestStore.getState().crystals).toBe(1)
     for (let guard = 0; guard < 1200 && c.view.screen?.screen !== 'broom'; guard++) {
       await tick(50)
       autoTower(c)
@@ -461,7 +461,7 @@ describe('run controller', () => {
       else spellDrop(c)
     }
     expect(c.view.screen?.screen).toBe('broom')
-    expect(useDuel2Store.getState().crystals).toBe(1)
+    expect(useSpellQuestStore.getState().crystals).toBe(1)
     c.destroy()
   })
 
@@ -469,9 +469,9 @@ describe('run controller', () => {
     const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
-    const before = useDuel2Store.getState().roundNo
-    for (let i = 0; i < 2000 && useDuel2Store.getState().roundNo === before; i++) { steer(c, true); await tick(50) }
-    expect(useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0).toBe(0)
+    const before = useSpellQuestStore.getState().roundNo
+    for (let i = 0; i < 2000 && useSpellQuestStore.getState().roundNo === before; i++) { steer(c, true); await tick(50) }
+    expect(useSpellQuestStore.getState().tallies['sc:broom']?.wrong ?? 0).toBe(0)
     const phases = new Set<string>()
     for (let i = 0; i < 4000 && c.view.hearts === 3; i++) { steer(c, false); phases.add(c.view.phase); await tick(50) }
     expect(c.view.hearts).toBe(2)
@@ -512,8 +512,8 @@ describe('run controller', () => {
     await until(c, (v) => v.phase === 'answer')
     c.gesture({ type: 'pick', id: rightId(c.view) })
     await tick(500)
-    expect(useDuel2Store.getState().roundNo).toBe(0)
-    expect(useDuel2Store.getState().tallies).toEqual({})
+    expect(useSpellQuestStore.getState().roundNo).toBe(0)
+    expect(useSpellQuestStore.getState().tallies).toEqual({})
     c.destroy()
   })
 
@@ -548,13 +548,13 @@ describe('run controller', () => {
     const s = c.view.screen as Extract<View['screen'], { screen: 'ladder' }>
     expect(s.built.length).toBe(1)
     expect(s.plates.length).toBe(3)
-    expect(useDuel2Store.getState().roundNo).toBe(1)
+    expect(useSpellQuestStore.getState().roundNo).toBe(1)
     c.destroy()
   })
 
   it('resume keeps the flight kind', async () => {
     let calls = 0
-    useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts', demosSeen: allDemos })
+    useSpellQuestStore.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts', demosSeen: allDemos })
     const c = make({ rng: () => (calls++ === 0 ? 0.1 : 0.9) })
     c.start()
     await until(c, (v) => v.phase === 'answer' && (v.screen as BroomView).waves.length > 0)
@@ -567,7 +567,7 @@ describe('run controller', () => {
   })
 
   it('a lock while the run ends still shows the summary', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     const c = make()
     c.start()
     for (let k = 0; k < 3; k++) {
@@ -578,12 +578,12 @@ describe('run controller', () => {
     await tick(5)
     c.pause()
     await until(c, (v) => v.over !== null, 5000)
-    expect(useDuel2Store.getState().runs).toBe(1)
+    expect(useSpellQuestStore.getState().runs).toBe(1)
     c.destroy()
   })
 
   it('the run ends with the defeat scene, then the summary', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     sfxLog.length = 0
     const c = make()
     c.start()
@@ -602,8 +602,8 @@ describe('run controller', () => {
   })
 
   it('closing the game while the run ends sends no abandon (the run-end was sent)', async () => {
-    duel2Telemetry.clear()
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    spellQuestTelemetry.clear()
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     const c = make()
     c.start()
     for (let k = 0; k < 3; k++) {
@@ -617,22 +617,22 @@ describe('run controller', () => {
     c.gesture({ type: 'pick', id: wrongId(c.view) })
     await until(c, (v) => !!v.defeat)
     c.destroy()
-    const ev = duel2Telemetry.events() as { e: string }[]
+    const ev = spellQuestTelemetry.events() as { e: string }[]
     expect(ev.some((e) => e.e === 'run-end')).toBe(true)
     expect(ev.some((e) => e.e === 'abandon')).toBe(false)
   })
 
   it('the held home button (exit) leaves the run as a close does: the stars and coins stay, no run records, a run-exit, the sound stops', async () => {
-    duel2Telemetry.clear()
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', runs: 5, bestRun: 0, totalStars: 10, coins: 3 })
+    spellQuestTelemetry.clear()
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', runs: 5, bestRun: 0, totalStars: 10, coins: 3 })
     const c = make()
     c.start()
     await until(c, (v) => v.screen?.screen === 'ladder' && v.phase === 'answer')
     c.gesture({ type: 'pick', id: rightId(c.view) })
     await until(c, (v) => v.score === 1)
     await drain(c)
-    const coins = useDuel2Store.getState().coins
-    expect(useDuel2Store.getState().totalStars).toBe(11)
+    const coins = useSpellQuestStore.getState().coins
+    expect(useSpellQuestStore.getState().totalStars).toBe(11)
     c.exit()
     const view = c.view
     const heard = played.length
@@ -641,20 +641,20 @@ describe('run controller', () => {
     expect(played.length).toBe(heard)
     expect(c.view).toBe(view)
     c.destroy()
-    const st = useDuel2Store.getState()
+    const st = useSpellQuestStore.getState()
     expect(st.totalStars).toBe(11)
     expect(st.coins).toBe(coins)
     // a lock or an app close writes no run records either: the next run starts where it would have
     expect(st.lastEnded).toBe('cauldron')
     expect(st.runs).toBe(5)
     expect(st.bestRun).toBe(0)
-    const ev = duel2Telemetry.events() as { e: string; screen?: string; score?: number; paused?: boolean }[]
+    const ev = spellQuestTelemetry.events() as { e: string; screen?: string; score?: number; paused?: boolean }[]
     expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ e: 'run-exit', screen: 'ladder', score: 1, paused: false })])
     expect(ev.some((e) => e.e === 'abandon' || e.e === 'run-end')).toBe(false)
   })
 
   it('the home button on the pause cover: the run-exit says it was paused', async () => {
-    duel2Telemetry.clear()
+    spellQuestTelemetry.clear()
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -662,12 +662,12 @@ describe('run controller', () => {
     c.exit()
     c.exit()
     c.destroy()
-    const ev = duel2Telemetry.events() as { e: string; screen?: string; paused?: boolean }[]
+    const ev = spellQuestTelemetry.events() as { e: string; screen?: string; paused?: boolean }[]
     expect(ev.filter((e) => e.e === 'run-exit')).toEqual([expect.objectContaining({ screen: 'ghosts', paused: true })])
   })
 
   it('a lock during the defeat scene still shows the summary', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron' })
     const c = make()
     c.start()
     for (let k = 0; k < 3; k++) {
@@ -679,12 +679,12 @@ describe('run controller', () => {
     c.pause()
     expect(c.view.paused).toBe(false)
     await until(c, (v) => v.over !== null, 8000)
-    expect(useDuel2Store.getState().runs).toBe(1)
+    expect(useSpellQuestStore.getState().runs).toBe(1)
     c.destroy()
   })
 
   it('a lock during the crystal gives one crystal', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ghosts' })
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 200)) })
     const c = make()
     c.start()
@@ -697,7 +697,7 @@ describe('run controller', () => {
     c.pause()
     c.resume()
     await until(c, (v) => v.screen?.screen === 'spell')
-    expect(useDuel2Store.getState().crystals).toBe(1)
+    expect(useSpellQuestStore.getState().crystals).toBe(1)
     c.destroy()
   })
 
@@ -708,7 +708,7 @@ describe('run controller', () => {
     await until(c, (v) => v.phase === 'answer')
     c.gesture({ type: 'pick', id: rightId(c.view) })
     await tick(100)
-    expect(useDuel2Store.getState().roundNo).toBe(1)
+    expect(useSpellQuestStore.getState().roundNo).toBe(1)
     c.destroy()
   })
 
@@ -729,7 +729,7 @@ describe('run controller', () => {
   })
 
   it('no hint at the start of a round, even on a new screen', async () => {
-    useDuel2Store.setState({ hintsSeen: {} })
+    useSpellQuestStore.setState({ hintsSeen: {} })
     const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -749,15 +749,15 @@ describe('run controller', () => {
     await until(c, (v) => v.overlay?.kind === 'hint', 12_000)
     c.gesture({ type: 'pick', id: rightId(c.view) })
     await tick(100)
-    expect(useDuel2Store.getState().roundNo).toBe(1)
+    expect(useSpellQuestStore.getState().roundNo).toBe(1)
     expect(c.view.overlay?.kind).not.toBe('hint')
     c.destroy()
   })
 
   describe('a hint goes away when he acts (the parent)', () => {
-    const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
+    const events = () => (spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[])
     it('a touch on an answer: the hint card, its glow and its voice go away at once; the hint stays counted', async () => {
-      duel2Telemetry.clear()
+      spellQuestTelemetry.clear()
       // the hint's voice takes long; a stop ends it (stopVoice drops what plays)
       fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('ln-') || id.startsWith('vn-') ? 4000 : 10)) })
       const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
@@ -980,7 +980,7 @@ describe('run controller', () => {
   })
 
   it('the dotted-letter introduction says "without a dot" before the soft sound and "with a dot" before the hard one', async () => {
-    useDuel2Store.setState({ dotIntrosSeen: [] })
+    useSpellQuestStore.setState({ dotIntrosSeen: [] })
     const c = make({ force: { screen: 'dot', stage: 3, fixed: 'dot' } })
     c.start()
     await until(c, (v) => v.overlay?.kind === 'dot')
@@ -1045,7 +1045,7 @@ describe('run controller', () => {
 
   it('ghosts and cauldron never ask for the same sound two rounds in a row', async () => {
     // a weak "da" in the tallies used to win round after round
-    useDuel2Store.setState({ tallies: { 's:dalet-a': { seen: 10, wrong: 3 }, 'l:dalet': { seen: 10, wrong: 3 } } })
+    useSpellQuestStore.setState({ tallies: { 's:dalet-a': { seen: 10, wrong: 3 }, 'l:dalet': { seen: 10, wrong: 3 } } })
     for (const force of [{ screen: 'ghosts', stage: 2, kind: 'syllable' }, { screen: 'cauldron', stage: 2 }] as const)
     for (const seed of [3, 5, 7, 11]) {
       const c = make({ force, rng: seeded(seed) })
@@ -1092,14 +1092,14 @@ describe('run controller', () => {
         if (caught) {
           const j = caught.choices.findIndex((x, k) => x.soundId !== s.target.soundId && !caught.resolved[k])
           const hearts = c.view.hearts
-          const wrong = useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0
+          const wrong = useSpellQuestStore.getState().tallies['sc:broom']?.wrong ?? 0
           // sit in that wrong orb's lane until the wave has gone by
           for (let n = 0; n < 200 && (c.view.screen as BroomView).waves.some((w) => w.id === caught.id); n++) {
             c.gesture({ type: 'lane', lane: (caught.lanes?.[j] ?? j) as 0 | 1 | 2 })
             await tick(50)
           }
           expect(c.view.hearts).toBe(hearts)
-          expect(useDuel2Store.getState().tallies['sc:broom']?.wrong ?? 0).toBe(wrong)
+          expect(useSpellQuestStore.getState().tallies['sc:broom']?.wrong ?? 0).toBe(wrong)
           tested++
           continue
         }
@@ -1129,7 +1129,7 @@ describe('run controller', () => {
   it('the sound effect of a right answer rings a moment before the voice goes on (the parent: effects got cut)', async () => {
     const times: { id: string; at: number }[] = []
     fakeAudio.onVoice((id) => { times.push({ id, at: Date.now() }); return new Promise((r) => setTimeout(r, 10)) })
-    useDuel2Store.setState({ tallies: { 'sc:ghosts': { seen: 20, wrong: 10 } } }) // not a confident answer: the sound plays again
+    useSpellQuestStore.setState({ tallies: { 'sc:ghosts': { seen: 20, wrong: 10 } } }) // not a confident answer: the sound plays again
     const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer')
@@ -1144,7 +1144,7 @@ describe('run controller', () => {
   })
 
   it('praise is spoken the first two times of each kind; after that only its sound (the parent: he knows it)', async () => {
-    useDuel2Store.setState({ praiseHeard: { 'ladder-top': 2 } })
+    useSpellQuestStore.setState({ praiseHeard: { 'ladder-top': 2 } })
     const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
     c.start()
     for (let r = 0; r < 5; r++) {
@@ -1154,7 +1154,7 @@ describe('run controller', () => {
     }
     await tick(4000)
     expect(played.some((id) => id.startsWith('ladder-top-'))).toBe(false)
-    useDuel2Store.setState({ praiseHeard: {} })
+    useSpellQuestStore.setState({ praiseHeard: {} })
     c.destroy()
     played = []
     const c2 = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
@@ -1166,7 +1166,7 @@ describe('run controller', () => {
     }
     await tick(4000)
     expect(played.some((id) => id.startsWith('ladder-top-'))).toBe(true)
-    expect(useDuel2Store.getState().praiseHeard['ladder-top']).toBe(1)
+    expect(useSpellQuestStore.getState().praiseHeard['ladder-top']).toBe(1)
     c2.destroy()
   })
 
@@ -1200,24 +1200,24 @@ describe('run controller', () => {
     async function rightAnswers(c: RunController, n: number) {
       for (let k = 0; k < n; k++) {
         await until(c, (v) => v.phase === 'answer' && !v.needNext && !v.fixing)
-        const before = useDuel2Store.getState().roundNo
+        const before = useSpellQuestStore.getState().roundNo
         c.gesture({ type: 'pick', id: rightId(c.view) })
-        await until(c, () => useDuel2Store.getState().roundNo > before)
+        await until(c, () => useSpellQuestStore.getState().roundNo > before)
       }
     }
 
     it('each right answer pays coins by the streak: 1 each for the first four, 2 from the fifth, and a star', async () => {
-      useDuel2Store.setState({ totalStars: 9 })
+      useSpellQuestStore.setState({ totalStars: 9 })
       const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
       c.start()
       await until(c, (v) => v.phase === 'answer')
       expect(c.view.mult).toBe(1)
       await rightAnswers(c, 4)
-      expect(useDuel2Store.getState().coins).toBe(4)
+      expect(useSpellQuestStore.getState().coins).toBe(4)
       expect(c.view.mult).toBe(1)
       await rightAnswers(c, 2)
-      expect(useDuel2Store.getState().coins).toBe(1 + 1 + 1 + 1 + 2 + 2)
-      expect(useDuel2Store.getState().totalStars).toBe(15)
+      expect(useSpellQuestStore.getState().coins).toBe(1 + 1 + 1 + 1 + 2 + 2)
+      expect(useSpellQuestStore.getState().totalStars).toBe(15)
       await until(c, (v) => v.mult === 2 && played.includes('mult-up-1'))
       expect(played.some((id) => id.startsWith('streak-'))).toBe(false)
       expect(c.view.coinPop).toBe(6)
@@ -1229,7 +1229,7 @@ describe('run controller', () => {
       c.start()
       await rightAnswers(c, 10)
       await until(c, (v) => v.mult === 3 && played.includes('mult-up-2'))
-      expect(useDuel2Store.getState().coins).toBe(4 + 5 * 2 + 3)
+      expect(useSpellQuestStore.getState().coins).toBe(4 + 5 * 2 + 3)
       await rightAnswers(c, 5)
       await until(c, () => played.some((id) => id.startsWith('streak-')))
       c.destroy()
@@ -1255,7 +1255,7 @@ describe('run controller', () => {
     })
 
     it('the multiplier carries to the next screen', async () => {
-      useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', demosSeen: allDemos })
+      useSpellQuestStore.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', demosSeen: allDemos })
       const c = make()
       c.start()
       ;(c as unknown as { streak: number }).streak = 2
@@ -1267,9 +1267,9 @@ describe('run controller', () => {
       }
       expect(c.view.screen?.screen).toBe('broom')
       expect(c.view.mult).toBe(2)
-      const coins = useDuel2Store.getState().coins
-      for (let i = 0; i < 4000 && useDuel2Store.getState().coins === coins; i++) { fly(c); await tick(50) }
-      expect(useDuel2Store.getState().coins - coins).toBe(2)
+      const coins = useSpellQuestStore.getState().coins
+      for (let i = 0; i < 4000 && useSpellQuestStore.getState().coins === coins; i++) { fly(c); await tick(50) }
+      expect(useSpellQuestStore.getState().coins - coins).toBe(2)
       c.destroy()
     })
   })
@@ -1278,8 +1278,8 @@ describe('run controller', () => {
     beforeEach(() => { towerAuto = false })
     const tv = (c: RunController) => c.view.screen as Extract<View['screen'], { screen: 'tower' }>
     /** stage 4, the last run ended on the spell book (the cycle's last screen): this one starts with the tower */
-    function atTower(extra: Partial<ReturnType<typeof useDuel2Store.getState>> = {}) {
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', ...extra })
+    function atTower(extra: Partial<ReturnType<typeof useSpellQuestStore.getState>> = {}) {
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', ...extra })
       const c = make()
       c.start()
       return c
@@ -1292,16 +1292,16 @@ describe('run controller', () => {
       expect(c.view.hintAvailable).toBe(false)
       expect(c.towerAnswer('right', 'kamatz')).toBe('on')
       expect(c.view.score).toBe(1)
-      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 1, coins: 1 })
+      expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 1, coins: 1 })
       for (let k = 0; k < 4; k++) c.towerAnswer('right', 'kamatz')
       // the fifth right answer in a row: ×2
       expect(c.view.mult).toBe(2)
-      expect(useDuel2Store.getState().coins).toBe(1 + 1 + 1 + 1 + 2)
+      expect(useSpellQuestStore.getState().coins).toBe(1 + 1 + 1 + 1 + 2)
       expect(c.towerAnswer('wrong', 'segol')).toBe('on')
       expect(c.view.hearts).toBe(2)
       expect(c.view.mult).toBe(1)
-      // the tower's adaptive data stays in the first duel's save: Book 2's tallies are not touched
-      expect(useDuel2Store.getState().tallies).toEqual({})
+      // the tower's adaptive data stays in the first duel's save: Spell Quest's tallies are not touched
+      expect(useSpellQuestStore.getState().tallies).toEqual({})
       c.destroy()
     })
 
@@ -1310,7 +1310,7 @@ describe('run controller', () => {
       await until(c, (v) => v.screen?.screen === 'tower')
       c.towerDone(2)
       await until(c, (v) => v.screen?.screen === 'broom')
-      expect(useDuel2Store.getState()).toMatchObject({ towerWave: 3, towerVisits: 1 })
+      expect(useSpellQuestStore.getState()).toMatchObject({ towerWave: 3, towerVisits: 1 })
       c.destroy()
       const d = atTower()
       await until(d, (v) => v.screen?.screen === 'tower')
@@ -1324,7 +1324,7 @@ describe('run controller', () => {
       expect(tv(c)).toMatchObject({ boss: true, wave: 10 })
       c.towerDone(10)
       await until(c, (v) => v.screen?.screen === 'broom')
-      expect(useDuel2Store.getState()).toMatchObject({ coins: 3, towerWave: 11, towerVisits: 3, bossesBeaten: [] })
+      expect(useSpellQuestStore.getState()).toMatchObject({ coins: 3, towerWave: 11, towerVisits: 3, bossesBeaten: [] })
       c.destroy()
     })
 
@@ -1332,13 +1332,13 @@ describe('run controller', () => {
       const c = atTower({ towerVisits: 2, towerWave: 3, towerOwed: [] })
       await until(c, (v) => v.screen?.screen === 'tower')
       expect(tv(c)).toMatchObject({ boss: true, wave: 5 })
-      expect(useDuel2Store.getState().towerOwed).toEqual(['ghost', 'bat'])
+      expect(useSpellQuestStore.getState().towerOwed).toEqual(['ghost', 'bat'])
       c.destroy()
       // a boss visit with no jump owes nothing new
-      useDuel2Store.setState({ towerOwed: [] })
+      useSpellQuestStore.setState({ towerOwed: [] })
       const d = atTower({ towerVisits: 2, towerWave: 5 })
       await until(d, (v) => v.screen?.screen === 'tower')
-      expect(useDuel2Store.getState().towerOwed).toEqual([])
+      expect(useSpellQuestStore.getState().towerOwed).toEqual([])
       d.destroy()
     })
 
@@ -1362,7 +1362,7 @@ describe('run controller', () => {
       expect(c.view.over).toMatchObject({ score: 1 })
       // no right answer is said again (the duel said the mark): only the defeat line
       expect(played.slice(n).every((id) => id.startsWith('defeat'))).toBe(true)
-      expect(useDuel2Store.getState().lastEnded).toBe('tower')
+      expect(useSpellQuestStore.getState().lastEnded).toBe('tower')
       c.destroy()
     })
 
@@ -1377,34 +1377,34 @@ describe('run controller', () => {
       c.resume()
       await until(c, (v) => !v.paused && v.screen?.screen === 'tower')
       expect(tv(c).visit).toBe(visit)
-      expect(useDuel2Store.getState().towerVisits).toBe(1)
+      expect(useSpellQuestStore.getState().towerVisits).toBe(1)
       c.towerDone(2)
       await until(c, (v) => v.screen?.screen === 'broom')
-      expect(useDuel2Store.getState().towerWave).toBe(3)
+      expect(useSpellQuestStore.getState().towerWave).toBe(3)
       c.destroy()
     })
 
     it('a מגה kill on the tower is no answer: no star, no coin, the streak and the hearts stay, not in the tail; its own event', async () => {
-      duel2Telemetry.clear()
+      spellQuestTelemetry.clear()
       const c = atTower({ coins: 0, totalStars: 0, towerTail: '' })
       await until(c, (v) => v.screen?.screen === 'tower')
       for (let k = 0; k < 4; k++) c.towerAnswer('right', 'kamatz')
-      const before = { score: c.view.score, mult: c.view.mult, hearts: c.view.hearts, ...useDuel2Store.getState() }
+      const before = { score: c.view.score, mult: c.view.mult, hearts: c.view.hearts, ...useSpellQuestStore.getState() }
       c.towerMega('segol')
       expect(c.view.score).toBe(before.score)
       expect(c.view.hearts).toBe(before.hearts)
-      expect(useDuel2Store.getState()).toMatchObject({ totalStars: before.totalStars, coins: before.coins, towerTail: 'oooo' })
+      expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: before.totalStars, coins: before.coins, towerTail: 'oooo' })
       // the streak goes on from where it was: the fifth right answer gives ×2
       c.towerAnswer('right', 'kamatz')
       expect(c.view.mult).toBe(2)
-      const ev = duel2Telemetry.events() as { e: string; screen?: string; target?: string }[]
+      const ev = spellQuestTelemetry.events() as { e: string; screen?: string; target?: string }[]
       expect(ev.filter((e) => e.e === 'tower-mega')).toEqual([expect.objectContaining({ target: 'segol' })])
       expect(ev.filter((e) => e.e === 'answer' && e.screen === 'tower').length).toBe(5)
       c.destroy()
     })
 
     it('the מגה charge carries over to the next tower visit within the run; a new run starts with none', async () => {
-      useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+      useSpellQuestStore.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
       const c = make()
       c.start()
       await until(c, (v) => v.screen?.screen === 'tower')
@@ -1424,24 +1424,24 @@ describe('run controller', () => {
     describe('stage 0: the tower alone', () => {
       beforeEach(() => {
         useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-        useDuel2Store.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+        useSpellQuestStore.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
       })
       const mastered = () => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
 
       it('a new player starts with the tower; Book 2 opens when the tower is mastered, and the next screen is the broom', async () => {
-        duel2Telemetry.clear()
+        spellQuestTelemetry.clear()
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerDone(2)
         // not mastered yet: the tower again (a cycle of one screen)
         await until(c, (v) => v.screen?.screen === 'tower' && tv(c).wave === 3)
-        expect(useDuel2Store.getState().bookOpen).toBe(false)
+        expect(useSpellQuestStore.getState().bookOpen).toBe(false)
         useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: mastered() } })
         c.towerDone(4)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
-        expect(useDuel2Store.getState().bookOpen).toBe(true)
-        const ev = duel2Telemetry.events() as { e: string }[]
+        expect(useSpellQuestStore.getState().bookOpen).toBe(true)
+        const ev = spellQuestTelemetry.events() as { e: string }[]
         expect(ev.filter((e) => e.e === 'book-open').length).toBe(1)
         expect(sfxLog).toContain('streak')
         c.destroy()
@@ -1453,7 +1453,7 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).placement).toBe(true)
         c.destroy()
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
+        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1467,14 +1467,14 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerAnswer('wrong', 'kamatz')
         for (let k = 0; k < 10; k++) c.towerAnswer('right', 'segol')
-        expect(useDuel2Store.getState().towerTail).toBe('o'.repeat(10))
+        expect(useSpellQuestStore.getState().towerTail).toBe('o'.repeat(10))
         c.towerAnswer('wrong', 'kamatz')
-        expect(useDuel2Store.getState().towerTail).toBe('o'.repeat(9) + 'x')
+        expect(useSpellQuestStore.getState().towerTail).toBe('o'.repeat(9) + 'x')
         c.destroy()
       })
 
       it('the check runs after every wave: a pass in the middle of a visit ends it there, then the book opens (fast lane)', async () => {
-        duel2Telemetry.clear()
+        spellQuestTelemetry.clear()
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
@@ -1489,8 +1489,8 @@ describe('run controller', () => {
         // the board ends the visit at that wave
         c.towerDone(2)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
-        expect(useDuel2Store.getState()).toMatchObject({ bookOpen: true, towerWave: 3 })
-        const ev = duel2Telemetry.events() as { e: string; lane?: string }[]
+        expect(useSpellQuestStore.getState()).toMatchObject({ bookOpen: true, towerWave: 3 })
+        const ev = spellQuestTelemetry.events() as { e: string; lane?: string }[]
         expect(ev.filter((e) => e.e === 'book-open').map((e) => e.lane)).toEqual(['fast'])
         expect(ev.filter((e) => e.e === 'tower-placed').length).toBe(1)
         expect(sfxLog).toContain('streak')
@@ -1517,7 +1517,7 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).waves).toBe(2)
         c.destroy()
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
+        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1526,7 +1526,7 @@ describe('run controller', () => {
       })
 
       it('at stage 0 there is no pass heart and no merchant', async () => {
-        useDuel2Store.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
+        useSpellQuestStore.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
@@ -1542,12 +1542,12 @@ describe('run controller', () => {
         expect(c.view.hearts).toBe(1)
         expect(c.view.passHeart ?? 0).toBe(0)
         expect(c.view.heal).toBeUndefined()
-        expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
+        expect(useSpellQuestStore.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
         c.destroy()
       })
 
       it('his first meeting with the merchant ever: the first checkpoint after the book opens (2 hearts, enough coins), with no every-other wait', async () => {
-        useDuel2Store.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
+        useSpellQuestStore.setState({ coins: 50, checkpointsSinceVisit: NEVER_VISITED })
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
@@ -1560,7 +1560,7 @@ describe('run controller', () => {
         expect(c.view.merchant).toBeDefined()
         c.destroy()
         // after a meeting, with 2 hearts he waits a checkpoint again (as before)
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 50, checkpointsSinceVisit: 0 })
+        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 50, checkpointsSinceVisit: 0 })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1572,21 +1572,21 @@ describe('run controller', () => {
       })
 
       it('a Book 2 player who never played the first duel: the tower first, nothing closes, nothing imported', async () => {
-        useDuel2Store.setState({ bookOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, firstDuelImported: false })
-        useDuel2Store.getState().importFirstDuel(useProgressStore.getState().duel)
-        expect(useDuel2Store.getState()).toMatchObject({ totalStars: 120, bookOpen: true })
+        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, firstDuelImported: false })
+        useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().duel)
+        expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 120, bookOpen: true })
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerDone(2)
         await until(c, (v) => v.screen?.screen === 'broom')
-        expect(useDuel2Store.getState().bookOpen).toBe(true)
+        expect(useSpellQuestStore.getState().bookOpen).toBe(true)
         c.destroy()
       })
     })
 
     it('the merchant comes before a tower boss when the hearts are low', async () => {
-      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true }, checkpointsSinceVisit: 0 })
+      useSpellQuestStore.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true }, checkpointsSinceVisit: 0 })
       const c = atTower({ lastEnded: 'ghosts', towerVisits: 2, coins: 50 })
       const priv = c as unknown as { pass: { hearts: { left: number; nearMissUsed: boolean } } }
       priv.pass = { ...priv.pass, hearts: { left: 2, nearMissUsed: false } }
@@ -1625,7 +1625,7 @@ describe('run controller', () => {
     }
 
     it('a short ladder has as many rungs as its visit; short doors put the crystal behind the last of them', async () => {
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ladder': O8, 'sc:doors': O8 } })
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ladder': O8, 'sc:doors': O8 } })
       const c = make()
       c.start()
       await until(c, (v) => v.screen?.screen === 'ladder')
@@ -1641,21 +1641,21 @@ describe('run controller', () => {
     }, 60_000)
 
     it('closing the game before the cycle ends still gives the crystal of the skipped doors, once', async () => {
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0,
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0,
         settings: { ...DEFAULT_SETTINGS, drawing: true } })
       const c = make()
       c.start()
       await playCounting(c, (v) => v.screen?.screen === 'draw')
-      expect(useDuel2Store.getState().crystals).toBe(0)
+      expect(useSpellQuestStore.getState().crystals).toBe(0)
       c.destroy()
       c.destroy()
-      expect(useDuel2Store.getState().crystals).toBe(1)
+      expect(useSpellQuestStore.getState().crystals).toBe(1)
     }, 60_000)
 
     it('a mastered tower gets one wave (the visit\'s length reaches the tower)', async () => {
       useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
       useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(DUEL_MARKS.map((m) => [m.id, O12])) } })
-      useDuel2Store.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' }, lastEnded: 'ghosts', cycleNo: 1 })
+      useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' }, lastEnded: 'ghosts', cycleNo: 1 })
       towerAuto = false
       const d = make()
       d.start()
@@ -1667,7 +1667,7 @@ describe('run controller', () => {
 
   it('a two-orb dot wave flies in two of the three lanes and is caught in its own lane (spec: two-orb dot waves)', async () => {
     const c = make({ force: { screen: 'broom', stage: 3, kind: 'syllable' }, rng: seeded(11) })
-    useDuel2Store.setState({ stage: { stage: 3, newAnswers: '' } })
+    useSpellQuestStore.setState({ stage: { stage: 3, newAnswers: '' } })
     c.start()
     const seen = new Set<number>()
     let done = 0
@@ -1692,9 +1692,9 @@ describe('run controller', () => {
   })
 
   // the merchant (spec: one duel, Part 2): the visit's rules are tested in policies/merchant.test.ts; here, the run end to end
-  const events = () => (duel2Telemetry.events() as { e: string; [k: string]: unknown }[])
+  const events = () => (spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[])
   const mv = (c: RunController) => c.view.merchant!
-  const coins = () => useDuel2Store.getState().coins
+  const coins = () => useSpellQuestStore.getState().coins
   /** plays on (right answers, a careful flight, fixes) until `pred`; the merchant is declined unless `pred` waits for him */
   async function playTo(c: RunController, pred: (v: View) => boolean) {
     for (let guard = 0; guard < 8000 && !pred(c.view); guard++) {
@@ -1719,7 +1719,7 @@ describe('run controller', () => {
   }
   /** stage 4, the run starts on the cauldron with `money` coins; he loses `lose` hearts there, then the merchant may come */
   async function cauldronThen(lose: number, money = 20) {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'broom', coins: money })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'broom', coins: money })
     const c = make()
     c.start()
     for (let k = 0; k < lose; k++) await loseHeart(c)
@@ -1735,8 +1735,8 @@ describe('run controller', () => {
 
   describe('the merchant\'s visit, end to end (voice order, timing, pauses, the gallery)', () => {
     beforeEach(() => {
-      duel2Telemetry.clear()
-      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+      spellQuestTelemetry.clear()
+      useSpellQuestStore.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
     })
     /** the merchant's lines take a moment, so each demo step can be seen */
     const slowMerchant = () => fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('m-') ? 400 : 10)) })
@@ -1765,8 +1765,8 @@ describe('run controller', () => {
       expect(c.view.heartFlash).toBeGreaterThan(0)
       const said = played.filter((id) => /^m-(exact|heart)-/.test(id)).map((id) => id.replace(/-\d+$/, ''))
       expect(said).toEqual(['m-exact', 'm-heart'])
-      expect(useDuel2Store.getState().merchant.purchases).toBe(1)
-      expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(0)
+      expect(useSpellQuestStore.getState().merchant.purchases).toBe(1)
+      expect(useSpellQuestStore.getState().checkpointsSinceVisit).toBe(0)
       await until(c, (v) => v.screen?.screen === 'ladder')
       const ev = events()
       expect(ev.find((e) => e.e === 'merchant-arrive')).toMatchObject({ price: 6, hearts: 1 })
@@ -1777,7 +1777,7 @@ describe('run controller', () => {
 
     it('the first visit shows price, giving, the potion and the ✗, then it is his turn with the same price', async () => {
       slowMerchant()
-      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT } })
+      useSpellQuestStore.setState({ merchant: { ...FRESH_MERCHANT } })
       const c = await cauldronThen(2)
       const steps: string[] = []
       let hidden = true
@@ -1798,7 +1798,7 @@ describe('run controller', () => {
       expect(mv(c).demo).toBeUndefined()
       expect(mv(c).price).toBe(price)
       expect(mv(c).coins).toEqual(comp)
-      expect(useDuel2Store.getState().merchant.demoSeen).toBe(true)
+      expect(useSpellQuestStore.getState().merchant.demoSeen).toBe(true)
       c.destroy()
     }, 60_000)
 
@@ -1815,8 +1815,8 @@ describe('run controller', () => {
       await until(c, () => played.some((id) => id.startsWith('m-bye-')))
       await until(c, (v) => v.screen?.screen === 'ladder' && !v.merchant)
       expect(c.view.hearts).toBe(1)
-      expect(useDuel2Store.getState().merchant.declines).toBe(1)
-      expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(0)
+      expect(useSpellQuestStore.getState().merchant.declines).toBe(1)
+      expect(useSpellQuestStore.getState().checkpointsSinceVisit).toBe(0)
       expect(events().find((e) => e.e === 'merchant-decline')).toMatchObject({ phase: 'arrive' })
       c.destroy()
     }, 60_000)
@@ -1824,7 +1824,7 @@ describe('run controller', () => {
     for (const when of ['as he walks in', 'during his hello', 'during the demo'] as const) {
       it(`a pause on the first visit ${when}: on resume he says his hello again only if it was cut, and the demo starts again from its first step`, async () => {
         slowMerchant()
-        useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT } })
+        useSpellQuestStore.setState({ merchant: { ...FRESH_MERCHANT } })
         const c = await cauldronThen(2)
         await playTo(c, (v) => !!v.merchant)
         if (when === 'during his hello') await until(c, () => played.some((id) => id.startsWith('m-hello-')))
@@ -1926,7 +1926,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('the gallery’s merchant: 1 heart and 40 coins, his demo, a purchase that writes nothing; then the gallery', async () => {
-      useDuel2Store.setState({ coins: 7, merchant: { ...FRESH_MERCHANT } })
+      useSpellQuestStore.setState({ coins: 7, merchant: { ...FRESH_MERCHANT } })
       const c = make({ force: { screen: 'merchant', stage: 2, demo: true }, sandbox: true })
       c.start()
       await until(c, (v) => !!v.merchant)
@@ -1940,13 +1940,13 @@ describe('run controller', () => {
       await until(c, (v) => v.over !== null)
       expect(c.view.hearts).toBe(2)
       expect(c.view.coins).toBe(34)
-      expect(useDuel2Store.getState().coins).toBe(7)
-      expect(useDuel2Store.getState().merchant).toEqual(FRESH_MERCHANT)
+      expect(useSpellQuestStore.getState().coins).toBe(7)
+      expect(useSpellQuestStore.getState().merchant).toEqual(FRESH_MERCHANT)
       c.destroy()
     }, 60_000)
 
     it('the gallery’s merchant does not read the child’s own undo flag: his first too-much there shows the undo', async () => {
-      useDuel2Store.setState({ coins: 7, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+      useSpellQuestStore.setState({ coins: 7, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
       const c = make({ force: { screen: 'merchant', stage: 2 }, sandbox: true })
       c.start()
       await until(c, arrived)
@@ -1956,19 +1956,19 @@ describe('run controller', () => {
       give(c, over)
       c.gesture({ type: 'potion' })
       await until(c, () => played.some((id) => id.startsWith('m-undo')))
-      expect(useDuel2Store.getState().merchant.undoShown).toBe(true)
+      expect(useSpellQuestStore.getState().merchant.undoShown).toBe(true)
       c.destroy()
     }, 60_000)
   })
 
   describe('the checkpoint: when the merchant comes, and his price', () => {
     beforeEach(() => {
-      duel2Telemetry.clear()
-      useDuel2Store.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+      spellQuestTelemetry.clear()
+      useSpellQuestStore.setState({ merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
     })
     it('with 2 hearts he comes every other checkpoint: one checkpoint without him since his last visit is enough', async () => {
       // his last visit was one checkpoint ago (that checkpoint passed without him): this one is his
-      useDuel2Store.setState({ checkpointsSinceVisit: 1 })
+      useSpellQuestStore.setState({ checkpointsSinceVisit: 1 })
       const c = await cauldronThen(1)
       expect(c.view.hearts).toBe(2)
       await playTo(c, (v) => !!v.merchant || v.screen?.screen === 'ladder')
@@ -1977,7 +1977,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('with 2 hearts he does not come at the checkpoint right after his visit', async () => {
-      useDuel2Store.setState({ checkpointsSinceVisit: 0 })
+      useSpellQuestStore.setState({ checkpointsSinceVisit: 0 })
       const c = await cauldronThen(1)
       let came = false
       for (let i = 0; i < 4000 && c.view.screen?.screen !== 'ladder'; i++) {
@@ -1988,7 +1988,7 @@ describe('run controller', () => {
         await tick(50)
       }
       expect(came).toBe(false)
-      expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(1)
+      expect(useSpellQuestStore.getState().checkpointsSinceVisit).toBe(1)
       c.destroy()
     }, 60_000)
 
@@ -2004,14 +2004,14 @@ describe('run controller', () => {
         await tick(50)
       }
       expect(came).toBe(false)
-      expect(useDuel2Store.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
+      expect(useSpellQuestStore.getState().checkpointsSinceVisit).toBe(NEVER_VISITED)
       c.destroy()
     }, 60_000)
 
     it('with 3 hearts after the pass heart he does not come', async () => {
       // he loses one heart on the spell book, the last screen; the pass heart refills him to 3 at the checkpoint after
       // it, so the merchant does not come there
-      useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 100 })
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 100 })
       const c = make()
       c.start()
       await playTo(c, (v) => v.screen?.screen === 'spell' && v.phase === 'answer' && !(v.screen as SpellView).demo)
@@ -2034,7 +2034,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('in the gallery the merchant never comes', async () => {
-      useDuel2Store.setState({ coins: 100 })
+      useSpellQuestStore.setState({ coins: 100 })
       const c = make({ force: { screen: 'ghosts', stage: 2, kind: 'letter' }, sandbox: true })
       c.start()
       await loseHeart(c)
@@ -2075,7 +2075,7 @@ describe('run controller', () => {
       c.gesture({ type: 'pick', id: wrongId(c.view) })
       await until(c, (v) => v.over !== null)
       expect(coins()).toBeGreaterThanOrEqual(spent)
-      expect(useDuel2Store.getState().merchant.purchases).toBe(2)
+      expect(useSpellQuestStore.getState().merchant.purchases).toBe(2)
       c.destroy()
       // the next run: 6 again
       const c2 = make()
@@ -2093,7 +2093,7 @@ describe('run controller', () => {
 
     it('comes on the second broom visit of a run, never on the first (the controller counts each visit once)', async () => {
       fakeAudio.onVoice(() => Promise.resolve())
-      useDuel2Store.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
+      useSpellQuestStore.setState({ stage: { stage: 2, newAnswers: '' }, lastEnded: 'ghosts' })
       const c = make()
       c.start()
       const visits: (string | null)[] = []
@@ -2116,18 +2116,18 @@ describe('run controller', () => {
       expect(visits[0]).toBeNull()
       // a boss his stage opens (the run reaches stage 4 here, and its spell book changes the rounds' draws)
       expect(visits[1]).not.toBeNull()
-      expect(bossOpen(visits[1] as BossKind, useDuel2Store.getState().stage.stage)).toBe(true)
-      expect(useDuel2Store.getState().lastBoss).toBe(visits[1])
+      expect(bossOpen(visits[1] as BossKind, useSpellQuestStore.getState().stage.stage)).toBe(true)
+      expect(useSpellQuestStore.getState().lastBoss).toBe(visits[1])
       c.destroy()
     }, 60_000)
 
     it('arrives, throws two-orb waves that fly slower, and 8 catches beat it: its lines, 3 bonus coins, the trophy', async () => {
-      duel2Telemetry.clear()
-      useDuel2Store.setState({ totalStars: 0, bossesBeaten: [] })
+      spellQuestTelemetry.clear()
+      useSpellQuestStore.setState({ totalStars: 0, bossesBeaten: [] })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       c.start()
       await until(c, (v) => v.phase === 'answer')
-      const pace0 = useDuel2Store.getState().pace
+      const pace0 = useSpellQuestStore.getState().pace
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) {
         const s = bv(c)!
         for (const w of s.waves) expect(w.choices.length).toBe(2)
@@ -2138,9 +2138,9 @@ describe('run controller', () => {
       expect(bv(c)!.boss).toMatchObject({ won: true, pose: 'down', first: true, hitsLeft: 0 })
       await until(c, () => !!bv(c)?.finished, 30_000)
       // 8 catches are 8 stars and 1+1+1+1+2+2+2+2 coins; the win adds 3 coins
-      expect(useDuel2Store.getState()).toMatchObject({ totalStars: 8, coins: 12 + 3, bossesBeaten: ['mimic'] })
+      expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 8, coins: 12 + 3, bossesBeaten: ['mimic'] })
       expect(played.filter((id) => /^boss-/.test(id)).map((id) => id.replace(/-\d+$/, ''))).toEqual(['boss-arrive', 'boss-win', 'boss-new'])
-      expect(duel2Telemetry.events().find((e: { e: string }) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
+      expect(spellQuestTelemetry.events().find((e: { e: string }) => e.e === 'flight')).toMatchObject({ boss: 'mimic' })
       c.destroy()
     }, 60_000)
 
@@ -2162,7 +2162,7 @@ describe('run controller', () => {
   })
 
   it('no potion flies in after a lost heart (a heart comes back only from the merchant or a pass)', async () => {
-    duel2Telemetry.clear()
+    spellQuestTelemetry.clear()
     const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable' } })
     c.start()
     await until(c, (v) => v.phase === 'answer' && ((c.view.screen as BroomView).waves.length ?? 0) > 0)
@@ -2177,7 +2177,7 @@ describe('run controller', () => {
       await tick(50)
     }
     expect((c.view.screen as BroomView).finished).toBe(true)
-    const ev = duel2Telemetry.events() as { e: string }[]
+    const ev = spellQuestTelemetry.events() as { e: string }[]
     expect(ev.some((e) => e.e === 'potion-show')).toBe(false)
     c.destroy()
   }, 60_000)
@@ -2189,13 +2189,13 @@ describe('run controller', () => {
 
     it('a missing boss-new or boss-win file uses up neither the announcement nor the praise count; the trophy is kept', async () => {
       withMissing(/^boss-(new|win)/)
-      useDuel2Store.setState({ bossesBeaten: [], bossNewHeard: [], praiseHeard: {} })
+      useSpellQuestStore.setState({ bossesBeaten: [], bossNewHeard: [], praiseHeard: {} })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       c.start()
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
       expect(bv(c)!.boss!.first).toBe(true)
       await until(c, () => !!bv(c)?.finished, 30_000)
-      const st = useDuel2Store.getState()
+      const st = useSpellQuestStore.getState()
       expect(st.bossesBeaten).toEqual(['mimic'])
       expect(st.bossNewHeard ?? []).toEqual([])
       expect(st.praiseHeard['boss-win'] ?? 0).toBe(0)
@@ -2209,8 +2209,8 @@ describe('run controller', () => {
       const d = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       d.start()
       for (let i = 0; i < 20_000 && !bv(d)?.finished; i++) { fly(d); await tick(50) }
-      expect(useDuel2Store.getState().bossNewHeard).toEqual(['mimic'])
-      expect(useDuel2Store.getState().praiseHeard['boss-win']).toBe(1)
+      expect(useSpellQuestStore.getState().bossNewHeard).toEqual(['mimic'])
+      expect(useSpellQuestStore.getState().praiseHeard['boss-win']).toBe(1)
       d.destroy()
     }, 120_000)
 
@@ -2228,7 +2228,7 @@ describe('run controller', () => {
     }, 60_000)
 
     it('the winning catch says no streak praise, and the win waits for a mistake effect to settle', async () => {
-      useDuel2Store.setState({ praiseHeard: {} })
+      useSpellQuestStore.setState({ praiseHeard: {} })
       const c = make({ force: { screen: 'broom', stage: 2, kind: 'syllable', boss: 'mimic' } })
       c.start()
       await until(c, (v) => v.phase === 'answer')
@@ -2274,7 +2274,7 @@ describe('run controller', () => {
     it('a new boss never starts with the sound the boss before ended on', async () => {
       // שָׁ (sh-a) is the only sound near the target mistake rate: every pick it is allowed takes it
       const hard = { seen: 40, wrong: 30 }
-      useDuel2Store.setState({ tallies: { 'l:shin': { seen: 40, wrong: 4 }, 'v:a': { seen: 40, wrong: 4 }, 'l:sin': hard, 'v:e': hard, 'v:i': hard, 'v:o': hard, 'v:u': hard } })
+      useSpellQuestStore.setState({ tallies: { 'l:shin': { seen: 40, wrong: 4 }, 'v:a': { seen: 40, wrong: 4 }, 'l:sin': hard, 'v:e': hard, 'v:i': hard, 'v:o': hard, 'v:u': hard } })
       const c = make({ sandbox: true, force: { screen: 'broom', stage: 3, kind: 'syllable', boss: 'shin' } })
       c.start()
       for (let i = 0; i < 20_000 && !bv(c)?.boss?.won; i++) { fly(c); await tick(50) }
@@ -2292,8 +2292,8 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     towerAuto = true
-    useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ bookOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
+    useSpellQuestStore.getState().resetProgress()
+    useSpellQuestStore.setState({ bookOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -2338,7 +2338,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   })
 
   it('the pen down ends the hint\'s hand at once (before the stroke is judged)', async () => {
-    duel2Telemetry.clear()
+    spellQuestTelemetry.clear()
     const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
     c.start()
     await answering(c)
@@ -2346,7 +2346,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     expect(dv(c).demo?.hint).toBe(true)
     c.gesture({ type: 'touch', by: 'pen' })
     expect(dv(c).demo).toBeUndefined()
-    const ev = duel2Telemetry.events() as { e: string; [k: string]: unknown }[]
+    const ev = spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[]
     expect(ev.filter((e) => e.e === 'hint').length).toBe(1)
     expect(ev.find((e) => e.e === 'hint-stop')).toMatchObject({ screen: 'draw', by: 'pen' })
     // his stroke still counts
@@ -2372,7 +2372,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     it(`שׁוּעָל (${script}): the ש dot and the shuruk in any order, also drawn at once after the letter (the parent: ${order})`, async () => {
       // the voice that asks for the marks takes its real time
       fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, id.startsWith('draw-mark') ? 1800 : 10)) })
-      duel2Telemetry.clear()
+      spellQuestTelemetry.clear()
       const c = await roundOf('fox', script, 3)
       await answering(c)
       await drawLetter(c)
@@ -2389,7 +2389,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
       expect(dv(c).strokes.filter((x) => x.state === 'wrong').length).toBe(0)
       await tick(3000)
       c.destroy()
-      const ev = duel2Telemetry.events() as { e: string; [k: string]: unknown }[]
+      const ev = spellQuestTelemetry.events() as { e: string; [k: string]: unknown }[]
       expect(ev.filter((e) => e.e === 'draw-mark').map((e) => e.ok)).toEqual([true])
     })
   }
@@ -2413,13 +2413,13 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   })
 
   it('in the lap only when drawing is on: after the doors and the spell book', async () => {
-    useDuel2Store.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', settings: { ...useSpellQuestStore.getState().settings, drawing: true } })
     const c = make()
     c.start()
     await until(c, (v) => !!v.screen)
     expect(c.view.screen!.screen).toBe('draw')
     c.destroy()
-    useDuel2Store.setState({ lastEnded: 'spell', settings: { ...useDuel2Store.getState().settings, drawing: false } })
+    useSpellQuestStore.setState({ lastEnded: 'spell', settings: { ...useSpellQuestStore.getState().settings, drawing: false } })
     const d = make()
     d.start()
     await until(d, (v) => !!v.screen)
@@ -2438,7 +2438,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
 
   it('the print screen draws in print and the handwriting screen in handwriting, at any stage', async () => {
     fakeAudio.onVoice(() => Promise.resolve())
-    useDuel2Store.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', settings: { ...useDuel2Store.getState().settings, drawing: true } })
+    useSpellQuestStore.setState({ stage: { stage: 1, newAnswers: '' }, lastEnded: 'broom', settings: { ...useSpellQuestStore.getState().settings, drawing: true } })
     const c = make()
     c.start()
     const seen: { screen: string; script: string }[] = []
@@ -2480,8 +2480,8 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     await drawLetter(c)
     if (dv(c).marks.length) await drawMarks(c)
     await until(c, () => dv(c).mode === 'done')
-    expect(useDuel2Store.getState().tallies['sc:draw-hand']?.seen).toBe(1)
-    expect(useDuel2Store.getState().tallies['sc:draw']).toBeUndefined()
+    expect(useSpellQuestStore.getState().tallies['sc:draw-hand']?.seen).toBe(1)
+    expect(useSpellQuestStore.getState().tallies['sc:draw']).toBeUndefined()
     c.destroy()
   })
 
@@ -2505,8 +2505,8 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     towerAuto = true
-    useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
+    useSpellQuestStore.getState().resetProgress()
+    useSpellQuestStore.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -2564,23 +2564,23 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
     expect(c.view.hearts).toBe(3)
     expect(c.view.defeat).toBeFalsy()
     // the mistakes were recorded (the adaptive data)
-    expect(useDuel2Store.getState().recent['sc:ghosts']).toContain('x')
+    expect(useSpellQuestStore.getState().recent['sc:ghosts']).toContain('x')
     c.destroy()
   }, 60_000)
 
   it('a session earns stars and coins but changes neither lastEnded nor bestRun', async () => {
-    useDuel2Store.setState({ lastEnded: 'ladder', bestRun: 4, totalStars: 0, coins: 0, runs: 2 })
+    useSpellQuestStore.setState({ lastEnded: 'ladder', bestRun: 4, totalStars: 0, coins: 0, runs: 2 })
     const c = make({ session: { screen: 'cauldron' } })
     c.start()
     await play(c)
     expect(c.view.over).toMatchObject({ session: true, score: 10, best: false })
-    expect(useDuel2Store.getState()).toMatchObject({ lastEnded: 'ladder', bestRun: 4, totalStars: 10, runs: 2 })
-    expect(useDuel2Store.getState().coins).toBeGreaterThanOrEqual(10)
+    expect(useSpellQuestStore.getState()).toMatchObject({ lastEnded: 'ladder', bestRun: 4, totalStars: 10, runs: 2 })
+    expect(useSpellQuestStore.getState().coins).toBeGreaterThanOrEqual(10)
     c.destroy()
   }, 60_000)
 
   it('no merchant, no pass heart and no crystal in a session', async () => {
-    useDuel2Store.setState({ coins: 500, crystals: 0, checkpointsSinceVisit: NEVER_VISITED, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
+    useSpellQuestStore.setState({ coins: 500, crystals: 0, checkpointsSinceVisit: NEVER_VISITED, merchant: { ...FRESH_MERCHANT, demoSeen: true, undoShown: true } })
     const c = make({ session: { screen: 'doors' } })
     c.start()
     let k = 0
@@ -2594,21 +2594,21 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
       await tick(50)
     }
     expect(seen).toEqual(['doors'])
-    expect(useDuel2Store.getState().crystals).toBe(0)
+    expect(useSpellQuestStore.getState().crystals).toBe(0)
     expect(c.view.passHeart ?? 0).toBe(0)
     expect(c.view.heal).toBeUndefined()
-    expect(useDuel2Store.getState().merchant.visits).toBe(0)
+    expect(useSpellQuestStore.getState().merchant.visits).toBe(0)
     c.destroy()
   }, 60_000)
 
   it('every second broom session is a boss fight', async () => {
-    useDuel2Store.setState({ broomSessions: 0 })
+    useSpellQuestStore.setState({ broomSessions: 0 })
     const a = make({ session: { screen: 'broom' } })
     a.start()
     await until(a, (v) => v.screen?.screen === 'broom')
     expect((a.view.screen as BroomView).boss).toBeUndefined()
     a.destroy()
-    expect(useDuel2Store.getState().broomSessions).toBe(1)
+    expect(useSpellQuestStore.getState().broomSessions).toBe(1)
     const b = make({ session: { screen: 'broom' } })
     b.start()
     await until(b, (v) => v.screen?.screen === 'broom')
@@ -2618,7 +2618,7 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
     expect(b.view.over).toMatchObject({ session: true })
     expect(b.view.over!.bosses!.length).toBe(1)
     b.destroy()
-    expect(useDuel2Store.getState().broomSessions).toBe(2)
+    expect(useSpellQuestStore.getState().broomSessions).toBe(2)
   }, 120_000)
 
   it('a ladder session has 5 rungs and a doors session has no crystal behind its last door', async () => {

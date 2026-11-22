@@ -1,4 +1,4 @@
-// The course seam: what Book 2's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
+// The course seam: what Spell Quest's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
 // is today's modules (./hebrew.ts); the English course is built on its own page (src/english/course).
 import type { createGameAudio } from '../../shared/gameAudio/kit'
 import type { DuelAudio } from '../../utils/duel/controller'
@@ -17,7 +17,7 @@ import type { ScreenId } from '../logic/predict'
 import type { Choice, Conf, Kind, LadderStep, RoundCtx } from '../logic/rounds'
 import type { StageProgress } from '../logic/stages'
 import type { SavePort } from '../savePort'
-import type { Duel2Actions, Duel2Save } from '../store'
+import type { SpellQuestActions, SpellQuestSave } from '../store'
 import type { Highlight } from '../viewTypes'
 import type { SpellRound } from '../policies/spell'
 
@@ -87,9 +87,9 @@ export interface CourseRounds {
   spellRound: (ctx: RoundCtx) => SpellRound | null
   /**
    * the flight boss's kinds open at `stage` and his score for each, from his mix-ups (the English course's families);
-   * unset: Book 2's (logic/boss.ts bossOpen, bossScores)
+   * unset: Spell Quest's (logic/boss.ts bossOpen, bossScores)
    */
-  bossKinds?: (stage: number, confusions: Duel2Save['confusions']) => BossKinds
+  bossKinds?: (stage: number, confusions: SpellQuestSave['confusions']) => BossKinds
   bossTarget: (ctx: RoundCtx, kind: BossKind, avoid?: string) => Choice
   bossWave: (ctx: RoundCtx, kind: BossKind, target: Choice) => Choice[]
 }
@@ -144,7 +144,7 @@ export interface DrawItem {
    */
   text?: string
   at?: number
-  /** Hebrew: the Book 2 word (the slot's letter, the bare vav and the marks come from it) */
+  /** Hebrew: the Spell Quest word (the slot's letter, the bare vav and the marks come from it) */
   word?: Word
 }
 /**
@@ -170,11 +170,11 @@ export interface CourseWriting {
  * A door, for both courses. `plate`: the words on it, one per word, in reading order (English: one word, or from stage 4
  * a phrase of two or three); `key`: the id of the right key (the one with the picture of the word, or of the phrase's
  * noun); `soundId`: what he hears when the door opens (a phrase's own clip; unset: the plate's one word's). Hebrew: one
- * plate word, and `word`, the Book 2 door word whose syllables light on the plate.
+ * plate word, and `word`, the Spell Quest door word whose syllables light on the plate.
  */
 export interface DoorRound { id: string; plate: Choice[]; key: string; soundId?: string; word?: Word }
 /**
- * A key under a door: its id and its picture. English: the picture's file. Hebrew: the keys are Book 2 door words, and
+ * A key under a door: its id and its picture. English: the picture's file. Hebrew: the keys are Spell Quest door words, and
  * `picture` is their image name (the screen looks it up).
  */
 export interface DoorKey {
@@ -205,8 +205,8 @@ export interface CourseHint {
   of(c: Choice): BlendPlan | null
 }
 
-/** a subscription to a course's save (a zustand hook: Book 2's store, or one with more fields) */
-export type SaveHook = <T>(pick: (s: Duel2Save & Duel2Actions) => T) => T
+/** a subscription to a course's save (a zustand hook: Spell Quest's store, or one with more fields) */
+export type SaveHook = <T>(pick: (s: SpellQuestSave & SpellQuestActions) => T) => T
 
 /** the kit instance's voice, effects and music */
 export type CourseAudio = Pick<
@@ -225,7 +225,7 @@ export interface Course {
   telemetry: ReturnType<typeof createTelemetry>
   /** the run's end, with the ids of the words he was asked in it (English: kept for the parent's check; Hebrew: unset) */
   onRunEnd?: (words: string[]) => void
-  /** the log the parent area lists and the registry seals (BOOK2_LOG, ENGLISH_LOG) */
+  /** the log the parent area lists and the registry seals (SPELLQUEST_LOG, ENGLISH_LOG) */
   log: TelemetryLog
   /** lazy: the English store is created only on the English page */
   save: () => SavePort
@@ -261,7 +261,7 @@ export interface Course {
   placement?: CoursePlacement
   /** the hint that blends a word (English); unset (Hebrew): the run's own hint (a syllable's letter and vowel) */
   hint?: CourseHint
-  /** the drawing's letters (English: Latin, on four lines); unset (Hebrew): Book 2's */
+  /** the drawing's letters (English: Latin, on four lines); unset (Hebrew): Spell Quest's */
   writing?: CourseWriting
   lineAudioId(id: string, n?: number): string
   /** how many takes a line has (the run picks one: Hebrew `lineById`, English `enLine`; an unknown id has one) */

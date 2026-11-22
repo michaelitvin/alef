@@ -16,14 +16,14 @@ export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 
 /** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
  * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
 export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6, spell: 6 }
-/** Book 2's Hebrew course's stages (the course seam, src/spellquest/course) */
+/** Spell Quest's Hebrew course's stages (the course seam, src/spellquest/course) */
 export const HEBREW_STAGES: CourseStages = { maxStage: 4, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH }
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3
 
 /**
- * The screens of a cycle: the tower first, then the course's screens of his stage, then drawing when on. Before Book 2
+ * The screens of a cycle: the tower first, then the course's screens of his stage, then drawing when on. Before Spell Quest
  * opens (`bookOpen` false: stage 0) only the tower; drawing too waits for stage 1. `stages`: the course's (Hebrew by default).
  */
 export const cycleOf = (stage: number, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId[] =>
@@ -70,7 +70,7 @@ export function onAnswer(h: Hearts, a: 'right' | 'wrong' | 'near'): { hearts: He
 /** base travel time of an orb (spec 2026-11-07: 5800, was 5200; the per-lap speed-up is gone: the flight follows him) */
 export const BASE_TRAVEL_MS = 5800
 export const travelMs = (pace: number) => BASE_TRAVEL_MS * pace
-/** Book 2's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 4% (was 12%). */
+/** Spell Quest's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 4% (was 12%). */
 export function flightPace(pace: number, r: 'catch' | 'miss'): number {
   return Math.min(PACE_MAX, Math.max(PACE_MIN, pace * (r === 'catch' ? 0.99 : 1.04)))
 }

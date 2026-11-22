@@ -7,10 +7,10 @@ import { ladderAnswerId, RunController, type DrawView, type RunOpts, type View }
 import type { Rng } from '../../shared/adaptive'
 import type { ScreenId } from '../logic/predict'
 import { cycleOf } from '../logic/run'
-import { DEFAULT_SETTINGS, useDuel2Store } from '../store'
+import { DEFAULT_SETTINGS, useSpellQuestStore } from '../store'
 import { memorySavePort } from '../savePort'
-import { stopVoice } from '../audio/duel2Audio'
-import { duel2Telemetry } from '../telemetry'
+import { stopVoice } from '../audio/spellQuestAudio'
+import { spellQuestTelemetry } from '../telemetry'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { strokesOf, type Pt } from '../data/strokes'
 import { bbox, markTargets, resample } from '../logic/recognizer'
@@ -82,10 +82,10 @@ const SAVE = {
   hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))),
 }
 
-/** the real Book 2 store as the run tests leave it before a test (the sessions themselves run on a save in memory) */
+/** the real Spell Quest store as the run tests leave it before a test (the sessions themselves run on a save in memory) */
 export function resetRunStore() {
-  useDuel2Store.getState().resetProgress()
-  useDuel2Store.setState(SAVE)
+  useSpellQuestStore.getState().resetProgress()
+  useSpellQuestStore.setState(SAVE)
 }
 
 export interface SessionLog {
@@ -145,7 +145,7 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
   vi.useFakeTimers()
   setTowerAuto(true)
   resetRunStore()
-  duel2Telemetry.clear()
+  spellQuestTelemetry.clear()
   fakeAudio.reset()
   const voice: string[] = []
   fakeAudio.onVoice((id) => { voice.push(id); return new Promise((r) => setTimeout(r, 10)) })
@@ -224,7 +224,7 @@ export async function recordSession(opts: RunOpts, answer: (view: View) => 'righ
     fakeAudio.onVoice(null)
     vi.useRealTimers()
   }
-  const events = (duel2Telemetry.events() as { e: string; screen?: unknown; target?: unknown }[]).map((x) => ({
+  const events = (spellQuestTelemetry.events() as { e: string; screen?: unknown; target?: unknown }[]).map((x) => ({
     e: x.e,
     ...(typeof x.screen === 'string' ? { screen: x.screen } : {}),
     ...(typeof x.target === 'string' ? { target: x.target } : {}),

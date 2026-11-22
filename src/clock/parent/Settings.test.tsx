@@ -6,7 +6,7 @@ import ClockSettings from './Settings'
 import { clockParent } from '.'
 import { useClockStore } from '../store'
 import { clockTelemetry } from '../telemetry'
-import { useDuel2Store } from '../../spellquest/store'
+import { useSpellQuestStore } from '../../spellquest/store'
 
 describe('the clock\'s section in the parent area', () => {
   beforeEach(() => {
@@ -42,9 +42,9 @@ describe('the clock\'s section in the parent area', () => {
 
   it('reset clears the clock only', async () => {
     useClockStore.getState().addGears(4)
-    useDuel2Store.setState({ crystals: 2 })
+    useSpellQuestStore.setState({ crystals: 2 })
     await clockParent.reset()
     expect(useClockStore.getState().gears).toBe(0)
-    expect(useDuel2Store.getState().crystals).toBe(2)
+    expect(useSpellQuestStore.getState().crystals).toBe(2)
   })
 })

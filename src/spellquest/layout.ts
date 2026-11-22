@@ -12,7 +12,7 @@ export const BAR_TOP_PX = 8
 export const BAR_H_PX = 64
 /** free space between the band and the stage (the go-on button's pulse grows into it) */
 export const BAR_GAP_PX = 6
-/** the items in the bar (duel2.css): the round buttons, a heart, the go-on button (as tall as the band), the held home button */
+/** the items in the bar (spellquest.css): the round buttons, a heart, the go-on button (as tall as the band), the held home button */
 export const BAR_ITEMS_PX = { button: 60, heart: 40, next: BAR_H_PX, home: 56 }
 /** the go-on button's pulse (d2-pulse) */
 export const NEXT_PULSE = 1.08
@@ -115,7 +115,7 @@ export function barItems(w: number, speaker = true, home = false): BarItems {
   const slot = sp ? sp[1] + BAR_ITEM_GAP_PX : start
   const hint: Span = [slot, slot + B]
   const nextSide = !nextInMiddle(w, home)
-  // in the hint's place the go-on button is the hint button's size and glows instead of growing (duel2.css), so it takes no more room
+  // in the hint's place the go-on button is the hint button's size and glows instead of growing (spellquest.css), so it takes no more room
   const next: Span = nextSide ? hint : [w / 2 - BAR_NEXT_HALF_PX, w / 2 + BAR_NEXT_HALF_PX]
   const left: Span = [BAR_SIDE_PX, hint[1]]
   const right = w - BAR_SIDE_PX
@@ -255,7 +255,7 @@ export const toScreen = (v: FullView, x: number, y: number) => ({ x: (x - v.x) *
 export const belowBand = (v: FullView) => v.y + (BAR_TOP_PX + BAR_H_PX + BAND_AIR_PX) / v.scale
 
 /**
- * The first duel's tower in Book 2's run (duel.css, `.nd-embedded`; the parent's pick): the sizes on a phone on its side
+ * The first duel's tower in Spell Quest's run (duel.css, `.nd-embedded`; the parent's pick): the sizes on a phone on its side
  * (height ≤ 500) and on a tablet. `glyph`: a rune's glyph box (the duel's own: 60); `mark`: the mark's scale in it;
  * `vav`: a vav mark's scale and its drop (glyph units; its holam dot is near the glyph's top). `sprite`/`boss`: the
  * monster's height. `pad`: the rune row's band (rune, padding, border). No time line at the field's top.
@@ -271,7 +271,7 @@ const MONSTER_BOTTOM = 0.14
 /** the cue bubble's height, its arrow and its gap included (a picture, a sign or a speaker; measured ≤ 62), and a boss's hearts row */
 const CUE_PX = { bubble: 64, gap: 12, bossGap: 4, bossBubble: 56, hearts: 26 }
 
-/** The top of the monster's cue bubble (CSS px from the screen's top) on a w×h screen in Book 2's run, the boss's or a monster's. */
+/** The top of the monster's cue bubble (CSS px from the screen's top) on a w×h screen in Spell Quest's run, the boss's or a monster's. */
 export function towerCueTop(h: number, boss: boolean): number {
   const t = h > 500 ? TOWER_LAYOUT.tablet : TOWER_LAYOUT.phone
   const fieldBottom = h - t.pad

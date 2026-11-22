@@ -1,6 +1,6 @@
-// The first duel's tower as a screen of Book 2's run (spec: one duel, Part 3): the duel's own board (Battlefield and
-// SpellPad, its rules and timing in useDuelGame's embedded mode), drawn over the stage under Book 2's top bar. No DuelHud
-// (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Book 2's pause cover holds, and the
+// The first duel's tower as a screen of Spell Quest's run (spec: one duel, Part 3): the duel's own board (Battlefield and
+// SpellPad, its rules and timing in useDuelGame's embedded mode), drawn over the stage under Spell Quest's top bar. No DuelHud
+// (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Spell Quest's pause cover holds, and the
 // run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
 // sits above the rune row, as in the duel.
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
@@ -15,7 +15,7 @@ import { Icon } from '../../../components/duel/Icon'
 import { HintIcon } from '../icons'
 import { BlendWord } from '../BlendWord'
 import { MEGA_MAX } from '../../../utils/duel/rules'
-import { duel2Telemetry } from '../../telemetry'
+import { spellQuestTelemetry } from '../../telemetry'
 import { storeSavePort } from '../../savePort'
 import type { TowerView } from '../../controller'
 import type { Round } from '../../../types/duel'
@@ -40,7 +40,7 @@ interface TowerProps {
   /**
    * the course played: the tower's rounds, spoken parts, tallies and line player, the save that keeps what was explained
    * and the owed monsters, the log, and its placement check's rounds (`view.placement`) (unset: the Hebrew course's,
-   * Book 2's save and log)
+   * Spell Quest's save and log)
    */
   course?: Pick<Course, 'tower' | 'save' | 'telemetry' | 'placement'> & Partial<Pick<Course, 'dir'>>
 }
@@ -94,11 +94,11 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge, megaOff: !!placing,
     },
-    // the duel's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Book 2's)
-    telemetry: dry ? NO_TELEMETRY : course?.telemetry ?? duel2Telemetry,
+    // the duel's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Spell Quest's)
+    telemetry: dry ? NO_TELEMETRY : course?.telemetry ?? spellQuestTelemetry,
   })
   const { state } = game
-  // Book 2 is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)
+  // Spell Quest is played sideways only: a phone on its side gets the one-row board (the portrait board left no field)
   const landscape = useLandscape(EMBEDDED_LANDSCAPE_QUERY)
   const root = useRef<HTMLDivElement>(null)
   const hinting = game.canHint && state.walking && !!state.round && !state.outcome && !state.preview && !state.paused && !paused

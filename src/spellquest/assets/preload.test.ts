@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DRAW_FONT } from '../logic/drawLayout'
-import { FONTS, READY_MS, preloadDuel2Assets } from './preload'
+import { FONTS, READY_MS, preloadSpellQuestAssets } from './preload'
 
-describe('preloadDuel2Assets', () => {
+describe('preloadSpellQuestAssets', () => {
   it('waits for fonts and images, at most READY_MS', async () => {
     vi.useFakeTimers()
-    const p = preloadDuel2Assets()
+    const p = preloadSpellQuestAssets()
     let done = false
     void p.then(() => { done = true })
     await vi.advanceTimersByTimeAsync(READY_MS - 100)
     await vi.advanceTimersByTimeAsync(200)
     expect(done).toBe(true)
-    expect(preloadDuel2Assets()).toBe(p)
+    expect(preloadSpellQuestAssets()).toBe(p)
     vi.useRealTimers()
   })
   it('loads the fonts of both drawing scripts before the first screen (the words in handwriting are Dana Yad)', () => {

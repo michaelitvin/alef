@@ -1,9 +1,9 @@
-// Book 2's developer tools in the parent area (on production too): the screen gallery, the stroke review and the drawing
-// test board open as Book 2's own screens; the tower glyph sheet (its own address, read at load) only in test builds.
+// Spell Quest's developer tools in the parent area (on production too): the screen gallery, the stroke review and the drawing
+// test board open as Spell Quest's own screens; the tower glyph sheet (its own address, read at load) only in test builds.
 import type { DevToolsProps } from '../../parent/types'
 import { TEST_HOOKS } from '../testHooks'
 
-export default function Book2DevTools({ openDev }: DevToolsProps) {
+export default function SpellQuestDevTools({ openDev }: DevToolsProps) {
   return (
     <p>
       <button data-dev="gallery" onClick={() => openDev?.('gallery')}>Screens (review each screen)</button>{' '}

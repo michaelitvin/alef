@@ -1,6 +1,6 @@
 // Picture words (spec: §5 door corridor, the word link). Door words: two syllables built from game items (so he can read
 // them), no final letters, no people, one obvious picture name, never "door" (the scene is a door). Word-link words only need
-// their first syllable. Pictures: the duel's (`word-<key>` in src/assets/duel/sprites) or Book 2's own (`pw-<key>`).
+// their first syllable. Pictures: the duel's (`word-<key>` in src/assets/duel/sprites) or Spell Quest's own (`pw-<key>`).
 // Spelling follows the game's glyphs: dagesh only in בּ כּ פּ. Loaded by plain Node: erasable TS only.
 import type { MarkId, Stage } from '../logic/content.ts'
 

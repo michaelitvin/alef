@@ -1,4 +1,4 @@
-// The tower screen: the first duel's board inside Book 2's run (spec: one duel, Part 3).
+// The tower screen: the first duel's board inside Spell Quest's run (spec: one duel, Part 3).
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../../utils/duel/duelAudio', async (orig) => {
@@ -8,10 +8,10 @@ vi.mock('../../../utils/duel/duelAudio', async (orig) => {
 })
 import { Tower } from './Tower'
 import { muteDuelAudio } from '../../../utils/duel/duelAudio'
-import { useDuel2Store } from '../../store'
+import { useSpellQuestStore } from '../../store'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'
-import { duel2Telemetry } from '../../telemetry'
+import { spellQuestTelemetry } from '../../telemetry'
 import { SESSION, readLog } from '../../../shared/telemetry'
 
 const view = { screen: 'tower' as const, wave: 1, waves: 2, boss: false, visit: 1 }
@@ -19,7 +19,7 @@ const view = { screen: 'tower' as const, wave: 1, waves: 2, boss: false, visit: 
 describe('Tower', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    useDuel2Store.getState().resetProgress()
+    useSpellQuestStore.getState().resetProgress()
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
     vi.mocked(muteDuelAudio).mockClear()
   })
@@ -27,26 +27,26 @@ describe('Tower', () => {
 
   it('the duel’s events go to Book 2’s log: g book2, via tower, the page’s one session, Book 2’s run; none in the old log (ADR 0004)', async () => {
     localStorage.clear()
-    duel2Telemetry.clear()
-    duel2Telemetry.setRun(5)
+    spellQuestTelemetry.clear()
+    spellQuestTelemetry.setRun(5)
     const { unmount } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
-    duel2Telemetry.flush()
+    spellQuestTelemetry.flush()
     const rounds = readLog('alef-duel2-telemetry').filter((e) => e.e === 'round')
     expect(rounds.length).toBeGreaterThan(0)
     for (const r of rounds) expect(r).toMatchObject({ g: 'book2', via: 'tower', s: SESSION, run: 5, visit: 1 })
     expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
-    duel2Telemetry.setRun(0)
+    spellQuestTelemetry.setRun(0)
   })
 
   it('the gallery’s tower (dry) records no event', async () => {
     localStorage.clear()
-    duel2Telemetry.clear()
+    spellQuestTelemetry.clear()
     const { unmount } = render(<Tower view={view} paused={false} dry onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
-    expect(duel2Telemetry.events().length).toBe(0)
+    expect(spellQuestTelemetry.events().length).toBe(0)
     expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
   })
 
@@ -88,7 +88,7 @@ describe('Tower', () => {
   it('its intro is kept in Book 2’s save, so it plays once ever', async () => {
     render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
-    expect(useDuel2Store.getState().demosSeen).toContain('tower-intro')
+    expect(useSpellQuestStore.getState().demosSeen).toContain('tower-intro')
   })
 
   it('a lock pauses the board under Book 2’s cover (the duel shows no cover of its own); the play resumes it', async () => {
@@ -117,7 +117,7 @@ describe('Tower', () => {
     expect(container.querySelector('.nd-mega-btn')).toBeNull()
     for (let i = 0; i < 40 && !container.querySelector('.nd-mega-btn'); i++) await act(async () => { await vi.advanceTimersByTimeAsync(250) })
     expect(container.querySelector('.nd-mega-btn')).not.toBeNull()
-    // a lock hides it under Book 2's cover; the play brings it back
+    // a lock hides it under Spell Quest's cover; the play brings it back
     rerender(<Tower {...props} paused />)
     expect(container.querySelector('.nd-mega-btn')).toBeNull()
     rerender(<Tower {...props} paused={false} />)

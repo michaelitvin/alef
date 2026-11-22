@@ -127,11 +127,11 @@ function KeyShape(p: { x: number; y: number; picture: string | undefined; state:
   )
 }
 
-/** a key: its id and its picture (Book 2: an image name; English, with a plate: the picture's file) */
+/** a key: its id and its picture (Spell Quest: an image name; English, with a plate: the picture's file) */
 type DoorKey = { id: string; picture: string }
 
 export function Doors(p: {
-  /** the right key (Book 2: the door word, whose syllables are the plate) */
+  /** the right key (Spell Quest: the door word, whose syllables are the plate) */
   word: Word | DoorKey; lit: number; keys: DoorKey[]; onPick: (id: string) => void; phase: Phase; opening: boolean; zooming: boolean; reveal?: { right: string; wrong?: string }; showCorrect?: boolean
   /** English: the words on the door, in reading order (each lights as a part) */
   plate?: Choice[]

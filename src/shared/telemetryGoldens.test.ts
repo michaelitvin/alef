@@ -3,19 +3,19 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { readLog } from './telemetry'
-import { BOOK2_LOG } from '../spellquest/telemetryLog'
+import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 import { ENGLISH_LOG } from '../english/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 import { SPACECAT_LOG } from '../spacecat/telemetryLog'
 import { DUEL_HISTORY_LOG } from '../utils/duel/telemetryHistory'
-import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_BOOK2_SPELL, GOLDEN_CLOCK, GOLDEN_ENGLISH, GOLDEN_NOW, GOLDEN_SPACECAT, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
+import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_SPELLQUEST_SPELL, GOLDEN_CLOCK, GOLDEN_ENGLISH, GOLDEN_NOW, GOLDEN_SPACECAT, spellQuestEvents, goldenExport } from './__fixtures__/telemetry/generate'
 
 const SINCE = GOLDEN_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
 
 describe('the export goldens', () => {
   it('Book 2: all, and the last 30 days', async () => {
-    await expect(goldenExport(BOOK2_LOG, GOLDEN_BOOK2())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-all.golden.json')
-    await expect(goldenExport(BOOK2_LOG, GOLDEN_BOOK2(), SINCE)).toMatchFileSnapshot('./__fixtures__/telemetry/book2-30d.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-all.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST(), SINCE)).toMatchFileSnapshot('./__fixtures__/telemetry/book2-30d.golden.json')
   })
 
   it('the clock: all', async () => {
@@ -27,7 +27,7 @@ describe('the export goldens', () => {
   })
 
   it('the Hebrew spell book: all', async () => {
-    await expect(goldenExport(BOOK2_LOG, GOLDEN_BOOK2_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-spell.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-spell.golden.json')
   })
 
   it('Space Cat: all', async () => {
@@ -42,9 +42,9 @@ describe('the export goldens', () => {
   })
 
   it('a log stored as today\'s build stores it reads back to the same export', () => {
-    const evs = GOLDEN_BOOK2()
-    localStorage.setItem(BOOK2_LOG.key, JSON.stringify({ v: 1, events: evs }))
-    expect(goldenExport(BOOK2_LOG, readLog(BOOK2_LOG.key))).toBe(goldenExport(BOOK2_LOG, evs))
+    const evs = GOLDEN_SPELLQUEST()
+    localStorage.setItem(SPELLQUEST_LOG.key, JSON.stringify({ v: 1, events: evs }))
+    expect(goldenExport(SPELLQUEST_LOG, readLog(SPELLQUEST_LOG.key))).toBe(goldenExport(SPELLQUEST_LOG, evs))
     localStorage.clear()
   })
 })
@@ -65,18 +65,18 @@ describe('the fixtures cover every event the games send', () => {
     expect([...names].filter((n) => !FIXTURE_EVENT_NAMES.has(n))).toEqual([])
   })
   it('every generator name is in a golden log', () => {
-    const inLogs = new Set([...GOLDEN_BOOK2(), ...GOLDEN_CLOCK(), ...GOLDEN_SPACECAT(), ...GOLDEN_ENGLISH(), ...GOLDEN_BOOK2_SPELL()].map((e) => e.e))
+    const inLogs = new Set([...GOLDEN_SPELLQUEST(), ...GOLDEN_CLOCK(), ...GOLDEN_SPACECAT(), ...GOLDEN_ENGLISH(), ...GOLDEN_SPELLQUEST_SPELL()].map((e) => e.e))
     expect([...FIXTURE_EVENT_NAMES].filter((n) => !inLogs.has(n))).toEqual([])
   })
   it('the logs span 40+ days in t order, with old events without g, ties in one ms and clock near t', () => {
-    for (const evs of [GOLDEN_BOOK2(), GOLDEN_CLOCK(), GOLDEN_SPACECAT(), GOLDEN_ENGLISH(), GOLDEN_BOOK2_SPELL()]) {
+    for (const evs of [GOLDEN_SPELLQUEST(), GOLDEN_CLOCK(), GOLDEN_SPACECAT(), GOLDEN_ENGLISH(), GOLDEN_SPELLQUEST_SPELL()]) {
       expect(evs.every((e, i) => i === 0 || e.t >= evs[i - 1]!.t)).toBe(true)
       expect(evs[evs.length - 1]!.t - evs[0]!.t).toBeGreaterThan(40 * 24 * 60 * 60 * 1000)
       expect(evs.some((e) => e.g === undefined)).toBe(true)
       expect(evs.some((e, i) => i > 0 && e.t === evs[i - 1]!.t)).toBe(true)
       expect(new Set(evs.map((e) => e.s)).size).toBeGreaterThan(10)
     }
-    const clocks = book2Events().filter((e) => typeof e.clock === 'number').map((e) => e.t - (e.clock as number))
+    const clocks = spellQuestEvents().filter((e) => typeof e.clock === 'number').map((e) => e.t - (e.clock as number))
     expect(new Set(clocks)).toEqual(new Set([0, 1, 2, 3, -1]))
   })
 })

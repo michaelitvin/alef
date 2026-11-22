@@ -1,43 +1,43 @@
-// Book 2's section in the parent area (moved from the old parent screen's test and the first duel's stats card's test):
+// Spell Quest's section in the parent area (moved from the old parent screen's test and the first duel's stats card's test):
 // the placement control, the stage line, drawing, the shopping range and money, the first duel's history, the flight
-// speed, the export, the developer screens and the reset of Book 2 only.
+// speed, the export, the developer screens and the reset of Spell Quest only.
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import Book2Settings from './Settings'
-import Book2DevTools from './DevTools'
-import { book2Parent } from '.'
-import { useDuel2Store } from '../store'
+import SpellQuestSettings from './Settings'
+import SpellQuestDevTools from './DevTools'
+import { spellQuestParent } from '.'
+import { useSpellQuestStore } from '../store'
 import { flightPace } from '../logic/run'
-import { duel2Telemetry } from '../telemetry'
+import { spellQuestTelemetry } from '../telemetry'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
-const section = () => render(<Book2Settings goTo={() => {}} />)
+const section = () => render(<SpellQuestSettings goTo={() => {}} />)
 
 describe('Book 2\'s section in the parent area', () => {
   beforeEach(() => { useProgressStore.setState({ ...INITIAL_PROGRESS_STATE }) })
   afterEach(() => vi.restoreAllMocks())
 
   it('“already knows nikkud”: the parent opens Book 2 at stage 0 (logged); the switch shows only while the book is closed', () => {
-    useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ bookOpen: false })
-    const track = vi.spyOn(duel2Telemetry, 'track')
+    useSpellQuestStore.getState().resetProgress()
+    useSpellQuestStore.setState({ bookOpen: false })
+    const track = vi.spyOn(spellQuestTelemetry, 'track')
     const { container } = section()
     const box = container.querySelector('[data-open-book] [data-setting-open-book]') as HTMLInputElement
     expect(box).not.toBeNull()
     fireEvent.click(box)
-    expect(useDuel2Store.getState().bookOpen).toBe(true)
+    expect(useSpellQuestStore.getState().bookOpen).toBe(true)
     expect(track).toHaveBeenCalledWith('book-open', expect.objectContaining({ by: 'parent' }))
     expect(container.querySelector('[data-setting-open-book]')).toBeNull()
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
   it('the stage line says stage 0 (the tower) before Book 2 opens', () => {
-    useDuel2Store.setState({ bookOpen: false })
+    useSpellQuestStore.setState({ bookOpen: false })
     const { container, unmount } = section()
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 0: the tower/)
     unmount()
-    useDuel2Store.setState({ bookOpen: true })
+    useSpellQuestStore.setState({ bookOpen: true })
     const r = section()
     expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
@@ -71,7 +71,7 @@ describe('Book 2\'s section in the parent area', () => {
 
   it('has no export of its own: Book 2’s telemetry and the first duel’s history link to the Data section', () => {
     const goTo = vi.fn()
-    const { container } = render(<Book2Settings goTo={goTo} />)
+    const { container } = render(<SpellQuestSettings goTo={goTo} />)
     expect(screen.queryByText('Export telemetry')).toBeNull()
     expect(container.querySelector('[data-duel-export]')).toBeNull()
     const links = container.querySelectorAll('[data-goto-data]')
@@ -81,7 +81,7 @@ describe('Book 2\'s section in the parent area', () => {
   })
 
   it('shows the flight speed this device has learned, and can reset it (it adapts per device)', () => {
-    useDuel2Store.setState({ pace: 0.85 })
+    useSpellQuestStore.setState({ pace: 0.85 })
     const { container } = section()
     expect(container.querySelector('[data-pace]')!.textContent).toMatch(/0\.85/)
     // the rule as the flight applies it (flightPace): a catch 1% faster, a mistake 4% slower
@@ -90,19 +90,19 @@ describe('Book 2\'s section in the parent area', () => {
     expect(flightPace(1, 'miss')).toBeCloseTo(1.04)
     expect(flightPace(1, 'catch')).toBeCloseTo(0.99)
     fireEvent.click(screen.getByText('Reset flight speed'))
-    expect(useDuel2Store.getState().pace).toBe(1)
+    expect(useSpellQuestStore.getState().pace).toBe(1)
   })
 
   it('the parent can turn the drawing screens off and on here (logged); the stroke count and a link to the stroke review', () => {
-    useDuel2Store.getState().setSettings({ drawing: false })
-    useDuel2Store.setState({ strokeMarks: { 'ד-print': 'ok' } })
-    const track = vi.spyOn(duel2Telemetry, 'track')
+    useSpellQuestStore.getState().setSettings({ drawing: false })
+    useSpellQuestStore.setState({ strokeMarks: { 'ד-print': 'ok' } })
+    const track = vi.spyOn(spellQuestTelemetry, 'track')
     const goTo = vi.fn()
-    const { container } = render(<Book2Settings goTo={goTo} />)
+    const { container } = render(<SpellQuestSettings goTo={goTo} />)
     const box = container.querySelector('input[data-setting-drawing]') as HTMLInputElement
     expect(box.checked).toBe(false)
     fireEvent.click(box)
-    expect(useDuel2Store.getState().settings.drawing).toBe(true)
+    expect(useSpellQuestStore.getState().settings.drawing).toBe(true)
     expect(track).toHaveBeenCalledWith('settings', { keys: ['drawing'], drawing: true })
     expect(container.querySelector('[data-stroke-count]')!.textContent).toBe('1')
     fireEvent.click(container.querySelector('[data-goto-dev]')!)
@@ -110,12 +110,12 @@ describe('Book 2\'s section in the parent area', () => {
   })
 
   it('sets the number range (logged) and shows the money section', () => {
-    useDuel2Store.setState({ merchant: { visits: 5, purchases: 3, declines: 2, short: 4, over: 1, hints: 6, level: 1, demoSeen: true, undoShown: true, cleanRow: 0, hintRow: 0 } })
-    const track = vi.spyOn(duel2Telemetry, 'track')
+    useSpellQuestStore.setState({ merchant: { visits: 5, purchases: 3, declines: 2, short: 4, over: 1, hints: 6, level: 1, demoSeen: true, undoShown: true, cleanRow: 0, hintRow: 0 } })
+    const track = vi.spyOn(spellQuestTelemetry, 'track')
     const { container } = section()
     expect((container.querySelector('input[data-range="100"]') as HTMLInputElement).checked).toBe(true)
     fireEvent.click(container.querySelector('input[data-range="10"]')!)
-    expect(useDuel2Store.getState().settings.range).toBe(10)
+    expect(useSpellQuestStore.getState().settings.range).toBe(10)
     expect(track).toHaveBeenCalledWith('settings', expect.objectContaining({ range: 10 }))
     const money = container.querySelector('[data-money]')!
     expect(money.querySelector('[data-money-visits]')!.textContent).toBe('5')
@@ -125,12 +125,12 @@ describe('Book 2\'s section in the parent area', () => {
     expect(money.querySelector('[data-money-over]')!.textContent).toBe('1')
     expect(money.querySelector('[data-money-hints]')!.textContent).toBe('6')
     expect(money.querySelector('[data-money-level]')!.textContent).toMatch(/1/)
-    useDuel2Store.getState().setSettings({ range: 100 })
+    useSpellQuestStore.getState().setSettings({ range: 100 })
   })
 
   it('the developer tools open the gallery, the stroke review and the test board', () => {
     const openDev = vi.fn()
-    render(<Book2DevTools goTo={() => {}} openDev={openDev} />)
+    render(<SpellQuestDevTools goTo={() => {}} openDev={openDev} />)
     fireEvent.click(screen.getByText(/Screens/))
     fireEvent.click(screen.getByText(/Stroke review/))
     fireEvent.click(screen.getByText(/test board/))
@@ -138,10 +138,10 @@ describe('Book 2\'s section in the parent area', () => {
   })
 
   it('reset clears Book 2 only (the lessons and the first duel’s history stay)', async () => {
-    useDuel2Store.setState({ crystals: 4 })
+    useSpellQuestStore.setState({ crystals: 4 })
     useProgressStore.setState({ duel: { ...INITIAL_PROGRESS_STATE.duel, sessions: 3 }, stats: { ...INITIAL_PROGRESS_STATE.stats, lettersLearned: 5 } })
-    await book2Parent.reset()
-    expect(useDuel2Store.getState().crystals).toBe(0)
+    await spellQuestParent.reset()
+    expect(useSpellQuestStore.getState().crystals).toBe(0)
     expect(useProgressStore.getState().duel.sessions).toBe(3)
     expect(useProgressStore.getState().stats.lettersLearned).toBe(5)
   })

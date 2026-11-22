@@ -1,4 +1,4 @@
-// The English course: what Book 2's game plays on the English page (`?course=en`, where English is available:
+// The English course: what Spell Quest's game plays on the English page (`?course=en`, where English is available:
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
@@ -147,7 +147,7 @@ export const ENGLISH: Course = {
     walkMs: PLACEMENT_WALK_MS,
     answer: (save, right, target, at) => placementAnswer(en(save), right, target, at, READY_STAGES, (level) => englishStationsUpTo(level, (save.read() as Partial<EnglishSave>).settings?.drawing ?? true)),
   },
-  // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
+  // the kit's effects and music are Spell Quest's (SpellQuestSfx, its music kinds); the course's audio takes any name
   audio: {
     sayParts: a.sayParts, say: a.say, sayInfo: a.sayInfo, stopVoice: a.stopVoice, stopMusic: a.stopMusic, voiceSignal: a.voiceSignal,
     cancelVoice: a.cancelVoice, playSfx: a.playSfx as Course['audio']['playSfx'], startMusic: a.startMusic as Course['audio']['startMusic'],

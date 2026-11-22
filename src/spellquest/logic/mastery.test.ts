@@ -38,7 +38,7 @@ function answersToOpen(seed: number, cap = 5000): number {
  * every third visit a boss of 8 hits. `rule` 'old' (before 2026-11-13): the picker aims at 1 mistake in 5 from the
  * start, the check runs at a visit's end and only by towerMastered, and a visit halves to 1 wave after 8 clean answers.
  * 'new': the placement picker (cover), the check after every wave by either lane, no halving at stage 0. The hearts are
- * left out (a run that ends starts again at the tower). Returns the answers until Book 2 opens and the lane.
+ * left out (a run that ends starts again at the tower). Returns the answers until Spell Quest opens and the lane.
  */
 function stage0Sim(p: number, seed: number, rule: 'old' | 'new', cap = 5000): { n: number; lane: 'fast' | 'slow' | null } {
   const rng = seeded(seed)
@@ -115,7 +115,7 @@ describe('mastery', () => {
     expect(stage0Lane({ kamatz: 'ooox', chirik: 'ooo' }, ids, 'ooox')).toBe('slow')
     expect(stage0Lane({ kamatz: 'o', chirik: 'o' }, ids, 'oo')).toBe(null)
   })
-  // Measured (200 simulated players each, answers until Book 2 opens; p10 / median / p90; how many by the fast lane):
+  // Measured (200 simulated players each, answers until Spell Quest opens; p10 / median / p90; how many by the fast lane):
   //   right   old rule           new rule           fast lane
   //   100 %   33 / 41 / 46       10 / 10 / 10       200 of 200
   //    95 %   40 / 50 / 81       10 / 10 / 60       188

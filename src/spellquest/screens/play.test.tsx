@@ -20,10 +20,10 @@ describe('play', () => {
     const b = render(<Play opts={{}} onOver={() => {}} />)
     const root = b.container.querySelector('[data-screen="play"]')!
     expect(root.hasAttribute('data-defeat')).toBe(true)
-    // every screen's wizard (Book 2's screens mark it data-wizard; the tower's board is the duel's .nd-wizard) is hidden
+    // every screen's wizard (Spell Quest's screens mark it data-wizard; the tower's board is the duel's .nd-wizard) is hidden
     // the stylesheet's text: vitest gives a .css import no content, and node's types are not in the app's tsconfig
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/spellquest.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(/\.d2-root\[data-defeat\] \[data-wizard\], \.d2-root\[data-defeat\] \.nd-wizard \{ visibility: hidden; \}/)
     b.unmount()
   })

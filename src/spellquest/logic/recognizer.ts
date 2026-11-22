@@ -411,7 +411,7 @@ const MID_TALL = 0.17
 /**
  * His letter against the lines. `lines`: the Latin board's, where a letter is judged against its own lines: an x-height
  * letter (a c e …) against the middle line, a descender letter (g j p q y) against the descender line. Without them,
- * Book 2's rule (the top line and the baseline).
+ * Spell Quest's rule (the top line and the baseline).
  */
 export function lineFeedback(ink: Box, def: LetterDef, lines?: LatinLines): { kind: LineKind; outside?: { from: number; to: number } } | null {
   const b = bbox(def.variants[0].flatMap((st) => st.pts))

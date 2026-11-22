@@ -1,4 +1,4 @@
-// Book 2 icons: inline SVG only (no emoji: rule). One meaning each.
+// Spell Quest icons: inline SVG only (no emoji: rule). One meaning each.
 export { HeartIcon } from '../../shared/heart'
 /** "say it again": a speaker with sound waves */
 export const SpeakerIcon = () => (

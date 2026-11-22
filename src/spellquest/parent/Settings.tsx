@@ -1,8 +1,8 @@
-// Book 2's section in the parent area (src/parent; parent text, English allowed): the stage, the "open Book 2" placement
+// Spell Quest's section in the parent area (src/parent; parent text, English allowed): the stage, the "open Spell Quest" placement
 // control, drawing, the shopping range and the money table, the per-screen, letter and vowel tables, the top mix-ups,
 // the first duel's history and the flight speed. The frame has the close, boy or girl, sound, reset and developer tools.
-import { useDuel2Store, type Duel2Settings } from '../store'
-import { duel2Telemetry } from '../telemetry'
+import { useSpellQuestStore, type SpellQuestSettings } from '../store'
+import { spellQuestTelemetry } from '../telemetry'
 import { setNumberRange, useNumberRange } from '../../shared/numberRange'
 import { ITEMS } from '../logic/content'
 import type { SectionProps } from '../../parent/types'
@@ -11,10 +11,10 @@ import { FirstDuelHistory } from './FirstDuelHistory'
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
-export default function Book2Settings({ goTo }: SectionProps) {
-  const s = useDuel2Store()
+export default function SpellQuestSettings({ goTo }: SectionProps) {
+  const s = useSpellQuestStore()
   const range = useNumberRange()
-  const setSettings = (p: Partial<Duel2Settings>) => { s.setSettings(p); duel2Telemetry.track('settings', { keys: Object.keys(p), ...p }) }
+  const setSettings = (p: Partial<SpellQuestSettings>) => { s.setSettings(p); spellQuestTelemetry.track('settings', { keys: Object.keys(p), ...p }) }
   const rows = (prefix: string) => Object.entries(s.tallies).filter(([k]) => k.startsWith(prefix))
     .map(([k, t]) => ({ k: k.slice(prefix.length), seen: t.seen ?? 0, wrong: t.wrong ?? 0 }))
     .filter((r) => prefix !== 'l:' || ITEMS.some((i) => i.id === r.k))
@@ -34,7 +34,7 @@ export default function Book2Settings({ goTo }: SectionProps) {
         <p data-open-book>
           <label>
             <input type="checkbox" data-setting-open-book checked={false}
-              onChange={() => { s.openBook(); duel2Telemetry.track('book-open', { by: 'parent', stars: s.totalStars }) }} /> Already knows
+              onChange={() => { s.openBook(); spellQuestTelemetry.track('book-open', { by: 'parent', stars: s.totalStars }) }} /> Already knows
             nikkud: open Book 2 (its minigames join the tower in the run)
           </label>
         </p>

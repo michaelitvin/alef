@@ -1,17 +1,17 @@
 // The English path's section in the parent area: it is listed with its log, the summary line, the path and drawing
-// switches, the one number range, and a reset that leaves Book 2's save alone (and the other way round).
+// switches, the one number range, and a reset that leaves Spell Quest's save alone (and the other way round).
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ParentArea } from '../../parent/ParentArea'
 import { GAMES } from '../../parent/registry'
 import { storeSavePort, memorySavePort } from '../../spellquest/savePort'
-import { useDuel2Store } from '../../spellquest/store'
+import { useSpellQuestStore } from '../../spellquest/store'
 import { englishSavePort, memoryEnglishSavePort } from '../savePort'
 import { useEnglishStore } from '../store'
 import { englishTelemetry } from '../telemetry'
 import { getNumberRange, setNumberRange } from '../../shared/numberRange'
 import { englishParent } from '.'
-import book2Reset from '../../spellquest/parent/reset'
+import spellQuestReset from '../../spellquest/parent/reset'
 
 const LAZY = { timeout: 15000 }
 const raw = (k: string) => localStorage.getItem(k)
@@ -20,7 +20,7 @@ describe('the English section in the parent area', () => {
   beforeEach(() => {
     localStorage.clear()
     useEnglishStore.getState().resetProgress()
-    useDuel2Store.getState().resetProgress()
+    useSpellQuestStore.getState().resetProgress()
     englishSavePort().setSettings({ path: true, drawing: true })
   })
   afterEach(() => vi.restoreAllMocks())
@@ -45,23 +45,23 @@ describe('the English section in the parent area', () => {
   })
 
   it('a reset clears alef-english and leaves alef-duel2 byte-equal', async () => {
-    useDuel2Store.setState({ crystals: 3 })
+    useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
-    const book2Before = raw('alef-duel2')
-    expect(book2Before).not.toBeNull()
+    const spellQuestBefore = raw('alef-duel2')
+    expect(spellQuestBefore).not.toBeNull()
     await englishParent.reset()
     expect(useEnglishStore.getState().crystals).toBe(0)
-    expect(raw('alef-duel2')).toBe(book2Before)
+    expect(raw('alef-duel2')).toBe(spellQuestBefore)
     expect(JSON.parse(raw('alef-english')!).state.crystals).toBe(0)
   })
 
   it('and the other way: Book 2\'s reset leaves alef-english byte-equal', () => {
-    useDuel2Store.setState({ crystals: 3 })
+    useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
     const englishBefore = raw('alef-english')
     expect(englishBefore).not.toBeNull()
-    book2Reset()
-    expect(useDuel2Store.getState().crystals).toBe(0)
+    spellQuestReset()
+    expect(useSpellQuestStore.getState().crystals).toBe(0)
     expect(raw('alef-english')).toBe(englishBefore)
   })
 

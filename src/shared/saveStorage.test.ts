@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useDuel2Store } from '../spellquest/store'
+import { useSpellQuestStore } from '../spellquest/store'
 import { useClockStore } from '../clock/store'
 import { useProgressStore } from '../stores/progressStore'
 import { getGender, setGender } from './player'
@@ -28,7 +28,7 @@ const real = window.localStorage
 const install = (s: Storage) => Object.defineProperty(window, 'localStorage', { value: s, configurable: true })
 afterEach(() => { install(real); vi.restoreAllMocks() })
 
-const BOOK2_LOG = 'alef-duel2-telemetry'
+const SPELLQUEST_LOG = 'alef-duel2-telemetry'
 const CLOCK_LOG = 'alef-clock-telemetry'
 const FROZEN = 'alef-duel-telemetry'
 /** a log of `n` events numbered 0…n-1 (0 is the oldest), about 60 characters each */
@@ -41,7 +41,7 @@ const eventsOf = (s: Storage, k: string): TelemetryEvent[] => JSON.parse(s.getIt
 /** A full storage: two live logs, the frozen log, another save; then no room left beyond `room` characters. */
 function fullStorage(room = 100): FullStorage {
   const s = new FullStorage()
-  s.setItem(BOOK2_LOG, log(600))
+  s.setItem(SPELLQUEST_LOG, log(600))
   s.setItem(CLOCK_LOG, log(600, 'clock'))
   s.setItem(FROZEN, log(300, 'duel'))
   s.setItem('alef-other-save', JSON.stringify({ precious: 'x'.repeat(2000) }))
@@ -60,7 +60,7 @@ describe('a child save in a full storage', () => {
   })
 
   it.each([
-    ['Book 2', 'alef-duel2', () => useDuel2Store.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
+    ['Book 2', 'alef-duel2', () => useSpellQuestStore.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
     ['the clock', 'alef-clock', () => useClockStore.getState().addGears(7), (v: string) => JSON.parse(v).state.gears >= 7],
     ['the lessons', 'alef-progress', () => useProgressStore.getState().addToVocabulary('full-storage-word'),
       (v: string) => JSON.parse(v).state.vocabulary.includes('full-storage-word')],
@@ -69,13 +69,13 @@ describe('a child save in a full storage', () => {
     install(s)
     const frozen = snapshot(s, FROZEN)
     const other = snapshot(s, 'alef-other-save')
-    const before = eventsOf(s, BOOK2_LOG).length + eventsOf(s, CLOCK_LOG).length
+    const before = eventsOf(s, SPELLQUEST_LOG).length + eventsOf(s, CLOCK_LOG).length
     expect(act).not.toThrow()
     const value = s.getItem(key)
     expect(value).not.toBeNull()
     expect(saved(value!)).toBe(true)
     // a live log lost its oldest events; what is left is the newest, in order
-    const book2 = eventsOf(s, BOOK2_LOG)
+    const book2 = eventsOf(s, SPELLQUEST_LOG)
     expect(book2.length + eventsOf(s, CLOCK_LOG).length).toBeLessThan(before)
     if (book2.length) expect(last(book2).i).toBe(599)
     // the frozen log and the other save are untouched
@@ -87,7 +87,7 @@ describe('a child save in a full storage', () => {
     const s = fullStorage()
     install(s)
     expect(safeSetItem('alef-new-save', 'y'.repeat(1000))).toBe(true)
-    const freed = log(600).length + log(600, 'clock').length - (s.getItem(BOOK2_LOG)?.length ?? 0) - (s.getItem(CLOCK_LOG)?.length ?? 0)
+    const freed = log(600).length + log(600, 'clock').length - (s.getItem(SPELLQUEST_LOG)?.length ?? 0) - (s.getItem(CLOCK_LOG)?.length ?? 0)
     expect(freed).toBeGreaterThanOrEqual(1000 + 'alef-new-save'.length)
     expect(freed).toBeLessThan(1000 + FREE_SLACK + 2000)
     expect(s.getItem('alef-other-save')).not.toBeNull()
@@ -104,12 +104,12 @@ describe('a child save in a full storage', () => {
   it('staging: the save keeps its prefix, and staging trims only its own logs', () => {
     const raw = new FullStorage()
     raw.setItem(FROZEN, log(300, 'duel'))
-    raw.setItem(BOOK2_LOG, log(300))
+    raw.setItem(SPELLQUEST_LOG, log(300))
     raw.setItem(STAGING_PREFIX + CLOCK_LOG, log(600, 'clock'))
     raw.setItem(STAGING_PREFIX + FROZEN, log(100, 'duel'))
     raw.limit = raw.used() + 50
     const prodFrozen = raw.getItem(FROZEN)
-    const prodLog = raw.getItem(BOOK2_LOG)
+    const prodLog = raw.getItem(SPELLQUEST_LOG)
     const stagingFrozen = raw.getItem(STAGING_PREFIX + FROZEN)
     install(prefixedStorage(raw, STAGING_PREFIX))
     useClockStore.getState().addGears(3)
@@ -117,21 +117,21 @@ describe('a child save in a full storage', () => {
     expect(raw.getItem('alef-clock')).toBeNull()
     expect(eventsOf(raw, STAGING_PREFIX + CLOCK_LOG).length).toBeLessThan(600)
     expect(raw.getItem(FROZEN)).toBe(prodFrozen)
-    expect(raw.getItem(BOOK2_LOG)).toBe(prodLog)
+    expect(raw.getItem(SPELLQUEST_LOG)).toBe(prodLog)
     expect(raw.getItem(STAGING_PREFIX + FROZEN)).toBe(stagingFrozen)
   })
 
   it('production may trim staging\'s logs, never staging\'s frozen log', () => {
     const s = new FullStorage()
-    s.setItem(STAGING_PREFIX + BOOK2_LOG, log(600))
+    s.setItem(STAGING_PREFIX + SPELLQUEST_LOG, log(600))
     s.setItem(STAGING_PREFIX + FROZEN, log(300, 'duel'))
     s.setItem(FROZEN, log(300, 'duel'))
     s.limit = s.used() + 50
     const frozen = [s.getItem(FROZEN), s.getItem(STAGING_PREFIX + FROZEN)]
     install(s)
-    useDuel2Store.getState().addStars(1)
+    useSpellQuestStore.getState().addStars(1)
     expect(s.getItem('alef-duel2')).not.toBeNull()
-    expect(eventsOf(s, STAGING_PREFIX + BOOK2_LOG).length).toBeLessThan(600)
+    expect(eventsOf(s, STAGING_PREFIX + SPELLQUEST_LOG).length).toBeLessThan(600)
     expect([s.getItem(FROZEN), s.getItem(STAGING_PREFIX + FROZEN)]).toEqual(frozen)
   })
 
@@ -139,15 +139,15 @@ describe('a child save in a full storage', () => {
     const s = new FullStorage()
     s.setItem(FROZEN, log(300, 'duel'))
     s.setItem('alef-other-save', 'z'.repeat(3000))
-    s.setItem(BOOK2_LOG, log(5))
+    s.setItem(SPELLQUEST_LOG, log(5))
     s.limit = s.used() + 10
     const frozen = s.getItem(FROZEN)
     install(s)
-    const stars = useDuel2Store.getState().totalStars
-    expect(() => useDuel2Store.getState().addStars(2)).not.toThrow()
-    expect(useDuel2Store.getState().totalStars).toBe(stars + 2)
-    expect(() => useDuel2Store.getState().addStars(1)).not.toThrow()
-    expect(useDuel2Store.getState().totalStars).toBe(stars + 3)
+    const stars = useSpellQuestStore.getState().totalStars
+    expect(() => useSpellQuestStore.getState().addStars(2)).not.toThrow()
+    expect(useSpellQuestStore.getState().totalStars).toBe(stars + 2)
+    expect(() => useSpellQuestStore.getState().addStars(1)).not.toThrow()
+    expect(useSpellQuestStore.getState().totalStars).toBe(stars + 3)
     expect(s.getItem(FROZEN)).toBe(frozen)
     expect(s.getItem('alef-other-save')).toBe('z'.repeat(3000))
     expect(safeSetItem('alef-x', 'y'.repeat(5000))).toBe(false)
@@ -222,10 +222,10 @@ describe('telemetry in a full storage', () => {
     install(s)
     const clock = createTelemetry(CLOCK_LOG, { game: 'clock' })
     clock.track('round', { i: 600 })
-    const book2Before = s.getItem(BOOK2_LOG)
+    const spellQuestBefore = s.getItem(SPELLQUEST_LOG)
     useClockStore.getState().addGears(1)
     expect(s.getItem('alef-clock')).not.toBeNull()
-    expect(s.getItem(BOOK2_LOG)).toBe(book2Before)
+    expect(s.getItem(SPELLQUEST_LOG)).toBe(spellQuestBefore)
     const after = eventsOf(s, CLOCK_LOG)
     expect(after.length).toBeLessThan(600)
     clock.flush()

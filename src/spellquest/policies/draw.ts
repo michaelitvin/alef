@@ -18,7 +18,7 @@ import { drawFeature } from '../logic/draw'
  * the letter's box it was drawn for; `mark`, a dot or a bar of a letter (it is not part of the letter's ink)
  */
 export type DrawStroke = RowStroke
-/** the round's word: its id, and its picture (Hebrew: an image name; the whole Book 2 word) */
+/** the round's word: its id, and its picture (Hebrew: an image name; the whole Spell Quest word) */
 export interface DrawWord { id: string; picture?: string }
 export interface DrawView {
   screen: 'draw'; word: DrawWord; script: Script; letter: string; layout: DrawLayout; marks: MarkSpec[]

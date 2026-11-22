@@ -150,10 +150,10 @@ describe('the storage budget', () => {
   })
 
   it('the budget does not grow with the number of games: the instances have no cap of their own', async () => {
-    const { duel2Telemetry } = await import('../spellquest/telemetry')
+    const { spellQuestTelemetry } = await import('../spellquest/telemetry')
     const { clockTelemetry } = await import('../clock/telemetry')
-    expect('maxChars' in duel2Telemetry).toBe(false)
-    expect([duel2Telemetry.game, clockTelemetry.game]).toEqual(['book2', 'clock'])
+    expect('maxChars' in spellQuestTelemetry).toBe(false)
+    expect([spellQuestTelemetry.game, clockTelemetry.game]).toEqual(['book2', 'clock'])
   })
 })
 

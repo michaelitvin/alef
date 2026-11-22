@@ -1,5 +1,5 @@
-// Book 2 art (generated, see asset-sources/duel2/) plus the duel's picture words (`word-<key>`). Missing images fall back to
-// simple SVG in the components (the spell book's `s-book` is the English path's green file; Book 2 has none and SpellBook draws its pages).
+// Spell Quest art (generated, see asset-sources/duel2/) plus the duel's picture words (`word-<key>`). Missing images fall back to
+// simple SVG in the components (the spell book's `s-book` is the English path's green file; Spell Quest has none and SpellBook draws its pages).
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url]))
 export const IMAGES: Record<string, string> = {

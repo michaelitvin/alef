@@ -5,7 +5,7 @@ const { gate } = vi.hoisted(() => {
   const p = new Promise<void>((r) => { open = r })
   return { gate: { p, open: () => open() } }
 })
-vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadDuel2Assets: () => gate.p }))
+vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadSpellQuestAssets: () => gate.p }))
 // the run itself is tested in useRun.test: here a session ends at once, so the shell around it can be checked
 const { playOpts, exits } = vi.hoisted(() => ({ playOpts: [] as unknown[], exits: [] as (undefined | (() => void))[] }))
 vi.mock('./Play', () => ({
@@ -15,10 +15,10 @@ vi.mock('./Play', () => ({
     return <div data-screen="play" data-session={opts.session?.screen} onClick={() => onOver({ score: 4, crystals: 0, best: false, session: !!opts.session })} />
   },
 }))
-import Duel2App from '../Duel2App'
+import SpellQuestApp from '../SpellQuestApp'
 import { Summary, HOME_AFTER_MS } from './Summary'
 import { stationFromUrl } from '../station'
-import { useDuel2Store } from '../store'
+import { useSpellQuestStore } from '../store'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 const fakeAudio = installFakeAudio()
 import { clearGender, setGender } from '../../shared/player'
@@ -32,8 +32,8 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => vis })
     vis = 'visible'
     playOpts.length = 0
-    useDuel2Store.getState().resetProgress()
-    useDuel2Store.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' } })
+    useSpellQuestStore.getState().resetProgress()
+    useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' } })
     setGender('boy', 'parent')
     fakeAudio.onVoice(() => Promise.resolve(true))
   })
@@ -48,7 +48,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
 
   it('?station=ghosts shows one play button; its tap waits for preload, then the ghosts session starts', async () => {
     at('?station=ghosts')
-    const { container } = render(<Duel2App goHome={() => {}} />)
+    const { container } = render(<SpellQuestApp goHome={() => {}} />)
     expect(container.querySelector('[data-screen="station"]')).not.toBeNull()
     expect(container.querySelectorAll('button').length).toBe(1)
     fireEvent.pointerDown(container.querySelector('[data-station-play]')!)
@@ -62,18 +62,18 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
   it('a locked or unknown station opens the cover', () => {
     for (const q of ['?station=doors', '?station=x', '?station=ladder', '?station=']) {
       at(q)
-      const { container, unmount } = render(<Duel2App goHome={() => {}} />)
+      const { container, unmount } = render(<SpellQuestApp goHome={() => {}} />)
       expect(container.querySelector('[data-screen="cover"]')).not.toBeNull()
       unmount()
     }
-    // a new player (Book 2 not open yet): only the tower
-    useDuel2Store.getState().resetProgress()
+    // a new player (Spell Quest not open yet): only the tower
+    useSpellQuestStore.getState().resetProgress()
     at('?station=broom')
-    const a = render(<Duel2App goHome={() => {}} />)
+    const a = render(<SpellQuestApp goHome={() => {}} />)
     expect(a.container.querySelector('[data-screen="cover"]')).not.toBeNull()
     a.unmount()
     at('?station=tower')
-    const b = render(<Duel2App goHome={() => {}} />)
+    const b = render(<SpellQuestApp goHome={() => {}} />)
     expect(b.container.querySelector('[data-screen="station"]')).not.toBeNull()
     b.unmount()
   })
@@ -81,7 +81,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
   it('the session summary has no play button and goes home by itself, once', async () => {
     at('?station=ghosts')
     const home = vi.fn()
-    const { container } = render(<Duel2App goHome={home} />)
+    const { container } = render(<SpellQuestApp goHome={home} />)
     fireEvent.pointerDown(container.querySelector('[data-station-play]')!)
     await act(async () => { gate.open(); await gate.p })
     vi.useFakeTimers()
@@ -123,7 +123,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
 
   it('the held home button: a session has none (it goes home by itself); a full run leaves through it to the home screen', async () => {
     at('?station=ghosts')
-    const a = render(<Duel2App goHome={() => {}} />)
+    const a = render(<SpellQuestApp goHome={() => {}} />)
     fireEvent.pointerDown(a.container.querySelector('[data-station-play]')!)
     await act(async () => { gate.open(); await gate.p })
     expect(exits[exits.length - 1]).toBeUndefined()
@@ -133,7 +133,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     a.unmount()
     at('')
     const home = vi.fn()
-    const b = render(<Duel2App goHome={home} />)
+    const b = render(<SpellQuestApp goHome={home} />)
     fireEvent.click(b.container.querySelector('[aria-label="play"]')!)
     await act(async () => { await gate.p; await new Promise((r) => setTimeout(r, 0)) })
     expect(b.container.querySelector('[data-screen="play"]')).not.toBeNull()
@@ -144,7 +144,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     b.unmount()
     // the summary of a full run: the hold leaves too, with a run-exit
     const home2 = vi.fn()
-    const c = render(<Duel2App goHome={home2} />)
+    const c = render(<SpellQuestApp goHome={home2} />)
     fireEvent.click(c.container.querySelector('[aria-label="play"]')!)
     await act(async () => { await gate.p; await new Promise((r) => setTimeout(r, 0)) })
     fireEvent.click(c.container.querySelector('[data-screen="play"]')!)

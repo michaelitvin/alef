@@ -1,7 +1,7 @@
-// The Hebrew course: today's Book 2 modules, named as a Course.
-import { cancelVoice, playSfx, say, sayInfo, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from '../audio/duel2Audio'
+// The Hebrew course: today's Spell Quest modules, named as a Course.
+import { cancelVoice, playSfx, say, sayInfo, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from '../audio/spellQuestAudio'
 import { IMAGES } from '../assets/images'
-import { preloadDuel2Assets } from '../assets/preload'
+import { preloadSpellQuestAssets } from '../assets/preload'
 import { lineAudioId, lineById } from '../data/lines'
 import { wordLinkFor } from '../data/words'
 import { bossTarget, bossWave } from '../logic/boss'
@@ -15,9 +15,9 @@ import {
 } from '../logic/rounds'
 import { HEBREW_STAGES } from '../logic/run'
 import { storeSavePort } from '../savePort'
-import { useDuel2Store } from '../store'
-import { duel2Telemetry } from '../telemetry'
-import { BOOK2_LOG } from '../telemetryLog'
+import { useSpellQuestStore } from '../store'
+import { spellQuestTelemetry } from '../telemetry'
+import { SPELLQUEST_LOG } from '../telemetryLog'
 import { HEBREW_TOWER } from '../../utils/duel/content'
 import { progressTallies } from '../../utils/duel/tallies'
 import type { CauldronRound, Course, DoorRound, DrawItem, LadderPlan } from './types'
@@ -60,17 +60,17 @@ export const HEBREW: Course = {
     // a door word to spell, its syllables in the boxes and its picture on the page
     spellRound: (ctx) => heSpellRound(ctx, (key) => IMAGES[key]),
   },
-  // the kit's effects and music are Book 2's (Duel2Sfx, its music kinds); the course's audio takes any name
+  // the kit's effects and music are Spell Quest's (SpellQuestSfx, its music kinds); the course's audio takes any name
   audio: {
     sayParts, say, sayInfo, stopVoice, stopMusic, voiceSignal, cancelVoice,
     playSfx: playSfx as Course['audio']['playSfx'], startMusic: startMusic as Course['audio']['startMusic'],
   },
-  telemetry: duel2Telemetry,
-  log: BOOK2_LOG,
+  telemetry: spellQuestTelemetry,
+  log: SPELLQUEST_LOG,
   save: () => storeSavePort,
-  store: () => useDuel2Store,
+  store: () => useSpellQuestStore,
   images: IMAGES,
-  preload: preloadDuel2Assets,
+  preload: preloadSpellQuestAssets,
   // today's cover orbs
   coverSample: { texts: [syllable('bet', 'kamatz').text, syllable('lamed', 'chirik').text, syllable('mem', 'shuruk').text], alphabet: 'hebrew' },
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },

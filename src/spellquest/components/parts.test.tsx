@@ -5,7 +5,7 @@ import { Orb } from './Orb'
 import { MarkAlone } from './MarkAlone'
 import { ExplainPanel } from './ExplainPanel'
 import { mark } from '../logic/content'
-import { sayParts, stopVoice } from '../audio/duel2Audio'
+import { sayParts, stopVoice } from '../audio/spellQuestAudio'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 const fakeAudio = installFakeAudio()
 import { HAND, Merchant, pileLayout } from './screens/Merchant'

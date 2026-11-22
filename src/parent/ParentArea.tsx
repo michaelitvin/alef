@@ -1,7 +1,7 @@
 // The shared parent area (rule: Interaction; a parent screen, so text and English are allowed). Every entry page mounts it
 // behind the parent gate and opens it at a section, by default the open game's own:
 //
-//   <ParentArea game="book2" onClose={toCover} track={duel2Telemetry.track} telemetry={duel2Telemetry} openDev={setScreen} homeHref={BASE_URL} />
+//   <ParentArea game="book2" onClose={toCover} track={spellQuestTelemetry.track} telemetry={spellQuestTelemetry} openDev={setScreen} homeHref={BASE_URL} />
 //
 // Sections, top to bottom: Child, Sound, Progress, the open game's settings and reset, Data, Developer. Every game's lines
 // come from the registry (registry.ts); only the open game's settings, reset and developer tools show.
@@ -26,7 +26,7 @@ export interface ParentAreaProps {
   track?: Track
   /** the open game's log instance: the Data section reads and clears the open game's log through it */
   telemetry?: LiveLog
-  /** open one of the page's developer screens (Book 2: gallery, strokes, drawtest) */
+  /** open one of the page's developer screens (Spell Quest: gallery, strokes, drawtest) */
   openDev?: (id: string) => void
   /** the way to the alef home screen, from a game's own page */
   homeHref?: string

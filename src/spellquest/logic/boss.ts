@@ -47,7 +47,7 @@ export function bossScores(conf: { letters: Conf; vowels: Conf }): Record<BossKi
 
 /**
  * The kinds a course's bosses can be now and how often he made each kind's mix-up (a course with its own content: the
- * English course; unset: Book 2's gates `bossOpen` and scores `bossScores`)
+ * English course; unset: Spell Quest's gates `bossOpen` and scores `bossScores`)
  */
 export interface BossKinds { open: BossKind[]; scores: Record<BossKind, number> }
 

@@ -1,4 +1,4 @@
-// Book 2's audio as it drives Howler: which files play, at which rate and volume, how music fades and ducks, what a stop
+// Spell Quest's audio as it drives Howler: which files play, at which rate and volume, how music fades and ducks, what a stop
 // stops. Howler itself is faked (its Howl class and the global Howler), so this pins the behaviour through any refactor
 // of the layers above it.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -61,7 +61,7 @@ const { howls, Howler, endAfter } = vi.hoisted(() => {
 vi.mock('howler', () => ({ Howl: Howler.FakeHowl, Howler }))
 
 import { applySound as configureAudio, holdAudio, setHidden } from '../../shared/gameAudio/output'
-import { cancelVoice, playSfx, say, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from './duel2Audio'
+import { cancelVoice, playSfx, say, sayParts, startMusic, stopMusic, stopVoice, voiceSignal } from './spellQuestAudio'
 import { VOICE_URLS } from '../assets/audioFiles'
 
 const howlOf = (url: string) => howls.find((h) => h.src === url)!

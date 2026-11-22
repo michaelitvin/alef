@@ -1,6 +1,6 @@
-// The first duel's history in Book 2's section of the parent area (read only). The first duel is now the tower, the first
-// minigame of Book 2's run; its own save (`duel` in the lessons' save) stopped growing there. This is the one place it
-// shows (it was in Book 2's old parent screen and in the lessons' progress page).
+// The first duel's history in Spell Quest's section of the parent area (read only). The first duel is now the tower, the first
+// minigame of Spell Quest's run; its own save (`duel` in the lessons' save) stopped growing there. This is the one place it
+// shows (it was in Spell Quest's old parent screen and in the lessons' progress page).
 import { useProgressStore } from '../../stores/progressStore'
 import { DUEL_MARKS } from '../../utils/duel/marks'
 import type { ScreenType, Tally } from '../../types/duel'

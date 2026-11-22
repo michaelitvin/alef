@@ -1,4 +1,4 @@
-// Book 2's developer screens, which the parent area's Developer section opens: the screen gallery, the stroke review and
+// Spell Quest's developer screens, which the parent area's Developer section opens: the screen gallery, the stroke review and
 // the drawing test board.
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -7,7 +7,7 @@ import { Strokes } from './Strokes'
 import { DrawTest } from './DrawTest'
 import { STROKES } from '../data/strokes'
 import { WORDS } from '../data/words'
-import { useDuel2Store } from '../store'
+import { useSpellQuestStore } from '../store'
 
 describe('Book 2\'s developer screens (opened from the parent area)', () => {
   afterEach(() => vi.restoreAllMocks())
@@ -58,7 +58,7 @@ describe('Book 2\'s developer screens (opened from the parent area)', () => {
     // the game writes the words in Dana Yad: that glyph is marked as the game's font
     expect(container.querySelector('[data-stroke-card="ל-hand"] [data-ref-glyph="Dana Yad"]')!.getAttribute('data-game')).toBe('1')
     fireEvent.click(container.querySelector('[data-stroke-card="ד-print"] [data-mark-ok]')!)
-    expect(useDuel2Store.getState().strokeMarks['ד-print']).toBe('ok')
+    expect(useSpellQuestStore.getState().strokeMarks['ד-print']).toBe('ok')
     expect(container.querySelector('[data-reviewed]')!.textContent).toMatch(/1 of 54/)
   }, 30_000)
   it('the stroke review has a Words section: every game word in print and handwriting on the lines, its first letter also from the taught strokes', () => {

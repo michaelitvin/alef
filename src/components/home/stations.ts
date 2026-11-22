@@ -2,7 +2,7 @@
 // what it teaches (for the parent: never the minigame's name) and how its picture is drawn.
 import type { ScreenId } from '../../spellquest/logic/predict'
 import { useEffect, useState } from 'react'
-import type { Duel2Save } from '../../spellquest/store'
+import type { SpellQuestSave } from '../../spellquest/store'
 import { SAVE_VERSION, migrateSave } from '../../spellquest/saveFormat'
 import { openScreens } from '../../spellquest/station'
 import { rating, screenRecent } from '../../spellquest/logic/mastery'
@@ -32,9 +32,9 @@ const ALL_STATIONS: Station[] = [
 /** the Hebrew path's stations: the spell book only where it is out (src/shared/hebrewSpell.ts) */
 const STATIONS = ALL_STATIONS.filter((s) => s.id !== 'spell' || HEBREW_SPELL_AVAILABLE)
 
-// ---- the state of the path, read from the saves (the home never creates or writes the Book 2 save)
+// ---- the state of the path, read from the saves (the home never creates or writes the Spell Quest save)
 
-const DUEL2_KEY = 'alef-duel2'
+const SPELLQUEST_SAVE_KEY = 'alef-duel2'
 const PROGRESS_KEY = 'alef-progress'
 
 const readSaved = (key: string): { state: Record<string, unknown>; version: number } | null => {
@@ -51,16 +51,16 @@ const readSaved = (key: string): { state: Record<string, unknown>; version: numb
 const readState = (key: string) => readSaved(key)?.state ?? null
 
 /**
- * Book 2's save, read only (null when he has none, or it cannot be read). An older save is converted here as Book 2 will
+ * Spell Quest's save, read only (null when he has none, or it cannot be read). An older save is converted here as Spell Quest will
  * convert it on its next start (its stations open, drawing on), without writing it.
  */
-function readDuel2Save(): Partial<Duel2Save> | null {
-  const saved = readSaved(DUEL2_KEY)
+function readSpellQuestSave(): Partial<SpellQuestSave> | null {
+  const saved = readSaved(SPELLQUEST_SAVE_KEY)
   if (!saved) return null
-  return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<Duel2Save>
+  return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<SpellQuestSave>
 }
 
-/** the first duel's recent answers per mark: the saved ones (Book 2's tower writes them on its own page), else the store's */
+/** the first duel's recent answers per mark: the saved ones (Spell Quest's tower writes them on its own page), else the store's */
 function readDuelRecent(): Record<string, string> {
   const d = readState(PROGRESS_KEY)?.duel as { recent?: Record<string, string> } | undefined
   return d?.recent ?? useProgressStore.getState().duel?.recent ?? {}
@@ -69,11 +69,11 @@ function readDuelRecent(): Record<string, string> {
 export interface StationState { id: ScreenId; learn: string; pic: Station['pic']; open: boolean; rating: 0 | 1 | 2 | 3 }
 
 /**
- * Each station: open when it is in his cycle (Book 2 open, or his first-duel marks mastered; the tower always), and its
+ * Each station: open when it is in his cycle (Spell Quest open, or his first-duel marks mastered; the tower always), and its
  * 0–3 rating from his recent answers there. A missing save reads as a fresh one. Open stations first, then the locked
  * ones, each group in path order.
  */
-function stationState(save: Partial<Duel2Save> | null, duelRecent: Record<string, string>): StationState[] {
+function stationState(save: Partial<SpellQuestSave> | null, duelRecent: Record<string, string>): StationState[] {
   const open = openScreens(save as Parameters<typeof openScreens>[0], duelRecent)
   const recent = (save?.recent ?? {}) as Record<string, string>
   const all = STATIONS.map((s) => {
@@ -83,9 +83,9 @@ function stationState(save: Partial<Duel2Save> | null, duelRecent: Record<string
   return [...all.filter((s) => s.open), ...all.filter((s) => !s.open)]
 }
 
-/** The path's state, read again when the page shows (coming back from Book 2 in the same tab, or from the back button). */
+/** The path's state, read again when the page shows (coming back from Spell Quest in the same tab, or from the back button). */
 export function useStations(): StationState[] {
-  const read = () => stationState(readDuel2Save(), readDuelRecent())
+  const read = () => stationState(readSpellQuestSave(), readDuelRecent())
   const [st, setSt] = useState(read)
   useEffect(() => {
     const again = () => { if (document.visibilityState !== 'hidden') setSt(read()) }

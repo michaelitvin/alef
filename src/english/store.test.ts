@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEnglishStore } from './store'
 import { englishSavePort, memoryEnglishSavePort } from './savePort'
 import { readEnglishSave } from './saveFormat'
-import { createRunStore, useDuel2Store } from '../spellquest/store'
+import { createRunStore, useSpellQuestStore } from '../spellquest/store'
 
 const HEBREW_SAVE_RAW = JSON.stringify({ state: { coins: 42, totalStars: 300, stage: { stage: 3, newAnswers: 'oo' } }, version: 7 })
 
@@ -27,8 +27,8 @@ describe('the English save', () => {
   })
 
   it('the Hebrew store is unchanged', () => {
-    expect(useDuel2Store.persist.getOptions().name).toBe('alef-duel2')
-    expect(useDuel2Store.persist.getOptions().version).toBe(7)
+    expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-duel2')
+    expect(useSpellQuestStore.persist.getOptions().version).toBe(7)
   })
 
   it('the store asks its own stage rule', () => {

@@ -10,10 +10,10 @@ installFakeAudio()
 
 const importFresh = async () => {
   vi.resetModules()
-  const [{ HomePage }, { default: Duel2App }, { GAMES }] = await Promise.all([
-    import('../pages/Home/HomePage'), import('../spellquest/Duel2App'), import('../parent/registry'),
+  const [{ HomePage }, { default: SpellQuestApp }, { GAMES }] = await Promise.all([
+    import('../pages/Home/HomePage'), import('../spellquest/SpellQuestApp'), import('../parent/registry'),
   ])
-  return { HomePage, Duel2App, GAMES }
+  return { HomePage, SpellQuestApp, GAMES }
 }
 
 describe('hidden on production', () => {
@@ -24,12 +24,12 @@ describe('hidden on production', () => {
 
   it('a production build: no card, ?course=en opens Hebrew, no English section', async () => {
     vi.doMock('./available', () => ({ ENGLISH_AVAILABLE: false, ENGLISH_RELEASED: false, englishAvailable: () => false }))
-    const { HomePage, Duel2App, GAMES } = await importFresh()
+    const { HomePage, SpellQuestApp, GAMES } = await importFresh()
     const home = render(<MemoryRouter><HomePage /></MemoryRouter>)
     expect(home.container.querySelector('[data-english-card], [data-card="english"], [data-home-part="english-path"]')).toBeNull()
     cleanup()
     history.replaceState(null, '', '/duel2/?course=en')
-    render(<Duel2App />)
+    render(<SpellQuestApp />)
     expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('he')
     expect(GAMES.map((g) => g.id)).not.toContain('english')
   })

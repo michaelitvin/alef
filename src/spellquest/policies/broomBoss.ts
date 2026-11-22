@@ -54,7 +54,7 @@ export interface BossDueCtx {
   last: BossKind | null
   /** the run's random numbers (in [0, 1)) */
   rng: () => number
-  /** the course's open kinds and their scores (the English course); unset: Book 2's */
+  /** the course's open kinds and their scores (the English course); unset: Spell Quest's */
   kinds?: BossKinds
 }
 export type BossDueSaveOp = { op: 'noteBroomSession' } | { op: 'setLastBoss'; kind: BossKind }

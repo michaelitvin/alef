@@ -34,8 +34,8 @@ export const FIXTURE_START = Date.UTC(2026, 9, 1, 13, 0, 0)
 const time = (r: R) => `${r.int(1, 12)}-${r.pick(['00', '15', '30', '45', '40', '05'])}`
 const clockOf = (r: R, t: number) => t - r.pick([0, 0, 0, 1, 2, 3, -1])
 
-/** Book 2's events, by name: the fields of each call site (src/spellquest, src/utils/duel for the tower, the audio kit). */
-const BOOK2: Record<string, (r: R, t: number) => Record<string, unknown>> = {
+/** Spell Quest's events, by name: the fields of each call site (src/spellquest, src/utils/duel for the tower, the audio kit). */
+const SPELLQUEST: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'run-start': (r) => ({ stage: r.int(1, 4) }),
   'session-start': (r) => ({ stage: r.int(1, 4), screen: r.pick(SCREENS) }),
   answer: (r, t) => {
@@ -182,7 +182,7 @@ const CLOCK: Record<string, (r: R, t: number) => Record<string, unknown>> = {
 /** a generator table: each event name's fields */
 type Table = Record<string, (r: R, t: number) => Record<string, unknown>>
 
-/** the spell book's events (both languages: the English log and Book 2's) */
+/** the spell book's events (both languages: the English log and Spell Quest's) */
 const SPELL: Table = {
   'spell-drop': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), unit: r.pick(LETTERS), box: r.int(0, 3), ...(r.chance(0.7) ? { ok: true } : { ok: false, tile: r.pick(LETTERS) }) }),
   'spell-cast': (r) => ({ word: r.pick(WORDS), mode: r.pick(['tiles', 'write']), ms: r.int(3000, 40_000), mistakes: r.int(0, 4) }),
@@ -191,7 +191,7 @@ const SPELL: Table = {
 
 /**
  * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
- * the run's events it shares with Book 2; the English tasks add their names here as they add the call sites.
+ * the run's events it shares with Spell Quest; the English tasks add their names here as they add the call sites.
  */
 const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
 /** each word with its units (the sounds the cauldron and the ladder ask for) */
@@ -227,8 +227,8 @@ const ENGLISH: Table = {
   'blend-hint': (r) => ({ screen: r.pick(['broom', 'cauldron', 'ladder', 'ghosts', 'doors']), words: r.int(1, 3), by: r.pick(['button', 'idle', 'miss']) }),
 }
 
-/** the Hebrew spell book's events (Book 2's log), kept out of BOOK2 so Book 2's goldens keep their bytes */
-const BOOK2_SPELL: Table = { ...SPELL }
+/** the Hebrew spell book's events (Spell Quest's log), kept out of SPELLQUEST so Spell Quest's goldens keep their bytes */
+const SPELLQUEST_SPELL: Table = { ...SPELL }
 
 /** a Space Cat item id (`a+b=c/hole`) and its four lane numbers, the right one in its lane */
 function spaceCatSum(r: R) {
@@ -375,21 +375,21 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
   return out
 }
 
-/** Book 2's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
-export const book2Events = (o: FixtureOpts = {}) => generate('book2', BOOK2, true, 7, o)
+/** Spell Quest's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
+export const spellQuestEvents = (o: FixtureOpts = {}) => generate('book2', SPELLQUEST, true, 7, o)
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** Space Cat's log */
 export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPACECAT, false, 13, o)
 /** the English path's log (`g: 'english'`) */
 export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
-/** Book 2's log with the Hebrew spell book's events in it (the spell book writes to Book 2's log) */
-const book2SpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...BOOK2, ...BOOK2_SPELL }, true, 17, o)
+/** Spell Quest's log with the Hebrew spell book's events in it (the spell book writes to Spell Quest's log) */
+const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
 
-/** every event name the generators can send (Book 2, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
+/** every event name the generators can send (Spell Quest, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
-  ...Object.keys(BOOK2).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
-  ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(BOOK2_SPELL),
+  ...Object.keys(SPELLQUEST).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
+  ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(SPELLQUEST_SPELL),
 ])
 
 /** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
@@ -399,11 +399,11 @@ export const FROZEN_HISTORY = '{"v":1,"events":[{"t":1760000000000,"s":"mf1abc-x
 export const GOLDEN_NOW = new Date('2026-11-20T08:00:00.000Z')
 
 /** the logs the goldens are made of (small, so the golden files stay small) */
-export const GOLDEN_BOOK2 = () => book2Events({ eventsPerSession: 12 })
+export const GOLDEN_SPELLQUEST = () => spellQuestEvents({ eventsPerSession: 12 })
 export const GOLDEN_CLOCK = () => clockEvents({ eventsPerSession: 4 })
 export const GOLDEN_SPACECAT = () => spaceCatEvents({ eventsPerSession: 6 })
 export const GOLDEN_ENGLISH = () => englishEvents({ eventsPerSession: 12 })
-export const GOLDEN_BOOK2_SPELL = () => book2SpellEvents({ eventsPerSession: 12 })
+export const GOLDEN_SPELLQUEST_SPELL = () => spellQuestSpellEvents({ eventsPerSession: 12 })
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>

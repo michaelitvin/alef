@@ -4,8 +4,8 @@ import { encodeChunk } from './telemetryCodec'
 import { chunkKey, clearLog, logStats, openJson, readLog, rollupKey } from './telemetryChunks'
 import { filterEvents, type TelemetryEvent } from './telemetry'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
-import { FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_CLOCK, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../spellquest/telemetryLog'
+import { FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_CLOCK, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
+import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 
 const KEY = 'alef-duel2-telemetry'
@@ -166,7 +166,7 @@ describe('the goldens through chunks', () => {
     ['every second session sealed, the rest open', 2],
     ['the last sessions open, the rest sealed', 3],
   ] as const)('the exports match when the events are stored as chunks and an open chunk: %s', (_, mode) => {
-    for (const [log, evs] of [[BOOK2_LOG, GOLDEN_BOOK2()], [CLOCK_LOG, GOLDEN_CLOCK()]] as const) {
+    for (const [log, evs] of [[SPELLQUEST_LOG, GOLDEN_SPELLQUEST()], [CLOCK_LOG, GOLDEN_CLOCK()]] as const) {
       localStorage.clear()
       const sessions = bySession(evs)
       const keys: string[] = []

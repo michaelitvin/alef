@@ -1,4 +1,4 @@
-// The English page: `?course=en` opens Book 2's app on the English course, with its own save, purse, log and play time;
+// The English page: `?course=en` opens Spell Quest's app on the English course, with its own save, purse, log and play time;
 // the Hebrew page stays as it was.
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../spellquest/screens/Play', () => ({ Play: () => <div data-screen="play" /> }))
 // jsdom loads no fonts or pictures: the preload is done at once
 vi.mock('./assets/preload', () => ({ ENGLISH_FONTS: [], preloadEnglishAssets: () => Promise.resolve() }))
-import Duel2App from '../spellquest/Duel2App'
-import { useDuel2Store } from '../spellquest/store'
+import SpellQuestApp from '../spellquest/SpellQuestApp'
+import { useSpellQuestStore } from '../spellquest/store'
 import { SAVE_VERSION } from '../spellquest/saveFormat'
 import { readLog } from '../shared/telemetry'
 import { PLAYTIME_GAMES } from '../shared/playtime'
@@ -26,29 +26,29 @@ describe('the English page', () => {
   afterEach(() => { clearGender(); at('/') })
 
   it('?course=en opens the English cover', async () => {
-    at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />)
+    at('/duel2/?course=en'); render(<SpellQuestApp goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('en')
   })
 
   it('the English cover shows the English purse', async () => {
     localStorage.setItem('alef-duel2', hebrewSaveWith({ coins: 40 }))
-    await useDuel2Store.persist.rehydrate()
-    expect(useDuel2Store.getState().coins).toBe(40)
-    at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />)
+    await useSpellQuestStore.persist.rehydrate()
+    expect(useSpellQuestStore.getState().coins).toBe(40)
+    at('/duel2/?course=en'); render(<SpellQuestApp goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).querySelector('[data-coins]')!.textContent).toBe('0')
   })
 
   it('opening English leaves alef-duel2 and alef-progress byte-equal', async () => {
     const duel2 = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-duel2', duel2); localStorage.setItem('alef-progress', PROGRESS_RAW)
-    await useDuel2Store.persist.rehydrate()
-    at('/duel2/?course=en'); render(<Duel2App goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
+    await useSpellQuestStore.persist.rehydrate()
+    at('/duel2/?course=en'); render(<SpellQuestApp goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
     // the first duel's import runs on the Hebrew page only
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
     expect(localStorage.getItem('alef-duel2')).toBe(duel2); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
   })
 
   it('the English page tracks into its own log', async () => {
-    at('/duel2/?course=en'); const { container } = render(<Duel2App goHome={() => {}} />)
+    at('/duel2/?course=en'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
     fireEvent.click(within(await screen.findByTestId('cover', {}, { timeout: 15000 })).getByLabelText('play'))
     // boy or girl is not set: the play gate asks first
     await waitFor(() => expect(container.querySelector('[data-gender="boy"]')).not.toBeNull())
@@ -59,7 +59,7 @@ describe('the English page', () => {
   }, 60_000)
 
   it('the Hebrew page is the same as before', async () => {
-    at('/duel2/'); render(<Duel2App goHome={() => {}} />)
+    at('/duel2/'); render(<SpellQuestApp goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('he')
     expect(screen.getByTestId('cover').hasAttribute('dir')).toBe(false)
   })

@@ -3,7 +3,7 @@ import { act, render, renderHook } from '@testing-library/react'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
 
 // Old saves as the old builds wrote them (zustand persist: { state, version }).
-const BOOK2_SAVE = '{"state":{"stage":2,"totalStars":120,"coins":12,"settings":{"sfx":false,"music":false,"volume":0.35,"drawing":true,"range":100}},"version":7}'
+const SPELLQUEST_SAVE = '{"state":{"stage":2,"totalStars":120,"coins":12,"settings":{"sfx":false,"music":false,"volume":0.35,"drawing":true,"range":100}},"version":7}'
 const CLOCK_SAVE = '{"state":{"progress":{"level":3,"newAnswers":""},"gears":40,"settings":{"langs":["he"],"heCursiveMix":true,"enCapsMix":false,"sfx":true,"music":false,"volume":0.5}},"version":1}'
 const load = async () => { vi.resetModules(); return import('./deviceSettings') }
 const stored = () => JSON.parse(localStorage.getItem('alef-device')!)
@@ -13,13 +13,13 @@ afterEach(() => vi.restoreAllMocks())
 
 describe('device settings: one sound setting for every game', () => {
   it('seeds once from an old Book 2 save, and writes the key at once', async () => {
-    localStorage.setItem('alef-duel2', BOOK2_SAVE)
+    localStorage.setItem('alef-duel2', SPELLQUEST_SAVE)
     localStorage.setItem('alef-clock', CLOCK_SAVE)
     const d = await load()
     expect(d.getDeviceSettings()).toEqual({ v: 1, sfx: false, music: false, volume: 0.35 })
     expect(stored()).toEqual({ v: 1, sfx: false, music: false, volume: 0.35 })
     // the old saves are not changed
-    expect(localStorage.getItem('alef-duel2')).toBe(BOOK2_SAVE)
+    expect(localStorage.getItem('alef-duel2')).toBe(SPELLQUEST_SAVE)
     expect(localStorage.getItem('alef-clock')).toBe(CLOCK_SAVE)
   })
 
@@ -47,10 +47,10 @@ describe('device settings: one sound setting for every game', () => {
   })
 
   it('a later change in the Book 2 save does not seed again', async () => {
-    localStorage.setItem('alef-duel2', BOOK2_SAVE)
+    localStorage.setItem('alef-duel2', SPELLQUEST_SAVE)
     let d = await load()
     d.getDeviceSettings()
-    localStorage.setItem('alef-duel2', BOOK2_SAVE.replace('"sfx":false', '"sfx":true').replace('0.35', '1'))
+    localStorage.setItem('alef-duel2', SPELLQUEST_SAVE.replace('"sfx":false', '"sfx":true').replace('0.35', '1'))
     expect(d.getDeviceSettings()).toEqual({ v: 1, sfx: false, music: false, volume: 0.35 })
     d = await load() // a new page load
     expect(d.getDeviceSettings()).toEqual({ v: 1, sfx: false, music: false, volume: 0.35 })
@@ -66,8 +66,8 @@ describe('device settings: one sound setting for every game', () => {
   })
 
   it('staging reads and writes its own prefixed copy, seeded from its own copy of the saves', async () => {
-    localStorage.setItem('alef-duel2', BOOK2_SAVE)
-    localStorage.setItem(STAGING_PREFIX + 'alef-duel2', BOOK2_SAVE.replace('0.35', '0.6'))
+    localStorage.setItem('alef-duel2', SPELLQUEST_SAVE)
+    localStorage.setItem(STAGING_PREFIX + 'alef-duel2', SPELLQUEST_SAVE.replace('0.35', '0.6'))
     const real = window.localStorage
     Object.defineProperty(window, 'localStorage', { value: prefixedStorage(real, STAGING_PREFIX), configurable: true })
     try {

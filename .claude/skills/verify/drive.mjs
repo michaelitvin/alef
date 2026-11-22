@@ -29,8 +29,8 @@ const VIEWPORTS = [
   { name: 'tablet', width: 1180, height: 820 },
   // a phone held upright: only the parent area's checks (the games are played sideways), which assert at each section
   // that nothing scrolls sideways
-  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea', 'spacecatArea'] },
-  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'book2Area', 'clockArea', 'spacecatArea'] },
+  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'spellQuestArea', 'clockArea', 'spacecatArea'] },
+  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'spellQuestArea', 'clockArea', 'spacecatArea'] },
   // Space Cat plays upright and on its side, on a phone and a tablet: its sweep sizes run only when named
   { name: 'phoneUp', width: 412, height: 915, mobile: true, optIn: true },
   { name: 'phoneSide', width: 915, height: 412, mobile: true, optIn: true },
@@ -54,7 +54,7 @@ const YEAR_CHILD = new Date().getFullYear() - 6
 const shots = process.argv[2] ?? join(tmpdir(), `alef-verify-${Date.now()}`)
 mkdirSync(shots, { recursive: true })
 
-// ---- the browser's init script: the speechSynthesis recorder (the stories speak with it) and Book 2's audio log ----
+// ---- the browser's init script: the speechSynthesis recorder (the stories speak with it) and Spell Quest's audio log ----
 const INIT = (pinVisible) => {
   // on a shared browser another client's tab can come to the front and hide ours: the game would pause (its pause
   // cover) and draw nothing. Pin the page visible there (the pause on hiding is then not covered).
@@ -593,7 +593,7 @@ const CHECKS = {
     await shot(page, vp, 'book2-hit')
   },
 
-  async book2Station(page, base, vp, note) {
+  async spellQuestStation(page, base, vp, note) {
     // the path's first open station, as the home screen links it (a fresh save: the tower)
     await page.goto(base, { waitUntil: 'domcontentloaded' })
     const link = page.locator('[data-path] a[data-station][data-open="true"]').first()
@@ -608,7 +608,7 @@ const CHECKS = {
     await shot(page, vp, `book2-station-${id}`)
   },
 
-  async book2Sheets(page, base, vp, note) {
+  async spellQuestSheets(page, base, vp, note) {
     for (const [hash, sel] of [['#/glyphs', '.d2-root'], ['#/tower-glyphs', '.nd-glyphs'], ['#/summary', '[data-screen]']]) {
       await page.goto('about:blank')
       await page.goto(`${base}duel2/${hash}`, { waitUntil: 'domcontentloaded' })
@@ -620,8 +620,8 @@ const CHECKS = {
     note('glyphs, tower-glyphs, summary')
   },
 
-  async book2Area(page, base, vp, note) {
-    // Book 2 is played sideways: upright, the "turn the phone" picture covers its cover. Pass the gate sideways, then turn
+  async spellQuestArea(page, base, vp, note) {
+    // Spell Quest is played sideways: upright, the "turn the phone" picture covers its cover. Pass the gate sideways, then turn
     // the phone upright (the area and the developer screens show no picture)
     if (vp.upright) await page.setViewportSize({ width: vp.height, height: vp.width })
     await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
@@ -1190,7 +1190,7 @@ const CHECKS = {
   },
 
   async telemetry(page, base, vp, note) {
-    // after the play checks (one context per size, so their events are in this storage): the Data section of Book 2's
+    // after the play checks (one context per size, so their events are in this storage): the Data section of Spell Quest's
     // area counts them, shows the storage line, and a Download gives the export
     await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()

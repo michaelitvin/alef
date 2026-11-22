@@ -3,8 +3,8 @@ import { MS_EDGES, emptyRollup, foldChunk, foldEvents, foldOldDays, msBin, readR
 import { chunkKey, rollupKey } from './telemetryChunks'
 import { rollupsFor, type RollupFact, type TelemetryEvent } from './telemetry'
 import { STAGING_PREFIX, copyUnprefixedOver } from './stagingStorage'
-import { book2Events, clockEvents, spaceCatEvents } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG, book2Facts } from '../spellquest/telemetryLog'
+import { spellQuestEvents, clockEvents, spaceCatEvents } from './__fixtures__/telemetry/generate'
+import { SPELLQUEST_LOG, spellQuestFacts } from '../spellquest/telemetryLog'
 import { CLOCK_LOG, clockFacts } from '../clock/telemetryLog'
 import { spaceCatFacts } from '../spacecat/telemetryLog'
 import { lessonsParent } from '../lessons/parent'
@@ -51,7 +51,7 @@ const flat = (r: Rollup) => {
 }
 
 describe('folding chunks into a roll-up', () => {
-  it.each([['Book 2', book2Events, book2Facts], ['the clock', clockEvents, clockFacts], ['Space Cat', spaceCatEvents, spaceCatFacts]] as const)(
+  it.each([['Book 2', spellQuestEvents, spellQuestFacts], ['the clock', clockEvents, clockFacts], ['Space Cat', spaceCatEvents, spaceCatFacts]] as const)(
     '%s: per item and day, the same counts, wrongs, nears, mix-ups, abandons and histogram as the raw events', (_, gen, facts) => {
       const evs = gen({ days: 20 })
       const r = emptyRollup()
@@ -65,14 +65,14 @@ describe('folding chunks into a roll-up', () => {
     })
 
   it('a session folded in two chunks equals it folded in one, minutes and runs too', () => {
-    const [s] = bySession(book2Events({ days: 1, eventsPerSession: 200 }))
+    const [s] = bySession(spellQuestEvents({ days: 1, eventsPerSession: 200 }))
     const one = emptyRollup()
-    foldEvents(one, s!, book2Facts(s!))
+    foldEvents(one, s!, spellQuestFacts(s!))
     const two = emptyRollup()
     const a = s!.slice(0, 77)
     const b = s!.slice(77)
-    foldEvents(two, a, book2Facts(a))
-    foldEvents(two, b, book2Facts(b))
+    foldEvents(two, a, spellQuestFacts(a))
+    foldEvents(two, b, spellQuestFacts(b))
     expect(two.days).toEqual(one.days)
     const d = Object.values(one.days)[0]!
     expect(d.minutes).toBeGreaterThan(10)
@@ -81,13 +81,13 @@ describe('folding chunks into a roll-up', () => {
 
   it('gallery events count nowhere', () => {
     const e = (t: number, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e: 'answer', g: 'book2', ...data })
-    expect(book2Facts([e(1, { screen: 'letters', target: 'bet', result: 'right', ms: 900, tapped: 'bet', gallery: true }),
+    expect(spellQuestFacts([e(1, { screen: 'letters', target: 'bet', result: 'right', ms: 900, tapped: 'bet', gallery: true }),
       e(2, { screen: 'tower', target: 'segol', result: 'wrong', gallery: true })])).toEqual([])
   })
 
   it('Book 2: the tower answer takes its latency, near and pick from the tower\'s choice of the same round', () => {
     const tw = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'book2', ...data, via: 'tower', visit: 1 })
-    const facts = book2Facts([
+    const facts = spellQuestFacts([
       tw(1, 'round', { round: 4, target: 'segol' }),
       tw(2, 'choice', { round: 4, key: 'tsere', correct: false, twin: true, msShown: 2300 }),
       { t: 3, s: 'x', run: 1, e: 'answer', g: 'book2', screen: 'tower', target: 'segol', result: 'wrong', clock: 3 },
@@ -130,17 +130,17 @@ describe('folding chunks into a roll-up', () => {
 })
 
 describe('foldChunk', () => {
-  const evs = bySession(book2Events({ days: 2 }))[0]!
-  const k = chunkKey(BOOK2_LOG.key, evs[0]!.t, evs[0]!.s)
+  const evs = bySession(spellQuestEvents({ days: 2 }))[0]!
+  const k = chunkKey(SPELLQUEST_LOG.key, evs[0]!.t, evs[0]!.s)
   const span = { s: evs[0]!.s, t0: evs[0]!.t, t1: evs[evs.length - 1]!.t, n: evs.length }
 
   it('folds once: a second fold of the same chunk counts nothing', () => {
     localStorage.setItem(k, 'x')
-    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, span, evs)).toBe(true)
-    const once = localStorage.getItem(rollupKey(BOOK2_LOG.key))
-    expect(foldChunk(BOOK2_LOG.key, BOOK2_LOG, k, span, evs)).toBe(true)
-    expect(localStorage.getItem(rollupKey(BOOK2_LOG.key))).toBe(once)
-    expect(readRollup(BOOK2_LOG.key).folded.map((t) => t.k)).toEqual([k])
+    expect(foldChunk(SPELLQUEST_LOG.key, SPELLQUEST_LOG, k, span, evs)).toBe(true)
+    const once = localStorage.getItem(rollupKey(SPELLQUEST_LOG.key))
+    expect(foldChunk(SPELLQUEST_LOG.key, SPELLQUEST_LOG, k, span, evs)).toBe(true)
+    expect(localStorage.getItem(rollupKey(SPELLQUEST_LOG.key))).toBe(once)
+    expect(readRollup(SPELLQUEST_LOG.key).folded.map((t) => t.k)).toEqual([k])
   })
 
   it('a chunk of an unregistered log only adds its count to dropped', () => {
@@ -164,10 +164,10 @@ describe('the roll-up budget', () => {
   it('6 games over a year stay under the budget: the oldest weeks of the largest go', () => {
     const BUDGET = 150_000
     const logs = Array.from({ length: 6 }, (_, i) => `alef-g${i}-telemetry`)
-    const year = book2Events({ days: 365, eventsPerSession: 40 })
+    const year = spellQuestEvents({ days: 365, eventsPerSession: 40 })
     for (const [i, key] of logs.entries()) {
       const r = emptyRollup()
-      for (const s of bySession(year).slice(0, 120 + i * 30)) foldEvents(r, s, book2Facts(s))
+      for (const s of bySession(year).slice(0, 120 + i * 30)) foldEvents(r, s, spellQuestFacts(s))
       foldOldDays(r, year[year.length - 1]!.t)
       localStorage.setItem(rollupKey(key), JSON.stringify(r))
     }

@@ -5,17 +5,17 @@ const { gate } = vi.hoisted(() => {
   const p = new Promise<void>((r) => { open = r })
   return { gate: { p, open: () => open() } }
 })
-vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadDuel2Assets: () => gate.p }))
+vi.mock('../assets/preload', () => ({ READY_MS: 8000, preloadSpellQuestAssets: () => gate.p }))
 import { Cover } from './Cover'
 import { PauseCover } from './PauseCover'
 import { Summary } from './Summary'
-import { useDuel2Store } from '../store'
-import { stopVoice } from '../audio/duel2Audio'
+import { useSpellQuestStore } from '../store'
+import { stopVoice } from '../audio/spellQuestAudio'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 const fakeAudio = installFakeAudio()
-import Duel2App from '../Duel2App'
+import SpellQuestApp from '../SpellQuestApp'
 import { clearGender, getPlayer, setGender } from '../../shared/player'
-import { duel2Telemetry } from '../telemetry'
+import { spellQuestTelemetry } from '../telemetry'
 import { enterYear } from '../../shared/parentGate/testing'
 
 const noText = (root: Element) => {
@@ -53,7 +53,7 @@ describe('shell', () => {
   })
   it('play waits for preload', async () => {
     setGender('boy', 'parent')
-    const { container } = render(<Duel2App />)
+    const { container } = render(<SpellQuestApp />)
     fireEvent.click(screen.getByLabelText('play'))
     expect(container.querySelector('[data-screen="cover"]')).not.toBeNull()
     await act(async () => { gate.open(); await gate.p })
@@ -61,10 +61,10 @@ describe('shell', () => {
   })
   it('the first play asks boy or girl (no text), then the run starts as the child chose', async () => {
     clearGender()
-    const track = vi.spyOn(duel2Telemetry, 'track')
+    const track = vi.spyOn(spellQuestTelemetry, 'track')
     const said: string[] = []
     fakeAudio.onVoice((id) => { said.push(id); return Promise.resolve(true) })
-    const { container } = render(<Duel2App />)
+    const { container } = render(<SpellQuestApp />)
     fireEvent.click(screen.getByLabelText('play'))
     await act(async () => { gate.open(); await gate.p })
     const q = container.querySelector('[data-screen="gender-question"]')!
@@ -85,7 +85,7 @@ describe('shell', () => {
   })
   it('once set, play starts without the question', async () => {
     setGender('girl', 'child')
-    const { container } = render(<Duel2App />)
+    const { container } = render(<SpellQuestApp />)
     fireEvent.click(screen.getByLabelText('play'))
     await act(async () => { gate.open(); await gate.p })
     expect(container.querySelector('[data-screen="gender-question"]')).toBeNull()
@@ -109,7 +109,7 @@ describe('shell', () => {
     expect(noText(container)).toBe('')
   })
   it('the end screen shows the points of this run and his best, and only play again (no way out by mistake; the held home button only with onExit)', () => {
-    useDuel2Store.setState({ bestRun: 14 })
+    useSpellQuestStore.setState({ bestRun: 14 })
     const { container } = render(<Summary over={{ score: 9, crystals: 0, best: false }} onAgain={() => {}} />)
     expect(container.querySelector('[data-run-score]')!.textContent).toBe('9')
     expect(container.querySelector('[data-best-score]')!.textContent).toBe('14')
@@ -117,17 +117,17 @@ describe('shell', () => {
     expect(container.querySelectorAll('button').length).toBe(1)
   })
   it('the cover shows his coin balance (not his stars), and has no link out', () => {
-    useDuel2Store.setState({ totalStars: 57, coins: 23 })
+    useSpellQuestStore.setState({ totalStars: 57, coins: 23 })
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     expect(container.querySelector('[data-coins]')!.textContent).toBe('23')
     expect(container.querySelector('a')).toBeNull()
   })
 
   it('the cover shows every crystal he has won, by kind (the parent: if he hoards them he should see them)', () => {
-    useDuel2Store.setState({ crystals: 0 })
+    useSpellQuestStore.setState({ crystals: 0 })
     const none = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     expect(none.container.querySelector('[data-crystal-shelf]')).toBeNull()
-    useDuel2Store.setState({ crystals: 6 })
+    useSpellQuestStore.setState({ crystals: 6 })
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     const kinds = [...container.querySelectorAll('[data-crystal-kind]')]
     expect(kinds.length).toBe(4)
@@ -139,7 +139,7 @@ describe('shell', () => {
     stopVoice()
     const played: string[] = []
     fakeAudio.onVoice((id) => { played.push(id); return Promise.resolve() })
-    useDuel2Store.setState({ totalStars: 25, crystals: 3 })
+    useSpellQuestStore.setState({ totalStars: 25, crystals: 3 })
     const cover = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     fireEvent.pointerDown(cover.container.querySelector('[data-info="info-coins"]')!)
     await act(async () => { await vi.advanceTimersByTimeAsync(100) })
@@ -158,7 +158,7 @@ describe('shell', () => {
   })
 
   it('the cover has a trophy shelf of 4 bosses: a beaten one in a golden frame, the others dark silhouettes', () => {
-    useDuel2Store.setState({ bossesBeaten: ['bat'] })
+    useSpellQuestStore.setState({ bossesBeaten: ['bat'] })
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} />)
     const slots = [...container.querySelectorAll('[data-trophy]')]
     expect(slots.map((e) => e.getAttribute('data-trophy'))).toEqual(['dot', 'shin', 'mimic', 'bat'])
@@ -168,7 +168,7 @@ describe('shell', () => {
   })
 
   it('the end screen: his coin balance and no ring, the boss won, the next one as a silhouette', () => {
-    useDuel2Store.setState({ totalStars: 47, coins: 31, bossesBeaten: ['mimic'], bestRun: 3 })
+    useSpellQuestStore.setState({ totalStars: 47, coins: 31, bossesBeaten: ['mimic'], bestRun: 3 })
     const { container } = render(<Summary over={{ score: 9, crystals: 0, best: false, bosses: ['mimic'], startStars: 38 }} onAgain={() => {}} />)
     expect(container.querySelector('[data-coin-ring]')).toBeNull()
     expect(container.querySelector('[data-coins]')!.textContent).toBe('31')

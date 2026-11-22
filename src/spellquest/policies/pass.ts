@@ -29,9 +29,9 @@ export interface PassFacts {
   stages?: CourseStages
   /** the parent turned the drawing screens on */
   draw: boolean
-  /** Book 2's minigames are open (before: stage 0, the tower alone) */
+  /** Spell Quest's minigames are open (before: stage 0, the tower alone) */
   bookOpen: boolean
-  /** Book 2's recent answers per feature, and the first duel's per mark */
+  /** Spell Quest's recent answers per feature, and the first duel's per mark */
   recent: Readonly<Record<string, string>>
   duelRecent: Readonly<Record<string, string>>
   /** the cycles he has started (the save) */

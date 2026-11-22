@@ -1,7 +1,7 @@
 // The English path's save format (localStorage 'alef-english'): its types, its fresh values and a light reader. Kept apart
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
-// so writing) the store. It never reads or writes Book 2's save (alef-duel2): the English path has its own purse.
-import type { Duel2Save, Duel2Settings } from '../spellquest/store'
+// so writing) the store. It never reads or writes Spell Quest's save (alef-duel2): the English path has its own purse.
+import type { SpellQuestSave, SpellQuestSettings } from '../spellquest/store'
 import { DEFAULT_SETTINGS } from '../spellquest/saveFormat'
 import type { ScreenId } from '../spellquest/logic/predict'
 import type { TowerTallies } from '../utils/duel/tallies'
@@ -11,7 +11,7 @@ export const ENGLISH_SAVE_KEY = 'alef-english'
 /** the save's version: raise it when a save must be converted */
 export const ENGLISH_SAVE_VERSION = 1
 
-export type EnglishSettings = Duel2Settings & {
+export type EnglishSettings = SpellQuestSettings & {
   /** the English path is on (the parent can turn it off) */
   path: boolean
 }
@@ -30,7 +30,7 @@ export interface PlacementSave {
   runs: number
 }
 
-export type EnglishSave = Omit<Duel2Save, 'settings'> & {
+export type EnglishSave = Omit<SpellQuestSave, 'settings'> & {
   settings: EnglishSettings
   placement: PlacementSave
   /** the English tower's answers (the first duel's board): never the lessons' save */
@@ -42,11 +42,11 @@ export type EnglishSave = Omit<Duel2Save, 'settings'> & {
   lastRunWords: string[]
 }
 
-/** the English save's own fields beyond Book 2's */
-export type EnglishFields = Omit<EnglishSave, keyof Duel2Save> & { settings: EnglishSettings }
+/** the English save's own fields beyond Spell Quest's */
+export type EnglishFields = Omit<EnglishSave, keyof SpellQuestSave> & { settings: EnglishSettings }
 
-/** a fresh English save, over a fresh Book 2 save: no coins, the book open, stage 1, no placement yet */
-export const ENGLISH_FRESH: Partial<Duel2Save> & EnglishFields = {
+/** a fresh English save, over a fresh Spell Quest save: no coins, the book open, stage 1, no placement yet */
+export const ENGLISH_FRESH: Partial<SpellQuestSave> & EnglishFields = {
   coins: 0,
   bookOpen: true,
   stage: { stage: 1, newAnswers: '' },

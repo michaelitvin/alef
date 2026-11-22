@@ -15,7 +15,7 @@ export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: (
   const wiz = useWizardArt()
   const course = useCourse()
   const images = course.images
-  // the open course's purse, crystals and bosses (English has its own: never Book 2's)
+  // the open course's purse, crystals and bosses (English has its own: never Spell Quest's)
   const coins = useCourseSave((s) => s.coins ?? 0)
   const crystals = useCourseSave((s) => s.crystals ?? 0)
   const beaten = useCourseSave((s) => s.bossesBeaten ?? [])

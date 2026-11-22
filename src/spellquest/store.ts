@@ -1,4 +1,4 @@
-// Book 2's own save (localStorage 'alef-duel2'); reset never touches alef's progress or the duel's.
+// Spell Quest's own save (localStorage 'alef-duel2'); reset never touches alef's progress or the duel's.
 import { create, type StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { persistSaveStorage } from '../shared/saveStorage'
@@ -15,7 +15,7 @@ import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf,
 
 export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }
 
-export interface Duel2Settings {
+export interface SpellQuestSettings {
   sfx: boolean; music: boolean; volume: number
   /** the two drawing screens in the lap: on by default since the parent reviewed the strokes (spec: one duel, Part 5) */
   drawing?: boolean
@@ -39,7 +39,7 @@ export interface MerchantSave {
 const LEVEL_UP_ROW = 3
 const LEVEL_DOWN_ROW = 2
 const LEVEL_MAX = 2
-export interface Duel2Save {
+export interface SpellQuestSave {
   stage: StageProgress
   tallies: Record<string, Tally>
   recent: Record<string, string>
@@ -72,7 +72,7 @@ export interface Duel2Save {
   lastBoss: BossKind | null
   /** the old flying potion was introduced (it no longer flies: kept so old saves read the same) */
   potionIntroSeen: boolean
-  settings: Duel2Settings
+  settings: SpellQuestSettings
   /** the parent's marks on the stroke review page (`<letter>-<script>`): kept through a progress reset */
   strokeMarks: Record<string, 'ok' | 'wrong'>
   /** his drawing rounds so far (telemetry only: the screen now decides print or handwriting) */
@@ -85,7 +85,7 @@ export interface Duel2Save {
   towerVisits: number
   /** monsters whose "new monster" introduction a tower boss visit jumped over: each is introduced when it first appears */
   towerOwed: string[]
-  /** Book 2's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Book 2 save) */
+  /** Spell Quest's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Spell Quest save) */
   bookOpen: boolean
   /** the tower's last answers in time order, newest last (o / x): the fast lane of stage 0 (mastery.fastLane) */
   towerTail: string
@@ -97,7 +97,7 @@ export interface Duel2Save {
   broomSessions: number
 }
 
-export interface Duel2Actions {
+export interface SpellQuestActions {
   /**
    * `helped`: a right answer after the hint (English): `seen` and `helped` + 1, not wrong, not a mistake; on the stage
    * pass it is not a right answer. The Hebrew run never passes it, so its tallies keep their shape
@@ -120,7 +120,7 @@ export interface Duel2Actions {
   markDemo: (id: string) => void
   markDotIntro: (pair: string) => void
   noteHint: (key: string) => void
-  setSettings: (p: Partial<Duel2Settings>) => void
+  setSettings: (p: Partial<SpellQuestSettings>) => void
   markStrokes: (key: string, mark: 'ok' | 'wrong' | null) => void
   noteDrawRound: () => void
   noteMerchant: (e: 'visit' | 'purchase' | 'decline' | 'short' | 'over' | 'hint') => void
@@ -139,7 +139,7 @@ export interface Duel2Actions {
   monsterIntroduced: (id: string) => void
   /** an answer on the tower, in time order (the fast lane's tail) */
   noteTowerAnswer: (right: boolean) => void
-  /** stage 0 has passed: Book 2's minigames open */
+  /** stage 0 has passed: Spell Quest's minigames open */
   openBook: () => void
   /** a new cycle of the run starts */
   nextCycle: () => void
@@ -147,13 +147,13 @@ export interface Duel2Actions {
   noteBroomSession: () => void
   /**
    * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
-   * tenth of them coins; Book 2 opens if his marks are already mastered. The first duel's own save is only read.
+   * tenth of them coins; Spell Quest opens if his marks are already mastered. The first duel's own save is only read.
    */
   importFirstDuel: (duel: DuelStats | null | undefined) => void
   resetProgress: () => void
 }
 
-const fresh = (): Omit<Duel2Save, 'settings' | 'strokeMarks'> => ({
+const fresh = (): Omit<SpellQuestSave, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
@@ -170,7 +170,7 @@ type StageRule = (p: StageProgress, correct: boolean) => { progress: StageProgre
  * A run's save, its state and actions, without storage: `recordStage` is the course's stage rule, and `initial` is put
  * over a fresh save (at the start and at each progress reset; the settings and the stroke marks are kept through a reset).
  */
-export const runState = (recordStage: StageRule, initial: Partial<Duel2Save> = {}): StateCreator<Duel2Save & Duel2Actions> => (set, get) => ({
+export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave> = {}): StateCreator<SpellQuestSave & SpellQuestActions> => (set, get) => ({
   ...fresh(),
   settings: DEFAULT_SETTINGS,
   strokeMarks: {},
@@ -265,22 +265,22 @@ export const runState = (recordStage: StageRule, initial: Partial<Duel2Save> = {
   resetProgress: () => set((s) => ({ ...fresh(), ...initial, settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),
 })
 
-/** Book 2's save without storage (the in-memory one, savePort.ts): the Hebrew stage rule */
-export const duel2State = runState(recordStageAnswer)
+/** Spell Quest's save without storage (the in-memory one, savePort.ts): the Hebrew stage rule */
+export const spellQuestState = runState(recordStageAnswer)
 
 /**
- * A run's persisted save under `key`: Book 2's (alef-duel2) and the English path's (alef-english). `X` is the save's own
- * fields beyond Book 2's, with their fresh values in `initial`. Fields added later take their defaults from the initial
+ * A run's persisted save under `key`: Spell Quest's (alef-duel2) and the English path's (alef-english). `X` is the save's own
+ * fields beyond Spell Quest's, with their fresh values in `initial`. Fields added later take their defaults from the initial
  * state: persist merges a saved state over it.
  */
 export function createRunStore<X extends object = Record<never, never>>(o: {
   key: string; version: number
   /** converts an older save (raise `version` when a save must be converted; never drop his progress: rule) */
   migrate: (s: unknown, v: number) => unknown
-  initial?: Partial<Duel2Save> & X
+  initial?: Partial<SpellQuestSave> & X
   recordStageAnswer: StageRule
 }) {
-  type S = Duel2Save & Duel2Actions & X
+  type S = SpellQuestSave & SpellQuestActions & X
   return create<S>()(
     persist(
       runState(o.recordStageAnswer, o.initial) as unknown as StateCreator<S>,
@@ -289,4 +289,4 @@ export function createRunStore<X extends object = Record<never, never>>(o: {
   )
 }
 
-export const useDuel2Store = createRunStore({ key: 'alef-duel2', version: SAVE_VERSION, migrate: migrateSave, recordStageAnswer })
+export const useSpellQuestStore = createRunStore({ key: 'alef-duel2', version: SAVE_VERSION, migrate: migrateSave, recordStageAnswer })

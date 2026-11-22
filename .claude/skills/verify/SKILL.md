@@ -21,8 +21,8 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   the browser runs on another machine or in a container, start the preview yourself where that browser can reach it,
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
-- **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `book2Station`,
-  `book2Sheets`, `book2Area`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
+- **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `spellQuestStation`,
+  `spellQuestSheets`, `spellQuestArea`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
   `telemetry`, `englishFit`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
   (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
   (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
@@ -38,16 +38,16 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
 ## What it checks
 
 Each size (phone 844×390, tablet 1180×820, both landscape; and a phone held upright, 390×844 and 412×915, for the
-parent area's checks only: `home`, `book2Area`, `clockArea`) gets a fresh browser context: own storage, so a fresh save
+parent area's checks only: `home`, `spellQuestArea`, `clockArea`) gets a fresh browser context: own storage, so a fresh save
 and no boy or girl yet. Each check gets its own page.
 
 | Check | Does |
 | --- | --- |
 | `home` | the duel and clock cards, an open station on the path; the gear's gate; every section of the lessons' area |
 | `book2` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
-| `book2Station` | the path's first open station link (`?station=`) → its cover → a session of that screen |
-| `book2Sheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
-| `book2Area`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
+| `spellQuestStation` | the path's first open station link (`?station=`) → its cover → a session of that screen |
+| `spellQuestSheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
+| `spellQuestArea`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 | `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input on while its line plays), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
 | `spacecatPause` | a forced hide (the tablet locks) during the demo, a zoom and the missing-number line: the pause cover, silence, and the same step again after play |

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { memorySavePort, readOnlySavePort, storeSavePort } from './savePort'
-import { FRESH_MERCHANT, useDuel2Store } from './store'
+import { FRESH_MERCHANT, useSpellQuestStore } from './store'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { RunController, type View } from './controller'
@@ -10,7 +10,7 @@ import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 installFakeAudio()
 
 beforeEach(() => {
-  useDuel2Store.getState().resetProgress()
+  useSpellQuestStore.getState().resetProgress()
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
 })
 
@@ -19,7 +19,7 @@ describe('storeSavePort', () => {
     useProgressStore.setState({ duel: { ...INITIAL_PROGRESS_STATE.duel, recent: { patah: 'oox' } } })
     storeSavePort.addCoins(3)
     storeSavePort.noteMerchant('visit')
-    expect(useDuel2Store.getState().coins).toBe(3)
+    expect(useSpellQuestStore.getState().coins).toBe(3)
     expect(storeSavePort.read().merchant.visits).toBe(1)
     expect(storeSavePort.firstDuelRecent()).toEqual({ patah: 'oox' })
   })
@@ -49,8 +49,8 @@ describe('memorySavePort', () => {
     a.openBook()
     expect(a.read().coins).toBe(5)
     expect(b.read().coins).toBe(0)
-    expect(useDuel2Store.getState().coins).toBe(0)
-    expect(useDuel2Store.getState().bookOpen).toBe(false)
+    expect(useSpellQuestStore.getState().coins).toBe(0)
+    expect(useSpellQuestStore.getState().bookOpen).toBe(false)
   })
 
   it('a read is a snapshot: it does not change after a write', () => {
@@ -94,8 +94,8 @@ describe('the run on the seams', () => {
     c.gesture({ type: 'pick', id: s.target.id })
     await until(c, () => save.read().roundNo === 1)
     expect(save.read().totalStars).toBe(1)
-    expect(useDuel2Store.getState().roundNo).toBe(0)
-    expect(useDuel2Store.getState().totalStars).toBe(0)
+    expect(useSpellQuestStore.getState().roundNo).toBe(0)
+    expect(useSpellQuestStore.getState().totalStars).toBe(0)
     c.destroy()
   })
 })
