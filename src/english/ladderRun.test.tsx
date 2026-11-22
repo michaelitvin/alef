@@ -264,6 +264,67 @@ describe('the English ladder in the run', () => {
     for (const k of Object.keys(save.read().introSeen)) expect(unit(k).stage).toBe(1)
   })
 
+  it('the first ladder demo has two beats, each lighting its part and waiting for its line (the old line is not used)', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = memoryEnglishSavePort({ stage: { stage: 1, newAnswers: '' }, placement: { state: null, requested: false, done: { level: 1, answers: 5, at: 1 }, runs: 1 } })
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      const s = c.view.screen
+      if (s?.screen !== 'ladder') throw new Error('no ladder')
+      const o = c.view.overlay
+      if (o?.kind !== 'demo') throw new Error('no demo')
+      // "This word is:" and the foot word (the foot rung glows), then "Find the letter that makes:" take 1 and the new word (the place glows)
+      expect(o.parts).toEqual([
+        { id: 'demo-ladder-look-1', highlight: 'foot' }, { id: s.built[0].soundId, highlight: 'foot' },
+        { id: 'q-ladder-1', highlight: 'gap' }, { id: s.target.soundId, highlight: 'gap' },
+      ])
+      expect(o.parts!.map((x) => x.id)).not.toContain('demo-ladder-1')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('the rung cues: the foot rung while the foot word plays, the new word names the place, then the soft pulse', async () => {
+    vi.useFakeTimers()
+    try {
+      const c = new RunController({ course: ENGLISH, save: englishSave(1), now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      const cues: (string | undefined)[] = []
+      const watch = () => { const s = c.view.screen; if (s?.screen === 'ladder' && cues[cues.length - 1] !== s.cue) cues.push(s.cue) }
+      c.subscribe(watch)
+      c.start()
+      await wait(4000)
+      expect(cues.filter((x) => x)).toEqual(['foot', 'box'])
+      // then no voice names anything: the cue is off (the screen keeps its soft pulse while he can answer)
+      expect(cues[cues.length - 1]).toBeUndefined()
+      expect(c.view.phase).toBe('answer')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a lift (a tap on a plate) is activity: the idle line comes 8 s after it, not 8 s after the cue', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right } = await unmarked()
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      await wait(5000)
+      c.gesture({ type: 'pick', id: right })
+      await wait(5000)
+      // 10 s after the cue, 5 s after the lift: no idle line yet
+      expect(say.mock.calls.some((a) => a[0].some((x) => /^q-ladder-/.test(x.id)))).toBe(false)
+      await wait(4000)
+      expect(say.mock.calls.some((a) => a[0].some((x) => /^q-ladder-/.test(x.id)))).toBe(true)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('a fresh English ladder says its demo', async () => {
     vi.useFakeTimers()
     try {

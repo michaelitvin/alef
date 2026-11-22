@@ -77,6 +77,8 @@ interface LadderView {
   from?: Choice[]; parts?: Choice[]; at?: number; grow?: 1 | -1; marked?: boolean
   /** an unmarked rung: the plate a tap lifted above the box row (the boxes glow); the next tap on a box places it */
   lifted?: string
+  /** English: what the voice names now: the foot rung ('foot'), the place the new letter goes ('box'); the screen glows it */
+  cue?: 'foot' | 'box'
 }
 /** the plate a ladder rung asks for: the changed part (English), else the target */
 export const ladderAnswerId = (s: { target: Choice; parts?: Choice[]; at?: number }): string => (s.at !== undefined && s.parts ? s.parts[s.at].id : s.target.id)
@@ -117,7 +119,8 @@ export type { SpellView } from './policies/spell'
 export type { BossPose, BossView } from './policies/broomBoss'
 
 export type Overlay =
-  | { kind: 'demo'; line: string; demo: string }
+  /** `parts`: the demo's voice in beats, each lighting a part of the screen (the English ladder); unset: `line` alone */
+  | { kind: 'demo'; line: string; demo: string; parts?: { id: string; highlight: Highlight }[] }
   | { kind: 'explain'; parts: { id: string; highlight: Highlight }[]; target: Choice }
   | { kind: 'dot'; parts: { id: string; highlight: Highlight }[]; soft: string; hard: string }
   | { kind: 'hint'; target: Choice; glow: Highlight | null }
@@ -306,6 +309,8 @@ export class RunController {
   private drawDone: (() => void) | null = null
   private strokeNo = 0
   private demoNo = 0
+  /** restarts the idle wait of the round (idleWait), while it waits */
+  private idleBump: (() => void) | null = null
   /** the spell book's round in progress (policies/spell.ts); its waits share the drawing's wait number and timers */
   private spell: SpellState | null = null
   /** the boxes of the spell round in progress already answered (they survive a pause: the same round again counts them once) */
@@ -408,7 +413,7 @@ export class RunController {
     // plate (the screen sends it as a pick with its box, as a drop does); a tap alone never answers (design 2.C)
     const sc = this.view.screen
     if (sc?.screen === 'ladder' && sc.at !== undefined && !sc.marked) {
-      if (g.box === undefined) { this.setScreen({ lifted: sc.lifted === g.id ? undefined : g.id } as Partial<LadderView>); return }
+      if (g.box === undefined) { this.setScreen({ lifted: sc.lifted === g.id ? undefined : g.id } as Partial<LadderView>); this.idleBump?.(); return }
       this.setScreen({ lifted: undefined } as Partial<LadderView>)
     }
     const w = this.pickWaiter
@@ -1064,7 +1069,7 @@ export class RunController {
       this.demoShown = true
       this.prepareView(screen, kind)
       this.demoRound = screen !== 'broom'
-      this.set({ phase: 'demo', overlay: { kind: 'demo', line: this.course.lineAudioId(demo, 1), demo } })
+      this.set({ phase: 'demo', overlay: { kind: 'demo', line: this.course.lineAudioId(demo, 1), demo, ...this.ladderDemoParts(screen) } })
       this.save.markDemo(demo)
       this.track('demo', { demo })
       await this.waitNext(t)
@@ -1076,6 +1081,23 @@ export class RunController {
       if (done === 'over') throw new Aborted()
     }
     if (screen === 'ladder') await this.celebrate(t, 'ladder-top')
+  }
+
+  /**
+   * The English ladder's demo in two beats (course.rounds.ladderDemo): the foot rung glows while "This word is:" and the
+   * foot word play, then the place glows while "Find the letter that makes:" and the new word play. Each beat waits for its
+   * line (ExplainPanel plays the parts one after the other). Hebrew: none, the demo is its one line.
+   */
+  private ladderDemoParts(screen: ScreenId): { parts?: { id: string; highlight: Highlight }[] } {
+    const d = this.course.rounds.ladderDemo
+    const base = this.ladder?.base
+    if (screen !== 'ladder' || !d || !base) return {}
+    const target = this.view.screen?.screen === 'ladder' ? this.view.screen.target : undefined
+    if (!target) return {}
+    return { parts: [
+      { id: this.course.lineAudioId(d.look, 1), highlight: 'foot' }, { id: this.cueId(base.target), highlight: 'foot' },
+      { id: this.course.lineAudioId(d.ask, 1), highlight: 'gap' }, { id: this.cueId(target), highlight: 'gap' },
+    ] }
   }
 
   /** Build the first view of a screen (used by the demo before any round). */
@@ -1212,14 +1234,19 @@ export class RunController {
     // the ladder's foot (English): he hears the word it starts from before the first rung
     if (screen === 'ladder' && this.ladder?.base && !this.ladder.footSaid) {
       this.ladder.footSaid = true
+      this.setScreen({ cue: 'foot' } as Partial<LadderView>)
       await this.say(t, [{ id: this.cueId(this.ladder.base.target) }])
+      this.setScreen({ cue: undefined } as Partial<LadderView>)
       await this.sleep(t, 300)
     }
     const open = () => { this.set({ phase: 'answer' }); this.cueStarted = this.now() }
     // the answers are open while the cue plays; a tap stops the reading (rule)
     const early = this.waitPick(t)
-    const said = this.say(t, [{ id: this.cueId(c), onStart: open }])
+    // (the English ladder: the place that changes glows while the new word plays)
+    const boxCue = screen === 'ladder' && (this.view.screen as LadderView).from !== undefined
+    const said = this.say(t, [{ id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }])
     let picked = await Promise.race([said.then(() => null), early])
+    if (boxCue) this.setScreen({ cue: undefined } as Partial<LadderView>)
     // the answers open after the cue even if it was cut short (a stopped voice must never leave the round shut)
     if (this.view.phase === 'question') open()
     for (;;) {
@@ -1238,15 +1265,22 @@ export class RunController {
     let waiting = true
     let spoke = false
     const live = () => waiting && t === this.token && !this.view.paused && this.view.phase === 'answer'
-    const idle = this.time.after(IDLE_MS, () => {
-      if (!live()) return
-      spoke = true
-      this.track('idle', { screen, target: c?.id ?? null })
-      void this.course.audio.sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
-    })
-    const hint = this.time.after(IDLE_HINT_MS, () => {
-      if (live() && c) { spoke = true; void (this.course.hint ? this.hintBlend(t, true) : this.playHint(c, true, t)).catch(() => {}) }
-    })
+    let idle = () => {}
+    let hint = () => {}
+    const arm = () => {
+      idle = this.time.after(IDLE_MS, () => {
+        if (!live()) return
+        spoke = true
+        this.track('idle', { screen, target: c?.id ?? null })
+        void this.course.audio.sayParts([{ id: this.variation(this.questionLine(screen, kind)) }, ...(c ? [{ id: this.cueId(c) }] : [])])
+      })
+      hint = this.time.after(IDLE_HINT_MS, () => {
+        if (live() && c) { spoke = true; void (this.course.hint ? this.hintBlend(t, true) : this.playHint(c, true, t)).catch(() => {}) }
+      })
+    }
+    arm()
+    // a lift (a tap on a plate, no answer yet) is activity: the waiting starts again
+    this.idleBump = () => { if (spoke) return; idle(); hint(); arm() }
     try {
       const id = await pick
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
@@ -1254,6 +1288,7 @@ export class RunController {
       return id
     } finally {
       waiting = false
+      this.idleBump = null
       idle()
       hint()
     }

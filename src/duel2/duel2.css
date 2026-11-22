@@ -328,3 +328,9 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 [data-course="en"] .nd-screen { background: radial-gradient(ellipse at 75% 18%, #2fd6a040, transparent 55%), radial-gradient(ellipse at 20% 35%, #3fb8d030, transparent 50%), linear-gradient(var(--en-night), var(--en-mid) 55%, var(--en-deep)); }
 [data-course="en"] .nd-ground { background: linear-gradient(#3fa08a59, #06211fe6); border-top-color: #7fd6c280; box-shadow: 0 -6px 30px #2fd6a059; }
 [data-course="en"] .nd-pad-area { background: linear-gradient(#0a282ad9, #06211f); }
+
+/* the English ladder's cues: the foot rung, the place the new letter goes, and the box row glow (Ladder.tsx) */
+.d2-cue-cue { animation: d2-cue 0.8s ease-in-out infinite alternate; }
+.d2-cue-soft { animation: d2-cue-soft 1.6s ease-in-out infinite alternate; }
+@keyframes d2-cue { from { opacity: 0.55; } to { opacity: 1; } }
+@keyframes d2-cue-soft { from { opacity: 0.45; } to { opacity: 1; } }
