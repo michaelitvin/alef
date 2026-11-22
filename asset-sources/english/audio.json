@@ -497,6 +497,27 @@
    ]
   },
   {
+   "id": "demo-ladder-look-1",
+   "file": "src/english/assets/audio/voice/demo-ladder-look-1.mp3",
+   "take": "voice-batch/final/demo-ladder-look-1__A.wav",
+   "source_sha256": "756e103be7963e9e320a75e664c631d73f734c3358fc37c630d7e29c7518b484",
+   "where": "Voice line: First ladder, beat 1: the foot rung glows; then the foot word",
+   "caption": "This word is:",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "prompt": null,
+    "note": "its own request was not kept"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "demo-ladder-look-1__B",
+     "verdict": null
+    }
+   ]
+  },
+  {
    "id": "demo-spell-1",
    "file": "src/english/assets/audio/voice/demo-spell-1.mp3",
    "take": "voice-batch/final/demo-spell-1__N1.wav",
