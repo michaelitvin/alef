@@ -69,11 +69,11 @@ interface ProgressActions {
   setDevMode: (enabled: boolean) => void
   setFont: (font: FontType) => void
   /** `opts.recent: false`: the round is tallied but kept out of `recent` (Book 2's run: a מגה kill is not reading) */
-  recordDuelRound: (markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }) => void
-  recordDuelTwin: (markId: string, type: ScreenType) => void
+  recordTowerRound: (markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }) => void
+  recordTowerTwin: (markId: string, type: ScreenType) => void
   /** He tapped `tappedId` when `askedId` was the answer (directional). */
-  recordDuelConfusion: (askedId: string, tappedId: string) => void
-  setDuelPace: (pace: number) => void
+  recordTowerConfusion: (askedId: string, tappedId: string) => void
+  setTowerPace: (pace: number) => void
 
   // Utility
   resetProgress: () => void
@@ -459,7 +459,7 @@ export const useProgressStore = create<ProgressStore>()(
       },
 
       // Nikkud Wizard Duel
-      recordDuelRound: (markId, type, result, ms, opts) => {
+      recordTowerRound: (markId, type, result, ms, opts) => {
         const bump = (t: Tally | undefined): Tally => {
           const b = { ...EMPTY_TALLY, ...t }
           return { ...b, seen: b.seen + 1, [result]: b[result] + 1 }
@@ -478,7 +478,7 @@ export const useProgressStore = create<ProgressStore>()(
           },
         }))
       },
-      recordDuelTwin: (markId, type) => {
+      recordTowerTwin: (markId, type) => {
         const twin = (t: Tally | undefined): Tally => {
           const b = { ...EMPTY_TALLY, ...t }
           return { ...b, twin: b.twin + 1 }
@@ -491,14 +491,14 @@ export const useProgressStore = create<ProgressStore>()(
           },
         }))
       },
-      recordDuelConfusion: (askedId, tappedId) => {
+      recordTowerConfusion: (askedId, tappedId) => {
         set((state) => {
           const all = state.tower.confusions ?? {}
           const row = all[askedId] ?? {}
           return { tower: { ...state.tower, confusions: { ...all, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } } }
         })
       },
-      setDuelPace: (pace) => {
+      setTowerPace: (pace) => {
         set((state) => ({ tower: { ...state.tower, pace } }))
       },
 

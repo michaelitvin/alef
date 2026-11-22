@@ -18,7 +18,7 @@ export interface SavePort extends SaveWrites {
   /** Spell Quest's save as it is now (a snapshot: it does not change after a write; read again) */
   read(): Readonly<SpellQuestSave>
   /** the first duel's recent answers per mark (o / x, newest last) */
-  firstDuelRecent(): Readonly<Record<string, string>>
+  towerRecent(): Readonly<Record<string, string>>
   /** the parent's number range for shopping (one setting for both paths, never read from a save's own settings) */
   range(): NumberRange
 }
@@ -26,20 +26,20 @@ export interface SavePort extends SaveWrites {
 type AnyFn = (...a: unknown[]) => unknown
 
 /** the port over a run's store (Spell Quest's, or another course's with more fields) */
-export function portOver<S extends SpellQuestSave & SpellQuestActions>(store: StoreApi<S>, firstDuelRecent: () => Record<string, string>, range: () => NumberRange): SavePort {
+export function portOver<S extends SpellQuestSave & SpellQuestActions>(store: StoreApi<S>, towerRecent: () => Record<string, string>, range: () => NumberRange): SavePort {
   const writes = Object.fromEntries(WRITES.map((k) => [k, (...a: unknown[]) => (store.getState()[k] as AnyFn)(...a)])) as unknown as SaveWrites
-  return { ...writes, read: () => store.getState(), firstDuelRecent, range }
+  return { ...writes, read: () => store.getState(), towerRecent, range }
 }
 
 /** the real saves: Spell Quest's store (`alef-duel2`) and the lessons' store, where the first duel keeps its answers */
 export const storeSavePort: SavePort = portOver(useSpellQuestStore, () => useProgressStore.getState().tower?.recent ?? {}, getNumberRange)
 
 /** a save in memory (tests): a fresh save with `initial` over it; the writes work as in the real save */
-export function memorySavePort(initial: Partial<SpellQuestSave> = {}, firstDuelRecent: Record<string, string> = {}): SavePort {
+export function memorySavePort(initial: Partial<SpellQuestSave> = {}, towerRecent: Record<string, string> = {}): SavePort {
   const store = createStore<SpellQuestSave & SpellQuestActions>()(spellQuestState)
   store.setState(initial)
   // a test sets the range in the save's settings, as Spell Quest's save did
-  return portOver(store, () => firstDuelRecent, () => store.getState().settings.range ?? 100)
+  return portOver(store, () => towerRecent, () => store.getState().settings.range ?? 100)
 }
 
 /**
@@ -48,5 +48,5 @@ export function memorySavePort(initial: Partial<SpellQuestSave> = {}, firstDuelR
  */
 export function readOnlySavePort(base: SavePort): SavePort {
   const writes = Object.fromEntries(WRITES.map((k) => [k, () => undefined])) as unknown as SaveWrites
-  return { ...writes, recordAnswer: () => ({ passed: false }), spendCoins: () => false, read: base.read, firstDuelRecent: base.firstDuelRecent, range: base.range }
+  return { ...writes, recordAnswer: () => ({ passed: false }), spendCoins: () => false, read: base.read, towerRecent: base.towerRecent, range: base.range }
 }

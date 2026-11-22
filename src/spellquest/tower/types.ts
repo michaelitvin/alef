@@ -97,7 +97,7 @@ export interface Tally {
   helped?: number
 }
 
-export interface DuelStats {
+export interface TowerStats {
   sessions: number
   roundsMs: number
   bestScore: number

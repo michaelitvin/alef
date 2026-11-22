@@ -205,16 +205,16 @@ describe('the tower on another course’s content', () => {
 
   it('memory tallies keep twins, confusions and the pace, as the progress store does', () => {
     const t = memoryTallies({ pace: 1.2 })
-    t.recordDuelRound('m', 'C', 'wrong', 1200)
-    t.recordDuelRound('m', 'C', 'mega', 800, { recent: false })
-    t.recordDuelTwin('m', 'C')
-    t.recordDuelConfusion('m', 's')
-    t.recordDuelConfusion('m', 's')
+    t.recordTowerRound('m', 'C', 'wrong', 1200)
+    t.recordTowerRound('m', 'C', 'mega', 800, { recent: false })
+    t.recordTowerTwin('m', 'C')
+    t.recordTowerConfusion('m', 's')
+    t.recordTowerConfusion('m', 's')
     expect(t.read()).toEqual({
       byMark: { m: { seen: 2, correct: 0, wrong: 1, timeout: 0, twin: 1, mega: 1 } },
       confusions: { m: { s: 2 } }, recent: { m: 'x' }, pace: 1.2,
     })
-    t.setDuelPace(0.9)
+    t.setTowerPace(0.9)
     expect(t.read().pace).toBe(0.9)
   })
 })

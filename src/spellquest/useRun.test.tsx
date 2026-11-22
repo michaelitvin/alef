@@ -1573,7 +1573,7 @@ describe('run controller', () => {
 
       it('a Book 2 player who never played the first duel: the tower first, nothing closes, nothing imported', async () => {
         useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, towerImported: false })
-        useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().tower)
+        useSpellQuestStore.getState().importTower(useProgressStore.getState().tower)
         expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 120, screensOpen: true })
         const c = make()
         c.start()

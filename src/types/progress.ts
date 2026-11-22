@@ -1,4 +1,4 @@
-import type { DuelStats } from '../spellquest/tower/types'
+import type { TowerStats } from '../spellquest/tower/types'
 // Progress and state types for the Hebrew Reading Game
 
 /**
@@ -205,7 +205,7 @@ export interface ProgressState {
   /** Vocabulary list - IDs of learned words */
   vocabulary: string[]
   /** Nikkud Wizard Duel stats (parent view) */
-  tower: DuelStats
+  tower: TowerStats
 }
 
 /**
@@ -276,7 +276,7 @@ const DEFAULT_LEVEL_PROGRESS: Record<string, LevelProgress> = {
   },
 }
 
-const EMPTY_DUEL_STATS: DuelStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {}, recent: {} }
+const EMPTY_TOWER_STATS: TowerStats = { sessions: 0, roundsMs: 0, bestScore: 0, bestWave: 0, lastPlayed: null, byMark: {}, byType: {}, confusions: {}, recent: {} }
 
 export const INITIAL_PROGRESS_STATE: ProgressState = {
   version: 1,
@@ -289,7 +289,7 @@ export const INITIAL_PROGRESS_STATE: ProgressState = {
   currentSession: undefined,
   gameCompleted: false,
   vocabulary: [],
-  tower: EMPTY_DUEL_STATS,
+  tower: EMPTY_TOWER_STATS,
 }
 
 /**

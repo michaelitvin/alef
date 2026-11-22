@@ -71,7 +71,7 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   const [station] = useState(() => {
     if (typeof location === 'undefined' || !new URLSearchParams(location.search).has('station')) return null
     const save = course.save()
-    return stationFromUrl(location.search, openScreens(save.read(), save.firstDuelRecent(), course.stages))
+    return stationFromUrl(location.search, openScreens(save.read(), save.towerRecent(), course.stages))
   })
   // the stroke review's own address (#/strokes) opens it directly only in test builds; for the child it is reached
   // through the parent area (behind its hold), never past it
@@ -103,7 +103,7 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   const loading = shell.loading
   // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe): into Spell Quest's
   // save, so on the Hebrew page only (the English page never writes Spell Quest's save)
-  useEffect(() => { if (course.id === 'he') useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().tower) }, [course])
+  useEffect(() => { if (course.id === 'he') useSpellQuestStore.getState().importTower(useProgressStore.getState().tower) }, [course])
   if (TEST_HOOKS && location.hash === '#/glyphs') return <div className="d2-root"><GlyphSheet /></div>
   if (TEST_HOOKS && location.hash === '#/tower-glyphs') return <TowerGlyphSheet />
   // the end screens as they look after a full run (crystals, a trophy, the next boss, the play button) and after a

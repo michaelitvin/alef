@@ -670,7 +670,7 @@ export class RunController {
     const st = this.save.read()
     return {
       stage: this.stage, stages: this.course.stages, draw: this.drawOn(), screensOpen: this.screensOpen(), recent: st.recent,
-      towerRecent: this.save.firstDuelRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
+      towerRecent: this.save.towerRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
     }
   }
 
@@ -912,7 +912,7 @@ export class RunController {
   /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
   private stage0Passed(): 'fast' | 'slow' | null {
     if (this.opts.sandbox || this.screensOpen()) return null
-    return stage0Lane(this.save.firstDuelRecent(), TOWER_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
+    return stage0Lane(this.save.towerRecent(), TOWER_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
   }
 
   /**

@@ -61,7 +61,7 @@ function readSpellQuestSave(): Partial<SpellQuestSave> | null {
 }
 
 /** the first duel's recent answers per mark: the saved ones (Spell Quest's tower writes them on its own page), else the store's */
-function readDuelRecent(): Record<string, string> {
+function readTowerRecent(): Record<string, string> {
   const d = readState(PROGRESS_KEY)?.tower as { recent?: Record<string, string> } | undefined
   return d?.recent ?? useProgressStore.getState().tower?.recent ?? {}
 }
@@ -85,7 +85,7 @@ function stationState(save: Partial<SpellQuestSave> | null, towerRecent: Record<
 
 /** The path's state, read again when the page shows (coming back from Spell Quest in the same tab, or from the back button). */
 export function useStations(): StationState[] {
-  const read = () => stationState(readSpellQuestSave(), readDuelRecent())
+  const read = () => stationState(readSpellQuestSave(), readTowerRecent())
   const [st, setSt] = useState(read)
   useEffect(() => {
     const again = () => { if (document.visibilityState !== 'hidden') setSt(read()) }

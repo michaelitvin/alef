@@ -44,7 +44,7 @@ export function renameSpellQuestFieldsV8<T>(state: T): T {
  * third review. Version 5 (one duel): his coins (one for each 10 stars) become a balance, and drawing turns on for every
  * save (saves carry an explicit `drawing: false`; the parent can turn it off again). Version 6 (the merchant): the
  * shopping range (100) and the merchant's counters, where missing. Version 7 (the first duel in the run): every stored
- * save keeps Spell Quest open; the first duel's progress is imported once, at the next start (importFirstDuel). Version 8
+ * save keeps Spell Quest open; the first duel's progress is imported once, at the next start (importTower). Version 8
  * (Spell Quest rename): `bookOpen` is now `screensOpen` and `firstDuelImported` is now `towerImported`.
  */
 export function migrateSave(state: unknown, version: number): Partial<SpellQuestSave> & { settings: SpellQuestSettings } {

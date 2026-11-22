@@ -47,7 +47,7 @@ describe('SpellQuestApp around its screens', () => {
   })
 
   it('moves the first duel\'s progress over on mount', () => {
-    const spy = vi.spyOn(useSpellQuestStore.getState(), 'importFirstDuel')
+    const spy = vi.spyOn(useSpellQuestStore.getState(), 'importTower')
     render(<SpellQuestApp goHome={() => {}} />)
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(useProgressStore.getState().tower)

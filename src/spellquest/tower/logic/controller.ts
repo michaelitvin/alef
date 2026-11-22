@@ -551,8 +551,8 @@ export class TowerController {
     const heard = !dry && !megaInRun && (!r.boss || (o.kind === 'hit' && o.final))
     const after = heard ? this.content.answered?.(r, o.kind === 'hit') ?? [] : []
     if (!dry) {
-      if (helped && tallies.recordDuelHelped) tallies.recordDuelHelped(r.target.id, r.type)
-      else tallies.recordDuelRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
+      if (helped && tallies.recordTowerHelped) tallies.recordTowerHelped(r.target.id, r.type)
+      else tallies.recordTowerRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
     }
     // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
@@ -572,7 +572,7 @@ export class TowerController {
     const blendRight = !!missPlans?.length && ++this.wordMisses % 2 === 0
     if (blendRight) this.track('blend-hint', { round: r.id, words: 1, by: 'miss' })
     this.set({ feedback: plan })
-    if (!dry && !megaInRun) tallies.setDuelPace(pace)
+    if (!dry && !megaInRun) tallies.setTowerPace(pace)
     this.track('outcome', {
       pace, feedback: plan.say, predicted: Math.round(confidence.predicted * 1000) / 1000,
       round: r.id, result: helped ? 'helped' : result, choice: o.choiceKey, mega: o.mega, final: o.final, points: o.points, effect: o.effect,
@@ -690,8 +690,8 @@ export class TowerController {
         this.twinRound = r.id
         this.twinKey = keyOf(c)
         if (!this.emb.dry) {
-          tallies.recordDuelTwin(r.target.id, r.type)
-          tallies.recordDuelConfusion(r.target.id, keyOf(c))
+          tallies.recordTowerTwin(r.target.id, r.type)
+          tallies.recordTowerConfusion(r.target.id, keyOf(c))
         }
         const almost = this.content.twinParts(r, c)
         if (almost.length) this.almost = this.sayAll(almost)
@@ -699,7 +699,7 @@ export class TowerController {
         return
       }
       this.answeredRound = r.id
-      if (!correct && !this.emb.dry) tallies.recordDuelConfusion(r.target.id, keyOf(c))
+      if (!correct && !this.emb.dry) tallies.recordTowerConfusion(r.target.id, keyOf(c))
       this.set({ fx: (this.nextFx ??= makeFxPicker(this.rng))() })
       const effect = pickEffect(this.rng, { final: !r.boss || s.bossHp <= 1, mega: false, boss: r.boss })
       this.dispatch({ type: 'CHOOSE', choice: c, effect, verdict: { correct, twin } })

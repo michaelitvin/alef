@@ -13,7 +13,7 @@ const seeded = (a: number) => () => {
 }
 /**
  * A new player who is right 80 % of the time, on the tower's own target picker (the first duel's adaptive data, kept as
- * recordDuelRound keeps it): the answers until the tower is mastered (`cap` if never).
+ * recordTowerRound keeps it): the answers until the tower is mastered (`cap` if never).
  */
 function answersToOpen(seed: number, cap = 5000): number {
   const rng = seeded(seed)

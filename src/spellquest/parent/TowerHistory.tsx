@@ -23,7 +23,7 @@ const cell = (t: Tally | undefined, key: (typeof COLS)[number]['key']) => {
 const col = (key: (typeof COLS)[number]['key']) => (key === 'correctPct' ? 'correct' : key)
 const misses = (t?: Tally) => (t ? (t.wrong ?? 0) + (t.timeout ?? 0) : -1)
 
-export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
+export function TowerHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
   const d = useProgressStore((p) => p.tower)
   const byMark = d?.byMark ?? {}
   const rows = [...TOWER_MARKS].filter((m) => byMark[m.id]).sort((a, b) => misses(byMark[b.id]) - misses(byMark[a.id]))

@@ -58,9 +58,9 @@ describe('Book 2\'s section in the parent area', () => {
 
   it('the first duel’s screens table: twin and lightning columns, no row for the dropped picture screen', () => {
     const st = useProgressStore.getState()
-    st.recordDuelRound('kamatz', 'C', 'correct', 1000)
-    st.recordDuelTwin('kamatz', 'C')
-    st.recordDuelRound('chirik', 'D', 'mega', 1000)
+    st.recordTowerRound('kamatz', 'C', 'correct', 1000)
+    st.recordTowerTwin('kamatz', 'C')
+    st.recordTowerRound('chirik', 'D', 'mega', 1000)
     const { container } = section()
     expect(container.querySelector('[data-duel-mark="kamatz"] [data-col="twin"]')!.textContent).toBe('1')
     expect(container.querySelector('[data-duel-mark="chirik"] [data-col="mega"]')!.textContent).toBe('1')

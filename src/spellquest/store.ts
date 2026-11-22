@@ -10,7 +10,7 @@ import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stag
 import type { NumberRange } from './logic/merchant'
 import { pushTowerTail, towerMastered } from './logic/mastery'
 import { TOWER_MARKS } from './tower/logic/marks'
-import type { DuelStats } from './tower/types'
+import type { TowerStats } from './tower/types'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
 
 export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }
@@ -149,7 +149,7 @@ export interface SpellQuestActions {
    * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
    * tenth of them coins; Spell Quest opens if his marks are already mastered. The first duel's own save is only read.
    */
-  importFirstDuel: (duel: DuelStats | null | undefined) => void
+  importTower: (duel: TowerStats | null | undefined) => void
   resetProgress: () => void
 }
 
@@ -253,7 +253,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
   markScreensOpen: () => set({ screensOpen: true }),
   nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
   noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
-  importFirstDuel: (duel) => set((s) => {
+  importTower: (duel) => set((s) => {
     if (s.towerImported) return s
     const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
     const mastered = towerMastered(duel?.recent ?? {}, TOWER_MARKS.map((m) => m.id))

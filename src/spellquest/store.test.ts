@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useSpellQuestStore } from './store'
 import type { Choice } from './logic/rounds'
-import type { DuelStats, Tally } from './tower/types'
+import type { TowerStats, Tally } from './tower/types'
 import { TOWER_MARKS } from './tower/logic/marks'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
@@ -230,7 +230,7 @@ describe('duel2 store', () => {
 
   describe('the first duel moves into the run (spec: one duel, Part 3)', () => {
     const t = (correct: number, mega = 0): Tally => ({ seen: correct + mega, correct, wrong: 0, timeout: 0, twin: 0, mega })
-    const duel = (over: Partial<DuelStats> = {}): DuelStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
+    const duel = (over: Partial<TowerStats> = {}): TowerStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
 
     it('a new player starts at stage 0 (the tower alone), and nothing is imported yet', () => {
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: false, towerImported: false, towerWave: 1, towerVisits: 0 })
@@ -250,34 +250,34 @@ describe('duel2 store', () => {
       useSpellQuestStore.setState({ totalStars: 10, coins: 5 })
       const d = duel({ byMark: { kamatz: t(25, 9), chirik: t(7) } })
       const copy = JSON.parse(JSON.stringify(d))
-      useSpellQuestStore.getState().importFirstDuel(d)
+      useSpellQuestStore.getState().importTower(d)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 42, coins: 8, towerImported: true })
       // a second start (a reload) adds nothing
-      useSpellQuestStore.getState().importFirstDuel(d)
+      useSpellQuestStore.getState().importTower(d)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 42, coins: 8 })
       // the first duel's own save is only read
       expect(d).toEqual(copy)
     })
     it('a first duel player who never played Book 2 keeps stage 0 unless his marks are mastered', () => {
-      useSpellQuestStore.getState().importFirstDuel(duel({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
+      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
       expect(useSpellQuestStore.getState().screensOpen).toBe(false)
     })
     it('a first-duel player who mastered his marks starts with Book 2 open', () => {
       const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
-      useSpellQuestStore.getState().importFirstDuel(duel({ byMark: { kamatz: t(40) }, recent }))
+      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(40) }, recent }))
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: true, totalStars: 40, coins: 4 })
     })
     it('no first duel at all: nothing added, the import is done', () => {
-      useSpellQuestStore.getState().importFirstDuel(undefined)
+      useSpellQuestStore.getState().importTower(undefined)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 0, coins: 0, towerImported: true, screensOpen: false })
     })
     it('a Book 2 player keeps Book 2 open after the import, even with no first duel', () => {
       useSpellQuestStore.setState({ screensOpen: true })
-      useSpellQuestStore.getState().importFirstDuel(duel())
+      useSpellQuestStore.getState().importTower(duel())
       expect(useSpellQuestStore.getState().screensOpen).toBe(true)
     })
     it('the parent’s reset starts stage 0 again and lets the import run again', () => {
-      useSpellQuestStore.getState().importFirstDuel(duel({ byMark: { kamatz: t(20) } }))
+      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(20) } }))
       useSpellQuestStore.setState({ screensOpen: true, towerWave: 9 })
       useSpellQuestStore.getState().resetProgress()
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: false, towerImported: false, towerWave: 1, totalStars: 0 })

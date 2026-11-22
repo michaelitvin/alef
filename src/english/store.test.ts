@@ -68,8 +68,8 @@ describe('the English save', () => {
 
   it('the tower keeps its answers in the English save, never in the lessons\' save', () => {
     const p = memoryEnglishSavePort()
-    p.towerTallies().recordDuelRound('a', 'A', 'correct', 500)
-    p.towerTallies().setDuelPace(1.2)
+    p.towerTallies().recordTowerRound('a', 'A', 'correct', 500)
+    p.towerTallies().setTowerPace(1.2)
     expect(p.read().tower).toMatchObject({ byMark: { a: { seen: 1, correct: 1 } }, recent: { a: 'o' }, pace: 1.2 })
     expect(p.towerTallies().read().byMark.a.seen).toBe(1)
   })

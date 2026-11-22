@@ -6,7 +6,7 @@ import { spellQuestTelemetry } from '../telemetry'
 import { setNumberRange, useNumberRange } from '../../shared/numberRange'
 import { ITEMS } from '../logic/content'
 import type { SectionProps } from '../../parent/types'
-import { FirstDuelHistory } from './FirstDuelHistory'
+import { TowerHistory } from './TowerHistory'
 
 const STAGE_NAME = ['', 'letters', 'plain syllables', 'the dot changes the sound', 'words on doors']
 const name = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
@@ -81,7 +81,7 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
       <h3>Top mix-ups (asked → tapped)</h3>
       <ul>{conf(s.confusions.letters).map((x) => <li key={`l${x.a}${x.b}`}>{name(x.a)} → {name(x.b)}: {x.n}</li>)}</ul>
       <ul>{conf(s.confusions.vowels).map((x) => <li key={`v${x.a}${x.b}`}>vowel {x.a} → {x.b}: {x.n}</li>)}</ul>
-      <FirstDuelHistory goTo={goTo} />
+      <TowerHistory goTo={goTo} />
       <h3>Flight speed</h3>
       <p>
         The broom flight adapts to him and is saved on this device only: <span data-pace>{s.pace.toFixed(2)}</span>× the normal

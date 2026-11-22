@@ -15,15 +15,15 @@ export interface TowerTallies {
 export interface TowerTallyPort {
   read(): TowerTallies
   // the progress store's own actions, the ones the controller calls
-  recordDuelRound(markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }): void
-  recordDuelTwin(markId: string, type: ScreenType): void
-  recordDuelConfusion(askedId: string, tappedId: string): void
+  recordTowerRound(markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }): void
+  recordTowerTwin(markId: string, type: ScreenType): void
+  recordTowerConfusion(askedId: string, tappedId: string): void
   /**
    * a right answer after the hint blended the word (English): `seen` and `helped` + 1; not right, not wrong, and not in
    * the recent answers. Unset (the Hebrew tower has no hint): the controller never calls it
    */
-  recordDuelHelped?(markId: string, type: ScreenType): void
-  setDuelPace(pace: number): void
+  recordTowerHelped?(markId: string, type: ScreenType): void
+  setTowerPace(pace: number): void
 }
 
 /** the first duel's save (alef-progress), looked up on each call: the default */
@@ -32,10 +32,10 @@ export const progressTallies: TowerTallyPort = {
     const d = useProgressStore.getState().tower
     return { byMark: d.byMark, confusions: d.confusions ?? {}, recent: d.recent ?? {}, pace: d.pace ?? 1 }
   },
-  recordDuelRound: (markId, type, result, ms, opts) => useProgressStore.getState().recordDuelRound(markId, type, result, ms, opts),
-  recordDuelTwin: (markId, type) => useProgressStore.getState().recordDuelTwin(markId, type),
-  recordDuelConfusion: (askedId, tappedId) => useProgressStore.getState().recordDuelConfusion(askedId, tappedId),
-  setDuelPace: (pace) => useProgressStore.getState().setDuelPace(pace),
+  recordTowerRound: (markId, type, result, ms, opts) => useProgressStore.getState().recordTowerRound(markId, type, result, ms, opts),
+  recordTowerTwin: (markId, type) => useProgressStore.getState().recordTowerTwin(markId, type),
+  recordTowerConfusion: (askedId, tappedId) => useProgressStore.getState().recordTowerConfusion(askedId, tappedId),
+  setTowerPace: (pace) => useProgressStore.getState().setTowerPace(pace),
 }
 
 const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0, mega: 0 }
@@ -54,7 +54,7 @@ export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => v
   const update = (f: (t: TowerTallies) => TowerTallies) => put(f(get()))
   return {
     read: get,
-    recordDuelRound(markId, _type, result, _ms, opts) {
+    recordTowerRound(markId, _type, result, _ms, opts) {
       update((t) => {
         const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
         return {
@@ -66,24 +66,24 @@ export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => v
         }
       })
     },
-    recordDuelHelped(markId) {
+    recordTowerHelped(markId) {
       update((t) => {
         const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
         return { ...t, byMark: { ...t.byMark, [markId]: { ...b, seen: b.seen + 1, helped: (b.helped ?? 0) + 1 } } }
       })
     },
-    recordDuelTwin(markId) {
+    recordTowerTwin(markId) {
       update((t) => {
         const b = { ...EMPTY_TALLY, ...t.byMark[markId] }
         return { ...t, byMark: { ...t.byMark, [markId]: { ...b, twin: b.twin + 1 } } }
       })
     },
-    recordDuelConfusion(askedId, tappedId) {
+    recordTowerConfusion(askedId, tappedId) {
       update((t) => {
         const row = t.confusions[askedId] ?? {}
         return { ...t, confusions: { ...t.confusions, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } }
       })
     },
-    setDuelPace(pace) { update((t) => ({ ...t, pace })) },
+    setTowerPace(pace) { update((t) => ({ ...t, pace })) },
   }
 }

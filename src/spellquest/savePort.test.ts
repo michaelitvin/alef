@@ -21,7 +21,7 @@ describe('storeSavePort', () => {
     storeSavePort.noteMerchant('visit')
     expect(useSpellQuestStore.getState().coins).toBe(3)
     expect(storeSavePort.read().merchant.visits).toBe(1)
-    expect(storeSavePort.firstDuelRecent()).toEqual({ patah: 'oox' })
+    expect(storeSavePort.towerRecent()).toEqual({ patah: 'oox' })
   })
 })
 
@@ -39,7 +39,7 @@ describe('memorySavePort', () => {
     expect(save.read().tallies['l:bet']).toEqual({ seen: 1, wrong: 1 })
     expect(save.read().roundNo).toBe(1)
     expect(save.read().merchant.level).toBe(1)
-    expect(save.firstDuelRecent()).toEqual({ qamatz: 'ooo' })
+    expect(save.towerRecent()).toEqual({ qamatz: 'ooo' })
   })
 
   it('never touches the real save, and two of them are separate', () => {
