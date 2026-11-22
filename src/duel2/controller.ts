@@ -75,6 +75,8 @@ interface LadderView {
    * `parts[at]` the right plate (ladderAnswerId); `grow` 1: a box more than below; `marked`: the place `at` is marked
    */
   from?: Choice[]; parts?: Choice[]; at?: number; grow?: 1 | -1; marked?: boolean
+  /** an unmarked rung: the plate a tap lifted above the box row (the boxes glow); the next tap on a box places it */
+  lifted?: string
 }
 /** the plate a ladder rung asks for: the changed part (English), else the target */
 export const ladderAnswerId = (s: { target: Choice; parts?: Choice[]; at?: number }): string => (s.at !== undefined && s.parts ? s.parts[s.at].id : s.target.id)
@@ -402,6 +404,13 @@ export class RunController {
       return
     }
     if (this.view.phase !== 'answer' || !this.pickWaiter) return
+    // an unmarked English rung: a tap on a plate lifts it (a second tap puts it back), a tap on a box places the lifted
+    // plate (the screen sends it as a pick with its box, as a drop does); a tap alone never answers (design 2.C)
+    const sc = this.view.screen
+    if (sc?.screen === 'ladder' && sc.at !== undefined && !sc.marked) {
+      if (g.box === undefined) { this.setScreen({ lifted: sc.lifted === g.id ? undefined : g.id } as Partial<LadderView>); return }
+      this.setScreen({ lifted: undefined } as Partial<LadderView>)
+    }
     const w = this.pickWaiter
     this.pickWaiter = null
     this.pickBox = g.box
@@ -1330,9 +1339,9 @@ export class RunController {
     if (!tapped) return 'near'
     const right = tapped.id === answer.id || tapped.soundId === answer.soundId
     // an unmarked English rung: he finds the place (design Part 5). The right part dropped on another place is
-    // "almost": no answer, no heart; he tries again. A tap (no box) names no place, and a tap is always accepted
-    // (interaction-input.md), so only a drop on another place is almost
-    if (right && s.screen === 'ladder' && s.at !== undefined && !s.marked && box !== undefined && box !== s.at) {
+    // "almost": no answer, no heart; he tries again. A pick here always has a box (a tap on a plate only lifts it, see
+    // gesture()), so a missing box is never the right place
+    if (right && s.screen === 'ladder' && s.at !== undefined && !s.marked && box !== s.at) {
       await this.say(t, [{ id: this.variation('almost') }])
       return 'near'
     }

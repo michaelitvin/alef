@@ -10,7 +10,7 @@ import { belowBand, intoBandView, STAGE_CONTENT_TOP, viewBoxOf, type FullView } 
 import { DragPick } from '../DragPick'
 import { Glyph, latinFitPx as fitPx } from '../Glyph'
 import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
-import { Stage, type Dir, type Phase } from './Stage'
+import { Stage, toStage, type Dir, type Phase } from './Stage'
 
 export const RUNG_W = 300
 const LADDER_GLYPH_PX = 96
@@ -77,11 +77,14 @@ export function rungPlaceX(c: RungChange): number {
   return c.at === 0 ? xs[0] - w / 2 : c.at >= xs.length ? xs[xs.length - 1] + w / 2 : (xs[c.at - 1] + xs[c.at]) / 2
 }
 
-function MakingRung(p: { change: RungChange; y: number }) {
+function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: the boxes glow and a tap on the row places it */ lifted?: boolean; onPlace?: (place: number) => void }) {
   const boxes = rungBoxes(p.change)
   const { xs, w } = rungBoxXs(boxes.length)
+  const left = xs[0] - w / 2 - BOX_GAP
+  const width = xs[xs.length - 1] + w / 2 + BOX_GAP - left
   return (
-    <g data-making-rung data-marked={p.change.marked ? '1' : '0'}>
+    <g data-making-rung data-marked={p.change.marked ? '1' : '0'} {...(p.lifted ? { 'data-lifted': '' } : {})}>
+      {p.lifted && <rect data-place-glow x={left - 10} y={p.y - BOX_H / 2 - 10} width={width + 20} height={BOX_H + 20} rx={22} fill="#ffd34d" fillOpacity={0.22} stroke="#ffd34d" strokeOpacity={0.8} strokeWidth={6} pointerEvents="none" />}
       {boxes.map((b, i) => (
         <g key={i} data-box={b.text ?? '_'} {...(b.mark ? { 'data-marked-box': '' } : {})}>
           <rect x={xs[i] - w / 2} y={p.y - BOX_H / 2} width={w} height={BOX_H} rx={14} fill="#1b0f3c" fillOpacity={0.55}
@@ -90,6 +93,11 @@ function MakingRung(p: { change: RungChange; y: number }) {
           {b.text !== null && <g opacity={b.mark ? 0.45 : 1}><Glyph text={b.text} px={fitPx(b.text, w, 84)} x={xs[i]} y={p.y} alphabet="latin" /></g>}
         </g>
       ))}
+      {/* a lifted plate: a tap on the row (a box, or the gap where one comes in) places it there, as a drop does */}
+      {p.lifted && (
+        <rect data-place-row x={left} y={p.y - BOX_H / 2} width={width} height={BOX_H} fill="transparent" style={{ cursor: 'pointer' }}
+          onPointerUp={(e) => p.onPlace?.(dropPlace(p.change, toStage(e.currentTarget, e.clientX, e.clientY).x))} />
+      )}
     </g>
   )
 }
@@ -147,6 +155,8 @@ export function Ladder(p: {
   dir?: Dir
   /** English: the rung he makes, from the word below (none on the first rung and in Hebrew) */
   change?: RungChange
+  /** an unmarked rung: the plate a tap lifted above the box row (the boxes glow) */
+  lifted?: string
 }) {
   const images = useImages()
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
@@ -168,7 +178,7 @@ export function Ladder(p: {
           <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={px(c.text, RUNG_W)} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
         </g>
       ))}
-      {change && <MakingRung change={change} y={nextRungY(p.built.length, p.rungs)} />}
+      {change && <MakingRung change={change} y={nextRungY(p.built.length, p.rungs)} lifted={!change.marked && p.lifted !== undefined && can} onPlace={(place) => p.lifted && p.onPick(p.lifted, place)} />}
       {wiz('s-wizard-idle') && (
         // a new ladder: he is back at the start at once (sliding down from the top he would pass under the bar's buttons)
         <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb"
@@ -179,15 +189,20 @@ export function Ladder(p: {
         if (p.reveal?.right === c.id) state = 'reveal'
         else if (p.reveal?.wrong === c.id) state = 'wrong'
         const rungY = nextRungY(p.built.length, p.rungs)
+        const lifted = !!change && !change.marked && p.lifted === c.id && can
+        const liftY = Math.max(plateTop(view) + (PLATE_W * PLATE_ASPECT) / 2, rungY - BOX_H / 2 - 12 - (PLATE_W * PLATE_ASPECT) / 2)
         return (
           <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
             onPick={(q) => (change && !change.marked && q ? p.onPick(c.id, dropPlace(change, q.x)) : p.onPick(c.id))}
             // anywhere over the ladder counts (a child's drop is not precise)
             inZone={(q) => Math.abs(q.x - LADDER_CX) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
             demo={p.demo?.id === c.id ? { t: p.demo.t, dx: (change ? rungPlaceX(change) : LADDER_CX) - PLATE_X, dy: rungY - fixY[i] } : undefined}>
-            <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
-              <Glyph text={c.text} px={px(c.text, PLATE_W)} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />
-            </Plate>
+            {/* a tapped plate (unmarked rung) is lifted above the box row; a tap on it puts it back */}
+            <g data-lifted={lifted ? '' : undefined} transform={lifted ? `translate(${LADDER_CX - PLATE_X} ${liftY - fixY[i]})` : undefined}>
+              <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
+                <Glyph text={c.text} px={px(c.text, PLATE_W)} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />
+              </Plate>
+            </g>
           </DragPick>
         )
       })}

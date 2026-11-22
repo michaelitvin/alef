@@ -115,20 +115,112 @@ describe('the English ladder in the run', () => {
     }
   })
 
-  it('on an unmarked rung a TAP on the right part counts like the drop on its place (a tap names no place; it is never "almost")', async () => {
+  /** an unmarked rung (stage 4) waiting for his answer */
+  async function unmarked() {
+    const save = englishSave(4)
+    const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'ladder' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
+    const s = c.view.screen
+    if (s?.screen !== 'ladder' || s.marked !== false || s.at === undefined) throw new Error('no unmarked rung')
+    const right = ladderAnswerId(s)
+    const wrong = s.plates.find((p) => p.id !== right)!.id
+    const view = () => c.view.screen as typeof s & { lifted?: string }
+    return { c, save, s, right, wrong, elsewhere: s.at === 0 ? 1 : 0, view }
+  }
+
+  it('on an unmarked rung a tap on a plate only lifts it (the boxes glow); a tap alone never answers', async () => {
     vi.useFakeTimers()
     try {
-      const save = englishSave(4)
+      const { c, save, s, right, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      await wait(3000)
+      expect(view().lifted).toBe(right)
+      expect(c.view.phase).toBe('answer')
+      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
+      expect(view().built).toEqual(s.built)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap the right plate, then tap its place: the rung is built', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, right, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: right, box: s.at })
+      await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
+      expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
+      expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
+      expect(view().lifted).toBeUndefined()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap the right plate, then another place: almost (no answer, no heart), the plate goes back', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, right, elsewhere, view } = await unmarked()
+      const hearts = c.view.hearts
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: right, box: elsewhere })
+      await wait(3000)
+      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
+      expect(c.view.hearts).toBe(hearts)
+      expect(view().built).toEqual(s.built)
+      expect(view().lifted).toBeUndefined()
+      expect(c.view.phase).toBe('answer')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap a wrong plate, then a place: wrong, as a wrong drop is', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, wrong } = await unmarked()
+      c.gesture({ type: 'pick', id: wrong })
+      c.gesture({ type: 'pick', id: wrong, box: s.at })
+      await until(c, () => (save.read().tallies['sc:ladder']?.wrong ?? 0) === 1)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a tap on another plate lifts that one; a tap on the lifted plate puts it back', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right, wrong, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: wrong })
+      expect(view().lifted).toBe(wrong)
+      c.gesture({ type: 'pick', id: wrong })
+      expect(view().lifted).toBeUndefined()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('on a marked rung a tap answers at once, as before', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = englishSave(2)
       const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'ladder' } })
       c.start()
       await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
       const s = c.view.screen
       if (s?.screen !== 'ladder') throw new Error('no ladder')
-      expect(s.marked).toBe(false)
+      expect(s.marked).toBe(true)
       c.gesture({ type: 'pick', id: ladderAnswerId(s) })
       await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
       expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
-      expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
       c.destroy()
     } finally {
       vi.useRealTimers()
