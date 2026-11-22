@@ -21,8 +21,9 @@ import { fileLog } from '../../tools/review/log.ts'
 import { deriveAll, withOrphans } from '../../tools/review/rules.ts'
 import type { ItemState } from '../../tools/review/rules.ts'
 import { PHRASES } from '../../src/english/content/phrases.ts'
+import { LOOKALIKE_LETTERS } from '../../src/english/content/sets.ts'
 import { UNITS } from '../../src/english/content/units.ts'
-import { heartVoice, nonsenseVoice, phraseVoice, soundVoice, wordVoice } from '../../src/english/content/voiceIds.ts'
+import { heartVoice, letterName, nonsenseVoice, phraseVoice, soundVoice, wordVoice } from '../../src/english/content/voiceIds.ts'
 import { WORDS } from '../../src/english/content/words.ts'
 import { EN_LINES } from '../../src/english/data/lines.ts'
 
@@ -54,6 +55,7 @@ const voiceOf = (w: { kind: string; text: string }): string =>
   w.kind === 'heart' ? heartVoice(w.text) : w.kind === 'nonsense' ? nonsenseVoice(w.text) : wordVoice(w.text)
 const gameVoices = new Set<string>([
   ...UNITS.map(soundVoice),
+  ...LOOKALIKE_LETTERS.flatMap((s) => s.letters.map(letterName)),
   ...WORDS.map(voiceOf),
   ...PHRASES.map((p) => phraseVoice(p.id)),
   ...EN_LINES.flatMap((l) => Array.from({ length: l.variations }, (_, i) => `${l.id}-${i + 1}`)),
@@ -124,10 +126,10 @@ const pictureBy = new Map(pictureJson.pictures.map((p) => [p.key, p]))
 
 const batchDir = media['voice-batch']
 const spikeDir = media['voice-spike3']
-const batchRequests = new Map<string, { prompt: string }>()
+const batchRequests = new Map<string, { prompt: string; voice?: string }>()
 if (batchDir && existsSync(batchDir)) {
   for (const f of readdirSync(batchDir).filter((n) => /^requests.*\.json$/.test(n)).sort()) {
-    for (const r of readJson<{ id: string; prompt: string }[]>(join(batchDir, f), [])) batchRequests.set(r.id, r)
+    for (const r of readJson<{ id: string; prompt: string; voice?: string }[]>(join(batchDir, f), [])) batchRequests.set(r.id, r)
   }
 }
 const spikeRequests = new Map(readJson<{ id: string; prompt: string }[]>(join(spikeDir ?? '', 'requests.json'), []).map((r) => [r.id, r]))
@@ -137,7 +139,7 @@ function voiceRequest(takeId: string): unknown {
   const stem = basename(takeId, '.wav')
   const r = takeId.startsWith('voice-batch/final/') ? batchRequests.get(stem.replace('__', '~')) : spikeRequests.get(stem)
   if (!r) return { model: VOICE_MODEL, voice: 'Puck', prompt: null, note: /cut21/.test(stem) ? 'a new take of the short-a retake round, cut to 0.21 s; its request was not kept' : 'its own request was not kept' }
-  return { model: VOICE_MODEL, voice: 'Puck', response: 'audio', prompt: r.prompt }
+  return { model: VOICE_MODEL, voice: ('voice' in r && r.voice) || 'Puck', response: 'audio', prompt: r.prompt }
 }
 
 const encode = (src: string, dest: string): void => {

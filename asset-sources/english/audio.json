@@ -2019,6 +2019,701 @@
    ]
   },
   {
+   "id": "ln-b",
+   "file": "src/english/assets/audio/voice/ln-b.mp3",
+   "take": "voice-batch/final/ln-b__A1.wav",
+   "source_sha256": "bec9a25776e08307c5b65894d416df84742fdeb72ecfb845a2d2b22c3673bcd3",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"B\" (\"bee\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] B."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "ln-d",
+   "file": "src/english/assets/audio/voice/ln-d.mp3",
+   "take": "voice-batch/final/ln-d__A4.wav",
+   "source_sha256": "a8d80cbcf0a102fdf26ab974e26678ade0f7fb85e8e844eb584421aaabbf0d49",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"D\" (\"dee\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] D."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-d__A1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-h",
+   "file": "src/english/assets/audio/voice/ln-h.mp3",
+   "take": "voice-batch/final/ln-h__A3.wav",
+   "source_sha256": "5043dff77d015645ba349d90d5a4ed4f137f4cd9638aba7f2cec045cb9bf2e70",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"H\" (\"aitch\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] H."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-h__A2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-m",
+   "file": "src/english/assets/audio/voice/ln-m.mp3",
+   "take": "voice-batch/final/ln-m__A1.wav",
+   "source_sha256": "947d6d9174252c1378f8d0abba02b06baa9929d83558b48cf81b7bb489206946",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"M\" (\"em\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] M."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-m__A2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-n",
+   "file": "src/english/assets/audio/voice/ln-n.mp3",
+   "take": "voice-batch/final/ln-n__A1.wav",
+   "source_sha256": "fad91b7edf73757898b4f02a16130c0c9c8312f79dba835626a4b77dbd866c1a",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"N\" (\"en\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] N."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-n__A3",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-p",
+   "file": "src/english/assets/audio/voice/ln-p.mp3",
+   "take": "voice-batch/final/ln-p__A4.wav",
+   "source_sha256": "390375239c8bd256c975f445453fe5660e875199f4a447157f40dc8b9997458c",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"P\" (\"pee\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] P."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-p__A3",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-u",
+   "file": "src/english/assets/audio/voice/ln-u.mp3",
+   "take": "voice-batch/final/ln-u__A2.wav",
+   "source_sha256": "f0a97051a2ea852b396b230d9fc7de61cbf1f4d6b4cf6cc149524b9519becb28",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"U\" (\"you\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] U."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-u__A4",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "ln-w",
+   "file": "src/english/assets/audio/voice/ln-w.mp3",
+   "take": "voice-batch/final/ln-w__A3.wav",
+   "source_sha256": "701856185caafc300882c1322891fc7d80feeb7b31bd0ee89ae0119151f47827",
+   "where": "Voice: a letter name (the look-alike explanation: \"This is the letter:\" then its name, then its sound)",
+   "caption": "the letter name \"W\" (\"double-you\")",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Puck",
+    "response": "audio",
+    "prompt": "[clearly, the letter name] W."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "ln-w__A2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-again-1",
+   "file": "src/english/assets/audio/voice/m-again-1.mp3",
+   "take": "voice-batch/final/m-again-1__T2.wav",
+   "source_sha256": "5455fb190f94d3b7fc88fe9681bb651b1805af3c2fa3ec968939cd0318ce2851",
+   "where": "Voice line (the merchant): nothing tapped for a while",
+   "caption": "So, do you want one?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] So, do you want one?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-again-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-again-2",
+   "file": "src/english/assets/audio/voice/m-again-2.mp3",
+   "take": "voice-batch/final/m-again-2__T3.wav",
+   "source_sha256": "96921f2ccb68ee947c9a11272976e2743cfd33ecc1b852d9b858cbaf7cbac4ed",
+   "where": "Voice line (the merchant): nothing tapped for a while",
+   "caption": "Well? How about a potion?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Well? How about a potion?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-again-2__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-bye-1",
+   "file": "src/english/assets/audio/voice/m-bye-1.mp3",
+   "take": "voice-batch/final/m-bye-1__T5.wav",
+   "source_sha256": "645b7611b178ace057d0e68c0457b878ffe7ab01bd06170c370a7b8a11c5c04e",
+   "where": "Voice line (the merchant): the child says no thanks",
+   "caption": "All right. Goodbye, wizard.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] All right. Goodbye, wizard."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-bye-1__T3",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-bye-2",
+   "file": "src/english/assets/audio/voice/m-bye-2.mp3",
+   "take": "voice-batch/final/m-bye-2__T2.wav",
+   "source_sha256": "a0a0e798572c2a72c0ee5840b4d7531d2a7d51fb58f8344f4a96433d21f6972a",
+   "where": "Voice line (the merchant): the child says no thanks",
+   "caption": "No problem. See you next time.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] No problem. See you next time."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-bye-2__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-decline-1",
+   "file": "src/english/assets/audio/voice/m-decline-1.mp3",
+   "take": "voice-batch/final/m-decline-1__T2.wav",
+   "source_sha256": "bb6fa1b262c06913476764bd87b4d438dee110665d79a30801ea4a76ac09c10e",
+   "where": "Voice line (the merchant): first visit demo D4: the no card glows",
+   "caption": "Don't need it? Touch here.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Don't need it? Touch here."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-decline-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-empty-1",
+   "file": "src/english/assets/audio/voice/m-empty-1.mp3",
+   "take": "voice-batch/final/m-empty-1__T2.wav",
+   "source_sha256": "597fcfbc6ba61cd7ccf10677320e0e3d0da46d4af9b9849ec6dff4f9c7063c14",
+   "where": "Voice line (the merchant): the potion tapped with nothing in his hand",
+   "caption": "Coins first.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Coins first."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-empty-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-empty-2",
+   "file": "src/english/assets/audio/voice/m-empty-2.mp3",
+   "take": "voice-batch/final/m-empty-2__T1.wav",
+   "source_sha256": "3227420145921297aebb32c8a404b6f5495086023f1f00f546a281d7d967665e",
+   "where": "Voice line (the merchant): the potion tapped with nothing in his hand",
+   "caption": "First, give me some coins.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] First, give me some coins."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-exact-1",
+   "file": "src/english/assets/audio/voice/m-exact-1.mp3",
+   "take": "voice-batch/final/m-exact-1__T5.wav",
+   "source_sha256": "1399ad98d50702b04c6ede36119c82ee8e0367361ea10be9b8f6e783faca3da2",
+   "where": "Voice line (the merchant): the exact price; the potion flies to the wizard",
+   "caption": "Exactly right. Here's your potion.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Exactly right. Here's your potion."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-exact-1__T4",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-exact-2",
+   "file": "src/english/assets/audio/voice/m-exact-2.mp3",
+   "take": "voice-batch/final/m-exact-2__T6.wav",
+   "source_sha256": "1a33d78682183c8008244b10311122c36a5b5cdcf9a745710c7d496e6183f2c6",
+   "where": "Voice line (the merchant): the exact price; the potion flies to the wizard",
+   "caption": "Just the right amount. Here you go.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Just the right amount. Here you go."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-exact-2__T5",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-exact-3",
+   "file": "src/english/assets/audio/voice/m-exact-3.mp3",
+   "take": "voice-batch/final/m-exact-3__T3.wav",
+   "source_sha256": "4b6655a8bc5a4d965aa455f5c76e3a908950769c8dc3734ccb340ad34393724e",
+   "where": "Voice line (the merchant): the exact price; the potion flies to the wizard",
+   "caption": "Perfect, that's exactly the price.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Perfect, that's exactly the price."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-exact-3__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-give-1",
+   "file": "src/english/assets/audio/voice/m-give-1.mp3",
+   "take": "voice-batch/final/m-give-1__T2.wav",
+   "source_sha256": "48e5e7b906e1945360aa3c9228db230e5803267c9dc3b7c16c995ca72c59e3bc",
+   "where": "Voice line (the merchant): first visit demo D2: a coin is dragged to him",
+   "caption": "Give me coins to match the price.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Give me coins to match the price."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-give-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-heart-1",
+   "file": "src/english/assets/audio/voice/m-heart-1.mp3",
+   "take": "voice-batch/final/m-heart-1__T3.wav",
+   "source_sha256": "0576b47d530779a4ecc82c04774f4659d813ab920484deeb53832aa87160b52a",
+   "where": "Voice line (the merchant): after a purchase, the heart flew to the top bar",
+   "caption": "Now you have a heart back.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Now you have a heart back."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-heart-1__T2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-heart-2",
+   "file": "src/english/assets/audio/voice/m-heart-2.mp3",
+   "take": "voice-batch/final/m-heart-2__T5.wav",
+   "source_sha256": "5313c45605f8bdfe956ba0e9d2826dec060a86ede68d4a77bf07c68bf34f1ca1",
+   "where": "Voice line (the merchant): after a purchase, the heart flew to the top bar",
+   "caption": "You got a heart back.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] You got a heart back."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-heart-3",
+   "file": "src/english/assets/audio/voice/m-heart-3.mp3",
+   "take": "voice-batch/final/m-heart-3__T2.wav",
+   "source_sha256": "574f7b6bb84499bd26731226eecc9bac05d02f4187054f6f1ba5b3527a6f594c",
+   "where": "Voice line (the merchant): after a purchase, the heart flew to the top bar",
+   "caption": "Your heart is back.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Your heart is back."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-heart-3__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-hello-1",
+   "file": "src/english/assets/audio/voice/m-hello-1.mp3",
+   "take": "voice-batch/final/m-hello-1__T6.wav",
+   "source_sha256": "4494a7c7e483b7d6fe7def6995566b7260212d99fd3f522bc33097997f12fb4d",
+   "where": "Voice line (the merchant): he walks in at a checkpoint",
+   "caption": "Hello, wizard. I have a potion that gives you a heart back. Do you want one?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Hello, wizard. I have a potion that gives you a heart back. Do you want one?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-hello-1__T2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-hello-2",
+   "file": "src/english/assets/audio/voice/m-hello-2.mp3",
+   "take": "voice-batch/final/m-hello-2__T7.wav",
+   "source_sha256": "937f86fae0a3e613433835e07ecff48f875b37eff61986b9e5a23b4262bdd79b",
+   "where": "Voice line (the merchant): he walks in at a checkpoint",
+   "caption": "Hi there, wizard. I brought a potion that gives you a heart. Want one?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Hi there, wizard. I brought a potion that gives you a heart. Want one?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-hello-3",
+   "file": "src/english/assets/audio/voice/m-hello-3.mp3",
+   "take": "voice-batch/final/m-hello-3__T4.wav",
+   "source_sha256": "88bb2418044641df906a3a6b11053f0dcf08b504726661825228ab2c06c3541f",
+   "where": "Voice line (the merchant): he walks in at a checkpoint",
+   "caption": "Hey, wizard. I've got a potion that brings a heart back. Want to buy it?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Hey, wizard. I've got a potion that brings a heart back. Want to buy it?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-hello-3__T2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-offer-1",
+   "file": "src/english/assets/audio/voice/m-offer-1.mp3",
+   "take": "voice-batch/final/m-offer-1__T4.wav",
+   "source_sha256": "2eb78a6eeaf7925a2fe2608101b3ba80f34e6bb8414937dff7a2cb889b42e6e2",
+   "where": "Voice line (the merchant): his opening when the child knows him",
+   "caption": "Want a heart potion?",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Want a heart potion?"
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-offer-1__T2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-over-1",
+   "file": "src/english/assets/audio/voice/m-over-1.mp3",
+   "take": "voice-batch/final/m-over-1__T3.wav",
+   "source_sha256": "f3897e5f4ff8cb36c80418a366b6a3614be17e67c3297660e5ce14d55f57b28f",
+   "where": "Voice line (the merchant): more than the price",
+   "caption": "That's too much.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] That's too much."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-over-2",
+   "file": "src/english/assets/audio/voice/m-over-2.mp3",
+   "take": "voice-batch/final/m-over-2__T3.wav",
+   "source_sha256": "4d673d7f2cf5d9eecbd73ff08508cc6f5fea22127aa1a8e4edcc41c74d10a5c1",
+   "where": "Voice line (the merchant): more than the price",
+   "caption": "That's more than the price.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] That's more than the price."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-over-2__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-over-3",
+   "file": "src/english/assets/audio/voice/m-over-3.mp3",
+   "take": "voice-batch/final/m-over-3__T2.wav",
+   "source_sha256": "a53879cc90078f483c83622fdd67b4892355fa66b3e56e3824d72dca5beb8c54",
+   "where": "Voice line (the merchant): more than the price",
+   "caption": "There are too many coins here.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] There are too many coins here."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-over-3__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-price-1",
+   "file": "src/english/assets/audio/voice/m-price-1.mp3",
+   "take": "voice-batch/final/m-price-1__T1.wav",
+   "source_sha256": "1887f8d4d87229b149fcc6eb4787c654744ba8ac7cd4aa7c49849f0623d997cc",
+   "where": "Voice line (the merchant): first visit demo D1: the price tag glows",
+   "caption": "This is the price.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] This is the price."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-short-1",
+   "file": "src/english/assets/audio/voice/m-short-1.mp3",
+   "take": "voice-batch/final/m-short-1__T3.wav",
+   "source_sha256": "5cef3db3cf6f038d28ed01e0fe4b916ac3e534e00d1dcf9b726117c28a7d1385",
+   "where": "Voice line (the merchant): less than the price",
+   "caption": "That's not enough.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] That's not enough."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-short-1__T2",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-short-2",
+   "file": "src/english/assets/audio/voice/m-short-2.mp3",
+   "take": "voice-batch/final/m-short-2__T1.wav",
+   "source_sha256": "7cdd16071109622eba0920a798c7ea98a49e6672f5e4c8f83c44538c3a146774",
+   "where": "Voice line (the merchant): less than the price",
+   "caption": "That's less than the price.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] That's less than the price."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-short-3",
+   "file": "src/english/assets/audio/voice/m-short-3.mp3",
+   "take": "voice-batch/final/m-short-3__T3.wav",
+   "source_sha256": "d869d1bcfeec5ad3ef0ef216b7edfaa11173711ff6d6498624873cb6b5311b51",
+   "where": "Voice line (the merchant): less than the price",
+   "caption": "I need more coins.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] I need more coins."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": []
+  },
+  {
+   "id": "m-tap-1",
+   "file": "src/english/assets/audio/voice/m-tap-1.mp3",
+   "take": "voice-batch/final/m-tap-1__T2.wav",
+   "source_sha256": "b5b112558ba1492438117a456ab11c0c3f97c9cf78778135f7713a8f03db0145",
+   "where": "Voice line (the merchant): first visit demo D3: the hand taps the potion",
+   "caption": "Then touch the potion.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Then touch the potion."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-tap-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
+   "id": "m-undo-1",
+   "file": "src/english/assets/audio/voice/m-undo-1.mp3",
+   "take": "voice-batch/final/m-undo-1__T2.wav",
+   "source_sha256": "6ff9e5fcb742bcb4ee80a309a259de7835e8022df2d262521a9e56dcd101ad82",
+   "where": "Voice line (the merchant): too much, the first time only; a coin flies back",
+   "caption": "Take a coin back.",
+   "request": {
+    "model": "gemini-3.8-flash-tts",
+    "voice": "Umbriel",
+    "response": "audio",
+    "prompt": "[warm, gentle Irish accent, a kindly old gnome trader speaking calmly and warmly, clear and easy to understand, no laughing] Take a coin back."
+   },
+   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "earlier_takes": [
+    {
+     "take": "m-undo-1__T1",
+     "verdict": null
+    }
+   ]
+  },
+  {
    "id": "mult-up-1",
    "file": "src/english/assets/audio/voice/mult-up-1.mp3",
    "take": "voice-batch/final/mult-up-1__M8.wav",

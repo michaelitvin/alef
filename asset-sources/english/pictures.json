@@ -14,6 +14,18 @@
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
+   "key": "apple",
+   "file": "src/english/assets/img/pw-apple.webp",
+   "take": "cut2/recut/apple-t3.webp",
+   "source_sha256": "e8f6b5ed8106a660399cb6320b7a370a23efa60856cbe6e8c92dfa094ddec802",
+   "caption": "apple",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a shiny red cartoon apple with one green leaf on its stem, front view, with no shape that looks like a letter. The subject has no magenta, pink or purple parts. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
    "key": "astronaut",
    "file": "src/english/assets/img/pw-astronaut.webp",
    "take": "cut/recut/astronaut.webp",
@@ -410,6 +422,18 @@
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
+   "key": "egg",
+   "file": "src/english/assets/img/pw-egg.webp",
+   "take": "cut2/recut/egg-t3.webp",
+   "source_sha256": "eedb0cef05d9054bae076bacff6233f250188334f659a9fa96a7d38a64494ae0",
+   "caption": "egg",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a single plain white cartoon chicken egg, whole and uncracked, standing upright, with a clear dark outline, with no shape that looks like a letter. The subject has no magenta, pink or purple parts. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
    "key": "elephant",
    "file": "src/english/assets/img/pw-elephant.webp",
    "take": "cut/elephant.webp",
@@ -479,6 +503,18 @@
    "reference": "the style anchor sheet and a glow reference, as for every picture word",
    "aspect": "1:1",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon fork, with no shape that looks like a letter. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
+   "key": "frog",
+   "file": "src/english/assets/img/pw-frog.webp",
+   "take": "cut2/recut/frog-t3.webp",
+   "source_sha256": "0a612654ec4d2bac1e373179168397419a2f7a50277e2cb22fbe8c48c2ecc1b1",
+   "caption": "frog",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a cute cartoon green frog sitting, front view, big round eyes, with no shape that looks like a letter. The subject has no magenta, pink or purple parts. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
@@ -719,6 +755,18 @@
    "reference": "the style anchor sheet and a glow reference, as for every picture word",
    "aspect": "1:1",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon dog's paw, pads up, with no shape that looks like a letter. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
+   "key": "pig",
+   "file": "src/english/assets/img/pw-pig.webp",
+   "take": "cut2/recut/pig-t3.webp",
+   "source_sha256": "de21f1b1392cad364989bcba0e071508361ec4b46a1b9e130846bf55e3208ccb",
+   "caption": "pig",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a cute cartoon pink pig standing, side view, curly tail, with no shape that looks like a letter. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
@@ -974,6 +1022,18 @@
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
+   "key": "sun",
+   "file": "src/english/assets/img/pw-sun.webp",
+   "take": "cut2/recut/sun-t3.webp",
+   "source_sha256": "9330b28b74c647f5fb7b785ffc89eff66a26690b9ce85a2022650e840c5ad597",
+   "caption": "sun",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a cute cartoon yellow sun with a smiling face and short rays around it, with no shape that looks like a letter. The subject has no magenta, pink or purple parts. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
    "key": "swing",
    "file": "src/english/assets/img/pw-swing.webp",
    "take": "cut/swing.webp",
@@ -1019,6 +1079,18 @@
    "reference": "the style anchor sheet and a glow reference, as for every picture word",
    "aspect": "1:1",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon green turtle, side view, walking, with no shape that looks like a letter. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
+  },
+  {
+   "key": "umbrella",
+   "file": "src/english/assets/img/pw-umbrella.webp",
+   "take": "cut2/recut/umbrella-t3.webp",
+   "source_sha256": "5f4a6ec05b293244b2eea62fcb807af992d88972dda1758ed57d79936470a696",
+   "caption": "umbrella",
+   "model": "gemini-2.5-flash-image",
+   "reference": "the style anchor sheet and a glow reference, as for every picture word",
+   "aspect": "1:1",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading and colors of the reference image: a cartoon open umbrella in red, yellow and blue stripes with a curved brown handle, the canopy NOT magenta, pink or purple, with no shape that looks like a letter. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No glow, no halo and no light around the subject: a clean dark outline right against the flat background. No text, no letters, no dots, no specks.",
    "processing": "Drawn on a flat magenta or green background, then cut out to a transparent WebP (halo removed, holes in the outline cleared); copied as approved, with no new size or quality"
   },
   {
