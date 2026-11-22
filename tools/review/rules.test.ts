@@ -208,6 +208,13 @@ describe('an open ask surfaces its item', () => {
   it('a decision on another take does not close it', () => {
     expect(deriveItem(b, events({ take: 'b/v2' })).askTake).toBe('b/v4')
   })
+
+  it("the adapter's own ask line closes on any decision of his on the item", () => {
+    const asked = { ...b, ask: 'does it say the name?' }
+    expect(deriveItem(asked, log({ item: 'b', take: 'b/v2' })).askTake).toBeNull()
+    expect(inView(deriveItem(asked, log({ item: 'b', take: 'b/v2' })), 'focus')).toBe(false)
+    expect(deriveItem(asked, log()).askTake).toBe('b/v4')
+  })
 })
 
 describe('items that left the list', () => {

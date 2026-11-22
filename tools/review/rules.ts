@@ -184,11 +184,13 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
           ? 'ok'
           : 'open'
   // An open ask surfaces the item whatever its status, on the asked-about take (the newest, or the one the ask names),
-  // until the parent decides on that take or an agent clears the ask. The take to ship does not change.
+  // until the parent decides on that take or an agent clears the ask. The take to ship does not change. The adapter's
+  // own ask line (no ask event) is the item's check question: any decision of his on the item answers it, so an item
+  // he decided does not come back. To ask about a new take of a decided item, an agent sends an ask event (the CLI).
   const newestLive = [...item.takes].reverse().find((t) => !isWithdrawn(t.id))
   const named = m.askTake && !isWithdrawn(m.askTake) && item.takes.some((t) => t.id === m.askTake) ? m.askTake : null
   const askedId = named ?? newestLive?.id ?? null
-  const decidedAsked = events.some((e) => e.seq > m.askSeq && e.by === 'parent' && (e.type === 'ok' || e.type === 'reject') && (e.take == null || e.take === askedId || (e.type === 'ok' && e.only)))
+  const decidedAsked = events.some((e) => e.seq > m.askSeq && e.by === 'parent' && (e.type === 'ok' || e.type === 'reject') && (e.take == null || e.take === askedId || m.askSeq === 0 || (e.type === 'ok' && e.only)))
   const askTake = m.ask && !m.retired && askedId && !decidedAsked ? askedId : null
   const notes = notesOf(item, events, m.retired)
   // A note on a take that has a newer live take is answered by that take, even with no answer event: the old pipelines
