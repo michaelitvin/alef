@@ -1,5 +1,5 @@
 // What the server sends the page: derived state only. The page computes no rule of its own.
-import type { GameAdapter, Item, Section } from './model.ts'
+import type { GameAdapter, Item, Say, Section } from './model.ts'
 import type { ItemState, Note, Status, Verdict, View } from './rules.ts'
 import { inView } from './rules.ts'
 
@@ -27,6 +27,7 @@ export interface PageItem {
   where?: string
   lang?: string
   glyph?: string
+  say?: Say
   picture?: string
   compare?: { src: string; label?: string; mirror: boolean }
   status: Status
@@ -86,6 +87,7 @@ export function toPageItem(s: ItemState): PageItem {
     where: it.where,
     lang: it.lang,
     glyph: it.glyph,
+    say: it.say,
     picture: it.picture ? mediaUrl(it.picture) : undefined,
     compare: it.compare ? { src: mediaUrl(it.compare.src), label: it.compare.label, mirror: !!it.compare.mirror } : undefined,
     status: s.status,

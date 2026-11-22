@@ -58,3 +58,6 @@
 - Do not stop work while a review is open. Continue, and apply the picks later.
 - Record the request of each chosen take in `asset-sources/<game>/`.
   Reason: then you can make a similar take again.
+- On a sound card, lead with what the parent must hear: the target as a picture (the word with the sound's letters in red, the letter, the line), a big play button, then the check question. Put model, voice and automatic checks in a folded "Details". Reason: the parent decides in seconds; technical labels hide the important line.
+- When an item has several candidate takes, "Pick this one" is the decision. Do not add a second OK that acts on another take.
+

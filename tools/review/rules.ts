@@ -188,7 +188,7 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
   const newestLive = [...item.takes].reverse().find((t) => !isWithdrawn(t.id))
   const named = m.askTake && !isWithdrawn(m.askTake) && item.takes.some((t) => t.id === m.askTake) ? m.askTake : null
   const askedId = named ?? newestLive?.id ?? null
-  const decidedAsked = events.some((e) => e.seq > m.askSeq && e.by === 'parent' && (e.type === 'ok' || e.type === 'reject') && (e.take == null || e.take === askedId))
+  const decidedAsked = events.some((e) => e.seq > m.askSeq && e.by === 'parent' && (e.type === 'ok' || e.type === 'reject') && (e.take == null || e.take === askedId || (e.type === 'ok' && e.only)))
   const askTake = m.ask && !m.retired && askedId && !decidedAsked ? askedId : null
   const notes = notesOf(item, events, m.retired)
   // A note on a take that has a newer live take is answered by that take, even with no answer event: the old pipelines

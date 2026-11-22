@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { PageItem, PageState, PageTake } from '../pageData.ts'
-import { firstOpen, firstView, keepCurrent, nextOpenAfter, otherViews, pageOrder, shownSections } from './flow.ts'
-import { captionHTML, esc, itemHTML, statusHTML } from './render.ts'
+import { firstOpen, firstView, isPickItem, keepCurrent, nextOpenAfter, okTake, otherViews, pageOrder, pickedItem, shownSections } from './flow.ts'
+import { captionHTML, esc, itemHTML, markedHTML, statusHTML } from './render.ts'
 
 const take = (id: string, extra: Partial<PageTake> = {}): PageTake => ({ id, src: 'media/' + id, label: id, mirror: false, verdict: null, flags: [], current: false, ...extra })
 const pi = (id: string, extra: Partial<PageItem> = {}): PageItem => ({
@@ -73,8 +73,65 @@ describe('renderers', () => {
   it('audio: the current take plays; other takes fold away; a rejected take shows its note', () => {
     const it = pi('a', { takes: [take('a/v2', { current: true }), take('a/v1', { verdict: 'rejected', text: 'flat' })] })
     const el = dom(itemHTML(it))
-    expect(el.querySelector('.take.cur [data-play]')?.getAttribute('data-play')).toBe('a/v2')
-    expect(el.querySelector('details.older .note')?.textContent).toContain('flat')
+    expect(el.querySelector('.hear [data-play]')?.getAttribute('data-play')).toBe('a/v2')
+    expect(el.querySelector('details.tech [data-play]')?.getAttribute('data-play')).toBe('a/v1')
+    expect(el.querySelector('details.tech .note')?.textContent).toContain('flat')
+  })
+
+  it('a sound card has no placeholder block, and folds the technical label and check into Details', () => {
+    const it = pi('s', { caption: 'the sound of a', where: 'Voice: a sound', ask: 'said once?', takes: [take('s/v1', { current: true, label: 'en · flash · trimmed', check: 'a listener heard: “a”' })] })
+    const el = dom(itemHTML(it))
+    expect(el.querySelector('.vis')).toBeNull()
+    expect(el.textContent).not.toMatch(/sound\s*$/m)
+    expect(el.querySelector('.hear .cap')?.textContent).toBe('the sound of a')
+    expect(el.querySelector('.why')?.textContent).toBe('said once?')
+    expect(el.querySelector('.where')?.textContent).toBe('Voice: a sound')
+    expect(el.querySelector('details.tech')?.textContent).toContain('en · flash · trimmed')
+    expect(el.querySelector('details.tech')?.textContent).toContain('a listener heard')
+    expect(el.querySelector('.body > .lbl, .body > .chk')).toBeNull()
+    expect(dom(itemHTML(pi('g', { glyph: 'ב' }))).querySelector('.vis .glyph')?.textContent).toBe('ב')
+  })
+
+  it('say: the text large with its marks in red, the kind, one line, the speaker; escaped; Hebrew right to left', () => {
+    const it = pi('m', { caption: 'moon', say: { text: 'moon', mark: [[1, 3]], kind: 'sound', sub: "not the letter's name" } })
+    const el = dom(itemHTML(it))
+    expect(el.querySelector('.saytext')?.innerHTML).toBe('m<mark class="m">oo</mark>n')
+    expect(el.querySelector('.kchip')?.textContent).toBe('only this sound')
+    expect(el.querySelector('.saysub')?.textContent).toBe("not the letter's name")
+    const line = dom(itemHTML(pi('l', { say: { text: '<b>Hi</b> & "you"', kind: 'line', speaker: 'the wizard' } })))
+    expect(line.querySelector('.saytext')?.innerHTML).toBe('&lt;b&gt;Hi&lt;/b&gt; &amp; "you"')
+    expect(line.querySelector('.who')?.textContent).toBe('the wizard')
+    expect(markedHTML('abc', [[2, 3], [0, 1], [0, 2], [5, 9], [1, 1]])).toBe('<mark class="m">a</mark>b<mark class="m">c</mark>')
+    expect(markedHTML('a<b', [[1, 2]])).toBe('a<mark class="m">&lt;</mark>b')
+    const he = dom(itemHTML(pi('h', { lang: 'he', caption: 'שָׁלוֹם', say: { text: 'שָׁלוֹם', mark: [[0, 3]], kind: 'word' } })))
+    expect(he.querySelector('.saytext')?.getAttribute('dir')).toBe('rtl')
+    expect(he.querySelector('.saytext mark')?.textContent).toBe('שָׁ')
+    expect(dom(itemHTML(pi('x', { kind: 'audio', hidden: true, caption: 'cat' }))).querySelector('[data-hidden-cap]')?.textContent).toBe('cat')
+  })
+
+  it('a picture with several takes: Picked marks the pick, the others are dimmed, and nothing else can OK', () => {
+    const base = pi('pic', { kind: 'image', status: 'open', takes: [take('t3', { current: true }), take('t2'), take('t1')] })
+    expect(isPickItem(base)).toBe(true)
+    expect(okTake(base)).toBeNull()
+    expect(okTake(pi('single', { kind: 'image' }))).toBe('single/v1')
+    expect(okTake(pi('snd'))).toBe('snd/v1')
+    const done = pickedItem(base, 't1')
+    expect(done.status).toBe('ok')
+    expect(done.current).toBe('t1')
+    const el = dom(itemHTML(done))
+    expect(el.classList.contains('decided')).toBe(true)
+    expect(el.querySelectorAll('.pk.on')).toHaveLength(1)
+    expect(el.querySelector('.pk.on [data-pick]')?.textContent).toBe('Picked')
+    expect(el.querySelectorAll('.pk.off')).toHaveLength(2)
+    expect(el.querySelectorAll('[data-pick]')).toHaveLength(3)
+  })
+
+  it('a reload shows only items that still need a decision; items touched this visit stay', () => {
+    const st: PageState = { title: 't', sections: [{ id: 's', title: 'S' }], items: [pi('done', { status: 'ok', askTake: null, views: ['focus', 'open', 'all'] }), pi('open', { views: ['focus', 'open', 'all'] }), pi('asked', { status: 'ok', askTake: 'asked/v1', views: ['focus', 'all'] })] }
+    for (const v of ['focus', 'open', 'sample'] as const) expect(pageOrder(shownSections(st, v, new Set())).includes('done')).toBe(false)
+    expect(pageOrder(shownSections(st, 'focus', new Set())).sort()).toEqual(['asked', 'open'])
+    expect(pageOrder(shownSections(st, 'open', new Set(['done'])))).toContain('done')
+    expect(pageOrder(shownSections(st, 'all', new Set()))).toContain('done')
   })
 
   it('names a relayed approval in the status', () => {

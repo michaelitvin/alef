@@ -10,6 +10,29 @@ export interface ShownSection {
   shown: PageItem[]
 }
 
+/** Open, or with an open ask: the only items a view other than "All" shows on load. */
+export const needsDecision = (i: PageItem): boolean => i.status === 'open' || !!i.askTake
+
+/** A picture with several takes: its decision is "Pick this one" on a take; it has no other OK. */
+export const isPickItem = (i: PageItem): boolean => i.kind === 'image' && i.takes.length > 1
+
+/** The take a plain OK acts on: the current take, and none for a picture with several takes (it needs a pick). */
+export function okTake(i: PageItem): string | null {
+  if (isPickItem(i)) return null
+  return (i.takes.find((t) => t.id === i.askTake) ?? i.takes.find((t) => t.current) ?? i.takes[0])?.id ?? null
+}
+
+/** The item as it is once `take` is picked (what the server will derive), so that the card shows it at once. */
+export function pickedItem(i: PageItem, take: string): PageItem {
+  return {
+    ...i,
+    status: 'ok',
+    current: take,
+    askTake: null,
+    takes: i.takes.map((t) => ({ ...t, verdict: t.id === take ? 'ok' : t.verdict === 'rejected' ? 'rejected' : null, current: t.id === take })),
+  }
+}
+
 /**
  * Items to show in a view. Items he decided during this visit (`touched`) stay visible until he leaves, so that he can
  * change them. Items with a "needs you" line or a flag come first in their section.
@@ -18,7 +41,7 @@ export function shownSections(state: PageState, view: View, touched: Set<string>
   const first = (i: PageItem) => (i.ask || i.flagged ? 0 : 1)
   return state.sections.map((s) => {
     const all = state.items.filter((i) => i.section === s.id)
-    const shown = all.filter((i) => i.views.includes(view) || touched.has(i.id)).sort((a, b) => first(a) - first(b))
+    const shown = all.filter((i) => (i.views.includes(view) && (view === 'all' || needsDecision(i))) || touched.has(i.id)).sort((a, b) => first(a) - first(b))
     return { id: s.id, title: s.title, all, shown }
   })
 }

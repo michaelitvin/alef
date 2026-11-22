@@ -105,3 +105,27 @@ h2 small{font:400 15px var(--sans);color:#bfae90}
 #note input{flex:1;min-width:0;min-height:56px;font:17px var(--sans);padding:0 14px;border-radius:12px;border:2px solid var(--brass);background:var(--parch);color:var(--ink)}
 #note .btn{padding:0 12px;font-size:16px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* sound card: the words to hear lead, large, beside a big play button; the technical rest is folded */
+.item.novis{grid-template-columns:1fr}
+.hear{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.hear .say{flex:1;min-width:0}
+.pl.big{flex:0 0 76px;width:76px;height:76px;font-size:32px}
+.saytext{font-size:40px;line-height:1.15;margin:0;overflow-wrap:anywhere}
+.saytext[dir=rtl]{font-size:42px}
+.saytext .m,.cap .m{color:#c4251a;background:none;font-weight:800;text-decoration:underline;text-decoration-thickness:4px;text-underline-offset:6px;text-decoration-color:#c4251a}
+.saymeta{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0;min-height:0}
+.saymeta:empty{display:none}
+.kchip,.who{font:700 13px var(--sans);padding:2px 10px;border-radius:999px;background:var(--parch2);color:var(--muted);border:1px solid #b9a77f}
+.who{background:#e3ecf5;color:#1d3b5a;border-color:#a9bdd3}
+.saysub{margin:6px 0 0;font-size:18px;color:var(--muted)}
+.item .why{font-size:19px;line-height:1.35;padding:8px 12px}
+.item .hear + .why{margin-top:10px}
+details.tech{margin:6px 0 2px}
+details.tech>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;font-size:14px;color:var(--brass-d)}
+details.tech .take{border-top:0;padding:2px 0}
+details.tech.flag>summary{color:var(--bad)}
+.item.decided .pl.big{opacity:.8}
+.pk.off .btn.ghost{opacity:.6}
+.saytext.mid,.saytext.mid[dir=rtl]{font-size:28px}
+.saytext.long,.saytext.long[dir=rtl]{font-size:22px;line-height:1.3}
+@media(max-width:560px){.saytext.short{font-size:36px}.pl.big{flex-basis:68px;width:68px;height:68px}}

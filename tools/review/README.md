@@ -41,3 +41,9 @@ node tools/review/cli.ts <adapter.mjs> answer <item> <note-seq|all> "what I did"
 - After a retake, answer the note it answers. To take a take back, `withdraw` it with the reason. When the parent
   approves in a message, record it with `accept` and his words; never write a parent event for him.
 - Automated checks run against a copy of the log, never the live one.
+
+## Card rules
+
+- A picture with several takes is decided by "Pick this one": it OKs that take only, the card shows it at once, and the page moves on. Such an item has no plain OK.
+- Every view except "All" shows only items that still need a decision (open, or with an open ask) when the page loads. Items decided during the visit stay until the next load, so they can be changed.
+- A sound card leads with `say` (the item's optional picture of the sound: `text`, `mark` ranges shown in red, `kind`, `sub`, `speaker`), or the caption when an adapter gives no `say`. The take label and the automatic check are folded into Details.

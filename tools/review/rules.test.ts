@@ -70,6 +70,17 @@ describe('take to ship', () => {
     expect(cur(a, log({ take: 'a/v3' }, { take: 'a/v1' }))).toBe('a/v3')
   })
 
+  it('picking a take decides the item: ok, the picked take ships, and the ask on a newer take closes', () => {
+    const pic = item('a', 3, { kind: 'image', ask: 'which one?' })
+    const st = deriveItem(pic, log({ take: 'a/v1', only: true }))
+    expect(st.status).toBe('ok')
+    expect(st.current?.id).toBe('a/v1')
+    expect(st.askTake).toBeNull()
+    expect(shipList(deriveAll([pic], log({ take: 'a/v1', only: true })))).toEqual({ a: 'a/v1' })
+    expect(inView(st, 'focus')).toBe(false)
+    expect(inView(st, 'open')).toBe(false)
+  })
+
   it('a reject without a take rejects the whole round (the old versioned model)', () => {
     const b: Item = { id: 'a', kind: 'audio', takes: [{ id: 'x', round: 1 }, { id: 'y', round: 2 }, { id: 'z', round: 2 }] }
     const s = deriveItem(b, log({ type: 'reject', take: null, round: 2, text: 'very awkward' }))

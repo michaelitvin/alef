@@ -5,7 +5,7 @@
 import type { PageItem, PageState } from '../pageData.ts'
 import type { View } from '../rules.ts'
 import { countsHTML, esc, itemHTML, visualHTML } from './render.ts'
-import { firstOpen, firstView, keepCurrent, nextOpenAfter, otherViews, pageOrder, shownSections } from './flow.ts'
+import { firstOpen, firstView, isPickItem, keepCurrent, nextOpenAfter, okTake, otherViews, pageOrder, pickedItem, shownSections } from './flow.ts'
 import type { ShownSection } from './flow.ts'
 import { createPlayer } from './player.ts'
 import { HttpError, sendWithRetry, tapGuard } from './save.ts'
@@ -152,7 +152,11 @@ function markNow() {
   pb.setAttribute('aria-label', playing ? 'Pause' : paused ? 'Resume' : 'Play')
   $<HTMLButtonElement>('#b-replay').disabled = !it || pic
   $<HTMLButtonElement>('#b-later').disabled = !it || !cur || !nextOpenAfter(order, cur, isOpen)
-  for (const b of ['#b-rej', '#b-ok']) $<HTMLButtonElement>(b).disabled = !it || saving.has(it.id)
+  const needPick = !!it && isPickItem(it)
+  $<HTMLButtonElement>('#b-rej').disabled = !it || saving.has(it.id)
+  const okb = $<HTMLButtonElement>('#b-ok')
+  okb.disabled = !it || saving.has(it.id) || needPick
+  okb.textContent = needPick ? (it.status === 'ok' ? 'Picked' : 'Pick one above') : 'OK'
   const now = $<HTMLButtonElement>('#now')
   now.disabled = !it
   if (!it) {
@@ -164,7 +168,7 @@ function markNow() {
   const name = it.hidden && !revealed.has(it.id) ? 'a picture' : it.caption
   const what = failed ? ' · did not load: tap Try again' : playing ? ' · playing' : saving.has(it.id) ? ' · saving' : ''
   now.classList.toggle('failed', failed)
-  now.innerHTML = `<span class="nthumb">${visualHTML(it)}</span><span class="ntext"><span class="ncap">${esc(name)}</span><span class="nsub">${esc(sec?.title ?? '')} · ${it.status}${what}</span></span><span class="nhint">Show</span>`
+  now.innerHTML = `<span class="nthumb">${(visualHTML(it) || '<div class="big">♪</div>')}</span><span class="ntext"><span class="ncap">${esc(name)}</span><span class="nsub">${esc(sec?.title ?? '')} · ${it.status}${what}</span></span><span class="nhint">Show</span>`
 }
 
 // ---- the current item ------------------------------------------------------------------------------------------------
@@ -215,11 +219,27 @@ async function post(body: { item: string } & Record<string, unknown>): Promise<P
   }
 }
 
-function ok(id: string, take?: string, only = false) {
+/** OK acts on the item's current take. A picture with several takes has no plain OK: only Pick (`pick`) decides it. */
+function ok(id: string) {
   const it = itemOf(id)
-  const t = take ?? (it && curTake(it)?.id)
+  const t = it && okTake(it)
   if (!it || !t || saving.has(id) || !decisionTap.take()) return
-  void post({ type: 'ok', item: id, take: t, ...(only ? { only: true } : {}) })
+  void post({ type: 'ok', item: id, take: t })
+  advance(id)
+}
+
+/** Pick one take of a picture: the item's decision. The card shows it at once; the server's answer replaces it. */
+function pick(id: string, take: string) {
+  const it = itemOf(id)
+  if (!it || !it.takes.some((t) => t.id === take) || saving.has(id) || !decisionTap.take()) return
+  const before = it
+  state.items = state.items.map((i) => (i.id === id ? pickedItem(i, take) : i))
+  touched.add(id)
+  void post({ type: 'ok', item: id, take, only: true }).then((r) => {
+    if (r) return
+    state.items = state.items.map((i) => (i.id === id ? before : i))
+    rerenderItem(id)
+  })
   advance(id)
 }
 
@@ -283,7 +303,7 @@ document.addEventListener('click', (e) => {
   // a control on the card acts on its item and makes it current, without a sound
   const control = hit('button,summary,input')
   if (control && player.cur !== id) player.select(id)
-  if ((b = hit('[data-pick]'))) return ok(id, b.dataset.pick, true)
+  if ((b = hit('[data-pick]'))) return pick(id, b.dataset.pick!)
   if ((b = hit('[data-rejtake]'))) return openSheet('reject', id, b.dataset.rejtake!)
   if ((b = hit('[data-editnote]'))) {
     const t = it.takes.find((x) => x.id === b!.dataset.editnote)

@@ -68,6 +68,16 @@ export interface Take {
   round?: number
 }
 
+export interface Say {
+  text: string
+  mark?: [number, number][]
+  /** 'sound' | 'letter' | 'word' | 'made-up' | 'phrase' | 'line'; another string is shown as it is. */
+  kind?: string
+  /** One short line under the text. */
+  sub?: string
+  speaker?: string
+}
+
 export type ItemKind = 'audio' | 'image'
 
 export interface Item {
@@ -89,6 +99,9 @@ export interface Item {
   glyph?: string
   /** A picture as the context visual of a sound. */
   picture?: string
+  /** What the parent should hear, as a picture of the sound: `text` is shown large; `mark` holds [start, end) ranges of
+   * `text` (UTF-16 indexes) shown in red, so "moon" with [[1, 3]] shows m<oo>n. With no `say` the page shows the caption. */
+  say?: Say
   /** The adapter's "needs you" line (from the pipeline's focus list). Ask events in the log win. */
   ask?: string
   /** In the sample view (the adapter chooses: one per pattern). */
