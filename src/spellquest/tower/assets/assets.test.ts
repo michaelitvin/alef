@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { MONSTERS, WORD_PICTURE, WIZARD, TOWER } from './sprites'
 import { SFX_URLS, VOICE_URLS } from './audioFiles'
 import { PICTURE_WORDS } from '../logic/words'
-import { DUEL_MARKS, SOUND_GROUPS } from '../logic/marks'
+import { TOWER_MARKS, SOUND_GROUPS } from '../logic/marks'
 import { ROSTER } from '../logic/rules'
 
 describe('duel assets', () => {
@@ -21,7 +21,7 @@ describe('duel assets', () => {
   })
   it('every voice line the game uses exists; the SFX are complete', () => {
     const needed = [
-      ...DUEL_MARKS.map((m) => `wiz-${m.id}`),
+      ...TOWER_MARKS.map((m) => `wiz-${m.id}`),
       ...SOUND_GROUPS.filter((g) => g !== 'silent').map((g) => `wiz-vowel-${g}`),
       ...PICTURE_WORDS.filter((w) => w.group !== 'silent').map((w) => `wiz-word-${w.key}`),
       'sfx-mute', 'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-how-silent', 'line-wave',
@@ -46,12 +46,12 @@ describe('monster facing (playtest: these walked backwards)', () => {
 
 describe('image preloading', () => {
   it('preloads every sprite and picture word so first appearances are never blank', async () => {
-    const { preloadDuelImages } = await import('./sprites')
+    const { preloadTowerImages } = await import('./sprites')
     const created: string[] = []
     const Orig = globalThis.Image
     globalThis.Image = class { set src(v: string) { created.push(v) } } as unknown as typeof Image
     try {
-      const srcs = preloadDuelImages()
+      const srcs = preloadTowerImages()
       for (const w of PICTURE_WORDS) expect(srcs).toContain(WORD_PICTURE[w.key])
       for (const m of Object.values(MONSTERS)) expect(srcs).toContain(m.src)
       expect(srcs).toContain(TOWER)
@@ -63,12 +63,12 @@ describe('image preloading', () => {
 })
 
 // spec 2026-11-07 girls
-import { DUEL_FEMININE } from '../logic/duelAudio'
+import { TOWER_FEMININE } from '../logic/towerAudio'
 import { WIZARD_GIRL } from './sprites'
 describe('duel girl assets', () => {
   it('every line with a feminine version ships its -f file; the girl wizard ships', () => {
-    for (const id of DUEL_FEMININE) expect(VOICE_URLS[`${id}-f`], `${id}-f`).toBeTruthy()
-    for (const id of Object.keys(VOICE_URLS)) if (id.endsWith('-f')) expect(DUEL_FEMININE.has(id.slice(0, -2)), id).toBe(true)
+    for (const id of TOWER_FEMININE) expect(VOICE_URLS[`${id}-f`], `${id}-f`).toBeTruthy()
+    for (const id of Object.keys(VOICE_URLS)) if (id.endsWith('-f')) expect(TOWER_FEMININE.has(id.slice(0, -2)), id).toBe(true)
     for (const p of ['idle', 'cast', 'dizzy'] as const) expect(WIZARD_GIRL[p]).toMatch(/-girl/)
     void WIZARD
   })

@@ -1,7 +1,7 @@
-import type { Choice, DuelState, EffectPreset, Next, Round } from '../types'
+import type { Choice, TowerState, EffectPreset, Next, Round } from '../types'
 import { BOSS_HP, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, isTwin, keyOf, newMonsterAt, points } from './rules'
 
-export type DuelAction =
+export type TowerAction =
   /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
    * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */
   | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[]; mega?: number }
@@ -18,14 +18,14 @@ export type DuelAction =
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
 
-export const initialDuelState: DuelState = {
+export const initialTowerState: TowerState = {
   phase: 'idle', paused: false, score: 0, combo: 0, bestCombo: 0, wave: 1, kills: 0, bossHp: 0, mega: 0,
   round: null, preview: false, walking: false, twinTried: null, outcome: null, runMisses: {}, seenScreens: [], next: null,
 }
 
-const canAnswer = (s: DuelState) => s.phase === 'playing' && !s.paused && !s.preview && s.round !== null && s.outcome === null
+const canAnswer = (s: TowerState) => s.phase === 'playing' && !s.paused && !s.preview && s.round !== null && s.outcome === null
 
-function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: EffectPreset): DuelState {
+function hit(s: TowerState, choiceKey: string | null, mega: boolean, effect: EffectPreset): TowerState {
   const round = s.round!
   const dmg = mega ? 2 : 1
   const final = !round.boss || s.bossHp - dmg <= 0
@@ -44,7 +44,7 @@ function hit(s: DuelState, choiceKey: string | null, mega: boolean, effect: Effe
 }
 
 /** A miss costs the combo (the run owns the hearts); a boss keeps the damage it already took. */
-function miss(s: DuelState, choiceKey: string | null): DuelState {
+function miss(s: TowerState, choiceKey: string | null): TowerState {
   const id = s.round!.target.id
   return {
     ...s,
@@ -54,12 +54,12 @@ function miss(s: DuelState, choiceKey: string | null): DuelState {
   }
 }
 
-function newWave(wave: number): { state: Partial<DuelState>; next: Next } {
+function newWave(wave: number): { state: Partial<TowerState>; next: Next } {
   const announce = newMonsterAt(wave) ? 'new-monster' : 'wave'
   return { state: { wave, kills: 0 }, next: { kind: 'spawn', wave, boss: false, announce } }
 }
 
-function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
+function nextAfter(s: TowerState): { state: Partial<TowerState>; next: Next } {
   const o = s.outcome!
   const r = s.round!
   if (o.kind === 'miss') return { state: {}, next: { kind: 'spawn', wave: s.wave, boss: r.boss, announce: null } }
@@ -73,12 +73,12 @@ function nextAfter(s: DuelState): { state: Partial<DuelState>; next: Next } {
   return newWave(s.wave + 1)
 }
 
-export function duelReducer(s: DuelState, a: DuelAction): DuelState {
+export function towerReducer(s: TowerState, a: TowerAction): TowerState {
   switch (a.type) {
     case 'START_AT': {
       const announce = a.boss ? 'boss' : newMonsterAt(a.wave) ? 'new-monster' : null
       return {
-        ...initialDuelState, phase: 'playing', wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
+        ...initialTowerState, phase: 'playing', wave: a.wave, bossHp: a.boss ? BOSS_HP : 0,
         mega: Math.max(0, Math.min(MEGA_MAX, a.mega ?? 0)),
         seenScreens: [...(a.seen ?? [])], next: { kind: 'spawn', wave: a.wave, boss: a.boss, announce },
       }

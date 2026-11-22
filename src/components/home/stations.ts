@@ -73,12 +73,12 @@ export interface StationState { id: ScreenId; learn: string; pic: Station['pic']
  * 0–3 rating from his recent answers there. A missing save reads as a fresh one. Open stations first, then the locked
  * ones, each group in path order.
  */
-function stationState(save: Partial<SpellQuestSave> | null, duelRecent: Record<string, string>): StationState[] {
-  const open = openScreens(save as Parameters<typeof openScreens>[0], duelRecent)
+function stationState(save: Partial<SpellQuestSave> | null, towerRecent: Record<string, string>): StationState[] {
+  const open = openScreens(save as Parameters<typeof openScreens>[0], towerRecent)
   const recent = (save?.recent ?? {}) as Record<string, string>
   const all = STATIONS.map((s) => {
     const isOpen = open.includes(s.id)
-    return { ...s, open: isOpen, rating: isOpen ? rating(screenRecent(s.id, recent, duelRecent)) : 0 as const }
+    return { ...s, open: isOpen, rating: isOpen ? rating(screenRecent(s.id, recent, towerRecent)) : 0 as const }
   })
   return [...all.filter((s) => s.open), ...all.filter((s) => !s.open)]
 }

@@ -162,7 +162,7 @@ describe('the held home button in the bar\'s left corner (the parent, 2026-11-14
     for (const [w, h] of [[780, 360], [740, 360], [915, 412]] as const) {
       expect(homeInBar({ w, h }, STAGE_CONTENT_TOP.doors, BAND_CONTENT_W.doors), `${w}x${h}`).toBe(false)
       expect(homeInBar({ w, h }, STAGE_CONTENT_TOP.ladder, 'full')).toBe(false)
-      // the tower's wizard stands in the band's left end there (duel.css), where the home button would be
+      // the tower's wizard stands in the band's left end there (tower.css), where the home button would be
       expect(homeInBar({ w, h }, 0, undefined, 'tower')).toBe(false)
       expect(homeInBar({ w, h }, 0, undefined, 'merchant')).toBe(true)
       for (const k of ['broom', 'ghosts', 'merchant', 'cauldron', 'draw'] as const) expect(homeInBar({ w, h }, STAGE_CONTENT_TOP[k])).toBe(true)

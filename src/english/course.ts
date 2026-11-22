@@ -8,7 +8,7 @@ import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from 
 import type { Choice } from '../spellquest/logic/rounds'
 import type { SavePort } from '../spellquest/savePort'
 import type { TowerContent } from '../spellquest/tower/logic/content'
-import { englishAudio, englishDuelAudio } from './audio'
+import { englishAudio, englishTowerAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
 import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower, towerFacts } from './logic/tower'
 import { enLine } from './data/lines'
@@ -137,7 +137,7 @@ export const ENGLISH: Course = {
   },
   rounds: EN_ROUNDS,
   // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
-  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishDuelAudio, facts: towerFacts, art: ENGLISH_TOWER_ART },
+  tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishTowerAudio, facts: towerFacts, art: ENGLISH_TOWER_ART },
   hint: EN_HINT,
   writing: EN_WRITING,
   placement: {

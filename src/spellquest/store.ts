@@ -9,7 +9,7 @@ import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 import type { NumberRange } from './logic/merchant'
 import { pushTowerTail, towerMastered } from './logic/mastery'
-import { DUEL_MARKS } from './tower/logic/marks'
+import { TOWER_MARKS } from './tower/logic/marks'
 import type { DuelStats } from './tower/types'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
 
@@ -256,7 +256,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
   importFirstDuel: (duel) => set((s) => {
     if (s.firstDuelImported) return s
     const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
-    const mastered = towerMastered(duel?.recent ?? {}, DUEL_MARKS.map((m) => m.id))
+    const mastered = towerMastered(duel?.recent ?? {}, TOWER_MARKS.map((m) => m.id))
     return {
       totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
       bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,

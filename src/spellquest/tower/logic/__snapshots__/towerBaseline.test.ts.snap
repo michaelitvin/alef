@@ -64,7 +64,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-intro",
         "id": "line-intro",
-        "url": "/src/assets/duel/audio/voice/line-intro.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-intro.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -74,7 +74,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-A",
         "id": "line-how-A",
-        "url": "/src/assets/duel/audio/voice/line-how-A.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-A.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -88,7 +88,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "segol",
           "chirik",
@@ -96,7 +96,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-butterfly.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-butterfly.webp",
         "restart": false,
         "round": 1,
         "target": "kamatz",
@@ -151,7 +151,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -161,7 +161,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kamatz",
         "id": "wiz-kamatz",
-        "url": "/src/assets/duel/audio/voice/wiz-kamatz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kamatz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -171,7 +171,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-butterfly",
         "id": "wiz-word-butterfly",
-        "url": "/src/assets/duel/audio/voice/wiz-word-butterfly.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-butterfly.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -185,7 +185,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "cholam",
           "shuruk",
@@ -193,7 +193,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "chirik",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-cookie.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-cookie.webp",
         "restart": false,
         "round": 2,
         "target": "shuruk",
@@ -248,7 +248,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -258,7 +258,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shuruk",
         "id": "wiz-shuruk",
-        "url": "/src/assets/duel/audio/voice/wiz-shuruk.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shuruk.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -268,7 +268,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-cookie",
         "id": "wiz-word-cookie",
-        "url": "/src/assets/duel/audio/voice/wiz-word-cookie.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-cookie.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -282,7 +282,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "cholam",
           "chirik",
@@ -290,7 +290,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "segol",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-fire.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-fire.webp",
         "restart": false,
         "round": 3,
         "target": "segol",
@@ -345,7 +345,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -355,7 +355,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-segol",
         "id": "wiz-segol",
-        "url": "/src/assets/duel/audio/voice/wiz-segol.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-segol.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -365,7 +365,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-fire",
         "id": "wiz-word-fire",
-        "url": "/src/assets/duel/audio/voice/wiz-word-fire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-fire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -379,7 +379,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "holam-male",
           "segol",
@@ -387,7 +387,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shuruk",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-bicycle.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-bicycle.webp",
         "restart": false,
         "round": 4,
         "target": "holam-male",
@@ -442,7 +442,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -452,7 +452,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-holam-male",
         "id": "wiz-holam-male",
-        "url": "/src/assets/duel/audio/voice/wiz-holam-male.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-holam-male.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -462,7 +462,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-bicycle",
         "id": "wiz-word-bicycle",
-        "url": "/src/assets/duel/audio/voice/wiz-word-bicycle.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-bicycle.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -476,7 +476,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "patach",
           "shuruk",
@@ -484,7 +484,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-silent.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-silent.webp",
         "restart": false,
         "round": 5,
         "target": "shva",
@@ -539,7 +539,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -549,7 +549,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -563,7 +563,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "chirik",
           "kamatz",
@@ -571,7 +571,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "segol",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-house.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-house.webp",
         "restart": false,
         "round": 6,
         "target": "kamatz",
@@ -626,7 +626,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -636,7 +636,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kamatz",
         "id": "wiz-kamatz",
-        "url": "/src/assets/duel/audio/voice/wiz-kamatz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kamatz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -646,7 +646,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-house",
         "id": "wiz-word-house",
-        "url": "/src/assets/duel/audio/voice/wiz-word-house.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-house.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -660,7 +660,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "chirik",
           "tzeire",
@@ -668,7 +668,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "cholam",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-door.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-door.webp",
         "restart": false,
         "round": 7,
         "target": "tzeire",
@@ -723,7 +723,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -733,7 +733,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-tzeire",
         "id": "wiz-tzeire",
-        "url": "/src/assets/duel/audio/voice/wiz-tzeire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-tzeire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -743,7 +743,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-door",
         "id": "wiz-word-door",
-        "url": "/src/assets/duel/audio/voice/wiz-word-door.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-door.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -762,7 +762,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-new-monster",
         "id": "line-new-monster",
-        "url": "/src/assets/duel/audio/voice/line-new-monster.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-new-monster.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -776,7 +776,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "shuruk",
           "cholam",
@@ -784,7 +784,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "patach",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-bus.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-bus.webp",
         "restart": false,
         "round": 8,
         "target": "cholam",
@@ -839,7 +839,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -849,7 +849,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-cholam",
         "id": "wiz-cholam",
-        "url": "/src/assets/duel/audio/voice/wiz-cholam.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-cholam.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -859,7 +859,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-bus",
         "id": "wiz-word-bus",
-        "url": "/src/assets/duel/audio/voice/wiz-word-bus.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-bus.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -873,7 +873,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "patach",
           "segol",
@@ -881,7 +881,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "chirik",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-mouse.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-mouse.webp",
         "restart": false,
         "round": 9,
         "target": "patach",
@@ -936,7 +936,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -946,7 +946,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-patach",
         "id": "wiz-patach",
-        "url": "/src/assets/duel/audio/voice/wiz-patach.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-patach.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -956,7 +956,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-mouse",
         "id": "wiz-word-mouse",
-        "url": "/src/assets/duel/audio/voice/wiz-word-mouse.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-mouse.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -970,7 +970,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "cholam",
           "shva",
@@ -978,7 +978,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "patach",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-tent.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-tent.webp",
         "restart": false,
         "round": 10,
         "target": "cholam",
@@ -1033,7 +1033,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1047,7 +1047,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "holam-male",
           "kamatz",
@@ -1055,7 +1055,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "chirik",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-cookie.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-cookie.webp",
         "restart": false,
         "round": 11,
         "target": "kubutz",
@@ -1110,7 +1110,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1120,7 +1120,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kubutz",
         "id": "wiz-kubutz",
-        "url": "/src/assets/duel/audio/voice/wiz-kubutz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kubutz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1130,7 +1130,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-cookie",
         "id": "wiz-word-cookie",
-        "url": "/src/assets/duel/audio/voice/wiz-word-cookie.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-cookie.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1140,7 +1140,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-mega",
         "id": "line-mega",
-        "url": "/src/assets/duel/audio/voice/line-mega.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-mega.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1154,7 +1154,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "segol",
           "shuruk",
@@ -1162,7 +1162,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-island.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-island.webp",
         "restart": false,
         "round": 12,
         "target": "chirik",
@@ -1217,7 +1217,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-i",
         "id": "wiz-vowel-i",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-i.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-i.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1227,7 +1227,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-chirik",
         "id": "wiz-chirik",
-        "url": "/src/assets/duel/audio/voice/wiz-chirik.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-chirik.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1237,7 +1237,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-island",
         "id": "wiz-word-island",
-        "url": "/src/assets/duel/audio/voice/wiz-word-island.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-island.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1251,7 +1251,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "shuruk",
           "patach",
@@ -1259,7 +1259,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "segol",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-cookie.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-cookie.webp",
         "restart": false,
         "round": 13,
         "target": "shuruk",
@@ -1314,7 +1314,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1328,7 +1328,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "kubutz",
           "chirik",
@@ -1336,7 +1336,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-bus.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-bus.webp",
         "restart": false,
         "round": 14,
         "target": "holam-male",
@@ -1391,7 +1391,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1410,7 +1410,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-new-monster",
         "id": "line-new-monster",
-        "url": "/src/assets/duel/audio/voice/line-new-monster.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-new-monster.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1420,7 +1420,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-B",
         "id": "line-how-B",
-        "url": "/src/assets/duel/audio/voice/line-how-B.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-B.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1434,7 +1434,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "ghost",
-        "monsterSrc": "/src/assets/duel/sprites/mon-ghost.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-ghost.webp",
         "pad": [
           "patach",
           "shva",
@@ -1499,7 +1499,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1518,7 +1518,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1528,7 +1528,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kubutz",
         "id": "wiz-kubutz",
-        "url": "/src/assets/duel/audio/voice/wiz-kubutz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kubutz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1538,7 +1538,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-cookie",
         "id": "wiz-word-cookie",
-        "url": "/src/assets/duel/audio/voice/wiz-word-cookie.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-cookie.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1552,7 +1552,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "ghost",
-        "monsterSrc": "/src/assets/duel/sprites/mon-ghost.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-ghost.webp",
         "pad": [
           "chirik",
           "shva",
@@ -1617,7 +1617,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1636,7 +1636,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1646,7 +1646,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-C",
         "id": "line-how-C",
-        "url": "/src/assets/duel/audio/voice/line-how-C.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-C.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1660,7 +1660,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "segol",
           "holam-male",
@@ -1702,7 +1702,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-almost",
         "id": "line-almost",
-        "url": "/src/assets/duel/audio/voice/line-almost.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-almost.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1750,7 +1750,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-segol",
         "id": "wiz-segol",
-        "url": "/src/assets/duel/audio/voice/wiz-segol.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-segol.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1760,7 +1760,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-tzeire",
         "id": "wiz-tzeire",
-        "url": "/src/assets/duel/audio/voice/wiz-tzeire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-tzeire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1779,7 +1779,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1789,7 +1789,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-tzeire",
         "id": "wiz-tzeire",
-        "url": "/src/assets/duel/audio/voice/wiz-tzeire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-tzeire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1799,7 +1799,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-e",
         "id": "wiz-word-e",
-        "url": "/src/assets/duel/audio/voice/wiz-word-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1813,7 +1813,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "holam-male",
           "chirik",
@@ -1823,7 +1823,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-silent.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-silent.webp",
         "restart": false,
         "round": 18,
         "target": "shva",
@@ -1878,7 +1878,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1888,7 +1888,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1902,7 +1902,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "shuruk",
           "shva",
@@ -1967,7 +1967,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1986,7 +1986,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -1996,7 +1996,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2010,7 +2010,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "kubutz",
           "cholam",
@@ -2020,7 +2020,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "chirik",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-cookie.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-cookie.webp",
         "restart": false,
         "round": 20,
         "target": "kubutz",
@@ -2075,7 +2075,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2085,7 +2085,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kubutz",
         "id": "wiz-kubutz",
-        "url": "/src/assets/duel/audio/voice/wiz-kubutz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kubutz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2095,7 +2095,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-cookie",
         "id": "wiz-word-cookie",
-        "url": "/src/assets/duel/audio/voice/wiz-word-cookie.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-cookie.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2109,7 +2109,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "segol",
           "shva",
@@ -2174,7 +2174,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2193,7 +2193,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2203,7 +2203,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kubutz",
         "id": "wiz-kubutz",
-        "url": "/src/assets/duel/audio/voice/wiz-kubutz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kubutz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2213,7 +2213,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-cookie",
         "id": "wiz-word-cookie",
-        "url": "/src/assets/duel/audio/voice/wiz-word-cookie.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-cookie.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2227,7 +2227,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "kamatz",
           "kubutz",
@@ -2269,7 +2269,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-almost",
         "id": "line-almost",
-        "url": "/src/assets/duel/audio/voice/line-almost.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-almost.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2317,7 +2317,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-patach",
         "id": "wiz-patach",
-        "url": "/src/assets/duel/audio/voice/wiz-patach.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-patach.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2327,7 +2327,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kamatz",
         "id": "wiz-kamatz",
-        "url": "/src/assets/duel/audio/voice/wiz-kamatz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kamatz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2346,7 +2346,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2356,7 +2356,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kamatz",
         "id": "wiz-kamatz",
-        "url": "/src/assets/duel/audio/voice/wiz-kamatz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kamatz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2366,7 +2366,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-camel",
         "id": "wiz-word-camel",
-        "url": "/src/assets/duel/audio/voice/wiz-word-camel.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-camel.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2385,7 +2385,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-new-monster",
         "id": "line-new-monster",
-        "url": "/src/assets/duel/audio/voice/line-new-monster.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-new-monster.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2399,7 +2399,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "bat",
-        "monsterSrc": "/src/assets/duel/sprites/mon-bat.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-bat.webp",
         "pad": [
           "holam-male",
           "shva",
@@ -2464,7 +2464,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2483,7 +2483,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2493,7 +2493,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-patach",
         "id": "wiz-patach",
-        "url": "/src/assets/duel/audio/voice/wiz-patach.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-patach.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2503,7 +2503,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-eye",
         "id": "wiz-word-eye",
-        "url": "/src/assets/duel/audio/voice/wiz-word-eye.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-eye.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2517,7 +2517,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "bat",
-        "monsterSrc": "/src/assets/duel/sprites/mon-bat.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-bat.webp",
         "pad": [
           "segol",
           "shva",
@@ -2582,7 +2582,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2601,7 +2601,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2611,7 +2611,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-segol",
         "id": "wiz-segol",
-        "url": "/src/assets/duel/audio/voice/wiz-segol.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-segol.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2621,7 +2621,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-e",
         "id": "wiz-word-e",
-        "url": "/src/assets/duel/audio/voice/wiz-word-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2635,7 +2635,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 1,
         "monster": "imp",
-        "monsterSrc": "/src/assets/duel/sprites/mon-imp.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-imp.webp",
         "pad": [
           "holam-male",
           "tzeire",
@@ -2700,7 +2700,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2719,7 +2719,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2729,7 +2729,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2743,7 +2743,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 2,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "shva",
           "segol",
@@ -2808,7 +2808,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2827,7 +2827,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2837,7 +2837,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2847,7 +2847,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-silent",
         "id": "line-how-silent",
-        "url": "/src/assets/duel/audio/voice/line-how-silent.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-silent.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2861,7 +2861,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "cholam",
           "chirik",
@@ -2926,7 +2926,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2945,7 +2945,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2955,7 +2955,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -2969,7 +2969,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 3,
         "monster": "fuzzy",
-        "monsterSrc": "/src/assets/duel/sprites/mon-fuzzy.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
         "pad": [
           "kamatz",
           "segol",
@@ -2979,7 +2979,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shuruk",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-tent.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-tent.webp",
         "restart": false,
         "round": 28,
         "target": "cholam",
@@ -3034,7 +3034,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3048,7 +3048,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 4,
         "monster": "blob",
-        "monsterSrc": "/src/assets/duel/sprites/mon-blob.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/mon-blob.webp",
         "pad": [
           "kamatz",
           "segol",
@@ -3058,7 +3058,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-tree.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-tree.webp",
         "restart": false,
         "round": 29,
         "target": "segol",
@@ -3113,7 +3113,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3123,7 +3123,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-segol",
         "id": "wiz-segol",
-        "url": "/src/assets/duel/audio/voice/wiz-segol.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-segol.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3133,7 +3133,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-tree",
         "id": "wiz-word-tree",
-        "url": "/src/assets/duel/audio/voice/wiz-word-tree.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-tree.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3154,7 +3154,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-intro",
         "id": "line-intro",
-        "url": "/src/assets/duel/audio/voice/line-intro.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-intro.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3173,7 +3173,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-boss",
         "id": "line-boss",
-        "url": "/src/assets/duel/audio/voice/line-boss.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-boss.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3183,7 +3183,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-A",
         "id": "line-how-A",
-        "url": "/src/assets/duel/audio/voice/line-how-A.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-A.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3197,7 +3197,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "kubutz",
           "chirik",
@@ -3207,7 +3207,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "cholam",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-butterfly.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-butterfly.webp",
         "restart": false,
         "round": 1,
         "target": "kamatz",
@@ -3262,7 +3262,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3276,7 +3276,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "kubutz",
           "chirik",
@@ -3286,7 +3286,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "segol",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-mouse.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-mouse.webp",
         "restart": false,
         "round": 2,
         "target": "kamatz",
@@ -3341,7 +3341,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3355,7 +3355,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "kamatz",
           "shuruk",
@@ -3365,7 +3365,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "holam-male",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-camel.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-camel.webp",
         "restart": false,
         "round": 3,
         "target": "kamatz",
@@ -3420,7 +3420,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-a",
         "id": "wiz-vowel-a",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-a.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-a.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3430,7 +3430,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-kamatz",
         "id": "wiz-kamatz",
-        "url": "/src/assets/duel/audio/voice/wiz-kamatz.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-kamatz.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3440,7 +3440,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-camel",
         "id": "wiz-word-camel",
-        "url": "/src/assets/duel/audio/voice/wiz-word-camel.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-camel.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3450,7 +3450,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-C",
         "id": "line-how-C",
-        "url": "/src/assets/duel/audio/voice/line-how-C.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-C.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3464,7 +3464,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "shuruk",
           "chirik",
@@ -3529,7 +3529,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shuruk",
         "id": "wiz-shuruk",
-        "url": "/src/assets/duel/audio/voice/wiz-shuruk.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shuruk.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3548,7 +3548,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3562,7 +3562,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "chirik",
           "shva",
@@ -3572,7 +3572,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "patach",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-cookie.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-cookie.webp",
         "restart": false,
         "round": 5,
         "target": "shuruk",
@@ -3627,7 +3627,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3637,7 +3637,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-B",
         "id": "line-how-B",
-        "url": "/src/assets/duel/audio/voice/line-how-B.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-B.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3651,7 +3651,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "tzeire",
           "shuruk",
@@ -3716,7 +3716,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3735,7 +3735,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-e",
         "id": "wiz-vowel-e",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-e.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-e.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3745,7 +3745,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-tzeire",
         "id": "wiz-tzeire",
-        "url": "/src/assets/duel/audio/voice/wiz-tzeire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-tzeire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3755,7 +3755,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-word-fire",
         "id": "wiz-word-fire",
-        "url": "/src/assets/duel/audio/voice/wiz-word-fire.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-word-fire.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3769,7 +3769,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "chirik",
           "shuruk",
@@ -3834,7 +3834,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shuruk",
         "id": "wiz-shuruk",
-        "url": "/src/assets/duel/audio/voice/wiz-shuruk.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shuruk.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3853,7 +3853,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3867,7 +3867,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "shuruk",
           "segol",
@@ -3932,7 +3932,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3951,7 +3951,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-u",
         "id": "wiz-vowel-u",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-u.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-u.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3961,7 +3961,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-how-silent",
         "id": "line-how-silent",
-        "url": "/src/assets/duel/audio/voice/line-how-silent.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-how-silent.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -3975,7 +3975,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "cholam",
           "chirik",
@@ -4040,7 +4040,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4059,7 +4059,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4069,7 +4069,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4083,7 +4083,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "holam-male",
           "shuruk",
@@ -4093,7 +4093,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "shva",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-monkey.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-monkey.webp",
         "restart": false,
         "round": 10,
         "target": "holam-male",
@@ -4148,7 +4148,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-vowel-o",
         "id": "wiz-vowel-o",
-        "url": "/src/assets/duel/audio/voice/wiz-vowel-o.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-vowel-o.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4162,7 +4162,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
         "hearts": null,
         "kills": 0,
         "monster": "dragon",
-        "monsterSrc": "/src/assets/duel/sprites/boss-dragon.webp",
+        "monsterSrc": "/src/spellquest/tower/assets/sprites/boss-dragon.webp",
         "pad": [
           "shva",
           "chirik",
@@ -4172,7 +4172,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
           "kamatz",
         ],
         "padWords": [],
-        "picture": "/src/assets/duel/sprites/word-silent.webp",
+        "picture": "/src/spellquest/tower/assets/sprites/word-silent.webp",
         "restart": false,
         "round": 11,
         "target": "shva",
@@ -4227,7 +4227,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-boss-win",
         "id": "line-boss-win",
-        "url": "/src/assets/duel/audio/voice/line-boss-win.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-boss-win.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4237,7 +4237,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "sfx-mute",
         "id": "sfx-mute",
-        "url": "/src/assets/duel/audio/voice/sfx-mute.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/sfx-mute.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4247,7 +4247,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "wiz-shva",
         "id": "wiz-shva",
-        "url": "/src/assets/duel/audio/voice/wiz-shva.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/wiz-shva.mp3",
         "via": "tower",
         "visit": 1,
       },
@@ -4257,7 +4257,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
       "data": {
         "file": "line-mega",
         "id": "line-mega",
-        "url": "/src/assets/duel/audio/voice/line-mega.mp3",
+        "url": "/src/spellquest/tower/assets/audio/voice/line-mega.mp3",
         "via": "tower",
         "visit": 1,
       },

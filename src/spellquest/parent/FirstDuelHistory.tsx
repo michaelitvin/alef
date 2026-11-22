@@ -2,7 +2,7 @@
 // minigame of Spell Quest's run; its own save (`duel` in the lessons' save) stopped growing there. This is the one place it
 // shows (it was in Spell Quest's old parent screen and in the lessons' progress page).
 import { useProgressStore } from '../../stores/progressStore'
-import { DUEL_MARKS } from '../tower/logic/marks'
+import { TOWER_MARKS } from '../tower/logic/marks'
 import type { ScreenType, Tally } from '../tower/types'
 import type { SectionProps } from '../../parent/types'
 
@@ -26,7 +26,7 @@ const misses = (t?: Tally) => (t ? (t.wrong ?? 0) + (t.timeout ?? 0) : -1)
 export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
   const d = useProgressStore((p) => p.duel)
   const byMark = d?.byMark ?? {}
-  const rows = [...DUEL_MARKS].filter((m) => byMark[m.id]).sort((a, b) => misses(byMark[b.id]) - misses(byMark[a.id]))
+  const rows = [...TOWER_MARKS].filter((m) => byMark[m.id]).sort((a, b) => misses(byMark[b.id]) - misses(byMark[a.id]))
   const head = (first: string) => <thead><tr><th style={{ textAlign: 'left' }}>{first}</th>{COLS.map((c) => <th key={c.key}>{c.label}</th>)}</tr></thead>
   return (
     <div data-first-duel>

@@ -1,13 +1,13 @@
 // The tower screen: the first duel's board inside Spell Quest's run (spec: one duel, Part 3).
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-vi.mock('../../tower/logic/duelAudio', async (orig) => {
-  const m = await orig<typeof import('../../tower/logic/duelAudio')>()
+vi.mock('../../tower/logic/towerAudio', async (orig) => {
+  const m = await orig<typeof import('../../tower/logic/towerAudio')>()
   // "tap the lightning": its cue fires as the line is said (as the real player does by the line's end)
-  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), muteDuelAudio: vi.fn() }
+  return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), muteTowerAudio: vi.fn() }
 })
 import { Tower } from './Tower'
-import { muteDuelAudio } from '../../tower/logic/duelAudio'
+import { muteTowerAudio } from '../../tower/logic/towerAudio'
 import { useSpellQuestStore } from '../../store'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'
@@ -21,7 +21,7 @@ describe('Tower', () => {
     vi.useFakeTimers()
     useSpellQuestStore.getState().resetProgress()
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-    vi.mocked(muteDuelAudio).mockClear()
+    vi.mocked(muteTowerAudio).mockClear()
   })
   afterEach(() => vi.useRealTimers())
 
@@ -95,10 +95,10 @@ describe('Tower', () => {
     const { container, rerender } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     rerender(<Tower view={view} paused onAnswer={() => 'on'} onDone={() => {}} />)
-    expect(vi.mocked(muteDuelAudio)).toHaveBeenLastCalledWith(true)
+    expect(vi.mocked(muteTowerAudio)).toHaveBeenLastCalledWith(true)
     expect(container.querySelector('.nd-pause-cover')).toBeNull()
     rerender(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
-    expect(vi.mocked(muteDuelAudio)).toHaveBeenLastCalledWith(false)
+    expect(vi.mocked(muteTowerAudio)).toHaveBeenLastCalledWith(false)
   })
 
   it('the מגה spell (the parent brought it back, 2026-11-14): a carried charge, a hit, the line, the lightning; a cast is no answer', async () => {

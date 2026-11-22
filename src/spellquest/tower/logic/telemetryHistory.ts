@@ -4,7 +4,7 @@
 // area's Data section exports it as it is.
 import type { TelemetryLog } from '../../../shared/telemetry'
 
-export const DUEL_HISTORY_LOG: TelemetryLog = {
+export const TOWER_HISTORY_LOG: TelemetryLog = {
   key: 'alef-duel-telemetry',
   label: 'First duel (history)',
   game: 'duel',

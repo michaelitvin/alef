@@ -4,7 +4,7 @@ import { DuelCard } from './DuelCard'
 import { StationPath } from './StationPath'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
-import { DUEL_MARKS } from '../../spellquest/tower/logic/marks'
+import { TOWER_MARKS } from '../../spellquest/tower/logic/marks'
 import { setGender } from '../../shared/player'
 import { PlayButton } from './PlayButton'
 import { Separator } from './Separator'
@@ -203,7 +203,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('a first-duel-only player who mastered the tower sees Book 2’s first stations open', () => {
-    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo'])) } })
+    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo'])) } })
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('true')
     expect(st(container, 'ghosts').getAttribute('data-open')).toBe('true')

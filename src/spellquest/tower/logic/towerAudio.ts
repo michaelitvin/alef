@@ -1,4 +1,4 @@
-// Duel audio (the tower in Book 2's run): the shared game-audio kit (src/shared/gameAudio) with the first duel's files
+// Tower audio (the tower in Book 2's run): the shared game-audio kit (src/shared/gameAudio) with the tower's files
 // and numbers. Each line plays on its own (`playLine`, no queue: the hook awaits each one) on html5 at VOICE_RATE (pitch
 // kept), with its LINE_CUES timed from the call; effects on Web Audio pick a take at random. The tower has no music of
 // its own (Book 2's run plays its own), so nothing ducks. Missing files never stall. The device's sound setting
@@ -14,13 +14,13 @@ type SfxName = 'arrival' | 'cast' | 'boom' | 'ouch' | 'mega' | 'sparkle'
 
 /** The lines that speak to the child: each has a feminine take `<id>-f` for a girl (spec 2026-11-07 girls). The rest
  * (the learning sounds, the narrator's announcements) stay single. */
-export const DUEL_FEMININE: ReadonlySet<string> = new Set([
+export const TOWER_FEMININE: ReadonlySet<string> = new Set([
   'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-new-monster', 'line-combo', 'line-over', 'line-boss-win',
 ])
 
-/** where the kit's own events (voice-fallback) go: the log of the tower's visit while one is on (useDuelGame sets it) */
+/** where the kit's own events (voice-fallback) go: the log of the tower's visit while one is on (useTower sets it) */
 let audioLog: { track(e: string, data?: Record<string, unknown>): void } | null = null
-export function setDuelAudioLog(log: typeof audioLog) { audioLog = log }
+export function setTowerAudioLog(log: typeof audioLog) { audioLog = log }
 
 const audio = createGameAudio<SfxName, never>({
   game: 'duel',
@@ -35,7 +35,7 @@ const audio = createGameAudio<SfxName, never>({
   },
   sfxPick: 'random',
   sfxVolume: 0.8,
-  feminine: (id) => DUEL_FEMININE.has(id),
+  feminine: (id) => TOWER_FEMININE.has(id),
   telemetry: { track: (e, data) => audioLog?.track(e, data) },
   lineTimeoutMs: 9000, // > longest line (~4.2 s) plus a slow first load
   sfxTimeoutMs: 3000,
@@ -47,7 +47,7 @@ const audio = createGameAudio<SfxName, never>({
 })
 
 /** Call inside the ▶ tap: resumes the AudioContext (autoplay policies). */
-export const unlockDuelAudio = unlockAudioOutput
+export const unlockTowerAudio = unlockAudioOutput
 
 /** Plays a sound effect (one of its takes at random; the boom grows with `power`); resolves when it ends. */
 export function playSfx(name: SfxName, power = 1): Promise<void> {
@@ -79,4 +79,4 @@ export function playLine(lineId: string, onCue?: (cue: LineCue) => void): Promis
 export const stopAllLines = audio.stopVoice
 
 /** The pause: everything stays silent until the play (the device output's hold, shared with Book 2's cover). */
-export const muteDuelAudio = holdAudio
+export const muteTowerAudio = holdAudio

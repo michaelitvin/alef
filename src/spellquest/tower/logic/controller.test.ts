@@ -1,6 +1,6 @@
-// The first duel's flow on its seams: a clock that never waits (instantSleeper) and the audio kit's fake player.
+// the tower's flow on its seams: a clock that never waits (instantSleeper) and the audio kit's fake player.
 import { beforeEach, describe, expect, it } from 'vitest'
-import { DuelController, type DuelEmbedded } from './controller'
+import { TowerController, type TowerEmbedded } from './controller'
 import { MONSTERS_PER_WAVE } from './rules'
 import { instantSleeper } from '../../../shared/sleeper'
 import { installFakeAudio } from '../../../shared/gameAudio/fakePlayer'
@@ -23,17 +23,17 @@ async function until(pred: () => boolean, what: string) {
   if (!pred()) throw new Error(`condition not met: ${what}`)
 }
 
-function make(over: Partial<DuelEmbedded> = {}) {
+function make(over: Partial<TowerEmbedded> = {}) {
   const answers: [string, string][] = []
   const done: number[] = []
   const events: { e: string; data: Record<string, unknown> }[] = []
-  const embedded: DuelEmbedded = {
+  const embedded: TowerEmbedded = {
     wave: 1, waves: 1, boss: false, seen: SEEN, onSeen: () => {},
     onAnswer: (r, m) => { answers.push([r, m]); return 'on' },
     onDone: (w) => { done.push(w) },
     ...over,
   }
-  const c = new DuelController({
+  const c = new TowerController({
     embedded, rng: () => 0.01, sleeper: instantSleeper(),
     telemetry: { track: (e, data = {}) => { events.push({ e, data }) }, flush: () => {} },
   })
@@ -41,7 +41,7 @@ function make(over: Partial<DuelEmbedded> = {}) {
 }
 
 /** he taps the right mark as soon as a monster can be answered (before the instant clock lets it reach the tower) */
-function answerRight(c: DuelController) {
+function answerRight(c: TowerController) {
   let last = -1
   return c.subscribe(() => {
     const s = c.getView().state
@@ -52,7 +52,7 @@ function answerRight(c: DuelController) {
   })
 }
 
-describe('DuelController', () => {
+describe('TowerController', () => {
   it('plays one wave: each right answer goes to the run, the recap is sound → name → word, then the visit ends', async () => {
     const { c, answers, done, events } = make()
     const stop = answerRight(c)

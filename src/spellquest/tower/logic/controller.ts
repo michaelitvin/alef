@@ -1,21 +1,21 @@
-// The first duel's flow (Book 2's tower), framework-free. The reducer (reducer.ts) owns the rules; this controller owns
+// the tower's flow (Book 2's tower), framework-free. The reducer (reducer.ts) owns the rules; this controller owns
 // time: announcements, spoken instructions, clue-then-clock, the outcome's effects and speech, pause, and stats.
 // Pacing rule: the next monster appears only after the effects AND every wizard line have finished (+500 ms).
 //
-// React reads `getView()` through `subscribe()` (src/hooks/useDuelGame.ts). The state changes as soon as an action is
+// React reads `getView()` through `subscribe()` (src/spellquest/tower/useTower.ts). The state changes as soon as an action is
 // dispatched; the reactions to a change (spawn the next monster, run the clock, play an outcome) run once the current
 // call is over (one React commit), or, with `reactOnCommit`, when the hook calls commit() after React rendered it.
-import type { Choice, DuelState, IconName, Next, Rng, Round } from '../types'
+import type { Choice, TowerState, IconName, Next, Rng, Round } from '../types'
 import type { BlendPart, BlendPlan } from '../../course/types'
-import { duelReducer, initialDuelState, type DuelAction } from './reducer'
+import { towerReducer, initialTowerState, type TowerAction } from './reducer'
 import { predictedMistakeRate, type MakeRoundOpts } from './rounds'
 import { MEGA_MAX, bossFor, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from './rules'
 import { feedbackPlan, nextBossStart, type FeedbackPlan } from './flow'
 import { makeFxPicker, type FxStyle } from './fxStyle'
 import { EFFECT_PRESETS } from './effects'
-import { lineAsset, muteDuelAudio, playLine, playSfx, setDuelAudioLog, stopAllLines, unlockDuelAudio } from './duelAudio'
+import { lineAsset, muteTowerAudio, playLine, playSfx, setTowerAudioLog, stopAllLines, unlockTowerAudio } from './towerAudio'
 import { HEBREW_TOWER, type TowerContent } from './content'
-import { progressTallies, type DuelTallies } from './tallies'
+import { progressTallies, type TowerTallyPort } from './tallies'
 import type { LineCue } from '../assets/lineCues'
 import { MONSTERS, WORD_PICTURE } from '../assets/sprites'
 import { BLEND_GAP_MS, playUnitsThenWord, scheduleBlend } from '../../../shared/blendSchedule'
@@ -35,7 +35,7 @@ const LINE_GAP_MS = 800
  * The intro and the screen explanations play once ever: `seen` / `onSeen` keep them (keys 'tower-intro' and
  * 'tower-screen-<key>').
  */
-export interface DuelEmbedded {
+export interface TowerEmbedded {
   wave: number
   waves: number
   boss: boolean
@@ -79,13 +79,13 @@ export interface DuelEmbedded {
  * Where the duel's events go: Book 2's log (ADR 0004). The controller adds `via: 'tower'` and its own visit counter
  * `visit` to every event, and never sets the log's run number (that is Book 2's run).
  */
-export interface DuelTelemetry {
+export interface TowerTelemetry {
   track: (e: string, data?: Record<string, unknown>) => void
   flush: () => void
 }
 
-/** The duel's audio (duelAudio.ts by default; it plays through the device output's player, a fake one in tests). */
-export interface DuelAudio {
+/** The duel's audio (towerAudio.ts by default; it plays through the device output's player, a fake one in tests). */
+export interface TowerAudio {
   /** `onHeard`: the file really plays, with its length in ms when known (the English hint's lights); never for a missing file */
   playLine(id: string, onCue?: (c: LineCue) => void, onHeard?: (ms: number | null) => void): Promise<void>
   playSfx(name: Parameters<typeof playSfx>[0], power?: number): Promise<void>
@@ -97,21 +97,21 @@ export interface DuelAudio {
   setLog(log: { track(e: string, data?: Record<string, unknown>): void } | null): void
 }
 
-/** duelAudio.ts, looked up on each call (a test may replace the module) */
-const duelAudio: DuelAudio = {
+/** towerAudio.ts, looked up on each call (a test may replace the module) */
+const towerAudio: TowerAudio = {
   playLine: (id, onCue) => playLine(id, onCue),
   playSfx: (name, power) => playSfx(name, power),
   lineAsset: (id) => lineAsset(id),
   stopAllLines: () => stopAllLines(),
-  mute: (on) => muteDuelAudio(on),
-  unlock: () => unlockDuelAudio(),
-  setLog: (log) => setDuelAudioLog(log),
+  mute: (on) => muteTowerAudio(on),
+  unlock: () => unlockTowerAudio(),
+  setLog: (log) => setTowerAudioLog(log),
 }
 
-export interface DuelOpts {
+export interface TowerOpts {
   /** read on every use: the latest callbacks of the run (the hook passes its newest props) */
-  embedded: DuelEmbedded | (() => DuelEmbedded)
-  telemetry: DuelTelemetry | (() => DuelTelemetry)
+  embedded: TowerEmbedded | (() => TowerEmbedded)
+  telemetry: TowerTelemetry | (() => TowerTelemetry)
   rng?: Rng
   /** verify/test builds only: fixed monster walk time */
   walkOverride?: number
@@ -120,10 +120,10 @@ export interface DuelOpts {
   /** the course's rounds, runes and spoken parts (default: the Hebrew tower) */
   content?: TowerContent
   /** where the answers are read from and recorded (default: the first duel's save, alef-progress) */
-  tallies?: DuelTallies
+  tallies?: TowerTallyPort
   /** the time the flow waits on (default: the browser's timers) */
   sleeper?: Sleeper
-  audio?: DuelAudio
+  audio?: TowerAudio
   /**
    * the reactions wait for commit() (the hook calls it in an effect after each render of a new state), so that they run
    * when React's effects ran when this flow was a hook; otherwise they run as soon as the call that changed the state
@@ -132,8 +132,8 @@ export interface DuelOpts {
   reactOnCommit?: boolean
 }
 
-export interface DuelView {
-  state: DuelState
+export interface TowerView {
+  state: TowerState
   banner: BannerVisual | null
   shake: { power: number; at: number } | null
   /** What the wizard is naming right now ("the picture", "the marks"…): the tower makes it glow. */
@@ -165,25 +165,25 @@ const FEEDBACK_GAP_MS = [0, 250, 200]
 const towerScreenKey = (key: string) => `tower-screen-${key}`
 type Spawn = Extract<Next, { kind: 'spawn' }>
 
-export class DuelController {
+export class TowerController {
   private readonly rng: Rng
   private readonly walkOverride?: number
   private readonly makeRound: (o: MakeRoundOpts) => Round
   private readonly time: Sleeper
-  private readonly audio: DuelAudio
-  private readonly embOpt: DuelOpts['embedded']
-  private readonly telOpt: DuelOpts['telemetry']
+  private readonly audio: TowerAudio
+  private readonly embOpt: TowerOpts['embedded']
+  private readonly telOpt: TowerOpts['telemetry']
   private readonly content: TowerContent
-  private readonly tallies: DuelTallies
+  private readonly tallies: TowerTallyPort
   private readonly onCommit: boolean
 
-  private view: DuelView = {
-    state: initialDuelState, banner: null, shake: null, cue: null, lightning: false, celebrate: null, speaking: null,
+  private view: TowerView = {
+    state: initialTowerState, banner: null, shake: null, cue: null, lightning: false, celebrate: null, speaking: null,
     hidden: [], fx: null, feedback: null, canHint: false, blend: null, held: false,
   }
   private listeners = new Set<() => void>()
   /** the state the reactions last ran on (React's last commit) */
-  private committed: DuelState = initialDuelState
+  private committed: TowerState = initialTowerState
   private depth = 0
   private flushing = false
 
@@ -225,14 +225,14 @@ export class DuelController {
   /** the word misses of this visit (every second one blends the right word in its feedback) */
   private wordMisses = 0
 
-  constructor(opts: DuelOpts) {
+  constructor(opts: TowerOpts) {
     this.rng = opts.rng ?? Math.random
     this.walkOverride = opts.walkOverride
     this.content = opts.content ?? HEBREW_TOWER
     this.tallies = opts.tallies ?? progressTallies
     this.makeRound = opts.makeRound ?? this.content.makeRound
     this.time = opts.sleeper ?? realSleeper
-    this.audio = opts.audio ?? duelAudio
+    this.audio = opts.audio ?? towerAudio
     this.embOpt = opts.embedded
     this.telOpt = opts.telemetry
     this.onCommit = !!opts.reactOnCommit
@@ -241,7 +241,7 @@ export class DuelController {
   subscribe = (f: () => void) => { this.listeners.add(f); return () => { this.listeners.delete(f) } }
   getView = () => this.view
 
-  private get emb(): DuelEmbedded {
+  private get emb(): TowerEmbedded {
     return typeof this.embOpt === 'function' ? this.embOpt() : this.embOpt
   }
   /** the log the visit writes to; every event says it came from the tower, and which visit of this controller */
@@ -255,15 +255,15 @@ export class DuelController {
   }
 
   private get state() { return this.view.state }
-  private set(patch: Partial<DuelView>) {
+  private set(patch: Partial<TowerView>) {
     this.view = { ...this.view, ...patch }
     this.listeners.forEach((f) => f())
   }
 
   // ---- dispatch and the reactions (what the hook's effects did) ----
 
-  private dispatch(a: DuelAction) {
-    const s = duelReducer(this.state, a)
+  private dispatch(a: TowerAction) {
+    const s = towerReducer(this.state, a)
     if (s !== this.state) this.set({ state: s })
     if (this.depth === 0 && !this.onCommit) this.flush()
   }
@@ -300,7 +300,7 @@ export class DuelController {
       this.flushing = false
     }
   }
-  private react(p: DuelState, s: DuelState) {
+  private react(p: TowerState, s: TowerState) {
     if (s.next !== p.next) this.onNext(s)
     if (s.round !== p.round || s.walking !== p.walking || s.paused !== p.paused || s.outcome !== p.outcome || s.phase !== p.phase) this.runClock(s)
     if (s.outcome !== p.outcome) this.onOutcome(s)
@@ -318,7 +318,7 @@ export class DuelController {
   }
 
   /** The reducer asks for the next step. */
-  private onNext(s: DuelState) {
+  private onNext(s: TowerState) {
     const next = s.next
     if (!next) return
     const e = this.emb
@@ -335,7 +335,7 @@ export class DuelController {
   }
 
   /** The clock: a walking monster that reaches the tower is a miss. */
-  private runClock(s: DuelState) {
+  private runClock(s: TowerState) {
     this.clock()
     this.clock = () => {}
     if (this.holdAt !== null) return // held for the hint's blend: it re-arms when the walk goes on
@@ -520,7 +520,7 @@ export class DuelController {
   }
 
   /** An outcome: record it, play effects and the wizard's lines, then advance. */
-  private onOutcome(state: DuelState) {
+  private onOutcome(state: TowerState) {
     const o = state.outcome
     const r = state.round
     if (!o || !r || state.phase !== 'playing') return

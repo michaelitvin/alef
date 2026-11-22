@@ -1,7 +1,7 @@
 // After each round: the mark and its picture word; the wizard says sound → name → word, and the part being said
 // animates (sound → the vowel marks, name → the whole rune, word → the picture). No text.
 import { motion } from 'framer-motion'
-import type { DuelMark, PictureWord, TowerRune } from '../types'
+import type { TowerMark, PictureWord, TowerRune } from '../types'
 import { WORD_PICTURE } from '../assets/sprites'
 import { RuneGlyph } from './RuneGlyph'
 
@@ -10,7 +10,7 @@ import { RuneGlyph } from './RuneGlyph'
  * round the mark and its picture word.
  */
 export function ResultBanner({ mark, word, kind, speaking = null, rune, picture }: {
-  mark: DuelMark; word: PictureWord; kind: 'hit' | 'miss'; speaking?: 'sound' | 'name' | 'word' | null; rune?: TowerRune; picture?: string
+  mark: TowerMark; word: PictureWord; kind: 'hit' | 'miss'; speaking?: 'sound' | 'name' | 'word' | null; rune?: TowerRune; picture?: string
 }) {
   const src = rune ? picture : WORD_PICTURE[word.key]
   return (

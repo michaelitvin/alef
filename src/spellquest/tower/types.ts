@@ -1,14 +1,14 @@
 export type SoundGroup = 'a' | 'e' | 'i' | 'o' | 'u' | 'silent'
 export type ScreenType = 'A' | 'B' | 'C' | 'D'
 export type EffectPreset = 'gentle' | 'boom' | 'mega'
-/** The duel's drawn icons (components/duel/Icon): the flow names them in an announcement's banner. */
+/** The tower's drawn icons (components/Icon): the flow names them in an announcement's banner. */
 export type IconName =
   | 'sparkle' | 'flame' | 'bolt' | 'swords' | 'speaker' | 'speakerOff' | 'talk' | 'puff' | 'bonk' | 'bossHeart'
 export type RoundResult = 'correct' | 'wrong' | 'timeout' | 'mega'
 /** Random source in [0, 1); injectable for tests. */
 export type Rng = () => number
 
-export interface DuelMark {
+export interface TowerMark {
   id: string
   name: string // Hebrew name with nikkud (from nikkud.yaml)
   group: SoundGroup
@@ -32,8 +32,8 @@ export interface TowerRune {
 export interface Round {
   id: number
   type: ScreenType
-  target: DuelMark
-  runes: DuelMark[] // A/B/C pad; [] for D
+  target: TowerMark
+  runes: TowerMark[] // A/B/C pad; [] for D
   word: PictureWord // A's sign, D's right answer, the feedback word
   padWords: PictureWord[] // D pad (one per sound group, shuffled); [] otherwise
   monster: string // sprite id
@@ -49,7 +49,7 @@ export interface Round {
   ask?: 'letter' | 'name' | 'word'
 }
 
-export type Choice = { kind: 'rune'; mark: DuelMark } | { kind: 'sound'; group: SoundGroup }
+export type Choice = { kind: 'rune'; mark: TowerMark } | { kind: 'sound'; group: SoundGroup }
 
 export interface Outcome {
   kind: 'hit' | 'miss'
@@ -65,7 +65,7 @@ export type Announcement = 'wave' | 'boss' | 'new-monster'
 /** What the flow must do after an outcome has played out: the next monster (or the end of the visit, controller.ts). */
 export type Next = { kind: 'spawn'; wave: number; boss: boolean; announce: Announcement | null }
 
-export interface DuelState {
+export interface TowerState {
   phase: 'idle' | 'playing'
   paused: boolean
   score: number

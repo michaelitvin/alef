@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { makeRound, pickTarget, predictedMistakeRate } from './rounds'
-import { DUEL_MARKS, twinOf } from './marks'
+import { TOWER_MARKS, twinOf } from './marks'
 
 /** Deterministic RNG (mulberry32) for repeatable tests. */
 function seeded(seed: number) {
@@ -97,10 +97,10 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
     for (let i = 0; i < 4000; i++) { const id = pickTarget(rng, lifetime, recent).id; n[id] = (n[id] ?? 0) + 1 }
     return (id: string) => (n[id] ?? 0) / 4000
   }
-  const all = (t: { seen: number; correct: number; wrong: number }): L => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, t]))
+  const all = (t: { seen: number; correct: number; wrong: number }): L => Object.fromEntries(TOWER_MARKS.map((m) => [m.id, t]))
   it('no history: every mark sits at the same prior, so all are picked about equally', () => {
     const s = shares({}, 4)
-    for (const m of DUEL_MARKS) { expect(s(m.id)).toBeGreaterThan(0.06); expect(s(m.id)).toBeLessThan(0.14) }
+    for (const m of TOWER_MARKS) { expect(s(m.id)).toBeGreaterThan(0.06); expect(s(m.id)).toBeLessThan(0.14) }
   })
   it('a mark he gets wrong about 1 in 5 is preferred over both a mastered one and a hopeless one', () => {
     const s = shares({ ...all(tally(40, 1)), segol: tally(40, 8), chirik: tally(40, 30) }, 5)
@@ -117,9 +117,9 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
   })
   it('every mark keeps a small chance (variety), and it always returns a mark', () => {
     const s = shares({ ...all(tally(40, 0)), segol: tally(40, 8) }, 8)
-    for (const m of DUEL_MARKS) expect(s(m.id)).toBeGreaterThan(0.005)
+    for (const m of TOWER_MARKS) expect(s(m.id)).toBeGreaterThan(0.005)
     const rng = seeded(3)
-    for (let i = 0; i < 50; i++) expect(DUEL_MARKS).toContain(pickTarget(rng, {}, {}))
+    for (let i = 0; i < 50; i++) expect(TOWER_MARKS).toContain(pickTarget(rng, {}, {}))
   })
 })
 
@@ -130,28 +130,28 @@ describe('pickTarget with cover: the placement check (Book 2 stage 0)', () => {
       const rng = seeded(seed)
       const recent: Record<string, string> = {}
       const asked: string[] = []
-      for (let k = 0; k < DUEL_MARKS.length; k++) {
+      for (let k = 0; k < TOWER_MARKS.length; k++) {
         const id = pickTarget(rng, {}, recent, { cover: true }).id
         asked.push(id)
         recent[id] = 'o'
       }
-      expect(new Set(asked).size).toBe(DUEL_MARKS.length)
+      expect(new Set(asked).size).toBe(TOWER_MARKS.length)
       orders.add(asked.join())
     }
     expect(orders.size).toBeGreaterThan(10)
   })
   it('a mark with no recent answer comes first, even when another mark is the 1-in-5 one', () => {
     const rng = seeded(11)
-    const recent = Object.fromEntries(DUEL_MARKS.filter((m) => m.id !== 'segol').map((m) => [m.id, m.id === 'kamatz' ? 'oxoxo' : 'ooo']))
+    const recent = Object.fromEntries(TOWER_MARKS.filter((m) => m.id !== 'segol').map((m) => [m.id, m.id === 'kamatz' ? 'oxoxo' : 'ooo']))
     for (let i = 0; i < 20; i++) expect(pickTarget(rng, {}, recent, { cover: true }).id).toBe('segol')
   })
   it('when every mark has an answer, cover changes nothing (the usual 1-in-5 aim)', () => {
-    const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooo']))
+    const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooo']))
     const a = seeded(5), b = seeded(5)
     for (let i = 0; i < 50; i++) expect(pickTarget(a, {}, recent, { cover: true }).id).toBe(pickTarget(b, {}, recent).id)
   })
   it('makeRound passes cover to the picker; without it the duel’s own game is as it was', () => {
-    const recent = Object.fromEntries(DUEL_MARKS.filter((m) => m.id !== 'shva').map((m) => [m.id, 'ooo']))
+    const recent = Object.fromEntries(TOWER_MARKS.filter((m) => m.id !== 'shva').map((m) => [m.id, 'ooo']))
     const rng = seeded(2)
     for (let i = 0; i < 10; i++) expect(makeRound({ id: i, wave: 1, kills: 1, boss: false, rng, lifetime: {}, recent, cover: true }).target.id).toBe('shva')
     const seen = new Set(Array.from({ length: 40 }, (_, i) => makeRound({ id: i, wave: 1, kills: 1, boss: false, rng, lifetime: {}, recent }).target.id))
@@ -163,7 +163,7 @@ describe('directional confusion', () => {
   // the target sits near 1-in-5 and the rest are mastered, so it is picked most; only its rounds are examined
   const forced = (id: string) => ({
     recent: {},
-    lifetime: { ...Object.fromEntries(DUEL_MARKS.map((m) => [m.id, { seen: 400, correct: 400 }])), [id]: { seen: 40, correct: 32, wrong: 8 } },
+    lifetime: { ...Object.fromEntries(TOWER_MARKS.map((m) => [m.id, { seen: 400, correct: 400 }])), [id]: { seen: 40, correct: 32, wrong: 8 } },
   })
   const pads = (wave: number, target: string, confusions: Record<string, Record<string, number>>, seed: number, n = 300) => {
     const rng = seeded(seed)

@@ -1,8 +1,8 @@
-// The first duel's flow, driven directly (no React): the controller on the browser's timers (faked here) and an audio
+// the tower's flow, driven directly (no React): the controller on the browser's timers (faked here) and an audio
 // stub at its `audio` seam, so that each test ends each wizard line, and fires its cues, by hand.
-// (controller.test.ts plays it on the instant clock and the kit's fake player; useDuelGame.test.tsx: the hook.)
+// (controller.test.ts plays it on the instant clock and the kit's fake player; useTower.test.tsx: the hook.)
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { DuelController, type DuelAudio, type DuelEmbedded, type DuelOpts } from './controller'
+import { TowerController, type TowerAudio, type TowerEmbedded, type TowerOpts } from './controller'
 import { markById } from './marks'
 import { wordsFor } from './words'
 import type { Choice, Round } from '../types'
@@ -17,16 +17,16 @@ const audio = {
   playSfx: vi.fn(() => Promise.resolve()),
   lineAsset: (id: string) => ({ id, file: id, url: `u:${id}` }),
   playLine: vi.fn((id: string, onCue?: (c: string) => void) => new Promise<void>((resolve) => pending.push({ id, resolve, onCue }))),
-} satisfies DuelAudio
+} satisfies TowerAudio
 
 /** the live controllers: each test step commits them (as React rendered and ran its effects at the end of an act) */
-const live = new Set<DuelController>()
+const live = new Set<TowerController>()
 /**
  * A controller with the hook's surface, on the hook's timing (`reactOnCommit`: the flow reacts to a new state when
  * React has rendered it); `unmount` = leaving the screen.
  */
-function game(o: Omit<DuelOpts, 'audio' | 'reactOnCommit'>) {
-  const c = new DuelController({ ...o, audio, reactOnCommit: true })
+function game(o: Omit<TowerOpts, 'audio' | 'reactOnCommit'>) {
+  const c = new TowerController({ ...o, audio, reactOnCommit: true })
   live.add(c)
   const result = {
     get current() {
@@ -87,7 +87,7 @@ beforeEach(() => {
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
 })
 
-type Emb = DuelEmbedded
+type Emb = TowerEmbedded
 function emb(over: Partial<NonNullable<Emb>> = {}) {
   const answers: [string, string][] = []
   const done: number[] = []
@@ -105,7 +105,7 @@ function emb(over: Partial<NonNullable<Emb>> = {}) {
  */
 const firstVisit = (over: Partial<NonNullable<Emb>> = {}) => emb({ seen: [], waves: 3, ...over }).e
 
-describe('DuelController', () => {
+describe('TowerController', () => {
   it('telemetry: every event says via: tower and its visit, and the log keeps the run number it was given (Book 2’s run)', async () => {
     tel.setRun(7)
     const { result, unmount } = game({ telemetry: tel, rng: rngConst(0.01), embedded: firstVisit() })

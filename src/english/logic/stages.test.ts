@@ -67,7 +67,7 @@ describe('the English stages', () => {
     expect(p.read().stage.stage).toBe(5)
   })
   it('the run\'s pass plays the course\'s cycle and visits (the Hebrew ones by default)', () => {
-    const he: PassFacts = { stage: 4, draw: false, bookOpen: true, recent: {}, duelRecent: {}, cycleNo: 0, towerTail: '' }
+    const he: PassFacts = { stage: 4, draw: false, bookOpen: true, recent: {}, towerRecent: {}, cycleNo: 0, towerTail: '' }
     const en: PassFacts = { ...he, stages: ENGLISH.stages }
     expect(runPass({ mode: 'run', lastEnded: 'doors', facts: en }).screen).toBe('spell')
     // (the Hebrew run has the spell book after the doors too, from stage 4: Task 26)

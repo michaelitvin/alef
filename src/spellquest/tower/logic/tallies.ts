@@ -12,7 +12,7 @@ export interface TowerTallies {
   pace: number
 }
 
-export interface DuelTallies {
+export interface TowerTallyPort {
   read(): TowerTallies
   // the progress store's own actions, the ones the controller calls
   recordDuelRound(markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }): void
@@ -27,7 +27,7 @@ export interface DuelTallies {
 }
 
 /** the first duel's save (alef-progress), looked up on each call: the default */
-export const progressTallies: DuelTallies = {
+export const progressTallies: TowerTallyPort = {
   read() {
     const d = useProgressStore.getState().duel
     return { byMark: d.byMark, confusions: d.confusions ?? {}, recent: d.recent ?? {}, pace: d.pace ?? 1 }
@@ -41,7 +41,7 @@ export const progressTallies: DuelTallies = {
 const EMPTY_TALLY: Tally = { seen: 0, correct: 0, wrong: 0, timeout: 0, twin: 0, mega: 0 }
 
 /** tallies kept in memory, recorded as the progress store records them (tests) */
-export function memoryTallies(initial: Partial<TowerTallies> = {}): DuelTallies {
+export function memoryTallies(initial: Partial<TowerTallies> = {}): TowerTallyPort {
   let t: TowerTallies = { byMark: {}, confusions: {}, recent: {}, pace: 1, ...initial }
   return talliesOver(() => t, (next) => { t = next })
 }
@@ -50,7 +50,7 @@ export function memoryTallies(initial: Partial<TowerTallies> = {}): DuelTallies 
  * Tallies kept where `get` reads them and `put` writes them (another course's save), recorded as the progress store
  * records them.
  */
-export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => void): DuelTallies {
+export function talliesOver(get: () => TowerTallies, put: (t: TowerTallies) => void): TowerTallyPort {
   const update = (f: (t: TowerTallies) => TowerTallies) => put(f(get()))
   return {
     read: get,

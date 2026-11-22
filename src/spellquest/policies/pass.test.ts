@@ -14,7 +14,7 @@ function freeze<T>(x: T): T {
 
 /** stage 4, drawing off, the book open: tower → broom → cauldron → ladder → ghosts → doors → (crystal) → spell */
 const facts = (f: Partial<PassFacts> = {}): PassFacts => ({
-  stage: 4, draw: false, bookOpen: true, recent: {}, duelRecent: {}, cycleNo: 0, towerTail: '', ...f,
+  stage: 4, draw: false, bookOpen: true, recent: {}, towerRecent: {}, cycleNo: 0, towerTail: '', ...f,
 })
 /** a screen's recent answers, all right (mastered) */
 const mastered = (screen: string) => ({ [`sc:${screen}`]: 'o'.repeat(20) })
@@ -247,8 +247,8 @@ describe('the pass policy', () => {
       expect(visitLength('run', 'tower', facts({ towerTail: 'oooooooooo' }))).toBe(1)
       expect(visitLength('run', 'tower', facts({ towerTail: 'oooooooooo', bookOpen: false }))).toBe(VISIT.tower)
       // the tower before its tail is long enough: every mark's answers, none wrong
-      expect(visitLength('run', 'tower', facts({ duelRecent: { a: 'oooo', b: 'oooo' } }))).toBe(1)
-      expect(visitLength('run', 'tower', facts({ duelRecent: { a: 'oooo', b: 'ooox' } }))).toBe(VISIT.tower)
+      expect(visitLength('run', 'tower', facts({ towerRecent: { a: 'oooo', b: 'oooo' } }))).toBe(1)
+      expect(visitLength('run', 'tower', facts({ towerRecent: { a: 'oooo', b: 'ooox' } }))).toBe(VISIT.tower)
     })
 
     it('the gallery\'s visit refills the hearts (a run\'s keeps them)', () => {

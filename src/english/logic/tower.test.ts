@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MakeRoundOpts } from '../../spellquest/tower/logic/rounds'
 import type { Round } from '../../spellquest/tower/types'
 import type { FeedbackPlan } from '../../spellquest/tower/logic/flow'
-import { DuelController, type DuelAudio } from '../../spellquest/tower/logic/controller'
+import { TowerController, type TowerAudio } from '../../spellquest/tower/logic/controller'
 import { instantSleeper } from '../../shared/sleeper'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { seeded } from '../../spellquest/testing/runHarness'
@@ -14,7 +14,7 @@ import { memoryEnglishSavePort, englishSavePort, type EnglishSavePort } from '..
 import { useEnglishStore } from '../store'
 import { ENGLISH_FRESH } from '../saveFormat'
 import { ENGLISH } from '../course'
-import { englishDuelAudio } from '../audio'
+import { englishTowerAudio } from '../audio'
 import { EN_TOWER_LINE_IDS, enLine } from '../data/lines'
 import { SOUND_KEYS, UNITS, unit } from '../content/units'
 import { WORDS, word } from '../content/words'
@@ -279,12 +279,12 @@ describe('an English tower run', () => {
     const progressBefore = localStorage.getItem('alef-progress')
     const duelBefore = structuredClone(useProgressStore.getState().duel)
     const said: string[] = []
-    const audio: DuelAudio = {
+    const audio: TowerAudio = {
       playLine: (id) => { said.push(id); return Promise.resolve() }, playSfx: () => Promise.resolve(),
       lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
     }
     const done: number[] = []
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: { wave: 1, waves: 1, boss: false, seen: [], onSeen: () => {}, onAnswer: () => 'on', onDone: (w) => { done.push(w) } },
       telemetry: { track: () => {}, flush: () => {} },
       content: ENGLISH.tower.content, tallies: ENGLISH.tower.tallies(), audio, sleeper: instantSleeper(), rng: seeded(4),
@@ -315,12 +315,12 @@ describe('an English tower run', () => {
     const save = at(3)
     const d = deps(save)
     const said: string[] = []
-    const audio: DuelAudio = {
+    const audio: TowerAudio = {
       playLine: (id) => { said.push(id); return Promise.resolve() }, playSfx: () => Promise.resolve(),
       lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
     }
     let answers = 0
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: { wave: 1, waves: 1, boss: false, seen: ['tower-intro'], onSeen: () => {}, onAnswer: () => { answers++; return 'over' }, onDone: () => {} },
       telemetry: { track: () => {}, flush: () => {} },
       content: englishTower(d), makeRound: (o) => enTowerRound(d, o, { kind: 'letter', unit: 'v' }), tallies: save.towerTallies(),
@@ -356,11 +356,11 @@ describe('an English tower run', () => {
       const d = deps(save, onlyFox)
       const content = englishTower(d)
       const events: { e: string; data?: Record<string, unknown> }[] = []
-      const c = new DuelController({
+      const c = new TowerController({
         embedded: { wave: 1, waves: 1, boss: false, seen: ['tower-intro', 'tower-screen-last'], onSeen: () => {}, onAnswer: () => 'on', onDone: () => {} },
         telemetry: { track: (e, data) => { events.push({ e, data }) }, flush: () => {} },
         content, makeRound: (o) => enTowerRound(d, o, { kind: 'letter', unit: 'x' }), tallies: save.towerTallies(),
-        audio: englishDuelAudio, rng: seeded(2),
+        audio: englishTowerAudio, rng: seeded(2),
       })
       const roundsShown = () => events.filter((x) => x.e === 'round').length
       c.start()
@@ -390,7 +390,7 @@ describe('the English course', () => {
   })
 
   it('the tower plays the English tower on the English audio', () => {
-    expect(ENGLISH.tower.audio).toBe(englishDuelAudio)
+    expect(ENGLISH.tower.audio).toBe(englishTowerAudio)
     const r = ENGLISH.tower.content.makeRound(opts())
     expect(r.runeTexts!.every((x) => x.alphabet === 'latin')).toBe(true)
   })
@@ -468,13 +468,13 @@ describe('the placement and the boss', () => {
     const inner = englishTower(d)
     const heard: string[] = []
     const content = { ...inner, answered: (r: Round, right: boolean) => { heard.push(r.target.id); return inner.answered!(r, right) } }
-    const audio: DuelAudio = {
+    const audio: TowerAudio = {
       playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
       lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
     }
     const done: number[] = []
     let hits = 0
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: { wave: 5, waves: 1, boss: true, seen: ['tower-intro'], onSeen: () => {}, onAnswer: () => { hits++; return 'on' }, onDone: (w) => { done.push(w) } },
       telemetry: { track: () => {}, flush: () => {} },
       content, tallies: save.towerTallies(), audio, sleeper: instantSleeper(), rng: seeded(4),
@@ -500,13 +500,13 @@ describe('the board hands the answered round on', () => {
   it('with onAnswerRound, the run gets the round (its kind), not only its target id', async () => {
     const save = at(3)
     const d = deps(save)
-    const audio: DuelAudio = {
+    const audio: TowerAudio = {
       playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
       lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
     }
     const got: { r: string; ask?: string; id: string }[] = []
     let plain = 0
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: {
         wave: 1, waves: 1, boss: false, seen: ['tower-intro'], onSeen: () => {}, onDone: () => {},
         onAnswer: () => { plain++; return 'on' },
@@ -534,12 +534,12 @@ describe('the board hands the answered round on', () => {
   it('a new unit right on its first ask is skipped, not taken as known, when the run records the answer first', async () => {
     const save = at(3)
     const d = deps(save)
-    const audio: DuelAudio = {
+    const audio: TowerAudio = {
       playLine: () => Promise.resolve(), playSfx: () => Promise.resolve(),
       lineAsset: (id) => ({ id, file: id, url: null }), stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
     }
     let answered = false
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: {
         wave: 1, waves: 1, boss: false, seen: ['tower-intro'], onSeen: () => {}, onDone: () => {}, onAnswer: () => 'on',
         // as the run does (RunController.towerAnswer): the answer goes into the same English tallies

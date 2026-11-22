@@ -7,7 +7,7 @@ import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 import { ENGLISH_LOG } from '../english/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 import { SPACECAT_LOG } from '../spacecat/telemetryLog'
-import { DUEL_HISTORY_LOG } from '../spellquest/tower/logic/telemetryHistory'
+import { TOWER_HISTORY_LOG } from '../spellquest/tower/logic/telemetryHistory'
 import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_SPELLQUEST_SPELL, GOLDEN_CLOCK, GOLDEN_ENGLISH, GOLDEN_NOW, GOLDEN_SPACECAT, spellQuestEvents, goldenExport } from './__fixtures__/telemetry/generate'
 
 const SINCE = GOLDEN_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
@@ -35,9 +35,9 @@ describe('the export goldens', () => {
   })
 
   it('the first duel\'s frozen history, read from storage', async () => {
-    localStorage.setItem(DUEL_HISTORY_LOG.key, FROZEN_HISTORY)
-    await expect(goldenExport(DUEL_HISTORY_LOG, readLog(DUEL_HISTORY_LOG.key))).toMatchFileSnapshot('./__fixtures__/telemetry/frozen.golden.json')
-    expect(localStorage.getItem(DUEL_HISTORY_LOG.key)).toBe(FROZEN_HISTORY)
+    localStorage.setItem(TOWER_HISTORY_LOG.key, FROZEN_HISTORY)
+    await expect(goldenExport(TOWER_HISTORY_LOG, readLog(TOWER_HISTORY_LOG.key))).toMatchFileSnapshot('./__fixtures__/telemetry/frozen.golden.json')
+    expect(localStorage.getItem(TOWER_HISTORY_LOG.key)).toBe(FROZEN_HISTORY)
     localStorage.clear()
   })
 

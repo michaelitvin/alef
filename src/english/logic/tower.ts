@@ -1,5 +1,5 @@
 // The English tower's content (the first duel's board, ADR 0002): two TowerContents, so that the tower keeps one round
-// path (DuelController.makeRound → content.makeRound). The placement tower of the first English run (design Part 4): its
+// path (TowerController.makeRound → content.makeRound). The placement tower of the first English run (design Part 4): its
 // rounds ask what the walk (./placement.ts) asks next, read from the English save; its answers are walked and saved at
 // once (`placementAnswer`), so a pause or a reload goes on where it was. And the English tower's own letter and word
 // rounds (design Part 5, `englishTower`): a picture or a sound and four letter runes, a nonsense name and three word
@@ -8,7 +8,7 @@ import type { TowerContent } from '../../spellquest/tower/logic/content'
 import type { BlendPlan } from '../../spellquest/course/types'
 import type { MakeRoundOpts } from '../../spellquest/tower/logic/rounds'
 import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../spellquest/tower/logic/rules'
-import type { Choice, DuelMark, Round, TowerRune } from '../../spellquest/tower/types'
+import type { Choice, TowerMark, Round, TowerRune } from '../../spellquest/tower/types'
 import { pickTarget, type ScreenId } from '../../spellquest/logic/predict'
 import { shuffle, type Choice as RunChoice, type RoundCtx } from '../../spellquest/logic/rounds'
 import { NEW_SHARE } from '../../spellquest/logic/stages'
@@ -87,7 +87,7 @@ export function choosePlacementRound(
 
 
 const textOf = (x: string | PlacementText) => (typeof x === 'string' ? word(x).text : x.text)
-const mark = (id: string, text: string): DuelMark => ({ id, name: text, group: 'a' })
+const mark = (id: string, text: string): TowerMark => ({ id, name: text, group: 'a' })
 
 /** a placement round as the duel plays it: a picture round is screen A (it walks at once), a name round screen C (said first) */
 function placementRound(o: MakeRoundOpts, pr: PlacementRound, picture: PictureOf): Round {
@@ -256,7 +256,7 @@ function oneApart(a: string[], b: string[]): boolean {
   return long.some((_, i) => long.filter((_, j) => j !== i).every((x, j) => x === short[j]))
 }
 
-const markOf = (id: string, text: string): DuelMark => ({ id, name: text, group: 'a' })
+const markOf = (id: string, text: string): TowerMark => ({ id, name: text, group: 'a' })
 const runeOf = (id: string, text: string): TowerRune => ({ id, text, alphabet: 'latin' })
 const pickOne = <T,>(rng: () => number, xs: T[]): T => xs[Math.floor(rng() * xs.length) % xs.length]
 

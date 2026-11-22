@@ -35,7 +35,7 @@ import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, 
 import { NEVER_VISITED } from './store'
 import { stage0Lane } from './logic/mastery'
 import { runPass, stepPass, type PassFacts, type PassInput, type PassState, type PassStep } from './policies/pass'
-import { DUEL_MARKS } from './tower/logic/marks'
+import { TOWER_MARKS } from './tower/logic/marks'
 import { skippedMonsters } from './tower/logic/rules'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
@@ -670,7 +670,7 @@ export class RunController {
     const st = this.save.read()
     return {
       stage: this.stage, stages: this.course.stages, draw: this.drawOn(), bookOpen: this.bookOpen(), recent: st.recent,
-      duelRecent: this.save.firstDuelRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
+      towerRecent: this.save.firstDuelRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
     }
   }
 
@@ -912,7 +912,7 @@ export class RunController {
   /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
   private stage0Passed(): 'fast' | 'slow' | null {
     if (this.opts.sandbox || this.bookOpen()) return null
-    return stage0Lane(this.save.firstDuelRecent(), DUEL_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
+    return stage0Lane(this.save.firstDuelRecent(), TOWER_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
   }
 
   /**

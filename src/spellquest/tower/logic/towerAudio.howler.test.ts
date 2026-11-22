@@ -1,4 +1,4 @@
-// The first duel's audio as it drives Howler: which files play, at which rate and volume, when the cues fire, what a stop
+// the tower's audio as it drives Howler: which files play, at which rate and volume, when the cues fire, what a stop
 // stops, the mute and the unlock. Howler itself is faked (its Howl class and the global Howler), so this pins the
 // behaviour through any refactor of the layers above it.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -55,13 +55,13 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('duelAudio', () => {
+describe('towerAudio', () => {
   it('a girl hears the feminine take (with its own cues); a missing one falls back to the masculine take and is logged', async () => {
     const player = await import('../../../shared/player')
     const track = vi.fn()
     player.setGender('girl', 'child')
-    const audio = await import('./duelAudio')
-    audio.setDuelAudioLog({ track }) // the tower's visit sets its log (Book 2's)
+    const audio = await import('./towerAudio')
+    audio.setTowerAudioLog({ track }) // the tower's visit sets its log (Book 2's)
     const cues: string[] = []
     void audio.playLine('line-intro', (c) => cues.push(c))
     expect(byUrl('lif')).toBeTruthy()
@@ -83,16 +83,16 @@ describe('duelAudio', () => {
     expect(audio.lineAsset('line-intro')).toEqual({ id: 'line-intro', file: 'line-intro', url: 'li' })
     void audio.playLine('line-intro')
     expect(byUrl('li')).toBeTruthy()
-    audio.setDuelAudioLog(null)
+    audio.setTowerAudioLog(null)
   })
   it('playLine resolves when the line ends', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const p = audio.playLine('wiz-kamatz')
     byUrl('wk').emit('end')
     await expect(p).resolves.toBeUndefined()
   })
   it('speech plays faster with natural pitch: html5 audio (pitch-preserving) at VOICE_RATE', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     void audio.playLine('wiz-kamatz')
     expect(audio.VOICE_RATE).toBeGreaterThan(1.05)
     expect(byUrl('wk')._rate).toBe(audio.VOICE_RATE)
@@ -101,7 +101,7 @@ describe('duelAudio', () => {
     expect(byUrl('c').html5).toBe(false) // effects stay on Web Audio
   })
   it('a cue fires when its word is spoken (file time ÷ VOICE_RATE)', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const cues: string[] = []
     void audio.playLine('line-mega', (c) => cues.push(c))
     await vi.advanceTimersByTimeAsync((1.15 / audio.VOICE_RATE) * 1000 - 50)
@@ -113,7 +113,7 @@ describe('duelAudio', () => {
     expect(cues).toEqual(['lightning']) // once
   })
   it('cues not yet fired fire when the line ends early, fails or is missing (the lightning always appears)', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const cues: string[] = []
     const p = audio.playLine('line-mega', (c) => cues.push(c))
     byUrl('lm').emit('loaderror')
@@ -124,11 +124,11 @@ describe('duelAudio', () => {
     expect(missing).toEqual(['pad'])
   })
   it('a missing line resolves immediately', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     await expect(audio.playLine('nope')).resolves.toBeUndefined()
   })
   it('a line that never ends resolves after the safety timeout', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     let done = false
     void audio.playLine('wiz-kamatz').then(() => { done = true })
     await vi.advanceTimersByTimeAsync(8900)
@@ -137,19 +137,19 @@ describe('duelAudio', () => {
     expect(done).toBe(true)
   })
   it('a line given up after its timeout is stopped: a file that starts late never plays on, out of reach of stopAllLines', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     void audio.playLine('wiz-kamatz')
     await vi.advanceTimersByTimeAsync(9100)
     expect(byUrl('wk').playing()).toBe(false)
   })
   it('a line that fails to load resolves', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const p = audio.playLine('wiz-kamatz')
     byUrl('wk').emit('loaderror')
     await expect(p).resolves.toBeUndefined()
   })
   it('sfx off (the device setting): playSfx resolves without playing', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const out = await import('../../../shared/gameAudio/output')
     out.applySound({ sfx: false, music: true, volume: 1 })
     expect(HowlerG.volume).toHaveBeenLastCalledWith(1)
@@ -157,13 +157,13 @@ describe('duelAudio', () => {
     expect(instances.filter((i) => i.playing())).toHaveLength(0)
   })
   it('playSfx resolves when the effect ends', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const p = audio.playSfx('cast')
     byUrl('c').emit('end')
     await expect(p).resolves.toBeUndefined()
   })
   it('an effect picks one of its takes at random (not in turn), and every take is a fresh play of its own Howl', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const rnd = vi.spyOn(Math, 'random')
     rnd.mockReturnValue(0.99)
     void audio.playSfx('arrival')
@@ -176,7 +176,7 @@ describe('duelAudio', () => {
     expect(instances.find((i) => i.src[0] === 'a2')).toBeUndefined()
   })
   it('the boom grows with the power (0.6 + 0.3 × power, at most 1); the other effects play at 0.8', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     vi.spyOn(Math, 'random').mockReturnValue(0)
     void audio.playSfx('boom', 0.5)
     expect(byUrl('b1')._vol).toBeCloseTo(0.75)
@@ -188,7 +188,7 @@ describe('duelAudio', () => {
     expect(byUrl('s')._vol).toBe(0.8)
   })
   it('an effect that never ends resolves after its safety timeout (3 s)', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     let done = false
     void audio.playSfx('cast').then(() => { done = true })
     await vi.advanceTimersByTimeAsync(2900)
@@ -197,7 +197,7 @@ describe('duelAudio', () => {
     expect(done).toBe(true)
   })
   it('stopAllLines stops the line that plays: it resolves, and its cues not yet heard fire', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     const cues: string[] = []
     let done = false
     void audio.playLine('line-mega', (c) => cues.push(c)).then(() => { done = true })
@@ -209,19 +209,19 @@ describe('duelAudio', () => {
     expect(cues).toEqual(['lightning'])
   })
   it('the mute is Howler\'s global mute; the unlock resumes a suspended audio context', async () => {
-    const audio = await import('./duelAudio')
-    audio.muteDuelAudio(true)
+    const audio = await import('./towerAudio')
+    audio.muteTowerAudio(true)
     expect(HowlerG.mute).toHaveBeenLastCalledWith(true)
-    audio.muteDuelAudio(false)
+    audio.muteTowerAudio(false)
     expect(HowlerG.mute).toHaveBeenLastCalledWith(false)
-    audio.unlockDuelAudio()
+    audio.unlockTowerAudio()
     expect(HowlerG.ctx.resume).not.toHaveBeenCalled()
     HowlerG.ctx.state = 'suspended'
-    audio.unlockDuelAudio()
+    audio.unlockTowerAudio()
     expect(HowlerG.ctx.resume).toHaveBeenCalled()
   })
   it('a line plays at its own volume (none is set on it), with no duck of anything', async () => {
-    const audio = await import('./duelAudio')
+    const audio = await import('./towerAudio')
     void audio.playLine('wiz-kamatz')
     expect(byUrl('wk')._vol).toBe(1)
     expect(instances).toHaveLength(1)

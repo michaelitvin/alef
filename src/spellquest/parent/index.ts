@@ -5,7 +5,7 @@ import { confusionList, persistedState, type GameParent } from '../../parent/typ
 import { ITEMS } from '../logic/content'
 import type { SpellQuestSave } from '../store'
 import { SPELLQUEST_LOG } from '../telemetryLog'
-import { DUEL_HISTORY_LOG } from '../tower/logic/telemetryHistory'
+import { TOWER_HISTORY_LOG } from '../tower/logic/telemetryHistory'
 
 const glyph = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
@@ -13,7 +13,7 @@ export const spellQuestParent: GameParent = {
   id: 'book2',
   title: 'Book 2',
   saveKey: 'alef-duel2',
-  logs: [SPELLQUEST_LOG, DUEL_HISTORY_LOG],
+  logs: [SPELLQUEST_LOG, TOWER_HISTORY_LOG],
   Settings: lazy(() => import('./Settings')),
   DevTools: lazy(() => import('./DevTools')),
   summary: (raw) => {

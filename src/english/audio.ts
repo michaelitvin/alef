@@ -1,10 +1,10 @@
 // The English path's audio: the shared game-audio kit with the English voices and Spell Quest's sound (its effects, music and
-// numbers: src/spellquest/audio/spellQuestSound.ts). It logs to the English log. The tower plays through `englishDuelAudio`.
+// numbers: src/spellquest/audio/spellQuestSound.ts). It logs to the English log. The tower plays through `englishTowerAudio`.
 import { createGameAudio } from '../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../shared/gameAudio/output'
 import { SPELLQUEST_SOUND, type SpellQuestMusic, type SpellQuestSfx } from '../spellquest/audio/spellQuestSound'
-import type { DuelAudio } from '../spellquest/tower/logic/controller'
-import { playSfx as duelSfx } from '../spellquest/tower/logic/duelAudio'
+import type { TowerAudio } from '../spellquest/tower/logic/controller'
+import { playSfx as towerSfx } from '../spellquest/tower/logic/towerAudio'
 import type { LineCue } from '../spellquest/tower/assets/lineCues'
 import { ENGLISH_VOICE_URLS } from './assets/audioFiles'
 import { enLine, enLineAudioId } from './data/lines'
@@ -35,13 +35,13 @@ const chosen = new Map<string, string>()
  * The tower's line player on the English kit: the English lines and voices (never the Hebrew duel's), the duel's own
  * effects (the board is the duel's). A missing file plays nothing and the flow goes on.
  */
-export const englishDuelAudio: DuelAudio = {
+export const englishTowerAudio: TowerAudio = {
   playLine(id, onCue, onHeard) {
     const file = chosen.get(id) ?? fileOf(id)
     chosen.delete(id)
     return englishAudio.playLine(file, onHeard ? { onHeard } : {}).then(() => { for (const c of LINE_CUES[id] ?? []) onCue?.(c) })
   },
-  playSfx: (name, power) => duelSfx(name, power),
+  playSfx: (name, power) => towerSfx(name, power),
   lineAsset(id) {
     const file = fileOf(id)
     chosen.set(id, file)

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useSpellQuestStore } from './store'
 import type { Choice } from './logic/rounds'
 import type { DuelStats, Tally } from './tower/types'
-import { DUEL_MARKS } from './tower/logic/marks'
+import { TOWER_MARKS } from './tower/logic/marks'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
   ({ kind: 'syllable', id: `${itemId}-${mark}`, text: '', soundId: '', itemId, group, mark })
@@ -263,7 +263,7 @@ describe('duel2 store', () => {
       expect(useSpellQuestStore.getState().bookOpen).toBe(false)
     })
     it('a first-duel player who mastered his marks starts with Book 2 open', () => {
-      const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
+      const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
       useSpellQuestStore.getState().importFirstDuel(duel({ byMark: { kamatz: t(40) }, recent }))
       expect(useSpellQuestStore.getState()).toMatchObject({ bookOpen: true, totalStars: 40, coins: 4 })
     })

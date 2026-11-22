@@ -42,8 +42,8 @@ export function stage0Lane(recent: Record<string, string>, markIds: string[], ta
 }
 
 /** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Spell Quest's `sc:` feature */
-export function screenRecent(screen: ScreenId, d2recent: Record<string, string>, duelRecent: Record<string, string>): string {
-  if (screen === 'tower') return Object.values(duelRecent).join('')
+export function screenRecent(screen: ScreenId, d2recent: Record<string, string>, towerRecent: Record<string, string>): string {
+  if (screen === 'tower') return Object.values(towerRecent).join('')
   return d2recent[`sc:${screen}`] ?? ''
 }
 

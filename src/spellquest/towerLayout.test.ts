@@ -1,13 +1,13 @@
 // The first duel's tower in Spell Quest's run (the parent's pick): the cue bubble below the top bar, the marks bigger in
 // their runes (a vav mark stays in its glyph), and no time line.
 import { describe, expect, it } from 'vitest'
-import { BAR_H_PX, BAR_ITEMS_PX, BAR_TOP_PX, DUEL_GLYPH_PX, TOWER_LAYOUT, towerCueTop } from './layout'
+import { BAR_H_PX, BAR_ITEMS_PX, BAR_TOP_PX, TOWER_GLYPH_PX, TOWER_LAYOUT, towerCueTop } from './layout'
 
 const SIZES = [[780, 360], [740, 360], [915, 412], [1024, 768], [1280, 800]] as const
 const css = async () => {
   // the stylesheet's text: vitest gives a .css import no content, and node's types are not in the app's tsconfig
   const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-  return fs.readFileSync('src/components/duel/duel.css', 'utf8').replace(/\s+/g, ' ')
+  return fs.readFileSync('src/spellquest/tower/components/tower.css', 'utf8').replace(/\s+/g, ' ')
 }
 /** the text of the stylesheet's `@media (<q>) { … }` block that holds `.nd-embedded` rules */
 const block = (s: string, q: string) => {
@@ -29,7 +29,7 @@ describe('the tower in Book 2’s run', () => {
   })
 
   it('the marks are bigger in their runes: about 1.5 times on a phone, 1.7 times on a tablet', () => {
-    const grow = (t: { glyph: number; mark: number }) => (t.glyph * t.mark) / DUEL_GLYPH_PX
+    const grow = (t: { glyph: number; mark: number }) => (t.glyph * t.mark) / TOWER_GLYPH_PX
     expect(grow(TOWER_LAYOUT.phone)).toBeCloseTo(1.5, 1)
     expect(grow(TOWER_LAYOUT.tablet)).toBeCloseTo(1.72, 1)
   })

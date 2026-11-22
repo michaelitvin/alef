@@ -1,21 +1,21 @@
-// The first duel's flow (utils/duel/controller.ts) as a React hook for Book 2's tower: one controller per mount, its view
+// the tower's flow (logic/controller.ts) as a React hook for Book 2's tower: one controller per mount, its view
 // through useSyncExternalStore, the newest props read through a ref. The tower starts the visit and pauses it (the
 // run's cover); leaving the page mid-visit records an abandon; unmounting stops everything.
 import { useEffect, useRef, useState } from 'react'
-import { DuelController, type DuelEmbedded, type DuelOpts, type DuelTelemetry } from './logic/controller'
+import { TowerController, type TowerEmbedded, type TowerOpts, type TowerTelemetry } from './logic/controller'
 import type { Choice } from './types'
 
-type UseDuelGameOpts = Pick<DuelOpts, 'rng' | 'walkOverride' | 'makeRound' | 'content' | 'tallies' | 'audio'> & {
-  embedded: DuelEmbedded
-  telemetry: DuelTelemetry
+type UseTowerOpts = Pick<TowerOpts, 'rng' | 'walkOverride' | 'makeRound' | 'content' | 'tallies' | 'audio'> & {
+  embedded: TowerEmbedded
+  telemetry: TowerTelemetry
 }
 
-export function useDuelGame(opts: UseDuelGameOpts) {
+export function useTower(opts: UseTowerOpts) {
   /** the newest props: the options object is new on every render, the controller reads its callbacks at each use */
   const latest = useRef(opts)
   latest.current = opts
-  const ref = useRef<DuelController | null>(null)
-  ref.current ??= new DuelController({
+  const ref = useRef<TowerController | null>(null)
+  ref.current ??= new TowerController({
     rng: opts.rng, walkOverride: opts.walkOverride, makeRound: opts.makeRound,
     content: opts.content, tallies: opts.tallies, audio: opts.audio,
     embedded: () => latest.current.embedded,

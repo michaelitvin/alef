@@ -6,7 +6,7 @@ import type { SpellQuestActions, SpellQuestSave } from '../spellquest/store'
 import { portOver, type SavePort } from '../spellquest/savePort'
 import type { ScreenId } from '../spellquest/logic/predict'
 import type { Tally } from '../shared/adaptive'
-import { talliesOver, type DuelTallies } from '../spellquest/tower/logic/tallies'
+import { talliesOver, type TowerTallyPort } from '../spellquest/tower/logic/tallies'
 import { getNumberRange, type NumberRange } from '../shared/numberRange'
 import { englishState, useEnglishStore } from './store'
 import type { EnglishFields, EnglishSave, EnglishSettings, IntroState, PlacementSave } from './saveFormat'
@@ -26,7 +26,7 @@ export interface EnglishSavePort extends SavePort {
   /** merges the settings, `path` included (the store's own `setSettings` takes Spell Quest's settings only) */
   setSettings(p: Partial<EnglishSettings>): void
   /** the English tower's answers, kept in this save's `tower` */
-  towerTallies(): DuelTallies
+  towerTallies(): TowerTallyPort
 }
 
 type EnglishState = SpellQuestSave & SpellQuestActions & EnglishFields

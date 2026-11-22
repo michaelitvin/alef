@@ -1,5 +1,5 @@
-import type { DuelMark, Rng, Round, Tally } from '../types'
-import { DUEL_MARKS, SOUND_GROUPS, twinOf } from './marks'
+import type { TowerMark, Rng, Round, Tally } from '../types'
+import { TOWER_MARKS, SOUND_GROUPS, twinOf } from './marks'
 import { wordsFor } from './words'
 import { pickNearTarget, predictedMistakeRate } from '../../../shared/adaptive'
 export { RECENT_KEEP, predictedMistakeRate } from '../../../shared/adaptive'
@@ -23,13 +23,13 @@ export type Confusions = Record<string, Record<string, number>>
  * (see pickNearTarget). `cover` (the placement check of Book 2's stage 0): while a mark has no recent answer, one of
  * those marks, at random, so that the first answers ask every mark once.
  */
-export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}, opts: { cover?: boolean } = {}): DuelMark {
+export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}, opts: { cover?: boolean } = {}): TowerMark {
   if (opts.cover) {
-    const unasked = DUEL_MARKS.filter((m) => !recent[m.id])
+    const unasked = TOWER_MARKS.filter((m) => !recent[m.id])
     if (unasked.length) return pick(rng, unasked)
   }
-  const p = DUEL_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], recent[m.id]))
-  return DUEL_MARKS[pickNearTarget(rng, p)]
+  const p = TOWER_MARKS.map((m) => predictedMistakeRate(lifetime[m.id], recent[m.id]))
+  return TOWER_MARKS[pickNearTarget(rng, p)]
 }
 
 /** A mistake he has made 2+ times is a pattern, not a slip. */
@@ -39,12 +39,12 @@ const CONFUSION_MIN = 2
  * The mark he most often taps when `target` is asked (directional: tapping X for Y says nothing about Y for X).
  * Rows are keyed by target id, columns by the tapped mark id.
  */
-function confusionPartner(target: DuelMark, confusions: Confusions | undefined): DuelMark | undefined {
+function confusionPartner(target: TowerMark, confusions: Confusions | undefined): TowerMark | undefined {
   const row = confusions?.[target.id]
   if (!row) return undefined
   let best: [string, number] | null = null
   for (const [k, n] of Object.entries(row)) if (k !== target.id && n >= CONFUSION_MIN && (!best || n > best[1])) best = [k, n]
-  return best ? DUEL_MARKS.find((m) => m.id === best![0]) : undefined
+  return best ? TOWER_MARKS.find((m) => m.id === best![0]) : undefined
 }
 
 export interface MakeRoundOpts {
@@ -73,7 +73,7 @@ export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confus
   const target = pickTarget(rng, lifetime, recent, { cover })
   const word = pick(rng, wordsFor(target.group))
 
-  let runes: DuelMark[] = []
+  let runes: TowerMark[] = []
   if (type !== 'D') {
     runes = [target]
     const twin = twinOf(target)
@@ -85,7 +85,7 @@ export function makeRound({ id, wave, kills, boss, rng, lifetime, recent, confus
     for (const g of shuffle(rng, SOUND_GROUPS.filter((g) => g !== target.group))) {
       if (runes.length >= padSize(wave)) break
       if (runes.some((m) => m.group === g)) continue
-      runes.push(pick(rng, DUEL_MARKS.filter((m) => m.group === g)))
+      runes.push(pick(rng, TOWER_MARKS.filter((m) => m.group === g)))
     }
     runes = shuffle(rng, runes)
   }

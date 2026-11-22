@@ -1,14 +1,14 @@
-// The tower's content seam: a course other than Hebrew gives the first duel its rounds, its runes, its spoken parts and
-// the tallies its answers go to; the board, the waves and the flow stay the duel's own.
+// The tower's content seam: a course other than Hebrew gives the tower its rounds, its runes, its spoken parts and
+// the tallies its answers go to; the board, the waves and the flow stay the tower's own.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createElement } from 'react'
 import { act, fireEvent, render } from '@testing-library/react'
-import { DuelController, type DuelAudio } from './controller'
+import { TowerController, type TowerAudio } from './controller'
 import { memoryTallies } from './tallies'
 import type { TowerContent } from './content'
-import { duelReducer, initialDuelState } from './reducer'
+import { towerReducer, initialTowerState } from './reducer'
 import { isCorrect } from './rules'
-import type { DuelMark, Round } from '../types'
+import type { TowerMark, Round } from '../types'
 import { instantSleeper } from '../../../shared/sleeper'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'
@@ -17,7 +17,7 @@ import { Tower } from '../../components/screens/Tower'
 import { memorySavePort } from '../../savePort'
 
 const LETTERS = ['m', 's', 't', 'a']
-const mark = (id: string): DuelMark => ({ id, name: id, group: 'a' })
+const mark = (id: string): TowerMark => ({ id, name: id, group: 'a' })
 
 /**
  * a Latin course's tower: four letter runes, the answer is always `m`. A sound screen (B) whose runes share one sound
@@ -44,7 +44,7 @@ const FAKE: TowerContent = {
 
 function fakeAudio() {
   const said: string[] = []
-  const audio: DuelAudio = {
+  const audio: TowerAudio = {
     playLine: (id) => { said.push(id); return Promise.resolve() },
     playSfx: () => Promise.resolve(),
     lineAsset: (id) => ({ id, file: `${id}.mp3`, url: null }),
@@ -120,7 +120,7 @@ describe('the tower on another course’s content', () => {
     const tallies = memoryTallies()
     const before = localStorage.getItem('alef-progress')
     const duelBefore = structuredClone(useProgressStore.getState().duel)
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: {
         wave: 1, waves: 1, boss: false, seen: [], onSeen: () => {},
         onAnswer: (r, m) => { answers.push(`${r}:${m}`); return 'on' }, onDone: (w) => { done.push(w) },
@@ -163,7 +163,7 @@ describe('the tower on another course’s content', () => {
     const answers: string[] = []
     const done: number[] = []
     const tallies = memoryTallies()
-    const c = new DuelController({
+    const c = new TowerController({
       embedded: {
         wave: 1, waves: 1, boss: false, seen: [], onSeen: () => {},
         onAnswer: (r, m) => { answers.push(`${r}:${m}`); return 'over' }, onDone: (w) => { done.push(w) },
@@ -192,15 +192,15 @@ describe('the tower on another course’s content', () => {
 
   it('the reducer takes the course\'s verdict over the Hebrew rules', () => {
     const round = FAKE.makeRound({ id: 1, wave: 1, boss: false, rng: () => 0.5, lifetime: {} })
-    const s = duelReducer(duelReducer({ ...initialDuelState, phase: 'playing' }, { type: 'START_AT', wave: 1, boss: false }), { type: 'ROUND_READY', round })
+    const s = towerReducer(towerReducer({ ...initialTowerState, phase: 'playing' }, { type: 'START_AT', wave: 1, boss: false }), { type: 'ROUND_READY', round })
     const s2 = { kind: 'rune' as const, mark: round.runes[1] }
-    expect(duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle' }).outcome?.kind).toBe('hit')
-    expect(duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: false } }).outcome?.kind).toBe('miss')
-    const twin = duelReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: true } })
+    expect(towerReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle' }).outcome?.kind).toBe('hit')
+    expect(towerReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: false } }).outcome?.kind).toBe('miss')
+    const twin = towerReducer(s, { type: 'CHOOSE', choice: s2, effect: 'gentle', verdict: { correct: false, twin: true } })
     expect(twin.outcome).toBeNull()
     expect(twin.twinTried).toBe('s')
     const m = { kind: 'rune' as const, mark: round.runes[0] }
-    expect(duelReducer(s, { type: 'CHOOSE', choice: m, effect: 'gentle', verdict: { correct: true, twin: false } }).outcome?.kind).toBe('hit')
+    expect(towerReducer(s, { type: 'CHOOSE', choice: m, effect: 'gentle', verdict: { correct: true, twin: false } }).outcome?.kind).toBe('hit')
   })
 
   it('memory tallies keep twins, confusions and the pace, as the progress store does', () => {

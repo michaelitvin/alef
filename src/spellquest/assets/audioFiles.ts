@@ -16,14 +16,14 @@ for (const [markId, file] of Object.entries(VOWEL_NAME_FILE)) if (duel[file]) VO
 
 // Words the duel already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Spell Quest plays those
 // (rule: ship the approved take; do not record a word again).
-const duelWords = byName(import.meta.glob('../tower/assets/audio/voice/wiz-word-*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
+const towerWords = byName(import.meta.glob('../tower/assets/audio/voice/wiz-word-*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
 /** Spell Quest word id → the duel's picture-word key */
-export const DUEL_WORD: Record<string, string> = {
+export const TOWER_WORD: Record<string, string> = {
   tent: 'tent', camel: 'camel', cake: 'u', house: 'house', rose: 'rose', book: 'book', lion: 'a', pineapple: 'pineapple',
   mouse: 'mouse', eye: 'eye', butterfly: 'butterfly', chick: 'e', tree: 'tree', fire: 'fire', door: 'door', pencil: 'i',
   igloo: 'igloo', island: 'island', bicycle: 'bicycle', bus: 'bus', monkey: 'monkey', cookie: 'cookie',
 }
-for (const [id, key] of Object.entries(DUEL_WORD)) if (duelWords[`wiz-word-${key}`]) VOICE_URLS[`w-${id}`] = duelWords[`wiz-word-${key}`]
+for (const [id, key] of Object.entries(TOWER_WORD)) if (towerWords[`wiz-word-${key}`]) VOICE_URLS[`w-${id}`] = towerWords[`wiz-word-${key}`]
 
 const sfx = byName(import.meta.glob('./audio/sfx/*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
 /** effect name → its approved takes ("<name>-<n>.mp3" rotate) */
@@ -35,5 +35,5 @@ const music = byName(import.meta.glob('./audio/music/*.mp3', { eager: true, quer
 export const MUSIC_URLS: Record<string, string[]> = {}
 for (const [file, url] of Object.entries(music)) (MUSIC_URLS[file.replace(/-\d+$/, '')] ??= []).push(url)
 // the boss keeps the first duel's one boss track: the signature of a special event (rule)
-const duelBoss = import.meta.glob('../tower/assets/audio/music/music-boss-1.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
-MUSIC_URLS.boss = Object.values(duelBoss)
+const towerBoss = import.meta.glob('../tower/assets/audio/music/music-boss-1.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+MUSIC_URLS.boss = Object.values(towerBoss)

@@ -3,7 +3,7 @@
 // its event, the stage pass). A letter round, the placement tower and the Hebrew tower have no `?`.
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DuelController, type DuelAudio, type DuelEmbedded } from '../spellquest/tower/logic/controller'
+import { TowerController, type TowerAudio, type TowerEmbedded } from '../spellquest/tower/logic/controller'
 import { HEBREW_TOWER, type TowerContent } from '../spellquest/tower/logic/content'
 import { seeded } from '../spellquest/testing/runHarness'
 import { RunController } from '../spellquest/controller'
@@ -25,7 +25,7 @@ const deps = (save: EnglishSavePort): EnTowerDeps => ({ save: () => save, pictur
 const NAME = WORDS.find((w) => w.kind === 'nonsense' && w.stage <= 3)!.id
 
 /** a line player that says every clip is 600 ms long, and lists what it said */
-function fakeAudio(said: string[]): DuelAudio {
+function fakeAudio(said: string[]): TowerAudio {
   return {
     playLine: (id, _cue, onHeard) => { said.push(id); onHeard?.(600); return Promise.resolve() },
     playSfx: () => Promise.resolve(), lineAsset: (id) => ({ id, file: id, url: null }),
@@ -39,19 +39,19 @@ async function settle(done: () => boolean, max = 60_000) {
   if (!done()) throw new Error('condition not met')
 }
 
-interface Played { c: DuelController; round: Round; said: string[]; events: { e: string; data: Record<string, unknown> }[]; answers: unknown[][]; save: EnglishSavePort }
+interface Played { c: TowerController; round: Round; said: string[]; events: { e: string; data: Record<string, unknown> }[]; answers: unknown[][]; save: EnglishSavePort }
 
 /** a tower visit on `content` whose first round is `make`'s, up to its walking monster (the first round only) */
 async function walking(content: TowerContent, make: (save: EnglishSavePort) => ((o: Parameters<TowerContent['makeRound']>[0]) => Round) | undefined, save = at(3)): Promise<Played> {
   const said: string[] = []
   const events: Played['events'] = []
   const answers: unknown[][] = []
-  const embedded: DuelEmbedded = {
+  const embedded: TowerEmbedded = {
     wave: 1, waves: 1, boss: false, seen: ['tower-intro', 'tower-screen-C', 'tower-screen-word', 'tower-screen-B'], onSeen: () => {}, onDone: () => {},
     onAnswer: () => 'on',
     onAnswerRound: (...a) => { answers.push(a); return 'on' },
   }
-  const c = new DuelController({
+  const c = new TowerController({
     embedded, telemetry: { track: (e, data = {}) => { events.push({ e, data }) }, flush: () => {} }, content, makeRound: make(save),
     tallies: save.towerTallies(), audio: fakeAudio(said), rng: seeded(4),
   })
@@ -144,11 +144,11 @@ describe('the English tower\'s hint', () => {
     })
     const d = deps(save)
     const run = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(11), session: { screen: 'tower' } })
-    let duel: DuelController | null = null
+    let duel: TowerController | null = null
     const mount = () => {
       const s = run.view.screen
       if (s?.screen !== 'tower' || duel) return
-      duel = new DuelController({
+      duel = new TowerController({
         content: englishTower(d), makeRound: (o) => enTowerRound(d, o, { kind: 'name', word: NAME }), tallies: save.towerTallies(), audio: fakeAudio([]), rng: seeded(5),
         embedded: {
           wave: s.wave, waves: s.waves, boss: s.boss, seen: save.read().demosSeen, onSeen: (k) => save.markDemo(k), owed: [], onDone: (w) => run.towerDone(w),

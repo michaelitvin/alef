@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { SpellPad } from './SpellPad'
 import { ResultBanner } from './ResultBanner'
 import { Clue } from './Clue'
-import { DUEL_MARKS } from '../logic/marks'
+import { TOWER_MARKS } from '../logic/marks'
 import { wordsFor } from '../logic/words'
 import type { Round, SoundGroup } from '../types'
 
@@ -14,7 +14,7 @@ const GROUPS: SoundGroup[] = ['a', 'e', 'i', 'o', 'u', 'silent']
 describe('child UI has no writing and no emoji', () => {
   it('clue, pad and banner render no letters or emoji for every screen and mark', () => {
     for (const type of ['A', 'B', 'C', 'D'] as const) {
-      for (const m of DUEL_MARKS) {
+      for (const m of TOWER_MARKS) {
         const r: Round = {
           id: 1, type, target: m, runes: type === 'D' ? [] : [m], word: wordsFor(m.group)[0],
           padWords: type === 'D' ? GROUPS.map((g) => wordsFor(g)[0]) : [], monster: 'fuzzy', boss: false, walkMs: 9000,

@@ -53,7 +53,7 @@ export const WORD_PICTURE: Record<string, string> = Object.fromEntries(
 )
 
 /** Start loading every sprite and picture word (called on the start screen) so nothing appears blank. */
-export function preloadDuelImages(): string[] {
+export function preloadTowerImages(): string[] {
   const srcs = [...Object.values(WIZARD), ...Object.values(WIZARD_GIRL), TOWER, ...Object.values(MONSTERS).map((m) => m.src), ...Object.values(WORD_PICTURE)]
   for (const src of srcs) new Image().src = src
   return srcs

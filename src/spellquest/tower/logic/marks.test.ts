@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { DUEL_MARKS, SOUND_GROUPS, markById, twinOf } from './marks'
+import { TOWER_MARKS, SOUND_GROUPS, markById, twinOf } from './marks'
 import { PICTURE_WORDS, wordsFor } from './words'
 
 describe('duel marks', () => {
   it('has the 10 marks from nikkud.yaml with groups', () => {
-    expect(DUEL_MARKS.map((m) => m.id)).toEqual(['kamatz', 'patach', 'tzeire', 'segol', 'chirik', 'cholam', 'kubutz', 'shva', 'holam-male', 'shuruk'])
+    expect(TOWER_MARKS.map((m) => m.id)).toEqual(['kamatz', 'patach', 'tzeire', 'segol', 'chirik', 'cholam', 'kubutz', 'shva', 'holam-male', 'shuruk'])
     expect(markById('shva').group).toBe('silent')
     expect(markById('holam-male').vav).toBe('holam')
     expect(markById('shuruk').vav).toBe('shuruk')

@@ -192,7 +192,7 @@ export function layoutVars(size?: { w: number; h: number }, top = 0, into?: 'ful
 
 /**
  * The screens whose own art rises into the band's empty left end on a phone on its side (BAND_MAX_H): the tower and the
- * wizard of the tower screen use the screen's full height there, up to 10 px below its top (duel.css, the parent's pick).
+ * wizard of the tower screen use the screen's full height there, up to 10 px below its top (tower.css, the parent's pick).
  */
 const LEFT_INTO_BAND = ['tower']
 
@@ -255,7 +255,7 @@ export const toScreen = (v: FullView, x: number, y: number) => ({ x: (x - v.x) *
 export const belowBand = (v: FullView) => v.y + (BAR_TOP_PX + BAR_H_PX + BAND_AIR_PX) / v.scale
 
 /**
- * The first duel's tower in Spell Quest's run (duel.css, `.nd-embedded`; the parent's pick): the sizes on a phone on its side
+ * The first duel's tower in Spell Quest's run (tower.css, `.nd-embedded`; the parent's pick): the sizes on a phone on its side
  * (height ≤ 500) and on a tablet. `glyph`: a rune's glyph box (the duel's own: 60); `mark`: the mark's scale in it;
  * `vav`: a vav mark's scale and its drop (glyph units; its holam dot is near the glyph's top). `sprite`/`boss`: the
  * monster's height. `pad`: the rune row's band (rune, padding, border). No time line at the field's top.
@@ -265,8 +265,8 @@ export const TOWER_LAYOUT = {
   tablet: { rune: 108, glyph: 86, mark: 1.2, vav: 1.1, vavDrop: 5, sprite: 150, boss: 240, pad: 108 + 6 + 40 + 2 },
 } as const
 /** the duel's glyph box (SpellPad) */
-export const DUEL_GLYPH_PX = 60
-/** the monster's feet: 14% of the field above its bottom (duel.css .nd-monster) */
+export const TOWER_GLYPH_PX = 60
+/** the monster's feet: 14% of the field above its bottom (tower.css .nd-monster) */
 const MONSTER_BOTTOM = 0.14
 /** the cue bubble's height, its arrow and its gap included (a picture, a sign or a speaker; measured ≤ 62), and a boss's hearts row */
 const CUE_PX = { bubble: 64, gap: 12, bossGap: 4, bossBubble: 56, hearts: 26 }

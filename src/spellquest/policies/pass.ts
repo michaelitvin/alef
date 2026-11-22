@@ -33,7 +33,7 @@ export interface PassFacts {
   bookOpen: boolean
   /** Spell Quest's recent answers per feature, and the first duel's per mark */
   recent: Readonly<Record<string, string>>
-  duelRecent: Readonly<Record<string, string>>
+  towerRecent: Readonly<Record<string, string>>
   /** the cycles he has started (the save) */
   cycleNo: number
   /** the tower's last answers in time order */
@@ -167,7 +167,7 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
     const len = cycleOf(f.stage, f.draw, f.bookOpen, stagesOf(f)).length
     for (let k = 0; k < len && s.mode !== 'session'; k++) {
       // a new cycle starts at the tower, which is never skipped
-      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.duelRecent), f.cycleNo, len)) break
+      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.towerRecent), f.cycleNo, len)) break
       if (nx.screen === 'doors') s.crystalOwed = true
       r.track.push({ e: 'skip', data: { screen: nx.screen, cycle: f.cycleNo } })
       nx = nextScreen(f.stage, nx.screen, f.draw, f.bookOpen, stagesOf(f))
@@ -334,7 +334,7 @@ export function visitLength(mode: PassMode, screen: ScreenId, f: PassFacts): num
   if (mode === 'gallery') return full
   // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
   if (screen === 'tower' && !f.bookOpen) return full
-  const r = screenRecent(screen, f.recent, f.duelRecent)
+  const r = screenRecent(screen, f.recent, f.towerRecent)
   // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
   // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake
   const tail = f.towerTail

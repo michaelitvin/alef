@@ -1,8 +1,8 @@
 // The baseline of the tower (Book 2's first duel) before the course seam: four waves (name screens, and their twin trap, start at wave 3) and a boss on a seeded rng, an
 // instant clock and the fake audio kit, embedded as Book 2 embeds it. A later diff in these snapshots is a regression.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DuelController, type DuelEmbedded } from './controller'
-import { setDuelAudioLog } from './duelAudio'
+import { TowerController, type TowerEmbedded } from './controller'
+import { setTowerAudioLog } from './towerAudio'
 import { isTwin } from './rules'
 import type { Choice } from '../types'
 import { instantSleeper } from '../../../shared/sleeper'
@@ -31,10 +31,10 @@ async function until(pred: () => boolean, what: string) {
 interface Visit { rounds: { type: string; target: string; runes: string[] }[]; events: unknown[]; done: number[]; answers: string[] }
 
 /** one visit as Book 2 embeds it (nothing seen yet, nothing owed): right, right, wrong (a twin first when the round has one), right, … */
-async function visit(emb: Pick<DuelEmbedded, 'wave' | 'waves' | 'boss'>): Promise<Visit> {
+async function visit(emb: Pick<TowerEmbedded, 'wave' | 'waves' | 'boss'>): Promise<Visit> {
   const v: Visit = { rounds: [], events: [], done: [], answers: [] }
   const seen: string[] = []
-  const c = new DuelController({
+  const c = new TowerController({
     embedded: {
       ...emb, seen, onSeen: (k) => { seen.push(k) },
       onAnswer: (r, m) => { v.answers.push(`${r}:${m}`); return 'on' },
@@ -43,7 +43,7 @@ async function visit(emb: Pick<DuelEmbedded, 'wave' | 'waves' | 'boss'>): Promis
     rng: seeded(7), sleeper: instantSleeper(),
     telemetry: { track: (e, data = {}) => { v.events.push({ e, data }) }, flush: () => {} },
   })
-  setDuelAudioLog({ track: (e, data = {}) => { v.events.push({ e, data, from: 'audio' }) } })
+  setTowerAudioLog({ track: (e, data = {}) => { v.events.push({ e, data, from: 'audio' }) } })
   let last = ''
   const roundIds = new Set<number>()
   let n = 0
@@ -89,7 +89,7 @@ async function scenario() {
       log.answers.push(...v.answers)
       log.done.push(...v.done)
     }
-  } finally { spy.mockRestore(); setDuelAudioLog(null) }
+  } finally { spy.mockRestore(); setTowerAudioLog(null) }
   log.lines = audio.said()
   return { log, duel: useProgressStore.getState().duel }
 }

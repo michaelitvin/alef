@@ -1,6 +1,6 @@
 // Nikkud rune glyph: the mark alone on a dotted placeholder (circle or box). Marks are drawn with exact geometry;
 // the vav of holam male / shuruk is a drawn shape (fonts vary — a bare bar + dot reads as "i").
-import type { DuelMark, TowerRune } from '../types'
+import type { TowerMark, TowerRune } from '../types'
 import { LATIN_TEXT } from '../../../shared/latinText'
 
 const INK = '#fff6d8'
@@ -15,7 +15,7 @@ function Dot({ x, y }: { x: number; y: number }) {
  * The mark alone on a dotted placeholder (circle or box); vav marks add a vav. A Latin rune (a course's letter or word,
  * `rune`) is plain text in Andika.
  */
-export function RuneGlyph({ mark, rune, box = false, size = 56 }: { mark: DuelMark; rune?: TowerRune; box?: boolean; size?: number }) {
+export function RuneGlyph({ mark, rune, box = false, size = 56 }: { mark: TowerMark; rune?: TowerRune; box?: boolean; size?: number }) {
   if (rune?.alphabet === 'latin') {
     return (
       <span className="nd-rune-text" dir="ltr" style={{

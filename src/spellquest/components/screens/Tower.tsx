@@ -1,11 +1,11 @@
 // The first duel's tower as a screen of Spell Quest's run (spec: one duel, Part 3): the duel's own board (Battlefield and
-// SpellPad, its rules and timing in useDuelGame's embedded mode), drawn over the stage under Spell Quest's top bar. No DuelHud
+// SpellPad, its rules and timing in useTower's embedded mode), drawn over the stage under Spell Quest's top bar. No DuelHud
 // (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Spell Quest's pause cover holds, and the
 // run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
 // sits above the rune row, as in the duel.
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
-import { useDuelGame } from '../../tower/useTower'
+import { useTower } from '../../tower/useTower'
 import { Battlefield, EMBEDDED_LANDSCAPE_QUERY, useLandscape } from '../../tower/components/Battlefield'
 import { SpellPad } from '../../tower/components/SpellPad'
 import { RuneGlowDefs } from '../../tower/components/RuneGlyph'
@@ -21,7 +21,7 @@ import type { TowerView } from '../../controller'
 import type { Round } from '../../tower/types'
 import type { Course } from '../../course/types'
 import { TEST_HOOKS } from '../../testHooks'
-import '../../tower/components/duel.css'
+import '../../tower/components/tower.css'
 
 interface TowerProps {
   view: TowerView
@@ -53,7 +53,7 @@ const HINT_AIR = 12
 /**
  * Where the ? of a word round goes (its left, in the pad area's px): right of the tower, so that it never covers the
  * tower's door (on a phone on its side the ground under the tower is too low for it). The tower's size follows the
- * screen's (duel.css), so it is measured; null until then (the CSS place).
+ * screen's (tower.css), so it is measured; null until then (the CSS place).
  */
 function useBesideTower(root: RefObject<HTMLDivElement | null>, on: boolean): number | null {
   const [left, setLeft] = useState<number | null>(null)
@@ -80,7 +80,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
   // plays the tower's)
   const [placing] = useState(() => (!dry && view.placement && course?.placement ? course.placement : null))
   const [content] = useState(() => (placing ? placing.tower(save) : tower?.content))
-  const game = useDuelGame({
+  const game = useTower({
     content, tallies, audio: tower?.audio, walkOverride: placing?.walkMs,
     embedded: {
       wave: view.wave, waves: view.waves, boss: view.boss, seen: save.read().demosSeen,

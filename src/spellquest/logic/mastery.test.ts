@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FAST_LANE, fastLane, pushTowerTail, rating, screenRecent, skipInCycle, stage0Lane, towerMastered, visitScale, SHORT_AFTER } from './mastery'
 import { pickTarget, type LifetimeTally } from '../tower/logic/rounds'
-import { DUEL_MARKS } from '../tower/logic/marks'
+import { TOWER_MARKS } from '../tower/logic/marks'
 import { pushRecent } from '../../shared/adaptive'
 
 /** a seeded rng (mulberry32) */
@@ -17,7 +17,7 @@ const seeded = (a: number) => () => {
  */
 function answersToOpen(seed: number, cap = 5000): number {
   const rng = seeded(seed)
-  const ids = DUEL_MARKS.map((m) => m.id)
+  const ids = TOWER_MARKS.map((m) => m.id)
   const lifetime: Record<string, Required<LifetimeTally>> = {}
   const recent: Record<string, string> = {}
   for (let n = 0; n < cap; n++) {
@@ -42,7 +42,7 @@ function answersToOpen(seed: number, cap = 5000): number {
  */
 function stage0Sim(p: number, seed: number, rule: 'old' | 'new', cap = 5000): { n: number; lane: 'fast' | 'slow' | null } {
   const rng = seeded(seed)
-  const ids = DUEL_MARKS.map((m) => m.id)
+  const ids = TOWER_MARKS.map((m) => m.id)
   const lifetime: Record<string, Required<LifetimeTally>> = {}
   const recent: Record<string, string> = {}
   let tail = ''

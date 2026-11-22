@@ -1,6 +1,6 @@
-// The tower's content seam: what the first duel's flow (controller.ts) asks of the course it plays. The board, the waves,
-// the bosses and the מגה spell are the duel's own; the rounds, the runes and the voice ids of what is said come from
-// here. HEBREW_TOWER is the first duel as it always was (its rounds, rules and lines, moved here unchanged).
+// The tower's content seam: what the tower's flow (controller.ts) asks of the course it plays. The board, the waves,
+// the bosses and the מגה spell are the tower's own; the rounds, the runes and the voice ids of what is said come from
+// here. HEBREW_TOWER is the tower as it always was (its rounds, rules and lines, moved here unchanged).
 import type { Choice, Round, TowerRune } from '../types'
 import type { BlendPlan } from '../../course/types'
 import type { LineCue } from '../assets/lineCues'

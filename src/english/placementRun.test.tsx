@@ -4,7 +4,7 @@
 // fake clock, with a duel audio that ends each line at once.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RunController } from '../spellquest/controller'
-import { DuelController, type DuelAudio } from '../spellquest/tower/logic/controller'
+import { TowerController, type TowerAudio } from '../spellquest/tower/logic/controller'
 import type { Round } from '../spellquest/tower/types'
 import { seeded } from '../spellquest/testing/runHarness'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
@@ -23,14 +23,14 @@ import { readLog } from '../shared/telemetry'
 installFakeAudio()
 
 const said: string[] = []
-const duelAudio: DuelAudio = {
+const towerAudio: TowerAudio = {
   playLine: (id) => { said.push(id); return new Promise((r) => setTimeout(r, 10)) },
   playSfx: () => Promise.resolve(),
   lineAsset: (id) => ({ id, file: `${id}.mp3`, url: null }),
   stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
 }
 
-interface Board { save: EnglishSavePort; duel: DuelController | null; visit: number; ended: boolean }
+interface Board { save: EnglishSavePort; duel: TowerController | null; visit: number; ended: boolean }
 const boards = new Map<RunController, Board>()
 
 /** the tower's board for the run's tower visit, as Tower.tsx mounts it (the placement's rounds while it is due) */
@@ -47,8 +47,8 @@ function sync(run: RunController) {
     b.visit = s.visit
     b.ended = false
     const save = b.save
-    const duel: DuelController = new DuelController({
-      content: ENGLISH.placement!.tower(save), tallies: save.towerTallies(), audio: duelAudio, rng: seeded(5),
+    const duel: TowerController = new TowerController({
+      content: ENGLISH.placement!.tower(save), tallies: save.towerTallies(), audio: towerAudio, rng: seeded(5),
       walkOverride: ENGLISH.placement!.walkMs,
       embedded: () => ({
         wave: s.wave, waves: s.waves, boss: s.boss, seen: save.read().demosSeen, onSeen: (k) => save.markDemo(k), owed: [],

@@ -1,9 +1,9 @@
 // The hook bridge: one controller per mount, its view through React, the newest props, the page's pagehide, and the
-// unmount. The flow itself is tested on the controller (utils/duel/controller.flow.test.ts and controller.test.ts).
+// unmount. The flow itself is tested on the controller (logic/controller.flow.test.ts and controller.test.ts).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useDuelGame } from './useTower'
-import type { DuelEmbedded } from './logic/controller'
+import { useTower } from './useTower'
+import type { TowerEmbedded } from './logic/controller'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { useProgressStore } from '../../stores/progressStore'
 import { createTelemetry } from '../../shared/telemetry'
@@ -22,14 +22,14 @@ beforeEach(() => {
 })
 afterEach(() => vi.useRealTimers())
 
-function emb(over: Partial<DuelEmbedded> = {}): DuelEmbedded {
+function emb(over: Partial<TowerEmbedded> = {}): TowerEmbedded {
   return { wave: 1, waves: 2, boss: false, seen: SEEN, onSeen: () => {}, onAnswer: () => 'on', onDone: () => {}, ...over }
 }
 const flow = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms) })
 
-describe('useDuelGame (the hook bridge)', () => {
+describe('useTower (the hook bridge)', () => {
   it('one controller per mount: start shows a monster, and the view follows the flow', async () => {
-    const { result, rerender } = renderHook(() => useDuelGame({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb() }))
+    const { result, rerender } = renderHook(() => useTower({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb() }))
     act(() => result.current.start())
     await flow(3000)
     const r = result.current.state.round!
@@ -48,7 +48,7 @@ describe('useDuelGame (the hook bridge)', () => {
     const first: string[] = []
     const last: string[] = []
     let onAnswer = (r: 'right' | 'wrong') => { first.push(r); return 'on' as const }
-    const { result, rerender } = renderHook(() => useDuelGame({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb({ onAnswer }) }))
+    const { result, rerender } = renderHook(() => useTower({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb({ onAnswer }) }))
     act(() => result.current.start())
     await flow(3000)
     onAnswer = (r) => { last.push(r); return 'on' }
@@ -60,7 +60,7 @@ describe('useDuelGame (the hook bridge)', () => {
   })
 
   it('leaving the page mid-visit records an abandon; unmounting records one and unmutes', async () => {
-    const { result, unmount } = renderHook(() => useDuelGame({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb() }))
+    const { result, unmount } = renderHook(() => useTower({ telemetry: tel, rng: () => 0.01, walkOverride: 60_000, embedded: emb() }))
     act(() => result.current.start())
     await flow(3000)
     act(() => { window.dispatchEvent(new Event('pagehide')) })

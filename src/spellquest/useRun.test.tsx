@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useSpellQuestStore } f
 import { hintCoins } from './logic/merchant'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
-import { DUEL_MARKS } from './tower/logic/marks'
+import { TOWER_MARKS } from './tower/logic/marks'
 import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
 import { BROOM_ORB, LANE_Y, flightPath, orbX } from './broomLayout'
 import { stopVoice } from './audio/spellQuestAudio'
@@ -1426,7 +1426,7 @@ describe('run controller', () => {
         useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
         useSpellQuestStore.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
       })
-      const mastered = () => Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'ooooo']))
+      const mastered = () => Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
 
       it('a new player starts with the tower; Book 2 opens when the tower is mastered, and the next screen is the broom', async () => {
         spellQuestTelemetry.clear()
@@ -1482,9 +1482,9 @@ describe('run controller', () => {
         // not passed yet: the visit goes on
         expect(c.towerWaveEnd(1)).toBe(false)
         // ten right answers, one on each mark (the placement check), recorded by the duel's own store
-        const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'o']))
+        const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o']))
         useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
-        for (const m of DUEL_MARKS) c.towerAnswer('right', m.id)
+        for (const m of TOWER_MARKS) c.towerAnswer('right', m.id)
         expect(c.towerWaveEnd(2)).toBe(true)
         // the board ends the visit at that wave
         c.towerDone(2)
@@ -1501,7 +1501,7 @@ describe('run controller', () => {
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
-        const recent = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, m.id === 'kamatz' ? 'ox' : 'o']))
+        const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, m.id === 'kamatz' ? 'ox' : 'o']))
         useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
         for (let k = 0; k < 10; k++) c.towerAnswer('right', 'segol')
         expect(c.towerWaveEnd(1)).toBe(false)
@@ -1509,7 +1509,7 @@ describe('run controller', () => {
       })
 
       it('at stage 0 the tower visit is never halved (the check after each wave does the work)', async () => {
-        const clean = Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'oo']))
+        const clean = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'oo']))
         // the slow lane is not passed (2 answers a mark), yet there is no recent mistake: an open book would halve it
         useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: clean } })
         const c = make()
@@ -1553,8 +1553,8 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerAnswer('wrong', 'kamatz')
         expect(c.view.hearts).toBe(2)
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(DUEL_MARKS.map((m) => [m.id, 'o'])) } })
-        for (const m of DUEL_MARKS) c.towerAnswer('right', m.id)
+        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o'])) } })
+        for (const m of TOWER_MARKS) c.towerAnswer('right', m.id)
         c.towerDone(2)
         await until(c, (v) => !!v.merchant || v.screen?.screen === 'broom', 20_000)
         expect(c.view.merchant).toBeDefined()
@@ -1654,7 +1654,7 @@ describe('run controller', () => {
 
     it('a mastered tower gets one wave (the visit\'s length reaches the tower)', async () => {
       useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(DUEL_MARKS.map((m) => [m.id, O12])) } })
+      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, O12])) } })
       useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' }, lastEnded: 'ghosts', cycleNo: 1 })
       towerAuto = false
       const d = make()

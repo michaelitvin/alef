@@ -1,29 +1,29 @@
 import { BOSS_HP, MEGA_MAX, MONSTERS_PER_WAVE } from './rules'
 import { describe, it, expect } from 'vitest'
-import { duelReducer, initialDuelState } from './reducer'
+import { towerReducer, initialTowerState } from './reducer'
 import { markById } from './marks'
 import { wordsFor } from './words'
-import type { DuelState, Round } from '../types'
+import type { TowerState, Round } from '../types'
 
 const mk = (over: Partial<Round> = {}): Round => ({
   id: 1, type: 'A', target: markById('kamatz'), runes: [markById('kamatz'), markById('segol')], word: wordsFor('a')[0],
   padWords: [], monster: 'fuzzy', boss: false, walkMs: 9000, ...over,
 })
 /** a visit of Book 2's run from wave 1 (the only way the duel starts) */
-const start = () => duelReducer(initialDuelState, { type: 'START_AT', wave: 1, boss: false })
-const ready = (s: DuelState, r = mk()) => duelReducer(s, { type: 'ROUND_READY', round: r })
-const tap = (s: DuelState, id: string) => duelReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
-const adv = (s: DuelState) => duelReducer(s, { type: 'ADVANCE' })
+const start = () => towerReducer(initialTowerState, { type: 'START_AT', wave: 1, boss: false })
+const ready = (s: TowerState, r = mk()) => towerReducer(s, { type: 'ROUND_READY', round: r })
+const tap = (s: TowerState, id: string) => towerReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
+const adv = (s: TowerState) => towerReducer(s, { type: 'ADVANCE' })
 
 describe('round preview (shown while the wizard explains it)', () => {
   it('shows the round without walking, ignores taps and the mega spell, and ROUND_READY starts it', () => {
     const r = mk()
-    let s = duelReducer(start(), { type: 'ROUND_PREVIEW', round: r })
+    let s = towerReducer(start(), { type: 'ROUND_PREVIEW', round: r })
     expect(s.round).toBe(r)
     expect(s.walking).toBe(false)
     expect(s.preview).toBe(true)
     expect(tap(s, 'kamatz').outcome).toBeNull()
-    expect(duelReducer({ ...s, mega: 99 }, { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+    expect(towerReducer({ ...s, mega: 99 }, { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
     s = ready(s, r)
     expect(s.preview).toBe(false)
     expect(tap(s, 'kamatz').outcome).toMatchObject({ kind: 'hit' })
@@ -36,7 +36,7 @@ describe('boss strength', () => {
   })
 })
 
-describe('duelReducer', () => {
+describe('towerReducer', () => {
   it('starts a visit and asks for the first spawn', () => {
     const s = start()
     expect(s).toMatchObject({ phase: 'playing', wave: 1, score: 0, round: null })
@@ -46,7 +46,7 @@ describe('duelReducer', () => {
     expect(ready(start()).walking).toBe(true)
     const b = ready(start(), mk({ type: 'B' }))
     expect(b.walking).toBe(false)
-    expect(duelReducer(b, { type: 'WALK_START' }).walking).toBe(true)
+    expect(towerReducer(b, { type: 'WALK_START' }).walking).toBe(true)
   })
   it('hit: score, combo, mega meter; a second tap is ignored', () => {
     const s = tap(ready(start()), 'patach')
@@ -61,7 +61,7 @@ describe('duelReducer', () => {
     expect(s.runMisses.kamatz).toBe(1)
   })
   it('timeout counts as a miss with no choice', () => {
-    expect(duelReducer(ready(start()), { type: 'TIMEOUT' }).outcome).toMatchObject({ kind: 'miss', choiceKey: null })
+    expect(towerReducer(ready(start()), { type: 'TIMEOUT' }).outcome).toMatchObject({ kind: 'miss', choiceKey: null })
   })
   it('twin on C is forgiven once; tapping the same twin again is ignored; a different wrong tap is a miss', () => {
     const c = ready(start(), mk({ type: 'C', runes: [markById('kamatz'), markById('patach'), markById('segol')] }))
@@ -76,7 +76,7 @@ describe('duelReducer', () => {
     let s = start()
     for (let i = 0; i < 5; i++) {
       s = tap(ready(s, mk({ id: i })), 'kamatz')
-      if (i === 2) s = duelReducer(ready(adv(s), mk({ id: 99 })), { type: 'TIMEOUT' })
+      if (i === 2) s = towerReducer(ready(adv(s), mk({ id: 99 })), { type: 'TIMEOUT' })
       s = adv(s)
     }
     expect(s.wave).toBe(2)
@@ -84,10 +84,10 @@ describe('duelReducer', () => {
     expect(s.next).toEqual({ kind: 'spawn', wave: 2, boss: false, announce: 'new-monster' })
   })
   it('wave 3 announces its new monster (the ghost), not "new spells"; a boss keeps its damage through a miss', () => {
-    let s: DuelState = { ...start(), wave: 2, kills: 4, round: mk(), walking: true, next: null }
+    let s: TowerState = { ...start(), wave: 2, kills: 4, round: mk(), walking: true, next: null }
     s = adv(tap(s, 'kamatz'))
     expect(s.next).toEqual({ kind: 'spawn', wave: 3, boss: false, announce: 'new-monster' })
-    s = duelReducer(initialDuelState, { type: 'START_AT', wave: 5, boss: true })
+    s = towerReducer(initialTowerState, { type: 'START_AT', wave: 5, boss: true })
     expect(s.bossHp).toBe(BOSS_HP)
     s = tap(ready(s, mk({ boss: true, monster: 'dragon' })), 'kamatz')
     expect(s.outcome).toMatchObject({ final: false })
@@ -96,7 +96,7 @@ describe('duelReducer', () => {
     expect(s.bossHp).toBe(BOSS_HP - 1)
   })
   it('the last boss hit is final and starts the next wave', () => {
-    let s: DuelState = { ...ready(start(), mk({ boss: true, monster: 'dragon' })), wave: 5, bossHp: 1 }
+    let s: TowerState = { ...ready(start(), mk({ boss: true, monster: 'dragon' })), wave: 5, bossHp: 1 }
     s = tap(s, 'kamatz')
     expect(s.outcome).toMatchObject({ final: true })
     expect(adv(s).next).toEqual({ kind: 'spawn', wave: 6, boss: false, announce: 'new-monster' })
@@ -107,29 +107,29 @@ describe('duelReducer', () => {
     expect(once.kills).toBe(1)
   })
   it('MEGA kills, resets the meter and scores +200', () => {
-    let s: DuelState = { ...ready(start()), mega: 8, combo: 2 }
-    s = duelReducer(s, { type: 'MEGA', effect: 'mega' })
+    let s: TowerState = { ...ready(start()), mega: 8, combo: 2 }
+    s = towerReducer(s, { type: 'MEGA', effect: 'mega' })
     expect(s.outcome).toMatchObject({ kind: 'hit', mega: true, points: 340, effect: 'mega', choiceKey: null })
     expect(s.mega).toBe(0)
   })
   it('MEGA is ignored until the meter is full', () => {
     const s = ready(start())
-    expect(duelReducer(s, { type: 'MEGA', effect: 'mega' })).toBe(s)
+    expect(towerReducer(s, { type: 'MEGA', effect: 'mega' })).toBe(s)
   })
   it('pause blocks choices and timeouts; resume clears it', () => {
-    const p = duelReducer(ready(start()), { type: 'PAUSE' })
+    const p = towerReducer(ready(start()), { type: 'PAUSE' })
     expect(tap(p, 'kamatz')).toBe(p)
-    expect(duelReducer(p, { type: 'TIMEOUT' })).toBe(p)
-    expect(duelReducer(p, { type: 'RESUME' }).paused).toBe(false)
+    expect(towerReducer(p, { type: 'TIMEOUT' })).toBe(p)
+    expect(towerReducer(p, { type: 'RESUME' }).paused).toBe(false)
   })
   it('records explained screens once', () => {
-    const s = duelReducer(duelReducer(start(), { type: 'SCREEN_EXPLAINED', key: 'silent' }), { type: 'SCREEN_EXPLAINED', key: 'silent' })
+    const s = towerReducer(towerReducer(start(), { type: 'SCREEN_EXPLAINED', key: 'silent' }), { type: 'SCREEN_EXPLAINED', key: 'silent' })
     expect(s.seenScreens).toEqual(['silent'])
   })
 })
 
 describe('START_AT (Book 2’s run)', () => {
-  const at = (wave: number, boss = false) => duelReducer(initialDuelState, { type: 'START_AT', wave, boss })
+  const at = (wave: number, boss = false) => towerReducer(initialTowerState, { type: 'START_AT', wave, boss })
   it('starts at that wave, with the run owning the hearts', () => {
     const s = at(7)
     expect(s.wave).toBe(7)
@@ -155,22 +155,22 @@ describe('START_AT (Book 2’s run)', () => {
     expect(s.next).toMatchObject({ kind: 'spawn', wave: 6, boss: false })
   })
   it('the charge carries over from the last visit; a cast kills, counts as a kill of the wave, and keeps the combo', () => {
-    const s = duelReducer(initialDuelState, { type: 'START_AT', wave: 3, boss: false, mega: MEGA_MAX })
+    const s = towerReducer(initialTowerState, { type: 'START_AT', wave: 3, boss: false, mega: MEGA_MAX })
     expect(s.mega).toBe(MEGA_MAX)
-    const c = duelReducer({ ...ready(s), combo: 4 }, { type: 'MEGA', effect: 'mega' })
+    const c = towerReducer({ ...ready(s), combo: 4 }, { type: 'MEGA', effect: 'mega' })
     expect(c.outcome).toMatchObject({ kind: 'hit', mega: true, final: true })
     expect(c.mega).toBe(0)
     expect(c.combo).toBe(4)
     expect(adv(c).kills).toBe(1)
     // not charged yet: no cast
-    expect(duelReducer(ready(at(3)), { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
+    expect(towerReducer(ready(at(3)), { type: 'MEGA', effect: 'mega' }).outcome).toBeNull()
   })
   it('a cast on the boss takes two of its hearts', () => {
-    const s = duelReducer(initialDuelState, { type: 'START_AT', wave: 5, boss: true, mega: MEGA_MAX })
-    const c = duelReducer(ready(s, mk({ boss: true })), { type: 'MEGA', effect: 'mega' })
+    const s = towerReducer(initialTowerState, { type: 'START_AT', wave: 5, boss: true, mega: MEGA_MAX })
+    const c = towerReducer(ready(s, mk({ boss: true })), { type: 'MEGA', effect: 'mega' })
     expect(c.bossHp).toBe(BOSS_HP - 2)
   })
   it('the screens already explained are kept', () => {
-    expect(duelReducer(initialDuelState, { type: 'START_AT', wave: 1, boss: false, seen: ['A'] }).seenScreens).toEqual(['A'])
+    expect(towerReducer(initialTowerState, { type: 'START_AT', wave: 1, boss: false, seen: ['A'] }).seenScreens).toEqual(['A'])
   })
 })

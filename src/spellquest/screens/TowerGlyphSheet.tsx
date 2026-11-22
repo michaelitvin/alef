@@ -1,6 +1,6 @@
 // Test builds only (#/tower-glyphs): every rune in every pad state, every picture word, every monster as it
 // walks (mirroring applied) and every icon — screenshotted by the headless verification for a visual check.
-import { DUEL_MARKS } from '../tower/logic/marks'
+import { TOWER_MARKS } from '../tower/logic/marks'
 import { PICTURE_WORDS } from '../tower/logic/words'
 import { MONSTERS, WORD_PICTURE } from '../tower/assets/sprites'
 import { RuneGlowDefs, RuneGlyph } from '../tower/components/RuneGlyph'
@@ -10,7 +10,7 @@ import { MonsterImg } from '../tower/components/Explosion'
 import { WalkingMonster } from '../tower/components/Monster'
 import { markById } from '../tower/logic/marks'
 import { wordsFor } from '../tower/logic/words'
-import '../tower/components/duel.css'
+import '../tower/components/tower.css'
 
 const STATES = ['', 'hit', 'miss', 'reveal', 'almost']
 const ICONS: IconName[] = ['sparkle', 'flame', 'bolt', 'swords', 'speaker', 'speakerOff', 'talk', 'puff', 'bonk', 'bossHeart']
@@ -21,7 +21,7 @@ export function TowerGlyphSheet() {
     <div className="nd-root nd-glyphs" dir="rtl" style={{ overflow: 'auto', display: 'block', padding: 12 }}>
       <RuneGlowDefs />
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STATES.length}, 72px)`, gap: 6 }}>
-        {DUEL_MARKS.flatMap((m) =>
+        {TOWER_MARKS.flatMap((m) =>
           STATES.map((st) => (
             <div key={m.id + st} className={`nd-rune ${st}`} style={{ height: 64 }}>
               <RuneGlyph mark={m} size={52} />
