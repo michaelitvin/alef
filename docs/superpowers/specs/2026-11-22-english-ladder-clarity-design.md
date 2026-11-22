@@ -39,24 +39,26 @@ Where "what to do" breaks:
 
 ## 2. What changes
 
-**A. A demo in three beats (first ladder visit).** The demo uses the first round (as now) and plays in this order.
+**A. A demo in two beats (first ladder visit).** The demo uses the first round (as now) and plays in this order.
 Each beat waits for its line to end (`voice-delivery.md`, audio sequencing):
 
 1. The foot rung glows. Voice: new line `demo-ladder-look` "This word is:", then the foot word ("sat").
 2. The gold box pulses. Voice: `q-ladder` take 1 "Find the letter that makes:", then the new word ("sit"). The hand
-   drags the right plate to the gold box. The letter lands **in the box** (the box row now shows `s i t`), the word is
-   said again, and the wizard climbs one rung.
-3. The top of the ladder glows (see B). Voice: new line `demo-ladder-goal` "Each new word is a step. Build the ladder
-   up to the star." Then the demo rung goes back, and the round starts ("sat", "sit") as now.
+   drags the right plate to the gold box, over and over, while he plays. The demo does not make the rung (D1): he makes
+   the first rung himself. The hand must not cover the box row or the foot rung.
 
-The old `demo-ladder` line is not used on the English path any more (Book 2 keeps its own).
+The old `demo-ladder` line is not used on the English path any more (Spell Quest's Hebrew course keeps its own).
 
-**B. A goal at the top.** A star sits above the top rung on every English ladder. It glows in beat 3, and at
-`ladder-top` the wizard reaches it. It uses the star that the top bar already shows (no new picture).
-
-**C. A clear start on each rung (no new audio).** While the foot word plays, the foot rung glows; while the new word
+**B. A clear start on each rung (no new audio).** While the foot word plays, the foot rung glows; while the new word
 plays, the gold box glows; the gold box keeps a soft pulse while he can answer. While he drags, the box row glows, and
 more when the plate is over it.
+
+**C. Tap, then tap the place, on an unmarked rung (stage 4 and up; D4).** A tap on a plate lifts it above the box row,
+and the boxes glow. A tap on a box answers with that plate in that place: the right plate in the right place makes the
+rung; the right plate in another place is "almost" (no answer, no heart, the plate goes back); a wrong plate is wrong.
+A tap on another plate lifts that one instead; a tap on the lifted plate puts it back. The drag stays as it is. On a
+marked rung (the gold box) a tap answers at once, as today. This replaces the fix on `fix/english-ladder-tap`, which
+let a tap count anywhere.
 
 No instruction is added to each round: the rules say the demo teaches the screen, and a round plays only its word
 (`game-play-learning.md`). No text and no Hebrew is added.
@@ -65,36 +67,24 @@ Extras (not in the tasks; one line each):
 - At 740×360 the boxes are about 30 px: a larger box row on a phone.
 - The `?` button gives the blend of the word, not what to do: it could replay beat 2 on the first visits.
 
-## 3. Decisions for the parent
+## 3. Decisions (the parent, 2026-11-22)
 
-1. **Who makes the demo rung?** (a) The hand makes it, then he plays the same rung (as the cauldron's demo).
-   (b) The hand loops over the right plate while he plays, and he makes the first rung himself.
-   **Recommendation: (a).** He must see the result (the new word in the boxes, the climb) one time before he acts.
-2. **The goal at the top:** (a) the existing star; (b) a new picture (for example the moon); (c) no picture, voice only.
-   **Recommendation: (a).** No image budget, and the star is already his reward for a right answer.
-3. **Show the demo again when the rung changes kind?** At stage 4 the gold mark goes away (he finds the place), and at
-   stage 5 a new box comes in (`lip → slip`). Today nothing explains either. (a) A short beat-2 demo at the first ladder
-   of stage 4 and of stage 5, with one new line each. (b) No. **Recommendation: (a)**, built after the tap fix lands
-   (an unmarked rung needs a drop place; a tap gives none).
+- **D1.** The demo shows only the drag. The child makes the first rung.
+- **D2.** No goal picture at the top: a ladder is plainly there to be climbed. No `demo-ladder-goal` line.
+- **D3.** No extra demos at stage 4 and stage 5. Stage 5's new box reads like the gold box; stage 4's change (find the
+  place) is carried by D4 and the glows of B.
+- **D4.** On an unmarked rung, a tap lifts the plate and a second tap on a box places it (C).
 
 ## 4. Tasks
 
-Tasks 1, 2 and 3 can be built in parallel. Task 2 and task 3 touch only `Ladder.tsx`; task 1 touches the controller
-and `Play.tsx`.
+Both touch the controller and `Ladder.tsx`, so they are built one after the other on one branch from `main`.
 
-1. **Demo beats** (`src/duel2/controller.ts` demo path for the ladder, `src/duel2/screens/Play.tsx` `demoPath`, the
-   course seam for the English lines). The three beats of A; the landed letter shows in the box row; the wizard climbs
-   in the demo and goes back. Book 2's ladder demo stays as it is. Tests: the order of the audio ids; Book 2 unchanged.
-2. **Star at the top** (`src/duel2/components/screens/Ladder.tsx`, English only). Its glow in beat 3; the wizard
-   reaches it at `ladder-top`. Check with `englishFit` that it stays clear of the top bar at both sizes.
-3. **Rung cues** (`Ladder.tsx`, a screen flag from the controller). The glows of C. Tests: the glow attributes by phase.
-4. **Voice lines** (in `src/english/data/lines.ts`; record per `asset-sources/english/README.md`, with `audio.json`
-   entries; screen the takes, then the parent's review on the review kit):
-   - `demo-ladder-look`: "This word is:" (then the word, recorded alone)
-   - `demo-ladder-goal`: "Each new word is a step. Build the ladder up to the star."
-   - If decision 3 is (a): `demo-ladder-find`: "Now the new letter has no gold box. Find where it goes, and drag it
-     there." and `demo-ladder-grow`: "Sometimes a new letter comes in, and the word grows."
-5. **Verify** (after 1–4): a driver check of the first ladder visit (audio order, screenshots of each beat) at
-   1024×768 and 740×360.
+1. **Tap, then the place** (C): the controller's ladder answer and `Ladder.tsx` (the lifted plate, the glowing boxes),
+   with run tests in `src/english/ladderRun.test.tsx`. Hebrew baselines unchanged. Replaces commit f30ad5c's rule.
+2. **Demo and cues** (A, B): the two-beat demo for the English course, the hand clear of the rows, the glows. One new
+   voice line `demo-ladder-look` "This word is:" in `src/english/data/lines.ts`, recorded per
+   `asset-sources/english/README.md`; screen the takes, then the parent's review on the review kit (non-blocking).
+   Tests: the order of the audio ids; the glow attributes by phase; the Hebrew course unchanged.
+3. **Verify**: a driver check of the first ladder visit and of an unmarked rung by taps, at 1024×768 and 740×360.
 
-Images: none new (decision 2 (a)).
+Images: none.
