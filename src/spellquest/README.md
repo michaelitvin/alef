@@ -1,4 +1,4 @@
-# Book 2 (`src/duel2`)
+# Spell Quest (`src/spellquest`)
 
 The run: a fixed cycle of screens with hearts, coins and the merchant. Terms: [GLOSSARY.md](../../GLOSSARY.md).
 Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) and `2026-11-11-one-duel-design.md`
@@ -11,10 +11,10 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | The run's flow: the loop, the screens' rounds, the flight, the tower, the voice order and the time; it does what the policies' steps say | `controller.ts` (`RunController`) |
 | React's view of the run | `useRun.ts` (a thin adapter: `useSyncExternalStore` over the controller) |
 | Pure rules: stages, mastery, prediction, merchant prices, boss, the drawing recognizer | `logic/*.ts` |
-| The save (`alef-duel2`) | `store.ts`; defaults and migrations in `saveFormat.ts` (no side effects, so home can read it) |
+| The save (`alef-spellquest`) | `store.ts`; defaults and migrations in `saveFormat.ts` (no side effects, so home can read it) |
 | Screens of the run | `components/screens/*.tsx`; app-level screens (cover, play, summary) in `screens/`; its part in the shared parent area in `parent/` |
-| The tower | `components/screens/Tower.tsx` embeds Book 1, the first duel (its flow `src/utils/duel/controller.ts`, through `src/hooks/useDuelGame.ts`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
-| Voice, effects, music | `audio/spellQuestAudio.ts` (Book 2's files and numbers on the shared kit, `src/shared/gameAudio/`); the line texts in `data/lines.ts` |
+| The tower | `components/screens/Tower.tsx` embeds the tower (its flow `tower/logic/controller.ts` as `TowerController`, through `tower/useTower.ts`; its parts are in `tower/components/` and `tower/assets/`), see [ADR 0002](../../docs/adr/0002-first-duel-is-book-2s-tower.md) |
+| Voice, effects, music | `audio/spellQuestAudio.ts` (Spell Quest's files and numbers on the shared kit, `src/shared/gameAudio/`); the line texts in `data/lines.ts` |
 | The root: the shell, the screens' routing | `SpellQuestApp.tsx` (on `useGameShell`, `src/shared/shell/`) |
 | A station link from home (`?station=`) | `station.ts` |
 | The run's pure policies: the merchant's visit, a drawing round, the flight boss, the pass and its hearts (`step(state, event)` returns what the run does; the controller does it), see [ADR 0005](../../docs/adr/0005-run-policies-and-the-sleeper.md) | `policies/*.ts` (a depcruise rule keeps them pure) |
@@ -27,8 +27,8 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 
 `RunController` plays a `Course`, never Hebrew or English by name. The members that only one course has are optional
 (unset in Hebrew): `tower.art` and `tower.facts`, `placement`, `writing`, `hint`, `recordOnly`, `bossKinds`, `visitKind`,
-`introAfter`, `explanation`, `onRunEnd`. The tower keeps the first duel's flow and takes the course's rounds
-(`tower.content`). The Hebrew baselines (`course/__snapshots__`, `src/utils/duel/__snapshots__`) pin the Hebrew run: a
+`introAfter`, `explanation`, `onRunEnd`. The tower keeps the tower's flow and takes the course's rounds
+(`tower.content`). The Hebrew baselines (`course/__snapshots__`, `tower/logic/__snapshots__`) pin the Hebrew run: a
 diff there is a regression. Do not test the course's id in the engine; add a member.
 
 ## Terms

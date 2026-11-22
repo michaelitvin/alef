@@ -1,5 +1,7 @@
 # One telemetry log per game; the first duel's old log is frozen history
 
+Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
+
 The first duel became Book 2's tower (ADR 0002), but its hook still wrote to its own log, `alef-duel-telemetry`, with
 its own run counter. So one Book 2 run was split over two logs, and every tower visit reset the counter. Now the tower
 writes to Book 2's log, `alef-duel2-telemetry`: the duel's flow (`DuelController`) takes the log it writes to

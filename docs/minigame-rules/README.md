@@ -24,6 +24,6 @@ too, girls as well: the rules say "he", but each game speaks to a girl in the fe
 
 ## How to add a rule
 
-Give each rule a reason or an example. Write the game's name before each example, for example "Example (duel):".
+Give each rule a reason or an example. Write the game's name before each example, for example "Example (tower):".
 Put a new rule in the file that agrees with its subject. Keep the rules general, so that they apply to other games.
 If a new rule says the same thing as a rule that is there, change that rule instead of adding a second one.

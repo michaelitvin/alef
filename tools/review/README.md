@@ -9,7 +9,7 @@ review: [docs/minigame-rules/asset-review.md](../../docs/minigame-rules/asset-re
 | `model.ts` | Items, takes, events, the game adapter interface |
 | `rules.ts` | The take to ship, item state, notes and their states, views, the retake work list (pure) |
 | `log.ts` | The append-only decision log (JSON lines, one per game), and who may write which event |
-| `legacy.ts` | Import from the old `choices.json`, `retake-queue.json` and the first duel's versioned picks; export back |
+| `legacy.ts` | Import from the old `choices.json`, `retake-queue.json` and the tower's versioned picks; export back |
 | `legacyFiles.ts` | Writes the old files again from the log after each decision, for tools that still read them |
 | `pageData.ts` | The derived state the page gets |
 | `server.ts` | One server for every game: page, `api/state`, `api/event` (parent events only), media |

@@ -12,7 +12,7 @@
 - Test every drag with real touch events in a headless browser with touch on (CDP `Input.dispatchTouchEvent`), not with
   mouse or synthetic pointer events. Make the stage itself `touch-action: none`: the browser ignores it on inner SVG parts,
   takes the finger as a page pan and cancels the drag.
-  Example (book 2): the cauldron said "throw the vowel in", but on the tablet the orb did not move. The unit tests passed
+  Example (Spell Quest): the cauldron said "throw the vowel in", but on the tablet the orb did not move. The unit tests passed
   with synthetic events.
 
 ## Screenshots
@@ -32,7 +32,7 @@
   screen? Compare the build with the last prototype that the parent tested.
   Reason: the parent found flow and layout problems that a QA pass shows (clock: a round with no question, an
   explanation clock at the screen edge).
-  Example (duel): the first full build was worse than the prototype (moans, backwards sprites, wrong words, a doubled wizard).
+  Example (tower): the first full build was worse than the prototype (moans, backwards sprites, wrong words, a doubled wizard).
 - When a playtest note names one case, look for the same problem in all similar places.
   Example (clock): after "the short hand moves alone" was fixed, the bonus clock and the summary clocks still showed
   impossible times.

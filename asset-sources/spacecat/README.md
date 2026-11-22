@@ -29,12 +29,12 @@ The original's code is not in this repository.
 
 ## Voice requests
 
-The voice lines use Book 2's narrator voice. The text of each line is in `src/spacecat/audio/lines.ts`;
+The voice lines use Spell Quest's narrator voice. The text of each line is in `src/spacecat/audio/lines.ts`;
 `scripts/spacecat/export-audio-catalog.ts` makes the catalogue for the voice pipeline (see
 [../duel/README.md](../duel/README.md), *Make audio*). `audio.json` holds the request of every take (2 takes for each
 line); `chosen` names the take that the parent picked, and only a chosen take is copied into the game. The spoken text
 of three lines differs from the caption: שִׂיא is spoken from "שִׂי", and the kamatz katan of כָּל from "כֹּל".
-`new-best` reuses Book 2's take `new-best-1.mp3`.
+`new-best` reuses Spell Quest's take `new-best-1.mp3`.
 
 ## Home card picture
 

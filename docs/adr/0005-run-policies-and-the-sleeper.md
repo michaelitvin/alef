@@ -1,5 +1,7 @@
 # Book 2's run: pure policies, and the controller as their interpreter
 
+Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
+
 `RunController` held every rule of the run in async methods that awaited timers, read the store and played audio. Its
 rules could be tested only end to end, on fake timers, through the real store. Now the parts with their own rules (the
 merchant's visit, a drawing round, the flight boss, the pass and its hearts) are pure policies in `src/duel2/policies/`.

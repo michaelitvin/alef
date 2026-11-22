@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Verify alef changes end-to-end in a real browser with touch on. Builds the verify build (test hooks on), drives the home, Book 2, the clock, Space Cat and the parent gate and area at a phone and a tablet size, and saves screenshots. Use after a change to a child-facing screen, before a playtest build or a release.
+description: Verify alef changes end-to-end in a real browser with touch on. Builds the verify build (test hooks on), drives the home, Spell Quest, the clock, Space Cat and the parent gate and area at a phone and a tablet size, and saves screenshots. Use after a change to a child-facing screen, before a playtest build or a release.
 ---
 
 # Verifying alef changes
@@ -43,11 +43,11 @@ and no boy or girl yet. Each check gets its own page.
 
 | Check | Does |
 | --- | --- |
-| `home` | the duel and clock cards, an open station on the path; the gear's gate; every section of the lessons' area |
+| `home` | the Spell Quest and clock cards, an open station on the path; the gear's gate; every section of the lessons' area |
 | `book2` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
 | `spellQuestStation` | the path's first open station link (`?station=`) → its cover → a session of that screen |
 | `spellQuestSheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
-| `spellQuestArea`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Book 2's also opens the gallery and the stroke review from its Developer section. Upright, Book 2's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
+| `spellQuestArea`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Spell Quest's also opens the gallery and the stroke review from its Developer section. Upright, Spell Quest's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |
 | `clock` | cover (a tap on the held house stays) → workshop → a round: the right card (`data-correct`) or the hidden `data-test-solve` for a set-the-clock round → a short hold on the house stays, a 2 s hold leaves to alef's home |
 | `spacecat` | a fresh start with real touch on the canvas: the cover (a tap on the house stays), the demo (input on while its line plays), the zoom tip after he parks under the right planet, a release between lanes, a slow upward drag (no zoom), a drag on the top bar (it steers), a level with a wrong answer and a time-out, level done, a lost run, the end screen, play again (no demo); the house's short hold stays, a 2 s hold goes to alef's home. Prints the audio order and the canvas strings |
 | `spacecatPause` | a forced hide (the tablet locks) during the demo, a zoom and the missing-number line: the pause cover, silence, and the same step again after play |
@@ -57,10 +57,10 @@ and no boy or girl yet. Each check gets its own page.
 | `spacecatMigration` | a version 1 save at old rung 6: the area shows 1 to 7 and 9 to 11 placed (8 not), the migration's placement plays, the save is version 2, his points stay |
 | `spacecatTurn` | a seeded save; the screen turns mid-round and back: the round and the ship's lane stay, and a right answer in each shape ends right |
 | `spacecatArea` | the gate on Space Cat's cover, every section; *Where he is*, the rung table (31 rungs in 3 strands) and *Recent changes*; the export holds Space Cat's part; with effects off in the Sound section, the game plays no coded effect and the voice still plays; last, *Find his level again* starts a placement |
-| `telemetry` | last, after the play checks: Book 2's area, the Data section counts Book 2's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Book 2's events |
+| `telemetry` | last, after the play checks: Spell Quest's area, the Data section counts Spell Quest's events (more than none) and the clock's, shows the storage line (telemetry against its budget), and a Download gives an export with Spell Quest's events |
 | `englishFit` | at 740×360 and 1024×768 (its own sizes), the English screens at real scale, measured in the page (the font's ink on a canvas at the drawn size, `getBoundingClientRect`): every Latin glyph in an orb stays inside the orb's gold ring (0.41 of the sprite's width from its centre), every glyph in a box inside its box's outline; the broom (stages 4 and 6, watched 20 s each, until words came), the cauldron (4, 6), the ladder's making rung clear of the built rungs and the wizard, the tower's `?` clear of the tower, the spell book's 5-box word (its boxes on their page), and its longest written word (jumping: 7 letter boxes on the slate on the book, none overlapping, a small letter at least 30 px high). Each screen is opened with a seeded save (`?course=en&station=<screen>`) or a test-build link `#/gallery/<entry>` (the spell book: `spell-long`, `spell-write`). |
 
-**Nothing scrolls sideways.** At the year pad and at every section of the area (and Book 2's gallery and stroke
+**Nothing scrolls sideways.** At the year pad and at every section of the area (and Spell Quest's gallery and stroke
 review), the page and the area's own scroll box must be no wider than the screen (`scrollWidth <= clientWidth + 1`); a
 failure names the elements that pass the edge. A wide box that scrolls on purpose (a table's `.pa-wide`) is allowed.
 
@@ -113,7 +113,7 @@ does not select.
   output is NFC-normalized.
 - Feedback windows: success 1200 ms, error 1000 ms. Wait at least 1300 ms after a right answer before the next tap.
 - The story picker's completion badge shows only when the story's node is `mastered` (all questions finished).
-- Book 2 is a landscape game: a portrait phone shows the "turn the phone" picture over everything.
-- A fresh save opens only the tower (Book 2 opens after the first duel's marks): the full run starts there, and the
+- Spell Quest is a landscape game: a portrait phone shows the "turn the phone" picture over everything.
+- A fresh save opens only the tower (Spell Quest opens after the tower's marks): the full run starts there, and the
   path's only open station is the tower.
 - The gender question takes taps only after its voice has played once; the driver keeps tapping until it closes.

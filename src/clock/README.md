@@ -25,5 +25,5 @@ Spec: `docs/superpowers/specs/2026-10-15-clock-workshop-design.md`.
 
 ## Known friction
 
-- The flow lives in React closures, unlike Book 2's `RunController`.
+- The flow lives in React closures, unlike Spell Quest's `RunController`.
 - The home button goes back to the clock's own cover, not to alef's home.

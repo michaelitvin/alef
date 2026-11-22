@@ -1,5 +1,7 @@
 # One engine plays both courses, through a course seam
 
+Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
+
 The English path (reading with Latin letters) needs the same screens as Book 2: tower, broom, ghosts, cauldron, ladder,
 doors, spell book, drawing, with hearts, coins, the merchant and a stage ladder. The parent wanted one game and one
 reward system (the same wish as [ADR 0002](0002-first-duel-is-book-2s-tower.md)). A second app would copy about 1700 lines
