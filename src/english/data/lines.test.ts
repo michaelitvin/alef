@@ -32,7 +32,7 @@ describe('English lines', () => {
   it('no "!", no "…", no digits, no Hebrew', () => {
     for (const t of allTexts()) expect(t).not.toMatch(/[!…0-9֐-׿]/)
   })
-  it('139 texts', () => expect(allTexts().length).toBe(139))
+  it('140 texts', () => expect(allTexts().length).toBe(140))
   it('variations match the texts, ids are unique, and the audio id is <id>-<n>', () => {
     for (const l of EN_LINES) expect(l.variations).toBe(l.en.length)
     expect(new Set(EN_LINES.map((l) => l.id)).size).toBe(EN_LINES.length)

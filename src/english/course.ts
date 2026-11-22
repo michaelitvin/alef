@@ -64,6 +64,8 @@ const EN_ROUNDS: CourseRounds = {
   explanation: enGhostExplanation,
   // (the gallery's forced part is Hebrew's: the English ladder has none)
   ladderPlan: (ctx, rungs) => enLadderPlan(ctx, rungs),
+  // the first ladder visit: "This word is:" and the foot word, then "Find the letter that makes:" and the new word
+  ladderDemo: { look: 'demo-ladder-look', ask: 'q-ladder' },
   // a word on the door, from stage 4 a phrase on about half of them; the keys are pictures (files only)
   doorRounds: (ctx, n) => enDoorRounds(ctx, n, { picture: wordPicture }),
   doorKeys: (ctx, round) => enDoorKeys(ctx, round, { picture: wordPicture }),

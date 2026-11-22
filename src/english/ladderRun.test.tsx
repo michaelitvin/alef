@@ -104,16 +104,123 @@ describe('the English ladder in the run', () => {
       expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
       expect(c.view.hearts).toBe(hearts)
       expect((c.view.screen as typeof s).built).toEqual(s.built)
-      // a tap is no place either
-      c.gesture({ type: 'pick', id: right })
-      await wait(3000)
-      expect(c.view.phase).toBe('answer')
-      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
       // on its place it counts and the rung is built
       c.gesture({ type: 'pick', id: right, box: s.at })
       await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
       expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
       expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  /** an unmarked rung (stage 4) waiting for his answer */
+  async function unmarked() {
+    const save = englishSave(4)
+    const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'ladder' } })
+    c.start()
+    await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
+    const s = c.view.screen
+    if (s?.screen !== 'ladder' || s.marked !== false || s.at === undefined) throw new Error('no unmarked rung')
+    const right = ladderAnswerId(s)
+    const wrong = s.plates.find((p) => p.id !== right)!.id
+    const view = () => c.view.screen as typeof s & { lifted?: string }
+    return { c, save, s, right, wrong, elsewhere: s.at === 0 ? 1 : 0, view }
+  }
+
+  it('on an unmarked rung a tap on a plate only lifts it (the boxes glow); a tap alone never answers', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, right, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      await wait(3000)
+      expect(view().lifted).toBe(right)
+      expect(c.view.phase).toBe('answer')
+      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
+      expect(view().built).toEqual(s.built)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap the right plate, then tap its place: the rung is built', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, right, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: right, box: s.at })
+      await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
+      expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
+      expect(save.read().tallies['sc:ladder']?.wrong ?? 0).toBe(0)
+      expect(view().lifted).toBeUndefined()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap the right plate, then another place: almost (no answer, no heart), the plate goes back', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, right, elsewhere, view } = await unmarked()
+      const hearts = c.view.hearts
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: right, box: elsewhere })
+      await wait(3000)
+      expect(save.read().tallies['sc:ladder']?.seen ?? 0).toBe(0)
+      expect(c.view.hearts).toBe(hearts)
+      expect(view().built).toEqual(s.built)
+      expect(view().lifted).toBeUndefined()
+      expect(c.view.phase).toBe('answer')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('tap a wrong plate, then a place: wrong, as a wrong drop is', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, save, s, wrong } = await unmarked()
+      c.gesture({ type: 'pick', id: wrong })
+      c.gesture({ type: 'pick', id: wrong, box: s.at })
+      await until(c, () => (save.read().tallies['sc:ladder']?.wrong ?? 0) === 1)
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a tap on another plate lifts that one; a tap on the lifted plate puts it back', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right, wrong, view } = await unmarked()
+      c.gesture({ type: 'pick', id: right })
+      c.gesture({ type: 'pick', id: wrong })
+      expect(view().lifted).toBe(wrong)
+      c.gesture({ type: 'pick', id: wrong })
+      expect(view().lifted).toBeUndefined()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('on a marked rung a tap answers at once, as before', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = englishSave(2)
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(5), session: { screen: 'ladder' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
+      const s = c.view.screen
+      if (s?.screen !== 'ladder') throw new Error('no ladder')
+      expect(s.marked).toBe(true)
+      c.gesture({ type: 'pick', id: ladderAnswerId(s) })
+      await until(c, (v) => (v.screen as typeof s).built.length === s.built.length + 1)
+      expect(save.read().tallies['sc:ladder']).toMatchObject({ seen: 1 })
       c.destroy()
     } finally {
       vi.useRealTimers()
@@ -155,6 +262,175 @@ describe('the English ladder in the run', () => {
     expect(i).toBeGreaterThan(0)
     expect(log.voice[i - 1]).toMatch(/^w-/)
     for (const k of Object.keys(save.read().introSeen)) expect(unit(k).stage).toBe(1)
+  })
+
+  it('the first ladder demo has two beats, each lighting its part and waiting for its line (the old line is not used)', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = memoryEnglishSavePort({ stage: { stage: 1, newAnswers: '' }, placement: { state: null, requested: false, done: { level: 1, answers: 5, at: 1 }, runs: 1 } })
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      const s = c.view.screen
+      if (s?.screen !== 'ladder') throw new Error('no ladder')
+      const o = c.view.overlay
+      if (o?.kind !== 'demo') throw new Error('no demo')
+      // "This word is:" and the foot word (the foot rung glows), then "Find the letter that makes:" take 1 and the new word (the place glows)
+      expect(o.parts).toEqual([
+        { id: 'demo-ladder-look-1', highlight: 'foot' }, { id: s.built[0].soundId, highlight: 'foot' },
+        { id: 'q-ladder-1', highlight: 'gap' }, { id: s.target.soundId, highlight: 'gap' },
+      ])
+      expect(o.parts!.map((x) => x.id)).not.toContain('demo-ladder-1')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('the rung cues: the foot rung while the foot word plays, the new word names the place, then the soft pulse', async () => {
+    vi.useFakeTimers()
+    try {
+      const c = new RunController({ course: ENGLISH, save: englishSave(1), now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      const cues: (string | undefined)[] = []
+      const watch = () => { const s = c.view.screen; if (s?.screen === 'ladder' && cues[cues.length - 1] !== s.cue) cues.push(s.cue) }
+      c.subscribe(watch)
+      c.start()
+      await wait(4000)
+      expect(cues.filter((x) => x)).toEqual(['foot', 'box'])
+      // then no voice names anything: the cue is off (the screen keeps its soft pulse while he can answer)
+      expect(cues[cues.length - 1]).toBeUndefined()
+      expect(c.view.phase).toBe('answer')
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a lift (a tap on a plate) is activity: the idle line comes 8 s after it, not 8 s after the cue', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right } = await unmarked()
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      await wait(5000)
+      c.gesture({ type: 'pick', id: right })
+      await wait(5000)
+      // 10 s after the cue, 5 s after the lift: no idle line yet
+      expect(say.mock.calls.some((a) => a[0].some((x) => /^q-ladder-/.test(x.id)))).toBe(false)
+      await wait(4000)
+      expect(say.mock.calls.some((a) => a[0].some((x) => /^q-ladder-/.test(x.id)))).toBe(true)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('after the demo the first round does not say the foot word and the new word again, and its answers are open', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = memoryEnglishSavePort({ stage: { stage: 1, newAnswers: '' }, placement: { state: null, requested: false, done: { level: 1, answers: 5, at: 1 }, runs: 1 } })
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      const o = c.view.overlay
+      if (o?.kind !== 'demo') throw new Error('no demo')
+      const words = [o.parts![1].id, o.parts![3].id]
+      c.next()
+      await until(c, (v) => v.phase === 'answer')
+      await wait(3000)
+      expect(say.mock.calls.some((a) => a[0].some((x) => words.includes(x.id)))).toBe(false)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  describe('pause and resume', () => {
+    /** pauses at the first view where `at` holds, resumes, lets the round start again */
+    async function pausedAt(at: (s: { cue?: string; lifted?: string }) => boolean, setup?: 'unmarked') {
+      const save = englishSave(setup === 'unmarked' ? 4 : 1)
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(setup ? 5 : 3), session: { screen: 'ladder' } })
+      let done = false
+      c.subscribe(() => {
+        const s = c.view.screen
+        if (!done && s?.screen === 'ladder' && at(s)) { done = true; c.pause() }
+      })
+      return { c, done: () => done }
+    }
+    it('paused while the foot word plays: no cue stays lit after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, done } = await pausedAt((s) => s.cue === 'foot')
+        c.start()
+        await wait(2000)
+        expect(done()).toBe(true)
+        const after: (string | undefined)[] = []
+        c.subscribe(() => { const s = c.view.screen; if (s?.screen === 'ladder') after.push(s.cue) })
+        c.resume()
+        await wait(5000)
+        // the round starts again from its question with no cue lit (the foot is not said again; the new word names the place)
+        expect(after[0]).toBeUndefined()
+        expect(after).not.toContain('foot')
+        expect(c.view.phase).toBe('answer')
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+    it('paused while the new word plays: no cue stays lit after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, done } = await pausedAt((s) => s.cue === 'box')
+        c.start()
+        await wait(3000)
+        expect(done()).toBe(true)
+        const after: (string | undefined)[] = []
+        c.subscribe(() => { const s = c.view.screen; if (s?.screen === 'ladder') after.push(s.cue) })
+        c.resume()
+        await wait(5000)
+        expect(after[0]).toBeUndefined()
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+    it('a plate lifted before the pause is back after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, right } = await unmarked()
+        c.gesture({ type: 'pick', id: right })
+        expect((c.view.screen as { lifted?: string }).lifted).toBe(right)
+        c.pause()
+        c.resume()
+        await wait(5000)
+        expect((c.view.screen as { lifted?: string }).lifted).toBeUndefined()
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  it('a lift resets the idle wait every time, also after the idle line played', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right } = await unmarked()
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      const idleLines = () => say.mock.calls.filter((a) => a[0].some((x) => /^q-ladder-/.test(x.id))).length
+      await wait(9000)
+      expect(idleLines()).toBe(1)
+      c.gesture({ type: 'pick', id: right })
+      await wait(5000)
+      expect(idleLines()).toBe(1)
+      await wait(4000)
+      expect(idleLines()).toBe(2)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('a fresh English ladder says its demo', async () => {

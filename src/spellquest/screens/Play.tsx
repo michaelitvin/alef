@@ -8,7 +8,7 @@ import { item as itemOf, mark as markOf, type MarkId } from '../logic/content'
 import { Broom } from '../components/screens/Broom'
 import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
 import { Cauldron, CauldronWord, ORB_X, ORB_Y, TILE_X } from '../components/screens/Cauldron'
-import { Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs, rungPlaceX } from '../components/screens/Ladder'
+import { HAND_DX, HAND_DY, hoverY, Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs, rungPlaceX } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
@@ -32,8 +32,8 @@ import { BAND_CONTENT_W, homeInBar, layoutVars, nextInMiddle, STAGE_CONTENT_TOP,
 
 type Run = ReturnType<typeof useRun>
 
-function ScreenFor({ run, v, demoT, dry, size, course }: {
-  run: Run; v: View; demoT?: number; dry?: boolean; size?: { w: number; h: number }
+function ScreenFor({ run, v, demoT, dry, size, course, cue }: {
+  run: Run; v: View; demoT?: number; /** the ladder demo's beat lights the foot rung or the place */ cue?: 'foot' | 'box'; dry?: boolean; size?: { w: number; h: number }
   /** the course played (RunOpts.course; unset: Hebrew): the tower takes its content, save and log from it */
   course?: Course
 }) {
@@ -57,7 +57,7 @@ function ScreenFor({ run, v, demoT, dry, size, course }: {
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
       return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={(id, box) => run.onGesture({ type: 'pick', id, ...(box !== undefined ? { box } : {}) })} phase={v.phase} reveal={s.reveal} correctId={test ? ladderAnswerId(s) : undefined}
-        demo={demoT !== undefined ? { id: ladderAnswerId(s), t: demoT } : undefined} size={size} dir={dir}
+        demo={demoT !== undefined ? { id: ladderAnswerId(s), t: demoT } : undefined} size={size} dir={dir} lifted={s.lifted} cue={cue ?? s.cue}
         {...(s.from ? { change: { from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked } } : {})} />
     case 'ghosts':
       return <Ghosts dir={dir} signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />
@@ -91,7 +91,12 @@ function demoPath(v: View, size: { w: number; h: number }): { from: { x: number;
     const i = s.plates.findIndex((p) => p.id === ladderAnswerId(s))
     // (an English rung: the hand goes to the place that changes)
     const x = s.from ? rungPlaceX({ from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked }) : LADDER_CX
-    return { from: { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs, plateTop(ladderView(size)))[i] }, to: { x, y: nextRungY(s.built.length, s.rungs) } }
+    const from = { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs, plateTop(ladderView(size)))[i] }
+    if (!s.from) return { from, to: { x, y: nextRungY(s.built.length, s.rungs) } }
+    // English: the plate stops above the box row, so the hand and the plate never cover the boxes; the hand holds the
+    // plate by its top left edge (its body hangs down, clear of the glyph and of the row)
+    const at = { x: HAND_DX, y: HAND_DY }
+    return { from: { x: from.x + at.x, y: from.y + at.y }, to: { x: x + at.x, y: hoverY(ladderView(size), s.built.length, s.rungs) + at.y } }
   }
   if (s.screen === 'ghosts') { const i = s.signs.findIndex((p) => p.id === s.target.id); const g = GHOST_SLOTS[i]; return { from: { x: 300, y: 860 }, to: { x: g.x, y: g.top + GHOST_H * 0.74 } } }
   if (s.screen === 'doors') { const i = s.keys.findIndex((k) => k.id === s.word.id); return { from: { x: KEY_X[i], y: 690 }, to: { x: 800, y: 560 } } }
@@ -182,13 +187,15 @@ export function Play({ opts, onOver, onExit }: {
     <div {...(v.course.dir === 'ltr' ? { dir: 'ltr' } : {})} data-course={v.course.id} className={`d2-root${(v.phase === 'mistake' && !missed) || shake !== null ? ' d2-shake' : ''}`} data-screen="play" data-phase={v.phase} data-kind={v.merchant ? 'merchant' : v.screen?.screen} data-overlay={o?.kind} data-hearts={opts.session ? undefined : v.hearts} data-session={opts.session?.screen} data-defeat={v.defeat || undefined} aria-hidden={v.paused || undefined}
       style={layoutVars(size, contentTop(v), into)}>
       {o?.kind === 'demo' ? (
-        <ExplainPanel parts={[{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
-          {() => {
+        <ExplainPanel parts={o.parts ?? [{ id: o.line, highlight: 'none' }]} onNext={run.onNext} autoNext>
+          {(h) => {
             const path = demoPath(v, size)
+            // the two-beat demo (o.parts): the hand drags in the second beat only, and the beats light the foot rung and the place
+            const beats = !!o.parts
             return (
               <>
-                <ScreenFor run={run} v={v} demoT={demoT} size={size} course={course} />
-                {path && (
+                <ScreenFor run={run} v={v} demoT={demoT} size={size} course={course} cue={h === 'foot' ? 'foot' : h === 'gap' ? 'box' : undefined} />
+                {path && (!beats || h === 'gap') && (
                   <svg className="d2-stage d2-overlay" viewBox={overlayViewBox(v, size)} preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'none' }}>
                     <DemoHand key={o.demo} from={path.from} to={path.to} durationMs={1800} onMove={setDemoT} onDone={() => {}} loop />
                   </svg>

@@ -67,6 +67,12 @@ export interface CourseRounds {
    * Unset (Hebrew): the run's own explanation of a syllable
    */
   explanation?: (c: Choice, screen: ScreenId) => { feature: string; parts: (({ line: string } | { id: string }) & { highlight: Highlight })[] } | null
+  /**
+   * The ladder's first-visit demo in two beats (English): the foot rung glows while `look` ("This word is:") and the foot
+   * word play; then the place glows while `ask` (take 1) and the new word play, and the hand drags the plate to it, over and
+   * over. Unset (Hebrew): the one line `demo-ladder`, the hand dragging to the rung
+   */
+  ladderDemo?: { look: string; ask: string }
   /** the ladder of a visit (`rungs` steps; `force`: the gallery's fixed part, Hebrew only) */
   ladderPlan: (ctx: RoundCtx, rungs: number, force?: LadderFixed) => LadderPlan
   isNewStageChoice: (stage: number, c: Choice) => boolean
