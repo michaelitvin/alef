@@ -116,6 +116,10 @@ function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: t
   const { xs, w } = rungBoxXs(boxes.length)
   const left = xs[0] - w / 2 - BOX_GAP
   const width = xs[xs.length - 1] + w / 2 + BOX_GAP - left
+  // a tap on the gap at either end of a row where a box comes in (grow): the tap row reaches further out (a tap only; the
+  // left stays clear of the wizard's staff, ROW_AIR)
+  const tapL = p.change.grow === 1 ? ROW_AIR / 2 : 0
+  const tapR = p.change.grow === 1 ? w / 2 + BOX_GAP : 0
   const gold = boxes.findIndex((b) => b.mark)
   // a marked rung (stages 1-3) glows its gold box while he is asked or can answer; the row glows while he holds a plate
   // (more over it); an unmarked rung has no gold box: its row glows instead
@@ -136,7 +140,7 @@ function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: t
       ))}
       {/* a lifted plate: a tap on the row (a box, or the gap where one comes in) places it there, as a drop does */}
       {p.lifted && (
-        <rect data-place-row x={left} y={p.y - BOX_H / 2} width={width} height={BOX_H} fill="transparent" style={{ cursor: 'pointer' }}
+        <rect data-place-row x={left - tapL} y={p.y - BOX_H / 2} width={width + tapL + tapR} height={BOX_H} fill="transparent" style={{ cursor: 'pointer' }}
           onPointerUp={(e) => p.onPlace?.(dropPlace(p.change, toStage(e.currentTarget, e.clientX, e.clientY).x))} />
       )}
     </g>

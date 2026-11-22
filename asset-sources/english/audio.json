@@ -506,14 +506,15 @@
    "request": {
     "model": "gemini-3.8-flash-tts",
     "voice": "Puck",
-    "prompt": null,
-    "note": "its own request was not kept"
+    "response": "audio",
+    "prompt": "[warmly, to a 7-year-old] This word is:"
    },
-   "processing": "Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, 96 kbit/s",
+   "processing": "Silence trimmed at both ends by the pipeline (no change of speed); then MP3, mono, 96 kbit/s. Shipped ahead of the parent's review: his review of this take is pending (asset review is non-blocking)",
    "earlier_takes": [
     {
      "take": "demo-ladder-look-1__B",
-     "verdict": null
+     "verdict": null,
+     "note": "[calm] This word is:"
     }
    ]
   },

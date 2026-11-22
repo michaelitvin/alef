@@ -325,6 +325,114 @@ describe('the English ladder in the run', () => {
     }
   })
 
+  it('after the demo the first round does not say the foot word and the new word again, and its answers are open', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = memoryEnglishSavePort({ stage: { stage: 1, newAnswers: '' }, placement: { state: null, requested: false, done: { level: 1, answers: 5, at: 1 }, runs: 1 } })
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'ladder' } })
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      c.start()
+      await until(c, (v) => v.overlay?.kind === 'demo')
+      const o = c.view.overlay
+      if (o?.kind !== 'demo') throw new Error('no demo')
+      const words = [o.parts![1].id, o.parts![3].id]
+      c.next()
+      await until(c, (v) => v.phase === 'answer')
+      await wait(3000)
+      expect(say.mock.calls.some((a) => a[0].some((x) => words.includes(x.id)))).toBe(false)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  describe('pause and resume', () => {
+    /** pauses at the first view where `at` holds, resumes, lets the round start again */
+    async function pausedAt(at: (s: { cue?: string; lifted?: string }) => boolean, setup?: 'unmarked') {
+      const save = englishSave(setup === 'unmarked' ? 4 : 1)
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(setup ? 5 : 3), session: { screen: 'ladder' } })
+      let done = false
+      c.subscribe(() => {
+        const s = c.view.screen
+        if (!done && s?.screen === 'ladder' && at(s)) { done = true; c.pause() }
+      })
+      return { c, done: () => done }
+    }
+    it('paused while the foot word plays: no cue stays lit after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, done } = await pausedAt((s) => s.cue === 'foot')
+        c.start()
+        await wait(2000)
+        expect(done()).toBe(true)
+        const after: (string | undefined)[] = []
+        c.subscribe(() => { const s = c.view.screen; if (s?.screen === 'ladder') after.push(s.cue) })
+        c.resume()
+        await wait(5000)
+        // the round starts again from its question with no cue lit (the foot is not said again; the new word names the place)
+        expect(after[0]).toBeUndefined()
+        expect(after).not.toContain('foot')
+        expect(c.view.phase).toBe('answer')
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+    it('paused while the new word plays: no cue stays lit after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, done } = await pausedAt((s) => s.cue === 'box')
+        c.start()
+        await wait(3000)
+        expect(done()).toBe(true)
+        const after: (string | undefined)[] = []
+        c.subscribe(() => { const s = c.view.screen; if (s?.screen === 'ladder') after.push(s.cue) })
+        c.resume()
+        await wait(5000)
+        expect(after[0]).toBeUndefined()
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+    it('a plate lifted before the pause is back after the resume', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, right } = await unmarked()
+        c.gesture({ type: 'pick', id: right })
+        expect((c.view.screen as { lifted?: string }).lifted).toBe(right)
+        c.pause()
+        c.resume()
+        await wait(5000)
+        expect((c.view.screen as { lifted?: string }).lifted).toBeUndefined()
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  it('a lift resets the idle wait every time, also after the idle line played', async () => {
+    vi.useFakeTimers()
+    try {
+      const { c, right } = await unmarked()
+      const say = vi.spyOn(ENGLISH.audio, 'sayParts')
+      const idleLines = () => say.mock.calls.filter((a) => a[0].some((x) => /^q-ladder-/.test(x.id))).length
+      await wait(9000)
+      expect(idleLines()).toBe(1)
+      c.gesture({ type: 'pick', id: right })
+      await wait(5000)
+      expect(idleLines()).toBe(1)
+      await wait(4000)
+      expect(idleLines()).toBe(2)
+      say.mockRestore()
+      c.destroy()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('a fresh English ladder says its demo', async () => {
     vi.useFakeTimers()
     try {

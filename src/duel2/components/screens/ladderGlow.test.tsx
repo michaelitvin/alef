@@ -48,6 +48,20 @@ describe('the English ladder cues', () => {
     fireEvent.pointerUp(plate, { pointerId: 1, clientX: LADDER_CX, clientY: row })
     expect(q(el, '[data-row-glow="over"]')).toBeNull()
   })
+  it('on a row where a box comes in, the tap row reaches past the end gaps (a tap only); elsewhere it is the row', () => {
+    const row = (grow: 1 | undefined) => {
+      const el = render(<Ladder built={[c('sat')]} plates={plates} rungs={4} onPick={() => {}} phase="answer" dir="ltr" lifted="p"
+        change={{ from, at: 1, ...(grow ? { grow } : {}), marked: false }} />).container
+      const r = q(el, '[data-place-row]')!
+      const g = q(el, '[data-place-glow]')!
+      return { x: Number(r.getAttribute('x')), w: Number(r.getAttribute('width')), gx: Number(g.getAttribute('x')), gw: Number(g.getAttribute('width')) }
+    }
+    const plain = row(undefined)
+    const grow = row(1)
+    expect(plain.w).toBe(plain.gw - 4)
+    expect(grow.x + grow.w).toBeGreaterThan(plain.x + plain.w + 40)
+    expect(grow.x).toBeLessThan(plain.x)
+  })
   it('the hovering plate (a lift, the demo) never covers the box row or the rung below it, at any rung and size', () => {
     const half = (PLATE_W * PLATE_ASPECT) / 2
     for (const size of [undefined, { w: 1024, h: 768 }, { w: 740, h: 360 }, { w: 844, h: 390 }]) {

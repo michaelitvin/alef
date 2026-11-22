@@ -310,6 +310,8 @@ export class RunController {
   private strokeNo = 0
   private demoNo = 0
   /** restarts the idle wait of the round (idleWait), while it waits */
+  /** the ladder's demo said the foot word and the new word: its first round does not say them again */
+  private demoSaidWords = false
   private idleBump: (() => void) | null = null
   /** the spell book's round in progress (policies/spell.ts); its waits share the drawing's wait number and timers */
   private spell: SpellState | null = null
@@ -396,8 +398,11 @@ export class RunController {
       if (this.view.screen?.screen === 'broom') this.setScreen({ lane: g.lane } as Partial<BroomView>)
       return
     }
-    // he picks: a hint that shows goes away (its voice too)
-    this.dropHint('answer')
+    // he picks: a hint that shows goes away (its voice too). A lift (a tap on a plate of an unmarked English rung) is no pick:
+    // its finger-down went through dropHint already
+    const lc = this.view.screen
+    const lift = this.view.phase === 'answer' && lc?.screen === 'ladder' && lc.at !== undefined && !lc.marked && g.type === 'pick' && g.box === undefined
+    if (!lift) this.dropHint('answer')
     if (this.view.phase === 'mistake') {
       // after a mistake only the marked right answer goes on: he does the right move himself (the parent)
       const right = (this.view.screen as { reveal?: { right: string } } | null)?.reveal?.right
@@ -574,6 +579,8 @@ export class RunController {
     this.nextWaiter = null
     this.endStrokeWait()
     this.resuming = true
+    // (the ladder: the pause cuts the voice a cue was lit for, and a lifted plate goes back)
+    if (this.view.screen?.screen === 'ladder' && this.view.screen.from) this.setScreen({ lifted: undefined, cue: undefined } as Partial<LadderView>)
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
   }
@@ -1094,6 +1101,9 @@ export class RunController {
     if (screen !== 'ladder' || !d || !base) return {}
     const target = this.view.screen?.screen === 'ladder' ? this.view.screen.target : undefined
     if (!target) return {}
+    // the demo says both words: the first round does not say them again (it opens its answers at once)
+    this.ladder!.footSaid = true
+    this.demoSaidWords = true
     return { parts: [
       { id: this.course.lineAudioId(d.look, 1), highlight: 'foot' }, { id: this.cueId(base.target), highlight: 'foot' },
       { id: this.course.lineAudioId(d.ask, 1), highlight: 'gap' }, { id: this.cueId(target), highlight: 'gap' },
@@ -1110,7 +1120,8 @@ export class RunController {
     if (this.resuming && cur && cur.screen === screen && !this.answered) {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
-      this.setScreen({ reveal: undefined, ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
+      // (the ladder: a plate lifted before the pause goes back, and no cue stays lit from a voice the pause cut)
+      this.setScreen({ reveal: undefined, ...(cur.screen === 'ladder' && cur.from ? { lifted: undefined, cue: undefined } : {}), ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
       return cur.screen === 'doors' ? doorTarget(cur) : (cur as BroomView).target
     }
     this.resuming = false
@@ -1244,7 +1255,9 @@ export class RunController {
     const early = this.waitPick(t)
     // (the English ladder: the place that changes glows while the new word plays)
     const boxCue = screen === 'ladder' && (this.view.screen as LadderView).from !== undefined
-    const said = this.say(t, [{ id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }])
+    const skipSay = screen === 'ladder' && this.demoSaidWords
+    this.demoSaidWords = false
+    const said = skipSay ? Promise.resolve() : this.say(t, [{ id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }])
     let picked = await Promise.race([said.then(() => null), early])
     if (boxCue) this.setScreen({ cue: undefined } as Partial<LadderView>)
     // the answers open after the cue even if it was cut short (a stopped voice must never leave the round shut)
@@ -1280,7 +1293,7 @@ export class RunController {
     }
     arm()
     // a lift (a tap on a plate, no answer yet) is activity: the waiting starts again
-    this.idleBump = () => { if (spoke) return; idle(); hint(); arm() }
+    this.idleBump = () => { idle(); hint(); arm() }
     try {
       const id = await pick
       if (this.view.overlay?.kind === 'hint') this.set({ overlay: null })
