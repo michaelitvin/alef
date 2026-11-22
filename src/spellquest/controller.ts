@@ -575,7 +575,7 @@ export class RunController {
   /** the drawing screen is in the lap only when the parent turned it on (off until the strokes are reviewed) */
   private drawOn() { return !!this.save.read().settings.drawing }
   /** Spell Quest's minigames are open (before: stage 0, the tower alone); the gallery plays any screen */
-  private bookOpen() { return !!this.opts.force || this.save.read().bookOpen !== false }
+  private screensOpen() { return !!this.opts.force || this.save.read().screensOpen !== false }
   /** the course's placement check is due (Course.placement; never in the gallery) */
   private placementDue() { return !this.opts.sandbox && !this.opts.force && !!this.course.placement?.due(this.save) }
 
@@ -669,7 +669,7 @@ export class RunController {
   private facts(): PassFacts {
     const st = this.save.read()
     return {
-      stage: this.stage, stages: this.course.stages, draw: this.drawOn(), bookOpen: this.bookOpen(), recent: st.recent,
+      stage: this.stage, stages: this.course.stages, draw: this.drawOn(), screensOpen: this.screensOpen(), recent: st.recent,
       towerRecent: this.save.firstDuelRecent(), cycleNo: st.cycleNo ?? 0, towerTail: st.towerTail ?? '',
     }
   }
@@ -722,7 +722,7 @@ export class RunController {
       // the checkpoints since his last visit, this one included (the save counts the ones passed without him)
       const since = st.checkpointsSinceVisit ?? NEVER_VISITED
       const r = this.passStep({
-        type: 'checkpoint', bookOpen: this.bookOpen(), coins: st.coins ?? 0, range, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
+        type: 'checkpoint', screensOpen: this.screensOpen(), coins: st.coins ?? 0, range, sinceVisit: since >= NEVER_VISITED ? Infinity : since + 1,
         bossNext: this.screenId === 'tower' ? this.towerBossNext() : !!this.visitBoss,
       })
       if (!r.merchant) return
@@ -878,7 +878,7 @@ export class RunController {
     }
     const tw = this.tower
     this.syncMult()
-    const placement = tw.placement || !this.bookOpen() || undefined
+    const placement = tw.placement || !this.screensOpen() || undefined
     const mega = this.towerMegaCharge || undefined
     this.set({ screen: { screen: 'tower', wave: tw.wave, waves: tw.waves, boss: tw.boss, visit: tw.visit, ...(placement ? { placement } : {}), ...(mega ? { mega } : {}) }, phase: 'answer', overlay: null, needNext: false, hintAvailable: false, hearts: this.hearts.left })
     this.resuming = false
@@ -903,7 +903,7 @@ export class RunController {
     // knows them (the fast lane): Spell Quest's minigames open (once). A pass in the middle of a visit ended it at that wave.
     const lane = this.stage0Passed()
     if (lane) {
-      this.save.openBook()
+      this.save.markScreensOpen()
       this.track('book-open', { stars: this.save.read().totalStars, towerWave: last + 1, lane })
       await this.celebrate(t, 'streak')
     }
@@ -911,7 +911,7 @@ export class RunController {
 
   /** stage 0 has passed (the book still closed): by which lane (mastery.stage0Lane); never in the gallery */
   private stage0Passed(): 'fast' | 'slow' | null {
-    if (this.opts.sandbox || this.bookOpen()) return null
+    if (this.opts.sandbox || this.screensOpen()) return null
     return stage0Lane(this.save.firstDuelRecent(), TOWER_MARKS.map((m) => m.id), this.save.read().towerTail ?? '')
   }
 

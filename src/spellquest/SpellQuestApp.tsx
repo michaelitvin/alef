@@ -103,7 +103,7 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   const loading = shell.loading
   // the first duel's progress moves over once (its own save is only read; the flag makes a reload safe): into Spell Quest's
   // save, so on the Hebrew page only (the English page never writes Spell Quest's save)
-  useEffect(() => { if (course.id === 'he') useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().duel) }, [course])
+  useEffect(() => { if (course.id === 'he') useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().tower) }, [course])
   if (TEST_HOOKS && location.hash === '#/glyphs') return <div className="d2-root"><GlyphSheet /></div>
   if (TEST_HOOKS && location.hash === '#/tower-glyphs') return <TowerGlyphSheet />
   // the end screens as they look after a full run (crystals, a trophy, the next boss, the play button) and after a

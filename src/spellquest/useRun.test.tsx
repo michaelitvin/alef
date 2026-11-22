@@ -121,7 +121,7 @@ describe('run controller', () => {
     towerAuto = true
     useSpellQuestStore.getState().resetProgress()
     // drawing is on by default; these tests are about the other screens (the drawing tests turn it on)
-    useSpellQuestStore.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
+    useSpellQuestStore.setState({ screensOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99])))  })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -1404,7 +1404,7 @@ describe('run controller', () => {
     })
 
     it('the מגה charge carries over to the next tower visit within the run; a new run starts with none', async () => {
-      useSpellQuestStore.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+      useSpellQuestStore.setState({ screensOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
       const c = make()
       c.start()
       await until(c, (v) => v.screen?.screen === 'tower')
@@ -1424,7 +1424,7 @@ describe('run controller', () => {
     describe('stage 0: the tower alone', () => {
       beforeEach(() => {
         useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-        useSpellQuestStore.setState({ bookOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
+        useSpellQuestStore.setState({ screensOpen: false, stage: { stage: 1, newAnswers: '' }, lastEnded: null })
       })
       const mastered = () => Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
 
@@ -1436,11 +1436,11 @@ describe('run controller', () => {
         c.towerDone(2)
         // not mastered yet: the tower again (a cycle of one screen)
         await until(c, (v) => v.screen?.screen === 'tower' && tv(c).wave === 3)
-        expect(useSpellQuestStore.getState().bookOpen).toBe(false)
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: mastered() } })
+        expect(useSpellQuestStore.getState().screensOpen).toBe(false)
+        useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: mastered() } })
         c.towerDone(4)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
-        expect(useSpellQuestStore.getState().bookOpen).toBe(true)
+        expect(useSpellQuestStore.getState().screensOpen).toBe(true)
         const ev = spellQuestTelemetry.events() as { e: string }[]
         expect(ev.filter((e) => e.e === 'book-open').length).toBe(1)
         expect(sfxLog).toContain('streak')
@@ -1453,7 +1453,7 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).placement).toBe(true)
         c.destroy()
-        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
+        useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1483,13 +1483,13 @@ describe('run controller', () => {
         expect(c.towerWaveEnd(1)).toBe(false)
         // ten right answers, one on each mark (the placement check), recorded by the duel's own store
         const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o']))
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
+        useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent } })
         for (const m of TOWER_MARKS) c.towerAnswer('right', m.id)
         expect(c.towerWaveEnd(2)).toBe(true)
         // the board ends the visit at that wave
         c.towerDone(2)
         await until(c, (v) => v.screen?.screen === 'broom', 20_000)
-        expect(useSpellQuestStore.getState()).toMatchObject({ bookOpen: true, towerWave: 3 })
+        expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: true, towerWave: 3 })
         const ev = spellQuestTelemetry.events() as { e: string; lane?: string }[]
         expect(ev.filter((e) => e.e === 'book-open').map((e) => e.lane)).toEqual(['fast'])
         expect(ev.filter((e) => e.e === 'tower-placed').length).toBe(1)
@@ -1502,7 +1502,7 @@ describe('run controller', () => {
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
         const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, m.id === 'kamatz' ? 'ox' : 'o']))
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent } })
+        useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent } })
         for (let k = 0; k < 10; k++) c.towerAnswer('right', 'segol')
         expect(c.towerWaveEnd(1)).toBe(false)
         c.destroy()
@@ -1511,13 +1511,13 @@ describe('run controller', () => {
       it('at stage 0 the tower visit is never halved (the check after each wave does the work)', async () => {
         const clean = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'oo']))
         // the slow lane is not passed (2 answers a mark), yet there is no recent mistake: an open book would halve it
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: clean } })
+        useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: clean } })
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
         expect(tv(c).waves).toBe(2)
         c.destroy()
-        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
+        useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell' })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1553,14 +1553,14 @@ describe('run controller', () => {
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerAnswer('wrong', 'kamatz')
         expect(c.view.hearts).toBe(2)
-        useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o'])) } })
+        useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o'])) } })
         for (const m of TOWER_MARKS) c.towerAnswer('right', m.id)
         c.towerDone(2)
         await until(c, (v) => !!v.merchant || v.screen?.screen === 'broom', 20_000)
         expect(c.view.merchant).toBeDefined()
         c.destroy()
         // after a meeting, with 2 hearts he waits a checkpoint again (as before)
-        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 50, checkpointsSinceVisit: 0 })
+        useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', coins: 50, checkpointsSinceVisit: 0 })
         const d = make()
         d.start()
         await until(d, (v) => v.screen?.screen === 'tower')
@@ -1572,15 +1572,15 @@ describe('run controller', () => {
       })
 
       it('a Book 2 player who never played the first duel: the tower first, nothing closes, nothing imported', async () => {
-        useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, firstDuelImported: false })
-        useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().duel)
-        expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 120, bookOpen: true })
+        useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, towerImported: false })
+        useSpellQuestStore.getState().importFirstDuel(useProgressStore.getState().tower)
+        expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 120, screensOpen: true })
         const c = make()
         c.start()
         await until(c, (v) => v.screen?.screen === 'tower')
         c.towerDone(2)
         await until(c, (v) => v.screen?.screen === 'broom')
-        expect(useSpellQuestStore.getState().bookOpen).toBe(true)
+        expect(useSpellQuestStore.getState().screensOpen).toBe(true)
         c.destroy()
       })
     })
@@ -1654,8 +1654,8 @@ describe('run controller', () => {
 
     it('a mastered tower gets one wave (the visit\'s length reaches the tower)', async () => {
       useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
-      useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, O12])) } })
-      useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' }, lastEnded: 'ghosts', cycleNo: 1 })
+      useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, O12])) } })
+      useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 1, newAnswers: '' }, lastEnded: 'ghosts', cycleNo: 1 })
       towerAuto = false
       const d = make()
       d.start()
@@ -2293,7 +2293,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     vi.useFakeTimers()
     towerAuto = true
     useSpellQuestStore.getState().resetProgress()
-    useSpellQuestStore.setState({ bookOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
+    useSpellQuestStore.setState({ screensOpen: true, demosSeen: [...allDemos, 'demo-draw'], dotIntrosSeen: ALL_DOTS })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })
@@ -2506,7 +2506,7 @@ describe('path sessions (spec: one duel, Part 3 and Part 4)', () => {
     vi.useFakeTimers()
     towerAuto = true
     useSpellQuestStore.getState().resetProgress()
-    useSpellQuestStore.setState({ bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
+    useSpellQuestStore.setState({ screensOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: false }, demosSeen: allDemos, dotIntrosSeen: ALL_DOTS, hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))), stage: { stage: 4, newAnswers: '' } })
     played = []
     fakeAudio.onVoice((id) => { played.push(id); return new Promise((r) => setTimeout(r, 10)) })
   })

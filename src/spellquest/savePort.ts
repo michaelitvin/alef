@@ -10,7 +10,7 @@ import { getNumberRange, type NumberRange } from '../shared/numberRange'
 const WRITES = [
   'recordAnswer', 'setPace', 'endRun', 'addStar', 'addCoins', 'spendCoins', 'markBossBeaten', 'setLastBoss', 'markBossNewHeard',
   'notePraise', 'addCrystal', 'markDemo', 'markDotIntro', 'noteDrawRound', 'noteMerchant', 'setMerchantFlag', 'merchantPaid',
-  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'monsterIntroduced', 'noteTowerAnswer', 'openBook', 'nextCycle', 'noteBroomSession',
+  'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'monsterIntroduced', 'noteTowerAnswer', 'markScreensOpen', 'nextCycle', 'noteBroomSession',
 ] as const satisfies readonly (keyof SpellQuestActions)[]
 type SaveWrites = Pick<SpellQuestActions, (typeof WRITES)[number]>
 
@@ -32,7 +32,7 @@ export function portOver<S extends SpellQuestSave & SpellQuestActions>(store: St
 }
 
 /** the real saves: Spell Quest's store (`alef-duel2`) and the lessons' store, where the first duel keeps its answers */
-export const storeSavePort: SavePort = portOver(useSpellQuestStore, () => useProgressStore.getState().duel?.recent ?? {}, getNumberRange)
+export const storeSavePort: SavePort = portOver(useSpellQuestStore, () => useProgressStore.getState().tower?.recent ?? {}, getNumberRange)
 
 /** a save in memory (tests): a fresh save with `initial` over it; the writes work as in the real save */
 export function memorySavePort(initial: Partial<SpellQuestSave> = {}, firstDuelRecent: Record<string, string> = {}): SavePort {

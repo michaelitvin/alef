@@ -44,7 +44,7 @@ describe('the parent area', () => {
   })
 
   it('progress: each game\'s line and top mix-ups come from its raw save, and no other game\'s save is written', async () => {
-    save('alef-duel2', { stage: { stage: 2 }, runs: 4, bestRun: 9, crystals: 1, bookOpen: true, confusions: { letters: { 'l-bet': { 'l-kaf': 3 } }, vowels: {}, syllables: {} } }, 7)
+    save('alef-duel2', { stage: { stage: 2 }, runs: 4, bestRun: 9, crystals: 1, screensOpen: true, confusions: { letters: { 'l-bet': { 'l-kaf': 3 } }, vowels: {}, syllables: {} } }, 7)
     save('alef-clock', { progress: { level: 3 }, roundNo: 20, gears: 5, workdays: 2, bestStreak: 6, confusions: { '3:15': { '3:45': 2 } } })
     const writes: string[] = []
     const set = Storage.prototype.setItem
@@ -144,7 +144,7 @@ describe('the parent area', () => {
     // other tests check that the area creates no other game's store)
     const { useProgressStore } = await import('../stores/progressStore')
     const { INITIAL_PROGRESS_STATE } = await import('../types/progress')
-    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel,
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, tower: { ...INITIAL_PROGRESS_STATE.tower,
       byMark: { kamatz: { seen: 3, correct: 2, wrong: 1, timeout: 0, twin: 0, mega: 0 } } } })
     for (const [game, lazyText] of [['lessons', /Dev mode/], ['book2', /Mark \(most misses first\)/], ['clock', /Predicted miss/], ['spacecat', /Sums he finds hard/]] as const) {
       const { container, unmount } = render(<ParentArea game={game} onClose={() => {}} />)

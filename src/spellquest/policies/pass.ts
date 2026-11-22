@@ -30,7 +30,7 @@ export interface PassFacts {
   /** the parent turned the drawing screens on */
   draw: boolean
   /** Spell Quest's minigames are open (before: stage 0, the tower alone) */
-  bookOpen: boolean
+  screensOpen: boolean
   /** Spell Quest's recent answers per feature, and the first duel's per mark */
   recent: Readonly<Record<string, string>>
   towerRecent: Readonly<Record<string, string>>
@@ -54,7 +54,7 @@ export interface PassFacts {
 export type PassInput =
   | { type: 'visit'; screen: ScreenId; facts: PassFacts } | { type: 'round' } | { type: 'answer'; a: 'right' | 'wrong' | 'near' }
   | { type: 'screen-done'; facts: PassFacts; score: number; empty?: true }
-  | { type: 'checkpoint'; bookOpen: boolean; coins: number; range: NumberRange; sinceVisit: number; bossNext: boolean }
+  | { type: 'checkpoint'; screensOpen: boolean; coins: number; range: NumberRange; sinceVisit: number; bossNext: boolean }
   | { type: 'visited' } | { type: 'bought'; hearts: number } | { type: 'gallery-merchant' } | { type: 'crystal' } | { type: 'owed' }
   | { type: 'lost'; score: number; bestRun: number; cue?: string } | { type: 'heard' } | { type: 'slept' }
 export type PassEvent = PassInput & { at: number }
@@ -143,10 +143,10 @@ const stagesOf = (f: PassFacts): CourseStages => f.stages ?? HEBREW_STAGES
  */
 export function runPass(c: { mode: PassMode; screen?: PassScreen; lastEnded: ScreenId | null; facts: PassFacts }): PassState {
   const f = c.facts
-  const screen = c.screen ?? runStart(f.stage, c.lastEnded, f.draw, f.bookOpen, stagesOf(f))
+  const screen = c.screen ?? runStart(f.stage, c.lastEnded, f.draw, f.screensOpen, stagesOf(f))
   return {
     mode: c.mode, screen, hearts: heartsAtRunStart(),
-    full: c.mode === 'run' && screen === cycleOf(f.stage, f.draw, f.bookOpen, stagesOf(f))[0],
+    full: c.mode === 'run' && screen === cycleOf(f.stage, f.draw, f.screensOpen, stagesOf(f))[0],
     passHearts: 0, crystalOwed: false, afterCrystal: null, crystalGiven: false, checkpointDue: false, purchases: 0, crystals: 0,
     flow: { k: 'play' },
   }
@@ -163,14 +163,14 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
    * never the tower, never the only screen): a skipped screen has no visit and no checkpoint of its own.
    */
   const nextOf = (from: ScreenId, f: PassFacts) => {
-    let nx = nextScreen(f.stage, from, f.draw, f.bookOpen, stagesOf(f))
-    const len = cycleOf(f.stage, f.draw, f.bookOpen, stagesOf(f)).length
+    let nx = nextScreen(f.stage, from, f.draw, f.screensOpen, stagesOf(f))
+    const len = cycleOf(f.stage, f.draw, f.screensOpen, stagesOf(f)).length
     for (let k = 0; k < len && s.mode !== 'session'; k++) {
       // a new cycle starts at the tower, which is never skipped
       if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.towerRecent), f.cycleNo, len)) break
       if (nx.screen === 'doors') s.crystalOwed = true
       r.track.push({ e: 'skip', data: { screen: nx.screen, cycle: f.cycleNo } })
-      nx = nextScreen(f.stage, nx.screen, f.draw, f.bookOpen, stagesOf(f))
+      nx = nextScreen(f.stage, nx.screen, f.draw, f.screensOpen, stagesOf(f))
     }
     return nx
   }
@@ -246,7 +246,7 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
       r.save.push({ op: 'nextCycle' })
       // the end of a full pass: one heart comes back (up to HEARTS) at once, with a sound; no line and no pause (the
       // parent, 2026-11-12); stage 0 (the tower alone) has none
-      const due = s.full && f.bookOpen
+      const due = s.full && f.screensOpen
       s.full = true
       if (!due) break
       const h = passEndHeart(s.hearts)
@@ -261,7 +261,7 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
     }
     case 'checkpoint': {
       // the merchant: only in the adventure, never at stage 0 (the tower alone)
-      if (s.mode !== 'run' || !ev.bookOpen) { s.checkpointDue = false; break }
+      if (s.mode !== 'run' || !ev.screensOpen) { s.checkpointDue = false; break }
       const price = priceAt(s.purchases, ev.range)
       // with 2 hearts he comes at every other checkpoint (merchantDue)
       const due = merchantDue({ adventure: true, hearts: s.hearts.left, coins: ev.coins, price, sinceVisit: ev.sinceVisit, bossNext: ev.bossNext })
@@ -333,7 +333,7 @@ export function visitLength(mode: PassMode, screen: ScreenId, f: PassFacts): num
   const full = stagesOf(f).visit[screen]
   if (mode === 'gallery') return full
   // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
-  if (screen === 'tower' && !f.bookOpen) return full
+  if (screen === 'tower' && !f.screensOpen) return full
   const r = screenRecent(screen, f.recent, f.towerRecent)
   // the tower: its last answers in time order (the fast lane's tail), as for the other screens; before it holds enough
   // of them, every mark's recent answers side by side (not in time order), none of which may be a mistake

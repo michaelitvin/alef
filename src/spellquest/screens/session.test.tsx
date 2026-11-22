@@ -33,7 +33,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     vis = 'visible'
     playOpts.length = 0
     useSpellQuestStore.getState().resetProgress()
-    useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' } })
+    useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 1, newAnswers: '' } })
     setGender('boy', 'parent')
     fakeAudio.onVoice(() => Promise.resolve(true))
   })

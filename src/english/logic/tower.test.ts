@@ -277,7 +277,7 @@ describe('an English tower run', () => {
   it('an English tower run writes its tallies into alef-english, not alef-progress', async () => {
     englishSavePort().setStage(2)
     const progressBefore = localStorage.getItem('alef-progress')
-    const duelBefore = structuredClone(useProgressStore.getState().duel)
+    const duelBefore = structuredClone(useProgressStore.getState().tower)
     const said: string[] = []
     const audio: TowerAudio = {
       playLine: (id) => { said.push(id); return Promise.resolve() }, playSfx: () => Promise.resolve(),
@@ -306,7 +306,7 @@ describe('an English tower run', () => {
     const seen = Object.values(saved.tower.byMark as Record<string, { seen: number }>).reduce((n, t) => n + t.seen, 0)
     expect(seen).toBe(5)
     expect(localStorage.getItem('alef-progress')).toBe(progressBefore)
-    expect(useProgressStore.getState().duel).toEqual(duelBefore)
+    expect(useProgressStore.getState().tower).toEqual(duelBefore)
     // it spoke English: no Hebrew duel line
     expect(said.filter((id) => /^(wiz|mon)-/.test(id))).toEqual([])
   })

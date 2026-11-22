@@ -29,12 +29,12 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
   )
   return (
     <div data-book2-settings>
-      <p data-stage-line>{s.bookOpen === false ? 'Stage 0: the tower (the first duel) alone; Book 2’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
-      {s.bookOpen === false && (
+      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower (the first duel) alone; Book 2’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
+      {s.screensOpen === false && (
         <p data-open-book>
           <label>
             <input type="checkbox" data-setting-open-book checked={false}
-              onChange={() => { s.openBook(); spellQuestTelemetry.track('book-open', { by: 'parent', stars: s.totalStars }) }} /> Already knows
+              onChange={() => { s.markScreensOpen(); spellQuestTelemetry.track('book-open', { by: 'parent', stars: s.totalStars }) }} /> Already knows
             nikkud: open Book 2 (its minigames join the tower in the run)
           </label>
         </p>

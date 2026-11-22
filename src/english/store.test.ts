@@ -17,18 +17,18 @@ describe('the English save', () => {
   })
 
   it('a fresh English save starts at 0 coins, stage 1, no placement', () => {
-    expect(memoryEnglishSavePort().read()).toMatchObject({ coins: 0, bookOpen: true, stage: { stage: 1 }, placement: { done: null, requested: false } })
+    expect(memoryEnglishSavePort().read()).toMatchObject({ coins: 0, screensOpen: true, stage: { stage: 1 }, placement: { done: null, requested: false } })
   })
 
-  it('the English store is its own save, at version 1, with the path on', () => {
+  it('the English store is its own save, at version 2, with the path on', () => {
     expect(useEnglishStore.persist.getOptions().name).toBe('alef-english')
-    expect(useEnglishStore.persist.getOptions().version).toBe(1)
+    expect(useEnglishStore.persist.getOptions().version).toBe(2)
     expect(useEnglishStore.getState().settings.path).toBe(true)
   })
 
   it('the Hebrew store is unchanged', () => {
     expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-duel2')
-    expect(useSpellQuestStore.persist.getOptions().version).toBe(7)
+    expect(useSpellQuestStore.persist.getOptions().version).toBe(8)
   })
 
   it('the store asks its own stage rule', () => {

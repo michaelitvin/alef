@@ -4,7 +4,7 @@
 import type { SpellQuestSave, SpellQuestSettings, MerchantSave } from './store'
 
 /** the save's version: raise it when a save must be converted, and convert older saves in migrateSave */
-export const SAVE_VERSION = 7
+export const SAVE_VERSION = 8
 
 export const FRESH_MERCHANT: MerchantSave = {
   visits: 0, purchases: 0, declines: 0, short: 0, over: 0, hints: 0, level: 0, demoSeen: false, undoShown: false, cleanRow: 0, hintRow: 0,
@@ -27,13 +27,25 @@ const COIN_EVERY = 10
 export const coinsOf = (stars: number) => Math.floor((stars ?? 0) / COIN_EVERY)
 
 /**
+ * Version 8: `bookOpen` becomes `screensOpen` and `firstDuelImported` becomes `towerImported`; the values stay. A no-op when
+ * the old names are absent (the English save, which shares the fields, uses it too).
+ */
+export function renameSpellQuestFieldsV8<T>(state: T): T {
+  const s = { ...state } as Record<string, unknown>
+  if ('bookOpen' in s) { if (s.screensOpen === undefined) s.screensOpen = s.bookOpen; delete s.bookOpen }
+  if ('firstDuelImported' in s) { if (s.towerImported === undefined) s.towerImported = s.firstDuelImported; delete s.firstDuelImported }
+  return s as T
+}
+
+/**
  * Converts an older save, step by step (each step runs for every save older than it; no early return). Version 2: the
  * stroke data of some letters changed after the parent's review, so their review marks are cleared (they show as
  * unchecked again); every other mark stays. Versions 3 and 4: the same for the letters changed after the second and the
  * third review. Version 5 (one duel): his coins (one for each 10 stars) become a balance, and drawing turns on for every
  * save (saves carry an explicit `drawing: false`; the parent can turn it off again). Version 6 (the merchant): the
  * shopping range (100) and the merchant's counters, where missing. Version 7 (the first duel in the run): every stored
- * save keeps Spell Quest open; the first duel's progress is imported once, at the next start (importFirstDuel).
+ * save keeps Spell Quest open; the first duel's progress is imported once, at the next start (importFirstDuel). Version 8
+ * (Spell Quest rename): `bookOpen` is now `screensOpen` and `firstDuelImported` is now `towerImported`.
  */
 export function migrateSave(state: unknown, version: number): Partial<SpellQuestSave> & { settings: SpellQuestSettings } {
   let s = { ...((state ?? {}) as Partial<SpellQuestSave>) }
@@ -51,6 +63,7 @@ export function migrateSave(state: unknown, version: number): Partial<SpellQuest
     }
   }
   // a Spell Quest save is at stage 1 or above: stage 0 has passed, nothing of Spell Quest closes (a missing stage reads as 1)
-  if (version < 7) s = { ...s, bookOpen: (s.stage?.stage ?? 1) >= 1 }
+  if (version < 7) s = { ...s, screensOpen: (s.stage?.stage ?? 1) >= 1 }
+  if (version < 8) s = renameSpellQuestFieldsV8(s)
   return s as Partial<SpellQuestSave> & { settings: SpellQuestSettings }
 }

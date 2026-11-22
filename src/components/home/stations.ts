@@ -62,8 +62,8 @@ function readSpellQuestSave(): Partial<SpellQuestSave> | null {
 
 /** the first duel's recent answers per mark: the saved ones (Spell Quest's tower writes them on its own page), else the store's */
 function readDuelRecent(): Record<string, string> {
-  const d = readState(PROGRESS_KEY)?.duel as { recent?: Record<string, string> } | undefined
-  return d?.recent ?? useProgressStore.getState().duel?.recent ?? {}
+  const d = readState(PROGRESS_KEY)?.tower as { recent?: Record<string, string> } | undefined
+  return d?.recent ?? useProgressStore.getState().tower?.recent ?? {}
 }
 
 export interface StationState { id: ScreenId; learn: string; pic: Station['pic']; open: boolean; rating: 0 | 1 | 2 | 3 }

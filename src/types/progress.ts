@@ -155,7 +155,7 @@ export interface Settings {
    * The first duel's own music switch, from its standalone page (removed): no code reads it any more, but saves from
    * then still hold it
    */
-  duelMusic?: boolean
+  towerMusic?: boolean
 }
 
 /**
@@ -205,7 +205,7 @@ export interface ProgressState {
   /** Vocabulary list - IDs of learned words */
   vocabulary: string[]
   /** Nikkud Wizard Duel stats (parent view) */
-  duel: DuelStats
+  tower: DuelStats
 }
 
 /**
@@ -289,7 +289,7 @@ export const INITIAL_PROGRESS_STATE: ProgressState = {
   currentSession: undefined,
   gameCompleted: false,
   vocabulary: [],
-  duel: EMPTY_DUEL_STATS,
+  tower: EMPTY_DUEL_STATS,
 }
 
 /**

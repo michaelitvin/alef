@@ -16,8 +16,8 @@ export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | nul
  * before he first opened Spell Quest (its save then moves the first duel's progress over). `stages`: the course's (the English
  * page passes its save, its tower's answers and its stages; default Hebrew).
  */
-export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; bookOpen?: boolean } | null, towerRecent: Record<string, string>,
+export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; screensOpen?: boolean } | null, towerRecent: Record<string, string>,
   stages: CourseStages = HEBREW_STAGES): ScreenId[] {
-  const open = !!save?.bookOpen || towerMastered(towerRecent, TOWER_MARKS.map((m) => m.id))
+  const open = !!save?.screensOpen || towerMastered(towerRecent, TOWER_MARKS.map((m) => m.id))
   return cycleOf(save?.stage?.stage ?? 1, save?.settings?.drawing ?? true, open, stages)
 }

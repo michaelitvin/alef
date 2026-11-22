@@ -19,7 +19,7 @@ export const spellQuestParent: GameParent = {
   summary: (raw) => {
     const s = persistedState<SpellQuestSave>(raw)
     if (!s) return null
-    const stage = s.bookOpen === false ? 0 : s.stage?.stage ?? 1
+    const stage = s.screensOpen === false ? 0 : s.stage?.stage ?? 1
     return `Stage ${stage} · runs ${s.runs ?? 0} · best run ${s.bestRun ?? 0} · crystals ${s.crystals ?? 0}`
   },
   mixups: (raw) => {

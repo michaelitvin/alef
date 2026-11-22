@@ -285,7 +285,7 @@ describe('TowerController', () => {
     await flushLines()
     expect(lines()).toEqual(expect.arrayContaining([`wiz-${r.target.id}`, `wiz-vowel-${r.target.group}`, `wiz-word-${r.word.key}`]))
     expect(result.current.state.round?.id).not.toBe(r.id)
-    expect(useProgressStore.getState().duel.byMark[r.target.id].correct).toBe(1)
+    expect(useProgressStore.getState().tower.byMark[r.target.id].correct).toBe(1)
   })
   it('pausing during an announcement holds the round until resume; exactly one round after resume', async () => {
     const { result } = game({ telemetry: tel, rng: rngConst(0.01), embedded: firstVisit() })
@@ -308,7 +308,7 @@ describe('TowerController', () => {
       result.current.choose({ kind: 'rune', mark: r.target })
     })
     await flushLines()
-    expect(useProgressStore.getState().duel.byMark[r.target.id].seen).toBe(1)
+    expect(useProgressStore.getState().tower.byMark[r.target.id].seen).toBe(1)
   })
   it('a wrong tap is recorded as a confusion, and the next round is built from lifetime stats and confusions', async () => {
     const seen: MakeRoundOpts[] = []
@@ -318,7 +318,7 @@ describe('TowerController', () => {
     await flushLines()
     act(() => result.current.choose({ kind: 'rune', mark: markById('segol') })) // asked kamatz
     await flushLines()
-    expect(useProgressStore.getState().duel.confusions).toEqual({ kamatz: { segol: 1 } })
+    expect(useProgressStore.getState().tower.confusions).toEqual({ kamatz: { segol: 1 } })
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     await flushLines()
     expect(seen.length).toBeGreaterThan(1)
@@ -331,7 +331,7 @@ describe('TowerController', () => {
     act(() => result.current.start())
     await flushLines()
     act(() => result.current.choose({ kind: 'rune', mark: markById('patach') }))
-    expect(useProgressStore.getState().duel.confusions).toEqual({ kamatz: { patach: 1 } })
+    expect(useProgressStore.getState().tower.confusions).toEqual({ kamatz: { patach: 1 } })
   })
   it('adaptive pace: after a monster reaches the tower the next one walks a little slower, and the pace is remembered', async () => {
     const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 3000 })
@@ -350,10 +350,10 @@ describe('TowerController', () => {
     const w = result.current.state.round!.walkMs
     expect(w).toBeGreaterThan(3000)
     expect(w).toBeLessThanOrEqual(3000 * 1.12)
-    expect(useProgressStore.getState().duel.pace).toBeGreaterThan(1)
+    expect(useProgressStore.getState().tower.pace).toBeGreaterThan(1)
   })
   it('shorter feedback: first time this game → full recap; later, a quick right answer on a strong mark → just the sound', async () => {
-    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel,
+    useProgressStore.setState({ tower: { ...useProgressStore.getState().tower,
       byMark: { kamatz: { seen: 40, correct: 40, wrong: 0, timeout: 0, twin: 0, mega: 0 } }, recent: { kamatz: 'oooooooo' } } })
     const mk = (o: MakeRoundOpts) => ({ ...cRound(), type: 'A' as const, id: o.id, walkMs: 60000 })
     const { result } = game({ telemetry: tel, rng: rngConst(0.01), embedded: firstVisit(), makeRound: mk })
@@ -434,7 +434,7 @@ describe('review fixes', () => {
     })
     expect(answers).toEqual([]) // no answer for the run: no heart lost
     expect(result.current.state.outcome).toBeNull()
-    expect(useProgressStore.getState().duel.byMark.kamatz.twin).toBe(1)
+    expect(useProgressStore.getState().tower.byMark.kamatz.twin).toBe(1)
     // the right answer still works afterwards
     act(() => result.current.choose({ kind: 'rune', mark: markById('kamatz') }))
     expect(result.current.state.outcome?.kind).toBe('hit')
@@ -544,7 +544,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     await flushLines()
     const r = result.current.state.round!
     expect(result.current.state.outcome).toBeNull()
-    const before = useProgressStore.getState().duel
+    const before = useProgressStore.getState().tower
     const combo = result.current.state.combo
     const kills = result.current.state.kills
     act(() => result.current.megaCast())
@@ -554,7 +554,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     expect(charges[charges.length - 1]).toBe(0)
     expect(answers.length).toBe(8) // not reported: no star, no towerTail, the streak and the hearts stay
     expect(megas).toEqual([r.target.id])
-    const after = useProgressStore.getState().duel
+    const after = useProgressStore.getState().tower
     expect(after.recent?.[r.target.id]).toBe(before.recent?.[r.target.id]) // not a right answer for mastery
     expect(after.pace).toBe(before.pace)
     expect(after.byMark[r.target.id]?.mega).toBe(1) // counted on its own (the parent report's מגה column)
@@ -633,7 +633,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     const { result } = game({ telemetry: tel, rng: rngConst(0.01), embedded: e })
     act(() => result.current.start())
     await playRight(result, 3, done)
-    const d = useProgressStore.getState().duel
+    const d = useProgressStore.getState().tower
     expect(d.sessions).toBe(0)
     expect(d.bestScore).toBe(0)
     expect(Object.values(d.byMark).reduce((a, t) => a + t.seen, 0)).toBe(3)
@@ -644,7 +644,7 @@ describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
     const { result } = game({ telemetry: tel, rng: rngConst(0.01), embedded: e })
     act(() => result.current.start())
     await playRight(result, 2, done)
-    expect(useProgressStore.getState().duel.byMark).toEqual({})
+    expect(useProgressStore.getState().tower.byMark).toEqual({})
   })
 
   it('the intro plays only when not seen (then it is kept)', async () => {

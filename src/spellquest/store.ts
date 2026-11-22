@@ -86,11 +86,11 @@ export interface SpellQuestSave {
   /** monsters whose "new monster" introduction a tower boss visit jumped over: each is introduced when it first appears */
   towerOwed: string[]
   /** Spell Quest's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Spell Quest save) */
-  bookOpen: boolean
+  screensOpen: boolean
   /** the tower's last answers in time order, newest last (o / x): the fast lane of stage 0 (mastery.fastLane) */
   towerTail: string
   /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
-  firstDuelImported: boolean
+  towerImported: boolean
   /** the cycles of the run so far, across runs: a long-mastered screen is skipped in every other one */
   cycleNo: number
   /** broom sessions from the path so far: every second one is a boss fight (the run's boss rhythm) */
@@ -140,7 +140,7 @@ export interface SpellQuestActions {
   /** an answer on the tower, in time order (the fast lane's tail) */
   noteTowerAnswer: (right: boolean) => void
   /** stage 0 has passed: Spell Quest's minigames open */
-  openBook: () => void
+  markScreensOpen: () => void
   /** a new cycle of the run starts */
   nextCycle: () => void
   /** a broom session from the path starts */
@@ -158,7 +158,7 @@ const fresh = (): Omit<SpellQuestSave, 'settings' | 'strokeMarks'> => ({
   demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
-  towerWave: 1, towerVisits: 0, towerOwed: [], bookOpen: false, towerTail: '', firstDuelImported: false, cycleNo: 0, broomSessions: 0,
+  towerWave: 1, towerVisits: 0, towerOwed: [], screensOpen: false, towerTail: '', towerImported: false, cycleNo: 0, broomSessions: 0,
 })
 
 const bump = (c: Conf, a: string, b: string): Conf => ({ ...c, [a]: { ...(c[a] ?? {}), [b]: (c[a]?.[b] ?? 0) + 1 } })
@@ -250,16 +250,16 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
   oweMonsters: (ids) => set((s) => ({ towerOwed: [...new Set([...(s.towerOwed ?? []), ...ids])] })),
   monsterIntroduced: (id) => set((s) => ({ towerOwed: (s.towerOwed ?? []).filter((x) => x !== id) })),
   noteTowerAnswer: (right) => set((s) => ({ towerTail: pushTowerTail(s.towerTail, right) })),
-  openBook: () => set({ bookOpen: true }),
+  markScreensOpen: () => set({ screensOpen: true }),
   nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
   noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
   importFirstDuel: (duel) => set((s) => {
-    if (s.firstDuelImported) return s
+    if (s.towerImported) return s
     const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
     const mastered = towerMastered(duel?.recent ?? {}, TOWER_MARKS.map((m) => m.id))
     return {
       totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
-      bookOpen: !!s.bookOpen || mastered, firstDuelImported: true,
+      screensOpen: !!s.screensOpen || mastered, towerImported: true,
     }
   }),
   resetProgress: () => set((s) => ({ ...fresh(), ...initial, settings: s.settings, strokeMarks: s.strokeMarks ?? {} })),

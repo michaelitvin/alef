@@ -24,24 +24,24 @@ export const TARGET_EVERY = 3
 
 /**
  * The screens of a cycle: the tower first, then the course's screens of his stage, then drawing when on. Before Spell Quest
- * opens (`bookOpen` false: stage 0) only the tower; drawing too waits for stage 1. `stages`: the course's (Hebrew by default).
+ * opens (`screensOpen` false: stage 0) only the tower; drawing too waits for stage 1. `stages`: the course's (Hebrew by default).
  */
-export const cycleOf = (stage: number, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId[] =>
-  !bookOpen ? ['tower'] : stages.order.filter((s) => (s === 'tower' ? true : stages.drawing.includes(s) ? draw : stages.screensOfStage(stage).includes(s)))
+export const cycleOf = (stage: number, draw = false, screensOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId[] =>
+  !screensOpen ? ['tower'] : stages.order.filter((s) => (s === 'tower' ? true : stages.drawing.includes(s) ? draw : stages.screensOfStage(stage).includes(s)))
 
 /** The screen after `current` (which need not be in the cycle, e.g. drawing turned off since). */
-export function nextScreen(stage: number, current: ScreenId, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): { screen: ScreenId; newCycle: boolean } {
-  const c = cycleOf(stage, draw, bookOpen, stages)
+export function nextScreen(stage: number, current: ScreenId, draw = false, screensOpen = true, stages: CourseStages = HEBREW_STAGES): { screen: ScreenId; newCycle: boolean } {
+  const c = cycleOf(stage, draw, screensOpen, stages)
   const at = stages.order.indexOf(current)
   const after = c.find((s) => stages.order.indexOf(s) > at)
   return after ? { screen: after, newCycle: false } : { screen: c[0], newCycle: true }
 }
 
-export function runStart(stage: number, lastEnded: ScreenId | null, draw = false, bookOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId {
-  const c = cycleOf(stage, draw, bookOpen, stages)
+export function runStart(stage: number, lastEnded: ScreenId | null, draw = false, screensOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId {
+  const c = cycleOf(stage, draw, screensOpen, stages)
   // a screen that is not in the cycle (another stage's, or drawing turned off) starts the cycle over
   if (!lastEnded || !c.includes(lastEnded)) return c[0]
-  return nextScreen(stage, lastEnded, draw, bookOpen, stages).screen
+  return nextScreen(stage, lastEnded, draw, screensOpen, stages).screen
 }
 
 export interface Hearts { left: number; nearMissUsed: boolean }

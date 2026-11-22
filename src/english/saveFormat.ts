@@ -2,14 +2,22 @@
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
 // so writing) the store. It never reads or writes Spell Quest's save (alef-duel2): the English path has its own purse.
 import type { SpellQuestSave, SpellQuestSettings } from '../spellquest/store'
-import { DEFAULT_SETTINGS } from '../spellquest/saveFormat'
+import { DEFAULT_SETTINGS, renameSpellQuestFieldsV8 } from '../spellquest/saveFormat'
 import type { ScreenId } from '../spellquest/logic/predict'
 import type { TowerTallies } from '../spellquest/tower/logic/tallies'
 import type { PlacementState } from './logic/placement'
 
 export const ENGLISH_SAVE_KEY = 'alef-english'
 /** the save's version: raise it when a save must be converted */
-export const ENGLISH_SAVE_VERSION = 1
+export const ENGLISH_SAVE_VERSION = 2
+
+/** Version 2 (Spell Quest rename): `bookOpen` is now `screensOpen`, `firstDuelImported` is now `towerImported`. */
+export const renameEnglishFieldsV2 = <T>(state: T): T => renameSpellQuestFieldsV8(state)
+
+/** converts an older English save, step by step */
+export function migrateEnglishSave(state: unknown, version: number): unknown {
+  return version < 2 ? renameEnglishFieldsV2((state ?? {}) as object) : state
+}
 
 export type EnglishSettings = SpellQuestSettings & {
   /** the English path is on (the parent can turn it off) */
@@ -48,7 +56,7 @@ export type EnglishFields = Omit<EnglishSave, keyof SpellQuestSave> & { settings
 /** a fresh English save, over a fresh Spell Quest save: no coins, the book open, stage 1, no placement yet */
 export const ENGLISH_FRESH: Partial<SpellQuestSave> & EnglishFields = {
   coins: 0,
-  bookOpen: true,
+  screensOpen: true,
   stage: { stage: 1, newAnswers: '' },
   settings: { ...DEFAULT_SETTINGS, path: true },
   placement: { state: null, requested: false, done: null, runs: 0 },
@@ -63,8 +71,10 @@ export function readEnglishSave(): Partial<EnglishSave> | null {
   try {
     const raw = localStorage.getItem(ENGLISH_SAVE_KEY)
     if (!raw) return null
-    const s = (JSON.parse(raw) as { state?: unknown })?.state
-    return s && typeof s === 'object' ? s as Partial<EnglishSave> : null
+    const p = JSON.parse(raw) as { state?: unknown; version?: unknown }
+    const s = p?.state
+    if (!s || typeof s !== 'object') return null
+    return migrateEnglishSave(s, typeof p.version === 'number' ? p.version : 0) as Partial<EnglishSave>
   } catch {
     return null
   }

@@ -17,7 +17,7 @@ describe('the Hebrew spell book in the run', () => {
   it('with no voice files at all, a fresh save sees the demo once and plays the session to the end; each box counts on its syllable', async () => {
     // every clip missing: the player says so at once (not heard)
     fakeAudio.onVoice(() => Promise.resolve(false))
-    const save = memorySavePort({ stage: { stage: 4, newAnswers: 'oox' }, bookOpen: true })
+    const save = memorySavePort({ stage: { stage: 4, newAnswers: 'oox' }, screensOpen: true })
     const c = new RunController({ course: HEBREW, save, now: () => Date.now(), rng: seeded(3), session: { screen: 'spell' } })
     c.start()
     const words: string[] = []

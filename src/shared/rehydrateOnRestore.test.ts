@@ -18,12 +18,12 @@ describe('a page restored from the back/forward cache reads the saves again', ()
     off = rehydrateOnRestore(useProgressStore)
     // Book 2's page saved his tower answers while this page waited in the cache
     const saved = JSON.parse(localStorage.getItem('alef-progress')!)
-    saved.state.duel = { ...saved.state.duel, recent: { kamatz: 'ooxo' } }
+    saved.state.tower = { ...saved.state.tower, recent: { kamatz: 'ooxo' } }
     localStorage.setItem('alef-progress', JSON.stringify(saved))
     pageshow(false)
-    expect(useProgressStore.getState().duel.recent?.kamatz).toBeUndefined()
+    expect(useProgressStore.getState().tower.recent?.kamatz).toBeUndefined()
     pageshow(true)
     await Promise.resolve()
-    expect(useProgressStore.getState().duel.recent?.kamatz).toBe('ooxo')
+    expect(useProgressStore.getState().tower.recent?.kamatz).toBe('ooxo')
   })
 })

@@ -50,7 +50,7 @@ describe('SpellQuestApp around its screens', () => {
     const spy = vi.spyOn(useSpellQuestStore.getState(), 'importFirstDuel')
     render(<SpellQuestApp goHome={() => {}} />)
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(useProgressStore.getState().duel)
+    expect(spy).toHaveBeenCalledWith(useProgressStore.getState().tower)
   })
 
   it('the test-build addresses open their pages', () => {
@@ -119,7 +119,7 @@ describe('SpellQuestApp around its screens', () => {
   })
 
   it('reads the station link once, at mount', async () => {
-    useSpellQuestStore.setState({ bookOpen: true, stage: { stage: 1, newAnswers: '' } })
+    useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 1, newAnswers: '' } })
     at('/?station=ghosts')
     const { container, rerender } = render(<SpellQuestApp goHome={() => {}} />)
     at('/')

@@ -119,7 +119,7 @@ describe('the tower on another course’s content', () => {
     const done: number[] = []
     const tallies = memoryTallies()
     const before = localStorage.getItem('alef-progress')
-    const duelBefore = structuredClone(useProgressStore.getState().duel)
+    const duelBefore = structuredClone(useProgressStore.getState().tower)
     const c = new TowerController({
       embedded: {
         wave: 1, waves: 1, boss: false, seen: [], onSeen: () => {},
@@ -152,7 +152,7 @@ describe('the tower on another course’s content', () => {
     expect(indexOfRun(said, ['en-ask-m', 'en-sound-m', 'en-name-m', 'en-word-moon'])).toBeGreaterThan(how)
     // the answers went to the tower's tallies, and none to the first duel's save (alef-progress)
     expect(localStorage.getItem('alef-progress')).toBe(before)
-    expect(useProgressStore.getState().duel).toEqual(duelBefore)
+    expect(useProgressStore.getState().tower).toEqual(duelBefore)
     const t = tallies.read()
     expect(t.byMark.m).toMatchObject({ seen: 5, correct: 5 })
     expect(t.recent.m).toBe('ooooo')

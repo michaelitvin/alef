@@ -76,7 +76,7 @@ export async function drain(c: RunController) {
 
 /** the book open, drawing on, the demos, dot introductions and hints seen: the sessions are plain rounds */
 const SAVE = {
-  bookOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: true },
+  screensOpen: true, settings: { ...DEFAULT_SETTINGS, drawing: true },
   demosSeen: ['demo-broom', 'demo-broom-letter', 'demo-cauldron', 'demo-ladder', 'demo-ghosts-letter', 'demo-ghosts-syllable', 'demo-doors', 'demo-draw', 'demo-spell'],
   dotIntrosSeen: ['bet', 'kaf', 'pe', 'shin'],
   hintsSeen: Object.fromEntries(['cauldron', 'ladder', 'ghosts'].flatMap((s) => [1, 2, 3, 4].map((n) => [`${s}:${n}`, 99]))),

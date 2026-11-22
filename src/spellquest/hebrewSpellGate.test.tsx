@@ -24,7 +24,7 @@ describe('the Hebrew spell book on production', () => {
   it('the station link of the spell book opens the cover, and the home path has no spell station', async () => {
     production(); vi.resetModules()
     const { openScreens, stationFromUrl } = await import('./station')
-    const open = openScreens({ stage: { stage: 4 }, bookOpen: true }, {})
+    const open = openScreens({ stage: { stage: 4 }, screensOpen: true }, {})
     expect(stationFromUrl('?station=spell', open)).toBeNull()
     expect(stationFromUrl('?station=doors', open)).toBe('doors')
     const { useStations } = await import('../components/home/stations')

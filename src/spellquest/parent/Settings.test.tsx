@@ -20,30 +20,30 @@ describe('Book 2\'s section in the parent area', () => {
 
   it('“already knows nikkud”: the parent opens Book 2 at stage 0 (logged); the switch shows only while the book is closed', () => {
     useSpellQuestStore.getState().resetProgress()
-    useSpellQuestStore.setState({ bookOpen: false })
+    useSpellQuestStore.setState({ screensOpen: false })
     const track = vi.spyOn(spellQuestTelemetry, 'track')
     const { container } = section()
     const box = container.querySelector('[data-open-book] [data-setting-open-book]') as HTMLInputElement
     expect(box).not.toBeNull()
     fireEvent.click(box)
-    expect(useSpellQuestStore.getState().bookOpen).toBe(true)
+    expect(useSpellQuestStore.getState().screensOpen).toBe(true)
     expect(track).toHaveBeenCalledWith('book-open', expect.objectContaining({ by: 'parent' }))
     expect(container.querySelector('[data-setting-open-book]')).toBeNull()
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
   it('the stage line says stage 0 (the tower) before Book 2 opens', () => {
-    useSpellQuestStore.setState({ bookOpen: false })
+    useSpellQuestStore.setState({ screensOpen: false })
     const { container, unmount } = section()
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 0: the tower/)
     unmount()
-    useSpellQuestStore.setState({ bookOpen: true })
+    useSpellQuestStore.setState({ screensOpen: true })
     const r = section()
     expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
   it('the first duel’s history: sessions, minutes, best score, best wave, and a row per mark played, most misses first', () => {
-    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, duel: { ...INITIAL_PROGRESS_STATE.duel, sessions: 7, bestScore: 4321, bestWave: 9, roundsMs: 180_000,
+    useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, tower: { ...INITIAL_PROGRESS_STATE.tower, sessions: 7, bestScore: 4321, bestWave: 9, roundsMs: 180_000,
       byMark: { kamatz: { seen: 30, correct: 20, wrong: 4, timeout: 2, twin: 1, mega: 4 }, segol: { seen: 10, correct: 2, wrong: 6, timeout: 2, twin: 0, mega: 0 } } } })
     const { container } = section()
     expect(container.querySelector('[data-duel-best]')!.textContent).toBe('4321')
@@ -139,10 +139,10 @@ describe('Book 2\'s section in the parent area', () => {
 
   it('reset clears Book 2 only (the lessons and the first duel’s history stay)', async () => {
     useSpellQuestStore.setState({ crystals: 4 })
-    useProgressStore.setState({ duel: { ...INITIAL_PROGRESS_STATE.duel, sessions: 3 }, stats: { ...INITIAL_PROGRESS_STATE.stats, lettersLearned: 5 } })
+    useProgressStore.setState({ tower: { ...INITIAL_PROGRESS_STATE.tower, sessions: 3 }, stats: { ...INITIAL_PROGRESS_STATE.stats, lettersLearned: 5 } })
     await spellQuestParent.reset()
     expect(useSpellQuestStore.getState().crystals).toBe(0)
-    expect(useProgressStore.getState().duel.sessions).toBe(3)
+    expect(useProgressStore.getState().tower.sessions).toBe(3)
     expect(useProgressStore.getState().stats.lettersLearned).toBe(5)
   })
 })

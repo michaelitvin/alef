@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { persistSaveStorage } from '../shared/saveStorage'
+import { PROGRESS_PERSIST_VERSION, migrateProgress } from './progressMigrate'
 import type {
   ProgressState,
   NodeProgress,
@@ -464,15 +465,15 @@ export const useProgressStore = create<ProgressStore>()(
           return { ...b, seen: b.seen + 1, [result]: b[result] + 1 }
         }
         set((state) => ({
-          duel: {
-            ...state.duel,
-            roundsMs: state.duel.roundsMs + Math.max(0, Math.round(ms)),
+          tower: {
+            ...state.tower,
+            roundsMs: state.tower.roundsMs + Math.max(0, Math.round(ms)),
             lastPlayed: Date.now(),
-            byMark: { ...state.duel.byMark, [markId]: bump(state.duel.byMark[markId]) },
-            byType: { ...state.duel.byType, [type]: bump(state.duel.byType[type]) },
-            recent: opts?.recent === false ? state.duel.recent : {
-              ...state.duel.recent,
-              [markId]: ((state.duel.recent?.[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
+            byMark: { ...state.tower.byMark, [markId]: bump(state.tower.byMark[markId]) },
+            byType: { ...state.tower.byType, [type]: bump(state.tower.byType[type]) },
+            recent: opts?.recent === false ? state.tower.recent : {
+              ...state.tower.recent,
+              [markId]: ((state.tower.recent?.[markId] ?? '') + (result === 'correct' || result === 'mega' ? 'o' : 'x')).slice(-RECENT_KEEP),
             },
           },
         }))
@@ -483,22 +484,22 @@ export const useProgressStore = create<ProgressStore>()(
           return { ...b, twin: b.twin + 1 }
         }
         set((state) => ({
-          duel: {
-            ...state.duel,
-            byMark: { ...state.duel.byMark, [markId]: twin(state.duel.byMark[markId]) },
-            byType: { ...state.duel.byType, [type]: twin(state.duel.byType[type]) },
+          tower: {
+            ...state.tower,
+            byMark: { ...state.tower.byMark, [markId]: twin(state.tower.byMark[markId]) },
+            byType: { ...state.tower.byType, [type]: twin(state.tower.byType[type]) },
           },
         }))
       },
       recordDuelConfusion: (askedId, tappedId) => {
         set((state) => {
-          const all = state.duel.confusions ?? {}
+          const all = state.tower.confusions ?? {}
           const row = all[askedId] ?? {}
-          return { duel: { ...state.duel, confusions: { ...all, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } } }
+          return { tower: { ...state.tower, confusions: { ...all, [askedId]: { ...row, [tappedId]: (row[tappedId] ?? 0) + 1 } } } }
         })
       },
       setDuelPace: (pace) => {
-        set((state) => ({ duel: { ...state.duel, pace } }))
+        set((state) => ({ tower: { ...state.tower, pace } }))
       },
 
       // Reset all progress
@@ -587,6 +588,8 @@ export const useProgressStore = create<ProgressStore>()(
     }),
     {
       name: 'alef-progress',
+      version: PROGRESS_PERSIST_VERSION,
+      migrate: (state, version) => migrateProgress(state, version) as ProgressState,
       storage: persistSaveStorage(),
       partialize: (state) => ({
         // Only persist these fields
@@ -599,12 +602,12 @@ export const useProgressStore = create<ProgressStore>()(
         settings: state.settings,
         gameCompleted: state.gameCompleted,
         vocabulary: state.vocabulary,
-        duel: state.duel,
+        tower: state.tower,
       }),
       // Saves from before the duel lack `duel` (or carry null): keep the defaults.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<ProgressState>
-        return { ...current, ...p, duel: p.duel ?? current.duel, settings: { ...current.settings, ...p.settings } }
+        return { ...current, ...p, tower: p.tower ?? current.tower, settings: { ...current.settings, ...p.settings } }
       },
     }
   )

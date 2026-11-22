@@ -91,7 +91,7 @@ async function scenario() {
     }
   } finally { spy.mockRestore(); setTowerAudioLog(null) }
   log.lines = audio.said()
-  return { log, duel: useProgressStore.getState().duel }
+  return { log, tower: useProgressStore.getState().tower }
 }
 
 describe('the tower baseline', () => {
@@ -102,8 +102,8 @@ describe('the tower baseline', () => {
     expect(a.log.answers.length).toBeGreaterThan(10)
     // the forgiven twin was tapped at least once (a choice event says so, and the save counts it)
     expect(a.log.events.some((x) => (x as { e: string; data: { twin?: boolean } }).e === 'choice' && (x as { data: { twin?: boolean } }).data.twin === true)).toBe(true)
-    expect(Object.values(a.duel.byMark).reduce((n, t) => n + t.twin, 0)).toBeGreaterThan(0)
+    expect(Object.values(a.tower.byMark).reduce((n, t) => n + t.twin, 0)).toBeGreaterThan(0)
     expect(a.log).toMatchSnapshot()
-    expect(a.duel).toMatchSnapshot()
+    expect(a.tower).toMatchSnapshot()
   }, 120_000)
 })

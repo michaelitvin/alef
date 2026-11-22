@@ -16,7 +16,7 @@ beforeEach(() => {
 
 describe('storeSavePort', () => {
   it('reads and writes the real saves', () => {
-    useProgressStore.setState({ duel: { ...INITIAL_PROGRESS_STATE.duel, recent: { patah: 'oox' } } })
+    useProgressStore.setState({ tower: { ...INITIAL_PROGRESS_STATE.tower, recent: { patah: 'oox' } } })
     storeSavePort.addCoins(3)
     storeSavePort.noteMerchant('visit')
     expect(useSpellQuestStore.getState().coins).toBe(3)
@@ -46,11 +46,11 @@ describe('memorySavePort', () => {
     const a = memorySavePort()
     const b = memorySavePort()
     a.addCoins(5)
-    a.openBook()
+    a.markScreensOpen()
     expect(a.read().coins).toBe(5)
     expect(b.read().coins).toBe(0)
     expect(useSpellQuestStore.getState().coins).toBe(0)
-    expect(useSpellQuestStore.getState().bookOpen).toBe(false)
+    expect(useSpellQuestStore.getState().screensOpen).toBe(false)
   })
 
   it('a read is a snapshot: it does not change after a write', () => {
@@ -85,7 +85,7 @@ describe('the run on the seams', () => {
   }
 
   it('plays a round on a save in memory and a clock that never waits', async () => {
-    const save = memorySavePort({ bookOpen: true, demosSeen: ['demo-ghosts-letter'] })
+    const save = memorySavePort({ screensOpen: true, demosSeen: ['demo-ghosts-letter'] })
     const time = instantSleeper()
     const c = new RunController({ save, sleeper: time, rng: () => 0.3, force: { screen: 'ghosts', stage: 2, kind: 'letter' } })
     c.start()

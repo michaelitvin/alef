@@ -77,10 +77,10 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(st(container, 'spell').querySelector('[data-pic="book"]')).not.toBeNull()
     expect(st(container, 'spell').querySelector('img:not([src])')).toBeNull()
     // it opens with the doors (stage 4)
-    save({ stage: { stage: 3, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    save({ stage: { stage: 3, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'spell').getAttribute('data-open')).toBe('false')
-    save({ stage: { stage: 4, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    save({ stage: { stage: 4, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'spell').getAttribute('data-open')).toBe('true')
     expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=spell`)
@@ -91,7 +91,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('stage 2 with drawing: open stations first in path order, then the locked doors and spell book', () => {
-    save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    save({ stage: { stage: 2, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     const { container } = render(<StationPath />)
     expect(order(container)).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand', 'doors', 'spell'])
     expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
@@ -99,8 +99,8 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('ratings come from his recent answers', () => {
-    save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, recent: { 'sc:ghosts': 'oxo', 'sc:broom': 'oooooo' } })
-    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: { kamatz: 'xxo' } } })
+    save({ stage: { stage: 2, newAnswers: '' }, screensOpen: true, recent: { 'sc:ghosts': 'oxo', 'sc:broom': 'oooooo' } })
+    useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: { kamatz: 'xxo' } } })
     const { container } = render(<StationPath />)
     expect(st(container, 'ghosts').getAttribute('data-rating')).toBe('2')
     expect(st(container, 'ghosts').querySelectorAll('.home-dots i.on').length).toBe(2)
@@ -110,7 +110,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('the wizard stands at the newest open station, and follows the saved player', () => {
-    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
+    save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true, settings: { drawing: false } })
     const { container, unmount } = render(<StationPath />)
     expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
     expect(st(container, 'ghosts').querySelector('[data-wizard]')).not.toBeNull()
@@ -122,7 +122,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('the path goes right to left: the wizard and the ghost, drawn facing right, are mirrored to face left (the parent, 2026-11-14)', async () => {
-    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
+    save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true, settings: { drawing: false } })
     const { container } = render(<StationPath />)
     const ghost = st(container, 'ghosts').querySelector<HTMLImageElement>('[data-pic="img"]')!
     expect(ghost.style.transform).toBe('scaleX(-1)')
@@ -133,7 +133,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('on load the path scrolls (at once, not smoothly) so the wizard\'s station is in view (RTL: it can start off-screen on a phone)', () => {
-    save({ stage: { stage: 2, newAnswers: '' }, bookOpen: true, settings: { drawing: false } })
+    save({ stage: { stage: 2, newAnswers: '' }, screensOpen: true, settings: { drawing: false } })
     // the path is 360px wide; the wizard's station (the ladder) lies off its left edge
     const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
       const r = this.hasAttribute('data-path') ? { left: 0, width: 360 } : this.querySelector('[data-wizard]') ? { left: -300, width: 84 } : { left: 100, width: 84 }
@@ -157,11 +157,11 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('the wizard stands at the newest reading station, not at drawing (which opens with stage 1 and comes last on the path)', () => {
-    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     const a = render(<StationPath />)
     expect(st(a.container, 'ghosts').querySelector('[data-wizard]')).not.toBeNull()
     a.unmount()
-    save({ stage: { stage: 4, newAnswers: '' }, bookOpen: true, settings: { drawing: true } })
+    save({ stage: { stage: 4, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     const b = render(<StationPath />)
     expect(b.container.querySelectorAll('[data-wizard]').length).toBe(1)
     expect(st(b.container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
@@ -170,11 +170,11 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   it('coming back to the page re-reads the Book 2 save', () => {
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')
-    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true, recent: { 'sc:broom': 'ooo' } })
+    save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true, recent: { 'sc:broom': 'ooo' } })
     act(() => { document.dispatchEvent(new Event('visibilitychange')) })
     expect(st(container, 'broom').getAttribute('data-open')).toBe('true')
     expect(st(container, 'broom').getAttribute('data-rating')).toBe('3')
-    save({ stage: { stage: 4, newAnswers: '' }, bookOpen: true })
+    save({ stage: { stage: 4, newAnswers: '' }, screensOpen: true })
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'doors').getAttribute('data-open')).toBe('true')
   })
@@ -203,7 +203,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('a first-duel-only player who mastered the tower sees Book 2’s first stations open', () => {
-    useProgressStore.setState({ duel: { ...useProgressStore.getState().duel, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo'])) } })
+    useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo'])) } })
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('true')
     expect(st(container, 'ghosts').getAttribute('data-open')).toBe('true')
@@ -219,7 +219,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   })
 
   it('a station links to its session; the card to the cover; a locked station links nowhere', () => {
-    save({ stage: { stage: 1, newAnswers: '' }, bookOpen: true })
+    save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true })
     const { container } = render(<><DuelCard /><StationPath /></>)
     expect(container.querySelector('[data-card="duel"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/`)
     expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=ghosts`)

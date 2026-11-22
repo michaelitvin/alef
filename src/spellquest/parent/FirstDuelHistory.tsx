@@ -24,7 +24,7 @@ const col = (key: (typeof COLS)[number]['key']) => (key === 'correctPct' ? 'corr
 const misses = (t?: Tally) => (t ? (t.wrong ?? 0) + (t.timeout ?? 0) : -1)
 
 export function FirstDuelHistory({ goTo }: Pick<SectionProps, 'goTo'>) {
-  const d = useProgressStore((p) => p.duel)
+  const d = useProgressStore((p) => p.tower)
   const byMark = d?.byMark ?? {}
   const rows = [...TOWER_MARKS].filter((m) => byMark[m.id]).sort((a, b) => misses(byMark[b.id]) - misses(byMark[a.id]))
   const head = (first: string) => <thead><tr><th style={{ textAlign: 'left' }}>{first}</th>{COLS.map((c) => <th key={c.key}>{c.label}</th>)}</tr></thead>

@@ -14,7 +14,7 @@ function freeze<T>(x: T): T {
 
 /** stage 4, drawing off, the book open: tower → broom → cauldron → ladder → ghosts → doors → (crystal) → spell */
 const facts = (f: Partial<PassFacts> = {}): PassFacts => ({
-  stage: 4, draw: false, bookOpen: true, recent: {}, towerRecent: {}, cycleNo: 0, towerTail: '', ...f,
+  stage: 4, draw: false, screensOpen: true, recent: {}, towerRecent: {}, cycleNo: 0, towerTail: '', ...f,
 })
 /** a screen's recent answers, all right (mastered) */
 const mastered = (screen: string) => ({ [`sc:${screen}`]: 'o'.repeat(20) })
@@ -47,7 +47,7 @@ describe('the pass policy', () => {
       expect(pass({ lastEnded: 'spell' }).state).toMatchObject({ screen: 'tower', full: true })
       expect(pass({ mode: 'session', screen: 'cauldron' }).state).toMatchObject({ screen: 'cauldron', full: false })
       expect(pass({ mode: 'gallery', screen: 'broom' }).state.screen).toBe('broom')
-      expect(pass({ facts: facts({ bookOpen: false }) }).state).toMatchObject({ screen: 'tower', full: true })
+      expect(pass({ facts: facts({ screensOpen: false }) }).state).toMatchObject({ screen: 'tower', full: true })
     })
 
     it('screens in their cycle, with a checkpoint between two; the doors, then their crystal (no checkpoint between), then the spell book', () => {
@@ -181,9 +181,9 @@ describe('the pass policy', () => {
     it('no heart when all three are there, nor at stage 0 (the tower alone)', () => {
       const p = pass({ lastEnded: 'spell' })
       for (let i = 0; i < 8; i++) expect(p.done().heal).toBeUndefined()
-      const s0 = pass({ facts: facts({ bookOpen: false }) })
+      const s0 = pass({ facts: facts({ screensOpen: false }) })
       s0.lose()
-      const r = s0.done(facts({ bookOpen: false }))
+      const r = s0.done(facts({ screensOpen: false }))
       expect(s0.state.screen).toBe('tower')
       expect(r.heal).toBeUndefined()
       expect(r.save).toEqual([{ op: 'nextCycle' }])
@@ -202,7 +202,7 @@ describe('the pass policy', () => {
 
   describe('the checkpoint', () => {
     const at = (p: ReturnType<typeof pass>, c: Partial<Extract<PassInput, { type: 'checkpoint' }>> = {}) =>
-      p.send({ type: 'checkpoint', bookOpen: true, coins: 50, range: 100, sinceVisit: Infinity, bossNext: false, ...c })
+      p.send({ type: 'checkpoint', screensOpen: true, coins: 50, range: 100, sinceVisit: Infinity, bossNext: false, ...c })
 
     it('the merchant comes when the hearts are low and he has the coins (merchantDue), at the run\'s price', () => {
       const p = pass({ lastEnded: 'broom' })
@@ -233,7 +233,7 @@ describe('the pass policy', () => {
       }
       const s0 = pass()
       s0.lose(2)
-      expect(at(s0, { bookOpen: false })).toMatchObject({ save: [] })
+      expect(at(s0, { screensOpen: false })).toMatchObject({ save: [] })
     })
   })
 
@@ -245,7 +245,7 @@ describe('the pass policy', () => {
       expect(visitLength('gallery', 'ghosts', facts({ recent: mastered('ghosts') }))).toBe(VISIT.ghosts)
       expect(visitLength('session', 'ghosts', facts())).toBe(SESSION_LENGTH.ghosts)
       expect(visitLength('run', 'tower', facts({ towerTail: 'oooooooooo' }))).toBe(1)
-      expect(visitLength('run', 'tower', facts({ towerTail: 'oooooooooo', bookOpen: false }))).toBe(VISIT.tower)
+      expect(visitLength('run', 'tower', facts({ towerTail: 'oooooooooo', screensOpen: false }))).toBe(VISIT.tower)
       // the tower before its tail is long enough: every mark's answers, none wrong
       expect(visitLength('run', 'tower', facts({ towerRecent: { a: 'oooo', b: 'oooo' } }))).toBe(1)
       expect(visitLength('run', 'tower', facts({ towerRecent: { a: 'oooo', b: 'ooox' } }))).toBe(VISIT.tower)
