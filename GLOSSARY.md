@@ -5,17 +5,14 @@ This file holds the domain words only. How a word is built lives in the code and
 
 ## Books and games
 
-**Book 1** or **Duel** (the first duel):
-The first wizard duel (nikkud, by sound), where the wizard reads a mark by its sound to beat a monster. It is now the tower screen of Book 2's run.
-_Avoid_: the old app, nikkud duel, wizard duel (when you mean Book 2)
-
 **The lessons**:
 The reading course: letters, nikkud, syllables, words, sentences, stories; the home's shelf of older activities.
 _Avoid_: Book 1
 
-**Book 2**:
-The letters-and-syllables adventure: a run through a fixed cycle of screens, with stakes and a merchant.
-_Avoid_: duel2 (that is the code folder), duel v2
+**Spell Quest**:
+The wizard's adventure: a run through a fixed cycle of screens, with stakes and a merchant. It plays one of two courses,
+Hebrew or English.
+_Avoid_: Book 2, duel, duel2, the duel game
 
 **Clock workshop**:
 A separate game about reading an analogue clock, played as a workday of customers.
@@ -29,15 +26,20 @@ _Avoid_: space game
 **Home**:
 The child's first screen: the cards of the games and the path of open stations.
 
-## Book 2: a run
+## Spell Quest: a run
 
 **Run**:
-One adventure from the duel card, from the first screen until the hearts run out. Space Cat has runs too: from its play
+One adventure from the Spell Quest card, from the first screen until the hearts run out. Space Cat has runs too: from its play
 triangle until the hearts run out.
 
 **Screen**:
-One minigame of Book 2 (tower, broom, ghosts, cauldron, ladder, doors, draw).
+One minigame of Spell Quest (tower, broom, ghosts, cauldron, ladder, doors, draw).
 _Avoid_: level, mini-game page
+
+**Tower**:
+The first screen of every run: monsters walk at the wizard, and the child beats each one by reading what it carries. A
+screen like the others, not a game of its own.
+_Avoid_: Book 1, the first duel, the duel (once a game of its own; "duel" is fine for one fight)
 
 **Cycle**:
 The fixed order of the open screens. The tower is always first.
@@ -58,7 +60,7 @@ A group of choices that fall or fly together (broom, tower). One wave costs at m
 The moment between two screens where the merchant can come.
 
 **Stage**:
-How far Book 2's content has opened. Stage 0 opens only the tower. Passing it opens the book.
+How far Spell Quest's content has opened. Stage 0 opens only the tower. Passing it opens the next screens.
 
 **Placement**:
 A short check at stage 0 that lets a skilled child move on fast.
@@ -79,7 +81,7 @@ _Avoid_: run (a session is not a run)
 What the child can lose: the hearts, and with them the run.
 
 **Heart**:
-One life of the run. A run starts with 3, and in Book 2 the hearts do not refill at a new screen. In Space Cat they fill
+One life of the run. A run starts with 3, and in Spell Quest the hearts do not refill at a new screen. In Space Cat they fill
 again at each level.
 
 **Star**:
@@ -104,7 +106,7 @@ The reward moment at the end of a cycle, from stage 4 on.
 A strong opponent at the end of a broom visit or in the tower. Beaten kinds go on the boss shelf.
 
 **Mega spell** (מגה כישוף):
-The duel's lightning attack after many right answers. It does not count as reading.
+The tower's lightning attack after many right answers. It does not count as reading.
 
 ## Teaching moments
 
@@ -146,17 +148,17 @@ The clock workshop's reward.
 **Bonus**:
 The short extra game at the end of every workday.
 
-## The English path
+## The English course
 
 **Course**:
 What a run teaches: the Hebrew course (letters, nikkud, syllables) or the English course (sound units and words). One
-Book 2 engine plays both; the course gives it the content ([ADR 0008](docs/adr/0008-one-engine-two-courses.md)).
+Spell Quest engine plays both; the course gives it the content ([ADR 0008](docs/adr/0008-one-engine-two-courses.md)).
 _Avoid_: language, mode
 
-**English path**:
-The English course on Book 2's page (`?course=en`): reading and spelling with Latin letters in nine stages, with its own
+**English course**:
+Spell Quest with the English course (`?course=en`): reading and spelling with Latin letters in nine stages, with its own
 save, its own home path and its own parent section. It is open on staging, and hidden on production until all nine stages are reviewed.
-_Avoid_: Book 3, English game
+_Avoid_: English course (a path is the home's row of stations), Book 3, English game
 
 **Sound unit**:
 One letter or a group of letters that makes one sound (`s`, `sh`, `a_e`, `igh`). It is the item the English course tracks, as a mark is in Hebrew. A word is a sequence of sound units.
@@ -175,7 +177,7 @@ The English placement check inside the tower: the monsters walk at a fixed pace 
 The screen where the child builds a word in boxes from tiles. Both courses have one. The English one also has a written form: he writes the letters of a word on four lines.
 
 **Blend**:
-The hint of the English path: the word is said as one stretched sound while its sound units light in turn. It plays after every second miss, and for a made word.
+The hint of the English course: the word is said as one stretched sound while its sound units light in turn. It plays after every second miss, and for a made word.
 _Avoid_: sounding out
 
 ## Space Cat
@@ -223,7 +225,7 @@ The cat's ship. There are three; the second opens at level 4, the third at level
 
 **Points**:
 Space Cat's count, drawn with a star. They stay inside the game.
-_Avoid_: stars (Book 2's)
+_Avoid_: stars (Spell Quest's)
 
 **Missing number**:
 A sum with the ring in the place of the first or the second number, not the answer.
