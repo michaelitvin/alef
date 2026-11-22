@@ -2,9 +2,9 @@
 // puts the missing unit in; later the missing pair (`_ip` → sh, ch, th); at stage 6 he throws an `e` in after a short
 // word (`kit` → `kite`). The shared rules of every English screen's rounds.
 import { describe, expect, it } from 'vitest'
-import type { CauldronRound } from '../../../duel2/course/types'
-import type { RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
+import type { CauldronRound } from '../../../spellquest/course/types'
+import type { RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'
 import { PAIR_SHARE, enCauldronRound, type CauldronDeps } from './cauldron'

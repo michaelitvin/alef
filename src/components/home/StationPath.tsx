@@ -3,10 +3,10 @@
 // nothing). Three small dots under each disc fill with his recent accuracy there (not stars). The wizard stands at the
 // newest open reading station. Each open station opens one short session of its minigame. Captions are for the parent.
 import { useLayoutEffect, useRef, type ReactElement } from 'react'
-import wizBoy from '../../duel2/assets/img/s-wizard-cast.webp'
-import wizGirl from '../../duel2/assets/img/s-wizard-cast-girl.webp'
+import wizBoy from '../../spellquest/assets/img/s-wizard-cast.webp'
+import wizGirl from '../../spellquest/assets/img/s-wizard-cast-girl.webp'
 import { useGender, wizardArt } from '../../shared/player'
-import type { ScreenId } from '../../duel2/logic/predict'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import { StationPic } from './StationPic'
 import { LockBadge } from './LevelIcons'
 import { useStations, type StationState } from './stations'

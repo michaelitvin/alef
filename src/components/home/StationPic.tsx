@@ -1,13 +1,13 @@
 // A station's picture (spec: one duel, Part 4): the tower for the first duel, an orb with בָּ for the broom, the ghost,
 // the cauldron, the ladder, the door, an open book for the spell book, and א in print or in handwriting for the two
 // drawing screens. Used by the home screen's path and by Book 2's station cover.
-import type { ScreenId } from '../../duel2/logic/predict'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import tower from '../../assets/duel/sprites/tower.webp'
-import orb from '../../duel2/assets/img/s-orb.webp'
-import ghost from '../../duel2/assets/img/s-ghost.webp'
-import cauldron from '../../duel2/assets/img/s-cauldron.webp'
-import ladder from '../../duel2/assets/img/s-ladder.webp'
-import door from '../../duel2/assets/img/s-door.webp'
+import orb from '../../spellquest/assets/img/s-orb.webp'
+import ghost from '../../spellquest/assets/img/s-ghost.webp'
+import cauldron from '../../spellquest/assets/img/s-cauldron.webp'
+import ladder from '../../spellquest/assets/img/s-ladder.webp'
+import door from '../../spellquest/assets/img/s-door.webp'
 
 /** pictures whose art faces right */
 const FACES_RIGHT = new Set<ScreenId>(['ghosts'])

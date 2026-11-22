@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
 import { Battlefield } from '../components/duel/Battlefield'
-import { seeded } from '../duel2/testing/runHarness'
+import { seeded } from '../spellquest/testing/runHarness'
 import { WORD_PICTURE } from '../assets/duel/sprites'
 import { memoryEnglishSavePort } from './savePort'
 import { enTowerRound } from './logic/tower'

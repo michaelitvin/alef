@@ -1,11 +1,11 @@
 // The path of the duel's minigames on the home screen (spec: one duel, Part 4): the stations in path order, each with
 // what it teaches (for the parent: never the minigame's name) and how its picture is drawn.
-import type { ScreenId } from '../../duel2/logic/predict'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import { useEffect, useState } from 'react'
-import type { Duel2Save } from '../../duel2/store'
-import { SAVE_VERSION, migrateSave } from '../../duel2/saveFormat'
-import { openScreens } from '../../duel2/station'
-import { rating, screenRecent } from '../../duel2/logic/mastery'
+import type { Duel2Save } from '../../spellquest/store'
+import { SAVE_VERSION, migrateSave } from '../../spellquest/saveFormat'
+import { openScreens } from '../../spellquest/station'
+import { rating, screenRecent } from '../../spellquest/logic/mastery'
 import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 import { useProgressStore } from '../../stores/progressStore'
 

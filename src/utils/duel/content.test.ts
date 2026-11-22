@@ -12,9 +12,9 @@ import type { DuelMark, Round } from '../../types/duel'
 import { instantSleeper } from '../../shared/sleeper'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
-import { useDuel2Store } from '../../duel2/store'
-import { Tower } from '../../duel2/components/screens/Tower'
-import { memorySavePort } from '../../duel2/savePort'
+import { useDuel2Store } from '../../spellquest/store'
+import { Tower } from '../../spellquest/components/screens/Tower'
+import { memorySavePort } from '../../spellquest/savePort'
 
 const LETTERS = ['m', 's', 't', 'a']
 const mark = (id: string): DuelMark => ({ id, name: id, group: 'a' })

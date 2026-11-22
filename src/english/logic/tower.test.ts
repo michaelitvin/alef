@@ -7,7 +7,7 @@ import type { FeedbackPlan } from '../../utils/duel/flow'
 import { DuelController, type DuelAudio } from '../../utils/duel/controller'
 import { instantSleeper } from '../../shared/sleeper'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
-import { seeded } from '../../duel2/testing/runHarness'
+import { seeded } from '../../spellquest/testing/runHarness'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 import { memoryEnglishSavePort, englishSavePort, type EnglishSavePort } from '../savePort'
@@ -380,8 +380,8 @@ describe('an English tower run', () => {
 
 describe('the English course', () => {
   it('reads its lines\' takes from the English lines, the Hebrew course from Book 2\'s', async () => {
-    const { HEBREW } = await import('../../duel2/course/hebrew')
-    const { lineById } = await import('../../duel2/data/lines')
+    const { HEBREW } = await import('../../spellquest/course/hebrew')
+    const { lineById } = await import('../../spellquest/data/lines')
     expect(ENGLISH.lineVariations('q-ghosts-sound')).toBe(enLine('q-ghosts-sound')!.variations)
     expect(ENGLISH.lineVariations('q-ghosts-sound')).toBe(3)
     expect(HEBREW.lineVariations('q-ghosts-sound')).toBe(1)
@@ -402,7 +402,7 @@ describe('the tower\'s answers count as any screen\'s', () => {
     placement: { state: null, requested: false, done: { level: stage, answers: 10, at: 1 }, runs: 1 },
   })
   async function towerRun(save: EnglishSavePort) {
-    const { RunController } = await import('../../duel2/controller')
+    const { RunController } = await import('../../spellquest/controller')
     const run = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(11) })
     run.start()
     for (let i = 0; i < 200 && run.view.screen?.screen !== 'tower'; i++) await null
@@ -445,7 +445,7 @@ describe('the tower\'s answers count as any screen\'s', () => {
   })
 
   it('the Hebrew tower\'s answers stay the first duel\'s', async () => {
-    const { HEBREW } = await import('../../duel2/course/hebrew')
+    const { HEBREW } = await import('../../spellquest/course/hebrew')
     expect(HEBREW.tower.facts).toBeUndefined()
   })
 })

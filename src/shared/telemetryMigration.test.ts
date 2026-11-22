@@ -6,7 +6,7 @@ import { chunkKeysOf, parseOpen } from './telemetryChunks'
 import { safeSetItem } from './saveStorage'
 import { STAGING_PREFIX, copyUnprefixedOver, prefixedStorage } from './stagingStorage'
 import { FROZEN_HISTORY, GOLDEN_NOW, book2Events, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { BOOK2_LOG } from '../spellquest/telemetryLog'
 
 const KEY = BOOK2_LOG.key
 const NOW = GOLDEN_NOW.getTime()

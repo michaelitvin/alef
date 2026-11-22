@@ -5,7 +5,7 @@ import { chunkKey, clearLog, logStats, openJson, readLog, rollupKey } from './te
 import { filterEvents, type TelemetryEvent } from './telemetry'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
 import { FROZEN_HISTORY, GOLDEN_BOOK2, GOLDEN_CLOCK, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { BOOK2_LOG } from '../spellquest/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 
 const KEY = 'alef-duel2-telemetry'

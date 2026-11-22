@@ -4,14 +4,14 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ParentArea } from '../../parent/ParentArea'
 import { GAMES } from '../../parent/registry'
-import { storeSavePort, memorySavePort } from '../../duel2/savePort'
-import { useDuel2Store } from '../../duel2/store'
+import { storeSavePort, memorySavePort } from '../../spellquest/savePort'
+import { useDuel2Store } from '../../spellquest/store'
 import { englishSavePort, memoryEnglishSavePort } from '../savePort'
 import { useEnglishStore } from '../store'
 import { englishTelemetry } from '../telemetry'
 import { getNumberRange, setNumberRange } from '../../shared/numberRange'
 import { englishParent } from '.'
-import book2Reset from '../../duel2/parent/reset'
+import book2Reset from '../../spellquest/parent/reset'
 
 const LAZY = { timeout: 15000 }
 const raw = (k: string) => localStorage.getItem(k)

@@ -2,10 +2,10 @@
 // and puts the missing unit in, among 3 wrong tiles. From stage 4 the missing part is often a pair (`_ip` → sh, ch, th),
 // one box for its two letters. From stage 6 some rounds throw an `e` in after a short word (asset plan `C6`: kit → kite):
 // the word turns, and its picture comes or changes where the words have one (cap → cape has none: word only).
-import type { CauldronRound } from '../../../duel2/course/types'
-import { pickTarget } from '../../../duel2/logic/predict'
-import { shuffle, type Choice, type RoundCtx } from '../../../duel2/logic/rounds'
-import { NEW_SHARE } from '../../../duel2/logic/stages'
+import type { CauldronRound } from '../../../spellquest/course/types'
+import { pickTarget } from '../../../spellquest/logic/predict'
+import { shuffle, type Choice, type RoundCtx } from '../../../spellquest/logic/rounds'
+import { NEW_SHARE } from '../../../spellquest/logic/stages'
 import { UNITS, unit, type Unit } from '../../content/units'
 import { WORDS, type EnWord } from '../../content/words'
 import { enFeatures, enPrior, unitChoice } from '../pick'

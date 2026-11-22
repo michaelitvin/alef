@@ -2,9 +2,9 @@
 // that no part of the English path writes past the port. The game writes the real save (alef-english); a test runs on a
 // save in memory.
 import { createStore, type StoreApi } from 'zustand/vanilla'
-import type { Duel2Actions, Duel2Save } from '../duel2/store'
-import { portOver, type SavePort } from '../duel2/savePort'
-import type { ScreenId } from '../duel2/logic/predict'
+import type { Duel2Actions, Duel2Save } from '../spellquest/store'
+import { portOver, type SavePort } from '../spellquest/savePort'
+import type { ScreenId } from '../spellquest/logic/predict'
 import type { Tally } from '../shared/adaptive'
 import { talliesOver, type DuelTallies } from '../utils/duel/tallies'
 import { getNumberRange, type NumberRange } from '../shared/numberRange'

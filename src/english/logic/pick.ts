@@ -1,9 +1,9 @@
 // The adaptive choice of the English path: the features of a choice (what his answers are tallied under) and the pick of a
 // sound unit near the one-mistake-in-five aim. Same method as Book 2 (`pickTarget`), with the English features.
-import type { ScreenId } from '../../duel2/logic/predict'
-import { featurePrior, pickTarget } from '../../duel2/logic/predict'
-import type { Choice, RoundCtx } from '../../duel2/logic/rounds'
-import { NEW_SHARE } from '../../duel2/logic/stages'
+import type { ScreenId } from '../../spellquest/logic/predict'
+import { featurePrior, pickTarget } from '../../spellquest/logic/predict'
+import type { Choice, RoundCtx } from '../../spellquest/logic/rounds'
+import { NEW_SHARE } from '../../spellquest/logic/stages'
 import { word, type EnWord } from '../content/words'
 import { unit, type Unit } from '../content/units'
 

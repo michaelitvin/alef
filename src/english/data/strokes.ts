@@ -1,5 +1,5 @@
 // How each Latin letter is written, stroke by stroke, in Andika's shapes (the English path's letters: single-storey a
-// and g, a plain l with no tail). The format is the Hebrew strokes' (../../duel2/data/strokes.ts), with `script: 'print'`;
+// and g, a plain l with no tail). The format is the Hebrew strokes' (../../spellquest/data/strokes.ts), with `script: 'print'`;
 // the Latin/Hebrew axis is the alphabet, not the script. Loaded by plain Node: erasable TS only, data only.
 //
 // Coordinates: the letter's normalized box, origin top-left, on the four lines below: y = TOP (0) on the top line,
@@ -14,7 +14,7 @@
 // clockwise) from the top right (a c d e g o q s, C G O Q S). Dots and crosses (i j, t f) come last, as marks.
 // Where US schools differ the letter holds both variants: a d g q as a bowl and then a stem (Zaner-Bloser), or as one
 // stroke that goes on from the bowl up the stem and back down (Handwriting Without Tears).
-import type { LetterDef, Pt, StrokeDef } from '../../duel2/data/strokes'
+import type { LetterDef, Pt, StrokeDef } from '../../spellquest/data/strokes'
 
 /** the four lines, as y in the letter box */
 export const TOP = 0

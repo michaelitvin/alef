@@ -17,9 +17,9 @@
      "docs/minigame-rules/README.md"
     ],
     "code": [
-     "src/duel2/controller.ts",
-     "src/duel2/telemetry.ts",
-     "src/duel2/store.ts",
+     "src/spellquest/controller.ts",
+     "src/spellquest/telemetry.ts",
+     "src/spellquest/store.ts",
      "src/utils/duel/controller.ts"
     ],
     "howToAnalyse": "Clone https://github.com/michaelitvin/alef, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the docs above (the telemetry section of each design says what every event means) and the code that sends the events, then analyse the child's progress: accuracy per screen and over time, his real mix-ups, where runs end, and what to change."

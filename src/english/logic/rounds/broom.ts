@@ -2,8 +2,8 @@
 // letter; later, he hears a word and catches it among words that differ from it in one unit (`ship · chip · shop`), and
 // a heart word among heart or decodable words. The course ignores the run's `kind` (letters or syllables, a Hebrew
 // choice): the stage decides. No orb carries a picture: he finds the word by its letters, not by a picture.
-import type { ScreenId } from '../../../duel2/logic/predict'
-import { shuffle, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
+import type { ScreenId } from '../../../spellquest/logic/predict'
+import { shuffle, type Choice, type Kind, type RoundCtx } from '../../../spellquest/logic/rounds'
 import { unit } from '../../content/units'
 import { heartVoice, wordVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'

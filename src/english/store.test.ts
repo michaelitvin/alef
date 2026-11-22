@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEnglishStore } from './store'
 import { englishSavePort, memoryEnglishSavePort } from './savePort'
 import { readEnglishSave } from './saveFormat'
-import { createRunStore, useDuel2Store } from '../duel2/store'
+import { createRunStore, useDuel2Store } from '../spellquest/store'
 
 const HEBREW_SAVE_RAW = JSON.stringify({ state: { coins: 42, totalStars: 300, stage: { stage: 3, newAnswers: 'oo' } }, version: 7 })
 

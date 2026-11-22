@@ -3,8 +3,8 @@
 // The run's own rules (logic/run.ts): the hearts of a run, a heart back at the end of a full pass, the next run starting
 // after the screen where the last one ended.
 import { describe, expect, it } from 'vitest'
-import { cycleOf, heartsAtRunStart, nextScreen, onAnswer, passEndHeart, runStart } from '../../duel2/logic/run'
-import type { ScreenId } from '../../duel2/logic/predict'
+import { cycleOf, heartsAtRunStart, nextScreen, onAnswer, passEndHeart, runStart } from '../../spellquest/logic/run'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import { ENGLISH } from '../course'
 
 /** mulberry32 */

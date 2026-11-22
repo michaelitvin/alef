@@ -5,13 +5,13 @@ import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DuelController, type DuelAudio, type DuelEmbedded } from '../utils/duel/controller'
 import { HEBREW_TOWER, type TowerContent } from '../utils/duel/content'
-import { seeded } from '../duel2/testing/runHarness'
-import { RunController } from '../duel2/controller'
+import { seeded } from '../spellquest/testing/runHarness'
+import { RunController } from '../spellquest/controller'
 import { ENGLISH } from './course'
 import { englishTelemetry } from './telemetry'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
-import { Tower } from '../duel2/components/screens/Tower'
+import { Tower } from '../spellquest/components/screens/Tower'
 import { memoryEnglishSavePort, type EnglishSavePort } from './savePort'
 import { WORDS, word } from './content/words'
 import { blendOf } from './logic/blend'
@@ -271,7 +271,7 @@ describe('the English tower\'s hint', () => {
   })
 
   it('the English course\'s tower has the hint, and the Hebrew course\'s has none', async () => {
-    const { HEBREW } = await import('../duel2/course/hebrew')
+    const { HEBREW } = await import('../spellquest/course/hebrew')
     expect(ENGLISH.tower.content.hint).toBeDefined()
     expect(HEBREW.tower.content.hint).toBeUndefined()
   })

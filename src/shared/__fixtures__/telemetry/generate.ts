@@ -34,7 +34,7 @@ export const FIXTURE_START = Date.UTC(2026, 9, 1, 13, 0, 0)
 const time = (r: R) => `${r.int(1, 12)}-${r.pick(['00', '15', '30', '45', '40', '05'])}`
 const clockOf = (r: R, t: number) => t - r.pick([0, 0, 0, 1, 2, 3, -1])
 
-/** Book 2's events, by name: the fields of each call site (src/duel2, src/utils/duel for the tower, the audio kit). */
+/** Book 2's events, by name: the fields of each call site (src/spellquest, src/utils/duel for the tower, the audio kit). */
 const BOOK2: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'run-start': (r) => ({ stage: r.int(1, 4) }),
   'session-start': (r) => ({ stage: r.int(1, 4), screen: r.pick(SCREENS) }),

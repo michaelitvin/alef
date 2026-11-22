@@ -63,7 +63,7 @@ const gameVoices = new Set<string>([
 const gamePictures = new Set<string>(WORDS.flatMap((w) => (w.picture ? [w.picture] : [])))
 /** a picture word that the game already has from Book 2 or the first duel (`wordPicture` in src/english/assets/images.ts) */
 const book2Pictures = new Set([
-  ...readdirSync('src/duel2/assets/img').filter((f) => f.startsWith('pw-')).map((f) => f.slice(3, -5)),
+  ...readdirSync('src/spellquest/assets/img').filter((f) => f.startsWith('pw-')).map((f) => f.slice(3, -5)),
   ...readdirSync('src/assets/duel/sprites').filter((f) => f.startsWith('word-')).map((f) => f.slice(5, -5)),
 ])
 const book2Has = (key: string): boolean =>

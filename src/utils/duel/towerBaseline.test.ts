@@ -9,7 +9,7 @@ import { instantSleeper } from '../../shared/sleeper'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
-import { seeded } from '../../duel2/testing/runHarness'
+import { seeded } from '../../spellquest/testing/runHarness'
 
 const audio = installFakeAudio()
 

@@ -2,7 +2,7 @@
 // for the parent: never the minigame's name), and their state read from the English save (read only: the home never
 // creates or writes it). Open stations come first, then the locked ones, each group in path order, as on the Hebrew path.
 import { useEffect, useState } from 'react'
-import type { ScreenId } from '../../duel2/logic/predict'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import { readEnglishSave } from '../../english/saveFormat'
 import { englishOpenStations, englishStationRatings } from '../../english/station'
 import { ENGLISH_AVAILABLE } from '../../english/available'

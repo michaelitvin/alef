@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enRecordStageAnswer, enScreensOfStage } from './stages'
-import { SESSION_LENGTH, cycleOf } from '../../duel2/logic/run'
+import { SESSION_LENGTH, cycleOf } from '../../spellquest/logic/run'
 import { memoryEnglishSavePort } from '../savePort'
 import { ENGLISH } from '../course'
-import { runPass, visitLength, type PassFacts } from '../../duel2/policies/pass'
+import { runPass, visitLength, type PassFacts } from '../../spellquest/policies/pass'
 
 const ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 

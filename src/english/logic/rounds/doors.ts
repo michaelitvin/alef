@@ -2,8 +2,8 @@
 // From stage 4 about half the doors hold a phrase of two or three words (`a big duck`, heart words inside it); its key
 // shows the phrase's one noun. Never a heart word alone on a door. The door never says its word before he picks (the run
 // plays `q-door`, or `q-door-words` on a phrase, only when he waits); it is said when the door opens.
-import type { DoorKey, DoorRound } from '../../../duel2/course/types'
-import { shuffle, type RoundCtx } from '../../../duel2/logic/rounds'
+import type { DoorKey, DoorRound } from '../../../spellquest/course/types'
+import { shuffle, type RoundCtx } from '../../../spellquest/logic/rounds'
 import { PHRASES } from '../../content/phrases'
 import { phraseVoice } from '../../content/voiceIds'
 import { WORDS, word, type EnWord } from '../../content/words'

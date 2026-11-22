@@ -1,6 +1,6 @@
 // The stages this build has the content of (content/ready.ts), and the English stage rule over them: the one rule that
 // the course (course.ts), the real save and the save in memory (store.ts) all use.
-import type { StageProgress } from '../duel2/logic/stages'
+import type { StageProgress } from '../spellquest/logic/stages'
 import { ENGLISH_VOICE_URLS } from './assets/audioFiles'
 import { contentStages } from './content/ready'
 import { enRecordStageAnswer } from './logic/stages'

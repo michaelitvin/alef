@@ -2,7 +2,7 @@
 // green orbs (a, sh, m in Andika), the play button on the right pointing right; under it the line for the parent, then the
 // path of the English stations. The links open the English course (`duel2/?course=en`). The picture and the wizard follow
 // the saved player, as on the Hebrew card.
-import type { ScreenId } from '../../duel2/logic/predict'
+import type { ScreenId } from '../../spellquest/logic/predict'
 import cardBoy from '../../english/assets/img/card.webp'
 import cardGirl from '../../english/assets/img/card-girl.webp'
 import orb from '../../english/assets/img/s-orb.webp'

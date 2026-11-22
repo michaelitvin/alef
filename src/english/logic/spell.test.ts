@@ -2,9 +2,9 @@
 // A picture at stages 1–3 (`S-pic`, its file only), none from stage 4; the wrong tiles are units he has learned and never
 // another spelling of a box's sound before stage 9; from stage 9 that other spelling may come, as a near miss.
 import { describe, expect, it } from 'vitest'
-import type { SpellRound } from '../../duel2/policies/spell'
-import type { RoundCtx } from '../../duel2/logic/rounds'
-import { seeded } from '../../duel2/testing/runHarness'
+import type { SpellRound } from '../../spellquest/policies/spell'
+import type { RoundCtx } from '../../spellquest/logic/rounds'
+import { seeded } from '../../spellquest/testing/runHarness'
 import { unit } from '../content/units'
 import { word } from '../content/words'
 import { enLine } from '../data/lines'

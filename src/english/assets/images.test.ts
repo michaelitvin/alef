@@ -1,6 +1,6 @@
 // The English path's pictures: the green file where there is one, Book 2's elsewhere, and the pictures that never change.
 import { describe, expect, it } from 'vitest'
-import { IMAGES } from '../../duel2/assets/images'
+import { IMAGES } from '../../spellquest/assets/images'
 import { ENGLISH_IMAGES, greenImages } from './images'
 
 describe('the English path\'s pictures', () => {
@@ -33,7 +33,7 @@ describe('the English tower\'s art', () => {
   it('is green: it differs from the first duel\'s tower and wizards, which stay the default', async () => {
     const { ENGLISH_TOWER_ART } = await import('./towerArt')
     const { TOWER, WIZARD, WIZARD_GIRL } = await import('../../assets/duel/sprites')
-    const { HEBREW } = await import('../../duel2/course/hebrew')
+    const { HEBREW } = await import('../../spellquest/course/hebrew')
     expect(ENGLISH_TOWER_ART.tower).not.toBe(TOWER)
     for (const pose of ['idle', 'cast', 'dizzy'] as const) {
       expect(ENGLISH_TOWER_ART.wizard[pose], pose).not.toBe(WIZARD[pose])

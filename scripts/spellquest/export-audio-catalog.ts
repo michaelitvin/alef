@@ -1,8 +1,8 @@
 // Writes Book 2's audio catalogue (every voice clip with its text, settings, where it plays and the glyph to show next to it
-// on the review page) as JSON for the host-local generation pipeline. Run: node scripts/duel2/export-audio-catalog.ts > catalog.json
-import { GROUPS, GROUP_MARKS, ITEMS, isAllowed, syllable, type MarkId, type VowelGroup } from '../../src/duel2/logic/content.ts'
-import { WORDS } from '../../src/duel2/data/words.ts'
-import { LINES, VOICE, lineAudioId } from '../../src/duel2/data/lines.ts'
+// on the review page) as JSON for the host-local generation pipeline. Run: node scripts/spellquest/export-audio-catalog.ts > catalog.json
+import { GROUPS, GROUP_MARKS, ITEMS, isAllowed, syllable, type MarkId, type VowelGroup } from '../../src/spellquest/logic/content.ts'
+import { WORDS } from '../../src/spellquest/data/words.ts'
+import { LINES, VOICE, lineAudioId } from '../../src/spellquest/data/lines.ts'
 
 const items: unknown[] = []
 const narrator = { voice: VOICE.id, model: VOICE.model, lang: VOICE.lang }

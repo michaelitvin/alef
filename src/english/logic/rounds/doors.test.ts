@@ -2,9 +2,9 @@
 // picture; from stage 4 about half the doors hold a phrase (`a big duck`) whose key shows its noun. The shared rules of
 // every English screen's rounds.
 import { describe, expect, it } from 'vitest'
-import type { DoorKey, DoorRound } from '../../../duel2/course/types'
-import type { RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
+import type { DoorKey, DoorRound } from '../../../spellquest/course/types'
+import type { RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
 import { PHRASES } from '../../content/phrases'
 import { WORDS, word } from '../../content/words'
 import { wordPicture } from '../../assets/images'

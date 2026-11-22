@@ -6,7 +6,7 @@ import { OPEN_SEAL_CHARS, chunkKey, chunkKeysOf, openJson, parseOpen, rollupKey 
 import { encodeChunk } from './telemetryCodec'
 import { LIVE_BUDGET } from './telemetryBudget'
 import { GOLDEN_BOOK2, GOLDEN_NOW, goldenExport } from './__fixtures__/telemetry/generate'
-import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { BOOK2_LOG } from '../spellquest/telemetryLog'
 
 const KEY = 'alef-sealtest-telemetry'
 const NOW = GOLDEN_NOW.getTime()

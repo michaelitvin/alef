@@ -3,9 +3,9 @@
 // makes it. The changed place is marked at stages 1–3;
 // from stage 5 a rung may add a consonant (lip → slip). The shared rules of every English screen's rounds.
 import { describe, expect, it } from 'vitest'
-import type { LadderPlan } from '../../../duel2/course/types'
-import type { Choice, RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
+import type { LadderPlan } from '../../../spellquest/course/types'
+import type { Choice, RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
 import { CHAINS } from '../../content/chains'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'

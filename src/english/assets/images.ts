@@ -1,5 +1,5 @@
 // The English path's pictures: Book 2's, with the green look's own file (./img/<key>.webp) in place of each one that has it.
-import { IMAGES } from '../../duel2/assets/images'
+import { IMAGES } from '../../spellquest/assets/images'
 
 /** the pictures that never turn green: the monsters, bosses, merchant, potion, coins, hearts, stars and the picture words */
 const STAYS = /^(boss-|merchant-|pw-|word-|s-potion|coin|heart|star)/

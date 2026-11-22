@@ -1,11 +1,11 @@
 // The English flight bosses: their kinds open by stage and are scored by his English mix-ups; each throws its family's
 // target and twin, two orbs a wave, under the shared rules.
 import { describe, expect, it } from 'vitest'
-import type { BossKind } from '../../../duel2/logic/boss'
-import { chooseBoss } from '../../../duel2/logic/boss'
-import type { RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
-import { HEBREW } from '../../../duel2/course/hebrew'
+import type { BossKind } from '../../../spellquest/logic/boss'
+import { chooseBoss } from '../../../spellquest/logic/boss'
+import type { RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
+import { HEBREW } from '../../../spellquest/course/hebrew'
 import { unit } from '../../content/units'
 import { word } from '../../content/words'
 import { oneUnitApart } from './broom'

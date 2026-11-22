@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Rng } from '../../shared/adaptive'
-import type { RoundCtx } from '../../duel2/logic/rounds'
+import type { RoundCtx } from '../../spellquest/logic/rounds'
 import { unit, unitsOfStage } from '../content/units'
-import { predict } from '../../duel2/logic/predict'
+import { predict } from '../../spellquest/logic/predict'
 import { enAnswerOnly, enFeatures, enPrior, pickUnit, unitChoice } from './pick'
 
 const seeded = (seed: number): Rng => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)

@@ -6,11 +6,11 @@
 // of a letter he knows. His answer counts on the letter's unit (one letter) or on the word (a whole word). q is never
 // alone: its unit qu is one round in two boxes (q, u). x starts no word: he writes it as the last letter of a word
 // that ends in it (fox), the rest of the word before its box.
-import type { DrawCtx, DrawItem } from '../../duel2/course/types'
+import type { DrawCtx, DrawItem } from '../../spellquest/course/types'
 import type { Tally } from '../../shared/adaptive'
-import { drawFeature } from '../../duel2/logic/draw'
-import { pickTarget } from '../../duel2/logic/predict'
-import { NEW_SHARE } from '../../duel2/logic/stages'
+import { drawFeature } from '../../spellquest/logic/draw'
+import { pickTarget } from '../../spellquest/logic/predict'
+import { NEW_SHARE } from '../../spellquest/logic/stages'
 import { UNITS, type Unit } from '../content/units'
 import { soundVoice, wordVoice } from '../content/voiceIds'
 import { WORDS, type EnWord } from '../content/words'

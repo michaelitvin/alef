@@ -5,13 +5,13 @@
 // rounds (design Part 5, `englishTower`): a picture or a sound and four letter runes, a nonsense name and three word
 // runes, and from stage 6 a picture and three word runes.
 import type { TowerContent } from '../../utils/duel/content'
-import type { BlendPlan } from '../../duel2/course/types'
+import type { BlendPlan } from '../../spellquest/course/types'
 import type { MakeRoundOpts } from '../../utils/duel/rounds'
 import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../utils/duel/rules'
 import type { Choice, DuelMark, Round, TowerRune } from '../../types/duel'
-import { pickTarget, type ScreenId } from '../../duel2/logic/predict'
-import { shuffle, type Choice as RunChoice, type RoundCtx } from '../../duel2/logic/rounds'
-import { NEW_SHARE } from '../../duel2/logic/stages'
+import { pickTarget, type ScreenId } from '../../spellquest/logic/predict'
+import { shuffle, type Choice as RunChoice, type RoundCtx } from '../../spellquest/logic/rounds'
+import { NEW_SHARE } from '../../spellquest/logic/stages'
 import { PLACEMENT_ROUNDS, type PlacementText } from '../content/placementRounds'
 import { UNITS, unit, type Unit, type UnitKind } from '../content/units'
 import { heartVoice, nonsenseVoice, soundVoice, wordVoice } from '../content/voiceIds'

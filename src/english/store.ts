@@ -1,7 +1,7 @@
 // The English path's save (localStorage 'alef-english', version 1): Book 2's store, made by its factory, with its own key,
 // its own purse and the English fields. It never touches Book 2's save (alef-duel2).
 import type { StateCreator } from 'zustand'
-import { createRunStore, runState, type Duel2Actions, type Duel2Save } from '../duel2/store'
+import { createRunStore, runState, type Duel2Actions, type Duel2Save } from '../spellquest/store'
 import { englishStageRule } from './readyStages'
 import { ENGLISH_FRESH, ENGLISH_SAVE_KEY, ENGLISH_SAVE_VERSION, type EnglishFields } from './saveFormat'
 

@@ -1,8 +1,8 @@
 // The English broom's rounds (design Part 5): a unit's sound at stage 1, then words one unit apart and heart words; the
 // shared rules of every English screen's rounds.
 import { describe, expect, it } from 'vitest'
-import type { Choice, RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
+import type { Choice, RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'
 import { enBroomTarget, enBroomWave, oneUnitApart, wordChoice } from './broom'

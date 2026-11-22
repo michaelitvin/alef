@@ -4,9 +4,9 @@
 // blends, a thrown e's turn says the short word and then the long one, and a thrown e never counts towards the stage.
 import { act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { recordSession, seeded, until } from '../duel2/testing/runHarness'
-import { RunController, type ScreenView, type View } from '../duel2/controller'
-import type { Course } from '../duel2/course/types'
+import { recordSession, seeded, until } from '../spellquest/testing/runHarness'
+import { RunController, type ScreenView, type View } from '../spellquest/controller'
+import type { Course } from '../spellquest/course/types'
 import { fakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { blendOf } from './logic/blend'

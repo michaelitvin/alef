@@ -3,7 +3,7 @@
 // station that a run does not play (stage 1's pictures, map and fan, have no file yet).
 import { enDoorsPlayable } from './logic/rounds/doors'
 import { wordPicture } from './assets/images'
-import type { ScreenId } from '../duel2/logic/predict'
+import type { ScreenId } from '../spellquest/logic/predict'
 import { stationsUpTo } from './station'
 
 export const englishDoorsPlayable = (stage: number): boolean => enDoorsPlayable(stage, { picture: wordPicture })

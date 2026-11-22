@@ -7,8 +7,8 @@
 // and the closing `e` is printed, faint, and is not a box (the round's `tail`, as the Hebrew closing letter).
 // From stage 4 he writes the word instead (`mode: 'write'`, one box per letter), when every letter of its boxes is one he
 // has written alone on the drawing screen; a word with a letter he has not stays tiles. A written round has no tiles.
-import { shuffle, type RoundCtx } from '../../duel2/logic/rounds'
-import type { SpellBox, SpellRound } from '../../duel2/policies/spell'
+import { shuffle, type RoundCtx } from '../../spellquest/logic/rounds'
+import type { SpellBox, SpellRound } from '../../spellquest/policies/spell'
 import { unit, type Unit } from '../content/units'
 import { wordVoice } from '../content/voiceIds'
 import { WORDS, type EnWord } from '../content/words'

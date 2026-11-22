@@ -1,6 +1,6 @@
 // The games in the parent area, in the order their lines show. A game registers by declaring
 // `src/<game>/parent/index.ts` (a GameParent, see types.ts) and adding it here.
-import { book2Parent } from '../duel2/parent'
+import { book2Parent } from '../spellquest/parent'
 import { clockParent } from '../clock/parent'
 import { lessonsParent } from '../lessons/parent'
 import { spaceCatParent } from '../spacecat/parent'

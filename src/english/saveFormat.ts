@@ -1,9 +1,9 @@
 // The English path's save format (localStorage 'alef-english'): its types, its fresh values and a light reader. Kept apart
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
 // so writing) the store. It never reads or writes Book 2's save (alef-duel2): the English path has its own purse.
-import type { Duel2Save, Duel2Settings } from '../duel2/store'
-import { DEFAULT_SETTINGS } from '../duel2/saveFormat'
-import type { ScreenId } from '../duel2/logic/predict'
+import type { Duel2Save, Duel2Settings } from '../spellquest/store'
+import { DEFAULT_SETTINGS } from '../spellquest/saveFormat'
+import type { ScreenId } from '../spellquest/logic/predict'
 import type { TowerTallies } from '../utils/duel/tallies'
 import type { PlacementState } from './logic/placement'
 

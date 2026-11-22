@@ -21,7 +21,7 @@ describe('the top bar never covers the game (rule: floating buttons in the top b
   it('the play screen places the stage, the hint card and the bar by these variables', async () => {
     // the stylesheet's text: vitest gives a .css import no content, and node's types are not in the app's tsconfig
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
     const v = layoutVars() as Record<string, string>
     expect(v['--d2-bar-h']).toBe(`${BAR_H_PX}px`)
     expect(v['--d2-content-top']).toContain(`${BAR_H_PX + BAR_GAP_PX}px`)
@@ -84,14 +84,14 @@ describe('no item of the bar covers another (the go-on button never over the cou
   })
   it('in the hint button\'s place the go-on button is its size and does not grow (the stylesheet)', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(new RegExp(`\\.d2-topbar \\.d2-topbar-side \\.d2-btn-next \\{ width: ${BAR_ITEMS_PX.button}px; height: ${BAR_ITEMS_PX.button}px; animation-name: d2-glow; \\}`))
     expect(css).not.toMatch(/@keyframes d2-glow \{[^}]*transform/)
     expect(barItems(780).next).toEqual(barItems(780).hint)
   })
   it('the play screen tells the bar where the go-on button goes', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const play = fs.readFileSync('src/duel2/screens/Play.tsx', 'utf8')
+    const play = fs.readFileSync('src/spellquest/screens/Play.tsx', 'utf8')
     expect(play).toMatch(/nextSide=\{!nextInMiddle\(size\.w, homeBar\)\}/)
   })
 })
@@ -150,7 +150,7 @@ describe('the held home button in the bar\'s left corner (the parent, 2026-11-14
   })
   it('the stylesheet: the button\'s size and the gap before it', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(new RegExp(`\\.d2-topbar-side, \\.d2-topbar-mid \\{ display: flex; gap: ${BAR_ITEM_GAP_PX}px;`))
     // the house's look is shared by every game (src/shared/HomeButton.tsx), in the shared stylesheet
     const shared = fs.readFileSync('src/shared/holdButton.css', 'utf8').replace(/\s+/g, ' ')
@@ -254,7 +254,7 @@ describe('the doors on a phone: the door rises into the band (the parent\'s pick
     // another screen keeps its centred stage
     expect((layoutVars({ w: 780, h: 360 }, STAGE_CONTENT_TOP.ghosts) as Record<string, string>)['--d2-stage-left']).toBeUndefined()
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
-    const css = fs.readFileSync('src/duel2/duel2.css', 'utf8').replace(/\s+/g, ' ')
+    const css = fs.readFileSync('src/spellquest/duel2.css', 'utf8').replace(/\s+/g, ' ')
     expect(css).toMatch(/\.d2-root\[data-screen="play"\] \.d2-stage \{ left: var\(--d2-stage-left, 0\); width: var\(--d2-stage-w, 100%\); \}/)
     expect(css).toMatch(/\.d2-stage\.d2-frame \{ top: 0; height: 100%; left: 0; width: 100%; \}/)
   })

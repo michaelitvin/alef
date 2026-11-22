@@ -2,8 +2,8 @@
 // end; he hears the word, and each answer counts for the missing part (its unit) in the English tallies and the stage
 // pass; a new unit's introduction follows the word; at stage 6 a thrown e makes the word he heard.
 import { describe, expect, it, vi } from 'vitest'
-import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
-import { RunController } from '../duel2/controller'
+import { alternate, recordSession, seeded, until } from '../spellquest/testing/runHarness'
+import { RunController } from '../spellquest/controller'
 import { ENGLISH } from './course'
 import { memoryEnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'

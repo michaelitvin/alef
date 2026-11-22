@@ -4,7 +4,7 @@
   {
    "id": "music-celebrate-1",
    "kind": "music",
-   "file": "src/duel2/assets/audio/music/celebrate-1.mp3",
+   "file": "src/spellquest/assets/audio/music/celebrate-1.mp3",
    "where": "Celebrations: ladder top, crystal",
    "caption": null,
    "take": "clips/music-celebrate-1/v1.mp3",
@@ -17,7 +17,7 @@
   {
    "id": "music-flight-1",
    "kind": "music",
-   "file": "src/duel2/assets/audio/music/flight-1.mp3",
+   "file": "src/spellquest/assets/audio/music/flight-1.mp3",
    "where": "Broom flight background (rotates)",
    "caption": null,
    "take": "clips/music-flight-1/v1.mp3",
@@ -30,7 +30,7 @@
   {
    "id": "music-flight-2",
    "kind": "music",
-   "file": "src/duel2/assets/audio/music/flight-2.mp3",
+   "file": "src/spellquest/assets/audio/music/flight-2.mp3",
    "where": "Broom flight background (rotates)",
    "caption": null,
    "take": "clips/music-flight-2/v1.mp3",
@@ -43,7 +43,7 @@
   {
    "id": "music-flight-3",
    "kind": "music",
-   "file": "src/duel2/assets/audio/music/flight-3.mp3",
+   "file": "src/spellquest/assets/audio/music/flight-3.mp3",
    "where": "Broom flight background (rotates)",
    "caption": null,
    "take": "clips/music-flight-3/v1.mp3",
@@ -56,7 +56,7 @@
   {
    "id": "sfx-catch-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/catch-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/catch-1.mp3",
    "where": "He catches the right orb (broom)",
    "caption": null,
    "take": "clips/sfx-catch-1/v1.mp3",
@@ -70,7 +70,7 @@
   {
    "id": "sfx-catch-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/catch-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/catch-2.mp3",
    "where": "He catches the right orb (broom)",
    "caption": null,
    "take": "clips/sfx-catch-2/v1.mp3",
@@ -84,7 +84,7 @@
   {
    "id": "sfx-coin-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/coin-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/coin-1.mp3",
    "where": "Merchant: a coin jumps into his hand (or flies back on undo)",
    "caption": null,
    "take": "clips/sfx-coin-1/v2.mp3",
@@ -103,7 +103,7 @@
   {
    "id": "sfx-coin-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/coin-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/coin-2.mp3",
    "where": "Merchant: a coin jumps into his hand (or flies back on undo)",
    "caption": null,
    "take": "clips/sfx-coin-2/v2.mp3",
@@ -122,7 +122,7 @@
   {
    "id": "sfx-count-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/count-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/count-1.mp3",
    "where": "Merchant counts the coins in his hand, one sound per coin (every 0.6 s)",
    "caption": null,
    "take": "clips/sfx-count-1/v1.mp3",
@@ -136,7 +136,7 @@
   {
    "id": "sfx-count-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/count-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/count-2.mp3",
    "where": "Merchant counts the coins in his hand, one sound per coin (every 0.6 s)",
    "caption": null,
    "take": "clips/sfx-count-2/v1.mp3",
@@ -150,7 +150,7 @@
   {
    "id": "sfx-crystal-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/crystal-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/crystal-1.mp3",
    "where": "The crystal appears behind the last door",
    "caption": null,
    "take": "clips/sfx-crystal-1/v1.mp3",
@@ -164,7 +164,7 @@
   {
    "id": "sfx-door-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/door-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/door-1.mp3",
    "where": "The magic door swings open",
    "caption": null,
    "take": "clips/sfx-door-1/v1.mp3",
@@ -178,7 +178,7 @@
   {
    "id": "sfx-door-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/door-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/door-2.mp3",
    "where": "The magic door swings open",
    "caption": null,
    "take": "clips/sfx-door-2/v1.mp3",
@@ -192,7 +192,7 @@
   {
    "id": "sfx-hit-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/hit-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/hit-1.mp3",
    "where": "A wrong answer / a wrong orb hits the wizard",
    "caption": null,
    "take": "clips/sfx-hit-1/v1.mp3",
@@ -206,7 +206,7 @@
   {
    "id": "sfx-hit-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/hit-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/hit-2.mp3",
    "where": "A wrong answer / a wrong orb hits the wizard",
    "caption": null,
    "take": "clips/sfx-hit-2/v1.mp3",
@@ -220,7 +220,7 @@
   {
    "id": "sfx-key-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/key-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/key-1.mp3",
    "where": "The key turns in the door's lock",
    "caption": null,
    "take": "clips/sfx-key-1/v1.mp3",
@@ -234,7 +234,7 @@
   {
    "id": "sfx-lock-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/lock-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/lock-1.mp3",
    "where": "A plate locks into the ladder as a rung",
    "caption": null,
    "take": "clips/sfx-lock-1/v1.mp3",
@@ -248,7 +248,7 @@
   {
    "id": "sfx-lock-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/lock-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/lock-2.mp3",
    "where": "A plate locks into the ladder as a rung",
    "caption": null,
    "take": "clips/sfx-lock-2/v1.mp3",
@@ -262,7 +262,7 @@
   {
    "id": "sfx-puff-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/puff-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/puff-1.mp3",
    "where": "The vowel joins the letter in the cauldron",
    "caption": null,
    "take": "clips/sfx-puff-1/v1.mp3",
@@ -276,7 +276,7 @@
   {
    "id": "sfx-puff-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/puff-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/puff-2.mp3",
    "where": "The vowel joins the letter in the cauldron",
    "caption": null,
    "take": "clips/sfx-puff-2/v1.mp3",
@@ -290,7 +290,7 @@
   {
    "id": "sfx-streak-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/streak-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/streak-1.mp3",
    "where": "A streak of right answers",
    "caption": null,
    "take": "clips/sfx-streak-1/v1.mp3",
@@ -304,7 +304,7 @@
   {
    "id": "sfx-wave-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/wave-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/wave-1.mp3",
    "where": "A wave of syllables arrives (broom)",
    "caption": null,
    "take": "clips/sfx-wave-1/v1.mp3",
@@ -318,7 +318,7 @@
   {
    "id": "sfx-wave-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/wave-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/wave-2.mp3",
    "where": "A wave of syllables arrives (broom)",
    "caption": null,
    "take": "clips/sfx-wave-2/v1.mp3",
@@ -332,7 +332,7 @@
   {
    "id": "sfx-zap-1",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/zap-1.mp3",
+   "file": "src/spellquest/assets/audio/sfx/zap-1.mp3",
    "where": "The wizard zaps the right ghost",
    "caption": null,
    "take": "clips/sfx-zap-1/v1.mp3",
@@ -346,7 +346,7 @@
   {
    "id": "sfx-zap-2",
    "kind": "sfx",
-   "file": "src/duel2/assets/audio/sfx/zap-2.mp3",
+   "file": "src/spellquest/assets/audio/sfx/zap-2.mp3",
    "where": "The wizard zaps the right ghost",
    "caption": null,
    "take": "clips/sfx-zap-2/v1.mp3",
@@ -360,7 +360,7 @@
   {
    "id": "almost-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/almost-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/almost-1.mp3",
    "where": "Near miss: the other form of a dotted letter (encouraging)",
    "caption": "כִּמְעַט.",
    "take": "clips/almost-1/v1.mp3",
@@ -378,7 +378,7 @@
   {
    "id": "almost-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/almost-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/almost-2-f.mp3",
    "where": "Near miss: the other form of a dotted letter (encouraging; he tries again) — when a girl plays",
    "caption": "כִּמְעַט. תִּסְתַּכְּלִי עַל הַנְּקֻדָּה.",
    "take": "clips/almost-2-f/v1.mp3",
@@ -396,7 +396,7 @@
   {
    "id": "almost-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/almost-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/almost-2.mp3",
    "where": "Near miss: the other form of a dotted letter (encouraging; he tries again)",
    "caption": "כִּמְעַט. תִּסְתַּכֵּל עַל הַנְּקֻדָּה.",
    "take": "clips/almost-2/v2.mp3",
@@ -419,7 +419,7 @@
   {
    "id": "almost-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/almost-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/almost-3.mp3",
    "where": "Near miss: the other form of a dotted letter (encouraging; he tries again)",
    "caption": "מַמָּשׁ קָרוֹב.",
    "take": "clips/almost-3/v2.mp3",
@@ -442,7 +442,7 @@
   {
    "id": "ask-gender-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ask-gender-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/ask-gender-1.mp3",
    "where": "Before the first run, while boy/girl is not set: the two wizards glow on בֵּן and בַּת",
    "caption": "מִי מְשַׂחֵק? בֵּן אוֹ בַּת?",
    "take": "clips/ask-gender-1/v1.mp3",
@@ -460,7 +460,7 @@
   {
    "id": "boss-arrive-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-1-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
    "take": "clips/boss-arrive-1-f/v4.mp3",
@@ -491,7 +491,7 @@
   {
    "id": "boss-arrive-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-1.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch)",
    "caption": "הִנֵּה מִפְלֶצֶת. כְּדֵי לְנַצֵּחַ אוֹתָהּ, תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
    "take": "clips/boss-arrive-1/v1.mp3",
@@ -509,7 +509,7 @@
   {
    "id": "boss-arrive-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-2-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹאִי נְנַצֵּחַ אוֹתָהּ. תִּתְפְּסִי אֶת:",
    "take": "clips/boss-arrive-2-f/v4.mp3",
@@ -540,7 +540,7 @@
   {
    "id": "boss-arrive-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-2.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch)",
    "caption": "מִפְלֶצֶת בַּשָּׁמַיִם. בּוֹא נְנַצֵּחַ אוֹתָהּ. תִּתְפֹּס אֶת:",
    "take": "clips/boss-arrive-2/v1.mp3",
@@ -558,7 +558,7 @@
   {
    "id": "boss-arrive-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-3-f.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch) — when a girl plays",
    "caption": "אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר:",
    "take": "clips/boss-arrive-3-f/v4.mp3",
@@ -589,7 +589,7 @@
   {
    "id": "boss-arrive-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-arrive-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-arrive-3.mp3",
    "where": "Broom flight: a boss swoops in (then the first sound to catch)",
    "caption": "אוֹי, הִגִּיעָה מִפְלֶצֶת. תִּתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר:",
    "take": "clips/boss-arrive-3/v1.mp3",
@@ -607,7 +607,7 @@
   {
    "id": "boss-new-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-new-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-new-1-f.mp3",
    "where": "His first win against a kind of boss: it falls into a golden frame for the shelf — when a girl plays",
    "caption": "נִצַּחְנוּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלָּךְ.",
    "take": "clips/boss-new-1-f/v4.mp3",
@@ -642,7 +642,7 @@
   {
    "id": "boss-new-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-new-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-new-1.mp3",
    "where": "His first win against a kind of boss: it falls into a golden frame for the shelf",
    "caption": "נִצַּחְתָּ מִפְלֶצֶת חֲדָשָׁה. עַכְשָׁו הִיא עַל הַמַּדָּף שֶׁלְּךָ.",
    "take": "clips/boss-new-1/v2.mp3",
@@ -665,7 +665,7 @@
   {
    "id": "boss-win-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-1-f.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
    "caption": "נִצַּחְנוּ אֶת הַמִּפְלֶצֶת.",
    "take": "clips/boss-win-1-f/v4.mp3",
@@ -696,7 +696,7 @@
   {
    "id": "boss-win-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-1.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only)",
    "caption": "נִצַּחְתָּ אֶת הַמִּפְלֶצֶת.",
    "take": "clips/boss-win-1/v1.mp3",
@@ -714,7 +714,7 @@
   {
    "id": "boss-win-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-2-f.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
    "caption": "וָואוּ, הַמִּפְלֶצֶת בָּרְחָה מִמֵּךְ.",
    "take": "clips/boss-win-2-f/v4.mp3",
@@ -745,7 +745,7 @@
   {
    "id": "boss-win-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-2.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only)",
    "caption": "וָואוּ, הִבְרַחְתָּ אֶת הַמִּפְלֶצֶת.",
    "take": "clips/boss-win-2/v1.mp3",
@@ -763,7 +763,7 @@
   {
    "id": "boss-win-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-3-f.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only) — when a girl plays",
    "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְנוּ אוֹתָהּ.",
    "take": "clips/boss-win-3-f/v4.mp3",
@@ -794,7 +794,7 @@
   {
    "id": "boss-win-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/boss-win-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/boss-win-3.mp3",
    "where": "The boss is beaten (praise: spoken the first two times only)",
    "caption": "אֵיזֶה כִּשּׁוּף. נִצַּחְתָּ אוֹתָהּ.",
    "take": "clips/boss-win-3/v1.mp3",
@@ -812,7 +812,7 @@
   {
    "id": "crystal-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/crystal-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/crystal-1.mp3",
    "where": "The crystal behind the last door",
    "caption": "וָואוּ, אֶבֶן קְסָמִים.",
    "take": "clips/crystal-1/v2.mp3",
@@ -835,7 +835,7 @@
   {
    "id": "crystal-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/crystal-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/crystal-2-f.mp3",
    "where": "The crystal behind the last door — when a girl plays",
    "caption": "מָצָאת אֶבֶן קְסָמִים.",
    "take": "clips/crystal-2-f/v1.mp3",
@@ -853,7 +853,7 @@
   {
    "id": "crystal-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/crystal-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/crystal-2.mp3",
    "where": "The crystal behind the last door",
    "caption": "מָצָאתָ אֶבֶן קְסָמִים.",
    "take": "clips/crystal-2/v2.mp3",
@@ -876,7 +876,7 @@
   {
    "id": "crystal-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/crystal-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/crystal-3.mp3",
    "where": "The crystal behind the last door",
    "caption": "אֵיזוֹ אֶבֶן נוֹצֶצֶת.",
    "take": "clips/crystal-3/v2.mp3",
@@ -899,7 +899,7 @@
   {
    "id": "defeat-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/defeat-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/defeat-1.mp3",
    "where": "The hearts ran out: the dizzy wizard spins and falls (playful; never praise for a loss), then the summary",
    "caption": "אוּפְּס, הַפַּעַם הֵן נִצְּחוּ.",
    "take": "clips/defeat-1/v1.mp3",
@@ -917,7 +917,7 @@
   {
    "id": "defeat-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/defeat-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/defeat-2.mp3",
    "where": "The hearts ran out: the dizzy wizard spins and falls (playful; never praise for a loss), then the summary",
    "caption": "אוֹי, הַקְּסָמִים נִגְמְרוּ לְהַפַּעַם.",
    "take": "clips/defeat-2/v1.mp3",
@@ -935,7 +935,7 @@
   {
    "id": "demo-broom-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-broom-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-broom-1-f.mp3",
    "where": "Demo: first broom flight with syllables (then the sound) — when a girl plays",
    "caption": "תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-broom-1-f/v1.mp3",
@@ -953,7 +953,7 @@
   {
    "id": "demo-broom-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-broom-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-broom-1.mp3",
    "where": "Demo: first broom flight with syllables (then the sound)",
    "caption": "תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-broom-1/v4.mp3",
@@ -984,7 +984,7 @@
   {
    "id": "demo-broom-letter-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-broom-letter-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-broom-letter-1-f.mp3",
    "where": "Demo: first broom flight with letters (then the letter name) — when a girl plays",
    "caption": "תִּגְרְרִי אֶת הַקּוֹסֶמֶת לְמַעְלָה וּלְמַטָּה, וְתִתְפְּסִי אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-broom-letter-1-f/v1.mp3",
@@ -1002,7 +1002,7 @@
   {
    "id": "demo-broom-letter-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-broom-letter-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-broom-letter-1.mp3",
    "where": "Demo: first broom flight with letters (then the letter name)",
    "caption": "תִּגְרֹר אֶת הַקּוֹסֵם לְמַעְלָה וּלְמַטָּה, וְתִתְפֹּס אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-broom-letter-1/v4.mp3",
@@ -1033,7 +1033,7 @@
   {
    "id": "demo-cauldron-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-cauldron-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-cauldron-1-f.mp3",
    "where": "Demo: first cauldron (then the sound) — when a girl plays",
    "caption": "תִּגְרְרִי לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-cauldron-1-f/v1.mp3",
@@ -1051,7 +1051,7 @@
   {
    "id": "demo-cauldron-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-cauldron-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-cauldron-1.mp3",
    "where": "Demo: first cauldron (then the sound)",
    "caption": "תִּגְרֹר לַסִּיר אֶת הַנִּקּוּד שֶׁחָסֵר לָאוֹת, לְפִי מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-cauldron-1/v4.mp3",
@@ -1082,7 +1082,7 @@
   {
    "id": "demo-doors-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-doors-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-doors-1-f.mp3",
    "where": "Demo: first door — when a girl plays",
    "caption": "תִּקְרְאִי מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרְרִי אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
    "take": "clips/demo-doors-1-f/v1.mp3",
@@ -1100,7 +1100,7 @@
   {
    "id": "demo-doors-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-doors-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-doors-1.mp3",
    "where": "Demo: first door",
    "caption": "תִּקְרָא מָה כָּתוּב עַל הַדֶּלֶת, וְתִגְרֹר אֵלֶיהָ אֶת הַמַּפְתֵּחַ עִם הַתְּמוּנָה הַנְּכוֹנָה.",
    "take": "clips/demo-doors-1/v7.mp3",
@@ -1143,7 +1143,7 @@
   {
    "id": "demo-draw-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-draw-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-draw-1-f.mp3",
    "where": "Drawing, first visit: after the word, while the hand writes its first letter — when a girl plays",
    "caption": "תִּסְתַּכְּלִי אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתְּבִי אוֹתָהּ בְּעַצְמֵךְ.",
    "take": "clips/demo-draw-1-f/v1.mp3",
@@ -1161,7 +1161,7 @@
   {
    "id": "demo-draw-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-draw-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-draw-1.mp3",
    "where": "Drawing, first visit: after the word, while the hand writes its first letter",
    "caption": "תִּסְתַּכֵּל אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה, וְאַחַר כָּךְ תִּכְתֹּב אוֹתָהּ בְּעַצְמְךָ.",
    "take": "clips/demo-draw-1/v1.mp3",
@@ -1179,7 +1179,7 @@
   {
    "id": "demo-ghosts-letter-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ghosts-letter-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ghosts-letter-1-f.mp3",
    "where": "Demo: first letter ghosts (then the letter name) — when a girl plays",
    "caption": "תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-ghosts-letter-1-f/v1.mp3",
@@ -1197,7 +1197,7 @@
   {
    "id": "demo-ghosts-letter-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ghosts-letter-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ghosts-letter-1.mp3",
    "where": "Demo: first letter ghosts (then the letter name)",
    "caption": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת הָאוֹת שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-ghosts-letter-1/v5.mp3",
@@ -1232,7 +1232,7 @@
   {
    "id": "demo-ghosts-syllable-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ghosts-syllable-1-f.mp3",
    "where": "Demo: first syllable ghosts (then the sound) — when a girl plays",
    "caption": "תִּגְּעִי בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-ghosts-syllable-1-f/v1.mp3",
@@ -1250,7 +1250,7 @@
   {
    "id": "demo-ghosts-syllable-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ghosts-syllable-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ghosts-syllable-1.mp3",
    "where": "Demo: first syllable ghosts (then the sound)",
    "caption": "תִּגַּע בְּרוּחַ הָרְפָאִים שֶׁמַּחֲזִיקָה אֶת מָה שֶׁאֲנִי אוֹמֵר.",
    "take": "clips/demo-ghosts-syllable-1/v5.mp3",
@@ -1285,7 +1285,7 @@
   {
    "id": "demo-ladder-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ladder-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ladder-1-f.mp3",
    "where": "Demo: first ladder (then the sound) — when a girl plays",
    "caption": "תִּגְרְרִי לַסֻּלָּם אֶת מָה שֶׁאֲנִי אוֹמֵר, וְהַקּוֹסֶמֶת תְּטַפֵּס.",
    "take": "clips/demo-ladder-1-f/v1.mp3",
@@ -1303,7 +1303,7 @@
   {
    "id": "demo-ladder-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/demo-ladder-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/demo-ladder-1.mp3",
    "where": "Demo: first ladder (then the sound)",
    "caption": "תִּגְרֹר לַסֻּלָּם אֶת מָה שֶׁאֲנִי אוֹמֵר, וְהַקּוֹסֵם יְטַפֵּס.",
    "take": "clips/demo-ladder-1/v4.mp3",
@@ -1334,7 +1334,7 @@
   {
    "id": "dot-intro-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/dot-intro-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/dot-intro-1.mp3",
    "where": "First time a dotted pair comes up: before the two sounds",
    "caption": "נְקֻדָּה אַחַת מְשַׁנָּה אֶת הַצְּלִיל.",
    "take": "clips/dot-intro-1/v1.mp3",
@@ -1352,7 +1352,7 @@
   {
    "id": "dot-left-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/dot-left-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/dot-left-1.mp3",
    "where": "ש introduction: before the sound of שׂ",
    "caption": "וּנְקֻדָּה מִשְּׂמֹאל...",
    "take": "clips/dot-left-1/v3.mp3",
@@ -1379,7 +1379,7 @@
   {
    "id": "dot-right-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/dot-right-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/dot-right-1.mp3",
    "where": "ש introduction: before the sound of שׁ (both forms have a dot; it differs by its side)",
    "caption": "נְקֻדָּה מִיָּמִין...",
    "take": "clips/dot-right-1/v3.mp3",
@@ -1406,7 +1406,7 @@
   {
    "id": "dot-with-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/dot-with-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/dot-with-1.mp3",
    "where": "Dotted-letter introduction: before the sound of the form with the dot",
    "caption": "וְעִם נְקֻדָּה...",
    "take": "clips/dot-with-1/v2.mp3",
@@ -1437,7 +1437,7 @@
   {
    "id": "dot-without-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/dot-without-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/dot-without-1.mp3",
    "where": "Dotted-letter introduction: before the sound of the form without the dot",
    "caption": "בְּלִי נְקֻדָּה...",
    "take": "clips/dot-without-1/v4.mp3",
@@ -1468,7 +1468,7 @@
   {
    "id": "draw-again-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-again-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-again-1-f.mp3",
    "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only) — when a girl plays",
    "caption": "בּוֹאִי נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
    "take": "clips/draw-again-1-f/v1.mp3",
@@ -1486,7 +1486,7 @@
   {
    "id": "draw-again-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-again-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-again-1.mp3",
    "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
    "caption": "בּוֹא נִכְתֹּב אֶת הַקַּו הַזֶּה שׁוּב.",
    "take": "clips/draw-again-1/v1.mp3",
@@ -1504,7 +1504,7 @@
   {
    "id": "draw-again-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-again-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-again-2.mp3",
    "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
    "caption": "נְנַסֶּה אֶת הַקַּו הַזֶּה עוֹד פַּעַם.",
    "take": "clips/draw-again-2/v1.mp3",
@@ -1522,7 +1522,7 @@
   {
    "id": "draw-again-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-again-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-again-3-f.mp3",
    "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only) — when a girl plays",
    "caption": "תִּסְתַּכְּלִי עַל הַיָּד, וְתִכְתְּבִי אֶת הַקַּו שׁוּב.",
    "take": "clips/draw-again-3-f/v1.mp3",
@@ -1540,7 +1540,7 @@
   {
    "id": "draw-again-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-again-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-again-3.mp3",
    "where": "Drawing: a stroke was wrong; the hand shows that one line again (first wrong stroke of a word only)",
    "caption": "תִּסְתַּכֵּל עַל הַיָּד, וְתִכְתֹּב אֶת הַקַּו שׁוּב.",
    "take": "clips/draw-again-3/v1.mp3",
@@ -1558,7 +1558,7 @@
   {
    "id": "draw-mark-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/draw-mark-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/draw-mark-1.mp3",
    "where": "Drawing: the letter is done; now its marks (the place glows)",
    "caption": "וְעַכְשָׁו הַנִּקּוּד.",
    "take": "clips/draw-mark-1/v1.mp3",
@@ -1576,7 +1576,7 @@
   {
    "id": "explain-lead-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/explain-lead-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/explain-lead-1-f.mp3",
    "where": "Explanation after a mistake: before letter name, vowel name, syllable — when a girl plays",
    "caption": "בּוֹאִי נִקְרָא לְאַט.",
    "take": "clips/explain-lead-1-f/v1.mp3",
@@ -1594,7 +1594,7 @@
   {
    "id": "explain-lead-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/explain-lead-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/explain-lead-1.mp3",
    "where": "Explanation after a mistake: before letter name, vowel name, syllable",
    "caption": "בּוֹא נִקְרָא לְאַט.",
    "take": "clips/explain-lead-1/v1.mp3",
@@ -1612,7 +1612,7 @@
   {
    "id": "info-best-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-best-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-best-1-f.mp3",
    "where": "A tap on his best run — when a girl plays",
    "caption": "זֶה הַשִּׂיא שֶׁלָּךְ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתְּ בְּמִשְׂחָק אֶחָד.",
    "take": "clips/info-best-1-f/v3.mp3",
@@ -1639,7 +1639,7 @@
   {
    "id": "info-best-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-best-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-best-1.mp3",
    "where": "A tap on his best run",
    "caption": "זֶה הַשִּׂיא שֶׁלְּךָ: הֲכִי הַרְבֵּה כּוֹכָבִים שֶׁאָסַפְתָּ בְּמִשְׂחָק אֶחָד.",
    "take": "clips/info-best-1/v1.mp3",
@@ -1657,7 +1657,7 @@
   {
    "id": "info-bosses-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-bosses-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-bosses-1-f.mp3",
    "where": "A tap on the boss trophies (cover, end screen) — when a girl plays",
    "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתְּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לָךְ בַּשָּׁמַיִם.",
    "take": "clips/info-bosses-1-f/v3.mp3",
@@ -1684,7 +1684,7 @@
   {
    "id": "info-bosses-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-bosses-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-bosses-1.mp3",
    "where": "A tap on the boss trophies (cover, end screen)",
    "caption": "אֵלֶּה הַמִּפְלָצוֹת שֶׁנִּצַּחְתָּ. הַמִּפְלָצוֹת הַחֲשׁוּכוֹת מְחַכּוֹת לְךָ בַּשָּׁמַיִם.",
    "take": "clips/info-bosses-1/v2.mp3",
@@ -1707,7 +1707,7 @@
   {
    "id": "info-coins-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-coins-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-coins-1-f.mp3",
    "where": "A tap on his coins — when a girl plays",
    "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלָּךְ. אַתְּ מַרְוִיחָה אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנָה בָּהֶם שִׁקּוּי.",
    "take": "clips/info-coins-1-f/v2.mp3",
@@ -1730,7 +1730,7 @@
   {
    "id": "info-coins-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-coins-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-coins-1.mp3",
    "where": "A tap on his coins",
    "caption": "אֵלֶּה הַמַּטְבְּעוֹת שֶׁלְּךָ. אַתָּה מַרְוִיחַ אוֹתָם בִּתְשׁוּבוֹת נְכוֹנוֹת, וְקוֹנֶה בָּהֶם שִׁקּוּי.",
    "take": "clips/info-coins-1/v5.mp3",
@@ -1765,7 +1765,7 @@
   {
    "id": "info-crystals-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-crystals-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-crystals-1-f.mp3",
    "where": "A tap on his crystals — when a girl plays",
    "caption": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלָּךְ. אַתְּ מוֹצֵאת אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
    "take": "clips/info-crystals-1-f/v1.mp3",
@@ -1783,7 +1783,7 @@
   {
    "id": "info-crystals-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-crystals-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-crystals-1.mp3",
    "where": "A tap on his crystals",
    "caption": "אֵלֶּה אַבְנֵי הַקְּסָמִים שֶׁלְּךָ. אַתָּה מוֹצֵא אוֹתָן מֵאֲחוֹרֵי הַדֶּלֶת הָאַחֲרוֹנָה.",
    "take": "clips/info-crystals-1/v1.mp3",
@@ -1801,7 +1801,7 @@
   {
    "id": "info-hearts-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-hearts-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-hearts-1-f.mp3",
    "where": "A tap on the hearts — when a girl plays",
    "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלָּךְ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
    "take": "clips/info-hearts-1-f/v10.mp3",
@@ -1856,7 +1856,7 @@
   {
    "id": "info-hearts-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-hearts-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-hearts-1.mp3",
    "where": "A tap on the hearts",
    "caption": "אֵלֶּה הַלְּבָבוֹת שֶׁלְּךָ. עַל כָּל טָעוּת הוֹלֵךְ לֵב אֶחָד, וְלֵב חוֹזֵר בְּסוֹף כָּל סִיבוּב.",
    "take": "clips/info-hearts-1/v4.mp3",
@@ -1887,7 +1887,7 @@
   {
    "id": "info-mult-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-mult-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-mult-1.mp3",
    "where": "A tap on the ×2 or ×3 beside the coins (the streak multiplier)",
    "caption": "תְּשׁוּבוֹת נְכוֹנוֹת בְּרֶצֶף נוֹתְנוֹת יוֹתֵר מַטְבְּעוֹת. כְּשֶׁהוֹלֵךְ לֵב, הָרֶצֶף נִגְמָר.",
    "take": "clips/info-mult-1/v6.mp3",
@@ -1930,7 +1930,7 @@
   {
    "id": "info-stars-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-stars-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-stars-1-f.mp3",
    "where": "A tap on the stars of this run — when a girl plays",
    "caption": "אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתְּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.",
    "take": "clips/info-stars-1-f/v3.mp3",
@@ -1957,7 +1957,7 @@
   {
    "id": "info-stars-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/info-stars-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/info-stars-1.mp3",
    "where": "A tap on the stars of this run",
    "caption": "אֵלֶּה הַכּוֹכָבִים שֶׁאָסַפְתָּ בַּמִּשְׂחָק הַזֶּה. כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת כּוֹכָב.",
    "take": "clips/info-stars-1/v1.mp3",
@@ -1975,7 +1975,7 @@
   {
    "id": "ladder-top-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ladder-top-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/ladder-top-1-f.mp3",
    "where": "The ladder is built to the top — when a girl plays",
    "caption": "הִגַּעְתְּ עַד לְמַעְלָה.",
    "take": "clips/ladder-top-1-f/v1.mp3",
@@ -2002,7 +2002,7 @@
   {
    "id": "ladder-top-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ladder-top-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/ladder-top-1.mp3",
    "where": "The ladder is built to the top",
    "caption": "הִגַּעְתָּ עַד לְמַעְלָה.",
    "take": "clips/ladder-top-1/v1.mp3",
@@ -2020,7 +2020,7 @@
   {
    "id": "ladder-top-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ladder-top-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/ladder-top-2-f.mp3",
    "where": "The ladder is built to the top — when a girl plays",
    "caption": "בָּנִית אֶת כָּל הַסֻּלָּם.",
    "take": "clips/ladder-top-2-f/v2.mp3",
@@ -2043,7 +2043,7 @@
   {
    "id": "ladder-top-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ladder-top-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/ladder-top-2.mp3",
    "where": "The ladder is built to the top",
    "caption": "בָּנִיתָ אֶת כָּל הַסֻּלָּם.",
    "take": "clips/ladder-top-2/v2.mp3",
@@ -2066,7 +2066,7 @@
   {
    "id": "ladder-top-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ladder-top-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/ladder-top-3.mp3",
    "where": "The ladder is built to the top",
    "caption": "וָואוּ, עַד הַשָּׁמַיִם.",
    "take": "clips/ladder-top-3/v1.mp3",
@@ -2084,7 +2084,7 @@
   {
    "id": "line-low-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/line-low-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/line-low-1.mp3",
    "where": "Drawing: the letter sinks below the baseline (it still counts)",
    "caption": "קְצָת נָמוּךְ.",
    "take": "clips/line-low-1/v1.mp3",
@@ -2102,7 +2102,7 @@
   {
    "id": "line-small-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/line-small-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/line-small-1-f.mp3",
    "where": "Drawing: the letter is much too small (it still counts) — when a girl plays",
    "caption": "בַּפַּעַם הַבָּאָה, תִּכְתְּבִי אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
    "take": "clips/line-small-1-f/v1.mp3",
@@ -2120,7 +2120,7 @@
   {
    "id": "line-small-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/line-small-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/line-small-1.mp3",
    "where": "Drawing: the letter is much too small (it still counts)",
    "caption": "בַּפַּעַם הַבָּאָה, תִּכְתֹּב אוֹתָהּ גְּדוֹלָה יוֹתֵר.",
    "take": "clips/line-small-1/v4.mp3",
@@ -2151,7 +2151,7 @@
   {
    "id": "line-tall-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/line-tall-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/line-tall-1.mp3",
    "where": "Drawing: the letter pokes above the top line (it still counts)",
    "caption": "הָאוֹת יָצְאָה גְּבוֹהָה מִדַּי.",
    "take": "clips/line-tall-1/v2.mp3",
@@ -2174,7 +2174,7 @@
   {
    "id": "ln-alef",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-alef.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-alef.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "אָלֶף",
    "take": "clips/ln-alef/v1.mp3",
@@ -2192,7 +2192,7 @@
   {
    "id": "ln-ayin",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-ayin.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-ayin.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "עַיִן",
    "take": "clips/ln-ayin/v1.mp3",
@@ -2210,7 +2210,7 @@
   {
    "id": "ln-bet",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-bet.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-bet.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "בֵּית",
    "take": "clips/ln-bet/v5.mp3",
@@ -2245,7 +2245,7 @@
   {
    "id": "ln-dalet",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-dalet.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-dalet.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "דָּלֶת",
    "take": "clips/ln-dalet/v1.mp3",
@@ -2263,7 +2263,7 @@
   {
    "id": "ln-fe",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-fe.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-fe.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "פֵא",
    "take": "clips/ln-fe/v2.mp3",
@@ -2290,7 +2290,7 @@
   {
    "id": "ln-gimel",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-gimel.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-gimel.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "גִּימֶל",
    "take": "clips/ln-gimel/v1.mp3",
@@ -2308,7 +2308,7 @@
   {
    "id": "ln-he",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-he.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-he.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "הֵא",
    "take": "clips/ln-he/v1.mp3",
@@ -2326,7 +2326,7 @@
   {
    "id": "ln-het",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-het.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-het.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "חֵית",
    "take": "clips/ln-het/v3.mp3",
@@ -2353,7 +2353,7 @@
   {
    "id": "ln-kaf",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-kaf.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-kaf.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "כַּף",
    "take": "clips/ln-kaf/v1.mp3",
@@ -2371,7 +2371,7 @@
   {
    "id": "ln-khaf",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-khaf.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-khaf.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "כָף",
    "take": "clips/ln-khaf/v3.mp3",
@@ -2398,7 +2398,7 @@
   {
    "id": "ln-lamed",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-lamed.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-lamed.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "לָמֶד",
    "take": "clips/ln-lamed/v1.mp3",
@@ -2416,7 +2416,7 @@
   {
    "id": "ln-mem",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-mem.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-mem.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "מֵם",
    "take": "clips/ln-mem/v1.mp3",
@@ -2434,7 +2434,7 @@
   {
    "id": "ln-nun",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-nun.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-nun.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "נוּן",
    "take": "clips/ln-nun/v1.mp3",
@@ -2452,7 +2452,7 @@
   {
    "id": "ln-pe",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-pe.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-pe.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "פֵּא",
    "take": "clips/ln-pe/v5.mp3",
@@ -2487,7 +2487,7 @@
   {
    "id": "ln-qof",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-qof.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-qof.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "קוֹף",
    "take": "clips/ln-qof/v1.mp3",
@@ -2505,7 +2505,7 @@
   {
    "id": "ln-resh",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-resh.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-resh.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "רֵישׁ",
    "take": "clips/ln-resh/v1.mp3",
@@ -2523,7 +2523,7 @@
   {
    "id": "ln-samech",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-samech.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-samech.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "סָמֶךְ",
    "take": "clips/ln-samech/v1.mp3",
@@ -2541,7 +2541,7 @@
   {
    "id": "ln-shin",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-shin.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-shin.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "שִׁין",
    "take": "clips/ln-shin/v1.mp3",
@@ -2559,7 +2559,7 @@
   {
    "id": "ln-sin",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-sin.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-sin.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "שִׂין",
    "take": "clips/ln-sin/v1.mp3",
@@ -2577,7 +2577,7 @@
   {
    "id": "ln-tav",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-tav.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-tav.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "תָּו",
    "take": "clips/ln-tav/v1.mp3",
@@ -2595,7 +2595,7 @@
   {
    "id": "ln-tet",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-tet.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-tet.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "טֵית",
    "take": "clips/ln-tet/v5.mp3",
@@ -2630,7 +2630,7 @@
   {
    "id": "ln-tsadi",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-tsadi.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-tsadi.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "צָדִי",
    "take": "clips/ln-tsadi/v12.mp3",
@@ -2705,7 +2705,7 @@
   {
    "id": "ln-vav",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-vav.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-vav.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "וָו",
    "take": "clips/ln-vav/v1.mp3",
@@ -2723,7 +2723,7 @@
   {
    "id": "ln-vet",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-vet.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-vet.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "וֵית",
    "take": "clips/ln-vet/v3.mp3",
@@ -2750,7 +2750,7 @@
   {
    "id": "ln-yod",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-yod.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-yod.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "יוֹד",
    "take": "clips/ln-yod/v1.mp3",
@@ -2768,7 +2768,7 @@
   {
    "id": "ln-zayin",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/ln-zayin.mp3",
+   "file": "src/spellquest/assets/audio/voice/ln-zayin.mp3",
    "where": "Letter name: broom and ghosts at the letter stage, hints, explanations",
    "caption": "זַיִן",
    "take": "clips/ln-zayin/v1.mp3",
@@ -2786,7 +2786,7 @@
   {
    "id": "m-again-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-again-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-again-1-f.mp3",
    "where": "Merchant: nothing tapped for 20 s after he came (once per visit) — when a girl plays",
    "caption": "נוּ, תִּרְצִי לִקְנוֹת אֶחָד?",
    "take": "clips/m-again-1-f/v2.mp3",
@@ -2809,7 +2809,7 @@
   {
    "id": "m-again-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-again-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-again-1.mp3",
    "where": "Merchant: nothing tapped for 20 s after he came (once per visit)",
    "caption": "נוּ, תִּרְצֶה לִקְנוֹת אֶחָד?",
    "take": "clips/m-again-1/v1.mp3",
@@ -2827,7 +2827,7 @@
   {
    "id": "m-again-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-again-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-again-2.mp3",
    "where": "Merchant: nothing tapped for 20 s after he came (once per visit)",
    "caption": "אָז מָה? קוֹנִים שִׁקּוּי?",
    "take": "clips/m-again-2/v1.mp3",
@@ -2845,7 +2845,7 @@
   {
    "id": "m-bye-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-bye-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-bye-1-f.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away — when a girl plays",
    "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֶמֶת.",
    "take": "clips/m-bye-1-f/v5.mp3",
@@ -2880,7 +2880,7 @@
   {
    "id": "m-bye-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-bye-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-bye-1.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
    "caption": "בְּסֵדֶר. לְהִתְרָאוֹת קוֹסֵם.",
    "take": "clips/m-bye-1/v5.mp3",
@@ -2915,7 +2915,7 @@
   {
    "id": "m-bye-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-bye-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-bye-2.mp3",
    "where": "Merchant: the ✗ (no thanks); his coins go back and he walks away",
    "caption": "אֵין בְּעָיָה. נִתְרָאֶה בַּפַּעַם הַבָּאָה.",
    "take": "clips/m-bye-2/v1.mp3",
@@ -2933,7 +2933,7 @@
   {
    "id": "m-decline-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-decline-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-decline-1-f.mp3",
    "where": "Merchant, first visit demo D4: the ✗ card glows — when a girl plays",
    "caption": "לֹא צָרִיךְ? גְּעִי כָּאן.",
    "take": "clips/m-decline-1-f/v2.mp3",
@@ -2956,7 +2956,7 @@
   {
    "id": "m-decline-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-decline-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-decline-1.mp3",
    "where": "Merchant, first visit demo D4: the ✗ card glows",
    "caption": "לֹא צָרִיךְ? גַּע כָּאן.",
    "take": "clips/m-decline-1/v1.mp3",
@@ -2974,7 +2974,7 @@
   {
    "id": "m-empty-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-empty-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-empty-1.mp3",
    "where": "Merchant: the potion tapped with nothing in his hand (his hand glows)",
    "caption": "קֹדֶם מַטְבְּעוֹת.",
    "take": "clips/m-empty-1/v1.mp3",
@@ -2992,7 +2992,7 @@
   {
    "id": "m-empty-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-empty-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-empty-2-f.mp3",
    "where": "Merchant: the potion tapped with nothing in his hand (his hand glows) — when a girl plays",
    "caption": "קֹדֶם תְּנִי לִי מַטְבְּעוֹת.",
    "take": "clips/m-empty-2-f/v1.mp3",
@@ -3010,7 +3010,7 @@
   {
    "id": "m-empty-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-empty-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-empty-2.mp3",
    "where": "Merchant: the potion tapped with nothing in his hand (his hand glows)",
    "caption": "קֹדֶם תֵּן לִי מַטְבְּעוֹת.",
    "take": "clips/m-empty-2/v1.mp3",
@@ -3028,7 +3028,7 @@
   {
    "id": "m-exact-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-exact-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-exact-1.mp3",
    "where": "Merchant: he counted the exact price; the potion flies to the wizard",
    "caption": "בְּדִיּוּק. הִנֵּה הַשִּׁקּוּי.",
    "take": "clips/m-exact-1/v1.mp3",
@@ -3046,7 +3046,7 @@
   {
    "id": "m-exact-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-exact-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-exact-2.mp3",
    "where": "Merchant: he counted the exact price; the potion flies to the wizard",
    "caption": "בְּדִיּוּק כַּמָּה שֶׁצָּרִיךְ. בְּבַקָּשָׁה.",
    "take": "clips/m-exact-2/v1.mp3",
@@ -3064,7 +3064,7 @@
   {
    "id": "m-exact-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-exact-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-exact-3.mp3",
    "where": "Merchant: he counted the exact price; the potion flies to the wizard",
    "caption": "מְצֻיָּן, זֶה בְּדִיּוּק הַמְּחִיר.",
    "take": "clips/m-exact-3/v5.mp3",
@@ -3099,7 +3099,7 @@
   {
    "id": "m-give-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-give-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-give-1-f.mp3",
    "where": "Merchant, first visit demo D2 (the parent's wording): the hand drags a coin into his hand — when a girl plays",
    "caption": "תְּנִי לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
    "take": "clips/m-give-1-f/v1.mp3",
@@ -3117,7 +3117,7 @@
   {
    "id": "m-give-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-give-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-give-1.mp3",
    "where": "Merchant, first visit demo D2 (the parent's wording): the hand drags a coin into his hand",
    "caption": "תֵּן לִי מַטְבְּעוֹת, לְפִי הַמְּחִיר.",
    "take": "clips/m-give-1/v1.mp3",
@@ -3135,7 +3135,7 @@
   {
    "id": "m-heart-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-1-f.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
    "caption": "עַכְשָׁו יֵשׁ לָךְ לֵב בַּחֲזָרָה.",
    "take": "clips/m-heart-1-f/v3.mp3",
@@ -3162,7 +3162,7 @@
   {
    "id": "m-heart-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-1.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
    "caption": "עַכְשָׁו יֵשׁ לְךָ לֵב בַּחֲזָרָה.",
    "take": "clips/m-heart-1/v2.mp3",
@@ -3185,7 +3185,7 @@
   {
    "id": "m-heart-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-2-f.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
    "caption": "הַלֵּב חָזַר אֵלַיִךְ.",
    "take": "clips/m-heart-2-f/v2.mp3",
@@ -3208,7 +3208,7 @@
   {
    "id": "m-heart-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-2.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
    "caption": "קִבַּלְתָּ לֵב בַּחֲזָרָה.",
    "take": "clips/m-heart-2/v2.mp3",
@@ -3231,7 +3231,7 @@
   {
    "id": "m-heart-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-3-f.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar — when a girl plays",
    "caption": "הַלֵּב שֶׁלָּךְ חָזַר.",
    "take": "clips/m-heart-3-f/v2.mp3",
@@ -3254,7 +3254,7 @@
   {
    "id": "m-heart-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-heart-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-heart-3.mp3",
    "where": "Merchant: after a purchase, right after m-exact: the heart flew to the top bar",
    "caption": "הַלֵּב שֶׁלְּךָ חָזַר.",
    "take": "clips/m-heart-3/v2.mp3",
@@ -3277,7 +3277,7 @@
   {
    "id": "m-hello-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-1-f.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
    "caption": "שָׁלוֹם קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצִי לִקְנוֹת אֶחָד?",
    "take": "clips/m-hello-1-f/v1.mp3",
@@ -3295,7 +3295,7 @@
   {
    "id": "m-hello-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-1.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
    "caption": "שָׁלוֹם קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁנּוֹתֵן לֵב בַּחֲזָרָה. תִּרְצֶה לִקְנוֹת אֶחָד?",
    "take": "clips/m-hello-1/v1.mp3",
@@ -3313,7 +3313,7 @@
   {
    "id": "m-hello-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-2-f.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
    "caption": "מָה נִשְׁמָע קוֹסֶמֶת? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצִי אֶחָד?",
    "take": "clips/m-hello-2-f/v3.mp3",
@@ -3340,7 +3340,7 @@
   {
    "id": "m-hello-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-2.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
    "caption": "מָה נִשְׁמָע קוֹסֵם? הֵבֵאתִי שִׁקּוּי שֶׁנּוֹתֵן לֵב. תִּרְצֶה אֶחָד?",
    "take": "clips/m-hello-2/v1.mp3",
@@ -3358,7 +3358,7 @@
   {
    "id": "m-hello-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-3-f.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line) — when a girl plays",
    "caption": "הַי קוֹסֶמֶת. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצָה לִקְנוֹת?",
    "take": "clips/m-hello-3-f/v1.mp3",
@@ -3376,7 +3376,7 @@
   {
    "id": "m-hello-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-hello-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-hello-3.mp3",
    "where": "Merchant: he walks in at a checkpoint (the opening; the first take is the parent's line)",
    "caption": "הַי קוֹסֵם. יֵשׁ לִי שִׁקּוּי שֶׁמַּחֲזִיר לֵב. רוֹצֶה לִקְנוֹת?",
    "take": "clips/m-hello-3/v1.mp3",
@@ -3394,7 +3394,7 @@
   {
    "id": "m-offer-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-offer-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-offer-1-f.mp3",
    "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then — when a girl plays",
    "caption": "רוֹצָה שִׁקּוּי לֵב?",
    "take": "clips/m-offer-1-f/v2.mp3",
@@ -3417,7 +3417,7 @@
   {
    "id": "m-offer-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-offer-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-offer-1.mp3",
    "where": "Merchant: his opening when the child knows him (a potion bought before); no demo then",
    "caption": "רוֹצֶה שִׁקּוּי לֵב?",
    "take": "clips/m-offer-1/v2.mp3",
@@ -3440,7 +3440,7 @@
   {
    "id": "m-over-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-over-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-over-1.mp3",
    "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
    "caption": "זֶה יוֹתֵר מִדַּי.",
    "take": "clips/m-over-1/v1.mp3",
@@ -3458,7 +3458,7 @@
   {
    "id": "m-over-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-over-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-over-2.mp3",
    "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
    "caption": "זֶה יוֹתֵר מֵהַמְּחִיר.",
    "take": "clips/m-over-2/v1.mp3",
@@ -3476,7 +3476,7 @@
   {
    "id": "m-over-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-over-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-over-3.mp3",
    "where": "Merchant: he counted more than the price (the tag flashes; the coins stay)",
    "caption": "יֵשׁ פֹּה יוֹתֵר מִדַּי מַטְבְּעוֹת.",
    "take": "clips/m-over-3/v3.mp3",
@@ -3503,7 +3503,7 @@
   {
    "id": "m-price-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-price-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-price-1.mp3",
    "where": "Merchant, first visit demo D1: the price tag glows",
    "caption": "זֶה הַמְּחִיר.",
    "take": "clips/m-price-1/v1.mp3",
@@ -3521,7 +3521,7 @@
   {
    "id": "m-short-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-short-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-short-1.mp3",
    "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
    "caption": "זֶה לֹא מַסְפִּיק.",
    "take": "clips/m-short-1/v1.mp3",
@@ -3539,7 +3539,7 @@
   {
    "id": "m-short-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-short-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-short-2.mp3",
    "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
    "caption": "זֶה פָּחוֹת מֵהַמְּחִיר.",
    "take": "clips/m-short-2/v1.mp3",
@@ -3557,7 +3557,7 @@
   {
    "id": "m-short-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-short-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-short-3.mp3",
    "where": "Merchant: he counted less than the price (the tag flashes; the coins stay)",
    "caption": "צָרִיךְ יוֹתֵר מַטְבְּעוֹת.",
    "take": "clips/m-short-3/v3.mp3",
@@ -3584,7 +3584,7 @@
   {
    "id": "m-tap-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-tap-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-tap-1-f.mp3",
    "where": "Merchant, first visit demo D3: the hand taps the potion — when a girl plays",
    "caption": "וְאָז גְּעִי בַּשִּׁקּוּי.",
    "take": "clips/m-tap-1-f/v2.mp3",
@@ -3607,7 +3607,7 @@
   {
    "id": "m-tap-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-tap-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-tap-1.mp3",
    "where": "Merchant, first visit demo D3: the hand taps the potion",
    "caption": "וְאָז גַּע בַּשִּׁקּוּי.",
    "take": "clips/m-tap-1/v1.mp3",
@@ -3625,7 +3625,7 @@
   {
    "id": "m-undo-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-undo-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-undo-1-f.mp3",
    "where": "Merchant: too much, the first time only: the hand taps his hand and the last coin flies back — when a girl plays",
    "caption": "אֶפְשָׁר לָקַחַת מַטְבֵּעַ בַּחֲזָרָה.",
    "take": "clips/m-undo-1-f/v2.mp3",
@@ -3652,7 +3652,7 @@
   {
    "id": "m-undo-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/m-undo-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/m-undo-1.mp3",
    "where": "Merchant: too much, the first time only: the hand taps his hand and the last coin flies back",
    "caption": "קַח מַטְבֵּעַ בַּחֲזָרָה.",
    "take": "clips/m-undo-1/v1.mp3",
@@ -3670,7 +3670,7 @@
   {
    "id": "mult-up-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/mult-up-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/mult-up-1.mp3",
    "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
    "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת.",
    "take": "clips/mult-up-1/v3.mp3",
@@ -3697,7 +3697,7 @@
   {
    "id": "mult-up-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/mult-up-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/mult-up-2.mp3",
    "where": "The streak multiplier rises: take 1 for x2, take 2 for x3 (said over the flight on the broom)",
    "caption": "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁלוֹשָׁה מַטְבְּעוֹת.",
    "take": "clips/mult-up-2/v3.mp3",
@@ -3724,7 +3724,7 @@
   {
    "id": "new-best-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/new-best-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/new-best-1.mp3",
    "where": "Summary: a new best run",
    "caption": "שִׂיא חָדָשׁ.",
    "take": "clips/new-best-1/v1.mp3",
@@ -3742,7 +3742,7 @@
   {
    "id": "new-best-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/new-best-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/new-best-2-f.mp3",
    "where": "Summary: a new best run — when a girl plays",
    "caption": "שָׁבַרְתְּ אֶת הַשִּׂיא שֶׁלָּךְ.",
    "take": "clips/new-best-2-f/v2.mp3",
@@ -3765,7 +3765,7 @@
   {
    "id": "new-best-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/new-best-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/new-best-2.mp3",
    "where": "Summary: a new best run",
    "caption": "שָׁבַרְתָּ אֶת הַשִּׂיא שֶׁלְּךָ.",
    "take": "clips/new-best-2/v2.mp3",
@@ -3788,7 +3788,7 @@
   {
    "id": "q-broom-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-1.mp3",
    "where": "Broom flight (syllables): the question before the target sound",
    "caption": "תִּתְפֹּס אֶת מָה שֶׁתִּשְׁמַע.",
    "take": "clips/q-broom-1/v1.mp3",
@@ -3806,7 +3806,7 @@
   {
    "id": "q-broom-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-2.mp3",
    "where": "Broom flight (syllables): the question before the target sound",
    "caption": "תָּעוּף אֶל מָה שֶׁתִּשְׁמַע.",
    "take": "clips/q-broom-2/v1.mp3",
@@ -3824,7 +3824,7 @@
   {
    "id": "q-broom-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-3.mp3",
    "where": "Broom flight (syllables): the question before the target sound",
    "caption": "תַּקְשִׁיב טוֹב, וְתִתְפֹּס אֶת מָה שֶׁתִּשְׁמַע.",
    "take": "clips/q-broom-3/v1.mp3",
@@ -3842,7 +3842,7 @@
   {
    "id": "q-broom-letter-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-letter-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-letter-1.mp3",
    "where": "Broom flight (letters): the question before the letter name",
    "caption": "תִּתְפֹּס אֶת הָאוֹת שֶׁתִּשְׁמַע.",
    "take": "clips/q-broom-letter-1/v1.mp3",
@@ -3860,7 +3860,7 @@
   {
    "id": "q-broom-letter-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-letter-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-letter-2.mp3",
    "where": "Broom flight (letters): the question before the letter name",
    "caption": "תָּעוּף אֶל הָאוֹת שֶׁתִּשְׁמַע.",
    "take": "clips/q-broom-letter-2/v1.mp3",
@@ -3878,7 +3878,7 @@
   {
    "id": "q-broom-letter-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-broom-letter-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-broom-letter-3.mp3",
    "where": "Broom flight (letters): the question before the letter name",
    "caption": "אֵיזוֹ אוֹת? תַּקְשִׁיב, וְתִתְפֹּס אוֹתָהּ.",
    "take": "clips/q-broom-letter-3/v1.mp3",
@@ -3896,7 +3896,7 @@
   {
    "id": "q-cauldron-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-cauldron-1.mp3",
    "where": "Cauldron, when he waits: then the syllable",
    "caption": "אֵיזֶה נִקּוּד צָרִיךְ לִזְרֹק לַסִּיר, כְּדֵי שֶׁיִּהְיֶה...",
    "take": "clips/q-cauldron-1/v2.mp3",
@@ -3919,7 +3919,7 @@
   {
    "id": "q-cauldron-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-cauldron-2-f.mp3",
    "where": "Cauldron, when he waits: then the syllable — when a girl plays",
    "caption": "תִּזְרְקִי לַסִּיר אֶת הַנִּקּוּד שֶׁל:",
    "take": "clips/q-cauldron-2-f/v4.mp3",
@@ -3950,7 +3950,7 @@
   {
    "id": "q-cauldron-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-cauldron-2.mp3",
    "where": "Cauldron, when he waits: then the syllable",
    "caption": "תִּזְרֹק לַסִּיר אֶת הַנִּקּוּד שֶׁל...",
    "take": "clips/q-cauldron-2/v2.mp3",
@@ -3973,7 +3973,7 @@
   {
    "id": "q-cauldron-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-cauldron-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-cauldron-3.mp3",
    "where": "Cauldron, when he waits: then the syllable",
    "caption": "מָה חָסֵר לָאוֹת, כְּדֵי שֶׁיִּהְיֶה...",
    "take": "clips/q-cauldron-3/v2.mp3",
@@ -3996,7 +3996,7 @@
   {
    "id": "q-door-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-door-1-f.mp3",
    "where": "Door, when he waits; it never says the word (he reads it) — when a girl plays",
    "caption": "מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיאִי אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
    "take": "clips/q-door-1-f/v1.mp3",
@@ -4014,7 +4014,7 @@
   {
    "id": "q-door-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-door-1.mp3",
    "where": "Door, when he waits; it never says the word (he reads it)",
    "caption": "מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיא אֶת הַמַּפְתֵּחַ הַנָּכוֹן.",
    "take": "clips/q-door-1/v3.mp3",
@@ -4041,7 +4041,7 @@
   {
    "id": "q-door-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-door-2-f.mp3",
    "where": "Door, when he waits; it never says the word (he reads it) — when a girl plays",
    "caption": "תִּקְרְאִי אֶת הַמִּלָּה, וְתִבְחֲרִי מַפְתֵּחַ.",
    "take": "clips/q-door-2-f/v1.mp3",
@@ -4059,7 +4059,7 @@
   {
    "id": "q-door-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-door-2.mp3",
    "where": "Door, when he waits; it never says the word (he reads it)",
    "caption": "תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר מַפְתֵּחַ.",
    "take": "clips/q-door-2/v2.mp3",
@@ -4082,7 +4082,7 @@
   {
    "id": "q-door-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-door-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-door-3.mp3",
    "where": "Door, when he waits; it never says the word (he reads it)",
    "caption": "אֵיזֶה מַפְתֵּחַ פּוֹתֵחַ אֶת הַדֶּלֶת?",
    "take": "clips/q-door-3/v2.mp3",
@@ -4105,7 +4105,7 @@
   {
    "id": "q-draw-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-draw-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-draw-1-f.mp3",
    "where": "Drawing, when he waits: then the word — when a girl plays",
    "caption": "תִּכְתְּבִי אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
    "take": "clips/q-draw-1-f/v1.mp3",
@@ -4123,7 +4123,7 @@
   {
    "id": "q-draw-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-draw-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-draw-1.mp3",
    "where": "Drawing, when he waits: then the word",
    "caption": "תִּכְתֹּב אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל הַמִּלָּה:",
    "take": "clips/q-draw-1/v1.mp3",
@@ -4141,7 +4141,7 @@
   {
    "id": "q-draw-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-draw-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-draw-2.mp3",
    "where": "Drawing, when he waits: then the word",
    "caption": "בְּאֵיזוֹ אוֹת מַתְחִילָה הַמִּלָּה:",
    "take": "clips/q-draw-2/v1.mp3",
@@ -4159,7 +4159,7 @@
   {
    "id": "q-draw-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-draw-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-draw-3.mp3",
    "where": "Drawing, when he waits: then the word",
    "caption": "אֵיךְ כּוֹתְבִים אֶת הָאוֹת הָרִאשׁוֹנָה שֶׁל:",
    "take": "clips/q-draw-3/v1.mp3",
@@ -4177,7 +4177,7 @@
   {
    "id": "q-ghosts-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-1.mp3",
    "where": "Ghosts (syllables), when he waits: then the syllable",
    "caption": "אֵיפֹה כָּתוּב...",
    "take": "clips/q-ghosts-1/v3.mp3",
@@ -4204,7 +4204,7 @@
   {
    "id": "q-ghosts-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-2.mp3",
    "where": "Ghosts (syllables), when he waits: then the syllable",
    "caption": "אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת...",
    "take": "clips/q-ghosts-2/v3.mp3",
@@ -4231,7 +4231,7 @@
   {
    "id": "q-ghosts-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-3-f.mp3",
    "where": "Ghosts (syllables), when he waits: then the syllable — when a girl plays",
    "caption": "תִּמְצְאִי אֶת:",
    "take": "clips/q-ghosts-3-f/v1.mp3",
@@ -4249,7 +4249,7 @@
   {
    "id": "q-ghosts-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-3.mp3",
    "where": "Ghosts (syllables), when he waits: then the syllable",
    "caption": "תִּמְצָא אֶת...",
    "take": "clips/q-ghosts-3/v3.mp3",
@@ -4276,7 +4276,7 @@
   {
    "id": "q-ghosts-letter-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-letter-1.mp3",
    "where": "Ghosts (letters), when he waits: then the letter name",
    "caption": "אֵיפֹה הָאוֹת...",
    "take": "clips/q-ghosts-letter-1/v2.mp3",
@@ -4303,7 +4303,7 @@
   {
    "id": "q-ghosts-letter-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-letter-2.mp3",
    "where": "Ghosts (letters), when he waits: then the letter name",
    "caption": "אֵיזוֹ רוּחַ רְפָאִים מַחֲזִיקָה אֶת הָאוֹת...",
    "take": "clips/q-ghosts-letter-2/v1.mp3",
@@ -4321,7 +4321,7 @@
   {
    "id": "q-ghosts-letter-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-letter-3-f.mp3",
    "where": "Ghosts (letters), when he waits: then the letter name — when a girl plays",
    "caption": "תִּמְצְאִי אֶת הָאוֹת:",
    "take": "clips/q-ghosts-letter-3-f/v1.mp3",
@@ -4339,7 +4339,7 @@
   {
    "id": "q-ghosts-letter-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ghosts-letter-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ghosts-letter-3.mp3",
    "where": "Ghosts (letters), when he waits: then the letter name",
    "caption": "תִּמְצָא אֶת הָאוֹת...",
    "take": "clips/q-ghosts-letter-3/v1.mp3",
@@ -4357,7 +4357,7 @@
   {
    "id": "q-ladder-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ladder-1.mp3",
    "where": "Ladder, when he waits: then the syllable",
    "caption": "אֵיפֹה כָּתוּב...",
    "take": "clips/q-ladder-1/v2.mp3",
@@ -4380,7 +4380,7 @@
   {
    "id": "q-ladder-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ladder-2-f.mp3",
    "where": "Ladder, when he waits: then the syllable — when a girl plays",
    "caption": "תִּגְרְרִי לַסֻּלָּם אֶת הַשָּׁלָב:",
    "take": "clips/q-ladder-2-f/v4.mp3",
@@ -4411,7 +4411,7 @@
   {
    "id": "q-ladder-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ladder-2.mp3",
    "where": "Ladder, when he waits: then the syllable",
    "caption": "תִּגְרֹר לַסֻּלָּם אֶת הַשָּׁלָב...",
    "take": "clips/q-ladder-2/v5.mp3",
@@ -4446,7 +4446,7 @@
   {
    "id": "q-ladder-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ladder-3-f.mp3",
    "where": "Ladder, when he waits: then the syllable — when a girl plays",
    "caption": "תִּמְצְאִי אֶת:",
    "take": "clips/q-ladder-3-f/v1.mp3",
@@ -4464,7 +4464,7 @@
   {
    "id": "q-ladder-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/q-ladder-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/q-ladder-3.mp3",
    "where": "Ladder, when he waits: then the syllable",
    "caption": "תִּמְצָא אֶת...",
    "take": "clips/q-ladder-3/v2.mp3",
@@ -4487,7 +4487,7 @@
   {
    "id": "run-end-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/run-end-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/run-end-1.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
    "caption": "נִגְמְרוּ הַלְּבָבוֹת. עוֹד פַּעַם?",
    "take": "clips/run-end-1/v2.mp3",
@@ -4510,7 +4510,7 @@
   {
    "id": "run-end-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/run-end-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/run-end-2.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
    "caption": "זֶהוּ לְהַפַּעַם. נְשַׂחֵק שׁוּב?",
    "take": "clips/run-end-2/v2.mp3",
@@ -4533,7 +4533,7 @@
   {
    "id": "run-end-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/run-end-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/run-end-3.mp3",
    "where": "The run ends (no hearts left): neither praise for a loss nor disappointed",
    "caption": "נִגְמַר הַסִּבּוּב. עוֹד סִבּוּב?",
    "take": "clips/run-end-3/v2.mp3",
@@ -4556,7 +4556,7 @@
   {
    "id": "streak-1-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-1-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-1-f.mp3",
    "where": "A streak of right answers — when a girl plays",
    "caption": "וָואוּ, אַתְּ /baˈʃvunɡ/.",
    "take": "clips/streak-1-f/v1.mp3",
@@ -4574,7 +4574,7 @@
   {
    "id": "streak-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-1.mp3",
    "where": "A streak of right answers",
    "caption": "וָואוּ, אַתָּה /baˈʃvunɡ/.",
    "take": "clips/streak-1/v1.mp3",
@@ -4592,7 +4592,7 @@
   {
    "id": "streak-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-2-f.mp3",
    "where": "A streak of right answers — when a girl plays",
    "caption": "אַתְּ אַלּוּפָה.",
    "take": "clips/streak-2-f/v3.mp3",
@@ -4619,7 +4619,7 @@
   {
    "id": "streak-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-2.mp3",
    "where": "A streak of right answers",
    "caption": "אַתָּה תּוֹתָח.",
    "take": "clips/streak-2/v2.mp3",
@@ -4642,7 +4642,7 @@
   {
    "id": "streak-3-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-3-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-3-f.mp3",
    "where": "A streak of right answers — when a girl plays",
    "caption": "אֵין עָלַיִךְ.",
    "take": "clips/streak-3-f/v6.mp3",
@@ -4681,7 +4681,7 @@
   {
    "id": "streak-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/streak-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/streak-3.mp3",
    "where": "A streak of right answers",
    "caption": "אַתָּה עָף עַל זֶה.",
    "take": "clips/streak-3/v2.mp3",
@@ -4704,7 +4704,7 @@
   {
    "id": "syl-0-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-0-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-0-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "אָ",
    "take": "clips/syl-0-a/v2.mp3",
@@ -4727,7 +4727,7 @@
   {
    "id": "syl-0-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-0-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-0-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "אֵ",
    "take": "clips/syl-0-e/v2.mp3",
@@ -4750,7 +4750,7 @@
   {
    "id": "syl-0-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-0-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-0-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "אִ",
    "take": "clips/syl-0-i/v2.mp3",
@@ -4773,7 +4773,7 @@
   {
    "id": "syl-0-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-0-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-0-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "אוֹ",
    "take": "clips/syl-0-o/v2.mp3",
@@ -4796,7 +4796,7 @@
   {
    "id": "syl-0-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-0-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-0-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "אוּ",
    "take": "clips/syl-0-u/v2.mp3",
@@ -4819,7 +4819,7 @@
   {
    "id": "syl-b-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-b-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-b-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בָּ",
    "take": "clips/syl-b-a/v2.mp3",
@@ -4842,7 +4842,7 @@
   {
    "id": "syl-b-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-b-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-b-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בֵּ",
    "take": "clips/syl-b-e/v2.mp3",
@@ -4865,7 +4865,7 @@
   {
    "id": "syl-b-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-b-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-b-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בִּ",
    "take": "clips/syl-b-i/v2.mp3",
@@ -4888,7 +4888,7 @@
   {
    "id": "syl-b-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-b-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-b-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בּוֹ",
    "take": "clips/syl-b-o/v2.mp3",
@@ -4911,7 +4911,7 @@
   {
    "id": "syl-b-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-b-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-b-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בּוּ",
    "take": "clips/syl-b-u/v2.mp3",
@@ -4934,7 +4934,7 @@
   {
    "id": "syl-ch-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ch-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ch-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "חָ",
    "take": "clips/syl-ch-a/v2.mp3",
@@ -4957,7 +4957,7 @@
   {
    "id": "syl-ch-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ch-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ch-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "חֵ",
    "take": "clips/syl-ch-e/v2.mp3",
@@ -4980,7 +4980,7 @@
   {
    "id": "syl-ch-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ch-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ch-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "חִ",
    "take": "clips/syl-ch-i/v2.mp3",
@@ -5003,7 +5003,7 @@
   {
    "id": "syl-ch-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ch-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ch-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "חוֹ",
    "take": "clips/syl-ch-o/v2.mp3",
@@ -5026,7 +5026,7 @@
   {
    "id": "syl-ch-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ch-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ch-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "חוּ",
    "take": "clips/syl-ch-u/v2.mp3",
@@ -5049,7 +5049,7 @@
   {
    "id": "syl-d-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-d-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-d-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "דָ",
    "take": "clips/syl-d-a/v2.mp3",
@@ -5072,7 +5072,7 @@
   {
    "id": "syl-d-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-d-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-d-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "דֵ",
    "take": "clips/syl-d-e/v2.mp3",
@@ -5095,7 +5095,7 @@
   {
    "id": "syl-d-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-d-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-d-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "דִ",
    "take": "clips/syl-d-i/v2.mp3",
@@ -5118,7 +5118,7 @@
   {
    "id": "syl-d-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-d-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-d-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "דוֹ",
    "take": "clips/syl-d-o/v2.mp3",
@@ -5141,7 +5141,7 @@
   {
    "id": "syl-d-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-d-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-d-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "דוּ",
    "take": "clips/syl-d-u/v2.mp3",
@@ -5164,7 +5164,7 @@
   {
    "id": "syl-f-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-f-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-f-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פָ",
    "take": "clips/syl-f-a/v14.mp3",
@@ -5239,7 +5239,7 @@
   {
    "id": "syl-f-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-f-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-f-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פֵ",
    "take": "clips/syl-f-e/v2.mp3",
@@ -5262,7 +5262,7 @@
   {
    "id": "syl-f-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-f-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-f-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פִ",
    "take": "clips/syl-f-i/v10.mp3",
@@ -5325,7 +5325,7 @@
   {
    "id": "syl-f-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-f-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-f-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פוֹ",
    "take": "clips/syl-f-o/v2.mp3",
@@ -5348,7 +5348,7 @@
   {
    "id": "syl-f-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-f-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-f-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פוּ",
    "take": "clips/syl-f-u/v2.mp3",
@@ -5371,7 +5371,7 @@
   {
    "id": "syl-g-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-g-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-g-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "גָ",
    "take": "clips/syl-g-a/v2.mp3",
@@ -5394,7 +5394,7 @@
   {
    "id": "syl-g-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-g-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-g-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "גֵ",
    "take": "clips/syl-g-e/v2.mp3",
@@ -5417,7 +5417,7 @@
   {
    "id": "syl-g-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-g-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-g-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "גִ",
    "take": "clips/syl-g-i/v4.mp3",
@@ -5448,7 +5448,7 @@
   {
    "id": "syl-g-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-g-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-g-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "גוֹ",
    "take": "clips/syl-g-o/v2.mp3",
@@ -5471,7 +5471,7 @@
   {
    "id": "syl-g-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-g-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-g-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "גוּ",
    "take": "clips/syl-g-u/v2.mp3",
@@ -5494,7 +5494,7 @@
   {
    "id": "syl-h-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-h-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-h-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "הָ",
    "take": "clips/syl-h-a/v2.mp3",
@@ -5517,7 +5517,7 @@
   {
    "id": "syl-h-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-h-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-h-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "הֵ",
    "take": "clips/syl-h-e/v2.mp3",
@@ -5540,7 +5540,7 @@
   {
    "id": "syl-h-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-h-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-h-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "הִ",
    "take": "clips/syl-h-i/v2.mp3",
@@ -5563,7 +5563,7 @@
   {
    "id": "syl-h-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-h-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-h-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "הוֹ",
    "take": "clips/syl-h-o/v2.mp3",
@@ -5586,7 +5586,7 @@
   {
    "id": "syl-h-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-h-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-h-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "הוּ",
    "take": "clips/syl-h-u/v2.mp3",
@@ -5609,7 +5609,7 @@
   {
    "id": "syl-k-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-k-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-k-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "כָּ",
    "take": "clips/syl-k-a/v2.mp3",
@@ -5632,7 +5632,7 @@
   {
    "id": "syl-k-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-k-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-k-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "כֵּ",
    "take": "clips/syl-k-e/v2.mp3",
@@ -5655,7 +5655,7 @@
   {
    "id": "syl-k-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-k-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-k-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "כִּ",
    "take": "clips/syl-k-i/v2.mp3",
@@ -5678,7 +5678,7 @@
   {
    "id": "syl-k-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-k-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-k-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "כּוֹ",
    "take": "clips/syl-k-o/v2.mp3",
@@ -5701,7 +5701,7 @@
   {
    "id": "syl-k-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-k-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-k-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "כּוּ",
    "take": "clips/syl-k-u/v2.mp3",
@@ -5724,7 +5724,7 @@
   {
    "id": "syl-l-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-l-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-l-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "לָ",
    "take": "clips/syl-l-a/v2.mp3",
@@ -5747,7 +5747,7 @@
   {
    "id": "syl-l-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-l-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-l-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "לֵ",
    "take": "clips/syl-l-e/v2.mp3",
@@ -5770,7 +5770,7 @@
   {
    "id": "syl-l-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-l-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-l-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "לִ",
    "take": "clips/syl-l-i/v2.mp3",
@@ -5793,7 +5793,7 @@
   {
    "id": "syl-l-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-l-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-l-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "לוֹ",
    "take": "clips/syl-l-o/v2.mp3",
@@ -5816,7 +5816,7 @@
   {
    "id": "syl-l-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-l-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-l-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "לוּ",
    "take": "clips/syl-l-u/v2.mp3",
@@ -5839,7 +5839,7 @@
   {
    "id": "syl-m-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-m-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-m-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "מָ",
    "take": "clips/syl-m-a/v2.mp3",
@@ -5862,7 +5862,7 @@
   {
    "id": "syl-m-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-m-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-m-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "מֵ",
    "take": "clips/syl-m-e/v2.mp3",
@@ -5885,7 +5885,7 @@
   {
    "id": "syl-m-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-m-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-m-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "מִ",
    "take": "clips/syl-m-i/v2.mp3",
@@ -5908,7 +5908,7 @@
   {
    "id": "syl-m-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-m-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-m-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "מוֹ",
    "take": "clips/syl-m-o/v2.mp3",
@@ -5931,7 +5931,7 @@
   {
    "id": "syl-m-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-m-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-m-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "מוּ",
    "take": "clips/syl-m-u/v2.mp3",
@@ -5954,7 +5954,7 @@
   {
    "id": "syl-n-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-n-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-n-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "נָ",
    "take": "clips/syl-n-a/v2.mp3",
@@ -5977,7 +5977,7 @@
   {
    "id": "syl-n-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-n-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-n-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "נֵ",
    "take": "clips/syl-n-e/v2.mp3",
@@ -6000,7 +6000,7 @@
   {
    "id": "syl-n-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-n-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-n-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "נִ",
    "take": "clips/syl-n-i/v2.mp3",
@@ -6023,7 +6023,7 @@
   {
    "id": "syl-n-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-n-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-n-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "נוֹ",
    "take": "clips/syl-n-o/v2.mp3",
@@ -6046,7 +6046,7 @@
   {
    "id": "syl-n-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-n-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-n-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "נוּ",
    "take": "clips/syl-n-u/v2.mp3",
@@ -6069,7 +6069,7 @@
   {
    "id": "syl-p-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-p-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-p-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פָּ",
    "take": "clips/syl-p-a/v2.mp3",
@@ -6092,7 +6092,7 @@
   {
    "id": "syl-p-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-p-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-p-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פֵּ",
    "take": "clips/syl-p-e/v4.mp3",
@@ -6123,7 +6123,7 @@
   {
    "id": "syl-p-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-p-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-p-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פִּ",
    "take": "clips/syl-p-i/v2.mp3",
@@ -6146,7 +6146,7 @@
   {
    "id": "syl-p-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-p-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-p-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פּוֹ",
    "take": "clips/syl-p-o/v2.mp3",
@@ -6169,7 +6169,7 @@
   {
    "id": "syl-p-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-p-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-p-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "פּוּ",
    "take": "clips/syl-p-u/v2.mp3",
@@ -6192,7 +6192,7 @@
   {
    "id": "syl-r-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-r-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-r-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רָ",
    "take": "clips/syl-r-a/v29.mp3",
@@ -6323,7 +6323,7 @@
   {
    "id": "syl-r-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-r-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-r-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רֵ",
    "take": "clips/syl-r-e/v4.mp3",
@@ -6354,7 +6354,7 @@
   {
    "id": "syl-r-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-r-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-r-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רִ",
    "take": "clips/syl-r-i/v31.mp3",
@@ -6493,7 +6493,7 @@
   {
    "id": "syl-r-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-r-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-r-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוֹ",
    "take": "clips/syl-r-o/v16.mp3",
@@ -6572,7 +6572,7 @@
   {
    "id": "syl-r-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-r-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-r-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "רוּ",
    "take": "clips/syl-r-u/v23.mp3",
@@ -6683,7 +6683,7 @@
   {
    "id": "syl-s-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-s-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-s-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "סָ",
    "take": "clips/syl-s-a/v2.mp3",
@@ -6706,7 +6706,7 @@
   {
    "id": "syl-s-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-s-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-s-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "סֵ",
    "take": "clips/syl-s-e/v2.mp3",
@@ -6729,7 +6729,7 @@
   {
    "id": "syl-s-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-s-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-s-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "סִ",
    "take": "clips/syl-s-i/v2.mp3",
@@ -6752,7 +6752,7 @@
   {
    "id": "syl-s-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-s-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-s-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "סוֹ",
    "take": "clips/syl-s-o/v1.mp3",
@@ -6775,7 +6775,7 @@
   {
    "id": "syl-s-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-s-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-s-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "סוּ",
    "take": "clips/syl-s-u/v2.mp3",
@@ -6798,7 +6798,7 @@
   {
    "id": "syl-sh-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-sh-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-sh-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "שָׁ",
    "take": "clips/syl-sh-a/v2.mp3",
@@ -6821,7 +6821,7 @@
   {
    "id": "syl-sh-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-sh-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-sh-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "שֵׁ",
    "take": "clips/syl-sh-e/v2.mp3",
@@ -6844,7 +6844,7 @@
   {
    "id": "syl-sh-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-sh-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-sh-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "שִׁ",
    "take": "clips/syl-sh-i/v2.mp3",
@@ -6867,7 +6867,7 @@
   {
    "id": "syl-sh-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-sh-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-sh-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "שׁוֹ",
    "take": "clips/syl-sh-o/v2.mp3",
@@ -6890,7 +6890,7 @@
   {
    "id": "syl-sh-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-sh-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-sh-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "שׁוּ",
    "take": "clips/syl-sh-u/v2.mp3",
@@ -6913,7 +6913,7 @@
   {
    "id": "syl-t-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-t-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-t-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "טָ",
    "take": "clips/syl-t-a/v2.mp3",
@@ -6936,7 +6936,7 @@
   {
    "id": "syl-t-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-t-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-t-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "טֵ",
    "take": "clips/syl-t-e/v2.mp3",
@@ -6959,7 +6959,7 @@
   {
    "id": "syl-t-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-t-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-t-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "טִ",
    "take": "clips/syl-t-i/v2.mp3",
@@ -6982,7 +6982,7 @@
   {
    "id": "syl-t-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-t-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-t-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "טוֹ",
    "take": "clips/syl-t-o/v2.mp3",
@@ -7005,7 +7005,7 @@
   {
    "id": "syl-t-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-t-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-t-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "טוּ",
    "take": "clips/syl-t-u/v2.mp3",
@@ -7028,7 +7028,7 @@
   {
    "id": "syl-ts-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ts-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ts-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "צָ",
    "take": "clips/syl-ts-a/v2.mp3",
@@ -7051,7 +7051,7 @@
   {
    "id": "syl-ts-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ts-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ts-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "צֵ",
    "take": "clips/syl-ts-e/v2.mp3",
@@ -7074,7 +7074,7 @@
   {
    "id": "syl-ts-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ts-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ts-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "צִ",
    "take": "clips/syl-ts-i/v2.mp3",
@@ -7097,7 +7097,7 @@
   {
    "id": "syl-ts-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ts-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ts-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "צוֹ",
    "take": "clips/syl-ts-o/v2.mp3",
@@ -7120,7 +7120,7 @@
   {
    "id": "syl-ts-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-ts-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-ts-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "צוּ",
    "take": "clips/syl-ts-u/v2.mp3",
@@ -7143,7 +7143,7 @@
   {
    "id": "syl-v-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-v-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-v-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בָ",
    "take": "clips/syl-v-a/v4.mp3",
@@ -7174,7 +7174,7 @@
   {
    "id": "syl-v-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-v-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-v-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בֵ",
    "take": "clips/syl-v-e/v8.mp3",
@@ -7221,7 +7221,7 @@
   {
    "id": "syl-v-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-v-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-v-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בִ",
    "take": "clips/syl-v-i/v3.mp3",
@@ -7252,7 +7252,7 @@
   {
    "id": "syl-v-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-v-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-v-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בוֹ",
    "take": "clips/syl-v-o/v8.mp3",
@@ -7299,7 +7299,7 @@
   {
    "id": "syl-v-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-v-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-v-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "בוּ",
    "take": "clips/syl-v-u/v18.mp3",
@@ -7386,7 +7386,7 @@
   {
    "id": "syl-y-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-y-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-y-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "יָ",
    "take": "clips/syl-y-a/v2.mp3",
@@ -7409,7 +7409,7 @@
   {
    "id": "syl-y-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-y-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-y-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "יֵ",
    "take": "clips/syl-y-e/v2.mp3",
@@ -7432,7 +7432,7 @@
   {
    "id": "syl-y-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-y-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-y-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "יִ",
    "take": "clips/syl-y-i/v4.mp3",
@@ -7463,7 +7463,7 @@
   {
    "id": "syl-y-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-y-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-y-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "יוֹ",
    "take": "clips/syl-y-o/v2.mp3",
@@ -7486,7 +7486,7 @@
   {
    "id": "syl-y-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-y-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-y-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "יוּ",
    "take": "clips/syl-y-u/v2.mp3",
@@ -7509,7 +7509,7 @@
   {
    "id": "syl-z-a",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-z-a.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-z-a.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "זָ",
    "take": "clips/syl-z-a/v2.mp3",
@@ -7532,7 +7532,7 @@
   {
    "id": "syl-z-e",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-z-e.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-z-e.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "זֵ",
    "take": "clips/syl-z-e/v2.mp3",
@@ -7555,7 +7555,7 @@
   {
    "id": "syl-z-i",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-z-i.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-z-i.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "זִ",
    "take": "clips/syl-z-i/v2.mp3",
@@ -7578,7 +7578,7 @@
   {
    "id": "syl-z-o",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-z-o.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-z-o.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "זוֹ",
    "take": "clips/syl-z-o/v2.mp3",
@@ -7601,7 +7601,7 @@
   {
    "id": "syl-z-u",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/syl-z-u.mp3",
+   "file": "src/spellquest/assets/audio/voice/syl-z-u.mp3",
    "where": "The sound he hears and the feedback (all screens)",
    "caption": "זוּ",
    "take": "clips/syl-z-u/v2.mp3",
@@ -7624,7 +7624,7 @@
   {
    "id": "target-new-1",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/target-new-1.mp3",
+   "file": "src/spellquest/assets/audio/voice/target-new-1.mp3",
    "where": "Broom flight: a new sound to catch (then the new sound)",
    "caption": "וְעַכְשָׁו...",
    "take": "clips/target-new-1/v2.mp3",
@@ -7647,7 +7647,7 @@
   {
    "id": "target-new-2-f",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/target-new-2-f.mp3",
+   "file": "src/spellquest/assets/audio/voice/target-new-2-f.mp3",
    "where": "Broom flight: a new sound to catch (then the new sound) — when a girl plays",
    "caption": "עַכְשָׁו תִּתְפְּסִי אֶת:",
    "take": "clips/target-new-2-f/v2.mp3",
@@ -7678,7 +7678,7 @@
   {
    "id": "target-new-2",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/target-new-2.mp3",
+   "file": "src/spellquest/assets/audio/voice/target-new-2.mp3",
    "where": "Broom flight: a new sound to catch (then the new sound)",
    "caption": "עַכְשָׁו תִּתְפֹּס אֶת...",
    "take": "clips/target-new-2/v2.mp3",
@@ -7701,7 +7701,7 @@
   {
    "id": "target-new-3",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/target-new-3.mp3",
+   "file": "src/spellquest/assets/audio/voice/target-new-3.mp3",
    "where": "Broom flight: a new sound to catch (then the new sound)",
    "caption": "וְעַכְשָׁו מַשֶּׁהוּ אַחֵר:",
    "take": "clips/target-new-3/v2.mp3",
@@ -7724,7 +7724,7 @@
   {
    "id": "w-ball",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-ball.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-ball.mp3",
    "where": "Door corridor: said when the door opens; word link",
    "caption": "כַּדוּר",
    "take": "clips/w-ball/v1.mp3",
@@ -7742,7 +7742,7 @@
   {
    "id": "w-banana",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-banana.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-banana.mp3",
    "where": "Word link after a right answer",
    "caption": "בָּנָנָה",
    "take": "clips/w-banana/v1.mp3",
@@ -7760,7 +7760,7 @@
   {
    "id": "w-carrot",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-carrot.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-carrot.mp3",
    "where": "Door corridor: said when the door opens; word link",
    "caption": "גֶזֶר",
    "take": "clips/w-carrot/v1.mp3",
@@ -7778,7 +7778,7 @@
   {
    "id": "w-cat",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-cat.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-cat.mp3",
    "where": "Door corridor: said when the door opens; word link",
    "caption": "חָתוּל",
    "take": "clips/w-cat/v1.mp3",
@@ -7796,7 +7796,7 @@
   {
    "id": "w-dog",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-dog.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-dog.mp3",
    "where": "Door corridor: said when the door opens; word link",
    "caption": "כֶּלֶב",
    "take": "clips/w-dog/v1.mp3",
@@ -7814,7 +7814,7 @@
   {
    "id": "w-fish",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-fish.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-fish.mp3",
    "where": "Word link after a right answer",
    "caption": "דָּג",
    "take": "clips/w-fish/v1.mp3",
@@ -7832,7 +7832,7 @@
   {
    "id": "w-fox",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-fox.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-fox.mp3",
    "where": "Door corridor: said when the door opens; word link",
    "caption": "שׁוּעָל",
    "take": "clips/w-fox/v1.mp3",
@@ -7850,7 +7850,7 @@
   {
    "id": "w-horse",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-horse.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-horse.mp3",
    "where": "Word link after a right answer",
    "caption": "סוּס",
    "take": "clips/w-horse/v1.mp3",
@@ -7868,7 +7868,7 @@
   {
    "id": "w-lemon",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-lemon.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-lemon.mp3",
    "where": "Word link after a right answer",
    "caption": "לִימוֹן",
    "take": "clips/w-lemon/v1.mp3",
@@ -7886,7 +7886,7 @@
   {
    "id": "w-strawberry",
    "kind": "tts",
-   "file": "src/duel2/assets/audio/voice/w-strawberry.mp3",
+   "file": "src/spellquest/assets/audio/voice/w-strawberry.mp3",
    "where": "Word link after a right answer",
    "caption": "תּוּת",
    "take": "clips/w-strawberry/v1.mp3",

@@ -1,8 +1,8 @@
 // The English path's audio: the shared game-audio kit with the English voices and Book 2's sound (its effects, music and
-// numbers: src/duel2/audio/book2Sound.ts). It logs to the English log. The tower plays through `englishDuelAudio`.
+// numbers: src/spellquest/audio/book2Sound.ts). It logs to the English log. The tower plays through `englishDuelAudio`.
 import { createGameAudio } from '../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../shared/gameAudio/output'
-import { BOOK2_SOUND, type Duel2Music, type Duel2Sfx } from '../duel2/audio/book2Sound'
+import { BOOK2_SOUND, type Duel2Music, type Duel2Sfx } from '../spellquest/audio/book2Sound'
 import type { DuelAudio } from '../utils/duel/controller'
 import { playSfx as duelSfx } from '../utils/duel/duelAudio'
 import type { LineCue } from '../assets/duel/lineCues'

@@ -1,9 +1,9 @@
 // The English stages (design Part 5): nine stages; the cycle, its visit lengths and the stage pass. A stage passes as in
 // Book 2: the first 5 answers on its new items all right, or 8 of the last 10. Stage 9 never passes, and no stage passes
 // into one whose content is not ready (content/ready.ts).
-import type { ScreenId } from '../../duel2/logic/predict'
-import { SESSION_LENGTH } from '../../duel2/logic/run'
-import { keptAnswers, keptAtLastStage, stagePassed, type StageProgress } from '../../duel2/logic/stages'
+import type { ScreenId } from '../../spellquest/logic/predict'
+import { SESSION_LENGTH } from '../../spellquest/logic/run'
+import { keptAnswers, keptAtLastStage, stagePassed, type StageProgress } from '../../spellquest/logic/stages'
 
 export const EN_MAX_STAGE = 9
 

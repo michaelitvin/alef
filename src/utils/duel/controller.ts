@@ -6,7 +6,7 @@
 // dispatched; the reactions to a change (spawn the next monster, run the clock, play an outcome) run once the current
 // call is over (one React commit), or, with `reactOnCommit`, when the hook calls commit() after React rendered it.
 import type { Choice, DuelState, IconName, Next, Rng, Round } from '../../types/duel'
-import type { BlendPart, BlendPlan } from '../../duel2/course/types'
+import type { BlendPart, BlendPlan } from '../../spellquest/course/types'
 import { duelReducer, initialDuelState, type DuelAction } from './reducer'
 import { predictedMistakeRate, type MakeRoundOpts } from './rounds'
 import { MEGA_MAX, bossFor, keyOf, newMonsterAt, nextPace, pickEffect, unlockedMonsters } from './rules'

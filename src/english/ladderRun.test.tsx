@@ -4,8 +4,8 @@
 // elsewhere is almost); from stage 5 a rung may come with a box more.
 import { act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { alternate, recordSession, seeded, until } from '../duel2/testing/runHarness'
-import { ladderAnswerId, RunController } from '../duel2/controller'
+import { alternate, recordSession, seeded, until } from '../spellquest/testing/runHarness'
+import { ladderAnswerId, RunController } from '../spellquest/controller'
 import { CHAINS } from './content/chains'
 import { ENGLISH } from './course'
 import { memoryEnglishSavePort } from './savePort'

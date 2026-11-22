@@ -2,8 +2,8 @@
 // (b d p and n u at stage 2, m w and h n at stage 3), then his own mix-ups; later the look-alike words (top · pot). He
 // hears the sound (or the word) and picks. The shared rules of every English screen's rounds.
 import { describe, expect, it } from 'vitest'
-import type { Choice, Kind, RoundCtx } from '../../../duel2/logic/rounds'
-import { seeded } from '../../../duel2/testing/runHarness'
+import type { Choice, Kind, RoundCtx } from '../../../spellquest/logic/rounds'
+import { seeded } from '../../../spellquest/testing/runHarness'
 import { GHOST_WORD_SETS, LOOKALIKE_LETTERS } from '../../content/sets'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'

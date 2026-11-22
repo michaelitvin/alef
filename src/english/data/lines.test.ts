@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lineById } from '../../duel2/data/lines.ts'
+import { lineById } from '../../spellquest/data/lines.ts'
 import { EN_LINES, EN_TOWER_LINE_IDS, FEMININE_IDS, enLine, enLineAudioId } from './lines.ts'
 
 // the ids the controller and the policies name that the English run shares with Book 2 (line-how-silent has no English

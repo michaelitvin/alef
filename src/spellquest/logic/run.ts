@@ -16,7 +16,7 @@ export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 
 /** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
  * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
 export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6, spell: 6 }
-/** Book 2's Hebrew course's stages (the course seam, src/duel2/course) */
+/** Book 2's Hebrew course's stages (the course seam, src/spellquest/course) */
 export const HEBREW_STAGES: CourseStages = { maxStage: 4, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH }
 export const HEARTS = 3
 /** broom: a new target after this many catches */

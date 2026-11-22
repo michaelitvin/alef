@@ -12,13 +12,13 @@ export const BOOK2_LOG: TelemetryLog = {
     docs: ['docs/superpowers/specs/2026-10-19-duel-book-2-design.md', 'docs/superpowers/specs/2026-11-07-book2-flight-boss-design.md',
       'docs/superpowers/specs/2026-11-07-book2-drawing-design.md', 'docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md',
       'docs/adr/0004-one-telemetry-log-per-game.md'],
-    code: ['src/duel2/controller.ts', 'src/duel2/telemetry.ts', 'src/duel2/store.ts', 'src/utils/duel/controller.ts'],
+    code: ['src/spellquest/controller.ts', 'src/spellquest/telemetry.ts', 'src/spellquest/store.ts', 'src/utils/duel/controller.ts'],
   },
   rollup: book2Facts,
 }
 
 /**
- * What an evicted chunk of Book 2's log keeps (checked against the call sites in src/duel2/controller.ts and
+ * What an evicted chunk of Book 2's log keeps (checked against the call sites in src/spellquest/controller.ts and
  * src/utils/duel/controller.ts). An item is `<screen>:<target>`.
  * - `answer` (not the gallery's): right, wrong, near (`result`), the latency (`ms`) and what he tapped (`tapped`).
  * - The tower's answer is Book 2's own `answer` with `screen: 'tower'` (no `ms`): it takes its latency (`msShown`), its

@@ -2,8 +2,8 @@
 // (it reads the save as it is, `readEnglishSave`; no store, audio or telemetry). A parent action never closes a station
 // or lowers a rating: the open ones only grow, and the ratings come from his recent answers, which no parent action
 // touches.
-import type { ScreenId } from '../duel2/logic/predict'
-import { rating, screenRecent } from '../duel2/logic/mastery'
+import type { ScreenId } from '../spellquest/logic/predict'
+import { rating, screenRecent } from '../spellquest/logic/mastery'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, enScreensOfStage } from './logic/stages'
 import { readEnglishSave, type EnglishSave } from './saveFormat'
 

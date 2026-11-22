@@ -5,10 +5,10 @@
 // (`top · pot`, `was · saw`), few at stage 2 and most from stage 5. A set of two gets a third ghost of another sound, and
 // its target may come twice (else the answer would be "the other one"). Never `I` against `l`. The run keeps a visit's
 // set by the signs of the round before (`prevSigns`), else by `avoid` (the sound of the target before).
-import { pickTarget } from '../../../duel2/logic/predict'
-import { shuffle, CONFUSION_GROUP_MIN, type Choice, type Kind, type RoundCtx } from '../../../duel2/logic/rounds'
-import type { ScreenId } from '../../../duel2/logic/predict'
-import type { Highlight } from '../../../duel2/viewTypes'
+import { pickTarget } from '../../../spellquest/logic/predict'
+import { shuffle, CONFUSION_GROUP_MIN, type Choice, type Kind, type RoundCtx } from '../../../spellquest/logic/rounds'
+import type { ScreenId } from '../../../spellquest/logic/predict'
+import type { Highlight } from '../../../spellquest/viewTypes'
 import { GHOST_WORD_SETS, LOOKALIKE_LETTERS } from '../../content/sets'
 import { UNITS, unit } from '../../content/units'
 import { letterName } from '../../content/voiceIds'

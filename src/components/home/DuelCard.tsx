@@ -5,7 +5,7 @@
 import cardBoy from '../../assets/home/card.webp'
 import cardGirl from '../../assets/home/card-girl.webp'
 import { useGender } from '../../shared/player'
-import orb from '../../duel2/assets/img/s-orb.webp'
+import orb from '../../spellquest/assets/img/s-orb.webp'
 import { PlayButton } from './PlayButton'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */

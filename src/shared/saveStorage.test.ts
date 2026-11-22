@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useDuel2Store } from '../duel2/store'
+import { useDuel2Store } from '../spellquest/store'
 import { useClockStore } from '../clock/store'
 import { useProgressStore } from '../stores/progressStore'
 import { getGender, setGender } from './player'

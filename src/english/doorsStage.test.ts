@@ -2,9 +2,9 @@
 // at stage 4 (Book 2's last). The run plays the Hebrew rounds here (the English doors come with Task 20) on the English
 // stages and an English save.
 import { describe, expect, it } from 'vitest'
-import { HEBREW } from '../duel2/course/hebrew'
-import { recordSession } from '../duel2/testing/runHarness'
-import type { SavePort } from '../duel2/savePort'
+import { HEBREW } from '../spellquest/course/hebrew'
+import { recordSession } from '../spellquest/testing/runHarness'
+import type { SavePort } from '../spellquest/savePort'
 import { ENGLISH } from './course'
 import { memoryEnglishSavePort } from './savePort'
 

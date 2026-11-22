@@ -5,13 +5,13 @@ import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 // jsdom loads no fonts or pictures
 vi.mock('./assets/preload', () => ({ ENGLISH_FONTS: [], preloadEnglishAssets: () => Promise.resolve() }))
-import { CourseProvider } from '../duel2/course/CourseContext'
-import { Cover } from '../duel2/screens/Cover'
-import { Play } from '../duel2/screens/Play'
-import { galleryFor } from '../duel2/screens/Gallery'
+import { CourseProvider } from '../spellquest/course/CourseContext'
+import { Cover } from '../spellquest/screens/Cover'
+import { Play } from '../spellquest/screens/Play'
+import { galleryFor } from '../spellquest/screens/Gallery'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
-import { HEBREW } from '../duel2/course/hebrew'
+import { HEBREW } from '../spellquest/course/hebrew'
 installFakeAudio()
 
 const HEBREW_LETTER = /[֐-׿]/

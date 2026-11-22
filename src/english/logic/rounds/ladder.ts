@@ -3,9 +3,9 @@
 // finds it. From stage 5 a rung may add a consonant (lip → slip): a box more. The rungs come from the chains of his stage
 // (asset plan 1.14; a shorter ladder uses the start of a chain). The chain's first word is the ladder's foot: built
 // already and said; each rung after it asks one change.
-import type { LadderPlan, LadderPlanStep } from '../../../duel2/course/types'
-import { pickTarget } from '../../../duel2/logic/predict'
-import type { Choice, RoundCtx } from '../../../duel2/logic/rounds'
+import type { LadderPlan, LadderPlanStep } from '../../../spellquest/course/types'
+import { pickTarget } from '../../../spellquest/logic/predict'
+import type { Choice, RoundCtx } from '../../../spellquest/logic/rounds'
 import { CHAINS } from '../../content/chains'
 import { unit, type Unit } from '../../content/units'
 import { WORDS, word, type EnWord } from '../../content/words'

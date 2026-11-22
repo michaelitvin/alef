@@ -2,14 +2,14 @@
 // course's `openScreens(save, course)`; a station that is not open for him opens the cover.
 import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-vi.mock('../duel2/screens/Play', () => ({ Play: () => <div data-screen="play" /> }))
+vi.mock('../spellquest/screens/Play', () => ({ Play: () => <div data-screen="play" /> }))
 vi.mock('./assets/preload', () => ({ ENGLISH_FONTS: [], preloadEnglishAssets: () => Promise.resolve() }))
-import Duel2App from '../duel2/Duel2App'
+import Duel2App from '../spellquest/Duel2App'
 import { clearGender } from '../shared/player'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { englishSavePort } from './savePort'
 import { useEnglishStore } from './store'
-import { cycleOf } from '../duel2/logic/run'
+import { cycleOf } from '../spellquest/logic/run'
 import { ENGLISH } from './course'
 import { englishDoorsPlayable, englishStationsUpTo } from './doorsPlayable'
 import { englishOpenStations, englishPlayableStations } from './station'

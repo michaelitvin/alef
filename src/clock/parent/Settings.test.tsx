@@ -6,7 +6,7 @@ import ClockSettings from './Settings'
 import { clockParent } from '.'
 import { useClockStore } from '../store'
 import { clockTelemetry } from '../telemetry'
-import { useDuel2Store } from '../../duel2/store'
+import { useDuel2Store } from '../../spellquest/store'
 
 describe('the clock\'s section in the parent area', () => {
   beforeEach(() => {

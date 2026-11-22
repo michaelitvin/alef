@@ -6,13 +6,13 @@
 // - dot (the thief): words one unit apart (ship · chip).
 // Kinds open by stage (mimic, bat, dot from stage 2; shin from 4, with the digraphs) and are scored by his English
 // mix-ups, as Book 2's are by its own.
-import type { BossKind, BossKinds } from '../../../duel2/logic/boss'
-import { BOSS_KINDS } from '../../../duel2/logic/boss'
-import type { Choice, Conf, RoundCtx } from '../../../duel2/logic/rounds'
+import type { BossKind, BossKinds } from '../../../spellquest/logic/boss'
+import { BOSS_KINDS } from '../../../spellquest/logic/boss'
+import type { Choice, Conf, RoundCtx } from '../../../spellquest/logic/rounds'
 import { LOOKALIKE_LETTERS } from '../../content/sets'
 import { unit, type Unit } from '../../content/units'
 import { WORDS, word, type EnWord } from '../../content/words'
-import { pickTarget } from '../../../duel2/logic/predict'
+import { pickTarget } from '../../../spellquest/logic/predict'
 import { enFeatures, enPrior, pickUnit, unitChoice } from '../pick'
 import { oneUnitApart, wordChoice } from './broom'
 

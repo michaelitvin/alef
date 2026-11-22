@@ -2,13 +2,13 @@
 // never the bird (sh ch th) before stage 4.
 import { afterEach, describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { CourseProvider } from '../duel2/course/CourseContext'
-import { Summary } from '../duel2/screens/Summary'
+import { CourseProvider } from '../spellquest/course/CourseContext'
+import { Summary } from '../spellquest/screens/Summary'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { useEnglishStore } from './store'
 import { ENGLISH_FRESH } from './saveFormat'
-import type { BossKind } from '../duel2/logic/boss'
+import type { BossKind } from '../spellquest/logic/boss'
 
 installFakeAudio()
 

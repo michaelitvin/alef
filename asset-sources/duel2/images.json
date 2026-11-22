@@ -1,5 +1,5 @@
 {
- "note": "One entry per image in src/duel2/assets/img/: the Gemini request that made it (cut out from a flat color, cropped, WebP).",
+ "note": "One entry per image in src/spellquest/assets/img/: the Gemini request that made it (cut out from a flat color, cropped, WebP).",
  "images": [
   {
    "name": "bg-ground",

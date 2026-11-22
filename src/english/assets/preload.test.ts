@@ -6,7 +6,7 @@ vi.mock('../../shared/shell/preload', () => ({
   createPreloader: (c: { fonts: [string, string][] }) => { configs.push(c); return () => Promise.resolve() },
 }))
 import { ENGLISH_FONTS } from './preload'
-import { FONTS } from '../../duel2/assets/preload'
+import { FONTS } from '../../spellquest/assets/preload'
 
 describe('the preloads\' fonts', () => {
   it('the English preload waits for ENGLISH_FONTS, and they are Andika', () => {

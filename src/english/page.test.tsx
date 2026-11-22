@@ -3,12 +3,12 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // the English run is not built yet (its stages and rounds come in later tasks): the play screen is a stand-in
-vi.mock('../duel2/screens/Play', () => ({ Play: () => <div data-screen="play" /> }))
+vi.mock('../spellquest/screens/Play', () => ({ Play: () => <div data-screen="play" /> }))
 // jsdom loads no fonts or pictures: the preload is done at once
 vi.mock('./assets/preload', () => ({ ENGLISH_FONTS: [], preloadEnglishAssets: () => Promise.resolve() }))
-import Duel2App from '../duel2/Duel2App'
-import { useDuel2Store } from '../duel2/store'
-import { SAVE_VERSION } from '../duel2/saveFormat'
+import Duel2App from '../spellquest/Duel2App'
+import { useDuel2Store } from '../spellquest/store'
+import { SAVE_VERSION } from '../spellquest/saveFormat'
 import { readLog } from '../shared/telemetry'
 import { PLAYTIME_GAMES } from '../shared/playtime'
 import { gameParent } from '../parent/registry'

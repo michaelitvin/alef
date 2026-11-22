@@ -3,10 +3,10 @@
 // the first duel's controller, mounted here as Tower.tsx mounts it (its content from the course's placement), on the
 // fake clock, with a duel audio that ends each line at once.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RunController } from '../duel2/controller'
+import { RunController } from '../spellquest/controller'
 import { DuelController, type DuelAudio } from '../utils/duel/controller'
 import type { Round } from '../types/duel'
-import { seeded } from '../duel2/testing/runHarness'
+import { seeded } from '../spellquest/testing/runHarness'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
 import { ENGLISH } from './course'
 import { memoryEnglishSavePort, type EnglishSavePort } from './savePort'

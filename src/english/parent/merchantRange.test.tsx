@@ -2,10 +2,10 @@
 // save port, `storeSavePort`) makes his coins from it.
 import { act } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RunController } from '../../duel2/controller'
+import { RunController } from '../../spellquest/controller'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { setNumberRange } from '../../shared/numberRange'
-import { stopVoice } from '../../duel2/audio/duel2Audio'
+import { stopVoice } from '../../spellquest/audio/duel2Audio'
 
 const fakeAudio = installFakeAudio()
 

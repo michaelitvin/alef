@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   // the /verify skill's driver (.claude/skills/verify/) imports playwright
   // src/main.tsx is found through index.html; the other apps' HTML entries are not found on their own
-  "entry": ["src/duel2/main.tsx", "src/clock/main.tsx", "src/spacecat/main.tsx", "scripts/**/*.ts", "worker/src/index.ts", ".claude/skills/verify/drive.mjs",
+  "entry": ["src/spellquest/main.tsx", "src/clock/main.tsx", "src/spacecat/main.tsx", "scripts/**/*.ts", "worker/src/index.ts", ".claude/skills/verify/drive.mjs",
     // the review kit: run by node (server, CLI) and loaded by the review page (main.ts)
     "tools/review/server.ts", "tools/review/cli.ts", "tools/review/page/main.ts"],
   "project": ["src/**", "scripts/**/*.ts", "worker/src/**", "tools/**/*.ts"],

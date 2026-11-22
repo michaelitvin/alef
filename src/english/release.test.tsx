@@ -11,7 +11,7 @@ installFakeAudio()
 const importFresh = async () => {
   vi.resetModules()
   const [{ HomePage }, { default: Duel2App }, { GAMES }] = await Promise.all([
-    import('../pages/Home/HomePage'), import('../duel2/Duel2App'), import('../parent/registry'),
+    import('../pages/Home/HomePage'), import('../spellquest/Duel2App'), import('../parent/registry'),
   ])
   return { HomePage, Duel2App, GAMES }
 }

@@ -2,7 +2,7 @@
 // (BlendWord) lights. The parent chose the method on 2026-11-20: `unitsThenWord` ("s… a… t… sat"): each unit's own
 // sound clip (`snd-<sound>`) plays in turn and lights its unit, then the word plays with all units lit. No slowed
 // recording is needed. `lightsOnNormalWord` stays as the fallback for a word whose unit clip is missing.
-import type { BlendPart, BlendPlan } from '../../duel2/course/types'
+import type { BlendPart, BlendPlan } from '../../spellquest/course/types'
 import { unit } from '../content/units'
 import { soundVoice } from '../content/voiceIds'
 import type { EnWord } from '../content/words'

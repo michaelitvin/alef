@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { readLog } from './telemetry'
-import { BOOK2_LOG } from '../duel2/telemetryLog'
+import { BOOK2_LOG } from '../spellquest/telemetryLog'
 import { ENGLISH_LOG } from '../english/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 import { SPACECAT_LOG } from '../spacecat/telemetryLog'

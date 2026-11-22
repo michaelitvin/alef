@@ -4,9 +4,9 @@
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays
 // logic/rounds/broom.ts, the cauldron logic/rounds/cauldron.ts, the ladder logic/rounds/ladder.ts, the ghosts
 // logic/rounds/ghosts.ts, the doors logic/rounds/doors.ts, the spell book logic/spell.ts, the drawing logic/draw.ts (on the Latin board: EN_WRITING).
-import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from '../duel2/course/types'
-import type { Choice } from '../duel2/logic/rounds'
-import type { SavePort } from '../duel2/savePort'
+import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from '../spellquest/course/types'
+import type { Choice } from '../spellquest/logic/rounds'
+import type { SavePort } from '../spellquest/savePort'
 import type { TowerContent } from '../utils/duel/content'
 import { englishAudio, englishDuelAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
