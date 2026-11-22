@@ -18,8 +18,8 @@ import { storeSavePort } from '../savePort'
 import { useSpellQuestStore } from '../store'
 import { spellQuestTelemetry } from '../telemetry'
 import { SPELLQUEST_LOG } from '../telemetryLog'
-import { HEBREW_TOWER } from '../../utils/duel/content'
-import { progressTallies } from '../../utils/duel/tallies'
+import { HEBREW_TOWER } from '../tower/logic/content'
+import { progressTallies } from '../tower/logic/tallies'
 import type { CauldronRound, Course, DoorRound, DrawItem, LadderPlan } from './types'
 
 /** a Hebrew answer's features: its letter, and its vowel group and syllable when it has a mark */

@@ -11,7 +11,7 @@ import { DOOR_BOX, Doors, PLATE_INNER } from '../spellquest/components/screens/D
 import { GHOST_SIGN, Ghosts } from '../spellquest/components/screens/Ghosts'
 import { Ladder, PLATE_W, RUNG_W, ladderBoxes, rungBoxXs } from '../spellquest/components/screens/Ladder'
 import { BlendWord } from '../spellquest/components/BlendWord'
-import { RuneGlyph } from '../components/duel/RuneGlyph'
+import { RuneGlyph } from '../spellquest/tower/components/RuneGlyph'
 import { BROOM_ORB, LANE_Y } from '../spellquest/broomLayout'
 import { ORB_JITTER } from '../spellquest/logic/run'
 import { STAGE_CONTENT_TOP, stageBox } from '../spellquest/layout'

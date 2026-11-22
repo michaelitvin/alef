@@ -9,8 +9,8 @@ import type { BossKind } from './logic/boss'
 import { START_STAGE, recordStageAnswer, type StageProgress } from './logic/stages'
 import type { NumberRange } from './logic/merchant'
 import { pushTowerTail, towerMastered } from './logic/mastery'
-import { DUEL_MARKS } from '../utils/duel/marks'
-import type { DuelStats } from '../types/duel'
+import { DUEL_MARKS } from './tower/logic/marks'
+import type { DuelStats } from './tower/types'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
 
 export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }

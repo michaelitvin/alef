@@ -1,13 +1,13 @@
 // The tower screen: the first duel's board inside Spell Quest's run (spec: one duel, Part 3).
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-vi.mock('../../../utils/duel/duelAudio', async (orig) => {
-  const m = await orig<typeof import('../../../utils/duel/duelAudio')>()
+vi.mock('../../tower/logic/duelAudio', async (orig) => {
+  const m = await orig<typeof import('../../tower/logic/duelAudio')>()
   // "tap the lightning": its cue fires as the line is said (as the real player does by the line's end)
   return { ...m, playLine: vi.fn((id: string, onCue?: (c: 'lightning') => void) => { if (id === 'line-mega') onCue?.('lightning'); return Promise.resolve() }), playSfx: vi.fn(() => Promise.resolve()), muteDuelAudio: vi.fn() }
 })
 import { Tower } from './Tower'
-import { muteDuelAudio } from '../../../utils/duel/duelAudio'
+import { muteDuelAudio } from '../../tower/logic/duelAudio'
 import { useSpellQuestStore } from '../../store'
 import { useProgressStore } from '../../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../../types/progress'

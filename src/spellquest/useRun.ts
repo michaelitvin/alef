@@ -1,7 +1,7 @@
 // The run controller as a React hook: one controller per mount; the tablet lock (page hidden) pauses it (rule).
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { RunController, type RunOpts } from './controller'
-import type { Round } from '../types/duel'
+import type { Round } from './tower/types'
 
 export function useRun(opts: RunOpts) {
   const ref = useRef<RunController | null>(null)

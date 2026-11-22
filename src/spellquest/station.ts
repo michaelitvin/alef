@@ -4,7 +4,7 @@ import type { ScreenId } from './logic/predict'
 import { cycleOf, HEBREW_STAGES } from './logic/run'
 import type { CourseStages } from './course/types'
 import { towerMastered } from './logic/mastery'
-import { DUEL_MARKS } from '../utils/duel/marks'
+import { DUEL_MARKS } from './tower/logic/marks'
 
 export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | null {
   const s = new URLSearchParams(search).get('station')

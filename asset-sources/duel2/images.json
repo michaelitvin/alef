@@ -147,13 +147,13 @@
   },
   {
    "name": "s-wizard-cast",
-   "prompt": "The duel's wizard sprite (src/assets/duel/sprites/wizard-cast.webp), reused",
+   "prompt": "The duel's wizard sprite (src/spellquest/tower/assets/sprites/wizard-cast.webp), reused",
    "reference": null,
    "model": null
   },
   {
    "name": "s-wizard-idle",
-   "prompt": "The duel's wizard sprite (src/assets/duel/sprites/wizard-idle.webp), reused",
+   "prompt": "The duel's wizard sprite (src/spellquest/tower/assets/sprites/wizard-idle.webp), reused",
    "reference": null,
    "model": null
   },

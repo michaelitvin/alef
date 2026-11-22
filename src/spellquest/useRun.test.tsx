@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, useSpellQuestStore } f
 import { hintCoins } from './logic/merchant'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
-import { DUEL_MARKS } from '../utils/duel/marks'
+import { DUEL_MARKS } from './tower/logic/marks'
 import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
 import { BROOM_ORB, LANE_Y, flightPath, orbX } from './broomLayout'
 import { stopVoice } from './audio/spellQuestAudio'

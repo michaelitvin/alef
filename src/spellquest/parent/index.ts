@@ -5,7 +5,7 @@ import { confusionList, persistedState, type GameParent } from '../../parent/typ
 import { ITEMS } from '../logic/content'
 import type { SpellQuestSave } from '../store'
 import { SPELLQUEST_LOG } from '../telemetryLog'
-import { DUEL_HISTORY_LOG } from '../../utils/duel/telemetryHistory'
+import { DUEL_HISTORY_LOG } from '../tower/logic/telemetryHistory'
 
 const glyph = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 

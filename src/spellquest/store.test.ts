@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave, useSpellQuestStore } from './store'
 import type { Choice } from './logic/rounds'
-import type { DuelStats, Tally } from '../types/duel'
-import { DUEL_MARKS } from '../utils/duel/marks'
+import type { DuelStats, Tally } from './tower/types'
+import { DUEL_MARKS } from './tower/logic/marks'
 
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
   ({ kind: 'syllable', id: `${itemId}-${mark}`, text: '', soundId: '', itemId, group, mark })

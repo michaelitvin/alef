@@ -1,4 +1,4 @@
-import type { DuelStats } from './duel'
+import type { DuelStats } from '../spellquest/tower/types'
 // Progress and state types for the Hebrew Reading Game
 
 /**

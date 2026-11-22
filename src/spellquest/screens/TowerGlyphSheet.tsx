@@ -1,16 +1,16 @@
 // Test builds only (#/tower-glyphs): every rune in every pad state, every picture word, every monster as it
 // walks (mirroring applied) and every icon — screenshotted by the headless verification for a visual check.
-import { DUEL_MARKS } from '../../utils/duel/marks'
-import { PICTURE_WORDS } from '../../utils/duel/words'
-import { MONSTERS, WORD_PICTURE } from '../../assets/duel/sprites'
-import { RuneGlowDefs, RuneGlyph } from '../../components/duel/RuneGlyph'
-import { Icon } from '../../components/duel/Icon'
-import type { IconName } from '../../types/duel'
-import { MonsterImg } from '../../components/duel/Explosion'
-import { WalkingMonster } from '../../components/duel/Monster'
-import { markById } from '../../utils/duel/marks'
-import { wordsFor } from '../../utils/duel/words'
-import '../../components/duel/duel.css'
+import { DUEL_MARKS } from '../tower/logic/marks'
+import { PICTURE_WORDS } from '../tower/logic/words'
+import { MONSTERS, WORD_PICTURE } from '../tower/assets/sprites'
+import { RuneGlowDefs, RuneGlyph } from '../tower/components/RuneGlyph'
+import { Icon } from '../tower/components/Icon'
+import type { IconName } from '../tower/types'
+import { MonsterImg } from '../tower/components/Explosion'
+import { WalkingMonster } from '../tower/components/Monster'
+import { markById } from '../tower/logic/marks'
+import { wordsFor } from '../tower/logic/words'
+import '../tower/components/duel.css'
 
 const STATES = ['', 'hit', 'miss', 'reveal', 'almost']
 const ICONS: IconName[] = ['sparkle', 'flame', 'bolt', 'swords', 'speaker', 'speakerOff', 'talk', 'puff', 'bonk', 'bossHeart']

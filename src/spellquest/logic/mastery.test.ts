@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FAST_LANE, fastLane, pushTowerTail, rating, screenRecent, skipInCycle, stage0Lane, towerMastered, visitScale, SHORT_AFTER } from './mastery'
-import { pickTarget, type LifetimeTally } from '../../utils/duel/rounds'
-import { DUEL_MARKS } from '../../utils/duel/marks'
+import { pickTarget, type LifetimeTally } from '../tower/logic/rounds'
+import { DUEL_MARKS } from '../tower/logic/marks'
 import { pushRecent } from '../../shared/adaptive'
 
 /** a seeded rng (mulberry32) */

@@ -16,8 +16,8 @@ module.exports = {
       name: 'logic-never-imports-ui',
       severity: 'error',
       comment: 'Pure logic must not import components or screens.',
-      from: { path: '^src/(spellquest/logic|clock/logic|spacecat/logic|utils/duel|english/logic)/', pathNot: TEST },
-      to: { path: ['^src/(spellquest|clock)/(components|screens)/', '^src/spacecat/(components|screens|canvas)/', '^src/components/'] },
+      from: { path: '^src/(spellquest/logic|clock/logic|spacecat/logic|spellquest/tower/logic|english/logic)/', pathNot: TEST },
+      to: { path: ['^src/(spellquest|clock)/(components|screens)/', '^src/spacecat/(components|screens|canvas)/', '^src/components/', '^src/spellquest/tower/components/'] },
     },
     {
       name: 'shared-is-self-contained',
@@ -60,13 +60,8 @@ module.exports = {
         'components/home/StationPath is a known exception (Book 2 shows the home path wizard).',
       from: { path: '^src/spellquest/', pathNot: TEST },
       to: {
-        path: '^src/(hooks|utils/duel|components|assets/duel|types|stores|pages)/',
+        path: '^src/(hooks|components|types|stores|pages)/',
         pathNot: [
-          '^src/hooks/useDuelGame\\.ts$',
-          '^src/utils/duel/',
-          '^src/components/duel/',
-          '^src/assets/duel/',
-          '^src/types/duel\\.ts$',
           '^src/types/progress\\.ts$',
           '^src/stores/progressStore\\.ts$',
           '^src/components/home/StationPic\\.tsx$',
@@ -87,9 +82,9 @@ module.exports = {
       name: 'run-engine-is-course-free',
       severity: 'error',
       comment:
-        'The run engine (Book 2\'s controller.ts, logic/ and policies/, and the first duel in src/utils/duel) never imports the ' +
+        'The run engine (Book 2\'s controller.ts, logic/ and policies/, and the first duel in src/spellquest/tower/logic) never imports the ' +
         'English course (src/english): a course reaches the run only as the Course it is given (RunOpts.course).',
-      from: { path: ['^src/spellquest/(controller|logic/|policies/)', '^src/utils/duel/'] },
+      from: { path: ['^src/spellquest/(controller|logic/|policies/)', '^src/spellquest/tower/logic/'] },
       to: { path: '^src/english/' },
     },
     {

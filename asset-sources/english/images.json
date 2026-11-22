@@ -157,7 +157,7 @@
   },
   {
    "name": "duel-tower",
-   "source": "src/assets/duel/sprites/tower.webp",
+   "source": "src/spellquest/tower/assets/sprites/tower.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-tower, no note)",
@@ -165,7 +165,7 @@
   },
   {
    "name": "duel-wizard-idle",
-   "source": "src/assets/duel/sprites/wizard-idle.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-idle.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-idle, no note)",
@@ -173,7 +173,7 @@
   },
   {
    "name": "duel-wizard-idle-girl",
-   "source": "src/assets/duel/sprites/wizard-idle-girl.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-idle-girl.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-idle-girl, no note)",
@@ -181,7 +181,7 @@
   },
   {
    "name": "duel-wizard-cast",
-   "source": "src/assets/duel/sprites/wizard-cast.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-cast.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-cast, no note)",
@@ -189,7 +189,7 @@
   },
   {
    "name": "duel-wizard-cast-girl",
-   "source": "src/assets/duel/sprites/wizard-cast-girl.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-cast-girl.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-cast-girl, no note)",
@@ -197,7 +197,7 @@
   },
   {
    "name": "duel-wizard-dizzy",
-   "source": "src/assets/duel/sprites/wizard-dizzy.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-dizzy.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy, no note)",
@@ -205,7 +205,7 @@
   },
   {
    "name": "duel-wizard-dizzy-girl",
-   "source": "src/assets/duel/sprites/wizard-dizzy-girl.webp",
+   "source": "src/spellquest/tower/assets/sprites/wizard-dizzy-girl.webp",
    "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy-girl, no note)",

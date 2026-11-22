@@ -2,7 +2,7 @@
 // the cauldron, the ladder, the door, an open book for the spell book, and א in print or in handwriting for the two
 // drawing screens. Used by the home screen's path and by Book 2's station cover.
 import type { ScreenId } from '../../spellquest/logic/predict'
-import tower from '../../assets/duel/sprites/tower.webp'
+import tower from '../../spellquest/tower/assets/sprites/tower.webp'
 import orb from '../../spellquest/assets/img/s-orb.webp'
 import ghost from '../../spellquest/assets/img/s-ghost.webp'
 import cauldron from '../../spellquest/assets/img/s-cauldron.webp'

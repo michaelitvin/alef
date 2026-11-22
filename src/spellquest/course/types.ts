@@ -1,12 +1,12 @@
 // The course seam: what Spell Quest's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
 // is today's modules (./hebrew.ts); the English course is built on its own page (src/english/course).
 import type { createGameAudio } from '../../shared/gameAudio/kit'
-import type { DuelAudio } from '../../utils/duel/controller'
-import type { TowerContent } from '../../utils/duel/content'
-import type { TowerArt } from '../../assets/duel/sprites'
-import type { Round } from '../../types/duel'
+import type { DuelAudio } from '../tower/logic/controller'
+import type { TowerContent } from '../tower/logic/content'
+import type { TowerArt } from '../tower/assets/sprites'
+import type { Round } from '../tower/types'
 import type { Rng, Tally } from '../../shared/adaptive'
-import type { DuelTallies } from '../../utils/duel/tallies'
+import type { DuelTallies } from '../tower/logic/tallies'
 import type { TelemetryLog, createTelemetry } from '../../shared/telemetry'
 import type { ScreenView } from '../controller'
 import type { LetterDef } from '../data/strokes'

@@ -1,10 +1,10 @@
 // The English tower's letter and word rounds (design Part 5): what each round asks and shows, what is said, and that a
 // tower run on the English course keeps its answers in the English save and goes on when a clip is missing.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { MakeRoundOpts } from '../../utils/duel/rounds'
-import type { Round } from '../../types/duel'
-import type { FeedbackPlan } from '../../utils/duel/flow'
-import { DuelController, type DuelAudio } from '../../utils/duel/controller'
+import type { MakeRoundOpts } from '../../spellquest/tower/logic/rounds'
+import type { Round } from '../../spellquest/tower/types'
+import type { FeedbackPlan } from '../../spellquest/tower/logic/flow'
+import { DuelController, type DuelAudio } from '../../spellquest/tower/logic/controller'
 import { instantSleeper } from '../../shared/sleeper'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { seeded } from '../../spellquest/testing/runHarness'

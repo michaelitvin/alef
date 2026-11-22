@@ -20,7 +20,7 @@
    "prompt": "Character and asset sheet for a children's mobile game, drawn in EXACTLY the art style, line quality, shading, color palette and glow of the reference image (night-sky magic: purple and gold light, luminous glow, cute cartoon).\nLay out these separate items in a neat grid with generous empty space between them, each item complete and not overlapping, on a perfectly flat solid pure magenta background (#FF00FF) with no gradients, no shadows on the background and no scenery:\nRow 1: the same kid wizard from the reference in three poses: standing idle holding his staff; casting a spell with the staff raised and a glowing orb; dizzy and dazed after being hit (swirly eyes, hat tilted, little stars).\nRow 2: a round stone wizard tower with glowing golden runes and crenellations (full tower, front view); a goofy fuzzy horned monster (like the reference); a round one-eyed purple slime blob monster.\nRow 3: a small mischievous red imp with tiny horns; a cute silly ghost; a chubby baby dragon boss, bigger than the others, green-teal with small wings, friendly-scary.\nAll monsters face LEFT (they walk toward the left). The wizard faces RIGHT. No text, no letters, no labels, no UI."
   },
   {
-   "file": "src/assets/duel/sprites/boss-dragon.webp",
+   "file": "src/spellquest/tower/assets/sprites/boss-dragon.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -30,7 +30,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a chubby baby dragon boss, green-teal with small wings and horns, friendly-scary grin, big, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/boss-troll.webp",
+   "file": "src/spellquest/tower/assets/sprites/boss-troll.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -40,7 +40,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a big stone troll king boss with a tiny crown, mossy shoulders, goofy underbite, friendly-scary, big, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-bat.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-bat.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -50,7 +50,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a round chubby purple bat monster with big ears and tiny fangs, flapping, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-blob.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-blob.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -60,7 +60,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a round one-eyed purple slime blob monster with a cheeky smile, glossy, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-fuzzy.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-fuzzy.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -70,7 +70,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a goofy fuzzy beige horned monster with big googly eyes, walking, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-ghost.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-ghost.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -80,7 +80,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a cute silly white ghost with blushing cheeks, floating, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-golem.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-golem.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -90,7 +90,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a small cute rock golem made of mossy boulders with glowing blue eyes, stomping, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-imp.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-imp.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -100,7 +100,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a small mischievous red imp with tiny horns and a pointy tail, running, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-mushroom.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-mushroom.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -110,7 +110,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a grumpy little mushroom goblin with a red spotted cap and stubby legs, walking, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/mon-octopus.webp",
+   "file": "src/spellquest/tower/assets/sprites/mon-octopus.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -120,7 +120,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): a baby blue octopus monster walking on its tentacles, silly expression, facing LEFT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/tower.webp",
+   "file": "src/spellquest/tower/assets/sprites/tower.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -130,7 +130,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a round stone wizard tower with crenellations on top, an arched wooden door, and a decorative band of small glowing golden STARS and crescent MOONS around the top. IMPORTANT: no runes, no letters, no symbols that look like writing, no dots in rows. Front view, full tower.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-cast.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-cast.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -140,7 +140,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard casting a spell: staff raised and pointing RIGHT with a big swirling glowing purple-gold magic orb at its tip, cape flowing, excited face, full body.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-dizzy.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-dizzy.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -150,7 +150,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard dazed after being bonked: swirly eyes, hat tilted, little stars circling his head, wobbly pose, full body, facing RIGHT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-idle.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-idle.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -160,7 +160,7 @@
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image (same characters where they appear in it): the kid wizard standing idle, holding his wooden staff with a small glowing flame, gentle smile, full body, facing RIGHT.\nExactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-a.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-a.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -170,7 +170,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a friendly cartoon lion (אריה) head and mane, big smile.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-bicycle.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-bicycle.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -180,7 +180,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon bicycle (אופניים), side view.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-book.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-book.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -190,7 +190,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon closed book (ספר) standing slightly tilted, thick colorful cover, visible pages on the side, no writing on it.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-bus.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-bus.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -200,7 +200,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon long city bus (אוטובוס), side view, many passenger windows in a row, clearly a bus and not a car.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-butterfly.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-butterfly.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -210,7 +210,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon butterfly (פרפר) seen from above, wings open, big colorful wings with stripes (no spots).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-camel.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-camel.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -220,7 +220,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon camel (גמל), side view, standing, with two big humps, friendly face.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-cookie.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-cookie.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -230,7 +230,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a classic cartoon chocolate chip cookie (עוגייה), round, golden-brown, with one bite taken out of its edge. The chocolate chips are a few (4-6) BIG, chunky, irregular dark-chocolate pieces with shine highlights, clearly chocolate chunks, not small round dots.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no crumbs, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-door.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-door.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -240,7 +240,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon wooden door (דלת) on its own in a door frame, slightly open, with a round door handle; just the door, no house.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-e.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-e.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -250,7 +250,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute fluffy yellow baby chick (אפרוח) just hatched, with a bit of eggshell.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-eye.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-eye.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -260,7 +260,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single big cartoon eye (עין) with eyelashes and a colorful iris, friendly, just the eye.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-fire.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-fire.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -270,7 +270,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a big bright cartoon fire flame (אש), orange and yellow tongues of fire, floating on its own with no logs, no wood, no campfire, no candle.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-house.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-house.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -280,7 +280,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon house (בית): simple front view, walls, a triangular roof, a door and two windows, a little chimney.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-i.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-i.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -290,7 +290,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single colorful pencil (עיפרון), sharpened tip, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-igloo.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-igloo.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -300,7 +300,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon igloo (איגלו) made of snow blocks.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-island.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-island.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -310,7 +310,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a tiny cartoon island (אי) with one palm tree, surrounded by a ring of blue water.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-monkey.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-monkey.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -320,7 +320,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon monkey (קוף), sitting, friendly face, long curly tail, holding a banana.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-mouse.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-mouse.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -330,7 +330,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute small grey cartoon mouse (עכבר), whole body.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-pineapple.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-pineapple.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -340,7 +340,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon pineapple (אננס).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-rose.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-rose.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -350,7 +350,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single cartoon red rose (ורד) with a green stem and two leaves, clearly a rose, not a bouquet.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-silent.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-silent.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -360,7 +360,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon kid face doing \"shh\", finger on closed lips, eyes winking, quiet gesture.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-tent.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-tent.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -370,7 +370,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon camping tent (אוהל), front view, triangular, with the door flaps tied open.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots."
   },
   {
-   "file": "src/assets/duel/sprites/word-tree.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-tree.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -380,7 +380,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a single leafy green cartoon tree (עץ).\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-u.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-u.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -390,7 +390,7 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a birthday cake (עוגה) with candles and frosting, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/word-watermelon.webp",
+   "file": "src/spellquest/tower/assets/sprites/word-watermelon.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
@@ -400,31 +400,31 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a slice of watermelon (אבטיח) with seeds, cartoon.\nExactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-cast-girl.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-cast-girl.webp",
    "model": "gemini-3-pro-image",
    "aspect": "1:1",
    "refs": [
-    "src/assets/duel/sprites/wizard-cast.webp (on a flat magenta canvas)"
+    "src/spellquest/tower/assets/sprites/wizard-cast.webp (on a flat magenta canvas)"
    ],
    "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She casts a spell exactly like the reference: one arm stretched forward holding the same wooden staff with the same big glowing swirling magic orb at its tip, happy excited open-mouth smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-dizzy-girl.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-dizzy-girl.webp",
    "model": "gemini-3-pro-image",
    "aspect": "3:4",
    "refs": [
-    "src/assets/duel/sprites/wizard-dizzy.webp (on a flat magenta canvas)"
+    "src/spellquest/tower/assets/sprites/wizard-dizzy.webp (on a flat magenta canvas)"
    ],
    "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She is dizzy exactly like the reference: spiral eyes, the same few gold stars circling her hat on a thin ring, arms out to the sides, staggering on one leg. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."
   },
   {
-   "file": "src/assets/duel/sprites/wizard-idle-girl.webp",
+   "file": "src/spellquest/tower/assets/sprites/wizard-idle-girl.webp",
    "model": "gemini-3-pro-image",
    "aspect": "4:5",
    "refs": [
-    "src/assets/duel/sprites/wizard-idle.webp (on a flat magenta canvas)"
+    "src/spellquest/tower/assets/sprites/wizard-idle.webp (on a flat magenta canvas)"
    ],
    "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned); the same picture as Book 2's s-wizard-*-girl.webp",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She stands calmly exactly like the reference, front view, holding the same tall wooden staff with the same flame at its tip, gentle smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots."

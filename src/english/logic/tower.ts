@@ -4,11 +4,11 @@
 // once (`placementAnswer`), so a pause or a reload goes on where it was. And the English tower's own letter and word
 // rounds (design Part 5, `englishTower`): a picture or a sound and four letter runes, a nonsense name and three word
 // runes, and from stage 6 a picture and three word runes.
-import type { TowerContent } from '../../utils/duel/content'
+import type { TowerContent } from '../../spellquest/tower/logic/content'
 import type { BlendPlan } from '../../spellquest/course/types'
-import type { MakeRoundOpts } from '../../utils/duel/rounds'
-import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../utils/duel/rules'
-import type { Choice, DuelMark, Round, TowerRune } from '../../types/duel'
+import type { MakeRoundOpts } from '../../spellquest/tower/logic/rounds'
+import { bossFor, newMonsterAt, unlockedMonsters, walkMs } from '../../spellquest/tower/logic/rules'
+import type { Choice, DuelMark, Round, TowerRune } from '../../spellquest/tower/types'
 import { pickTarget, type ScreenId } from '../../spellquest/logic/predict'
 import { shuffle, type Choice as RunChoice, type RoundCtx } from '../../spellquest/logic/rounds'
 import { NEW_SHARE } from '../../spellquest/logic/stages'

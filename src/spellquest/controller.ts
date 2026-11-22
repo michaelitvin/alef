@@ -7,7 +7,7 @@ import type { Rng } from '../shared/adaptive'
 import { mark as markOf, syllable, type MarkId } from './logic/content'
 import { predict, type ScreenId } from './logic/predict'
 import type { Choice, Kind, RoundCtx } from './logic/rounds'
-import type { Round } from '../types/duel'
+import type { Round } from './tower/types'
 import {
   TARGET_EVERY, waveTick, wavePos, WAVE_EVERY, POPCORN, ORB_JITTER, HEARTS, flightPace, coinsFor, multiplierOf, travelMs,
 } from './logic/run'
@@ -35,8 +35,8 @@ import { merchantVisit, stepMerchant, type MerchantGesture, type MerchantInput, 
 import { NEVER_VISITED } from './store'
 import { stage0Lane } from './logic/mastery'
 import { runPass, stepPass, type PassFacts, type PassInput, type PassState, type PassStep } from './policies/pass'
-import { DUEL_MARKS } from '../utils/duel/marks'
-import { skippedMonsters } from '../utils/duel/rules'
+import { DUEL_MARKS } from './tower/logic/marks'
+import { skippedMonsters } from './tower/logic/rules'
 
 export type Phase = 'demo' | 'question' | 'answer' | 'feedback' | 'mistake' | 'explain' | 'celebrate'
 export type Reveal = { right: string; wrong?: string }

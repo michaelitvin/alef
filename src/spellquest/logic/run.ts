@@ -125,5 +125,5 @@ export function waveTick(k: number[], w: { resolved: boolean[]; spent?: boolean 
 }
 const LANES = 3
 export const laneAt = (y01: number): 0 | 1 | 2 => Math.min(2, Math.max(0, Math.floor(y01 * LANES))) as 0 | 1 | 2
-import { PACE_MIN, PACE_MAX } from '../../utils/duel/rules'
+import { PACE_MIN, PACE_MAX } from '../tower/logic/rules'
 export { PACE_MIN, PACE_MAX }

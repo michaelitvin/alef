@@ -7,7 +7,7 @@
 import type { BlendPlan, Course, CourseHint, CourseRounds, CourseWriting } from '../spellquest/course/types'
 import type { Choice } from '../spellquest/logic/rounds'
 import type { SavePort } from '../spellquest/savePort'
-import type { TowerContent } from '../utils/duel/content'
+import type { TowerContent } from '../spellquest/tower/logic/content'
 import { englishAudio, englishDuelAudio } from './audio'
 import { EN_DRAWING, EN_MAX_STAGE, EN_ORDER, EN_SESSION_LENGTH, EN_VISIT, enScreensOfStage } from './logic/stages'
 import { PLACEMENT_WALK_MS, englishTower, placementAnswer, placementDue, placementTower, towerFacts } from './logic/tower'

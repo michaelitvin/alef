@@ -4,7 +4,7 @@
 import type { SpellQuestSave, SpellQuestSettings } from '../spellquest/store'
 import { DEFAULT_SETTINGS } from '../spellquest/saveFormat'
 import type { ScreenId } from '../spellquest/logic/predict'
-import type { TowerTallies } from '../utils/duel/tallies'
+import type { TowerTallies } from '../spellquest/tower/logic/tallies'
 import type { PlacementState } from './logic/placement'
 
 export const ENGLISH_SAVE_KEY = 'alef-english'

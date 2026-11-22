@@ -3,8 +3,8 @@
 // its event, the stage pass). A letter round, the placement tower and the Hebrew tower have no `?`.
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DuelController, type DuelAudio, type DuelEmbedded } from '../utils/duel/controller'
-import { HEBREW_TOWER, type TowerContent } from '../utils/duel/content'
+import { DuelController, type DuelAudio, type DuelEmbedded } from '../spellquest/tower/logic/controller'
+import { HEBREW_TOWER, type TowerContent } from '../spellquest/tower/logic/content'
 import { seeded } from '../spellquest/testing/runHarness'
 import { RunController } from '../spellquest/controller'
 import { ENGLISH } from './course'
@@ -18,7 +18,7 @@ import { blendOf } from './logic/blend'
 import { enTowerRound, englishTower, placementTower, towerFacts, type EnTowerDeps } from './logic/tower'
 import { READY_STAGES } from './readyStages'
 import { wordVoice } from './content/voiceIds'
-import type { Round } from '../types/duel'
+import type { Round } from '../spellquest/tower/types'
 
 const at = (stage: number) => memoryEnglishSavePort({ stage: { stage, newAnswers: '' } })
 const deps = (save: EnglishSavePort): EnTowerDeps => ({ save: () => save, picture: () => undefined, voice: () => false, blend: blendOf })

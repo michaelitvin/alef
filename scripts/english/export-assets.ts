@@ -64,7 +64,7 @@ const gamePictures = new Set<string>(WORDS.flatMap((w) => (w.picture ? [w.pictur
 /** a picture word that the game already has from Spell Quest or the first duel (`wordPicture` in src/english/assets/images.ts) */
 const spellQuestPictures = new Set([
   ...readdirSync('src/spellquest/assets/img').filter((f) => f.startsWith('pw-')).map((f) => f.slice(3, -5)),
-  ...readdirSync('src/assets/duel/sprites').filter((f) => f.startsWith('word-')).map((f) => f.slice(5, -5)),
+  ...readdirSync('src/spellquest/tower/assets/sprites').filter((f) => f.startsWith('word-')).map((f) => f.slice(5, -5)),
 ])
 const spellQuestHas = (key: string): boolean =>
   !['ball', 'eye', 'island', 'silent', 'rose'].includes(key) && (spellQuestPictures.has(key) || key in { lion: 1, chick: 1, pencil: 1, cake: 1, bike: 1 })

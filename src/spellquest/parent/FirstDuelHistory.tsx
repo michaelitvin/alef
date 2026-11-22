@@ -2,8 +2,8 @@
 // minigame of Spell Quest's run; its own save (`duel` in the lessons' save) stopped growing there. This is the one place it
 // shows (it was in Spell Quest's old parent screen and in the lessons' progress page).
 import { useProgressStore } from '../../stores/progressStore'
-import { DUEL_MARKS } from '../../utils/duel/marks'
-import type { ScreenType, Tally } from '../../types/duel'
+import { DUEL_MARKS } from '../tower/logic/marks'
+import type { ScreenType, Tally } from '../tower/types'
 import type { SectionProps } from '../../parent/types'
 
 // the first duel's screens (the picture-choice screen D was dropped, so it has no row)

@@ -2,9 +2,9 @@
 // rune and that picture, and no Hebrew picture word stands in for a missing one.
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { Battlefield } from '../components/duel/Battlefield'
+import { Battlefield } from '../spellquest/tower/components/Battlefield'
 import { seeded } from '../spellquest/testing/runHarness'
-import { WORD_PICTURE } from '../assets/duel/sprites'
+import { WORD_PICTURE } from '../spellquest/tower/assets/sprites'
 import { memoryEnglishSavePort } from './savePort'
 import { enTowerRound } from './logic/tower'
 

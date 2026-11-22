@@ -11,8 +11,8 @@ import type {
   CurrentSession,
   FontType,
 } from '../types/progress'
-import type { RoundResult, ScreenType, Tally } from '../types/duel'
-import { RECENT_KEEP } from '../utils/duel/rounds'
+import type { RoundResult, ScreenType, Tally } from '../spellquest/tower/types'
+import { RECENT_KEEP } from '../spellquest/tower/logic/rounds'
 import {
   INITIAL_PROGRESS_STATE,
   LEVEL_UNLOCK_THRESHOLDS,
