@@ -13,6 +13,13 @@ import type { Sound } from './port'
 
 export { VOICE_RATE }
 
+/** how long the music takes to fall to the duck level before a voice starts (ms); the voice waits for it */
+const DUCK_FADE_MS = 120
+/** how long no voice may play before the music comes back up (ms); a gap or a queued part in between keeps the duck */
+const DUCK_TAIL_MS = 350
+/** how long the music takes to come back up (ms) */
+const DUCK_RELEASE_MS = 400
+
 /** A speaker's own handle: cancelling it stops only that speaker's parts (an explanation closing must not silence the game). */
 export interface VoiceSignal { cancelled: boolean }
 
@@ -45,6 +52,8 @@ export interface GameAudioOptions<S extends string, M extends string> {
   gapMs: number
   musicVol: number
   duckVol: number
+  /** a music kind's own loudness: multiplies `musicVol` and `duckVol` for that kind (default 1; a louder track gets less) */
+  musicGain?: Partial<Record<M, number>>
   /** the fade-in of a music start (ms) */
   musicFadeInMs: number
 }
@@ -91,12 +100,42 @@ export function createGameAudio<S extends string = string, M extends string = st
   }
 
   // music and the duck
-  let music: { url: string; sound: Sound } | null = null
-  let ducks = 0
-  const level = () => (ducks > 0 ? o.duckVol : o.musicVol)
-  function duck(on: boolean) {
-    ducks = Math.max(0, ducks + (on ? 1 : -1))
-    if (music?.sound.playing()) music.sound.fade(level(), 200)
+  let music: { url: string; kind: string; sound: Sound } | null = null
+  let ducked = false
+  let duckDoneAt = 0
+  let voices = 0
+  let tail: number | undefined
+  const level = (kind = music?.kind) => (ducked ? o.duckVol : o.musicVol) * ((kind && (o.musicGain as Record<string, number> | undefined)?.[kind]) || 1)
+  /** Ducks the music (once, while it is up) and returns the wait until it is down: a voice starts only then. Null (no wait,
+   * not even a tick) when no music plays or it is already down. */
+  function duckDown(): Promise<void> | null {
+    voices++
+    window.clearTimeout(tail)
+    tail = undefined
+    if (!ducked) {
+      ducked = true
+      if (music?.sound.playing()) {
+        music.sound.fade(level(), DUCK_FADE_MS)
+        duckDoneAt = Date.now() + DUCK_FADE_MS
+      }
+    }
+    const left = duckDoneAt - Date.now()
+    return left > 0 && left <= DUCK_FADE_MS ? wait(left) : null // more than a fade left: the clock jumped back, no wait
+  }
+  /** Lets the music back up once no voice plays and none waits in the queue, after a short tail (a new voice cancels it). */
+  function checkRelease() {
+    if (!ducked || voices > 0 || pending.size > 0) return
+    window.clearTimeout(tail)
+    tail = window.setTimeout(() => {
+      tail = undefined
+      if (voices > 0 || pending.size > 0) return
+      ducked = false
+      if (music?.sound.playing()) music.sound.fade(level(), DUCK_RELEASE_MS)
+    }, DUCK_TAIL_MS)
+  }
+  function voiceEnd() {
+    voices = Math.max(0, voices - 1)
+    checkRelease()
   }
 
   // the voice queue
@@ -107,10 +146,18 @@ export function createGameAudio<S extends string = string, M extends string = st
    * Plays one voice file; false when it has no file (a missing file never stalls, but it was not heard either).
    * `onHeard`: the file really plays (loaded), with its length in ms when the player knows it; never for a missing file
    */
-  async function playFile(id: string, onHeard?: (ms: number | null) => void): Promise<boolean> {
+  async function playFile(id: string, onHeard?: (ms: number | null) => void, signal?: VoiceSignal): Promise<boolean> {
     const url = urlOf(id)
     if (!url) return false
-    duck(true)
+    const mine = epoch
+    const down = duckDown()
+    if (down) { // music plays: the voice waits for it to go down (no wait, not even a tick, otherwise)
+      await down
+      if (epoch !== mine || signal?.cancelled) { // stopped while the music went down
+        voiceEnd()
+        return false
+      }
+    }
     const heard = onHeard ? { onStart: (x: Sound) => { const d = x.duration?.(); onHeard(d ? Math.round(d * 1000) : null) } } : {}
     const s = audioPlayer().play(url, { kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs, ...heard })
     current = s
@@ -118,7 +165,7 @@ export function createGameAudio<S extends string = string, M extends string = st
       return (await s.done) !== false
     } finally {
       if (current === s) current = null
-      duck(false)
+      voiceEnd()
     }
   }
 
@@ -147,11 +194,12 @@ export function createGameAudio<S extends string = string, M extends string = st
           parts[i].onStart?.()
           const id = voiceFile(parts[i].id)
           o.onSay?.(id)
-          if ((await playFile(id, parts[i].onHeard)) === false) heard = false
+          if ((await playFile(id, parts[i].onHeard, signal)) === false) heard = false
         }
         return heard && epoch === mine && !signal?.cancelled
       } finally {
         pending.delete(token)
+        checkRelease()
       }
     }
     const p = queue.then(run, run)
@@ -182,6 +230,7 @@ export function createGameAudio<S extends string = string, M extends string = st
     queue = Promise.resolve()
     current?.stop()
     lines.forEach((s) => s.stop())
+    checkRelease()
   }
 
   /**
@@ -204,9 +253,18 @@ export function createGameAudio<S extends string = string, M extends string = st
       fireRest()
       return false
     }
+    const mine = epoch
+    const down = duckDown()
+    if (down) {
+      await down
+      if (epoch !== mine) { // stopped while the music went down
+        fireRest()
+        voiceEnd()
+        return false
+      }
+    }
     const timers = cues.map((at, i) => window.setTimeout(() => fire(i), (at / VOICE_RATE) * 1000))
     let follower: { finish(): void } | null = null
-    duck(true)
     const s = audioPlayer().play(url, {
       kind: 'voice', id, rate: VOICE_RATE, html5: true, timeoutMs: o.lineTimeoutMs, caption: opts.caption,
       ...(opts.onHeard ? { onStart: (x: Sound) => { const d = x.duration?.(); opts.onHeard!(d ? Math.round(d * 1000) : null) } } : {}),
@@ -220,7 +278,7 @@ export function createGameAudio<S extends string = string, M extends string = st
       timers.forEach((t) => window.clearTimeout(t))
       fireRest()
       ;(follower as { finish(): void } | null)?.finish()
-      duck(false)
+      voiceEnd()
     }
   }
 
@@ -254,15 +312,16 @@ export function createGameAudio<S extends string = string, M extends string = st
     const loop = o.musicLoops ? o.musicLoops(kind) : true
     const sound = audioPlayer().play(url, {
       kind: 'music', id: kind, loop, volume: 0,
-      onPlay: (s) => s.fade(level(), o.musicFadeInMs),
+      onPlay: (s) => s.fade(level(kind), o.musicFadeInMs),
     })
-    music = { url, sound }
+    music = { url, kind, sound }
   }
   /** Fades the music out. */
   function stopMusic() {
     if (!music) return
     const { url, sound } = music
     music = null
+    duckDoneAt = 0 // no music, nothing to wait for
     if (!sound.playing()) {
       sound.stop()
       return

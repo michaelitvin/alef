@@ -24,5 +24,7 @@ export const SPELLQUEST_SOUND = {
   gapMs: 800,
   musicVol: 0.35,
   duckVol: 0.08,
+  // the boss track is about 4–5 dB louder than the flight tracks: 0.6 is about −4.4 dB
+  musicGain: { boss: 0.6 },
   musicFadeInMs: 600,
 } satisfies Omit<GameAudioOptions<SpellQuestSfx, SpellQuestMusic>, 'game' | 'voices' | 'feminine' | 'telemetry'>
