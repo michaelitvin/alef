@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The end page of `?migrate-check`: plain DOM, the rows, the two downloads in the `?export-prod` format, Continue.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { showCheckEnd, snapshotName } from './migrateCheckPage'

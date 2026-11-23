@@ -33,9 +33,16 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     // agents' git worktrees live under .claude/worktrees: never run their copies of the tests
     exclude: [...configDefaults.exclude, '.claude/**'],
-    // keep local runs light (parallel agents; `npm run test:full` takes 6); CI uses the default
-    maxWorkers: process.env.CI ? undefined : 2,
+    // keep local runs light (parallel agents); `npm run test:full` sets TEST_WORKERS=6; CI uses the default
+    // (a --maxWorkers flag does not reach the projects below: their config value wins)
+    maxWorkers: process.env.CI ? undefined : Number(process.env.TEST_WORKERS ?? 2),
     // heavy tests timed out at the 5 s default under load; the slowest keep their own 60 s
     testTimeout: 20000,
+    // Pure `.ts` tests run in node: jsdom's per-file setup costs seconds. A `.ts` test that needs the DOM
+    // (directly or through an import) says so with a `// @vitest-environment jsdom` first line.
+    projects: [
+      { extends: true, test: { name: 'node', environment: 'node', include: ['src/**/*.test.ts', 'tools/**/*.test.ts'] } },
+      { extends: true, test: { name: 'dom', environment: 'jsdom', include: ['src/**/*.test.tsx', 'tools/**/*.test.tsx'] } },
+    ],
   },
 })

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it } from 'vitest'
 import { MAX_OFFSET, WIDE, geomFor, planetPos, portraitGeom, type Geom } from './draw'
 import { roundGeom } from './engine'

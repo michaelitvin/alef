@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The export, pinned before the storage changes: each golden is `exportDoc` of a synthetic log, as today's code wrote it.
 // Later changes (chunks, codec, roll-ups) must give the same bytes for the same events.
 import { readdirSync, readFileSync } from 'node:fs'

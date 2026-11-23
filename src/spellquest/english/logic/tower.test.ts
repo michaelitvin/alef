@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The English tower's letter and word rounds (design Part 5): what each round asks and shows, what is said, and that a
 // tower run on the English course keeps its answers in the English save and goes on when a clip is missing.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The tower's frozen history log reads its old key while its move waits for space, so the export still has it.
 import { afterEach, describe, expect, it } from 'vitest'
 import { readLog } from '../../../shared/telemetry'

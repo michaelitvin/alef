@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ClockSfx } from '../logic/workday'
 import { clockVoiceId, playSfx, playVoice } from './clockAudio'

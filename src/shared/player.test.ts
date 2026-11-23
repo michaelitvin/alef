@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it, beforeEach } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { PLAYER_KEY, clearGender, getPlayer, setGender, useGender, voiceFor, wizardArt } from './player'

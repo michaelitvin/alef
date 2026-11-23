@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
+import { FULL_SWEEP } from '../../test/fullSweep'
 import type { Stage } from './content.ts'
 import { item, syllable } from './content.ts'
 import {
   broomTarget, broomWave, cauldronRound, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
   type Choice, type RoundCtx,
 } from './rounds'
+
+// seeds 1..n on CI or FULL_SWEEP=1; locally the first fifth (seeds are deterministic)
+const seeds = (n: number) => (FULL_SWEEP ? n : Math.ceil(n / 5))
 
 function seeded(seed: number) {
   let a = seed >>> 0
@@ -39,20 +43,20 @@ function allChoiceSets(stage: Stage, seed: number): Choice[][] {
 describe('rounds', () => {
   it('no hearing choice holds two items with the same sound', () => {
     for (const stage of [1, 2, 3, 4] as Stage[])
-      for (let seed = 1; seed <= 500; seed++)
+      for (let seed = 1; seed <= seeds(500); seed++)
         for (const cs of allChoiceSets(stage, seed)) expect(noSameSound(cs), `${stage}/${seed}: ${cs.map((c) => c.id)}`).toBe(true)
   }, 120_000)
   it('no choice holds a left-out syllable', () => {
     for (const stage of [2, 3] as Stage[])
-      for (let seed = 1; seed <= 400; seed++)
+      for (let seed = 1; seed <= seeds(400); seed++)
         for (const cs of allChoiceSets(stage, seed)) expect(cs.some((c) => c.id === 'vav-cholam'), cs.map((c) => c.id).join()).toBe(false)
   }, 120_000)
   it('only opened-stage items', () => {
-    for (let seed = 1; seed <= 300; seed++)
+    for (let seed = 1; seed <= seeds(300); seed++)
       for (const cs of allChoiceSets(2, seed)) expect(cs.some((c) => c.kind === 'syllable' && item(c.itemId).soft)).toBe(false)
   }, 60_000)
   it('three distinct choices, one target', () => {
-    for (let seed = 1; seed <= 300; seed++) {
+    for (let seed = 1; seed <= seeds(300); seed++) {
       const c = ctx(3, seed)
       const t = broomTarget(c, 'syllable')
       const w = broomWave(c, t, 'syllable')
@@ -67,7 +71,7 @@ describe('rounds', () => {
     }
   })
   it('one mark per group', () => {
-    for (let seed = 1; seed <= 300; seed++) for (const cs of allChoiceSets(3, seed)) expect(oneMarkPerGroup(cs)).toBe(true)
+    for (let seed = 1; seed <= seeds(300); seed++) for (const cs of allChoiceSets(3, seed)) expect(oneMarkPerGroup(cs)).toBe(true)
   }, 60_000)
   it('confusion partner joins the wave', () => {
     const c = ctx(2, 7, { confusions: { letters: {}, syllables: { 'dalet-a': { 'resh-a': 3 } } } })
@@ -79,7 +83,7 @@ describe('rounds', () => {
     expect(lookAlikeGroup(ctx(1, 1, { confusions: { letters: { dalet: { he: 2 } }, syllables: {} } }), 'dalet')).toEqual(['dalet', 'resh'])
   })
   it('ladder keeps one part fixed', () => {
-    for (let seed = 1; seed <= 200; seed++) {
+    for (let seed = 1; seed <= seeds(200); seed++) {
       const p = ladderPlan(ctx(3, seed), 5)
       expect(p.steps.length).toBe(5)
       for (const s of p.steps) {
@@ -96,7 +100,7 @@ describe('rounds', () => {
     expect(ladderPlan(ctx(2, 1), 5, 'dot').fixed).not.toBe('dot')
   })
   it('ladder dot contrast only from stage 3', () => {
-    for (let seed = 1; seed <= 200; seed++) expect(ladderPlan(ctx(2, seed), 5).fixed).not.toBe('dot')
+    for (let seed = 1; seed <= seeds(200); seed++) expect(ladderPlan(ctx(2, seed), 5).fixed).not.toBe('dot')
   })
   it('the other form of a dotted letter is a near miss', () => {
     const c = ctx(3, 3)

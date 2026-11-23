@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SAVE_VERSION, migrateSave, renameSpellQuestFieldsV8 } from './saveFormat'
 import { useSpellQuestStore } from './store'

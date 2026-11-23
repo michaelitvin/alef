@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // the tower's flow, driven directly (no React): the controller on the browser's timers (faked here) and an audio
 // stub at its `audio` seam, so that each test ends each wizard line, and fires its cues, by hand.
 // (controller.test.ts plays it on the instant clock and the kit's fake player; useTower.test.tsx: the hook.)

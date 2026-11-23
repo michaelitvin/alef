@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { MS_EDGES, emptyRollup, foldChunk, foldEvents, foldOldDays, msBin, readRollup, trimRollups, weekOf, type Rollup } from './telemetryRollup'
 import { chunkKey, rollupKey } from './telemetryChunks'

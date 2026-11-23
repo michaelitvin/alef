@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The baseline of the Hebrew path, taken before the course seam: a seeded session of each screen at each stage that
 // holds it, the cycles, and a fresh save. Only the stage 4 sessions and the stage 4 cycle may change (the spell book).
 import { describe, expect, it } from 'vitest'

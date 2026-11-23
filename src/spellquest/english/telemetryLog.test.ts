@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it } from 'vitest'
 import type { TelemetryEvent } from '../../shared/telemetry'
 import { englishEvents } from '../../shared/__fixtures__/telemetry/generate'

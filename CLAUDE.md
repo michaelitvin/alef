@@ -65,9 +65,9 @@ While you work on a task, run the tests of what you changed: `npx vitest related
 `npx tsc --noEmit`. Before a push, run `npm run check && npx vitest run --changed origin/main`; CI runs the full suite
 and deploys nothing if it fails. Run the full suite locally (`npm run check && npm run test:full`, six workers, about
 6 minutes for ~2,800 tests) only before a merge into `main` and before a playtest build. `npm run check` is the type
-check, lint, dependency-cruiser (the boundary rules in `.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
-real build, use the `/verify` skill (it drives the verify build in a browser with touch on). The test timeout is 20 s
-(`vite.config.ts`): the run tests are slow under load.
+check, lint, dependency-cruiser (the boundary rules in `.dependency-cruiser.cjs`) and knip (unused code); CI runs it
+before the tests and the build. To see a change work in the real build, use the `/verify` skill (it drives the verify
+build in a browser with touch on). The test timeout is 20 s (`vite.config.ts`): the run tests are slow under load.
 
 ## Working with agents (tokens are the scarce resource)
 

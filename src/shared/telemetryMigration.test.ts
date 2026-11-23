@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The migration of the live logs: an old `v:1` log (up to 700k) becomes sealed chunks, one session per idle slot, with
 // no loss and no doubles whatever write fails. It is the first seal pass of an oversized open chunk (no other path).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -7,6 +9,7 @@ import { safeSetItem } from './saveStorage'
 import { STAGING_PREFIX, copyUnprefixedOver, prefixedStorage } from './stagingStorage'
 import { FROZEN_HISTORY, GOLDEN_NOW, spellQuestEvents, goldenExport } from './__fixtures__/telemetry/generate'
 import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
+import { FULL_SWEEP } from '../test/fullSweep'
 
 const KEY = SPELLQUEST_LOG.key
 const NOW = GOLDEN_NOW.getTime()
@@ -105,7 +108,15 @@ describe('the migration of an old log', () => {
     use(faulty(real, () => { writes++; return false }))
     await migrate()
     use(real)
-    for (let fail = 0; fail < writes; fail++) {
+    // every write position on CI or FULL_SWEEP=1; locally a deterministic sample (first, middle, last, 2 seeded picks; the writes alternate chunk / open log, so there is no other boundary to aim at)
+    const positions = new Set<number>()
+    if (FULL_SWEEP) for (let i = 0; i < writes; i++) positions.add(i)
+    else {
+      for (const i of [0, Math.floor(writes / 2), writes - 1]) positions.add(i)
+      let a = 20260101
+      for (let i = 0; i < 2; i++) { a = (Math.imul(a, 1664525) + 1013904223) >>> 0; positions.add(a % writes) }
+    }
+    for (const fail of [...positions].filter((i) => i >= 0 && i < writes).sort((x, y) => x - y)) {
       real.clear()
       real.setItem(KEY, LITERAL)
       use(faulty(real, (_, n) => n === fail))

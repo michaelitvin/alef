@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // Spell Quest's audio as it drives Howler: which files play, at which rate and volume, how music fades and ducks, what a stop
 // stops. Howler itself is faked (its Howl class and the global Howler), so this pins the behaviour through any refactor
 // of the layers above it.

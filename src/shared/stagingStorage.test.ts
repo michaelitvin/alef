@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { STAGING_PREFIX, copyUnprefixedOver, installStagingStorage, isStaging, prefixedStorage } from './stagingStorage'
 

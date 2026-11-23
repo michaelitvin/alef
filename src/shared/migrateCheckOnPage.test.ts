@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // `?migrate-check` on a staging page: the check finishes before a store module evaluates, so a store imported after
 // stagingStorage reads the post-check storage; the end page shows the result and offers the before and after files;
 // its Continue reloads without the query; the result is stored.

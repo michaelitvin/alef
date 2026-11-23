@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SfxName } from '../audio/sfx'
 import type { RoundContent } from '../content'

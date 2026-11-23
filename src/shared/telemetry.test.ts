@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   FROZEN_LOG_KEYS, LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, SESSION, STAGING_SHARE, chunkKey, createTelemetry, exportDoc, exportFileName,

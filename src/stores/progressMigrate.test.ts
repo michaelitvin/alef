@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it } from 'vitest'
 import { PROGRESS_PERSIST_VERSION, migrateProgress, renameTowerFieldsProgress } from './progressMigrate'
 import { useProgressStore } from './progressStore'

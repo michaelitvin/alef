@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The course seam (Task 3): the run takes its rounds, its log and its voice from the course it is given.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { alternate, recordSession } from '../testing/runHarness'

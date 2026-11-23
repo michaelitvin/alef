@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The clock's audio as it drives Howler: which files play, at which rate and volume, how the caption words follow the
 // playback position, how music fades, ducks and waits for its file, what a stop stops. Howler itself is faked (its Howl
 // class and the global Howler), so this pins the behaviour through any refactor of the layers above it.

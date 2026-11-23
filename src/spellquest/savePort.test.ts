@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it } from 'vitest'
 import { memorySavePort, readOnlySavePort, storeSavePort } from './savePort'
 import { FRESH_MERCHANT, useSpellQuestStore } from './store'

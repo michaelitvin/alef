@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // Page level (T6a): a storage with the OLD keys, after stagingStorage's install, reads through the stores with the new
 // keys; old ids inside events read as the new ids; ?copy-prod hands production's old or new keys to the migration.
 import { beforeEach, describe, expect, it, vi } from 'vitest'

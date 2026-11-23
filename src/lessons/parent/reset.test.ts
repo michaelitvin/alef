@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The lessons' reset clears the reading course only: the tower's history (`tower` in the same save) stays.
 import { beforeEach, describe, expect, it } from 'vitest'
 import { lessonsParent } from '.'

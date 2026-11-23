@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The key migration on real pages: an old page (from before the release) that writes the old keys after the new build
 // migrated, and a save whose move waits for space. Nothing the child did is lost.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

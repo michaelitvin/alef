@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The chunk store's read side: hand-built storage states (chunks made with the codec) read with no loss and no doubles.
 import { beforeEach, describe, expect, it } from 'vitest'
 import { encodeChunk } from './telemetryCodec'

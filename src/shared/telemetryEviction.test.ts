@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // An evicted chunk is counted once: never again as raw events, never folded twice. A chunk goes only when the stored open
 // chunk no longer holds its events, and it leaves a tombstone that drops any copy a stale view brings back.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

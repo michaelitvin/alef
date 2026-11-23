@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it } from 'vitest'
 import { getNumberRange, NUMBER_RANGE_KEY, setNumberRange } from './numberRange'
 

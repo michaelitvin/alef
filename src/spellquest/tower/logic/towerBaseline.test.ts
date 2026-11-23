@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The baseline of the tower (Spell Quest's first screen) before the course seam: four waves (name screens, and their twin trap, start at wave 3) and a boss on a seeded rng, an
 // instant clock and the fake audio kit, embedded as Spell Quest embeds it. A later diff in these snapshots is a regression.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

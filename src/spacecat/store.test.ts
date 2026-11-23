@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { copyUnprefixedOver, prefixedStorage, STAGING_PREFIX } from '../shared/stagingStorage'
 import { itemById } from './logic/facts'

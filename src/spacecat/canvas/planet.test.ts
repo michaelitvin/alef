@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { PLANET_AIR, PLANET_TEX, PlanetRenderer, TEX_H, TEX_W, fallbackTexture, hexRgb, sphereTables } from './planet'
 

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it } from 'vitest'
 import type { PageItem, PageState, PageTake } from '../pageData.ts'
 import { firstOpen, firstView, isPickItem, keepCurrent, nextOpenAfter, okTake, otherViews, pageOrder, pickedItem, shownSections } from './flow.ts'

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useClockStore } from './store'
 import type { RoundPlan } from './logic/types'

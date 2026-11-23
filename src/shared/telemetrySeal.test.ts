@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The write side: an instance seals its open chunk into chunks at idle, and no cut, no second tab and no full storage
 // loses or doubles an event.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

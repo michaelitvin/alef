@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useProgressStore } from './progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'

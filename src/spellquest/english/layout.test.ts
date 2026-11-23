@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // Task 22 — the longest words of each stage fit their places, at the smallest phone (740×360) and a tablet (1024×768).
 // jsdom has no text layout, so a word's width is measured from Andika's table (testing/measure.ts); the screens are
 // rendered and their drawn sizes read, so the test checks what the screens draw, not a copy of their formulas.

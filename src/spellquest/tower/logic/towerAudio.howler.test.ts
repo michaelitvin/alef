@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // the tower's audio as it drives Howler: which files play, at which rate and volume, when the cues fire, what a stop
 // stops, the mute and the unlock. Howler itself is faked (its Howl class and the global Howler), so this pins the
 // behaviour through any refactor of the layers above it.

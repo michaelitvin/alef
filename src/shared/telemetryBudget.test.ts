@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // One shared budget: past it the oldest sealed chunk of any log goes, folded first; the frozen log never.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { encodeChunk } from './telemetryCodec'

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The words a run read are given to the course's `onRunEnd` once, however the run ends (the English parent's check shows them).
 import { describe, expect, it, vi } from 'vitest'
 import { RunController } from './controller'

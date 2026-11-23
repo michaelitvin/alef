@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // `?migrate-check`: the whole check on realistic old data (chunks from the real codec), a corrupt result, production
 // already migrated, a quota stop, a second run, the half-done resume, and production never written.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

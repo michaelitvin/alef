@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it } from 'vitest'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 import { applySound } from '../../shared/gameAudio/output'

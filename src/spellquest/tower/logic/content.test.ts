@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // The tower's content seam: a course other than Hebrew gives the tower its rounds, its runes, its spoken parts and
 // the tallies its answers go to; the board, the waves and the flow stay the tower's own.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

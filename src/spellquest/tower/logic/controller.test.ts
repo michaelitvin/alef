@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 // the tower's flow on its seams: a clock that never waits (instantSleeper) and the audio kit's fake player.
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TowerController, type TowerEmbedded } from './controller'

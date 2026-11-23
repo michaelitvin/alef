@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it, vi } from 'vitest'
 import { DRAW_FONT } from '../logic/drawLayout'
 import { FONTS, READY_MS, preloadSpellQuestAssets } from './preload'

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEnglishStore } from './store'
 import { englishSavePort, memoryEnglishSavePort } from './savePort'

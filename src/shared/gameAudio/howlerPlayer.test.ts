@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Howler } from 'howler'
 import { MAX_HTML5, getHowl, howlerPlayer, peekHowl } from './howlerPlayer'
