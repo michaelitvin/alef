@@ -26,7 +26,7 @@ async function readThroughNewCode() {
   const { readPlaytime } = await import('./playtime')
   const { GAMES } = await import('../parent/registry')
   const { readLog } = await import('./telemetryChunks')
-  const sq = GAMES.find((g) => g.id === 'spellquest')!
+  const sq = GAMES.find((g) => g.id === 'spellquest-he')!
   return {
     stars: useSpellQuestStore.getState().totalStars,
     tower: (useProgressStore.getState() as unknown as { tower: { roundsMs: number } }).tower.roundsMs,
@@ -50,9 +50,9 @@ describe('the rename on a page', () => {
     const r = await readThroughNewCode()
     expect(r.stars).toBe(42)
     expect(r.tower).toBe(123)
-    expect(r.days).toEqual({ spellquest: 60_000, clock: 5_000 })
-    expect(r.logKeys).toEqual(['alef-spellquest-telemetry', 'alef-tower-history-telemetry'])
-    expect(r.spellquest).toEqual(['spellquest', 'spellquest'])
+    expect(r.days).toEqual({ 'spellquest-he': 60_000, clock: 5_000 })
+    expect(r.logKeys).toEqual(['alef-spellquest-he-telemetry', 'alef-tower-history-telemetry'])
+    expect(r.spellquest).toEqual(['spellquest-he', 'spellquest-he'])
     expect(r.history).toEqual([undefined, 'duel']) // the frozen log is read as stored (ADR 0004); the alias table maps it where a reader asks
   })
 
@@ -62,31 +62,31 @@ describe('the rename on a page', () => {
     seedOld(prefixedStorage(localStorage, STAGING_PREFIX))
     const win = { location: { href: 'https://example.test/alef/staging/' }, localStorage, confirm: () => false, history: { replaceState: () => {} } } as unknown as Window
     installStagingStorage(win)
-    expect(win.localStorage.getItem('alef-spellquest')).toBe(OLD_SAVE)
+    expect(win.localStorage.getItem('alef-spellquest-he')).toBe(OLD_SAVE)
     expect(localStorage.getItem(STAGING_PREFIX + 'alef-duel2')).toBeNull()
     expect(localStorage.getItem('alef-duel2')).toBe('production, untouched')
-    expect(localStorage.getItem('alef-spellquest')).toBeNull()
+    expect(localStorage.getItem('alef-spellquest-he')).toBeNull()
   })
 
-  it('a second run after the marker reads five keys (the marker, then the old keys an old page could write again) and changes nothing', async () => {
+  it('a second run after the marker reads 11 keys (the marker, playtime, then per old name its save, open chunk and roll-up: the keys an old page could write again) and changes nothing', async () => {
     seedOld(localStorage)
     const { runKeyMigration } = await import('./stagingStorage')
     runKeyMigration(localStorage)
     const before = JSON.stringify({ ...localStorage })
     const getItem = vi.spyOn(Storage.prototype, 'getItem')
     runKeyMigration(localStorage)
-    expect(getItem).toHaveBeenCalledTimes(5)
+    expect(getItem).toHaveBeenCalledTimes(11)
     getItem.mockRestore()
     expect(JSON.stringify({ ...localStorage })).toBe(before)
   })
 
   it('?copy-prod copies production\'s old keys under their old names (the migration then moves them), and new keys as they are', async () => {
     seedOld(localStorage)
-    localStorage.setItem('alef-spellquest', OLD_SAVE)
+    localStorage.setItem('alef-spellquest-he', OLD_SAVE)
     const { installStagingStorage } = await import('./stagingStorage')
     const win = { location: { href: 'https://example.test/alef/staging/?copy-prod' }, localStorage, confirm: () => true, history: { replaceState: () => {} } } as unknown as Window
     installStagingStorage(win)
-    expect(localStorage.getItem(STAGING_PREFIX + 'alef-spellquest')).toBe(OLD_SAVE)
+    expect(localStorage.getItem(STAGING_PREFIX + 'alef-spellquest-he')).toBe(OLD_SAVE)
     expect(localStorage.getItem(STAGING_PREFIX + 'alef-duel2')).toBeNull() // moved on after the copy
     expect(localStorage.getItem(STAGING_PREFIX + 'alef-progress')).toBe(OLD_PROGRESS)
     expect(localStorage.getItem(STAGING_PREFIX + 'alef-duel2-telemetry')).toBeNull() // no log is copied

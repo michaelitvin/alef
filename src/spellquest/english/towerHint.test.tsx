@@ -182,7 +182,7 @@ describe('the English tower\'s hint', () => {
     const all = englishTelemetry.events() as { e: string; g?: string; via?: string; round?: unknown }[]
     expect(all.some((x) => x.e === 'blend-hint' && x.via === 'tower' && x.round !== undefined)).toBe(true)
     expect(all.some((x) => x.e === 'answer' && x.via === undefined)).toBe(true)
-    expect(all.every((x) => x.g === 'english')).toBe(true)
+    expect(all.every((x) => x.g === 'spellquest-en')).toBe(true)
     tower!.destroy()
     run.destroy()
   })

@@ -376,15 +376,15 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
 }
 
 /** Spell Quest's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
-export const spellQuestEvents = (o: FixtureOpts = {}) => generate('spellquest', SPELLQUEST, true, 7, o)
+export const spellQuestEvents = (o: FixtureOpts = {}) => generate('spellquest-he', SPELLQUEST, true, 7, o)
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** Space Cat's log */
 export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPACECAT, false, 13, o)
-/** the English path's log (`g: 'english'`) */
-export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
+/** the English path's log (`g: 'spellquest-en'`) */
+export const englishEvents = (o: FixtureOpts = {}) => generate('spellquest-en', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Spell Quest's log with the Hebrew spell book's events in it (the spell book writes to Spell Quest's log) */
-const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('spellquest', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
+const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('spellquest-he', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
 
 /** every event name the generators can send (Spell Quest, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([

@@ -6,7 +6,7 @@ import type { GameParent } from '../types'
 
 const SPACECAT_LOG = { key: 'alef-spacecat-telemetry', label: 'Space Cat', game: 'spacecat', about: { game: 'Space Cat', docs: ['docs/spacecat.md'] } }
 vi.mock('../registry', () => ({
-  GAMES: [{ id: 'spellquest', title: 'Space Cat', saveKey: 'alef-spacecat', logs: [SPACECAT_LOG], summary: () => null, mixups: () => [], reset: async () => {} } as unknown as GameParent],
+  GAMES: [{ id: 'spellquest-he', title: 'Space Cat', saveKey: 'alef-spacecat', logs: [SPACECAT_LOG], summary: () => null, mixups: () => [], reset: async () => {} } as unknown as GameParent],
 }))
 
 afterEach(() => { vi.restoreAllMocks(); localStorage.clear() })
@@ -21,7 +21,7 @@ describe('a new game\'s log in the Data section', () => {
     let blob: Blob | null = null
     Object.assign(URL, { createObjectURL: (b: Blob) => { blob = b; return 'blob:x' }, revokeObjectURL: () => {} })
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-    const { container } = render(<DataSection game="spellquest" />)
+    const { container } = render(<DataSection game="spellquest-he" />)
     expect(container.querySelector('[data-log="alef-spacecat-telemetry"] [data-log-count]')!.textContent).toBe('1 events')
     fireEvent.click(container.querySelector('[data-telemetry-download]')!)
     const doc = JSON.parse(await blob!.text())

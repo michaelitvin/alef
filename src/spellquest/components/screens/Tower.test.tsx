@@ -25,7 +25,7 @@ describe('Tower', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('the tower’s events go to Spell Quest’s log: g book2, via tower, the page’s one session, Spell Quest’s run; none in the old log (ADR 0004)', async () => {
+  it('the tower’s events go to Spell Quest’s log: g spellquest-he, via tower, the page’s one session, Spell Quest’s run; none in the old log (ADR 0004)', async () => {
     localStorage.clear()
     spellQuestTelemetry.clear()
     spellQuestTelemetry.setRun(5)
@@ -33,9 +33,9 @@ describe('Tower', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
     spellQuestTelemetry.flush()
-    const rounds = readLog('alef-spellquest-telemetry').filter((e) => e.e === 'round')
+    const rounds = readLog('alef-spellquest-he-telemetry').filter((e) => e.e === 'round')
     expect(rounds.length).toBeGreaterThan(0)
-    for (const r of rounds) expect(r).toMatchObject({ g: 'spellquest', via: 'tower', s: SESSION, run: 5, visit: 1 })
+    for (const r of rounds) expect(r).toMatchObject({ g: 'spellquest-he', via: 'tower', s: SESSION, run: 5, visit: 1 })
     expect(localStorage.getItem('alef-tower-history-telemetry')).toBeNull()
     spellQuestTelemetry.setRun(0)
   })

@@ -10,7 +10,7 @@ afterEach(() => vi.restoreAllMocks())
 
 describe('telemetry export', () => {
   it('carries a note on where the code and the docs are, so an analysis tool can find them', () => {
-    const t = createTelemetry('t-about', { game: 'spellquest', about: { game: 'Test game', docs: ['docs/x.md'] } })
+    const t = createTelemetry('t-about', { game: 'spellquest-he', about: { game: 'Test game', docs: ['docs/x.md'] } })
     t.track('run-start')
     const doc = JSON.parse(exportDoc([{ about: t.about!, events: t.events() }])).games[0]
     expect(doc.about.repo).toBe('https://github.com/michaelitvin/alef')
@@ -56,7 +56,7 @@ describe('every event says its game and the page load', () => {
   })
 
   it('two logs on one page share one session id', () => {
-    const a = createTelemetry('t-a', { game: 'spellquest' })
+    const a = createTelemetry('t-a', { game: 'spellquest-he' })
     const b = createTelemetry('t-b', { game: 'duel' })
     a.track('x')
     b.track('y')
@@ -67,12 +67,12 @@ describe('every event says its game and the page load', () => {
   it('old events (no g, an old session) are read and kept unchanged', () => {
     const literal = '{"v":1,"events":[{"t":1760000000000,"s":"mf1abc-x1y2z","run":2,"e":"round","target":"bet","ok":false}]}'
     localStorage.setItem('t-old', literal)
-    const t = createTelemetry('t-old', { game: 'spellquest' })
+    const t = createTelemetry('t-old', { game: 'spellquest-he' })
     t.track('round', { target: 'gimel' })
     const evs = t.events()
     expect(evs[0]).toEqual(JSON.parse(literal).events[0])
     expect(evs[0].g).toBeUndefined()
-    expect(evs[1]).toMatchObject({ g: 'spellquest', target: 'gimel' })
+    expect(evs[1]).toMatchObject({ g: 'spellquest-he', target: 'gimel' })
     expect(readLog('t-old')[0]).toEqual(JSON.parse(literal).events[0])
   })
 })
@@ -94,7 +94,7 @@ describe('readLog and filterEvents (for logs of games that are not on this page)
     Object.defineProperty(window, 'localStorage', { value: prefixedStorage(real, STAGING_PREFIX), configurable: true })
     try {
       expect(readLog('t-s')[0].s).toBe('staging')
-      const t = createTelemetry('t-s', { game: 'spellquest' })
+      const t = createTelemetry('t-s', { game: 'spellquest-he' })
       t.track('y')
       t.flush()
       expect(JSON.parse(real.getItem(STAGING_PREFIX + 't-s')!).events).toHaveLength(2)
@@ -142,7 +142,7 @@ describe('the storage budget', () => {
   it('the play-time ledger (60 days, 4 games, 10-digit ms) fits in the room left for the saves, with staging\'s copy', async () => {
     const { PLAYTIME_KEEP_DAYS } = await import('./playtime')
     const days: Record<string, unknown> = {}
-    for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { spellquest: 86_400_000, clock: 86_400_000, lessons: 86_400_000, spacecat: 86_400_000 }
+    for (let i = 0; i < PLAYTIME_KEEP_DAYS; i++) days[`2026-01-${String(i).padStart(2, '0')}`] = { 'spellquest-he': 86_400_000, clock: 86_400_000, lessons: 86_400_000, spacecat: 86_400_000 }
     const one = JSON.stringify({ v: 1, days }).length
     expect(one).toBeLessThan(6_000)
     const all = liveBudget(false) + rollupBudget(false) + FROZEN_WORST + liveBudget(true) + rollupBudget(true)
@@ -153,43 +153,43 @@ describe('the storage budget', () => {
     const { spellQuestTelemetry } = await import('../spellquest/telemetry')
     const { clockTelemetry } = await import('../clock/telemetry')
     expect('maxChars' in spellQuestTelemetry).toBe(false)
-    expect([spellQuestTelemetry.game, clockTelemetry.game]).toEqual(['spellquest', 'clock'])
+    expect([spellQuestTelemetry.game, clockTelemetry.game]).toEqual(['spellquest-he', 'clock'])
   })
 })
 
 describe('the keys of a log\'s chunks and roll-up', () => {
   it('chunk and roll-up keys sit under the log\'s base and end in -telemetry', () => {
-    expect(chunkKey('alef-spellquest-telemetry', 1_760_000_000_000, 'mf1abc-x1y2z')).toBe(`alef-spellquest~${(1_760_000_000_000).toString(36)}~mf1abc-x1y2z-telemetry`)
+    expect(chunkKey('alef-spellquest-he-telemetry', 1_760_000_000_000, 'mf1abc-x1y2z')).toBe(`alef-spellquest-he~${(1_760_000_000_000).toString(36)}~mf1abc-x1y2z-telemetry`)
     expect(rollupKey('alef-clock-telemetry')).toBe('alef-clock~sum-telemetry')
   })
 
-  it('a key belongs to its own log only: alef-tower-history~ never matches alef-spellquest~', () => {
-    const c2 = chunkKey('alef-spellquest-telemetry', 5, 'a-b')
-    expect(ownsKey('alef-spellquest-telemetry', c2)).toBe(true)
+  it('a key belongs to its own log only: alef-tower-history~ never matches alef-spellquest-he~', () => {
+    const c2 = chunkKey('alef-spellquest-he-telemetry', 5, 'a-b')
+    expect(ownsKey('alef-spellquest-he-telemetry', c2)).toBe(true)
     expect(ownsKey('alef-tower-history-telemetry', c2)).toBe(false)
-    expect(ownsKey('alef-tower-history-telemetry', 'alef-spellquest~x~y-telemetry')).toBe(false)
-    expect(ownsKey('alef-spellquest-telemetry', 'alef-spellquest-telemetry')).toBe(false)
-    expect(ownsKey('alef-spellquest-telemetry', rollupKey('alef-spellquest-telemetry'))).toBe(true)
-    expect(ownsKey('alef-spellquest-telemetry', STAGING_PREFIX + c2)).toBe(false)
+    expect(ownsKey('alef-tower-history-telemetry', 'alef-spellquest-he~x~y-telemetry')).toBe(false)
+    expect(ownsKey('alef-spellquest-he-telemetry', 'alef-spellquest-he-telemetry')).toBe(false)
+    expect(ownsKey('alef-spellquest-he-telemetry', rollupKey('alef-spellquest-he-telemetry'))).toBe(true)
+    expect(ownsKey('alef-spellquest-he-telemetry', STAGING_PREFIX + c2)).toBe(false)
   })
 
   it('a roll-up key is not a chunk key', () => {
     expect(isChunkKey(chunkKey('alef-clock-telemetry', 1, 's-1'))).toBe(true)
     expect(isChunkKey(rollupKey('alef-clock-telemetry'))).toBe(false)
     expect(isChunkKey('alef-clock-telemetry')).toBe(false)
-    expect(isChunkKey('alef-spellquest')).toBe(false)
+    expect(isChunkKey('alef-spellquest-he')).toBe(false)
   })
 
   it('every new key shape is a telemetry key, with and without the staging prefix, so ?copy-prod copies none', () => {
-    const keys = [chunkKey('alef-spellquest-telemetry', 9, 'q-w'), rollupKey('alef-spellquest-telemetry'), 'alef-clock-telemetry']
+    const keys = [chunkKey('alef-spellquest-he-telemetry', 9, 'q-w'), rollupKey('alef-spellquest-he-telemetry'), 'alef-clock-telemetry']
     for (const k of keys) {
       expect(isTelemetryKey(k)).toBe(true)
       expect(isTelemetryKey(STAGING_PREFIX + k)).toBe(true)
     }
     for (const k of keys) localStorage.setItem(k, 'x')
-    localStorage.setItem('alef-spellquest', '{"save":1}')
+    localStorage.setItem('alef-spellquest-he', '{"save":1}')
     copyUnprefixedOver(localStorage, STAGING_PREFIX)
-    expect(localStorage.getItem(STAGING_PREFIX + 'alef-spellquest')).toBe('{"save":1}')
+    expect(localStorage.getItem(STAGING_PREFIX + 'alef-spellquest-he')).toBe('{"save":1}')
     for (const k of keys) expect(localStorage.getItem(STAGING_PREFIX + k)).toBeNull()
   })
 })
@@ -208,20 +208,22 @@ describe('the log registry', () => {
   it('the parent registry registers every game\'s logs, the frozen one too', async () => {
     await import('../parent/registry')
     const keys = registeredLogs().map((l) => l.key)
-    expect(keys).toEqual(expect.arrayContaining(['alef-spellquest-telemetry', 'alef-clock-telemetry', 'alef-tower-history-telemetry']))
+    expect(keys).toEqual(expect.arrayContaining(['alef-spellquest-he-telemetry', 'alef-clock-telemetry', 'alef-tower-history-telemetry']))
     expect(FROZEN_LOG_KEYS).toContain('alef-tower-history-telemetry')
   })
 
-  it('old ids inside events read as the new ones: book2 is spellquest, an old tower event is the tower', async () => {
+  it('old ids inside events read as the new ones: book2, spellquest and english are the new ids, an old tower event is the tower', async () => {
     const { aliasEvent, filterEvents, readLog } = await import('./telemetry')
     const old = { t: 1, s: 'x', run: 1, e: 'round', g: 'book2' }
-    expect(aliasEvent(old).g).toBe('spellquest')
+    expect(aliasEvent(old).g).toBe('spellquest-he')
+    expect(aliasEvent({ ...old, g: 'spellquest' }).g).toBe('spellquest-he')
+    expect(aliasEvent({ ...old, g: 'english' }).g).toBe('spellquest-en')
     expect(aliasEvent({ ...old, g: 'duel' }).g).toBe('tower')
     const noG = { t: 1, s: 'x', run: 1, e: 'round' }
     expect(aliasEvent(noG)).toBe(noG) // no `g` stays as it is (the frozen tower history is read as stored, ADR 0004)
-    expect(filterEvents([old], {}, 'alef-spellquest-telemetry')[0]!.g).toBe('spellquest')
-    localStorage.setItem('alef-spellquest-telemetry', JSON.stringify({ v: 1, events: [old], sealed: [] }))
-    expect(readLog('alef-spellquest-telemetry')[0]!.g).toBe('spellquest')
+    expect(filterEvents([old], {}, 'alef-spellquest-he-telemetry')[0]!.g).toBe('spellquest-he')
+    localStorage.setItem('alef-spellquest-he-telemetry', JSON.stringify({ v: 1, events: [old], sealed: [] }))
+    expect(readLog('alef-spellquest-he-telemetry')[0]!.g).toBe('spellquest-he')
     expect(old.g).toBe('book2') // the stored event is not rewritten
   })
 })

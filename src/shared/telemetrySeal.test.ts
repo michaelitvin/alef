@@ -24,7 +24,7 @@ afterEach(() => {
 })
 
 const pad = 'p'.repeat(300)
-const ev = (s: string, t: number, i: number): TelemetryEvent => ({ t, s, run: 1, e: 'answer', g: 'spellquest', i, pad })
+const ev = (s: string, t: number, i: number): TelemetryEvent => ({ t, s, run: 1, e: 'answer', g: 'spellquest-he', i, pad })
 /** a session of `n` events ending at `end` */
 const session = (s: string, end: number, n: number) => Array.from({ length: n }, (_, i) => ev(s, end - (n - 1 - i) * 1000, i))
 const str = (x: unknown) => JSON.stringify(x)
@@ -48,7 +48,7 @@ function faulty(fail: (key: string, n: number) => boolean) {
 
 describe('sealing the open chunk', () => {
   it('a flush writes only the open chunk', () => {
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     const set = vi.spyOn(Storage.prototype, 'setItem')
     for (let i = 0; i < 20; i++) t.track('x', { i })
     t.flush()
@@ -56,7 +56,7 @@ describe('sealing the open chunk', () => {
   })
 
   it('past 40k characters, its own session is sealed at idle; the events read back whole and in order', async () => {
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     for (let i = 0; i < 200; i++) { t.track('answer', { i, pad }); vi.advanceTimersByTime(10) }
     t.flush()
     const before = readLog(KEY)
@@ -73,7 +73,7 @@ describe('sealing the open chunk', () => {
   })
 
   it('with no requestIdleCallback, nothing seals while taps come less than 2 s apart', async () => {
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     for (let i = 0; i < 200; i++) t.track('answer', { i, pad })
     t.flush()
     for (let i = 0; i < 20; i++) {
@@ -91,7 +91,7 @@ describe('sealing the open chunk', () => {
     const stale = session('old-1', NOW - 40 * MIN, 80)
     const live = session('live-1', NOW - 5 * MIN, 80)
     real.setItem(KEY, openJson([...stale, ...live], []))
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     await idle()
     expect(chunkKeysOf(KEY).map((k) => k.split('~')[2])).toEqual(['old-1-telemetry'])
@@ -104,7 +104,7 @@ describe('sealing the open chunk', () => {
     real.setItem(KEY, openJson(stale, []))
     let cut = true
     faulty((k) => cut && k === KEY && chunkKeysOf(KEY).length > 0) // the rewrite right after the chunk write fails
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     await idle(3)
     expect(chunkKeysOf(KEY)).toHaveLength(1)
@@ -121,7 +121,7 @@ describe('sealing the open chunk', () => {
     const stale = session('old-1', NOW - 40 * MIN, 150)
     real.setItem(KEY, openJson(stale, []))
     faulty((k) => k !== KEY)
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     await idle(3)
     t.flush()
@@ -132,9 +132,9 @@ describe('sealing the open chunk', () => {
   it('two instances on one log (one seals, the other flushes its older view after): the sealed session is neither lost nor doubled', async () => {
     const stale = session('old-1', NOW - 40 * MIN, 150)
     real.setItem(KEY, openJson(stale, []))
-    const b = createTelemetry(KEY, { game: 'spellquest' })
+    const b = createTelemetry(KEY, { game: 'spellquest-he' })
     b.flush() // b holds the old view
-    const a = createTelemetry(KEY, { game: 'spellquest' })
+    const a = createTelemetry(KEY, { game: 'spellquest-he' })
     a.track('answer', { i: 'a' })
     await idle()
     expect(chunkKeysOf(KEY)).toHaveLength(1)
@@ -158,7 +158,7 @@ describe('sealing the open chunk', () => {
     odd[5] = { ...odd[5]!, t: odd[5]!.t + 0.5 }
     const next = [session('old-2', NOW - 70 * MIN, 60), session('old-3', NOW - 50 * MIN, 60)]
     real.setItem(KEY, openJson([...odd, ...next.flat()], []))
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     await idle()
     expect(chunkKeysOf(KEY).map((k) => k.split('~')[2])).toEqual(['old-2-telemetry', 'old-3-telemetry'])
@@ -178,7 +178,7 @@ describe('sealing the open chunk', () => {
     real.setItem(KEY, openJson([...a, ...b], []))
     const taken = chunkKey(KEY, a[0]!.t, 'old-1')
     real.setItem(taken, 'not a chunk')
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     await idle()
     expect(real.getItem(taken)).toBe('not a chunk')
@@ -190,7 +190,7 @@ describe('sealing the open chunk', () => {
   })
 
   it('a throwing storage never throws out of track or flush', () => {
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     const bad = { get length(): number { throw new Error('x') }, key() { throw new Error('x') }, getItem() { throw new Error('x') }, setItem() { throw new Error('x') }, removeItem() { throw new Error('x') }, clear() {} }
     Object.defineProperty(window, 'localStorage', { value: bad, configurable: true })
     expect(() => { t.track('x'); t.flush(); t.setRun(2); t.events(); t.clear() }).not.toThrow()
@@ -204,7 +204,7 @@ describe('sealing the open chunk', () => {
     const evs = GOLDEN_SPELLQUEST()
     real.setItem(SPELLQUEST_LOG.key, JSON.stringify({ v: 1, events: evs }))
     const pre = goldenExport(SPELLQUEST_LOG, readLog(SPELLQUEST_LOG.key))
-    const t = createTelemetry(SPELLQUEST_LOG.key, { game: 'spellquest' })
+    const t = createTelemetry(SPELLQUEST_LOG.key, { game: 'spellquest-he' })
     t.track('x')
     await idle(80)
     expect(chunkKeysOf(SPELLQUEST_LOG.key).length).toBeGreaterThan(5)
@@ -229,7 +229,7 @@ describe('the seal pass and the main thread', () => {
 
   it('a slot with little idle time left (a frame during a round, or a timeout) does no seal work and waits for the next', () => {
     real.setItem(KEY, openJson(session('old-1', NOW - 40 * MIN, 150), []))
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     const set = vi.spyOn(Storage.prototype, 'setItem')
     for (let i = 0; i < 5; i++) slot(3, i % 2 === 1)
@@ -245,7 +245,7 @@ describe('the seal pass and the main thread', () => {
     real.setItem(chunkKey(fill, old[0]!.t, 'f'), encodeChunk(old))
     expect(real.getItem(chunkKey(fill, old[0]!.t, 'f'))!.length).toBeGreaterThan(LIVE_BUDGET)
     real.setItem(KEY, openJson(session('old-1', NOW - 40 * MIN, 150), []))
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     t.track('answer', { i: -1 })
     const set = vi.spyOn(Storage.prototype, 'setItem')
     const remove = vi.spyOn(Storage.prototype, 'removeItem')
@@ -264,7 +264,7 @@ describe('the seal pass and the main thread', () => {
   })
 
   it('at the hard cap, a flush encodes its own session and the next flush writes it (never both in one task)', () => {
-    const t = createTelemetry(KEY, { game: 'spellquest' })
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
     for (let i = 0; i < 700; i++) t.track('answer', { i, pad })
     const set = vi.spyOn(Storage.prototype, 'setItem')
     t.flush()

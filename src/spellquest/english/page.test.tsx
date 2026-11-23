@@ -31,20 +31,20 @@ describe('the English page', () => {
   })
 
   it('the English cover shows the English purse', async () => {
-    localStorage.setItem('alef-spellquest', hebrewSaveWith({ coins: 40 }))
+    localStorage.setItem('alef-spellquest-he', hebrewSaveWith({ coins: 40 }))
     await useSpellQuestStore.persist.rehydrate()
     expect(useSpellQuestStore.getState().coins).toBe(40)
     at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).querySelector('[data-coins]')!.textContent).toBe('0')
   })
 
-  it('opening English leaves alef-spellquest and alef-progress byte-equal', async () => {
-    const spellQuestSave = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-spellquest', spellQuestSave); localStorage.setItem('alef-progress', PROGRESS_RAW)
+  it('opening English leaves alef-spellquest-he and alef-progress byte-equal', async () => {
+    const spellQuestSave = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-spellquest-he', spellQuestSave); localStorage.setItem('alef-progress', PROGRESS_RAW)
     await useSpellQuestStore.persist.rehydrate()
     at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
     // the tower's import runs on the Hebrew page only
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
-    expect(localStorage.getItem('alef-spellquest')).toBe(spellQuestSave); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
+    expect(localStorage.getItem('alef-spellquest-he')).toBe(spellQuestSave); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
   })
 
   it('the English page tracks into its own log', async () => {
@@ -54,8 +54,8 @@ describe('the English page', () => {
     await waitFor(() => expect(container.querySelector('[data-gender="boy"]')).not.toBeNull())
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
     fireEvent.click(container.querySelector('[data-gender="boy"]')!)
-    await waitFor(() => expect(readLog('alef-english-telemetry').some((e) => e.e === 'player' && e.g === 'english')).toBe(true), { timeout: 3000 })
-    expect(readLog('alef-spellquest-telemetry').some((e) => e.e === 'player')).toBe(false)
+    await waitFor(() => expect(readLog('alef-spellquest-en-telemetry').some((e) => e.e === 'player' && e.g === 'spellquest-en')).toBe(true), { timeout: 3000 })
+    expect(readLog('alef-spellquest-he-telemetry').some((e) => e.e === 'player')).toBe(false)
   }, 60_000)
 
   it('the Hebrew page is the same as before', async () => {
@@ -64,7 +64,7 @@ describe('the English page', () => {
     expect(screen.getByTestId('cover').hasAttribute('dir')).toBe(false)
   })
 
-  it('play time counts under english', () => { expect(PLAYTIME_GAMES).toContain('english') })
+  it('play time counts under spellquest-en', () => { expect(PLAYTIME_GAMES).toContain('spellquest-en') })
 
-  it('the English page has a parent section and its log is registered', () => { expect(gameParent('english').logs).toContain(ENGLISH_LOG) })
+  it('the English page has a parent section and its log is registered', () => { expect(gameParent('spellquest-en').logs).toContain(ENGLISH_LOG) })
 })

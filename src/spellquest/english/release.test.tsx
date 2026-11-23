@@ -31,6 +31,6 @@ describe('hidden on production', () => {
     history.replaceState(null, '', '/spellquest/?course=en')
     render(<SpellQuestApp />)
     expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('he')
-    expect(GAMES.map((g) => g.id)).not.toContain('english')
+    expect(GAMES.map((g) => g.id)).not.toContain('spellquest-en')
   })
 })

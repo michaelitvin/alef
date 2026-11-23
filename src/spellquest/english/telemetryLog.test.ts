@@ -4,7 +4,7 @@ import { englishEvents } from '../../shared/__fixtures__/telemetry/generate'
 import { englishTelemetry } from './telemetry'
 import { englishFacts } from './telemetryLog'
 
-const ev = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'english', ...data })
+const ev = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'spellquest-en', ...data })
 
 describe('the English log\'s roll-up', () => {
   it('helped is not right in the roll-up', () => {
@@ -60,18 +60,18 @@ describe('the English log\'s roll-up', () => {
     ])).toEqual([{ item: 'tower:ship', ok: false, near: true, t: 3, ms: 2300, chosen: 'shop' }])
   })
 
-  it('every English event carries g: english', () => {
+  it('every English event carries g: spellquest-en', () => {
     localStorage.clear()
     englishTelemetry.track('answer', { screen: 'cauldron', target: 'a', word: 'cat', result: 'right' })
     englishTelemetry.track('blend-hint', { via: 'tower', round: 1 })
     const evs = englishTelemetry.events()
     expect(evs.length).toBe(2)
-    expect(evs.every((e) => e.g === 'english')).toBe(true)
+    expect(evs.every((e) => e.g === 'spellquest-en')).toBe(true)
     localStorage.clear()
     // the fixtures: every event from the day `g` existed on has it, the tower's too
     const fx = englishEvents({ days: 10, oldDays: 0 })
     expect(fx.length).toBeGreaterThan(50)
-    expect(fx.every((e) => e.g === 'english')).toBe(true)
+    expect(fx.every((e) => e.g === 'spellquest-en')).toBe(true)
     expect(fx.some((e) => e.e === 'blend-hint' && e.via === 'tower' && 'round' in e)).toBe(true)
     expect(fx.some((e) => e.e === 'blend-hint' && e.via === undefined && 'screen' in e)).toBe(true)
     expect(fx.some((e) => e.result === 'helped')).toBe(true)

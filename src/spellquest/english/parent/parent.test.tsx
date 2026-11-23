@@ -26,11 +26,11 @@ describe('the English section in the parent area', () => {
   afterEach(() => vi.restoreAllMocks())
 
   it('the area lists the English section and its log', async () => {
-    expect(GAMES.map((g) => g.id)).toContain('english')
-    expect(englishParent.logs?.map((l) => l.key)).toEqual(['alef-english-telemetry'])
-    const { container } = render(<ParentArea game="english" onClose={() => {}} />)
-    expect(container.querySelector('[data-log="alef-english-telemetry"]')).not.toBeNull()
-    expect(container.querySelector('[data-progress-game="english"]')).not.toBeNull()
+    expect(GAMES.map((g) => g.id)).toContain('spellquest-en')
+    expect(englishParent.logs?.map((l) => l.key)).toEqual(['alef-spellquest-en-telemetry'])
+    const { container } = render(<ParentArea game="spellquest-en" onClose={() => {}} />)
+    expect(container.querySelector('[data-log="alef-spellquest-en-telemetry"]')).not.toBeNull()
+    expect(container.querySelector('[data-progress-game="spellquest-en"]')).not.toBeNull()
     await screen.findByText(/Number range for shopping/, {}, LAZY)
     expect(container.querySelector('[data-english-settings]')).not.toBeNull()
   })
@@ -44,29 +44,29 @@ describe('the English section in the parent area', () => {
     expect(englishParent.summary(null)).toBeNull()
   })
 
-  it('a reset clears alef-english and leaves alef-spellquest byte-equal', async () => {
+  it('a reset clears alef-spellquest-en and leaves alef-spellquest-he byte-equal', async () => {
     useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
-    const spellQuestBefore = raw('alef-spellquest')
+    const spellQuestBefore = raw('alef-spellquest-he')
     expect(spellQuestBefore).not.toBeNull()
     await englishParent.reset()
     expect(useEnglishStore.getState().crystals).toBe(0)
-    expect(raw('alef-spellquest')).toBe(spellQuestBefore)
-    expect(JSON.parse(raw('alef-english')!).state.crystals).toBe(0)
+    expect(raw('alef-spellquest-he')).toBe(spellQuestBefore)
+    expect(JSON.parse(raw('alef-spellquest-en')!).state.crystals).toBe(0)
   })
 
-  it('and the other way: Spell Quest\'s reset leaves alef-english byte-equal', () => {
+  it('and the other way: Spell Quest\'s reset leaves alef-spellquest-en byte-equal', () => {
     useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
-    const englishBefore = raw('alef-english')
+    const englishBefore = raw('alef-spellquest-en')
     expect(englishBefore).not.toBeNull()
     spellQuestReset()
     expect(useSpellQuestStore.getState().crystals).toBe(0)
-    expect(raw('alef-english')).toBe(englishBefore)
+    expect(raw('alef-spellquest-en')).toBe(englishBefore)
   })
 
   it('the number range is one setting: set in English, Spell Quest\'s merchant uses it', () => {
-    const { container } = render(<ParentArea game="english" onClose={() => {}} />)
+    const { container } = render(<ParentArea game="spellquest-en" onClose={() => {}} />)
     return screen.findByText(/Number range for shopping/, {}, LAZY).then(() => {
       const track = vi.spyOn(englishTelemetry, 'track')
       expect((container.querySelector('input[data-range="100"]') as HTMLInputElement).checked).toBe(true)
@@ -85,15 +85,15 @@ describe('the English section in the parent area', () => {
   })
 
   it('the range seeds from an old Spell Quest save once', () => {
-    localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range: 1000 } }, version: 7 }))
+    localStorage.setItem('alef-spellquest-he', JSON.stringify({ state: { settings: { range: 1000 } }, version: 7 }))
     expect(getNumberRange()).toBe(1000)
     setNumberRange(10)
-    localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range: 100 } }, version: 7 }))
+    localStorage.setItem('alef-spellquest-he', JSON.stringify({ state: { settings: { range: 100 } }, version: 7 }))
     expect(getNumberRange()).toBe(10)
   })
 
   it('turning the path off sets settings.path false (logged); the drawing switch sets drawing', async () => {
-    const { container } = render(<ParentArea game="english" onClose={() => {}} />)
+    const { container } = render(<ParentArea game="spellquest-en" onClose={() => {}} />)
     await screen.findByText(/Number range for shopping/, {}, LAZY)
     const track = vi.spyOn(englishTelemetry, 'track')
     const path = container.querySelector('input[data-setting-path]') as HTMLInputElement

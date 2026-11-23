@@ -61,7 +61,7 @@ afterEach(() => {
 })
 
 async function migrate() {
-  const t = createTelemetry(KEY, { game: 'spellquest' })
+  const t = createTelemetry(KEY, { game: 'spellquest-he' })
   t.track('run-start', { stage: 1 })
   await idle()
   t.flush()
@@ -73,7 +73,7 @@ describe('the migration of an old log', () => {
     expect(LITERAL.length).toBeGreaterThan(600_000)
     expect(LITERAL.length).toBeLessThan(800_000)
     expect(new Set(OLD.map((e) => e.s)).size).toBeGreaterThanOrEqual(18)
-    expect(OLD.some((e) => !('g' in e)) && OLD.some((e) => e.g === 'spellquest')).toBe(true)
+    expect(OLD.some((e) => !('g' in e)) && OLD.some((e) => e.g === 'spellquest-he')).toBe(true)
   })
 
   it('seals every complete session with no loss and no doubles; the export is the same; the frozen log is untouched', async () => {
@@ -86,7 +86,7 @@ describe('the migration of an old log', () => {
     expect(str(theirs())).toBe(str(OLD))
     expect(goldenExport(SPELLQUEST_LOG, theirs())).toBe(before)
     expect(real.getItem('alef-tower-history-telemetry')).toBe(FROZEN_HISTORY)
-    const total = Object.keys(real).filter((k) => k.startsWith('alef-spellquest')).reduce((n, k) => n + k.length + real.getItem(k)!.length, 0)
+    const total = Object.keys(real).filter((k) => k.startsWith('alef-spellquest-he')).reduce((n, k) => n + k.length + real.getItem(k)!.length, 0)
     expect(total).toBeLessThan(LITERAL.length / 4)
   })
 
@@ -132,15 +132,15 @@ describe('the migration of an old log', () => {
     const t = await migrate()
     expect(chunkKeysOf(KEY)).toHaveLength(0)
     expect(str(theirs())).toBe(str(OLD))
-    expect(safeSetItem('alef-spellquest', 'x'.repeat(20_000))).toBe(true)
-    expect(real.getItem('alef-spellquest')).toHaveLength(20_000)
+    expect(safeSetItem('alef-spellquest-he', 'x'.repeat(20_000))).toBe(true)
+    expect(real.getItem('alef-spellquest-he')).toHaveLength(20_000)
     t.clear()
   })
 
   it('two instances migrating one log at once: the old sessions are neither lost nor doubled (one chunk each)', async () => {
     real.setItem(KEY, LITERAL)
-    const a = createTelemetry(KEY, { game: 'spellquest' })
-    const b = createTelemetry(KEY, { game: 'spellquest' })
+    const a = createTelemetry(KEY, { game: 'spellquest-he' })
+    const b = createTelemetry(KEY, { game: 'spellquest-he' })
     a.track('x', { by: 'a' })
     b.track('x', { by: 'b' })
     await idle(120)
@@ -157,8 +157,8 @@ describe('the migration of an old log', () => {
     use(prefixedStorage(real, STAGING_PREFIX))
     await migrate()
     use(real)
-    expect(Object.keys(real).filter((k) => k.startsWith(STAGING_PREFIX + 'alef-spellquest~')).length).toBeGreaterThan(10)
-    expect(Object.keys(real).filter((k) => k.startsWith('alef-spellquest~'))).toEqual([])
+    expect(Object.keys(real).filter((k) => k.startsWith(STAGING_PREFIX + 'alef-spellquest-he~')).length).toBeGreaterThan(10)
+    expect(Object.keys(real).filter((k) => k.startsWith('alef-spellquest-he~'))).toEqual([])
     expect(real.getItem(KEY)).toBe(LITERAL)
     copyUnprefixedOver(real, STAGING_PREFIX)
     expect(Object.keys(real).filter((k) => k.includes('~'))).toEqual([])

@@ -8,10 +8,10 @@ import { FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_CLOCK, GOLDEN_NOW, goldenExpo
 import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 
-const KEY = 'alef-spellquest-telemetry'
+const KEY = 'alef-spellquest-he-telemetry'
 beforeEach(() => localStorage.clear())
 
-const ev = (s: string, t: number, e = 'x', data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s, run: 1, e, g: 'spellquest', ...data })
+const ev = (s: string, t: number, e = 'x', data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s, run: 1, e, g: 'spellquest-he', ...data })
 const seal = (evs: TelemetryEvent[], key = KEY) => {
   const k = chunkKey(key, evs[0]!.t, evs[0]!.s)
   localStorage.setItem(k, encodeChunk(evs))
@@ -147,9 +147,9 @@ describe('reading a log of sealed chunks and an open chunk', () => {
     putOpen(B, [k])
     localStorage.setItem(rollupKey(KEY), '{}')
     localStorage.setItem('alef-tower-history-telemetry', FROZEN_HISTORY)
-    localStorage.setItem('alef-spellquest', '{"save":1}')
+    localStorage.setItem('alef-spellquest-he', '{"save":1}')
     clearLog(KEY)
-    expect(Object.keys(localStorage).sort()).toEqual(['alef-spellquest', 'alef-tower-history-telemetry'])
+    expect(Object.keys(localStorage).sort()).toEqual(['alef-spellquest-he', 'alef-tower-history-telemetry'])
   })
 })
 

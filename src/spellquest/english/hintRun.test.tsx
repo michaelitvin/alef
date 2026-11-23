@@ -149,7 +149,7 @@ describe('the hint that blends a word', () => {
       // the answer names its word beside the unit it asked, and every English event carries g
       expect(events.find((e) => e.e === 'answer')).toHaveProperty('word', expect.any(String))
       expect(events.length).toBeGreaterThan(1)
-      expect((events as { g?: string }[]).every((e) => e.g === 'english')).toBe(true)
+      expect((events as { g?: string }[]).every((e) => e.g === 'spellquest-en')).toBe(true)
       // on the stage pass it is not a right answer
       expect(save.read().stage.newAnswers).toBe('x')
       // the next answer, with no hint, is right again

@@ -74,7 +74,7 @@ const flushLines = async () => {
 const lines = () => audio.playLine.mock.calls.map((c) => c[0])
 const rngConst = (v: number) => () => v
 /** the log the hook writes to (Spell Quest's in the tower) */
-const tel = createTelemetry('t-tower', { game: 'spellquest' })
+const tel = createTelemetry('t-tower', { game: 'spellquest-he' })
 const exportTelemetry = () => tel.events()
 
 beforeEach(() => {
@@ -114,7 +114,7 @@ describe('TowerController', () => {
     unmount()
     const ev = exportTelemetry() as Record<string, unknown>[]
     expect(ev.length).toBeGreaterThan(1)
-    for (const x of ev) expect(x).toMatchObject({ run: 7, via: 'tower', visit: 1, g: 'spellquest' })
+    for (const x of ev) expect(x).toMatchObject({ run: 7, via: 'tower', visit: 1, g: 'spellquest-he' })
     expect(ev[0]).toMatchObject({ e: 'run_start', embedded: true })
     tel.setRun(0)
   })
