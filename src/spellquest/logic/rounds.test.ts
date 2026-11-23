@@ -94,6 +94,22 @@ describe('rounds', () => {
       }
     }
   })
+  it('no plate offers the syllable of the rung below', () => {
+    let small = 0
+    for (const stage of [2, 3, 4] as Stage[])
+      for (const force of [undefined, 'letter', 'vowel', 'dot'] as const)
+        for (let seed = 1; seed <= seeds(300); seed++) {
+          const p = ladderPlan(ctx(stage, seed), 5, force)
+          p.steps.forEach((s, k) => {
+            expect(s.plates.length).toBe(3)
+            expect(s.plates.some((x) => x.id === s.target.id)).toBe(true)
+            if (k === 0) return
+            const below = p.steps[k - 1].target
+            if (s.plates.some((x) => x.id === below.id || x.soundId === below.soundId)) small++
+          })
+        }
+    expect(small, 'plates that still offer the rung below').toBe(0)
+  }, 120_000)
   it('ladder kind can be forced (the gallery)', () => {
     expect(ladderPlan(ctx(3, 1), 5, 'vowel').fixed).toBe('vowel')
     expect(ladderPlan(ctx(3, 1), 5, 'dot').fixed).toBe('dot')

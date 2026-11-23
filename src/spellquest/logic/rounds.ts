@@ -213,6 +213,9 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
     const a = cs.filter((c) => !used.has(c.soundId))
     return a.length ? a : cs.filter((c) => c.soundId !== prev)
   }
+  // the rung below's syllable (none on the first rung): no plate offers it, matching it by sight is the trap
+  const below = (): Choice | null => (steps.length ? steps[steps.length - 1].target : null)
+  const notBelow = (cs: Choice[]) => { const b = below(); return b ? cs.filter((c) => c.id !== b.id && !sameSound(c, b)) : cs }
   const take = (target: Choice, plates: Choice[]) => { used.add(target.soundId); steps.push({ target, plates: markNearMiss(target, plates) }) }
   if (fixed === 'letter') {
     const L = broomTarget(ctx, 'syllable', undefined, 'ladder').itemId
@@ -220,15 +223,19 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
       const marks = marksFor(rng)
       const all = shuffle(rng, GROUPS).map((g) => sylFor(L, g, marks[g])).filter((c): c is Choice => c !== null)
       const target = pickTarget(rng, fresh(all), (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
-      take(target, shuffle(rng, [target, ...all.filter((c) => c.soundId !== target.soundId).slice(0, 2)]))
+      const others = all.filter((c) => c.soundId !== target.soundId)
+      // the rung below's sound is left out when 2 others remain without it, else it may stay (the pool is too small)
+      const clean = notBelow(others)
+      take(target, shuffle(rng, [target, ...(clean.length >= 2 ? clean : others).slice(0, 2)]))
     }
   } else if (fixed === 'vowel') {
     const m = markOf(pick(rng, GROUP_MARKS[pick(rng, GROUPS)]))
     for (let k = 0; k < rungs; k++) {
       const cands = items.filter((it) => isAllowed(it.id, m.id)).map((it) => syl(it.id, m))
       const target = pickTarget(rng, fresh(cands), (c) => featureOf(c, 'ladder'), ctx.tallies, ctx.recent)
-      const look = lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m))
-      take(target, shuffle(rng, fill(rng, [target], shuffle(rng, look), () => syl(pick(rng, items).id, m))))
+      const look = notBelow(lookAlikeGroup(ctx, target.itemId).slice(1).filter((id) => items.some((i) => i.id === id)).map((id) => syl(id, m)))
+      const filler = () => { for (let g = 0; g < 50; g++) { const c = syl(pick(rng, items).id, m); if (notBelow([c]).length) return c } return syl(pick(rng, items).id, m) }
+      take(target, shuffle(rng, fill(rng, [target], shuffle(rng, look), filler)))
     }
   } else {
     const dotted = ITEMS.filter((i) => i.pair)
@@ -240,12 +247,14 @@ export function ladderPlan(ctx: RoundCtx, rungs: number, force?: 'letter' | 'vow
         it = pick(rng, dotted)
         const g = pick(rng, GROUPS)
         m = markOf(pick(rng, GROUP_MARKS[g].filter((x) => isAllowed(it.id, x) && isAllowed(it.pair!, x))))
-        if (!used.has(syl(it.id, m).soundId)) break
+        const b = below()
+        if (!used.has(syl(it.id, m).soundId) && !(b && sameSound(syl(it.pair!, m), b))) break
       }
       const target = syl(it.id, m)
       const pair = syl(it.pair!, m)
-      const look = lookAlikeGroup(ctx, it.id).slice(1).filter((id) => id !== it.pair).map((id) => syl(id, m))
-      take(target, shuffle(rng, fill(rng, [target, pair], shuffle(rng, look), () => syl(pick(rng, ITEMS).id, m))))
+      const look = notBelow(lookAlikeGroup(ctx, it.id).slice(1).filter((id) => id !== it.pair).map((id) => syl(id, m)))
+      const filler = () => { for (let g = 0; g < 50; g++) { const c = syl(pick(rng, ITEMS).id, m); if (notBelow([c]).length) return c } return syl(pick(rng, ITEMS).id, m) }
+      take(target, shuffle(rng, fill(rng, [target, pair], shuffle(rng, look), filler)))
     }
   }
   return { fixed, steps }
