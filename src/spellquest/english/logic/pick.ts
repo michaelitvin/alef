@@ -1,4 +1,4 @@
-// The adaptive choice of the English path: the features of a choice (what his answers are tallied under) and the pick of a
+// The adaptive choice of English Spell Quest: the features of a choice (what his answers are tallied under) and the pick of a
 // sound unit near the one-mistake-in-five aim. Same method as Spell Quest (`pickTarget`), with the English features.
 import type { ScreenId } from '../../logic/predict'
 import { featurePrior, pickTarget } from '../../logic/predict'

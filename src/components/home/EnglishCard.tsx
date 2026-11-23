@@ -46,7 +46,7 @@ export function EnglishCard() {
 
 const IMG: Partial<Record<ScreenId, string>> = { tower, ghosts: ghost, cauldron, ladder, doors: door }
 
-/** a station's picture on the English path: the green props, an orb with m, the book, a in Andika (size: the disc's, home.css) */
+/** a station's picture on English Spell Quest: the green props, an orb with m, the book, a in Andika (size: the disc's, home.css) */
 function EnglishPic({ id }: { id: ScreenId }) {
   const box = 'var(--home-pic, 54px)'
   if (id === 'broom') {
@@ -59,7 +59,7 @@ function EnglishPic({ id }: { id: ScreenId }) {
   }
   if (id === 'draw') return <span className="home-glyph latin" data-pic="glyph" style={{ fontSize: `calc(${box} * 0.75)` }}>a</span>
   if (id === 'spell') {
-    // the spell book has no art yet: an open book, in the English path's green
+    // the spell book has no art yet: an open book, in English Spell Quest's green
     return (
       <svg data-pic="book" viewBox="0 0 120 80" style={{ width: box, height: box }} aria-hidden>
         <rect x="4" y="10" width="112" height="62" rx="8" fill="#2f7a55" stroke="#123d2a" strokeWidth="3" />

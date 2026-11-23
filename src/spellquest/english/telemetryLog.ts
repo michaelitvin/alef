@@ -1,4 +1,4 @@
-// The English path's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
+// English Spell Quest's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
 // The English run is Spell Quest's run on the English course, so its events (and the tower's, `via: 'tower'`) are Spell Quest's
 // names with `g: 'spellquest-en'` (ADR 0004: one log per game).
 import { SPELLQUEST_EN_LOG_KEY } from '../../shared/saveKeys'

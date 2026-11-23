@@ -39,7 +39,7 @@ describe('the English card (English path design, Part 1)', () => {
   })
 })
 
-describe('the English path', () => {
+describe('English Spell Quest', () => {
   beforeEach(() => { localStorage.clear(); useEnglishStore.getState().resetProgress() })
   afterEach(cleanup)
 

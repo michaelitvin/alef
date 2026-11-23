@@ -1,4 +1,4 @@
-// The English path's section in the parent area: it is listed with its log, the summary line, the path and drawing
+// English Spell Quest's section in the parent area: it is listed with its log, the summary line, the path and drawing
 // switches, the one number range, and a reset that leaves Spell Quest's save alone (and the other way round).
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

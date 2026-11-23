@@ -344,7 +344,7 @@ async function seedEnglish(page, base, stage) {
   await page.evaluate((stage) => {
     localStorage.clear()
     localStorage.setItem('staging:alef-player', JSON.stringify({ gender: 'boy', by: 'parent', at: 1 }))
-    if (stage) localStorage.setItem('staging:alef-english', JSON.stringify({ version: 1, state: {
+    if (stage) localStorage.setItem('staging:alef-spellquest-en', JSON.stringify({ version: 1, state: {
       coins: 0, bookOpen: true, stage: { stage, newAnswers: '' },
       settings: { sfx: false, music: false, volume: 0.8, drawing: true, range: 100, path: true },
       placement: { state: null, requested: false, done: { level: stage, answers: 20, at: 1 }, runs: 1 },
@@ -545,7 +545,7 @@ const CHECKS = {
     await page.locator('[data-card="clock"]').waitFor()
     await page.locator('[data-card="spacecat"]').waitFor()
     note(`Space Cat's credit: ${await page.locator('[data-credit="spacecat"]').textContent()}`)
-    // the order of the home's parts; where the English path is open, it sits right before the cat (the parent's order)
+    // the order of the home's parts; where English Spell Quest is open, it sits right before the cat (the parent's order)
     const parts = await page.evaluate(() => [...document.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part')))
     note(`home: ${parts.join(' ')}`)
     const sc = parts.indexOf('spacecat')
@@ -626,7 +626,7 @@ const CHECKS = {
     if (vp.upright) await page.setViewportSize({ width: vp.height, height: vp.width })
     await page.goto(`${base}spellquest-he/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
-    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest-he"]')
     if (vp.upright) await page.setViewportSize({ width: vp.width, height: vp.height })
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
     await shot(page, vp, 'spellquest-area')
@@ -639,7 +639,7 @@ const CHECKS = {
       await noSideScroll(page, `the ${dev} screen`)
       await shot(page, vp, `spellquest-${dev}`)
       await tap(page, back)
-      await page.locator('[data-parent-area="spellquest"]').waitFor()
+      await page.locator('[data-parent-area="spellquest-he"]').waitFor()
     }
     note('gallery, strokes')
   },
@@ -1199,11 +1199,11 @@ const CHECKS = {
       const make = URL.createObjectURL.bind(URL)
       URL.createObjectURL = (b) => { void b.text().then((t) => window.__downloads.push(t)); return make(b) }
     })
-    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest-he"]')
     const data = page.locator('[data-telemetry-export]')
     await data.scrollIntoViewIfNeeded()
     const count = (key) => data.locator(`[data-log="${key}"] [data-log-count]`).textContent()
-    const spellquest = await count('alef-spellquest-telemetry')
+    const spellquest = await count('alef-spellquest-he-telemetry')
     const clock = await count('alef-clock-telemetry')
     if (!/^[1-9]\d* events$/.test(spellquest)) throw new Error(`Hebrew Spell Quest log: ${spellquest}`)
     if (!/^\d+ events$/.test(clock)) throw new Error(`the clock's log: ${clock}`)
@@ -1214,7 +1214,7 @@ const CHECKS = {
     await tap(page, data.locator('[data-telemetry-download]'))
     await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
     const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
-    const part = doc.games?.find((g) => g.key === 'alef-spellquest-telemetry')
+    const part = doc.games?.find((g) => g.key === 'alef-spellquest-he-telemetry')
     if (doc.v !== 2 || !part || !part.events.length) throw new Error('the download has no Spell Quest events')
     const names = [...new Set(part.events.map((e) => e.e))]
     note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)

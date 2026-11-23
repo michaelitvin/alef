@@ -1,4 +1,4 @@
-// The English path's part in the parent area (src/parent). Light on purpose: no store, audio or telemetry module here
+// English Spell Quest's part in the parent area (src/parent). Light on purpose: no store, audio or telemetry module here
 // (depcruise: game-parent-index-is-light). Registered from the start, so its log is sealed and budgeted from its first
 // event.
 import { lazy } from 'react'
@@ -35,5 +35,5 @@ export const englishParent: GameParent = {
   reset: async () => { (await import('./reset')).default() },
 }
 
-/** the English section, only where the English path can be opened (production lists none) */
+/** the English section, only where English Spell Quest can be opened (production lists none) */
 export const ENGLISH_PARENTS: readonly GameParent[] = ENGLISH_AVAILABLE ? [englishParent] : []

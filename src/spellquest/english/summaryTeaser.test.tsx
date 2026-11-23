@@ -1,4 +1,4 @@
-// The end screen's next-boss teaser on the English path: only a boss his stage has opened (the course's boss kinds),
+// The end screen's next-boss teaser on English Spell Quest: only a boss his stage has opened (the course's boss kinds),
 // never the bird (sh ch th) before stage 4.
 import { afterEach, describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'

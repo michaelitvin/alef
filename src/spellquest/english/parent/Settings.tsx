@@ -1,4 +1,4 @@
-// The English path's section in the parent area (parent text, English allowed): the path on or off, the drawing on or
+// English Spell Quest's section in the parent area (parent text, English allowed): the path on or off, the drawing on or
 // off, and the number range for shopping (one setting for both paths, src/shared/numberRange.ts).
 import { setNumberRange, useNumberRange } from '../../../shared/numberRange'
 import type { SectionProps } from '../../../parent/types'

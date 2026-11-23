@@ -1,5 +1,5 @@
 // 4 · Look-alike ghosts: three ghosts float in from the right, each holding a sign with a letter (or a syllable). He taps
-// the one he heard; the wizard zaps it and the others fade. On the English path a sign holds a letter or a look-alike
+// the one he heard; the wizard zaps it and the others fade. In English Spell Quest a sign holds a letter or a look-alike
 // word (`top · pot`), in Andika, small enough to stay inside the sign.
 import { useImages, useWizardArt } from '../../course/CourseContext'
 import { FACING } from '../../assets/facing'

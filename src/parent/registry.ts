@@ -8,7 +8,7 @@ import { ENGLISH_PARENTS } from '../spellquest/english/parent'
 import { registerTelemetryLogs } from '../shared/telemetry'
 import type { GameId, GameParent } from './types'
 
-/** the English path only where it can be opened (production lists no English section) */
+/** English Spell Quest only where it can be opened (production lists no English section) */
 export const GAMES: readonly GameParent[] = [spellQuestParent, clockParent, spaceCatParent, lessonsParent, ...ENGLISH_PARENTS]
 
 // Core seals, folds and evicts every game's log, so it must know them all on every page (each game page loads this).

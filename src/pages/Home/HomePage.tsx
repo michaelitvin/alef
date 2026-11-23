@@ -87,14 +87,14 @@ export function HomePage() {
         </p>
       </motion.header>
 
-      {/* the tower and its path, the clock, the English path (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
+      {/* the tower and its path, the clock, English Spell Quest (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
       <main className="home-box" data-home>
         <SpellQuestCard />
         <StationPath />
         <Separator />
         <ClockCard />
         <Separator />
-        {/* the English path, right before the cat (the parent's order; only where this build has it, and while the
+        {/* English Spell Quest, right before the cat (the parent's order; only where this build has it, and while the
             parent has not turned it off): left to right */}
         {english.on && <><EnglishCard /><EnglishPath stations={english.stations} /><Separator /></>}
         <SpaceCatCard />

@@ -1,5 +1,5 @@
-// The English path shows no Hebrew, and no Latin text but its learning content (rules: the child cannot read yet; no
-// Hebrew on the English path). Every English gallery screen and the cover are rendered with the English course and their
+// English Spell Quest shows no Hebrew, and no Latin text but its learning content (rules: the child cannot read yet; no
+// Hebrew on English Spell Quest). Every English gallery screen and the cover are rendered with the English course and their
 // text nodes are scanned.
 import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'

@@ -1,4 +1,4 @@
-// A station link from the English path on home (`spellquest-en/?station=<id>`) opens that English screen, through the
+// A station link from English Spell Quest on home (`spellquest-en/?station=<id>`) opens that English screen, through the
 // course's `openScreens(save, course)`; a station that is not open for him opens the cover.
 import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,7 +22,7 @@ const at = (url: string) => history.replaceState(null, '', url)
 const saveAt = (stage: number) => englishSavePort().setStage(stage)
 const doorsStage = [1, 2, 3, 4, 5, 6, 7, 8, 9].find((s) => enDoorsPlayable(s, { picture: wordPicture }))
 
-describe('a station link of the English path', () => {
+describe('a station link of English Spell Quest', () => {
   beforeEach(() => { localStorage.clear(); clearGender(); useEnglishStore.getState().resetProgress() })
   afterEach(() => { clearGender(); at('/') })
 

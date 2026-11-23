@@ -1,4 +1,4 @@
-// The English path's save (localStorage 'alef-spellquest-en', version 2): Spell Quest's store, made by its factory, with its own key,
+// English Spell Quest's save (localStorage 'alef-spellquest-en', version 2): Spell Quest's store, made by its factory, with its own key,
 // its own purse and the English fields. It never touches Spell Quest's save (alef-spellquest-he).
 import type { StateCreator } from 'zustand'
 import { createRunStore, runState, type SpellQuestActions, type SpellQuestSave } from '../store'

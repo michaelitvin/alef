@@ -3,7 +3,7 @@
 //
 // Two old stores:
 // - "choices": {id: {ok: [file], rejected: [{file, note, at}], name?: {say, at}, note?: {text, at}}} and a retake
-//   queue [id]. Later games and the English path.
+//   queue [id]. Later games and English Spell Quest.
 // - "versioned": {id: {pick, status: picked|rejected, note, version, at}}. The first nikkud duel: one decision per item
 //   and round; `pick` is an index into that round's takes.
 //
@@ -58,7 +58,7 @@ function diffChoiceItem(id: string, a: ChoiceEntry | undefined, b: ChoiceEntry |
   for (const r of rejs) out.push({ ...base, type: 'reject', take: r.file, text: r.note, at: r.at })
   // new OKs, in list order
   for (const f of okB) if (!okA.includes(f) || rejA.has(f)) out.push({ ...base, type: 'ok', take: f, at: null })
-  // the English path's item note and name objection
+  // English Spell Quest's item note and name objection
   for (const [key, field, type] of [['note', 'text', 'note'], ['name', 'say', 'name']] as const) {
     const x = a?.[key] as Record<string, string> | undefined
     const y = b?.[key] as Record<string, string> | undefined

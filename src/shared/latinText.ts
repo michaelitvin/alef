@@ -1,4 +1,4 @@
-// Latin learning text (the English path's letters and words, in Andika) shows each letter on its own: Andika's `liga`
+// Latin learning text (English Spell Quest's letters and words, in Andika) shows each letter on its own: Andika's `liga`
 // joins ff, fi, fl, ffi and ffl into one glyph, and a child who learns the letters must see two f's in "off".
 // Only for Latin text: Hebrew's marks are placed by the font's other features, which stay on.
 

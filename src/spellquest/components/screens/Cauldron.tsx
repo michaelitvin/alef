@@ -66,7 +66,7 @@ const BOX_MAX_W = 170
 const BOX_GAP = 14
 export const PICTURE = { x: 1340, y: 640, size: 240 }
 
-/** the box row's centres, left to right (the stage is ltr on the English path) */
+/** the box row's centres, left to right (the stage is ltr on English Spell Quest) */
 export function boxXs(n: number): { xs: number[]; w: number } {
   const w = Math.min(BOX_MAX_W, (BOX_ROW_W - BOX_GAP * (n - 1)) / n)
   const left = 800 - (n * w + (n - 1) * BOX_GAP) / 2 + w / 2

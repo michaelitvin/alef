@@ -21,7 +21,7 @@ import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
 /**
- * Where the book's parts go, in stage units. With the book's picture (the English path's `s-book`, drawn a little wider
+ * Where the book's parts go, in stage units. With the book's picture (English Spell Quest's `s-book`, drawn a little wider
  * than it is) the pages are the cream paper of the picture, as fractions of the book; without it (Spell Quest) they are the two
  * drawn pages, and the old values stay as they were. A written word (English only) has its slate in `SPELL_BOARD`.
  */
@@ -66,7 +66,7 @@ const pageMid = (g: BookGeometry, dir: Dir, start: boolean) => g.book.x + g.book
 
 /**
  * The boxes' centres in box order (left to right on ltr, right to left on rtl), their width, and where the faint
- * closing letter goes (after the last box, in reading order). `hasPicture`: the book of the picture (the English path).
+ * closing letter goes (after the last box, in reading order). `hasPicture`: the book of the picture (English Spell Quest).
  */
 export function spellBoxes(n: number, dir: Dir, tail: boolean, hasPicture = false): { xs: number[]; w: number; tailX?: number } {
   const g = bookGeometry(hasPicture)

@@ -190,7 +190,7 @@ const SPELL: Table = {
 }
 
 /**
- * The English path's own events (src/spellquest/english, and the English parts of the run), by name. The English log also gets
+ * English Spell Quest's own events (src/spellquest/english, and the English parts of the run), by name. The English log also gets
  * the run's events it shares with Spell Quest; the English tasks add their names here as they add the call sites.
  */
 const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']
@@ -381,12 +381,12 @@ export const spellQuestEvents = (o: FixtureOpts = {}) => generate('spellquest-he
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** Space Cat's log */
 export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPACECAT, false, 13, o)
-/** the English path's log (`g: 'spellquest-en'`) */
+/** English Spell Quest's log (`g: 'spellquest-en'`) */
 export const englishEvents = (o: FixtureOpts = {}) => generate('spellquest-en', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Spell Quest's log with the Hebrew spell book's events in it (the spell book writes to Spell Quest's log) */
 const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('spellquest-he', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
 
-/** every event name the generators can send (Spell Quest, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
+/** every event name the generators can send (Spell Quest, the tower, the clock, Space Cat, English Spell Quest, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(SPELLQUEST).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER), ...Object.keys(CLOCK), ...Object.keys(SPACECAT),
   ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(SPELLQUEST_SPELL),

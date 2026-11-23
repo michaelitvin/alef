@@ -1,5 +1,5 @@
 // What the English run reads from and writes to its save: Spell Quest's port (the run's writes) and the English writes, so
-// that no part of the English path writes past the port. The game writes the real save (alef-spellquest-en); a test runs on a
+// that no part of English Spell Quest writes past the port. The game writes the real save (alef-spellquest-en); a test runs on a
 // save in memory.
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import type { SpellQuestActions, SpellQuestSave } from '../store'

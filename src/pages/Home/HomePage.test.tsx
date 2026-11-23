@@ -4,7 +4,7 @@ import { clearGender, setGender } from '../../shared/player'
 import { MemoryRouter } from 'react-router-dom'
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
 vi.mock('react-router-dom', async (orig) => ({ ...(await orig<typeof import('react-router-dom')>()), useNavigate: () => navigate }))
-// the English path is available in test builds: the Hebrew cases below run with it off (they are the Hebrew home), the English ones on
+// English Spell Quest is available in test builds: the Hebrew cases below run with it off (they are the Hebrew home), the English ones on
 const en = vi.hoisted(() => ({ available: false }))
 vi.mock('../../spellquest/english/available', () => ({ get ENGLISH_AVAILABLE() { return en.available } }))
 import { HomePage } from './HomePage'
@@ -184,7 +184,7 @@ describe('the English card and path on home (English path design, Part 1)', () =
     expect(p[p.indexOf('spacecat') - 2]).toBe('spellquest-en-path')
   })
 
-  it('no English card on production: the order is the Hebrew home\'s, as before the English path', async () => {
+  it('no English card on production: the order is the Hebrew home\'s, as before English Spell Quest', async () => {
     en.available = false
     const c = await pageEn()
     expect(parts(c)).toEqual(['spellquest-he', 'spellquest-he-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])

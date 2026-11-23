@@ -41,7 +41,7 @@ const BOX_MAX_W = 96
 const BOX_H = 96
 const BOX_GAP = 8
 
-/** the box row's centres over the rung, left to right (the stage is ltr on the English path) */
+/** the box row's centres over the rung, left to right (the stage is ltr on English Spell Quest) */
 export function rungBoxXs(n: number): { xs: number[]; w: number } {
   const w = Math.min(BOX_MAX_W, (BOX_ROW_W - BOX_GAP * (n - 1)) / n)
   const left = LADDER_CX - (n * w + (n - 1) * BOX_GAP) / 2 + w / 2

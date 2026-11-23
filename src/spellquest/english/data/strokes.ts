@@ -1,4 +1,4 @@
-// How each Latin letter is written, stroke by stroke, in Andika's shapes (the English path's letters: single-storey a
+// How each Latin letter is written, stroke by stroke, in Andika's shapes (English Spell Quest's letters: single-storey a
 // and g, a plain l with no tail). The format is the Hebrew strokes' (../../spellquest/data/strokes.ts), with `script: 'print'`;
 // the Latin/Hebrew axis is the alphabet, not the script. Loaded by plain Node: erasable TS only, data only.
 //

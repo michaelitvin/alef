@@ -1,7 +1,7 @@
 // The play-time ledger: how long the child played each game, per day, for the parent area's Progress section.
 // Telemetry cannot give this (its logs are trimmed, and the lessons have none). One key, `alef-playtime`:
 //   { v: 1, days: { 'YYYY-MM-DD': { 'spellquest-he': ms, clock: ms, lessons: ms, 'spellquest-en': ms } } }   (the device's local days, kept 60 days)
-// Two pages can write it (the main app and Book 2's page), and a page can come back from the back/forward cache, so a
+// Two pages can write it (the main app and Hebrew Spell Quest's page), and a page can come back from the back/forward cache, so a
 // flush always reads the key, adds its own span and writes: no copy in memory is ever written back. It is a save-like
 // key: `?copy-prod` copies it (it is a few hundred bytes), and the staging build keeps its own under `staging:`.
 import { useEffect, useRef } from 'react'

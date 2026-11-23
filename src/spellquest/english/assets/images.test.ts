@@ -1,9 +1,9 @@
-// The English path's pictures: the green file where there is one, Spell Quest's elsewhere, and the pictures that never change.
+// English Spell Quest's pictures: the green file where there is one, Spell Quest's elsewhere, and the pictures that never change.
 import { describe, expect, it } from 'vitest'
 import { IMAGES } from '../../assets/images'
 import { ENGLISH_IMAGES, greenImages } from './images'
 
-describe('the English path\'s pictures', () => {
+describe('English Spell Quest\'s pictures', () => {
   it('has a picture for every key of Spell Quest, and the spell book that Spell Quest does not have', () => {
     expect(Object.keys(ENGLISH_IMAGES).sort()).toEqual([...Object.keys(IMAGES), 's-book'].sort())
     expect(IMAGES['s-book']).toBeUndefined()

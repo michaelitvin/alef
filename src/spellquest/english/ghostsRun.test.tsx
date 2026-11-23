@@ -159,7 +159,7 @@ describe('the English ghosts in the run', () => {
   })
 })
 
-describe('the ghosts\' signs on the English path', () => {
+describe('the ghosts\' signs on English Spell Quest', () => {
   const sign = (c: Choice, dir: 'ltr' | 'rtl') => render(<Ghosts signs={[c]} onPick={() => {}} phase="answer" dir={dir} />)
     .container.querySelector('[data-glyph]') as SVGTextElement
 

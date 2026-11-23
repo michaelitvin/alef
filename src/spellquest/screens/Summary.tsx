@@ -25,7 +25,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   /** a full run: the home button (a 2 s hold) in the corner */
   onExit?: () => void
 }) {
-  // the open course's voice, log and save (the English path has its own purse and bests)
+  // the open course's voice, log and save (English Spell Quest has its own purse and bests)
   const course = useCourse()
   const best = useCourseSave((s) => s.bestRun)
   const coins = useCourseSave((s) => s.coins ?? 0)

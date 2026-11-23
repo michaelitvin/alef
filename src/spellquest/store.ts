@@ -270,7 +270,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
 export const spellQuestState = runState(recordStageAnswer)
 
 /**
- * A run's persisted save under `key`: Spell Quest's (alef-spellquest-he) and the English path's (alef-spellquest-en). `X` is the save's own
+ * A run's persisted save under `key`: Spell Quest's (alef-spellquest-he) and English Spell Quest's (alef-spellquest-en). `X` is the save's own
  * fields beyond Spell Quest's, with their fresh values in `initial`. Fields added later take their defaults from the initial
  * state: persist merges a saved state over it.
  */

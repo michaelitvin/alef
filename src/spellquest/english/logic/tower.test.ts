@@ -44,7 +44,7 @@ function rounds(stage: number, waves: number[], n = 300, extra: Partial<MakeRoun
 }
 const texts = (r: Round) => r.runeTexts!.map((x) => x.text)
 
-/** a voice id the English path has: a sound unit's sound, a word, a nonsense name, a heart word */
+/** a voice id English Spell Quest has: a sound unit's sound, a word, a nonsense name, a heart word */
 function isVoiceId(id: string): boolean {
   const [, kind, rest] = /^(snd|w|nw|hw)-(.+)$/.exec(id) ?? []
   if (kind === 'snd') return (SOUND_KEYS as readonly string[]).includes(rest)

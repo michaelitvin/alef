@@ -48,7 +48,7 @@ export interface CourseRounds {
   /** a wave of the broom: the target and the orbs flying with it */
   broomWave: (ctx: RoundCtx, target: Choice, kind: Kind) => Choice[]
   /**
-   * the introduction due after an answer on `c` (logic of the English path: a new unit or heart word is asked once
+   * the introduction due after an answer on `c` (logic of English Spell Quest: a new unit or heart word is asked once
    * before its introduction), its step saved: lines (the run picks a take) and voice ids. Hebrew: unset, none
    */
   introAfter?: (save: SavePort, c: Choice, right: boolean) => ({ line: string } | { id: string })[]

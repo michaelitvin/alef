@@ -176,7 +176,7 @@ describe('the English doors in the run', () => {
   })
 })
 
-describe('the doors\' plate on the English path', () => {
+describe('the doors\' plate on English Spell Quest', () => {
   const w = (id: string) => ({ kind: 'word' as const, id, text: id, soundId: `w-${id}`, itemId: id })
 
   it('a phrase sits on the plate left to right in Andika, its words lit one at a time; the keys show their files', () => {

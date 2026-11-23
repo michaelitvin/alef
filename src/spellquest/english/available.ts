@@ -10,3 +10,6 @@ export const englishAvailable = (env: { staging: boolean; dev: boolean; test: bo
 export const ENGLISH_AVAILABLE = englishAvailable({
   staging: isStaging, dev: import.meta.env.DEV, test: import.meta.env.MODE === 'test', released: ENGLISH_RELEASED,
 })
+
+/** where `spellquest-en/` sends the child when English is not open: the Hebrew page, with the rest of the query and the hash */
+export const hebrewPageUrl = (loc: { search: string; hash: string }): string => `../spellquest-he/${loc.search}${loc.hash}`

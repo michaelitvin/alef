@@ -1,6 +1,6 @@
-// The English path's save format (localStorage 'alef-spellquest-en'): its types, its fresh values and a light reader. Kept apart
+// English Spell Quest's save format (localStorage 'alef-spellquest-en'): its types, its fresh values and a light reader. Kept apart
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
-// so writing) the store. It never reads or writes Spell Quest's save (alef-spellquest-he): the English path has its own purse.
+// so writing) the store. It never reads or writes Spell Quest's save (alef-spellquest-he): English Spell Quest has its own purse.
 import { readSaveValue } from '../../shared/keyMigration'
 import { SPELLQUEST_EN_SAVE_KEY } from '../../shared/saveKeys'
 import type { SpellQuestSave, SpellQuestSettings } from '../store'
@@ -22,7 +22,7 @@ export function migrateEnglishSave(state: unknown, version: number): unknown {
 }
 
 export type EnglishSettings = SpellQuestSettings & {
-  /** the English path is on (the parent can turn it off) */
+  /** English Spell Quest is on (the parent can turn it off) */
   path: boolean
 }
 

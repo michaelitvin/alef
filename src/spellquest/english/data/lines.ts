@@ -76,7 +76,7 @@ export const EN_LINES: EnLine[] = [
   line('line-tall', 'Above the top line (it still counts)', 'I', WARM, ['That letter went a little too high.']),
   line('line-low', 'Below the base line', 'I', WARM, ['A little low.']),
   line('line-small', 'Much too small', 'I', WARM, ['Next time, write it bigger.']),
-  line('ask-gender', 'Only if the English path can be the first thing a child plays', 'I', WARM, ["Who's playing? A boy or a girl?"]),
+  line('ask-gender', 'Only if English Spell Quest can be the first thing a child plays', 'I', WARM, ["Who's playing? A boy or a girl?"]),
 
   // ---- the merchant (27 texts, his voice)
   m('m-hello', 'Merchant: he walks in at a checkpoint', [
@@ -113,7 +113,7 @@ export const EN_LINES: EnLine[] = [
   line('line-almost', 'Tower near miss', 'I', ENCOURAGE, ['Almost.']),
   line('line-wave', 'More monsters', 'I', PLAY, ['More monsters are on the way.']),
 
-  // ---- new lines for the English path (25 texts)
+  // ---- new lines for English Spell Quest (25 texts)
   line('line-how-last', 'Picture round, last sound (x ck ff ll ss zz ng nk)', 'I', WARM, ["What's the last sound in the picture? Pick its letter."]),
   line('line-how-word', 'Picture round with word runes (stages 6 to 9)', 'I', WARM, ['Which word goes with the picture?']),
   line('q-door-words', 'Phrase door, when he waits', 'I', WARM, ['What do the words say? Bring the right key.', 'Read the words, and pick a key.', 'Which key goes with the words?']),

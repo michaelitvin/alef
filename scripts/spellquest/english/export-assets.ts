@@ -1,4 +1,4 @@
-// Ships the English path's approved assets into the repo: voice clips (MP3), word pictures (WebP) and the green recolours.
+// Ships English Spell Quest's approved assets into the repo: voice clips (MP3), word pictures (WebP) and the green recolours.
 // The review kit's decision log is the source of truth: only an item whose status is "ok" ships, and only the take
 // the log says to ship. Nothing else is read as a decision.
 //

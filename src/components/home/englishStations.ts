@@ -36,14 +36,14 @@ export interface EnglishHome { on: boolean; stations: StationState[] }
 const OFF: EnglishHome = { on: false, stations: [] }
 
 /**
- * The doors filter reaches the home by a dynamic import, and only where this build has the English path: the English
+ * The doors filter reaches the home by a dynamic import, and only where this build has English Spell Quest: the English
  * words and the picture map it pulls in stay out of the production home chunk.
  */
 let playable: Promise<DoorsPlayable> | undefined
 const loadPlayable = (): Promise<DoorsPlayable> =>
   (playable ??= import('../../spellquest/english/doorsPlayable').then((m) => m.englishDoorsPlayable))
 
-/** the English part of home: shown when this build has the English path and the parent has not turned it off */
+/** the English part of home: shown when this build has English Spell Quest and the parent has not turned it off */
 const readHome = (doorsPlayable: DoorsPlayable): EnglishHome =>
   ENGLISH_AVAILABLE && readEnglishSave()?.settings?.path !== false ? { on: true, stations: englishStationStates(doorsPlayable) } : OFF
 

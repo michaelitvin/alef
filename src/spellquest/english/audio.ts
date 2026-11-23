@@ -1,4 +1,4 @@
-// The English path's audio: the shared game-audio kit with the English voices and Spell Quest's sound (its effects, music and
+// English Spell Quest's audio: the shared game-audio kit with the English voices and Spell Quest's sound (its effects, music and
 // numbers: src/spellquest/audio/spellQuestSound.ts). It logs to the English log. The tower plays through `englishTowerAudio`.
 import { createGameAudio } from '../../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../../shared/gameAudio/output'
