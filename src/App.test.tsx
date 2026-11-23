@@ -7,7 +7,7 @@ import App from './App'
 import { useProgressStore } from './stores/progressStore'
 
 // the home loads the English doors filter by import(): have it loaded, so that no import is still running at teardown
-beforeAll(async () => { await import('./english/doorsPlayable') })
+beforeAll(async () => { await import('./spellquest/english/doorsPlayable') })
 
 describe('App routes', () => {
   afterEach(() => { window.location.hash = '' })

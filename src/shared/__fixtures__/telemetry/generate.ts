@@ -190,7 +190,7 @@ const SPELL: Table = {
 }
 
 /**
- * The English path's own events (src/english, and the English parts of the run), by name. The English log also gets
+ * The English path's own events (src/spellquest/english, and the English parts of the run), by name. The English log also gets
  * the run's events it shares with Spell Quest; the English tasks add their names here as they add the call sites.
  */
 const EN_SCREENS = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors']

@@ -2,7 +2,7 @@
 // games; the page loads it only when the check runs: `import()` in stagingStorage.ts).
 import { PROGRESS_PERSIST_VERSION, migrateProgress } from '../stores/progressMigrate'
 import { SAVE_VERSION, migrateSave } from '../spellquest/saveFormat'
-import { ENGLISH_SAVE_VERSION, migrateEnglishSave } from '../english/saveFormat'
+import { ENGLISH_SAVE_VERSION, migrateEnglishSave } from '../spellquest/english/saveFormat'
 import type { SaveStep } from './migrateCheck'
 
 /** by the save's key after the move */

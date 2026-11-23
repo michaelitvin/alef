@@ -2,7 +2,7 @@
 // play-time column in the parent area.
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-vi.mock('../english/available', () => ({ ENGLISH_AVAILABLE: false, ENGLISH_RELEASED: false, englishAvailable: () => false }))
+vi.mock('../spellquest/english/available', () => ({ ENGLISH_AVAILABLE: false, ENGLISH_RELEASED: false, englishAvailable: () => false }))
 import { GAMES } from './registry'
 import { ProgressSection } from './sections/Progress'
 

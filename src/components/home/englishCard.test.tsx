@@ -3,9 +3,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { EnglishCard, EnglishPath } from './EnglishCard'
 import { PlayButton } from './PlayButton'
 import { englishStationStates } from './englishStations'
-import { englishDoorsPlayable } from '../../english/doorsPlayable'
-import { useEnglishStore } from '../../english/store'
-import { englishSavePort } from '../../english/savePort'
+import { englishDoorsPlayable } from '../../spellquest/english/doorsPlayable'
+import { useEnglishStore } from '../../spellquest/english/store'
+import { englishSavePort } from '../../spellquest/english/savePort'
 import { clearGender } from '../../shared/player'
 
 const HEBREW = /[֐-׿]/

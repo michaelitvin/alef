@@ -10,7 +10,7 @@ import { enterYear } from '../shared/parentGate/testing'
 import { takeGatePass } from './gateToken'
 
 // the home loads the English doors filter by import(): have it loaded, so that no import is still running at teardown
-beforeAll(async () => { await import('../english/doorsPlayable') })
+beforeAll(async () => { await import('../spellquest/english/doorsPlayable') })
 
 let go: NavigateFunction
 function Nav() { go = useNavigate(); return null }

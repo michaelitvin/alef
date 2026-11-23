@@ -3,10 +3,10 @@
 // creates or writes it). Open stations come first, then the locked ones, each group in path order, as on the Hebrew path.
 import { useEffect, useState } from 'react'
 import type { ScreenId } from '../../spellquest/logic/predict'
-import { readEnglishSave } from '../../english/saveFormat'
-import { englishOpenStations, englishStationRatings } from '../../english/station'
-import { ENGLISH_AVAILABLE } from '../../english/available'
-import type { DoorsPlayable } from '../../english/station'
+import { readEnglishSave } from '../../spellquest/english/saveFormat'
+import { englishOpenStations, englishStationRatings } from '../../spellquest/english/station'
+import { ENGLISH_AVAILABLE } from '../../spellquest/english/available'
+import type { DoorsPlayable } from '../../spellquest/english/station'
 import type { StationState } from './stations'
 
 const STATIONS: { id: ScreenId; learn: string }[] = [
@@ -41,7 +41,7 @@ const OFF: EnglishHome = { on: false, stations: [] }
  */
 let playable: Promise<DoorsPlayable> | undefined
 const loadPlayable = (): Promise<DoorsPlayable> =>
-  (playable ??= import('../../english/doorsPlayable').then((m) => m.englishDoorsPlayable))
+  (playable ??= import('../../spellquest/english/doorsPlayable').then((m) => m.englishDoorsPlayable))
 
 /** the English part of home: shown when this build has the English path and the parent has not turned it off */
 const readHome = (doorsPlayable: DoorsPlayable): EnglishHome =>

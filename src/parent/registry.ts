@@ -4,7 +4,7 @@ import { spellQuestParent } from '../spellquest/parent'
 import { clockParent } from '../clock/parent'
 import { lessonsParent } from '../lessons/parent'
 import { spaceCatParent } from '../spacecat/parent'
-import { ENGLISH_PARENTS } from '../english/parent'
+import { ENGLISH_PARENTS } from '../spellquest/english/parent'
 import { registerTelemetryLogs } from '../shared/telemetry'
 import type { GameId, GameParent } from './types'
 

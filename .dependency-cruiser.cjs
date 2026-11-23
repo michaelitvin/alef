@@ -16,7 +16,7 @@ module.exports = {
       name: 'logic-never-imports-ui',
       severity: 'error',
       comment: 'Pure logic must not import components or screens.',
-      from: { path: '^src/(spellquest/logic|clock/logic|spacecat/logic|spellquest/tower/logic|english/logic)/', pathNot: TEST },
+      from: { path: '^src/(spellquest/logic|clock/logic|spacecat/logic|spellquest/tower/logic|spellquest/english/logic)/', pathNot: TEST },
       to: { path: ['^src/(spellquest|clock)/(components|screens)/', '^src/spacecat/(components|screens|canvas)/', '^src/components/', '^src/spellquest/tower/components/'] },
     },
     {
@@ -31,7 +31,7 @@ module.exports = {
       severity: 'error',
       comment: 'The clock does not import Spell Quest, except the wizard pictures (known exception: src/spellquest/assets/img/).',
       from: { path: '^src/clock/', pathNot: TEST },
-      to: { path: '^src/spellquest/', pathNot: '^src/spellquest/assets/img/' },
+      to: { path: '^src/spellquest/', pathNot: ['^src/spellquest/assets/img/', '^src/spellquest/english/'] },
     },
     {
       name: 'spacecat-imports-only-shared-and-parent',
@@ -58,7 +58,7 @@ module.exports = {
       comment:
         'Spell Quest reaches the tower only through its public surface. progressStore: SpellQuestApp, main and the parent part read it; the run reads it only through savePort.ts. ' +
         'components/home/StationPath is a known exception (Spell Quest shows the home path wizard).',
-      from: { path: '^src/spellquest/', pathNot: TEST },
+      from: { path: '^src/spellquest/', pathNot: [TEST, '^src/spellquest/english/'] },
       to: {
         path: '^src/(hooks|components|types|stores|pages)/',
         pathNot: [
@@ -83,9 +83,9 @@ module.exports = {
       severity: 'error',
       comment:
         'The run engine (Spell Quest\'s controller.ts, logic/ and policies/, and the tower in src/spellquest/tower/logic) never imports the ' +
-        'English course (src/english): a course reaches the run only as the Course it is given (RunOpts.course).',
+        'English course (src/spellquest/english): a course reaches the run only as the Course it is given (RunOpts.course).',
       from: { path: ['^src/spellquest/(controller|logic/|policies/)', '^src/spellquest/tower/logic/'] },
-      to: { path: '^src/english/' },
+      to: { path: '^src/spellquest/english/' },
     },
     {
       name: 'run-policies-are-pure',
@@ -103,7 +103,7 @@ module.exports = {
         'The shared parent area (src/parent) reaches a game only through its declared src/<game>/parent/index.ts (the registry); ' +
         'the game screens it shows are lazy imports made by those files.',
       from: { path: '^src/parent/', pathNot: TEST },
-      to: { path: '^src/', pathNot: ['^src/parent/', '^src/shared/', '^src/(spellquest|clock|lessons|spacecat|english)/parent/index\\.ts$'] },
+      to: { path: '^src/', pathNot: ['^src/parent/', '^src/shared/', '^src/(spellquest|spellquest/english|clock|lessons|spacecat)/parent/index\\.ts$'] },
     },
     {
       name: 'game-parent-index-is-light',
@@ -112,9 +112,9 @@ module.exports = {
         'A game\'s parent/index.ts loads with the area on every page: no store (creating one writes its save), no audio (it builds ' +
         'a kit), no telemetry (an instance rewrites its log on pagehide). Its screens and its reset are modules of their own, ' +
         'loaded with import() (a dynamic import of the store itself would hide a static one: depcruise merges the two).',
-      from: { path: '^src/(spellquest|clock|lessons|spacecat|english)/parent/index\\.ts$' },
+      from: { path: '^src/(spellquest|spellquest/english|clock|lessons|spacecat)/parent/index\\.ts$' },
       to: {
-        // the English kit is src/english/audio.ts
+        // the English kit is src/spellquest/english/audio.ts
         path: ['/store\\.ts$', '^src/stores/', '/audio/', '/audio\\.ts$', '/telemetry\\.ts$'],
       },
     },
@@ -126,6 +126,7 @@ module.exports = {
       to: {
         path: '^src/spellquest/',
         pathNot: [
+          '^src/spellquest/english/', // its own rule below
           '^src/spellquest/saveFormat\\.ts$',
           '^src/spellquest/station\\.ts$',
           '^src/spellquest/logic/(mastery|predict)\\.ts$',
@@ -143,13 +144,13 @@ module.exports = {
         'words and the picture map), so the home loads doorsPlayable with import() and only where English is available.',
       from: { path: '^src/components/home/', pathNot: TEST },
       to: {
-        path: '^src/english/',
+        path: '^src/spellquest/english/',
         pathNot: [
-          '^src/english/saveFormat\\.ts$',
-          '^src/english/station\\.ts$',
-          '^src/english/available\\.ts$',
-          '^src/english/doorsPlayable\\.ts$',
-          '^src/english/assets/img/',
+          '^src/spellquest/english/saveFormat\\.ts$',
+          '^src/spellquest/english/station\\.ts$',
+          '^src/spellquest/english/available\\.ts$',
+          '^src/spellquest/english/doorsPlayable\\.ts$',
+          '^src/spellquest/english/assets/img/',
         ],
       },
     },
@@ -161,14 +162,14 @@ module.exports = {
         'so that production ships no English words. Allowed: available, saveFormat, station, the green pictures and the English ' +
         'parent index (it is empty where English is unavailable). The English course arrives by import() only, which ' +
         'is a dynamic dependency and is left out here. Direct imports only: a transitive import is not checked here (nothing inspects the built chunks), so keep the allowed files free of imports of the English words.',
-      from: { path: '^src/(spellquest|components|pages|parent)/', pathNot: TEST },
+      from: { path: '^src/(spellquest|components|pages|parent)/', pathNot: [TEST, '^src/spellquest/english/'] },
       to: {
-        path: '^src/english/',
+        path: '^src/spellquest/english/',
         dependencyTypesNot: ['dynamic-import'],
         pathNot: [
-          '^src/english/(available|saveFormat|station)\\.ts$',
-          '^src/english/assets/img/',
-          '^src/english/parent/index\\.ts$',
+          '^src/spellquest/english/(available|saveFormat|station)\\.ts$',
+          '^src/spellquest/english/assets/img/',
+          '^src/spellquest/english/parent/index\\.ts$',
         ],
       },
     },

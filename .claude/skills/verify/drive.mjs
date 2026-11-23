@@ -1221,7 +1221,7 @@ const CHECKS = {
   },
 
   async englishFit(page, base, vp, note) {
-    // the English page is open only on staging (src/english/available.ts)
+    // the English page is open only on staging (src/spellquest/english/available.ts)
     if (!base.endsWith('/staging/')) throw new Skip('the English page needs the staging verify build (ALEF_STAGING=1)')
     const problems = []
     const report = (screen, r, extra = '') => {

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { SAVE_VERSION, migrateSave, renameSpellQuestFieldsV8 } from './saveFormat'
 import { useSpellQuestStore } from './store'
-import { ENGLISH_SAVE_VERSION, migrateEnglishSave, readEnglishSave, renameEnglishFieldsV2 } from '../english/saveFormat'
-import { useEnglishStore } from '../english/store'
+import { ENGLISH_SAVE_VERSION, migrateEnglishSave, readEnglishSave, renameEnglishFieldsV2 } from './english/saveFormat'
+import { useEnglishStore } from './english/store'
 
 const SETTINGS = { sfx: true, music: true, volume: 0.8, drawing: true, range: 100 }
 const V7 = {

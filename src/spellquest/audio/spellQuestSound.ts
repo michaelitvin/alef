@@ -1,5 +1,5 @@
 // Spell Quest's sound: its effects, music kinds and numbers, the same for every course's kit (Hebrew: ./spellQuestAudio.ts, English:
-// src/english/audio.ts). One voice queue (lines and learning sounds never overlap: rule), 0.8 s between parts (rule
+// src/spellquest/english/audio.ts). One voice queue (lines and learning sounds never overlap: rule), 0.8 s between parts (rule
 // 0.7–0.9 s); effects rotate their takes, and a new effect plays an existing one until the sfx pipeline gives it its own;
 // music ducks under every voice.
 import type { GameAudioOptions } from '../../shared/gameAudio/kit'

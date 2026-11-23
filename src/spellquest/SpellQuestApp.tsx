@@ -23,7 +23,7 @@ import { courseIdFromUrl, loadCourse } from './course'
 import { HEBREW } from './course/hebrew'
 import { CourseProvider } from './course/CourseContext'
 import type { Course } from './course/types'
-import { ENGLISH_AVAILABLE } from '../english/available'
+import { ENGLISH_AVAILABLE } from './english/available'
 
 type Screen = 'cover' | 'station' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest' | 'leaving'
 

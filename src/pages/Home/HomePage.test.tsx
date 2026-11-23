@@ -6,10 +6,10 @@ const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
 vi.mock('react-router-dom', async (orig) => ({ ...(await orig<typeof import('react-router-dom')>()), useNavigate: () => navigate }))
 // the English path is available in test builds: the Hebrew cases below run with it off (they are the Hebrew home), the English ones on
 const en = vi.hoisted(() => ({ available: false }))
-vi.mock('../../english/available', () => ({ get ENGLISH_AVAILABLE() { return en.available } }))
+vi.mock('../../spellquest/english/available', () => ({ get ENGLISH_AVAILABLE() { return en.available } }))
 import { HomePage } from './HomePage'
-import { englishSavePort } from '../../english/savePort'
-import { useEnglishStore } from '../../english/store'
+import { englishSavePort } from '../../spellquest/english/savePort'
+import { useEnglishStore } from '../../spellquest/english/store'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 import { HOLD_MS } from '../../shared/HoldButton'
@@ -21,7 +21,7 @@ const page = () => render(<MemoryRouter><HomePage /></MemoryRouter>).container
 /** the English part reads the doors filter by a dynamic import: render, then let it land */
 const pageEn = async () => {
   const c = page()
-  await act(async () => { await import('../../english/doorsPlayable'); await new Promise((r) => setTimeout(r, 0)) })
+  await act(async () => { await import('../../spellquest/english/doorsPlayable'); await new Promise((r) => setTimeout(r, 0)) })
   return c
 }
 

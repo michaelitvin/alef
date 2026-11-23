@@ -3,7 +3,7 @@
 // word's picture is on the page. The wrong tiles are syllables of opened items that differ in sound from every box and
 // from each other: never a same-sound spelling (ת/ט, כּ/ק, ח/כ, ס/שׂ, א/ע, kamatz/patach), since by ear alone he cannot
 // know which one a word uses. They are near the boxes first: a box's letter with another vowel, or another letter with a
-// box's vowel (יָ, נִ for יִ). So there is no near tile. Mirrors the English one (src/english/logic/spell.ts).
+// box's vowel (יָ, נִ for יִ). So there is no near tile. Mirrors the English one (src/spellquest/english/logic/spell.ts).
 import type { SpellBox, SpellRound } from '../policies/spell'
 import { WORDS, type Word } from '../data/words'
 import { syllable, syllablesOfStage, type Syllable } from './content'

@@ -1,5 +1,5 @@
 // The course seam: what Spell Quest's game reads from the course it plays (Hebrew letters, English words). The Hebrew course
-// is today's modules (./hebrew.ts); the English course is built on its own page (src/english/course).
+// is today's modules (./hebrew.ts); the English course is built on its own page (src/spellquest/english/course).
 import type { createGameAudio } from '../../shared/gameAudio/kit'
 import type { TowerAudio } from '../tower/logic/controller'
 import type { TowerContent } from '../tower/logic/content'
