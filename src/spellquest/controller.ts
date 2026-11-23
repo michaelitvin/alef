@@ -215,9 +215,11 @@ const SPELL_SFX: Record<SpellSfx, SpellQuestSfx> = { drop: 'lock', wrong: 'hit',
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
 /** the ladder's swap (design 2026-11-23 A): the plate flies to its place; then (English) the old letter drops out, and the
- * lock's click rings before the word (both under the pace rule's 350 ms) */
+ * lock's click rings one SFX_RING_MS before the word */
 const LADDER_FLY_MS = 250
-const LADDER_SWAP_MS = 250
+const LADDER_SWAP_MS = SFX_RING_MS
+/** the kit's voice gap (gapMs of the Spell Quest sound): between two words that follow each other */
+const VOICE_GAP_MS = 800
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
@@ -270,6 +272,9 @@ export class RunController {
   private demoRound = false
   private fxId = 0
   private ladder: (LadderPlan & { built: Choice[]; footSaid?: boolean }) | null = null
+  /** the ladder's last built rung whose word a pause cut (said first after the resume), and when its word ended */
+  private ladderOwed: Choice | null = null
+  private ladderWordEnd: number | null = null
   /** the box of the rung he made that the plate was dropped on (an unmarked English rung; unset: a tap, or elsewhere) */
   private pickBox: number | undefined
   /** the doors of this visit, and the one on screen */
@@ -1268,7 +1273,12 @@ export class RunController {
     // ("And now:" comes before every new word after the first rung; the foot counts as built in English)
     const andNow = screen === 'ladder' && this.ladder !== null && this.ladder.built.length > (this.ladder.base ? 1 : 0)
     const word = { id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }
-    const said = skipSay ? Promise.resolve() : this.say(t, andNow ? [{ id: this.course.lineAudioId('target-new', 1) }, word] : [word])
+    const owed = andNow ? this.ladderOwed : null
+    this.ladderOwed = null
+    // (the rung's word and "And now:" are one voice gap apart: said in one call after a pause, else wait out what is left)
+    if (andNow && !owed && this.ladderWordEnd !== null) await this.sleep(t, Math.max(0, VOICE_GAP_MS - (this.now() - this.ladderWordEnd)))
+    this.ladderWordEnd = null
+    const said = skipSay ? Promise.resolve() : this.say(t, andNow ? [...(owed ? [{ id: this.cueId(owed) }] : []), { id: this.course.lineAudioId('target-new', 1) }, word] : [word])
     let picked = await Promise.race([said.then(() => null), early])
     if (boxCue) this.setScreen({ cue: undefined } as Partial<LadderView>)
     // the answers open after the cue even if it was cut short (a stopped voice must never leave the round shut)
@@ -1472,6 +1482,7 @@ export class RunController {
    */
   private async ladderSwap(t: number, c: Choice, plateId: string, more: Partial<LadderView> = {}) {
     this.ladder!.built = [...this.ladder!.built, c]
+    this.ladderOwed = c
     this.setScreen({ ...more, placing: { id: plateId, step: 'fly' } } as Partial<LadderView>)
     await this.sleep(t, LADDER_FLY_MS)
     this.sfx('lock')
@@ -1479,6 +1490,8 @@ export class RunController {
     await this.sleep(t, LADDER_SWAP_MS)
     this.setScreen({ placing: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>)
     await this.say(t, [{ id: this.cueId(c) }])
+    this.ladderOwed = null
+    this.ladderWordEnd = this.now()
   }
 
   /** After a mistake: the right answer's sound, then wait until he does the right move; the sound again if he waits. */

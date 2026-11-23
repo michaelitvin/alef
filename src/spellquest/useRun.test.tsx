@@ -603,6 +603,42 @@ describe('run controller', () => {
       expect((c.view.screen as LadderS).reveal).toBeUndefined()
       c.destroy()
     })
+    it('the word starts 400 ms after the lock; "And now:" comes one voice gap (0.8 s) after the word', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const s = c.view.screen as LadderS
+      const from = fakeAudio.log().length
+      // (the lock's click is mocked here: its time is the step that follows it, the swap's start)
+      let lockAt = 0
+      c.subscribe(() => { if (!lockAt && (c.view.screen as LadderS).placing?.step === 'swap') lockAt = Date.now() })
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await tick(4000)
+      const e = fakeAudio.log().slice(from)
+      const lock = { at: lockAt }
+      const word = e.find((x) => x.kind === 'voice' && x.id === s.target.soundId)!
+      const andNow = e.find((x) => x.id === 'target-new-1')!
+      expect(word.at - lock.at).toBeGreaterThanOrEqual(400)
+      expect(andNow.at - word.at).toBeGreaterThanOrEqual(800)
+      c.destroy()
+    })
+    it('a pause in the swap: after the resume the rung\'s word comes first, then (0.8 s later) "And now:"', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const s = c.view.screen as LadderS
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await tick(300)
+      c.pause()
+      const cut = fakeAudio.log().length
+      c.resume()
+      await tick(4000)
+      const v = fakeAudio.log().slice(cut).filter((x) => x.kind === 'voice')
+      expect(v[0].id).toBe(s.target.soundId)
+      expect(v[1].id).toBe('target-new-1')
+      expect(v[1].at - v[0].at).toBeGreaterThanOrEqual(800)
+      c.destroy()
+    })
     it('a pause in the swap builds the rung at once and clears the swap', async () => {
       const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
       c.start()

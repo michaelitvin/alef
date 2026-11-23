@@ -307,6 +307,50 @@ describe('the English ladder in the run', () => {
       }
     })
 
+    /** the audio log entries since `from`: the lock, and the voice with its start time */
+    const timing = (from: number) => fakeAudio.log().slice(from).filter((e) => e.kind === 'voice' || (e.kind === 'sfx' && /lock/.test(e.id)))
+
+    it('the word starts 400 ms after the lock, and "And now:" comes one voice gap (0.8 s) after the word', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, s } = await start(2)
+        const from = fakeAudio.log().length
+        c.gesture({ type: 'pick', id: ladderAnswerId(s) })
+        await wait(4000)
+        const e = timing(from)
+        const lock = e.find((x) => x.kind === 'sfx')!
+        const wordAt = e.find((x) => x.kind === 'voice' && x.id === s.target.soundId)!
+        const andNow = e.find((x) => x.id === 'target-new-1')!
+        expect(wordAt.at - lock.at).toBeGreaterThanOrEqual(400)
+        expect(andNow.at - wordAt.at).toBeGreaterThanOrEqual(800)
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('a pause in the swap: after the resume the rung\'s word is said first, then (0.8 s later) "And now:" and the target', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, s } = await start(2)
+        const from = fakeAudio.log().length
+        c.gesture({ type: 'pick', id: ladderAnswerId(s) })
+        await wait(300)
+        c.pause()
+        const cut = fakeAudio.log().length
+        c.resume()
+        await wait(4000)
+        const v = fakeAudio.log().slice(cut).filter((x) => x.kind === 'voice')
+        expect(fakeAudio.log().slice(from, cut).some((x) => x.kind === 'voice' && x.id === s.target.soundId)).toBe(false)
+        expect(v[0].id).toBe(s.target.soundId)
+        expect(v[1].id).toBe('target-new-1')
+        expect(v[1].at - v[0].at).toBeGreaterThanOrEqual(800)
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
     it('a pause in the swap builds the rung at once; the next rung asks as usual', async () => {
       vi.useFakeTimers()
       try {
