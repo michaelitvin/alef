@@ -52,7 +52,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(clk.querySelector('.home-cface [data-face="10:10"]')).not.toBeNull()
     expect(clk.querySelector('[data-play="clock"]')).not.toBeNull()
     expect(clk.querySelectorAll('img').length).toBe(3)
-    expect(clk.querySelector('[data-learn="clock"]')!.textContent).toBe('מה לומדים: לקרוא שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.')
+    expect(clk.querySelector('[data-learn="clock"]')!.textContent).toBe('מה לומדים: לקרוא ולכוון שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות; ולהתאים אותו לשעון דיגיטלי. בעברית ובאנגלית.')
   })
 
   it('the space cat card: its art, three planets 3 4 7, its play button, its parent line and its credit line', () => {
@@ -61,7 +61,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
     expect(sc.querySelector('a[href$="spacecat/"]')).not.toBeNull()
     expect([...sc.querySelectorAll('[data-planet]')].map((e) => e.getAttribute('data-planet'))).toEqual(['3', '4', '7'])
     expect(sc.querySelector('[data-play="spacecat"]')).not.toBeNull()
-    expect(sc.querySelector('[data-learn="spacecat"]')!.textContent).toBe('מה לומדים: חיבור וחיסור עד 100, השוואת מספרים, ספירה בקפיצות, כפל וחילוק. המשחק מוצא לבד את הרמה של הילד ומתאים את עצמו, גם במהירות.')
+    expect(sc.querySelector('[data-learn="spacecat"]')!.textContent).toBe('מה לומדים: חיבור וחיסור עד 100, מספר חסר בתרגיל, השוואת מספרים, ספירה בקפיצות, כפל וחילוק, ואחר כך מספרים עגולים עד 1,000. המשחק מוצא לבד את הרמה של הילד ומתאים את עצמו, גם במהירות.')
     expect(sc.querySelector('[data-credit="spacecat"]')!.textContent).toBe('קרדיט: איגור אבא של ריי')
     // the credit is its own line, below the learn line
     expect(sc.querySelector('[data-learn="spacecat"]')!.nextElementSibling).toBe(sc.querySelector('[data-credit="spacecat"]'))

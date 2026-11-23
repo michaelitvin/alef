@@ -8,7 +8,7 @@ import bear from '../../clock/assets/img/bear-happy.webp'
 import { PlayButton } from './PlayButton'
 
 const CLOCK_HREF = () => `${import.meta.env.BASE_URL}clock/`
-const CLOCK_LEARN = 'לקרוא שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.'
+const CLOCK_LEARN = 'לקרוא ולכוון שעון מחוגים: שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות; ולהתאים אותו לשעון דיגיטלי. בעברית ובאנגלית.'
 
 /** a clock face: the red short hand, the blue long hand, the numbers 12, 3, 6, 9 (the clock game's colours) */
 function Face({ h, m, size, numbers = true, rim = true }: { h: number; m: number; size?: number; numbers?: boolean; rim?: boolean }) {
