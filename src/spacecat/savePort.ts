@@ -12,6 +12,7 @@ export interface SpaceCatSavePort {
   findLevelAgain: Actions['findLevelAgain']
   endRun: Actions['endRun']
   unlockShips: Actions['unlockShips']
+  chooseShip: Actions['chooseShip']
   markHeard: Actions['markHeard']
   noteIntroMistake: Actions['noteIntroMistake']
   markIntroAgain: Actions['markIntroAgain']
@@ -26,6 +27,7 @@ export const storeSavePort: SpaceCatSavePort = {
   findLevelAgain: (...a) => useSpaceCatStore.getState().findLevelAgain(...a),
   endRun: (...a) => useSpaceCatStore.getState().endRun(...a),
   unlockShips: (...a) => useSpaceCatStore.getState().unlockShips(...a),
+  chooseShip: (...a) => useSpaceCatStore.getState().chooseShip(...a),
   markHeard: (...a) => useSpaceCatStore.getState().markHeard(...a),
   noteIntroMistake: (...a) => useSpaceCatStore.getState().noteIntroMistake(...a),
   markIntroAgain: (...a) => useSpaceCatStore.getState().markIntroAgain(...a),
@@ -42,6 +44,7 @@ export function memorySavePort(initial: Partial<SpaceCatSave> = {}): SpaceCatSav
     findLevelAgain: (...a) => store.getState().findLevelAgain(...a),
     endRun: (...a) => store.getState().endRun(...a),
     unlockShips: (...a) => store.getState().unlockShips(...a),
+    chooseShip: (...a) => store.getState().chooseShip(...a),
     markHeard: (...a) => store.getState().markHeard(...a),
     noteIntroMistake: (...a) => store.getState().noteIntroMistake(...a),
     markIntroAgain: (...a) => store.getState().markIntroAgain(...a),

@@ -22,14 +22,14 @@ const store = () => useSpaceCatStore.getState()
 describe('space cat store', () => {
   beforeEach(() => {
     localStorage.clear()
-    useSpaceCatStore.setState({ ...DEFAULT_SAVE })
+    useSpaceCatStore.setState({ ...DEFAULT_SAVE, lastFact: undefined })
   })
   it('settings default', () => {
     expect(store().settings).toEqual({ range: 'auto', compare: true, jumps: true, times: true, divide: true, missing100: true, hundreds: true, arrival: 'auto', flightMusic: false })
     expect(DEFAULT_SETTINGS).toEqual(store().settings)
   })
   it('the constants', () => {
-    expect(SAVE_VERSION).toBe(2)
+    expect(SAVE_VERSION).toBe(3)
   })
   it('a fresh save starts the first placement', () => {
     expect(store().ladder).toEqual(LADDER_START)
@@ -47,6 +47,25 @@ describe('space cat store', () => {
     expect(s.speed.small.underMs).toEqual([1000])
     expect(s.lastFact).toBe('+2,3')
     expect(s.sinceZero).toBe(1)
+  })
+  it('a mistake is saved as a rehearsal; the recent facts and the round count are saved; a demo asks nothing back', () => {
+    store().recordRound(it1, result({ result: 'wrong' }), { rng: () => 0 })
+    expect(store()).toMatchObject({ recentFacts: ['+2,3'], roundNo: 1, rehearsals: [{ fact: '+2,3', step: 1, due: 4 }] })
+    useSpaceCatStore.setState({ ...DEFAULT_SAVE, lastFact: undefined })
+    store().recordRound(it1, result({ result: 'wrong' }), { demo: true })
+    expect(store().rehearsals).toEqual([])
+    expect(store().recentFacts).toEqual(['+2,3'])
+  })
+  it('a new play day clears the rehearsals; the first pick after the update avoids the last fact', () => {
+    useSpaceCatStore.setState({ rehearsals: [{ fact: 'a', item: 'x', step: 1, due: 3 }], roundNo: 1 })
+    store().beginRun(1000)
+    expect(store().rehearsals).toEqual([])
+    useSpaceCatStore.setState({ rehearsals: [{ fact: 'a', step: 1, due: 3 }], recentFacts: [], lastFact: 'zz' })
+    store().recordRound(it1, result({ result: 'right' }))
+    expect(store().recentFacts).toEqual(['zz', '+2,3'])
+  })
+  it('a save from before the spacing loads with empty lists', () => {
+    expect(DEFAULT_SAVE).toMatchObject({ recentFacts: [], rehearsals: [], roundNo: 0 })
   })
   it('a demo round changes no tally', () => {
     store().recordRound(it1, result(), { demo: true })
@@ -192,6 +211,8 @@ describe('space cat store', () => {
     expect(savedShip(JSON.stringify({ state: { ship: 7 } }))).toBe(1)
     expect(savedShip('{x')).toBe(1)
     expect(savedShip(null)).toBe(1)
+    expect(savedShip(JSON.stringify({ state: { ship: 1, ships: [1, 2, 3] }, version: 2 }))).toBe(3)
+    expect(savedShip(JSON.stringify({ state: { ship: 1, ships: [1, 2] }, version: 3 }))).toBe(1)
   })
 })
 
@@ -329,7 +350,16 @@ describe('the migration of a version 1 save', () => {
     expect(s.speed.small.arrivalMs).toBe(6400)
     expect(s.items[it1.id].seen).toBe(3)
     expect(typeof s.takeRound).toBe('function')
-    expect(JSON.parse(localStorage.getItem(SAVE_KEY)!).version).toBe(2)
+    expect(JSON.parse(localStorage.getItem(SAVE_KEY)!).version).toBe(3)
+  })
+  it('a v2 save flies the highest ship he has; a v3 save keeps his shelf choice', async () => {
+    for (const [ships, ship, version, want] of [[[1, 2], 1, 2, 2], [[1, 2, 3], 2, 2, 3], [[1], 1, 2, 1], [[1, 2], 1, 3, 1]] as const) {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ state: { ships, ship }, version }))
+      vi.resetModules()
+      const fresh = (await import('./store')).useSpaceCatStore
+      await Promise.resolve()
+      expect(fresh.getState().ship).toBe(want)
+    }
   })
   it('a v2 save that still has a `history` list is read without it', async () => {
     localStorage.setItem(SAVE_KEY, JSON.stringify({ state: { best: 7, history: [{ t: 1, rung: '1', change: 'passed' }] }, version: 2 }))
@@ -348,7 +378,7 @@ describe('the migration of a version 1 save', () => {
       const fresh = (await import('./store')).useSpaceCatStore
       await Promise.resolve()
       expect(Object.keys(fresh.getState().ladder.rungs).sort()).toEqual(sorted(PLACED_V1[6]))
-      expect(JSON.parse(real.getItem(STAGING_PREFIX + SAVE_KEY)!).version).toBe(2)
+      expect(JSON.parse(real.getItem(STAGING_PREFIX + SAVE_KEY)!).version).toBe(3)
     } finally {
       Object.defineProperty(window, 'localStorage', { value: real, configurable: true })
     }

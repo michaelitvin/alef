@@ -162,6 +162,8 @@ const PLAY: Record<SfxName, (v: Voice, t: number) => void> = {
   timeout: (v) => v.sweep(0, 0.6, 3000, 200, 0.6),
   /** a short low crack */
   heart: (v) => { v.tone(180, 0, 0.12, 'square', 0.25, 90); v.sweep(0, 0.08, 2000, 800, 0.4) },
+  /** a short rising chime: two soft high notes, apart from the low crack of a lost heart */
+  'heart-up': (v) => { v.tone(880, 0, 0.14, 'triangle', 0.22); v.tone(1319, 0.1, 0.26, 'triangle', 0.22); v.sweep(0.1, 0.25, 5000, 8000, 0.08) },
   level,
   /** a bright arpeggio with sparkle */
   ship: (v) => {

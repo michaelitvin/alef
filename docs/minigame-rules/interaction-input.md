@@ -34,6 +34,11 @@
 - While the child drags a choice, make its drop place glow. Make it glow more when the choice is over it.
   Reason: the child does not always know where to drop the choice.
   Example (merchant): the merchant's open hand glows while a coin is dragged.
+- Give a drop place the shape of the choice that goes into it: a round box for an orb, a wide box for a plate. Make the
+  letter in a filled box fit inside that shape, dots and marks included.
+  Reason: the child matches shapes. A round orb over a rectangular box does not look as if it goes there.
+  Example (Spell Quest): the spell book and the English cauldron showed rectangular boxes for round letter orbs; the
+  boxes are now circles. The ladder's plates go into wide boxes and stay so.
 
 ## Drawing
 

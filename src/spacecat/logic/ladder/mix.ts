@@ -1,8 +1,9 @@
 // Where the next round comes from in practice (the design's *The mix*): the frontier, the rung below, review, the
 // guard's sure wins, and review only when nothing is free. Each part picks its item with the 1-in-5 picker.
 import type { Rng } from '../../../shared/adaptive'
-import { itemsOfRung, variantsOf, type Item, type SumItem } from '../facts'
-import { SAMPLE_MAX, pickNext, predictOf, samplePool, statsMap, type ItemStats } from '../predict'
+import { itemById, itemsOfRung, variantsOf, type Item, type SumItem } from '../facts'
+import { SAMPLE_MAX, avoidedOf, freeOf, pickNext, predictOf, samplePool, statsMap, type ItemStats, type LastCtx } from '../predict'
+import { isDue } from '../spacing'
 import { RUNGS, rungDef, type RungId } from '../rungs'
 import { earnedOffered, frontier, inRange, isEarned, isOn } from './frontier'
 import { statusOf, type Ladder, type LadderSettings, type Part } from './state'
@@ -18,7 +19,7 @@ export const SURE_RATE = 0.1
 /** with missing100 off, no ring variant has a number above this */
 export const VARIANT_MAX_WITHOUT_MISSING100 = 20
 
-export interface ChooseCtx { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: { fact?: string; sinceZero: number } }
+export interface ChooseCtx { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: LastCtx }
 export interface Choice { item: Item; part: Part; ladder: Ladder }
 
 const TIMES_VARIANTS: readonly RungId[] = ['T2', 'T3', 'T5']
@@ -48,9 +49,12 @@ function pooled(rng: Rng, lists: Item[][], stats: Record<string, ItemStats>): It
 
 /**
  * The pool of a review or rung-below part: the lowest placed rung first while one is placed; ring variants in
- * REVIEW_VARIANT_SHARE of the rounds; items with a recorded mistake that are not sure wins first, if any.
+ * REVIEW_VARIANT_SHARE of the rounds; items with a recorded mistake that are not sure wins first, if any whose fact is
+ * not in `avoid` (the facts of the last rounds: a narrow pool of 1 or 2 mistaken items must not bring a sum back soon).
  */
-export function reviewPool(rng: Rng, l: Ladder, rungs: RungId[], set: LadderSettings, stats: Record<string, ItemStats>): Item[] {
+export function reviewPool(
+  rng: Rng, l: Ladder, rungs: RungId[], set: LadderSettings, stats: Record<string, ItemStats>, avoid: ReadonlySet<string> = new Set(),
+): Item[] {
   const placed = rungs.find((r) => statusOf(l, r) === 'placed')
   const use = placed ? [placed] : rungs
   const variants = use.map((r) => variantsFor(l, r, set)).filter((v) => v.length > 0)
@@ -61,15 +65,22 @@ export function reviewPool(rng: Rng, l: Ladder, rungs: RungId[], set: LadderSett
   const known = statsMap(stats)
   const mistaken = pool.filter((it) => {
     const s = known.get(it.id)
-    return s !== undefined && s.wrong + s.timeout > 0 && predictOf(it, stats) >= SURE_RATE
+    return s !== undefined && s.wrong + s.timeout > 0 && !avoid.has(it.fact) && predictOf(it, stats) >= SURE_RATE
   })
   return mistaken.length > 0 ? mistaken : pool
 }
 
-/** The guard's pool: items of earned rungs that are sure wins; none: the lowest predicted (no earned rung: of `fallback`). */
-export function guardPool(rng: Rng, l: Ladder, set: LadderSettings, stats: Record<string, ItemStats>, fallback: RungId[]): Item[] {
+/**
+ * The guard's pool: items of earned rungs that are sure wins; none: the lowest predicted (no earned rung: of `fallback`).
+ * The facts in `avoid` are left out while anything else is left.
+ */
+export function guardPool(
+  rng: Rng, l: Ladder, set: LadderSettings, stats: Record<string, ItemStats>, fallback: RungId[], avoid: ReadonlySet<string> = new Set(),
+): Item[] {
   const earned = earnedOffered(l, set)
-  const pool = pooled(rng, (earned.length ? earned : fallback).map(itemsOfRung), stats)
+  const all = pooled(rng, (earned.length ? earned : fallback).map(itemsOfRung), stats)
+  const free = freeOf(all, avoid)
+  const pool = free.length ? free : all
   const rated = pool.map((it) => [it, predictOf(it, stats)] as const)
   const sure = rated.filter(([, p]) => p < SURE_RATE).map(([it]) => it)
   if (sure.length) return sure
@@ -82,23 +93,45 @@ export function lastResort(set: LadderSettings): RungId {
   return RUNGS.find((d) => isOn(d.id, set) && inRange(d.id, set))?.id ?? '1'
 }
 
-const pick = (ctx: ChooseCtx, pool: Item[]) => pickNext(ctx.rng, pool, ctx.stats, ctx.last)
+const pick = (ctx: ChooseCtx, pool: Item[], noRehearsal = false) =>
+  pickNext(ctx.rng, pool, ctx.stats, noRehearsal ? { ...ctx.last, noRehearsal: true } : ctx.last)
+
+/**
+ * A mistake that is due comes back on time even when the part does not offer its fact: the missed item itself, as a
+ * review round, if its rung is still on and in range (else it is not served; the spacing drops it later).
+ */
+export function dueMissed(ctx: ChooseCtx): Item | undefined {
+  const sp = ctx.last.spacing
+  if (!sp || ctx.last.noRehearsal) return undefined
+  for (const r of sp.rehearsals) {
+    if (!isDue(sp, r) || !r.item) continue
+    const it = itemById(r.item)
+    if (it && isOn(it.rung, ctx.set) && inRange(it.rung, ctx.set)) return it
+  }
+  return undefined
+}
 
 /** one round in practice: the guard first, then the mix (counts down the guard and the strike's rounds) */
 export function choosePractice(l: Ladder, ctx: ChooseCtx): Choice {
   const { rng, set, stats } = ctx
   const f = frontier(l, set)
+  const avoid = avoidedOf(ctx.last)
   if (l.guardLeft > 0) {
-    const pool = guardPool(rng, l, set, stats, [f ?? lastResort(set)])
-    return { item: pick(ctx, pool), part: 'guard', ladder: { ...l, guardLeft: l.guardLeft - 1 } }
+    const pool = guardPool(rng, l, set, stats, [f ?? lastResort(set)], avoid)
+    return { item: pick(ctx, pool, true), part: 'guard', ladder: { ...l, guardLeft: l.guardLeft - 1 } }
   }
+  const missed = dueMissed(ctx)
+  if (missed) return { item: missed, part: 'review', ladder: l }
   const earned = earnedOffered(l, set)
   if (f === null) {
     if (earned.length === 0) return { item: pick(ctx, itemsOfRung(lastResort(set))), part: 'review', ladder: l }
     const top = earned.slice(-TOP_RUNGS)
     const rest = earned.slice(0, -TOP_RUNGS)
     const from = rest.length === 0 || rng() < TOP_SHARE ? top : rest
-    return { item: pick(ctx, reviewPool(rng, l, from, set, stats)), part: 'review', ladder: l }
+    const pool = reviewPool(rng, l, from, set, stats, avoid)
+    // the part's rungs gave only facts of the last rounds: review of every earned rung
+    const any = freeOf(pool, avoid).length ? pool : reviewPool(rng, l, earned, set, stats, avoid)
+    return { item: pick(ctx, any), part: 'review', ladder: l }
   }
   const below = belowOf(f, set)
   const review = earned.filter((r) => r !== below)
@@ -116,7 +149,21 @@ export function choosePractice(l: Ladder, ctx: ChooseCtx): Choice {
     ladder = { ...l, strikeLeft: l.strikeLeft - 1 }
   }
   const x = rng() * (fr + be + rv)
-  if (x < fr) return { item: pick(ctx, itemsOfRung(f)), part: 'frontier', ladder }
-  if (x < fr + be) return { item: pick(ctx, reviewPool(rng, l, [below!], set, stats)), part: 'below', ladder }
-  return { item: pick(ctx, reviewPool(rng, l, review, set, stats)), part: 'review', ladder }
+  type MixPart = 'frontier' | 'below' | 'review'
+  const chosen: MixPart = x < fr ? 'frontier' : x < fr + be ? 'below' : 'review'
+  const poolOf = (part: MixPart): Item[] =>
+    part === 'frontier' ? itemsOfRung(f) : reviewPool(rng, l, part === 'below' ? [below!] : review, set, stats, avoid)
+  // a part that gives only facts of the last rounds hands the round to another part that has one (those with a share first)
+  const share: Record<MixPart, number> = { frontier: fr, below: be, review: rv }
+  const others = (['frontier', 'below', 'review'] as const)
+    .filter((p) => p !== chosen && (p === 'frontier' || (p === 'below' ? below !== undefined : review.length > 0)))
+    .sort((a, b) => Number(share[b] > 0) - Number(share[a] > 0))
+  const first = poolOf(chosen)
+  if (!freeOf(first, avoid).length) {
+    for (const p of others) {
+      const pool = poolOf(p)
+      if (freeOf(pool, avoid).length) return { item: pick(ctx, pool), part: p, ladder }
+    }
+  }
+  return { item: pick(ctx, first), part: chosen, ladder }
 }

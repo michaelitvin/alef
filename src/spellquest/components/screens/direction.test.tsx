@@ -53,7 +53,7 @@ describe('the screens follow the course direction', () => {
     expect(c.querySelector('[data-stage]')!.getAttribute('dir')).toBe('ltr')
     const boxes = [...c.querySelectorAll('[data-box]')]
     expect(boxes.map((e) => e.getAttribute('data-box'))).toEqual(['c', '_', 't'])
-    const x = boxes.map((e) => Number(e.querySelector('rect')!.getAttribute('x')))
+    const x = boxes.map((e) => Number(e.querySelector('circle')!.getAttribute('cx')))
     expect(x).toEqual([...x].sort((a, b) => a - b))
     expect([...c.querySelectorAll('[data-tile]')].map((e) => e.getAttribute('data-tile'))).toEqual(['o', 'a', 'i', 'u'])
     expect(c.querySelector('[data-box="c"] text')!.getAttribute('direction')).toBe('ltr')

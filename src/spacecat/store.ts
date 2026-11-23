@@ -5,6 +5,7 @@ import { RECENT_KEEP, type Rng } from '../shared/adaptive'
 import { rehydrateOnRestore } from '../shared/rehydrateOnRestore'
 import { persistSaveStorage } from '../shared/saveStorage'
 import { isRareFact, type Item } from './logic/facts'
+import { afterRound as afterSpacing, type Spacing } from './logic/spacing'
 import { afterAnswer, beginRun, chooseRound, relevel, type LadderEvent, type Part } from './logic/ladder/index'
 import type { ItemStats, Mark } from './logic/predict'
 import { pushMark } from './logic/predict'
@@ -12,7 +13,7 @@ import type { RoundResult } from './logic/round'
 import { rungDef, type Band } from './logic/rungs'
 import { shipsReached } from './logic/run'
 import { afterRound, HOLD_ROUNDS, speedOfBand } from './logic/speed'
-import { migrateV1 } from './migrate'
+import { flyHighestShip, migrateV1 } from './migrate'
 import { DEFAULT_SAVE, SAVE_KEY, SAVE_VERSION, type Settings, type SpaceCatSave } from './saveFormat'
 
 export { DEFAULT_SAVE, DEFAULT_SETTINGS, SAVE_KEY } from './saveFormat'
@@ -22,7 +23,7 @@ export interface Actions {
    * One finished round. A demo or a cut round changes no tally, ladder or speed. `part` (from `takeRound`) defaults to the
    * placement's probe or the frontier; `fast` (fast.ts) to false; `now` to the clock.
    */
-  recordRound: (it: Item, res: RoundResult, opts?: { demo?: boolean; cut?: boolean; part?: Part; fast?: boolean; now?: number }) => { events: LadderEvent[] }
+  recordRound: (it: Item, res: RoundResult, opts?: { demo?: boolean; cut?: boolean; part?: Part; fast?: boolean; now?: number; rng?: Rng }) => { events: LadderEvent[] }
   /** the start of a run: the play-day counter, due holds, the warm-up and the re-check. `playDay`: the run starts a play day. */
   beginRun: (now?: number) => { events: LadderEvent[]; playDay: boolean }
   /** the next round of the ladder (`chooseRound` with the save); the ladder's counters are written back */
@@ -49,6 +50,11 @@ export type SpaceCatState = SpaceCatSave & Actions
 /** the intro counters of the ladder's play day (counters of an earlier day start afresh) */
 const introOfDay = (s: SpaceCatSave): SpaceCatSave['intro'] => (s.intro.day === s.ladder.day ? s.intro : { day: s.ladder.day, mistakes: {}, again: [] })
 
+/** a save from before `recentFacts` has only its last fact */
+const spacingOf = (s: SpaceCatSave): Spacing => ({
+  round: s.roundNo, recent: s.recentFacts.length ? s.recentFacts : s.lastFact ? [s.lastFact] : [], rehearsals: s.rehearsals,
+})
+
 /** hold a band's speed after a rung opened there: the band's next HOLD_ROUNDS rounds do not get shorter */
 const holdBand = (speed: SpaceCatSave['speed'], band: Band): SpaceCatSave['speed'] => ({
   ...speed, [band]: { ...speedOfBand(speed, band), hold: HOLD_ROUNDS },
@@ -59,12 +65,13 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       ...DEFAULT_SAVE,
       recordRound: (it, res, opts) => {
         const s = get()
-        const after = { lastFact: it.fact, sinceZero: isRareFact(it) ? 0 : s.sinceZero + 1 }
         if (opts?.cut) return { events: [] }
+        const m = markOf(res.result)
+        const sp = afterSpacing(spacingOf(s), it.fact, opts?.demo ? undefined : m, opts?.rng ?? Math.random, it.id)
+        const after = { lastFact: it.fact, sinceZero: isRareFact(it) ? 0 : s.sinceZero + 1, recentFacts: sp.recent, rehearsals: sp.rehearsals, roundNo: sp.round }
         // the demo round changes no tally, but it is the round before the next pick (never the same fact twice)
         if (opts?.demo) { set(after); return { events: [] } }
         const now = opts?.now ?? Date.now()
-        const m = markOf(res.result)
         const old: ItemStats = s.items[it.id] ?? { seen: 0, wrong: 0, timeout: 0, recent: '', times: [], picks: {} }
         const picks = res.result === 'wrong' ? { ...old.picks, [String(res.number)]: (old.picks[String(res.number)] ?? 0) + 1 } : old.picks
         const stat: ItemStats = {
@@ -89,6 +96,8 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         const r = beginRun(s.ladder, { now, set: s.settings })
         set({
           ladder: r.ladder,
+          // yesterday's mistakes do not come first on a new play day
+          ...(r.playDay ? { rehearsals: [] } : {}),
           ...(r.holdSpeed ? { speed: holdBand(s.speed, r.holdSpeed) } : {}),
           ...(r.playDay && s.intro.day !== r.ladder.day ? { intro: { day: r.ladder.day, mistakes: {}, again: [] } } : {}),
         })
@@ -96,7 +105,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       },
       takeRound: (rng) => {
         const s = get()
-        const { item, part, ladder } = chooseRound(s.ladder, { rng, set: s.settings, stats: s.items, last: { fact: s.lastFact, sinceZero: s.sinceZero } })
+        const { item, part, ladder } = chooseRound(s.ladder, { rng, set: s.settings, stats: s.items, last: { fact: s.lastFact, sinceZero: s.sinceZero, spacing: spacingOf(s) } })
         set({ ladder })
         return { item, part }
       },
@@ -132,7 +141,7 @@ export const useSpaceCatStore = create<SpaceCatState>()(
     spaceCatCreator,
     {
       name: SAVE_KEY, version: SAVE_VERSION, storage: persistSaveStorage(),
-      // Version 2 is the ladder's save shape; version 1 (the nine rungs) is converted by migrate.ts. When SpaceCatSave
+      // Version 2 is the ladder's save shape; version 1 (the nine rungs) is converted by migrate.ts. Version 3: the chosen ship is the highest he has (migrate.ts). When SpaceCatSave
       // changes again, raise `version` and convert older saves here (never drop his progress: rule). Fields added later
       // take their defaults from the initial state (persist merges).
       // A save of this version from before the parent area read the ladder events had a `history` list: drop it.
@@ -141,7 +150,10 @@ export const useSpaceCatStore = create<SpaceCatState>()(
         delete rest.history
         return { ...current, ...rest } as SpaceCatState
       },
-      migrate: (state, version) => (version < 2 ? migrateV1(state) : state) as SpaceCatState,
+      migrate: (state, version) => {
+        const v2 = version < 2 ? migrateV1(state) : state
+        return (version < 3 ? flyHighestShip(v2) : v2) as SpaceCatState
+      },
     },
   ),
 )

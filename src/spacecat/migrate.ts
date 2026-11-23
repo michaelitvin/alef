@@ -84,3 +84,10 @@ export function migrateV1(old: unknown): SpaceCatSave {
   const ladder: Ladder = { ...base, mode: { ...mode, at } }
   return { ...kept, ladder }
 }
+
+/** version 2 → 3: he flew ship 1 although he had unlocked more; the chosen ship becomes the highest he has (his shelf choice after this stays) */
+export function flyHighestShip<T>(old: T): T {
+  if (!isObj(old) || !Array.isArray(old.ships)) return old
+  const top = Math.max(1, ...old.ships.filter((n): n is number => n === 2 || n === 3))
+  return { ...old, ship: top } as T
+}

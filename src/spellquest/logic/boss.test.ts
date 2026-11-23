@@ -44,6 +44,18 @@ describe('boss', () => {
     for (const last of ['mimic', 'bat'] as BossKind[])
       expect(chooseBoss({ stage: 2, confusions: none, beaten: [], last, rng: () => 0.5 })).toBe(last === 'mimic' ? 'bat' : 'mimic')
   })
+  it('a kind he has not beaten comes next once he makes its mix-up often, even when beaten kinds score more', () => {
+    // his real save (2026-11-23): dot 19, bat 21, mimic high, all beaten; shin/sin 10 times and never met
+    const conf = {
+      letters: { kaf: { khaf: 6 }, khaf: { kaf: 3 }, fe: { pe: 6 }, pe: { fe: 2 }, bet: { vet: 2 }, dalet: { resh: 8 }, shin: { sin: 7 }, sin: { shin: 3 } },
+      vowels: { o: { u: 12 }, u: { o: 9 } },
+    }
+    const beaten: BossKind[] = ['dot', 'mimic', 'bat']
+    expect(chooseBoss({ stage: 4, confusions: conf, beaten, last: 'bat', rng: () => 0 })).toBe('shin')
+    // fewer than 3 mix-ups: the beaten kind he mixes up most still wins
+    const rare = { letters: { kaf: { khaf: 6 }, shin: { sin: 2 } }, vowels: {} }
+    expect(chooseBoss({ stage: 4, confusions: rare, beaten: ['dot', 'mimic', 'bat'], last: null, rng: () => 0 })).toBe('dot')
+  })
   it('each wave is two orbs: the target and its twin, made of the kind\'s mix-up', () => {
     for (const kind of BOSS_KINDS)
       for (let seed = 1; seed <= 120; seed++) {

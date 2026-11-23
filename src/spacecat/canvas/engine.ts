@@ -67,6 +67,10 @@ export interface Engine {
   setScreen(w: number, h: number): void
   setShip(n: 1 | 2 | 3): void
   setHud(h: Hud): void
+  /** a level's end in flight, each step with its own sound: the gold flash; the heart at index `i` pops in the top bar; the new ship and a sparkle round it */
+  levelFlash(): void
+  heartUp(i: number): void
+  shipUp(n: 1 | 2 | 3): void
   /**
    * frozen: the planets stand still until resume(). pods (rounds whose content has pods; default 'mistake'): when the
    * equal groups are shown. The ship glides to the nearest lane of the round's lane count.
@@ -438,7 +442,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       }
     }
     drawShip()
-    const top = drawTopBar(g, G, { dots: hud.dots, points: shownPoints, hearts: hud.hearts }, fx.heartBreak)
+    const top = drawTopBar(g, G, { dots: hud.dots, points: shownPoints, hearts: hud.hearts }, fx.heartBreak, fx.heartPop)
     if (content && phase !== 'idle') {
       const jumps = content.kind === 'jumps'
       const arcGlow = jumps && cues.has('arcs') ? Math.floor((ambient * 1000) / ARC_GLOW_MS) % (content.box.length - 1) : null
@@ -520,6 +524,12 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       ship.x = G.lanes[lane]; ship.tx = G.lanes[tLane]
     },
     setShip(n) { shipN = n },
+    levelFlash() { fx.levelFlash() },
+    heartUp(i) { fx.popHeart(i) },
+    shipUp(n) {
+      shipN = n
+      fx.burst(G, ship.x, G.shipY - ship.zoomY, '#ffe36b', 2)
+    },
     setHud(h) { hud = { ...h }; if (phase !== 'flight') hudAtStart = hud },
     play(c, arrivalMs, opts) {
       endHand()

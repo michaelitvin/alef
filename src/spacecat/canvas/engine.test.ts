@@ -8,7 +8,7 @@ import { itemsOfRung } from '../logic/facts'
 import type { RoundResult } from '../logic/round'
 import { RUNGS, type RungId } from '../logic/rungs'
 import { HOP_MS, WIDE, portraitGeom } from './draw'
-import { CLEAR_MS, FLY_MS, MARK_MS, MARK_POD_MS, SWELL, SWELL_MS, swellScale } from './effects'
+import { CLEAR_MS, Effects, FLY_MS, HEART_POP_MS, MARK_MS, MARK_POD_MS, SWELL, SWELL_MS, swellScale } from './effects'
 import { PARKED_MS, ZOOM_HEIGHTS_PER_S, createEngine, zoomSpeed, type Engine } from './engine'
 import { manualClock, recordingContext } from './testCanvas'
 
@@ -416,5 +416,23 @@ describe('the engine', () => {
     engine.play(jumps(), 8000)
     for (const c of ['arcs', 'ring'] as const) { engine.cue(c, true); clock.tick(600); engine.cue(c, false) }
     for (const s of window.__scText) expect(s).toMatch(/^[0-9]+$/)
+  })
+  it('a level\'s end in flight: the gold flash and the heart pop run and end, and draw no text', () => {
+    window.__scText = []
+    engine.setHud({ dots: 0, points: 7, hearts: 2 })
+    engine.play(content(1), 8000, { frozen: true })
+    engine.levelFlash(); engine.heartUp(1); engine.shipUp(2)
+    clock.tick(200)
+    const fx = new Effects()
+    fx.levelFlash(); fx.popHeart(1)
+    expect(fx.flash).toBeGreaterThan(0.5)
+    expect(fx.flashCol).toBe('gold')
+    expect(fx.heartPop).toEqual({ i: 1, t: 0 })
+    fx.update(WIDE, HEART_POP_MS / 2000)
+    expect(fx.heartPop!.t).toBeCloseTo(0.5)
+    fx.update(WIDE, HEART_POP_MS / 1000)
+    expect(fx.heartPop).toBeNull()
+    clock.tick(1200)
+    for (const t of window.__scText) expect(t).toMatch(/^[0-9+=]+$/)
   })
 })

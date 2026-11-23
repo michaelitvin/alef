@@ -39,9 +39,10 @@ describe('the run', () => {
     expect(o.over).toBe(true)
     expect(o.run.hearts).toBe(0)
   })
-  it('next level fills the hearts', () => {
-    const r = nextLevel({ hearts: 1, level: 3, rightInLevel: 7, points: 20 })
-    expect(r).toEqual({ hearts: 3, level: 4, rightInLevel: 0, points: 20 })
+  it('next level gives one heart back, never above 3', () => {
+    expect(nextLevel({ hearts: 1, level: 3, rightInLevel: 7, points: 20 })).toEqual({ hearts: 2, level: 4, rightInLevel: 0, points: 20 })
+    expect(nextLevel({ hearts: 2, level: 3, rightInLevel: 7, points: 20 }).hearts).toBe(3)
+    expect(nextLevel({ hearts: 3, level: 3, rightInLevel: 7, points: 20 })).toEqual({ hearts: 3, level: 4, rightInLevel: 0, points: 20 })
   })
   it('reaching level 4 unlocks ship 2 and level 7 ship 3', () => {
     expect(shipsReached(1)).toEqual([1])
@@ -75,11 +76,12 @@ describe('the run', () => {
       if (maxLevel >= 4) l4++
       if (maxLevel >= 7) l7++
     }
-    expect(answers / N).toBeGreaterThan(26)
-    expect(answers / N).toBeLessThan(34)
-    expect(l4 / N).toBeGreaterThan(0.36)
-    expect(l4 / N).toBeLessThan(0.44)
-    expect(l7 / N).toBeGreaterThan(0.13)
-    expect(l7 / N).toBeLessThan(0.19)
+    // one heart back a level (not three): a run is shorter than with a full refill (about 29 answers, 4 in 10 reach level 4)
+    expect(answers / N).toBeGreaterThan(21)
+    expect(answers / N).toBeLessThan(25)
+    expect(l4 / N).toBeGreaterThan(0.27)
+    expect(l4 / N).toBeLessThan(0.35)
+    expect(l7 / N).toBeGreaterThan(0.06)
+    expect(l7 / N).toBeLessThan(0.11)
   })
 })

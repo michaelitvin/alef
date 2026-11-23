@@ -28,10 +28,9 @@ describe('the voice table', () => {
     for (const t of texts) expect(t).toBe(t.normalize('NFC'))
   })
   it('the voice table matches the spec\'s ids and texts', () => {
-    expect(LINES.map((l) => l.id)).toEqual(['demo', 'zoom-tip', 'missing', 'level-done', 'new-ship', 'out', 'info-hearts', 'info-points',
+    expect(LINES.map((l) => l.id)).toEqual(['demo', 'zoom-tip', 'missing', 'new-ship', 'out', 'info-points',
       'info-best', 'info-ship-locked', 'compare', 'jumps', 'times', 'divide', 'new-best'])
     expect([...texts].sort()).toEqual([...specLines(), ...ladderLines()].sort())
-    expect(LINES.find((l) => l.id === 'level-done')!.he).toHaveLength(2)
     expect(new Set(LINES.map((l) => l.id)).size).toBe(LINES.length)
   })
   it('lines with a tag that needs drama are creative; instructions are natural', () => {

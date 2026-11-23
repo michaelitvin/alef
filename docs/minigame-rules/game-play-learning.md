@@ -10,6 +10,9 @@
   next question after his last answer, or remember what the plan already asked: the adaptive choice picks the same weak
   item again and again otherwise.
   Example (Hebrew Spell Quest): a ladder planned all its rungs at the start and asked "דָ" three times in a row.
+- After a mistake, ask the item again later, at growing and uneven gaps: after about 3 questions, then after about 8. Do not
+  ask it in the next few questions. The child needs time to forget the wrong answer, so that he must recall the right one.
+  Example (Space Cat, the parent, 2026-11-23): after a mistake the same sum came back 3 or 4 times almost in a row.
 - Make wrong answers only from content that the child learned. A trick must test the current skill, not show an unknown word.
   Example (clock): on level 1 (o'clock only), the answers included "ten to eleven".
 - Make wrong answers clearly different from the right one. Do not offer two answers that differ only in a small detail.

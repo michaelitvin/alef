@@ -1,22 +1,17 @@
 // The play controller as a React hook (as Spell Quest's useRun): one controller and one canvas engine per mount, the view
 // through useSyncExternalStore; the tablet lock or another app pauses it, a page that goes away abandons the run (rule).
-import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { realSleeper, type Sleeper } from '../shared/sleeper'
 import * as spaceCatAudio from './audio/spaceCatAudio'
 import { createEngine, type Engine } from './canvas/engine'
-import { PlayController, type EndInfo, type LevelDoneInfo, type PlayView } from './controller'
+import { PlayController, type EndInfo, type PlayView } from './controller'
 import { storeSavePort, type SpaceCatSavePort } from './savePort'
 import { spaceCatTelemetry } from './telemetry'
 
-export interface PlayApi { nextLevel: () => void }
-
 export interface UsePlayOpts {
-  onLevelDone: (info: LevelDoneInfo) => void
   onEnd: (info: EndInfo) => void
   /** after the held house: to alef's home screen */
   goHome: () => void
-  /** the app's handle on the run (LevelDone's play) */
-  apiRef?: RefObject<PlayApi | null>
   /** test seams */
   makeEngine?: (canvas: HTMLCanvasElement) => Engine
   save?: SpaceCatSavePort
@@ -40,7 +35,7 @@ export function usePlay(o: UsePlayOpts) {
     const ctl = new PlayController({
       engine, audio: spaceCatAudio, save: opts.current.save ?? storeSavePort,
       track: spaceCatTelemetry.track, setRun: spaceCatTelemetry.setRun, flush: spaceCatTelemetry.flush, sleeper: opts.current.sleeper ?? realSleeper, rng: Math.random,
-      onLevelDone: (i) => opts.current.onLevelDone(i), onEnd: (i) => opts.current.onEnd(i),
+      onEnd: (i) => opts.current.onEnd(i),
     })
     setC(ctl)
     const vis = () => { if (document.visibilityState === 'hidden') ctl.pause() }
@@ -48,7 +43,6 @@ export function usePlay(o: UsePlayOpts) {
     window.addEventListener('resize', fit)
     document.addEventListener('visibilitychange', vis)
     window.addEventListener('pagehide', hide)
-    if (opts.current.apiRef) opts.current.apiRef.current = { nextLevel: () => ctl.nextLevel() }
     ctl.start()
     return () => {
       window.removeEventListener('resize', fit)
@@ -62,7 +56,6 @@ export function usePlay(o: UsePlayOpts) {
     canvasRef,
     view,
     resume: () => c?.resume(),
-    nextLevel: () => c?.nextLevel(),
     /** the held house: the run stops and writes the log (the controller's leave), then alef's home screen */
     leave: () => {
       c?.leave()

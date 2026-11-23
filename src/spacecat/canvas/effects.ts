@@ -33,6 +33,8 @@ export function swellScale(c: Pick<RoundContent, 'box' | 'bigger'>, markMs: numb
 }
 /** a heart breaks in this long */
 export const HEART_BREAK_MS = 900
+/** the heart that a level's end gives back pops in this long */
+export const HEART_POP_MS = 700
 
 interface Part { x: number; y: number; vx: number; vy: number; rot: number; vr: number; life: number; kind: 'shard' | 'streak'; s: number; c: string }
 
@@ -45,9 +47,10 @@ export class Effects {
   shake = 0
   heartBreak: { i: number; t: number } | null = null
   plus: { v: number; t: number } | null = null
+  heartPop: { i: number; t: number } | null = null
 
   clear(): void {
-    this.parts = []; this.flash = 0; this.shake = 0; this.heartBreak = null; this.plus = null
+    this.parts = []; this.flash = 0; this.shake = 0; this.heartBreak = null; this.plus = null; this.heartPop = null
   }
 
   /** a planet bursts into shards and streaks (not hearts, not round dots); power 2 for the early zoom */
@@ -65,6 +68,12 @@ export class Effects {
 
   breakHeart(i: number): void { this.heartBreak = { i, t: 0 } }
 
+  /** a level's end: a stronger gold flash */
+  levelFlash(): void { this.flash = 0.8; this.flashCol = 'gold' }
+
+  /** the heart at index `i` that a level's end gives back pops in */
+  popHeart(i: number): void { this.heartPop = { i, t: 0 } }
+
   /** dt in s */
   update(G: Geom, dt: number): void {
     this.flash = Math.max(0, this.flash - dt * 2.2)
@@ -72,6 +81,7 @@ export class Effects {
     for (const p of this.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt * G.k; p.rot += p.vr * dt; p.life -= dt * 1.2 }
     this.parts = this.parts.filter((p) => p.life > 0)
     if (this.heartBreak) { this.heartBreak.t += (dt * 1000) / HEART_BREAK_MS; if (this.heartBreak.t >= 1) this.heartBreak = null }
+    if (this.heartPop) { this.heartPop.t += (dt * 1000) / HEART_POP_MS; if (this.heartPop.t >= 1) this.heartPop = null }
     if (this.plus) { this.plus.t += dt; if (this.plus.t > 0.9) this.plus = null }
   }
 

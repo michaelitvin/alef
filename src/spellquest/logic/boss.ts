@@ -16,6 +16,9 @@ export const BOSS_SLOW = 1.3
 export const BOSS_COINS = 3
 /** a kind he has not beaten yet wins when the scores are this close */
 const UNBEATEN_BONUS = 3
+/** a kind he has not beaten comes before every beaten kind once he has made its mix-up this often (the shin boss did not
+ *  come for weeks: the beaten kinds always scored more, 2026-11-23) */
+const MEET_AT = 3
 
 /** a boss on broom visits 2, 4, … of a run; never on the first */
 export const isBossVisit = (broomVisit: number) => broomVisit >= 2 && broomVisit % 2 === 0
@@ -52,7 +55,8 @@ export function bossScores(conf: { letters: Conf; vowels: Conf }): Record<BossKi
 export interface BossKinds { open: BossKind[]; scores: Record<BossKind, number> }
 
 /**
- * The kind of this boss: the one whose mix-up he makes most, a kind he has not beaten when the scores are close, never the
+ * The kind of this boss: a kind he has not beaten whose mix-up he makes often (MEET_AT), else the one whose mix-up he
+ * makes most, a kind he has not beaten when the scores are close; never the
  * kind of the boss before, and only kinds his stage has opened. Null when none is open (stage 1: letters only).
  */
 export function chooseBoss(o: {
@@ -62,6 +66,8 @@ export function chooseBoss(o: {
   if (!avail.length) return null
   if (avail.length > 1) avail = avail.filter((k) => k !== o.last)
   const raw = o.kinds?.scores ?? bossScores(o.confusions)
+  const due = avail.filter((k) => !o.beaten.includes(k) && raw[k] >= MEET_AT)
+  if (due.length) avail = due
   const score = (k: BossKind) => raw[k] + (o.beaten.includes(k) ? 0 : UNBEATEN_BONUS)
   const top = Math.max(...avail.map(score))
   const best = avail.filter((k) => score(k) === top)

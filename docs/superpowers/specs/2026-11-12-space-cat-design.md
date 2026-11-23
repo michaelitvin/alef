@@ -67,8 +67,8 @@ area is as tall as the screen's shape (960 to 1200 logical px), so that it fills
 **Top bar.** Left: the held house button first (the way home, a 2 s hold with a ring that fills; rule), then 7 progress
 dots for the level (in the portrait layout the dots have their own row under the house, so that they are large). Right: a star with the points of the run, and 3 hearts. All drawn as shapes, not emoji. During
 flight the top bar does not take taps, except the house: a touch elsewhere on it steers like a touch anywhere. The hearts
-and the points speak on a tap where the game stands still: the points and his best on the cover, on *level done* and on
-the end screen, the hearts on *level done*, and a locked ship on the cover's shelf (see *Voice*). No plain home button, no
+and the points speak on a tap where the game stands still: the points and his best on the cover and on
+the end screen, and a locked ship on the cover's shelf (see *Voice*). No plain home button, no
 pause button, no speaker.
 
 **The sum box**, top centre, the strongest element after the planets. Digits and the signs + − × ÷ =. The place of the
@@ -119,13 +119,12 @@ row; they still arrive together.
 
 ### Levels, hearts and the end of a run
 
-- 7 right answers finish a level. The *level done* screen shows the thumbs-up cat, the three hearts filling again, the
-  points, and a play triangle. If a ship is new, it flies in and takes the thumbs-up cat's place (rule: each character
-  one time on a screen). The order of the sounds: the fanfare, then the level line, then the new ship's sound and its line.
+- 7 right answers finish a level. *Changed 2026-11-23:* there is no *level done* screen; the flight goes on with a short
+  beat (one heart back, a new ship) in [the endless flight design](2026-11-23-space-cat-endless-flight.md).
 - Levels do not set the difficulty (see *Finding his level*). They are progress only, and they go on without an end.
 - A run ends when the hearts run out. At 1 mistake in 5 a level needs about 9 answers and about 1.75 mistakes; about
   3 levels in 4 are finished, so a usual run has 3 to 4 levels (about 30 answers, 3 to 4 minutes).
-- **The end screen** is built from the same parts as *level done*: the ship, the points of the run, his best, a play
+- **The end screen**: the ship, the points of the run, his best, a play
   triangle. A new best has its own moment.
 
 ### Rewards at three paces
@@ -232,11 +231,9 @@ the role "the game's narrator"; this game has no speaking character.
 | The demo round | צָרִיךְ לָטוּס אֶל כּוֹכַב הַלֶּכֶת עִם הַתְּשׁוּבָה הַנְּכוֹנָה. | only in the demo |
 | First zoom chance | אֶפְשָׁר לְזַנֵּק לְמַעְלָה וּלְהַגִּיעַ מַהֵר. | at most two times |
 | First missing number | אֵיזֶה מִסְפָּר חָסֵר? | the first two times |
-| Level done | כָּל הַכָּבוֹד. הַלְּבָבוֹת מְלֵאִים שׁוּב. / יֹפִי שֶׁל טִיסָה. הַלְּבָבוֹת מְלֵאִים שׁוּב. | the first two times, then only the fanfare; it plays only two times, so 2 variations are enough |
 | New ship | חֲלָלִית חֲדָשָׁה. | each of the two ships |
 | Hearts run out | נִגְמְרוּ הַלְּבָבוֹת. אֶפְשָׁר לָטוּס שׁוּב. | the first two times |
 | New best | שִׂיא חָדָשׁ. | each time; it is rare. Book 2's approved take `new-best-1` (the same narrator, no gender) is reused: no new take |
-| Tap on the hearts | אֵלֶּה הַלְּבָבוֹת. כָּל טָעוּת מוֹרִידָה לֵב. כְּשֶׁנִּגְמָר שָׁלָב, הֵם מִתְמַלְּאִים שׁוּב. | once for a burst of taps |
 | Tap on the points | אֵלֶּה הַנְּקֻדּוֹת. תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת נְקֻדָּה, וְזִנּוּק מַהִיר נוֹתֵן יוֹתֵר נְקֻדּוֹת. | once for a burst of taps; no עוֹד (its stress is wrong in this voice) |
 | Tap on his best | זֶה הַשִּׂיא: הֲכִי הַרְבֵּה נְקֻדּוֹת בְּטִיסָה אַחַת. | once for a burst of taps |
 | Tap on a locked ship | אֶת הַחֲלָלִית הַזֹּאת מְקַבְּלִים כְּשֶׁטָּסִים רָחוֹק. | once for a burst of taps |
@@ -309,7 +306,7 @@ src/spacecat/
   logic/     facts and ladder, item choice, wrong answers, speed, round result (a pure step), levels, points   (pure, tested)
   controller.ts, usePlay.ts   the play flow as a framework-free controller (time through a Sleeper), and its thin hook
   canvas/    game loop, planet renderer, ship, particles, top bar, sum box, input
-  screens/   Cover, Play (wraps the canvas), LevelDone, End, PauseCover
+  screens/   Cover, Play (wraps the canvas), End, PauseCover
   parent/    Space Cat's part of the one parent area (src/parent): index.ts (light), Settings, reset
   audio/     one instance of the shared game-audio kit: the voice, and the coded effects and tune (ported) as its coded takes behind the player port; line table
   saveFormat.ts, store.ts, savePort.ts   save key and light read; Zustand + persist (tallies, open rungs, points, best, ships, tips heard, settings); the controller's port

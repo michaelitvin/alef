@@ -58,18 +58,11 @@ describe('Space Cat on the audio kit', () => {
     expect(await say('demo')).toBe(false)
   })
 
-  it('no variation twice in a row', async () => {
-    for (let i = 0; i < 12; i++) await say('level-done')
-    const said = audio.said()
-    expect(new Set(said)).toEqual(new Set(['level-done-1', 'level-done-2']))
-    for (let i = 1; i < said.length; i++) expect(said[i]).not.toBe(said[i - 1])
-  })
-
   it('sayInfo says a line once for a burst of taps', async () => {
     audio.holdUntil(/^info-/)
-    sayInfo('info-hearts'); sayInfo('info-hearts'); sayInfo('info-hearts')
+    sayInfo('info-points'); sayInfo('info-points'); sayInfo('info-points')
     await flush()
-    expect(audio.said()).toEqual(['info-hearts-1'])
+    expect(audio.said()).toEqual(['info-points-1'])
     audio.release()
   })
 
@@ -121,7 +114,7 @@ describe('Space Cat on the audio kit', () => {
     const t0 = Date.now()
     let at = 0
     audio.onPlay = (e) => { if (e.kind === 'voice') at = Date.now() - t0 }
-    await sayAfterSfx(playSfx('level'), 'level-done')
+    await sayAfterSfx(playSfx('level'), 'new-ship')
     expect(at).toBeGreaterThanOrEqual(700)
   })
 

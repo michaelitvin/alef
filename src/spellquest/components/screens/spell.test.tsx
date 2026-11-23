@@ -34,7 +34,9 @@ describe('the spell book screen', () => {
     const c = draw(viewOf(JUMPING), 'ltr')
     expect(c.querySelector('[data-book="drawn"]')).not.toBeNull()
     expect(c.querySelector('rect[x="100"][y="50"][width="700"][height="620"]')).not.toBeNull()
-    expect(c.querySelector('[data-box="0"] rect')!.getAttribute('y')).toBe(String(360 - 75))
+    // the boxes are round, as the orbs that go into them
+    expect(c.querySelector('[data-box="0"] circle')!.getAttribute('cy')).toBe('360')
+    expect(c.querySelector('[data-box="0"] rect')).toBeNull()
   })
 
   it('renders one box per unit and the tiles', () => {

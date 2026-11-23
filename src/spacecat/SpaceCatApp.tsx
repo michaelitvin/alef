@@ -4,17 +4,15 @@ import { unlockAudioOutput } from '../shared/gameAudio/output'
 import { useGameShell } from '../shared/shell/GameShell'
 import { preloadSpaceCat } from './assets/preload'
 import { stopAll } from './audio/spaceCatAudio'
-import type { EndInfo, LevelDoneInfo } from './controller'
+import type { EndInfo } from './controller'
 import { ParentArea } from '../parent/ParentArea'
 import { Cover } from './screens/Cover'
 import { End } from './screens/End'
-import { LevelDone } from './screens/LevelDone'
 import { Play } from './screens/Play'
 import { rehydrateSpaceCat } from './store'
 import { spaceCatTelemetry } from './telemetry'
-import type { PlayApi } from './usePlay'
 
-type Screen = 'cover' | 'play' | 'level' | 'end' | 'parent'
+type Screen = 'cover' | 'play' | 'end' | 'parent'
 
 /** back to alef's home screen, the hub of all the games (never the game's cover) */
 function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
@@ -25,9 +23,7 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
   screenRef.current = screen
   /** a new run mounts a new play screen */
   const [runKey, setRunKey] = useState(0)
-  const [level, setLevel] = useState<LevelDoneInfo | null>(null)
   const [end, setEnd] = useState<EndInfo | null>(null)
-  const play = useRef<PlayApi | null>(null)
   useEffect(() => rehydrateSpaceCat(), [])
   const newRun = () => { setRunKey((k) => k + 1); setScreen('play') }
   // no askGender: no line of this game has a boy or girl form, so play never asks (spec *Voice*; the parent)
@@ -38,15 +34,13 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
     spaceCatTelemetry.flush()
     goHome()
   }
-  const inRun = screen === 'play' || screen === 'level' || screen === 'end'
+  const inRun = screen === 'play' || screen === 'end'
   return (
     <div className="sc-root" data-screen={screen} data-loading={shell.loading || undefined}>
       {inRun && (
-        // the play screen stays mounted under level done and the end screen, so the run goes on from level done
-        <Play key={runKey} apiRef={play} goHome={goHome}
-          onLevelDone={(i) => { setLevel(i); setScreen('level') }} onEnd={(i) => { setEnd(i); setScreen('end') }} />
+        // the play screen stays mounted under the end screen
+        <Play key={runKey} goHome={goHome} onEnd={(i) => { setEnd(i); setScreen('end') }} />
       )}
-      {screen === 'level' && level && <LevelDone info={level} onNext={() => { setScreen('play'); play.current?.nextLevel() }} />}
       {screen === 'end' && end && <End info={end} onAgain={() => { unlockAudioOutput(); newRun() }} onHome={leave} />}
       {screen === 'cover' && <Cover onPlay={shell.play} loading={shell.loading} onParent={() => setScreen('parent')} onHome={leave} />}
       {/* the shared parent area at Space Cat's section, with the live log (the Data section exports and clears it) */}

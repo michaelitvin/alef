@@ -8,7 +8,7 @@ import { INTRO_TIMES } from './audio/intros'
 import * as audio from './audio/spaceCatAudio'
 import type { Engine, Hud, PodsWhen } from './canvas/engine'
 import type { RoundContent } from './content'
-import { MISSING_TIMES, PlayController, T1_POD_ROUNDS, T2_POD_ROUNDS, TIP_TIMES, type EndInfo, type LevelDoneInfo } from './controller'
+import { MISSING_TIMES, PlayController, T1_POD_ROUNDS, T2_POD_ROUNDS, TIP_TIMES, type EndInfo } from './controller'
 import { LADDER_START, placementMode, type Ladder } from './logic/ladder/index'
 import type { RoundResult } from './logic/round'
 import { RUNGS, rungDef, type RungId } from './logic/rungs'
@@ -35,6 +35,10 @@ function fakeEngine() {
     handDone: null as (() => void) | null,
     setScreen() {}, setShip(n: number) { calls.push(`ship ${n}`) },
     setHud(h: Hud) { e.hud = h },
+    levelFlash() { calls.push('flash') },
+    heartUp(i: number) { calls.push(`heartUp ${i}`); e.heartUpAt = fake.log().map((x) => x.id) },
+    heartUpAt: [] as string[],
+    shipUp(n: number) { calls.push(`ship ${n}`) },
     /** the arrival time of each play */
     arrivals: [] as number[],
     play(c: RoundContent, ms: number, o?: { frozen?: boolean; pods?: PodsWhen }) { e.content = c; e.plays.push(c); e.arrivals.push(ms); e.pods.push(o?.pods); e.frozen = !!o?.frozen; calls.push('play') },
@@ -64,17 +68,16 @@ function setup(save: Partial<SpaceCatSave> = {}, rngSeed = 1) {
   const port = memorySavePort(save)
   const events: [string, Record<string, unknown> | undefined][] = []
   const log = { runs: [] as number[], flushedAt: [] as number[] }
-  const levels: LevelDoneInfo[] = []
   const ends: EndInfo[] = []
   let seed = rngSeed
   const ctl = new PlayController({
     engine: engine as unknown as Engine, audio, save: port, track: (ev, f) => events.push([ev, f]), sleeper: instantSleeper(),
     setRun: (n) => log.runs.push(n), flush: () => log.flushedAt.push(events.length),
     rng: () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 },
-    onLevelDone: (i) => levels.push(i), onEnd: (i) => ends.push(i),
+    onEnd: (i) => ends.push(i),
   })
   live.push(ctl)
-  return { engine, port, events, log, levels, ends, ctl }
+  return { engine, port, events, log, ends, ctl }
 }
 /** he works on rung 4: rungs 1 to 3 are placed, the placement is over */
 const practiceAt4: Ladder = {
@@ -112,17 +115,14 @@ const rounds = (events: [string, Record<string, unknown> | undefined][]) => even
 const playing = async (e: FakeEngine) => { await settle(); expect(e.frozen).toBe(false); expect(e.input).toBe(true) }
 
 type Answer = { result: 'right' | 'wrong' | 'timeout'; label?: string; underMs?: number }
-/** plays rounds until `stop()`: a level done goes on to the next, a run's end starts a new run (the same play day) */
+/** plays rounds until `stop()`: a level's end goes on by itself, a run's end starts a new run (the same play day) */
 async function drive(t: ReturnType<typeof setup>, answer: (c: RoundContent) => Answer, stop: () => boolean, max = 300) {
   for (let i = 0; i < max && !stop(); i++) {
     await playing(t.engine)
     const a = answer(t.engine.content!)
     const ends = t.ends.length
     finish(t.engine, a.result, a.result === 'right' ? 1 : 0, a)
-    if (t.ctl.getView().phase === 'between') {
-      if (t.ends.length > ends) t.ctl.start()
-      else t.ctl.nextLevel()
-    }
+    if (t.ctl.getView().phase === 'between' && t.ends.length > ends) t.ctl.start()
   }
   await settle()
 }
@@ -179,7 +179,6 @@ describe('the play controller', () => {
       await settle()
       if (fake.said().some((s) => s.startsWith('missing'))) break
       finish(engine, 'right')
-      if (ctl.getView().phase === 'between') ctl.nextLevel()
     }
     expect(fake.said().some((s) => s.startsWith('missing'))).toBe(true)
     expect(engine.input).toBe(true)
@@ -248,27 +247,107 @@ describe('the play controller', () => {
       await playing(engine)
       if (engine.content!.box[4] !== null) n++
       finish(engine, 'right')
-      if (ctl.getView().phase === 'between') ctl.nextLevel()
     }
     expect(n).toBeGreaterThanOrEqual(3)
     expect(fake.said().filter((s) => s.startsWith('missing'))).toHaveLength(MISSING_TIMES)
     expect(engine.calls.filter((c) => c === 'ring true')).toHaveLength(MISSING_TIMES)
   })
 
-  it('7 right call onLevelDone with the new ships', async () => {
-    const { engine, levels, ctl, events } = setup(played)
+  it('7 right end a level in flight: the next sum follows, the ships unlock and become his ship', async () => {
+    const { engine, ctl, events, port } = setup(played)
     ctl.start()
     for (let level = 1; level <= 3; level++) {
       for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
-      expect(ctl.getView().phase).toBe('between')
-      ctl.nextLevel()
+      await playing(engine)
+      expect(ctl.getView().phase).not.toBe('between')
     }
-    expect(levels.map((l) => l.level)).toEqual([1, 2, 3])
-    expect(levels.map((l) => l.newShips)).toEqual([[], [], [2]])
-    expect(levels[0].points).toBe(7)
+    expect(events.filter(([e]) => e === 'level-done').map(([, f]) => f)).toEqual([{ level: 1, points: 7 }, { level: 2, points: 14 }, { level: 3, points: 21 }])
     expect(events.filter(([e]) => e === 'ship')).toEqual([['ship', { ship: 2 }]])
-    await settle()
+    expect(port.get().ship).toBe(2)
+    expect(engine.calls.filter((c) => c.startsWith('ship '))).toEqual(['ship 1', 'ship 2'])
     expect(ctl.getView().hud).toEqual({ dots: 0, points: 21, hearts: 3 })
+  })
+
+  it('a level\'s end gives back one heart (a heart-up chime and the pop) and says no heart line at 3 hearts', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl, events } = setup(played)
+    ctl.start()
+    await playing(engine); finish(engine, 'wrong')
+    for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    expect(ctl.getView().hud.hearts).toBe(3)
+    expect(events.find(([e]) => e === 'level-done')![1]).toMatchObject({ level: 1, heart: true })
+    expect(engine.calls.filter((c) => c.startsWith('heartUp') || c === 'flash')).toEqual(['flash', 'heartUp 2'])
+    expect(fake.log().filter((e) => e.kind === 'sfx').map((e) => e.id)).toContain('heart-up')
+    // a second level with full hearts: no heart-up and no pop
+    for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    expect(events.filter(([e]) => e === 'level-done')[1][1]).not.toHaveProperty('heart')
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual(['heartUp 2'])
+    expect(fake.log().filter((e) => e.id === 'heart-up')).toHaveLength(1)
+  })
+
+  it('the heart shows with its chime (after the fanfare, before heart-up); the next sum waits after the last sound; a pause shows the heart not yet shown', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup(played)
+    ctl.start()
+    await playing(engine); finish(engine, 'wrong')
+    for (let i = 0; i < 6; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    fake.sfxMs = 200
+    finish(engine, 'right')
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual([])
+    expect(ctl.getView().hud.hearts).toBe(2)
+    ctl.pause()
+    await new Promise((r) => setTimeout(r, 400))
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual([])
+    fake.sfxMs = 0
+    ctl.resume()
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual(['heartUp 2'])
+    expect(ctl.getView().hud.hearts).toBe(3)
+    await playing(engine)
+  })
+
+  it('the heart pops when its chime starts, not at the start of the beat', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup(played)
+    ctl.start()
+    await playing(engine); finish(engine, 'wrong')
+    for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    expect(engine.heartUpAt).toContain('level')
+    expect(engine.heartUpAt).not.toContain('heart-up')
+    expect(fake.log().map((e) => e.id)).toContain('heart-up')
+  })
+
+  it('a new ship: the ship sound, then the line after 0.4 s; the beat ends with the next sum', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup({ ...played, ships: [1] })
+    ctl.start()
+    for (let level = 1; level <= 3; level++) for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    const ids = fake.log().filter((e) => e.kind !== 'music').map((e) => e.id).filter((id) => ['level', 'ship', 'heart-up', 'new-ship-1'].includes(id))
+    expect(ids.slice(-3)).toEqual(['level', 'ship', 'new-ship-1'])
+    expect(engine.calls.filter((c) => c.startsWith('ship '))).toEqual(['ship 1', 'ship 2'])
+  })
+
+  it('a pause in the beat goes on to the next sum after the triangle', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup(played)
+    ctl.start()
+    for (let i = 0; i < 6; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    fake.sfxMs = 200
+    finish(engine, 'right')
+    expect(ctl.getView().phase).toBe('level')
+    const plays = engine.plays.length
+    ctl.pause()
+    await new Promise((r) => setTimeout(r, 400))
+    expect(engine.plays.length).toBe(plays)
+    ctl.resume()
+    fake.sfxMs = 0
+    await playing(engine)
+    expect(engine.plays.length).toBe(plays + 1)
   })
 
   it('three mistakes call onEnd', async () => {
@@ -348,10 +427,11 @@ describe('the play controller', () => {
 
   it('a whole level plays with no audio files', async () => {
     fake.missing = () => true
-    const { engine, levels, ctl } = setup()
+    const { engine, events, ctl } = setup()
     ctl.start()
     for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
-    expect(levels).toHaveLength(1)
+    await playing(engine)
+    expect(events.filter(([e]) => e === 'level-done')).toHaveLength(1)
   })
 
   it('the arrival sound never starts before the voice and the last effect end', async () => {
@@ -605,7 +685,6 @@ describe('the play controller', () => {
     if (t.engine.content?.kind !== 'jumps') throw new Error('no jump round')
     t.engine.holdBox = true
     finish(t.engine, 'right')
-    if (t.ctl.getView().phase === 'between') t.ctl.nextLevel()
     await drive(t, () => right, () => t.engine.content?.kind === 'jumps', 60)
     // the round before was answered while it waited: hold the next jump round's hop
     await settle()
