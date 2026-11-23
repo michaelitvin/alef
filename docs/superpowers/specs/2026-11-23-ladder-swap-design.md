@@ -53,7 +53,7 @@ Hebrew take with "...").
 
 **Layout (both courses).** At 740×360 the band view's scale comes from the height (about 0.38), so the empty right side
 does not make the scene larger. Instead, within the stage:
-- The box row is wider: a box is at least 115 stage units (about 44 CSS px at 740×360) for a word of up to 4 boxes. The
+- The box row is wider: a box is 125 stage units (about 44 CSS px at 740×360, where the scale is about 0.357) for a word of up to 4 boxes. The
   rule asks for about 56 px; the boxes stay at 44 px as a recorded exception, because the tap strip is the whole row and a
   tap goes to the nearest box. Write the size as a constant.
 - The wizard moves left to make room, and stands on the ladder's level: his feet at the y of the rung he made, his right

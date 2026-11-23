@@ -34,7 +34,7 @@ const ROW_AIR = 20
  * a 740×360 phone; the rule asks for about 56 px: a recorded exception, the tap strip is the whole row and a tap goes to
  * the nearest box). Longer rows get narrower boxes.
  */
-export const LADDER_BOX_W = 115
+export const LADDER_BOX_W = 125
 const BOX_GAP = 8
 /**
  * The boxes' row: over the rung, centred on the ladder, 4 boxes of LADDER_BOX_W wide. It stays clear of the built rung
