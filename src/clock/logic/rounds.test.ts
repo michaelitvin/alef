@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { HINT_AUTO, exercisesFor, features, hintFor, planRound, predict, scaffoldsFor, checkFor, type RoundContext } from './rounds'
+import { HINT_AUTO, exercisesFor, features, hintFor, planRound, predict, scaffoldsFor, checkFor, forcedRound, type RoundContext } from './rounds'
 import type { Tally } from '../../shared/adaptive'
 
 const ctx = (over: Partial<RoundContext> = {}): RoundContext => ({
@@ -64,6 +64,17 @@ describe('rounds', () => {
     }
     const f = planRound(ctx({ level: 2, forcedExercise: 'setLong', forcedTime: { h: 4, m: 0 } }))
     expect(f.exercise).toBe('setShort')
+  })
+  it('forceNew picks only new times of the level', () => {
+    for (let level = 2; level <= 6; level++)
+      for (let i = 0; i < 100; i++) expect(planRound(ctx({ level, forceNew: true })).isNew).toBe(true)
+  })
+  it('forcedRound: a set round every 3rd round while the set window blocks; the real-time round wins', () => {
+    const blocked = { level: 4, newAnswers: 'ooxooooxoo', newSetAnswers: 'x' }
+    expect(forcedRound(blocked, 3, false)).toEqual({ forcedExercise: 'setBoth', forceNew: true })
+    expect(forcedRound(blocked, 4, false)).toEqual({})
+    expect(forcedRound(blocked, 3, true)).toEqual({ forcedExercise: 'what' })
+    expect(forcedRound({ ...blocked, newSetAnswers: 'xxooo' }, 3, false)).toEqual({})
   })
   it('the hint fits the time, and shows by itself for the first HINT_AUTO rounds', () => {
     expect(hintFor(0)).toBeNull()

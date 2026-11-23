@@ -6,7 +6,7 @@ import { pushRecent, type Tally } from '../shared/adaptive'
 import { sameTime, timeId } from './logic/time'
 import type { Lang } from './logic/phrases'
 import type { Evaluation } from './logic/grade'
-import { START_PROGRESS, recordNewAnswer, type ExplainId, type LevelProgress } from './logic/levels'
+import { START_PROGRESS, recordNewAnswer, isSpokenSet, type ExplainId, type LevelProgress } from './logic/levels'
 import type { Hint, RoundPlan } from './logic/types'
 
 export interface ClockSettings {
@@ -41,7 +41,7 @@ interface ClockSave {
 
 interface Actions {
   /** One finished round. `forgiven` = he used the near miss: no level answer, a miss for the predictor. */
-  recordRound: (plan: RoundPlan, ev: Evaluation, forgiven: boolean) => { levelUp: boolean }
+  recordRound: (plan: RoundPlan, ev: Evaluation, forgiven: boolean) => { levelUp: boolean; newSetAnswers: string }
   markExplained: (id: ExplainId) => void
   addGears: (n: number) => void
   finishWorkday: () => void
@@ -59,6 +59,13 @@ const fresh = (): Omit<ClockSave, 'settings'> => ({
   progress: START_PROGRESS, tallies: {}, recent: {}, confusions: {}, mistakes: [], explained: {}, roundNo: 0,
   gears: 0, workdays: 0, bestStreak: 0, lastRealTimeDay: '', welcomed: false, bonusExplained: false, hintsSeen: {},
 })
+
+/** Version 2 added progress.newSetAnswers. Zustand's merge is shallow, so an old save would load progress without it. */
+export function migrateClockSave(state: unknown, version: number): ClockSave & Actions {
+  const s = state as ClockSave & Actions
+  if (version < 2 && s?.progress && s.progress.newSetAnswers === undefined) return { ...s, progress: { ...s.progress, newSetAnswers: '' } }
+  return s
+}
 
 export const useClockStore = create<ClockSave & Actions>()(
   persist(
@@ -84,9 +91,11 @@ export const useClockStore = create<ClockSave & Actions>()(
         const mistakes = !ev.correct && ev.tag ? [...s.mistakes, { round: s.roundNo, tag: ev.tag }].slice(-20) : s.mistakes
         let progress = s.progress
         let levelUp = false
-        if (plan.isNew && !forgiven) ({ progress, passed: levelUp } = recordNewAnswer(s.progress, ev.correct))
+        let newSetAnswers = s.progress.newSetAnswers ?? ''
+        if (plan.isNew && !forgiven) ({ progress, passed: levelUp } = recordNewAnswer(s.progress, ev.correct, plan.exercise))
+        if (levelUp || (plan.isNew && !forgiven)) newSetAnswers = (s.progress.newSetAnswers ?? '') + (isSpokenSet(plan.exercise) ? (ev.correct ? 'o' : 'x') : '')
         set({ tallies, recent, confusions, mistakes, progress, roundNo: s.roundNo + 1 })
-        return { levelUp }
+        return { levelUp, newSetAnswers }
       },
       markExplained: (id) => set((s) => ({ explained: { ...s.explained, [id]: s.roundNo } })),
       addGears: (n) => set((s) => ({ gears: s.gears + n })),
@@ -100,10 +109,7 @@ export const useClockStore = create<ClockSave & Actions>()(
       resetProgress: () => set((s) => ({ ...fresh(), settings: s.settings })),
     }),
     {
-      name: 'alef-clock', version: 1, storage: persistSaveStorage(),
-      // Version 1 is the first save shape. When ClockSave changes, raise `version` and convert older saves here
-      // (never drop his progress: rule). Until then a save passes through unchanged.
-      migrate: (state) => state as ClockSave & Actions,
+      name: 'alef-clock', version: 2, storage: persistSaveStorage(), migrate: migrateClockSave,
     },
   ),
 )

@@ -9,7 +9,7 @@ import { type ClockTime, type HandPose, MAX_LEVEL, minutesUpTo, poseOf, timeId }
 import { phrase, type Lang } from './logic/phrases'
 import { evaluateChoice, evaluateSet, type Evaluation } from './logic/grade'
 import { exerciseIntro, fixFor, introsFor, type ExplainId } from './logic/levels'
-import { checkFor, planRound } from './logic/rounds'
+import { checkFor, forcedRound, planRound } from './logic/rounds'
 import { WORKDAY_LENGTH, dayKey, kindInfo, langForRound, pickCustomer, realTimeFor, type ClockKind, type Customer } from './logic/workday'
 import type { Exercise, RoundPlan } from './logic/types'
 import { CUSTOMER_LINES, REQUEST_ASKS, customerAudioId, lineAudioId, lineById, parseLine, requestFor, type Cue, type Request } from './data/lines'
@@ -141,7 +141,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
         const real = firstOfDay ? realTimeFor(now(), minutesUpTo(level)) : null
         const plan = planRound({
           level, lang, rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions, hintsSeen: st.hintsSeen,
-          forcedTime: real ?? undefined, forcedExercise: real ? 'what' : undefined,
+          forcedTime: real ?? undefined, ...forcedRound(st.progress, st.roundNo, !!real),
         })
         const customer = pickCustomer(rng, lang, d.lastCustomer)
         d.lastCustomer = customer.id
@@ -238,14 +238,14 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
       // from the moment all the answers were read; an answer during the reading counts from the tap (0)
       const ms = Math.round(performance.now() - tOpen)
       answerRef.current = null
-      const { levelUp } = useClockStore.getState().recordRound(plan, ev, forgiven)
+      const { levelUp, newSetAnswers } = useClockStore.getState().recordRound(plan, ev, forgiven)
       open.current = null
       // the round is committed now: a pause from here on resumes with the NEXT round (or the bonus)
       if (firstOfDay) useClockStore.getState().setRealTimeDay(today)
       d.served++
       if (levelUp) {
         const to = useClockStore.getState().progress.level
-        clockTelemetry.track('levelup', { to })
+        clockTelemetry.track('levelup', { to, newSetAnswers })
       }
       if (d.served >= WORKDAY_LENGTH) d.phase = 'bonus'
       clockTelemetry.track('round', {

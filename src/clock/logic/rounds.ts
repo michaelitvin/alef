@@ -4,7 +4,7 @@ import { pickNearTarget, predictedMistakeRate, type Rng, type Tally } from '../.
 import { type ClockTime, HOURS, LEVEL_MINUTES, MAX_LEVEL, minutesUpTo, parseTimeId, timeId } from './time'
 import type { Lang } from './phrases'
 import { TRICK_FAMILIES, TRICK_PRIOR, makeOptions, shuffle, type Option, type OptionKind, type TrickFamily } from './tricks'
-import { isNewTime } from './levels'
+import { isNewTime, isSpokenSet, needsSetRound, type LevelProgress } from './levels'
 import { kindInfo, pickKind, type ClockKind } from './workday'
 import type { Exercise, Hint, RoundPlan, Scaffolds } from './types'
 
@@ -51,10 +51,10 @@ export function scaffoldsFor(level: number, kind: ClockKind, rng: Rng, time: Clo
   }
 }
 
-function pickTime(rng: Rng, level: number): { time: ClockTime; isNew: boolean } {
+function pickTime(rng: Rng, level: number, forceNew = false): { time: ClockTime; isNew: boolean } {
   const fresh = LEVEL_MINUTES[Math.min(level, MAX_LEVEL)]
   const old = minutesUpTo(level - 1)
-  const useNew = level >= MAX_LEVEL || old.length === 0 || rng() < NEW_SHARE
+  const useNew = forceNew || level >= MAX_LEVEL || old.length === 0 || rng() < NEW_SHARE
   const m = pick(rng, useNew ? fresh : old)
   return { time: { h: pick(rng, HOURS), m }, isNew: isNewTime(level, m) }
 }
@@ -104,15 +104,24 @@ export interface RoundContext {
   forcedKind?: ClockKind
   forcedTime?: ClockTime
   forcedExercise?: Exercise
+  /** pick only a new time of the level (a forced spoken set round that counts for the level) */
+  forceNew?: boolean
   /** rounds each hint has shown by itself so far */
   hintsSeen?: Partial<Record<Hint, number>>
+}
+
+/** What the plan building forces: the real-time round asks 'what'; else a spoken set round on a new time while the set window blocks the level. */
+export function forcedRound(progress: LevelProgress, roundNo: number, real: boolean): { forcedExercise?: Exercise; forceNew?: boolean } {
+  if (real) return { forcedExercise: 'what' }
+  if (needsSetRound(progress, roundNo)) return { forcedExercise: exercisesFor(progress.level).find(isSpokenSet), forceNew: true }
+  return {}
 }
 
 function candidate(c: RoundContext): RoundPlan {
   const { level, rng } = c
   const kind = pickKind(rng, level, c.forcedKind)
   const chosen = c.forcedExercise ?? pick(rng, exercisesFor(level))
-  const { time, isNew } = c.forcedTime ? { time: c.forcedTime, isNew: isNewTime(level, c.forcedTime.m) } : pickTime(rng, level)
+  const { time, isNew } = c.forcedTime ? { time: c.forcedTime, isNew: isNewTime(level, c.forcedTime.m) } : pickTime(rng, level, c.forceNew)
   // an o'clock long-hand target is ambiguous with linked hands (a drag 6 to 12 moves the short hand on): set the short hand
   const exercise: Exercise = chosen === 'setLong' && time.m === 0 ? 'setShort' : chosen
   const scaffolds = scaffoldsFor(level, kind, rng, time, c.hintsSeen)

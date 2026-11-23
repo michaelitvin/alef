@@ -6,7 +6,7 @@ import { CLOCK_LOG } from '../telemetryLog'
 
 /** the fields of the clock's save the area reads (src/clock/store.ts ClockSave) */
 interface ClockSaveView {
-  progress: { level: number }
+  progress: { level: number; newSetAnswers?: string }
   roundNo: number
   gears: number
   workdays: number
@@ -23,7 +23,8 @@ export const clockParent: GameParent = {
   summary: (raw) => {
     const s = persistedState<ClockSaveView>(raw)
     if (!s) return null
-    return `Level ${s.progress?.level ?? 1} · rounds ${s.roundNo ?? 0} · gears ${s.gears ?? 0} · workdays ${s.workdays ?? 0} · best streak ${s.bestStreak ?? 0}`
+    const set = [...(s.progress?.newSetAnswers ?? '').slice(-5)]
+    return `Level ${s.progress?.level ?? 1}${set.length ? ` (set ${set.filter((c) => c === 'o').length}/${set.length})` : ''} · rounds ${s.roundNo ?? 0} · gears ${s.gears ?? 0} · workdays ${s.workdays ?? 0} · best streak ${s.bestStreak ?? 0}`
   },
   mixups: (raw) => confusionList(persistedState<ClockSaveView>(raw)?.confusions),
   reset: async () => { (await import('./reset')).default() },

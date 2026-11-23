@@ -3,29 +3,49 @@ import { LEVEL_MINUTES, MAX_LEVEL } from './time'
 import { saysTo } from './phrases'
 import type { Exercise, Scaffolds } from './types'
 
-/** Michael chose fast-forward over a placement test: the first 5 rounds on a level's new times all right pass it. */
+/** Michael chose fast-forward over a placement test: 5 answers on a level's new times, all right, with a spoken set round among them, pass it. */
 const FAST_FORWARD = 5
 const PASS_WINDOW = 10
 const PASS_CORRECT = 8
+/** the set window: 3 right of the last 5 spoken set rounds (setting is harder than choosing) */
+const SET_WINDOW = 5
+const SET_CORRECT = 3
+const KEEP = 50
 
 export interface LevelProgress {
   level: number
-  /** answers on this level's new times, oldest first (o right, x wrong) */
+  /** answers on this level's new times, oldest first (o right, x wrong): every exercise except the spoken set ones */
   newAnswers: string
+  /** the spoken set rounds (setShort, setLong, setBoth) on this level's new times, oldest first */
+  newSetAnswers: string
 }
-export const START_PROGRESS: LevelProgress = { level: 1, newAnswers: '' }
-
+export const START_PROGRESS: LevelProgress = { level: 1, newAnswers: '', newSetAnswers: '' }
 
 export const isNewTime = (level: number, m: number) => LEVEL_MINUTES[Math.min(level, MAX_LEVEL)].includes(m)
 
-export function recordNewAnswer(p: LevelProgress, correct: boolean): { progress: LevelProgress; passed: boolean } {
-  const newAnswers = p.newAnswers + (correct ? 'o' : 'x')
-  if (p.level >= MAX_LEVEL) return { progress: { ...p, newAnswers: newAnswers.slice(-PASS_WINDOW) }, passed: false }
-  const fast = newAnswers.length === FAST_FORWARD && !newAnswers.includes('x')
-  const last = newAnswers.slice(-PASS_WINDOW)
-  const steady = newAnswers.length >= PASS_WINDOW && [...last].filter((c) => c === 'o').length >= PASS_CORRECT
-  if (fast || steady) return { progress: { level: p.level + 1, newAnswers: '' }, passed: true }
-  return { progress: { ...p, newAnswers: newAnswers.slice(-50) }, passed: false }
+const SPOKEN_SET: Exercise[] = ['setShort', 'setLong', 'setBoth']
+export const isSpokenSet = (e: Exercise) => SPOKEN_SET.includes(e)
+const rights = (s: string) => [...s].filter((c) => c === 'o').length
+
+const choicePasses = (a: string) => a.length >= PASS_WINDOW && rights(a.slice(-PASS_WINDOW)) >= PASS_CORRECT
+const setPasses = (a: string) => a.length >= SET_WINDOW && rights(a.slice(-SET_WINDOW)) >= SET_CORRECT
+
+export function recordNewAnswer(p: LevelProgress, correct: boolean, exercise: Exercise): { progress: LevelProgress; passed: boolean } {
+  const mark = correct ? 'o' : 'x'
+  const isSet = isSpokenSet(exercise)
+  const prevSet = p.newSetAnswers ?? ''
+  const newAnswers = isSet ? p.newAnswers : p.newAnswers + mark
+  const newSetAnswers = isSet ? prevSet + mark : prevSet
+  if (p.level >= MAX_LEVEL) return { progress: { ...p, newAnswers: newAnswers.slice(-PASS_WINDOW), newSetAnswers: newSetAnswers.slice(-SET_WINDOW) }, passed: false }
+  const fast = newAnswers.length + newSetAnswers.length >= FAST_FORWARD && newSetAnswers.length >= 1 && !newAnswers.includes('x') && !newSetAnswers.includes('x')
+  const steady = choicePasses(newAnswers) && setPasses(newSetAnswers)
+  if (fast || steady) return { progress: { level: p.level + 1, newAnswers: '', newSetAnswers: '' }, passed: true }
+  return { progress: { ...p, newAnswers: newAnswers.slice(-KEEP), newSetAnswers: newSetAnswers.slice(-KEEP) }, passed: false }
+}
+
+/** The choice window passes but the set window does not: every 3rd round is then a spoken set round on a new time. */
+export function needsSetRound(p: LevelProgress, roundNo: number): boolean {
+  return p.level < MAX_LEVEL && roundNo % 3 === 0 && choicePasses(p.newAnswers) && !setPasses(p.newSetAnswers ?? '')
 }
 
 export type ExplainId =

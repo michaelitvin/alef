@@ -23,9 +23,11 @@ describe('clock store', () => {
     expect(s.mistakes).toEqual([{ round: 0, tag: 'hour1' }])
     expect(s.roundNo).toBe(1)
   })
-  it('five right on new times level up', () => {
+  it('five right on new times with a set round among them level up', () => {
     let up = false
-    for (let i = 0; i < 5; i++) up = useClockStore.getState().recordRound(plan(), right, false).levelUp
+    for (let i = 0; i < 4; i++) up = useClockStore.getState().recordRound(plan(), right, false).levelUp
+    expect(up).toBe(false)
+    up = useClockStore.getState().recordRound(plan({ exercise: 'setBoth' }), right, false).levelUp
     expect(up).toBe(true)
     expect(useClockStore.getState().progress.level).toBe(2)
   })
@@ -41,9 +43,18 @@ describe('clock store', () => {
     expect(useClockStore.getState().gears).toBe(0)
     expect(useClockStore.getState().settings.langs).toEqual(['en'])
   })
-  it('a version 1 save passes the migrate step unchanged', () => {
+  it('a version 1 save migrates: progress gets newSetAnswers', () => {
     const migrate = useClockStore.persist.getOptions().migrate!
     const saved = { gears: 5, progress: { level: 3, newAnswers: 'oo' } }
-    expect(migrate(saved, 1)).toBe(saved)
+    expect(migrate(saved, 1)).toEqual({ gears: 5, progress: { level: 3, newAnswers: 'oo', newSetAnswers: '' } })
+    const v2 = { progress: { level: 3, newAnswers: '', newSetAnswers: 'xo' } }
+    expect(migrate(v2, 2)).toBe(v2)
+  })
+  it('set rounds go to the set window, choices to the choice window', () => {
+    useClockStore.getState().recordRound(plan({ exercise: 'setLong' }), wrong, false)
+    useClockStore.getState().recordRound(plan({ exercise: 'digitalSet' }), right, false)
+    const p = useClockStore.getState().progress
+    expect(p.newSetAnswers).toBe('x')
+    expect(p.newAnswers).toBe('o')
   })
 })

@@ -135,7 +135,7 @@ describe('Workshop', () => {
   }
 
   it('a level up is a cheer over the solved question: burst, fanfare, "you learned something new"; the last level adds the master line and the chime', async () => {
-    useClockStore.setState({ progress: { level: 6, newAnswers: 'oooo' } })
+    useClockStore.setState({ progress: { level: 6, newAnswers: 'ooo', newSetAnswers: 'o' } })
     const { container } = render(<Workshop onExit={() => {}} />)
     for (let i = 0; i < 8 && useClockStore.getState().progress.level < 7; i++) await answerCorrectly(container)
     expect(useClockStore.getState().progress.level).toBe(7)
@@ -295,7 +295,7 @@ describe('Workshop', () => {
   }, 60000)
 
   it('the bench does not flash at the end of a round with a level up (the parent: "things changed and disappeared")', async () => {
-    useClockStore.setState({ progress: { level: 2, newAnswers: 'oooooooo' } })
+    useClockStore.setState({ progress: { level: 2, newAnswers: 'ooooooo', newSetAnswers: 'o' } })
     const seen: { phase: string | null; exercise: boolean }[] = []
     const { container } = render(<Workshop onExit={() => {}} />)
     const obs = new MutationObserver(() => {
@@ -357,7 +357,7 @@ describe('Workshop', () => {
 
   it('hints: the hint that fits the time shows by itself at first, later behind the hint button', async () => {
     // level 2: half past times (the quarters hint); he has seen it enough, so it waits behind the button
-    useClockStore.setState({ progress: { level: 2, newAnswers: '' }, hintsSeen: { quarters: 99, minutes: 99 } })
+    useClockStore.setState({ progress: { level: 2, newAnswers: '', newSetAnswers: '' }, hintsSeen: { quarters: 99, minutes: 99 } })
     const { container } = render(<Workshop onExit={() => {}} />)
     for (let r = 0; r < 8; r++) {
       await waitFor(() => expect(container.querySelector('[data-phase="answer"]')).not.toBeNull(), { timeout: 10000 })
