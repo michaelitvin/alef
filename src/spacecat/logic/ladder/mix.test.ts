@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ItemStats } from '../predict'
+import type { Spacing } from '../spacing'
 import { RUNGS, type RungId } from '../rungs'
 import { MIX, REVIEW_VARIANT_SHARE, SURE_RATE, TOP_RUNGS, TOP_SHARE, VARIANT_MAX_WITHOUT_MISSING100, belowOf, choosePractice, variantsFor } from './mix'
 import type { Ladder, LadderSettings, Part } from './state'
@@ -116,5 +117,31 @@ describe('the mix', () => {
     const l = ladderWith(passedThrough(ORDER, 'T1'))
     const rounds = run(l, 800, { ...ALL_ON, compare: false, jumps: false }).rounds
     expect(rounds.some((r) => ['C1', 'S1'].includes(r.rung))).toBe(false)
+  })
+
+  describe('a mistake that is due', () => {
+    const l = ladderWith({ ...passedThrough(ORDER, '6') })
+    const missed = itemOf('1')
+    const ctx = (rehearsals: Spacing['rehearsals'], set = ALL_ON) => ({
+      rng: lcg(3), set, stats: {}, last: { sinceZero: 0, spacing: { round: 10, recent: [], rehearsals } },
+    })
+    it('is served as a review round although the part does not offer its fact', () => {
+      const c = choosePractice(l, ctx([{ fact: missed.fact, item: missed.id, step: 1, due: 9 }]))
+      expect(c.item.id).toBe(missed.id)
+      expect(c.part).toBe('review')
+    })
+    it('is not served when its rung is out of range', () => {
+      const far = itemOf('4')
+      const c = choosePractice(l, ctx([{ fact: far.fact, item: far.id, step: 1, due: 9 }], { ...ALL_ON, range: '1' }))
+      expect(c.item.id).not.toBe(far.id)
+    })
+    it('a rehearsal without an item id (an older save) is not served this way', () => {
+      const c = choosePractice({ ...l, guardLeft: 0 }, ctx([{ fact: 'zzz', step: 1, due: 9 }]))
+      expect(c.item.fact).not.toBe('zzz')
+    })
+    it('the guard never takes a rehearsal', () => {
+      const c = choosePractice({ ...l, guardLeft: 2 }, ctx([{ fact: missed.fact, item: missed.id, step: 1, due: 9 }]))
+      expect(c.part).toBe('guard')
+    })
   })
 })

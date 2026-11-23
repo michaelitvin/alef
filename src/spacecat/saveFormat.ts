@@ -57,8 +57,13 @@ export const DEFAULT_SAVE: SpaceCatSave = {
 export function savedShip(raw: string | null): 1 | 2 | 3 {
   if (!raw) return 1
   try {
-    const j = JSON.parse(raw) as { state?: { ship?: unknown }; ship?: unknown }
-    const s = j?.state?.ship ?? j?.ship
+    const j = JSON.parse(raw) as { state?: { ship?: unknown; ships?: unknown }; ship?: unknown; ships?: unknown; version?: unknown }
+    const st = j?.state ?? j
+    // a save of version 1 or 2 flew ship 1: the migration makes the highest ship he has the chosen one
+    if (typeof j?.version === 'number' && j.version < 3 && Array.isArray(st?.ships)) {
+      return st.ships.includes(3) ? 3 : st.ships.includes(2) ? 2 : 1
+    }
+    const s = st?.ship
     return s === 2 || s === 3 ? s : 1
   } catch {
     return 1

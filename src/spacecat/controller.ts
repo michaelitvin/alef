@@ -71,6 +71,8 @@ interface Current { item: Item; content: RoundContent; demo: boolean; say?: Say;
 export class PlayController {
   private o: PlayOpts
   private run: Run = RUN_START
+  /** the visuals of a level's end that are given but not shown yet (a heart's index, a ship) */
+  private beat: { heart: number | null; ship: 2 | 3 | null } | null = null
   private view: PlayView = { paused: false, hud: { dots: 0, points: 0, hearts: RUN_START.hearts }, phase: 'between' }
   private subs = new Set<() => void>()
   private cur: Current | null = null
@@ -143,6 +145,9 @@ export class PlayController {
     if (this.view.phase === 'between' || !this.cur) return
     // the beat was cut: its heart and ship are already given, so the flight goes on with the next sum
     if (this.view.phase === 'level') {
+      this.showHeart()
+      this.showShip()
+      this.beat = null
       void this.nextRound()
       return
     }
@@ -192,8 +197,8 @@ export class PlayController {
     else this.o.audio.stopTune()
   }
 
-  private setHud() {
-    const hud = { dots: this.run.rightInLevel, points: this.run.points, hearts: this.run.hearts }
+  private setHud(hearts = this.run.hearts) {
+    const hud = { dots: this.run.rightInLevel, points: this.run.points, hearts }
     this.o.engine.setHud(hud)
     this.set({ hud })
   }
@@ -390,7 +395,7 @@ export class PlayController {
     const band = speedOfBand(s.speed, rungDef(cur.item.rung).band)
     const arrivalMs = arrivalInForce(band, s.settings.arrival)
     const fast = isFast(r, band, arrivalMs)
-    const { events } = this.o.save.recordRound(cur.item, r, { demo: cur.demo, part: cur.part, fast })
+    const { events } = this.o.save.recordRound(cur.item, r, { demo: cur.demo, part: cur.part, fast, rng: this.o.rng })
     this.o.track('round', {
       item: cur.item.id, labels: cur.content.labels, startLane: this.shipLane, endLane: r.lane, number: numberOf(r.number), result: r.result,
       end: r.end, lastLaneMs: r.lastLaneMs, endMs: r.endMs, arrivalMs, rung: cur.item.rung, kind: cur.item.kind, part: cur.part, fast,
@@ -429,9 +434,11 @@ export class PlayController {
   }
 
   /**
-   * A level's end, in flight (design 2026-11-23): the heart and the ship are given at once (a pause in the beat loses
-   * nothing), then the fanfare, the heart's chime and the ship's sound and line, each 0.4 s after the one before; then the
-   * next sum. The beat's phase is `level`; a pause cuts it and the triangle goes on to the next sum.
+   * A level's end, in flight (design 2026-11-23): the heart and the ship are given at once in the save and the run (a pause
+   * in the beat loses nothing), but each one shows with its sound: the gold flash and the dots at 0 with the fanfare, the
+   * heart just before `heart-up`, the ship just before `ship`; each sound 0.4 s after the one before; then, 0.4 s after the
+   * last, the next sum. The beat's phase is `level`; a pause cuts it, shows what was not shown yet, and the triangle goes on
+   * to the next sum.
    */
   private async levelBeat(): Promise<void> {
     const my = this.epoch
@@ -443,30 +450,50 @@ export class PlayController {
     this.o.track('level-done', { level: this.run.level, points: this.run.points, ...(heart ? { heart: true } : {}) })
     for (const n of newShips) this.o.track('ship', { ship: n })
     const ship = newShips.length ? Math.max(...newShips) as 2 | 3 : null
-    if (ship) {
-      this.o.save.chooseShip(ship)
-      engine.setShip(ship)
-    }
+    if (ship) this.o.save.chooseShip(ship)
     this.run = next
+    this.beat = { heart: heart ? next.hearts - 1 : null, ship }
     this.set({ phase: 'level' })
-    this.setHud()
-    engine.levelUp({ heart: heart ? next.hearts - 1 : null, shipChanged: ship !== null })
+    this.setHud(heart ? next.hearts - 1 : next.hearts)
+    engine.levelFlash()
     await audio.playSfx('level')
     if (heart) {
       await sleeper.sleep(SFX_TO_VOICE_MS)
       if (!live()) return
+      this.showHeart()
       await audio.playSfx('heart-up')
     }
     if (ship) {
       await sleeper.sleep(SFX_TO_VOICE_MS)
       if (!live()) return
+      this.showShip()
       await audio.playSfx('ship')
       await sleeper.sleep(SFX_TO_VOICE_MS)
       if (!live()) return
       await audio.say('new-ship')
     }
+    // the next sum's first sound does not touch the beat's last one
+    await sleeper.sleep(SFX_TO_VOICE_MS)
     if (!live()) return
+    this.beat = null
     void this.nextRound()
+  }
+
+  /** the beat's heart fills in the top bar, with its pop */
+  private showHeart() {
+    const i = this.beat?.heart
+    if (i === null || i === undefined) return
+    this.beat!.heart = null
+    this.setHud()
+    this.o.engine.heartUp(i)
+  }
+
+  /** the beat's new ship takes the lane, with its sparkle */
+  private showShip() {
+    const n = this.beat?.ship
+    if (!n) return
+    this.beat!.ship = null
+    this.o.engine.shipUp(n)
   }
 
   private endRun() {

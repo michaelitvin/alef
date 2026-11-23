@@ -35,8 +35,10 @@ function fakeEngine() {
     handDone: null as (() => void) | null,
     setScreen() {}, setShip(n: number) { calls.push(`ship ${n}`) },
     setHud(h: Hud) { e.hud = h },
-    levelUps: [] as { heart: number | null; shipChanged: boolean }[],
-    levelUp(o: { heart: number | null; shipChanged: boolean }) { e.levelUps.push(o) },
+    levelFlash() { calls.push('flash') },
+    heartUp(i: number) { calls.push(`heartUp ${i}`); e.heartUpAt = fake.log().map((x) => x.id) },
+    heartUpAt: [] as string[],
+    shipUp(n: number) { calls.push(`ship ${n}`) },
     /** the arrival time of each play */
     arrivals: [] as number[],
     play(c: RoundContent, ms: number, o?: { frozen?: boolean; pods?: PodsWhen }) { e.content = c; e.plays.push(c); e.arrivals.push(ms); e.pods.push(o?.pods); e.frozen = !!o?.frozen; calls.push('play') },
@@ -275,14 +277,47 @@ describe('the play controller', () => {
     await playing(engine)
     expect(ctl.getView().hud.hearts).toBe(3)
     expect(events.find(([e]) => e === 'level-done')![1]).toMatchObject({ level: 1, heart: true })
-    expect(engine.levelUps).toEqual([{ heart: 2, shipChanged: false }])
+    expect(engine.calls.filter((c) => c.startsWith('heartUp') || c === 'flash')).toEqual(['flash', 'heartUp 2'])
     expect(fake.log().filter((e) => e.kind === 'sfx').map((e) => e.id)).toContain('heart-up')
     // a second level with full hearts: no heart-up and no pop
     for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
     await playing(engine)
     expect(events.filter(([e]) => e === 'level-done')[1][1]).not.toHaveProperty('heart')
-    expect(engine.levelUps[1]).toEqual({ heart: null, shipChanged: false })
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual(['heartUp 2'])
     expect(fake.log().filter((e) => e.id === 'heart-up')).toHaveLength(1)
+  })
+
+  it('the heart shows with its chime (after the fanfare, before heart-up); the next sum waits after the last sound; a pause shows the heart not yet shown', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup(played)
+    ctl.start()
+    await playing(engine); finish(engine, 'wrong')
+    for (let i = 0; i < 6; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    fake.sfxMs = 200
+    finish(engine, 'right')
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual([])
+    expect(ctl.getView().hud.hearts).toBe(2)
+    ctl.pause()
+    await new Promise((r) => setTimeout(r, 400))
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual([])
+    fake.sfxMs = 0
+    ctl.resume()
+    expect(engine.calls.filter((c) => c.startsWith('heartUp'))).toEqual(['heartUp 2'])
+    expect(ctl.getView().hud.hearts).toBe(3)
+    await playing(engine)
+  })
+
+  it('the heart pops when its chime starts, not at the start of the beat', async () => {
+    applySound({ sfx: true, music: false, volume: 0.8 })
+    const { engine, ctl } = setup(played)
+    ctl.start()
+    await playing(engine); finish(engine, 'wrong')
+    for (let i = 0; i < 7; i++) { await playing(engine); finish(engine, 'right') }
+    await playing(engine)
+    expect(engine.heartUpAt).toContain('level')
+    expect(engine.heartUpAt).not.toContain('heart-up')
+    expect(fake.log().map((e) => e.id)).toContain('heart-up')
   })
 
   it('a new ship: the ship sound, then the line after 0.4 s; the beat ends with the next sum', async () => {
@@ -293,7 +328,7 @@ describe('the play controller', () => {
     await playing(engine)
     const ids = fake.log().filter((e) => e.kind !== 'music').map((e) => e.id).filter((id) => ['level', 'ship', 'heart-up', 'new-ship-1'].includes(id))
     expect(ids.slice(-3)).toEqual(['level', 'ship', 'new-ship-1'])
-    expect(engine.levelUps[2]).toEqual({ heart: null, shipChanged: true })
+    expect(engine.calls.filter((c) => c.startsWith('ship '))).toEqual(['ship 1', 'ship 2'])
   })
 
   it('a pause in the beat goes on to the next sum after the triangle', async () => {

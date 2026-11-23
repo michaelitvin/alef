@@ -1,7 +1,7 @@
 // Where the next round comes from in practice (the design's *The mix*): the frontier, the rung below, review, the
 // guard's sure wins, and review only when nothing is free. Each part picks its item with the 1-in-5 picker.
 import type { Rng } from '../../../shared/adaptive'
-import { itemsOfRung, variantsOf, type Item, type SumItem } from '../facts'
+import { itemById, itemsOfRung, variantsOf, type Item, type SumItem } from '../facts'
 import { SAMPLE_MAX, pickNext, predictOf, samplePool, statsMap, type ItemStats, type LastCtx } from '../predict'
 import { RUNGS, rungDef, type RungId } from '../rungs'
 import { earnedOffered, frontier, inRange, isEarned, isOn } from './frontier'
@@ -82,7 +82,23 @@ export function lastResort(set: LadderSettings): RungId {
   return RUNGS.find((d) => isOn(d.id, set) && inRange(d.id, set))?.id ?? '1'
 }
 
-const pick = (ctx: ChooseCtx, pool: Item[]) => pickNext(ctx.rng, pool, ctx.stats, ctx.last)
+const pick = (ctx: ChooseCtx, pool: Item[], noRehearsal = false) =>
+  pickNext(ctx.rng, pool, ctx.stats, noRehearsal ? { ...ctx.last, noRehearsal: true } : ctx.last)
+
+/**
+ * A mistake that is due comes back on time even when the part does not offer its fact: the missed item itself, as a
+ * review round, if its rung is still on and in range (else it is not served; the spacing drops it later).
+ */
+function dueMissed(ctx: ChooseCtx): Item | undefined {
+  const sp = ctx.last.spacing
+  if (!sp || ctx.last.noRehearsal) return undefined
+  for (const r of sp.rehearsals) {
+    if (sp.round < r.due || !r.item) continue
+    const it = itemById(r.item)
+    if (it && isOn(it.rung, ctx.set) && inRange(it.rung, ctx.set)) return it
+  }
+  return undefined
+}
 
 /** one round in practice: the guard first, then the mix (counts down the guard and the strike's rounds) */
 export function choosePractice(l: Ladder, ctx: ChooseCtx): Choice {
@@ -90,8 +106,10 @@ export function choosePractice(l: Ladder, ctx: ChooseCtx): Choice {
   const f = frontier(l, set)
   if (l.guardLeft > 0) {
     const pool = guardPool(rng, l, set, stats, [f ?? lastResort(set)])
-    return { item: pick(ctx, pool), part: 'guard', ladder: { ...l, guardLeft: l.guardLeft - 1 } }
+    return { item: pick(ctx, pool, true), part: 'guard', ladder: { ...l, guardLeft: l.guardLeft - 1 } }
   }
+  const missed = dueMissed(ctx)
+  if (missed) return { item: missed, part: 'review', ladder: l }
   const earned = earnedOffered(l, set)
   if (f === null) {
     if (earned.length === 0) return { item: pick(ctx, itemsOfRung(lastResort(set))), part: 'review', ladder: l }

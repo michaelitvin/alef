@@ -22,7 +22,7 @@ const store = () => useSpaceCatStore.getState()
 describe('space cat store', () => {
   beforeEach(() => {
     localStorage.clear()
-    useSpaceCatStore.setState({ ...DEFAULT_SAVE })
+    useSpaceCatStore.setState({ ...DEFAULT_SAVE, lastFact: undefined })
   })
   it('settings default', () => {
     expect(store().settings).toEqual({ range: 'auto', compare: true, jumps: true, times: true, divide: true, missing100: true, hundreds: true, arrival: 'auto', flightMusic: false })
@@ -51,10 +51,18 @@ describe('space cat store', () => {
   it('a mistake is saved as a rehearsal; the recent facts and the round count are saved; a demo asks nothing back', () => {
     store().recordRound(it1, result({ result: 'wrong' }), { rng: () => 0 })
     expect(store()).toMatchObject({ recentFacts: ['+2,3'], roundNo: 1, rehearsals: [{ fact: '+2,3', step: 1, due: 4 }] })
-    useSpaceCatStore.setState({ ...DEFAULT_SAVE })
+    useSpaceCatStore.setState({ ...DEFAULT_SAVE, lastFact: undefined })
     store().recordRound(it1, result({ result: 'wrong' }), { demo: true })
     expect(store().rehearsals).toEqual([])
     expect(store().recentFacts).toEqual(['+2,3'])
+  })
+  it('a new play day clears the rehearsals; the first pick after the update avoids the last fact', () => {
+    useSpaceCatStore.setState({ rehearsals: [{ fact: 'a', item: 'x', step: 1, due: 3 }], roundNo: 1 })
+    store().beginRun(1000)
+    expect(store().rehearsals).toEqual([])
+    useSpaceCatStore.setState({ rehearsals: [{ fact: 'a', step: 1, due: 3 }], recentFacts: [], lastFact: 'zz' })
+    store().recordRound(it1, result({ result: 'right' }))
+    expect(store().recentFacts).toEqual(['zz', '+2,3'])
   })
   it('a save from before the spacing loads with empty lists', () => {
     expect(DEFAULT_SAVE).toMatchObject({ recentFacts: [], rehearsals: [], roundNo: 0 })
@@ -203,6 +211,8 @@ describe('space cat store', () => {
     expect(savedShip(JSON.stringify({ state: { ship: 7 } }))).toBe(1)
     expect(savedShip('{x')).toBe(1)
     expect(savedShip(null)).toBe(1)
+    expect(savedShip(JSON.stringify({ state: { ship: 1, ships: [1, 2, 3] }, version: 2 }))).toBe(3)
+    expect(savedShip(JSON.stringify({ state: { ship: 1, ships: [1, 2] }, version: 3 }))).toBe(1)
   })
 })
 

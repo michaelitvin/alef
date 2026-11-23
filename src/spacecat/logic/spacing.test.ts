@@ -3,7 +3,7 @@ import type { Rng } from '../../shared/adaptive'
 import { itemsOfRung } from './facts'
 import { pickNext } from './predict'
 import {
-  GAP_FIRST, GAP_SECOND, MAX_REHEARSALS, NO_REPEAT, OVERDUE_DROP, RECENT_FACTS, SPACING_START, afterRound, dueRehearsal, type Spacing,
+  AVOID_LEVELS, GAP_FIRST, GAP_SECOND, MAX_REHEARSALS, NO_REPEAT, OVERDUE_DROP, RECENT_FACTS, SPACING_START, afterRound, avoidSet, dueRehearsal, type Spacing,
 } from './spacing'
 
 const lcg = (seed: number): Rng => {
@@ -113,5 +113,16 @@ describe('a mistake in the picker', () => {
     const two = cands.filter((i) => i.fact === cands[0].fact || i.fact === cands[1].fact)
     const sp: Spacing = { round: 3, recent: [cands[1].fact, cands[0].fact], rehearsals: [] }
     expect(pickNext(lcg(1), two, {}, { sinceZero: 0, spacing: sp }).fact).toBe(cands[1].fact)
+  })
+  it('a rehearsal keeps the id of the missed item, and the second step keeps it too', () => {
+    const sp = afterRound(SPACING_START, 'a', 'x', () => 0, 'item-a')
+    expect(sp.rehearsals[0].item).toBe('item-a')
+    const s2 = afterRound({ ...sp, round: sp.rehearsals[0].due }, 'a', 'o', () => 0, 'item-a')
+    expect(s2.rehearsals[0]).toMatchObject({ step: 2, item: 'item-a' })
+  })
+  it('rehearsals that wait are avoided at every level but the last', () => {
+    const sp: Spacing = { round: 5, recent: ['r1', 'r2', 'r3', 'r4'], rehearsals: [{ fact: 'w', step: 1, due: 9 }] }
+    for (let level = 0; level < AVOID_LEVELS.length - 1; level++) expect(avoidSet(sp, level).has('w')).toBe(true)
+    expect(avoidSet(sp, AVOID_LEVELS.length - 1).size).toBe(0)
   })
 })

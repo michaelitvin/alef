@@ -50,7 +50,10 @@ export type SpaceCatState = SpaceCatSave & Actions
 /** the intro counters of the ladder's play day (counters of an earlier day start afresh) */
 const introOfDay = (s: SpaceCatSave): SpaceCatSave['intro'] => (s.intro.day === s.ladder.day ? s.intro : { day: s.ladder.day, mistakes: {}, again: [] })
 
-const spacingOf = (s: SpaceCatSave): Spacing => ({ round: s.roundNo, recent: s.recentFacts, rehearsals: s.rehearsals })
+/** a save from before `recentFacts` has only its last fact */
+const spacingOf = (s: SpaceCatSave): Spacing => ({
+  round: s.roundNo, recent: s.recentFacts.length ? s.recentFacts : s.lastFact ? [s.lastFact] : [], rehearsals: s.rehearsals,
+})
 
 /** hold a band's speed after a rung opened there: the band's next HOLD_ROUNDS rounds do not get shorter */
 const holdBand = (speed: SpaceCatSave['speed'], band: Band): SpaceCatSave['speed'] => ({
@@ -64,7 +67,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         const s = get()
         if (opts?.cut) return { events: [] }
         const m = markOf(res.result)
-        const sp = afterSpacing(spacingOf(s), it.fact, opts?.demo ? undefined : m, opts?.rng ?? Math.random)
+        const sp = afterSpacing(spacingOf(s), it.fact, opts?.demo ? undefined : m, opts?.rng ?? Math.random, it.id)
         const after = { lastFact: it.fact, sinceZero: isRareFact(it) ? 0 : s.sinceZero + 1, recentFacts: sp.recent, rehearsals: sp.rehearsals, roundNo: sp.round }
         // the demo round changes no tally, but it is the round before the next pick (never the same fact twice)
         if (opts?.demo) { set(after); return { events: [] } }
@@ -93,6 +96,8 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
         const r = beginRun(s.ladder, { now, set: s.settings })
         set({
           ladder: r.ladder,
+          // yesterday's mistakes do not come first on a new play day
+          ...(r.playDay ? { rehearsals: [] } : {}),
           ...(r.holdSpeed ? { speed: holdBand(s.speed, r.holdSpeed) } : {}),
           ...(r.playDay && s.intro.day !== r.ladder.day ? { intro: { day: r.ladder.day, mistakes: {}, again: [] } } : {}),
         })

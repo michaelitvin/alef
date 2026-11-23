@@ -299,10 +299,10 @@ const SPACECAT: Table = {
     }
   },
   warmup: (r) => ({ rung: scRung(r), how: r.pick(['fast', 'slow', 'forgot']), rounds: r.int(1, 5) }),
-  'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120) }),
+  'level-done': (r) => ({ level: r.int(1, 8), points: r.int(7, 120), ...(r.chance(0.5) ? { heart: true } : {}) }),
   ship: (r) => ({ ship: r.int(2, 3) }),
-  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'intro', 'flight', 'between']) }),
-  abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'between']) }),
+  pause: (r) => ({ phase: r.pick(['demo', 'tip', 'missing', 'intro', 'flight', 'level', 'between']) }),
+  abandon: (r) => ({ level: r.int(1, 8), points: r.int(0, 120), phase: r.pick(['flight', 'tip', 'level', 'between']) }),
   'run-end': (r) => ({ points: r.int(0, 120), levels: r.int(1, 8), best: r.int(0, 150) }),
   settings: (r) => (r.chance(0.5)
     ? { ...r.pick([{ range: r.pick(['auto', '6', 'C1', 'T4b']) }, { times: r.chance(0.5) }, { divide: r.chance(0.5) }, { compare: r.chance(0.5) }, { jumps: r.chance(0.5) }, { missing100: r.chance(0.5) }, { hundreds: r.chance(0.5) }, { relevel: true }, { arrival: r.pick(['auto', 8000, 5000]) }, { flightMusic: r.chance(0.5) }]), by: 'parent' }

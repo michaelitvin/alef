@@ -12,7 +12,7 @@ installFakeAudio()
 function engineStub() {
   const e = {
     made: 0, destroyed: 0,
-    setScreen() {}, setShip() {}, setHud() {}, play() {}, freeze() {}, resume() {}, setInput() {},
+    setScreen() {}, setShip() {}, setHud() {}, levelFlash() {}, heartUp() {}, shipUp() {}, play() {}, freeze() {}, resume() {}, setInput() {},
     demoHand: () => Promise.resolve(), pulseRing() {}, restart() {}, onEnd: () => {}, destroy() { e.destroyed++ },
   }
   return e

@@ -68,11 +68,11 @@ export class Effects {
 
   breakHeart(i: number): void { this.heartBreak = { i, t: 0 } }
 
-  /** a level's end: a stronger gold flash; `heart` is the index of the heart that fills in */
-  levelUp(heart: number | null): void {
-    this.flash = 0.8; this.flashCol = 'gold'
-    if (heart !== null) this.heartPop = { i: heart, t: 0 }
-  }
+  /** a level's end: a stronger gold flash */
+  levelFlash(): void { this.flash = 0.8; this.flashCol = 'gold' }
+
+  /** the heart at index `i` that a level's end gives back pops in */
+  popHeart(i: number): void { this.heartPop = { i, t: 0 } }
 
   /** dt in s */
   update(G: Geom, dt: number): void {

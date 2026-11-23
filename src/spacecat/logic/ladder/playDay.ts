@@ -66,13 +66,13 @@ export function chooseWarmup(l: Ladder, m: WarmupMode, ctx: ChooseCtx): Choice {
   if (l.guardLeft > 0) return choosePractice(l, ctx)
   const { rng, set, stats } = ctx
   const review = earnedOffered(l, set).filter((r) => r !== m.rung)
-  const pick = (pool: Item[]) => pickNext(rng, pool, stats, ctx.last)
+  const pick = (pool: Item[], own = false) => pickNext(rng, pool, stats, own ? { ...ctx.last, noRehearsal: true } : ctx.last)
   if (m.reviewLeft > 0 || (review.length > 0 && rng() >= WARMUP_SHARE)) {
     const ladder = m.reviewLeft > 0 ? { ...l, mode: { ...m, reviewLeft: m.reviewLeft - 1 } } : l
-    if (review.length === 0) return { item: pick(itemsOfRung(m.rung)), part: 'warmup', ladder }
+    if (review.length === 0) return { item: pick(itemsOfRung(m.rung), true), part: 'warmup', ladder }
     return { item: pick(reviewPool(rng, l, review, set, stats)), part: 'review', ladder }
   }
-  return { item: pick(itemsOfRung(m.rung)), part: 'warmup', ladder: l }
+  return { item: pick(itemsOfRung(m.rung), true), part: 'warmup', ladder: l }
 }
 
 /** the warm-up ends: back to practice, then the re-check if it is due */

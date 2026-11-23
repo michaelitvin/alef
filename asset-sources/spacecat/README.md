@@ -19,7 +19,7 @@ These 9 files are the original's pictures, byte for byte. They are in `src/space
 | `surface-2.png` | `b2a7f869d01e9cd05eef00d78f84a0204d7c8bb34f9bd818e8bda95cdc98b813` | the surface of the planet in lane 2 |
 | `surface-3.png` | `fab8db333477e1d68eb3fd616b42c9341078497a4ea711e93a1744a37e6747d6` | the surface of the planet in lane 3 |
 | `surface-4.png` | `e7538ba45cf4320745bbc4529a20e438ac1a8a8add8a175c062eb214034a43b4` | the surface of the planet in lane 4 |
-| `cat-thumbs-up.png` | `42dc9d3552f738ed0e5db2db760dd0b28931ab86d7219b52f13d6d32db68b8f0` | (no longer used: the level-done screen is gone) |
+| `cat-thumbs-up.png` | `42dc9d3552f738ed0e5db2db760dd0b28931ab86d7219b52f13d6d32db68b8f0` | removed (file deleted): the level-done screen is gone; kept here as history |
 
 ## Code
 

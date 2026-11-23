@@ -20,6 +20,8 @@ export const MAX_REHEARSALS = 3
 
 export interface Rehearsal {
   fact: string
+  /** the item that was missed (a save from before it has none: the rehearsal then waits for its fact to be offered) */
+  item?: string
   /** 1: the first return after a mistake, 2: the second */
   step: 1 | 2
   /** the round number (`Spacing.round`) from which the fact is due */
@@ -42,16 +44,16 @@ const gapIn = (rng: Rng, [lo, hi]: readonly [number, number]) => lo + Math.floor
  * The spacing after a round on `fact`. `mark` is undefined for a demo round (it counts as asked, it teaches nothing).
  * A right answer on a rehearsal that is due moves it on; a right answer before it was due changes nothing.
  */
-export function afterRound(sp: Spacing, fact: string, mark: Mark | undefined, rng: Rng): Spacing {
+export function afterRound(sp: Spacing, fact: string, mark: Mark | undefined, rng: Rng, item?: string): Spacing {
   const round = sp.round + 1
   const recent = [...sp.recent, fact].slice(-RECENT_FACTS)
   let rehearsals = sp.rehearsals.filter((r) => round - r.due <= OVERDUE_DROP)
   const mine = rehearsals.find((r) => r.fact === fact)
   if (mark === 'x' || mark === 't') {
-    rehearsals = [...rehearsals.filter((r) => r.fact !== fact), { fact, step: 1 as const, due: round + gapIn(rng, GAP_FIRST) }].slice(-MAX_REHEARSALS)
+    rehearsals = [...rehearsals.filter((r) => r.fact !== fact), { fact, ...(item ? { item } : {}), step: 1 as const, due: round + gapIn(rng, GAP_FIRST) }].slice(-MAX_REHEARSALS)
   } else if (mark === 'o' && mine && sp.round >= mine.due) {
     rehearsals = rehearsals.filter((r) => r !== mine)
-    if (mine.step === 1) rehearsals.push({ fact, step: 2 as const, due: round + gapIn(rng, GAP_SECOND) })
+    if (mine.step === 1) rehearsals.push({ fact, ...(mine.item ? { item: mine.item } : {}), step: 2 as const, due: round + gapIn(rng, GAP_SECOND) })
   }
   return { round, recent, rehearsals }
 }
@@ -62,13 +64,13 @@ export function dueRehearsal(sp: Spacing, offered: (fact: string) => boolean): R
 }
 
 /**
- * The facts that the next pick avoids, from the strictest level (the last NO_REPEAT facts and the rehearsals that wait)
- * to the loosest (none). `level` 0 is the strictest; the pick tries the next one when nothing is left.
+ * The facts that the next pick avoids, from the strictest level (the last NO_REPEAT facts) to the loosest (none). The
+ * rehearsals that wait are avoided at every level but the last: a mistake does not come back early when the pool is small. `level` 0 is the strictest; the pick tries the next one when nothing is left.
  */
 export const AVOID_LEVELS = [NO_REPEAT, 2, 1, 0] as const
 export function avoidSet(sp: Spacing, level: number): Set<string> {
   const n = AVOID_LEVELS[level] ?? 0
   const out = new Set(n > 0 ? sp.recent.slice(-n) : [])
-  if (level === 0) for (const r of sp.rehearsals) if (sp.round < r.due) out.add(r.fact)
+  if (level < AVOID_LEVELS.length - 1) for (const r of sp.rehearsals) if (sp.round < r.due) out.add(r.fact)
   return out
 }

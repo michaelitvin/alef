@@ -408,7 +408,7 @@ async function scRound(page, afterN, timeout = 60_000, orIntro = false) {
     const introNow = intro && document.querySelector('.sc-stage')?.getAttribute('data-phase') === 'intro'
     return document.querySelector('.sc-root')?.getAttribute('data-screen') !== 'play' || (r && r.n > n && r.phase === 'flight' && (introNow || (r.input && !r.frozen)))
   }, [afterN, orIntro], { timeout, polling: 100 })
-  // null: the play screen went (level done, the end)
+  // null: the play screen went (the end)
   return (await scScreen(page)) === 'play' ? scProbe(page) : null
 }
 /** a finger along points [x, y], one move every `stepMs` */
@@ -455,7 +455,7 @@ async function scAnswer(page, vp, how, after) {
   const result = (await scProbe(page)).result
   return { n: r.n, did, result }
 }
-/** the screen part showing: cover, play, level, end, parent */
+/** the screen part showing: cover, play, end, parent */
 const scScreen = (page) => page.locator('.sc-root').getAttribute('data-screen')
 async function scUntilScreen(page, want, timeout = 60_000) {
   await page.locator(`.sc-root[data-screen="${want}"]`).waitFor({ timeout })
@@ -504,14 +504,14 @@ const scSeedV1 = (top, extra = {}) => JSON.stringify({
   version: 1,
   state: {
     items: {}, ladder: { top, topRecent: '', topMistake: false, streak: 0 }, speed: { arrivalMs: 8000, underMs: [], hold: 0 }, totalPoints: 30, best: 12,
-    ships: [1, 2], ship: 2, heard: { demo: 1, 'zoom-tip': 2, missing: 2, 'level-done': 2, out: 2 }, sinceZero: 0, runs: 3,
+    ships: [1, 2], ship: 2, heard: { demo: 1, 'zoom-tip': 2, missing: 2, out: 2 }, sinceZero: 0, runs: 3,
     settings: { range: 'auto', times: top >= 7, divide: top >= 9, arrival: 'auto', flightMusic: false }, ...extra,
   },
 })
 /** the 31 rungs in the ladder's order (src/spacecat/logic/rungs.ts): every rung before the frontier is passed in a seed */
 const SC_ORDER = ['1', '2', '3', '4', '5', '6', '7', 'C1', '8', '9', '10', '11', '12', 'S1', 'T1', '13', '14', 'C2', 'T2', '15', '16', 'S2', 'T3', '17', '18', 'T4a', 'T4b', '19', 'H1', 'T5', 'T6']
 /** the demo, the tips and the missing-number lines heard; the four intros not yet */
-const SC_HEARD = { demo: 1, 'zoom-tip': 2, missing: 2, 'missing-jumps': 2, 'level-done': 2, out: 2 }
+const SC_HEARD = { demo: 1, 'zoom-tip': 2, missing: 2, 'missing-jumps': 2, out: 2 }
 const SC_SETTINGS = { range: 'auto', compare: true, jumps: true, times: true, divide: true, missing100: true, hundreds: true, arrival: 'auto', flightMusic: false }
 /**
  * A version 2 save in practice with the frontier at `frontier` (every rung before it in the order passed), played a
@@ -767,11 +767,10 @@ const CHECKS = {
       if (a.did === 'wrong' && results.filter((x) => x.startsWith('wrong')).length === 1) await shot(page, vp, 'sc-wrong-mark')
     }
     note(`level 1: ${results.join(' ')}`)
-    await scUntilScreen(page, 'level', 40_000)
-    await page.waitForTimeout(1500)
+    // a level's end is a beat in flight (no screen, no tap): the stage's phase is `level` for about 1.5 s
+    await page.locator('.sc-stage[data-phase="level"]').waitFor({ timeout: 40_000 })
     await shot(page, vp, 'sc-level-done')
     await scNoText(page)
-    await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]'))
     await scUntilScreen(page, 'play')
     // lose the run: wrong answers until the hearts run out
     for (let i = 0; i < 3; i++) { const a = await scAnswer(page, vp, 'wrong', n); n = a.n; if (i === 0) await page.waitForTimeout(100) }
@@ -918,14 +917,8 @@ const CHECKS = {
       let found = null
       const seen = []
       for (let i = 0; i < 14 && !found; i++) {
-        if ((await scScreen(page)) === 'level') { await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]')); await scUntilScreen(page, 'play') }
         const r = await scRound(page, n, 60_000, true)
-        if (!r) {
-          // the play screen went: a level done (the screen may still be on its way) goes on; the end stops
-          const level = await scUntilScreen(page, 'level', 5_000).then(() => true, () => false)
-          if (level) continue
-          break
-        }
+        if (!r) break
         seen.push(scBoxText(r))
         if (!k.is(r)) { await scRound(page, r.n - 1); n = (await scAnswer(page, vp, 'right', r.n - 1)).n; continue }
         found = r
@@ -995,7 +988,6 @@ const CHECKS = {
     // right answers, with one wrong among the first probes, until the placement ends
     for (let i = 0; i < 30 && mode === 'placement'; i++) {
       const sc = await scScreen(page)
-      if (sc === 'level') { await tap(page, page.locator('.sc-root[data-screen="level"] [aria-label="play"]')); await scUntilScreen(page, 'play') }
       if (sc === 'end') throw new Error('the run ended in the placement')
       const r = await scRound(page, n)
       if (!r) continue
