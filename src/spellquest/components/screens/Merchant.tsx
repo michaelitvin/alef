@@ -104,7 +104,8 @@ export function Merchant({ v, onCoin, onHand, onPotion, onDecline }: {
         </g>
       </g>
       {!v.bought && (
-        <g data-potion {...dim(step === 'potion')} className={`d2-press${glow.potion || (pay && v.given.length > 0) ? ' d2-pulse' : ''}`}
+        // coins in his hand: the potion is the next thing to touch, so it pulses bigger and glows brighter (the parent)
+        <g data-potion {...dim(step === 'potion')} className={`d2-press${pay && v.given.length > 0 ? ' d2-pulse d2-pulse-strong' : glow.potion ? ' d2-pulse' : ''}`}
           onPointerDown={(e) => { e.preventDefault(); touch?.('answer'); onPotion() }} style={{ cursor: 'pointer' }}>
           <circle cx={POTION.x} cy={POTION.y} r={POTION.w * 0.62} fill="transparent" />
           {IMAGES['s-potion']

@@ -97,8 +97,8 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-trophy-small { display: inline-block; width: 48px; height: 48px; }
 .d2-parent-btn { position: absolute; bottom: 28px; right: 28px; width: 64px; height: 64px; border-radius: 50%; border: none;
   background: #28145a99; display: grid; place-items: center; z-index: 6; touch-action: none; }
-/* the way home (a 2 s hold): the parent button's look, in the top bar's left corner, on the pause cover and the summary */
-/* the held house's look is shared (src/shared/holdButton.css .home-btn); here only where it sits */
+/* the way home (a tap): the parent button's look, in the top bar's left corner, on the pause cover and the summary */
+/* the house's look is shared (src/shared/holdButton.css .home-btn); here only where it sits */
 .d2-pause .d2-home-btn { position: absolute; top: calc(var(--d2-bar-top) + (var(--d2-bar-h) - 56px) / 2); left: 24px; }
 .d2-summary .d2-home-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 24px; z-index: 6; }
 .d2-drift { animation: d2-drift 12s linear infinite; }
@@ -273,6 +273,9 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-pulse image, circle.d2-glow { filter: drop-shadow(0 0 18px #fff6a0) drop-shadow(0 0 8px #fff); }
 circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12px #fff); }
 @keyframes d2-merchant-pulse { 50% { transform: scale(1.07); } }
+.d2-pulse-strong { animation-name: d2-merchant-pulse-strong; }
+.d2-pulse-strong image { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 48px #ffd34d); }
+@keyframes d2-merchant-pulse-strong { 50% { transform: scale(1.14); } }
 .d2-pulse-once { animation: d2-merchant-pulse 0.9s ease-in-out 1; transform-box: fill-box; transform-origin: center bottom; }
 .d2-gnome { transition: transform 1.2s ease-in-out, opacity 1.2s; }
 .d2-gnome-arrive { animation: d2-gnome-in 1.2s ease-out both; }
