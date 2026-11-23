@@ -212,9 +212,11 @@ describe('clock audio through Howler', () => {
     b.calls.length = 0
     void playVoice(timed[0])
     await vi.advanceTimersByTimeAsync(10)
-    expect(b.calls).toEqual(['fade 0.08 200'])
-    await vi.advanceTimersByTimeAsync(100)
-    expect(b.calls).toEqual(['fade 0.08 200', 'fade 0.3 200'])
+    expect(b.calls).toEqual(['fade 0.08 120'])
+    await vi.advanceTimersByTimeAsync(120 + 100 + 350 - 10 - 1) // the voice ends, then a 350 ms tail holds the duck
+    expect(b.calls).toEqual(['fade 0.08 120'])
+    await vi.advanceTimersByTimeAsync(2)
+    expect(b.calls).toEqual(['fade 0.08 120', 'fade 0.3 400'])
     b.calls.length = 0
     stopMusic()
     expect(b.calls).toEqual(['fade 0 300'])

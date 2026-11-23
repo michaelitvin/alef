@@ -24,6 +24,7 @@ const kit = createGameAudio<'zap' | 'catch' | 'spell' | 'none', 'flight' | 'cele
   gapMs: 800,
   musicVol: 0.35,
   duckVol: 0.08,
+  musicGain: { celebrate: 0.5 },
   musicFadeInMs: 600,
 })
 const random = createGameAudio<'boom', never>({
@@ -208,7 +209,9 @@ describe('the game-audio kit', () => {
       void kit.say(['a'], 0)
       await vi.advanceTimersByTimeAsync(10)
       expect(m.volume).toBe(0.08)
-      await vi.advanceTimersByTimeAsync(200)
+      await vi.advanceTimersByTimeAsync(120 + 200 + 349 - 10)
+      expect(m.volume).toBe(0.08) // the tail holds the duck
+      await vi.advanceTimersByTimeAsync(1)
       expect(m.volume).toBe(0.35)
       kit.startMusic('flight')
       expect(m.volume).toBe(0) // fading out
@@ -223,7 +226,95 @@ describe('the game-audio kit', () => {
       await vi.advanceTimersByTimeAsync(10)
       kit.startMusic('celebrate')
       kit.startMusic('celebrate')
-      expect(audio.log().filter((e) => e.kind === 'music')).toMatchObject([{ id: 'celebrate', volume: 0.08 }])
+      expect(audio.log().filter((e) => e.kind === 'music')).toMatchObject([{ id: 'celebrate', volume: 0.04 }])
+    })
+    describe('the duck', () => {
+      it('the voice starts only after the music has faded down (120 ms)', async () => {
+        kit.startMusic('flight')
+        audio.voiceMs = 100
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(119)
+        expect(audio.said()).toEqual([])
+        expect(audio.live()[0].fades?.slice(-1)[0]).toMatchObject({ to: 0.08, ms: 120 })
+        await vi.advanceTimersByTimeAsync(1)
+        expect(audio.said()).toEqual(['a'])
+      })
+      it('a line outside the queue waits for the fade too; with no music nothing waits', async () => {
+        audio.voiceMs = 100
+        void kit.playLine('a')
+        await vi.advanceTimersByTimeAsync(0)
+        expect(audio.said()).toEqual(['a']) // no music: at once
+        await vi.advanceTimersByTimeAsync(1000)
+        kit.startMusic('flight')
+        const t0 = Date.now()
+        void kit.playLine('b')
+        await vi.advanceTimersByTimeAsync(119)
+        expect(audio.said()).toEqual(['a'])
+        await vi.advanceTimersByTimeAsync(1)
+        expect(audio.said()).toEqual(['a', 'b'])
+        expect(audio.log().find((e) => e.id === 'b')!.at - t0).toBe(120)
+      })
+      it('music already ducked: the next voice does not wait', async () => {
+        kit.startMusic('flight')
+        audio.voiceMs = 100
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(220)
+        const t0 = Date.now()
+        void kit.say(['b'], 0)
+        await vi.advanceTimersByTimeAsync(0)
+        expect(audio.log().find((e) => e.id === 'b')!.at).toBe(t0)
+      })
+      it('no swell in the gap between two parts, and none between queued parts', async () => {
+        kit.startMusic('flight')
+        const m = audio.live()[0]
+        audio.voiceMs = 200
+        void kit.sayParts([{ id: 'a' }, { id: 'b' }])
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(120 + 200 + 800 + 200 + 200)
+        expect(audio.said()).toEqual(['a', 'b', 'a'])
+        expect(m.fades!.filter((f) => f.to === 0.35).length).toBe(1) // only the fade-in
+        expect(m.volume).toBe(0.08)
+        await vi.advanceTimersByTimeAsync(350)
+        expect(m.fades![m.fades!.length - 1]).toMatchObject({ to: 0.35, ms: 400 })
+      })
+      it('a new voice inside the tail cancels the release; a stop releases through the same tail', async () => {
+        kit.startMusic('flight')
+        const m = audio.live()[0]
+        audio.voiceMs = 100
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(120 + 100 + 300)
+        void kit.say(['b'], 0)
+        await vi.advanceTimersByTimeAsync(100 + 349)
+        expect(m.volume).toBe(0.08)
+        audio.voiceMs = 5000
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(10)
+        kit.stopVoice()
+        await vi.advanceTimersByTimeAsync(349)
+        expect(m.volume).toBe(0.08)
+        await vi.advanceTimersByTimeAsync(1)
+        expect(m.volume).toBe(0.35)
+      })
+      it('a stop during the fade-down plays no voice', async () => {
+        kit.startMusic('flight')
+        audio.voiceMs = 100
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(50)
+        kit.stopVoice()
+        await vi.advanceTimersByTimeAsync(500)
+        expect(audio.said()).toEqual([])
+      })
+      it("a kind's gain multiplies the music and duck levels", async () => {
+        kit.startMusic('celebrate')
+        const m = audio.live()[0]
+        expect(m.volume).toBe(0.35 * 0.5)
+        audio.voiceMs = 100
+        void kit.say(['a'], 0)
+        await vi.advanceTimersByTimeAsync(10)
+        expect(m.volume).toBeCloseTo(0.08 * 0.5)
+        await vi.advanceTimersByTimeAsync(120 + 100 + 350)
+        expect(m.volume).toBe(0.35 * 0.5)
+      })
     })
     it('the device turning music off stops it, and no music starts while it is off', async () => {
       kit.startMusic('flight')

@@ -87,16 +87,19 @@ describe('Space Cat on the audio kit', () => {
   })
 
   it('the tune ducks under a line and comes back', async () => {
+    await new Promise((r) => setTimeout(r, 400)) // an earlier line's duck tail ends first
     applySound({ sfx: true, music: true, volume: 0.8 })
     startTune()
     expect(tune()?.url).toBe(TUNE_URL)
     expect(tune()?.volume).toBe(TUNE_GAIN)
     audio.holdUntil(/^demo/)
     const line = say('demo')
-    await flush()
+    await new Promise((r) => setTimeout(r, 200)) // the line starts after the tune has faded down (120 ms)
     expect(tune()?.volume).toBe(TUNE_DUCK)
     audio.release()
     await line
+    expect(tune()?.volume).toBe(TUNE_DUCK) // the tail holds the duck
+    await new Promise((r) => setTimeout(r, 400))
     expect(tune()?.volume).toBe(TUNE_GAIN)
     stopTune()
   })

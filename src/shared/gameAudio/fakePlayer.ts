@@ -18,7 +18,7 @@ import { setAudioPlayer } from './output'
 import type { AudioPlayer, PlayOptions, Sound, SoundKind } from './port'
 
 /** one sound; `volume` follows its fades (music: the duck), `stopped` is set by a stop */
-export interface FakeEntry { kind: SoundKind; id: string; url: string; at: number; volume?: number; stopped?: boolean; caption?: string[] }
+export interface FakeEntry { kind: SoundKind; id: string; url: string; at: number; volume?: number; fades?: { to: number; ms: number; at: number }[]; stopped?: boolean; caption?: string[] }
 
 export interface FakePlayer extends AudioPlayer {
   voiceMs: number
@@ -91,7 +91,7 @@ export function createFakePlayer(): FakePlayer {
         },
         pause: () => {},
         resume: () => {},
-        fade: (to) => { entry.volume = to },
+        fade: (to, ms) => { entry.volume = to; (entry.fades ??= []).push({ to, ms, at: Date.now() }) },
         position: () => (finished ? null : ((Date.now() - t0) / 1000) * (o.rate ?? 1)),
         playing: () => !finished,
         duration: () => {

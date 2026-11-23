@@ -48,7 +48,7 @@ describe('the cover', () => {
     audio.holdUntil(/^info-/)
     const locked = container.querySelector('[data-ship="3"]')!
     fireEvent.pointerDown(locked); fireEvent.pointerDown(locked); fireEvent.pointerDown(locked)
-    await settle()
+    await settle(200) // the voice starts after the music has faded down (120 ms)
     expect(audio.said()).toEqual(['info-ship-locked-1'])
     expect(useSpaceCatStore.getState().ship).toBe(1)
     audio.release()

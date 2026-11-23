@@ -127,14 +127,21 @@ describe('Spell Quest audio through Howler', () => {
     b.calls.length = 0
     void say([voiceIds[0]], 0)
     await vi.advanceTimersByTimeAsync(10)
-    expect(b.calls).toEqual(['fade 0.08 200'])
-    await vi.advanceTimersByTimeAsync(100)
-    expect(b.calls).toEqual(['fade 0.08 200', 'fade 0.35 200'])
+    expect(b.calls).toEqual(['fade 0.08 120'])
+    await vi.advanceTimersByTimeAsync(120 + 100 + 350 - 10 - 1) // the voice ends, then a 350 ms tail holds the duck
+    expect(b.calls).toEqual(['fade 0.08 120'])
+    await vi.advanceTimersByTimeAsync(2)
+    expect(b.calls).toEqual(['fade 0.08 120', 'fade 0.35 400'])
     b.calls.length = 0
     stopMusic()
     expect(b.calls).toEqual(['fade 0 300'])
     await vi.advanceTimersByTimeAsync(320)
     expect(b.calls).toEqual(['fade 0 300', 'stop'])
+  })
+
+  it('the boss track plays at 0.6 of the music level (it is mastered louder than the flight tracks)', () => {
+    startMusic('boss')
+    expect(howls[howls.length - 1].calls.slice(-1)).toEqual(['fade 0.21 600'])
   })
 
   it('a celebration does not loop; music started while a voice plays comes in ducked; music off stops it', async () => {
