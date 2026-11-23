@@ -1,4 +1,4 @@
-import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const log: string[] = []
@@ -23,6 +23,36 @@ import { stripNikkud } from '../logic/phrases'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 
 const plain = (s: string) => stripNikkud(s).toLowerCase()
+
+// Fake time, one driver. Only advance() below moves the fake clock, one timer at a time, each inside its own act(): React
+// renders and runs the effects (and the promise chains they start) of that timer before the next one fires. So a run
+// does the same steps in the same order on an idle machine and under load. setImmediate stays real: React's act()
+// and the flush below use it to let the event loop turn.
+type FakeClock = { now: number; timers?: Record<string, { callAt: number }>; next(): number; tick(ms: number): number }
+const clock = () => (globalThis.setTimeout as unknown as { clock: FakeClock }).clock
+const nextTimerAt = () => Math.min(Infinity, ...Object.values(clock().timers ?? {}).map((t) => t.callAt))
+const turn = () => new Promise<void>((r) => setImmediate(r))
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance', 'requestAnimationFrame', 'cancelAnimationFrame'] })
+})
+afterEach(() => { vi.useRealTimers() })
+/** runs the fake clock up to `ms` ahead, timer by timer; stops early (true) once `until` holds after a timer */
+async function advance(ms: number, until?: () => boolean): Promise<boolean> {
+  const end = clock().now + ms
+  while (nextTimerAt() <= end) {
+    await act(async () => { clock().next(); await turn() })
+    if (until?.()) return true
+  }
+  await act(async () => { clock().tick(end - clock().now); await turn() })
+  return until?.() ?? false
+}
+const sleep = (ms: number) => advance(ms)
+/** waits on fake time until `check` stops throwing (checked after each timer); `timeout` is in fake ms */
+async function waitFor(check: () => void, opts: { timeout?: number } = {}) {
+  const ok = () => { try { check(); return true } catch { return false } }
+  if (ok() || (await advance(opts.timeout ?? 1000, ok))) return
+  check()
+}
 
 const audio = installFakeAudio()
 /** music is on: a track plays and has not faded out; held: the pause cover keeps all audio silent */
@@ -99,7 +129,7 @@ describe('Workshop', () => {
     await waitFor(() => expect(container.querySelector('[aria-label="stop"]')).not.toBeNull(), { timeout: 6000 })
     for (let i = 0; i < 3; i++) {
       fireEvent.pointerDown(container.querySelector('[aria-label="stop"]') as HTMLElement)
-      if (i < 2) await new Promise((r) => setTimeout(r, 1100))
+      if (i < 2) await sleep(1100)
     }
     await waitFor(() => expect(container.querySelector('[data-phase="summary"]')).not.toBeNull(), { timeout: 5000 })
   }
@@ -312,7 +342,7 @@ describe('Workshop', () => {
       const served = useClockStore.getState().roundNo
       fireEvent.pointerDown(wrong)
       await waitFor(() => expect(container.querySelector('[aria-label="next"]')).not.toBeNull(), { timeout: 8000 })
-      await new Promise((res) => setTimeout(res, 800))
+      await sleep(800)
       // still the same round: the answer with its marks on the bench, no new customer
       expect(container.querySelector('[data-phase]')?.getAttribute('data-phase')).toBe('feedback')
       expect(container.querySelector('.ck-option.right')).not.toBeNull()
@@ -429,7 +459,7 @@ describe('Workshop', () => {
     hide()
     show(getByRole as never)
     await waitFor(() => expect(container.querySelector('[data-phase="bonus"]')).not.toBeNull())
-    await new Promise((r) => setTimeout(r, 300))
+    await sleep(300)
     expect(useClockStore.getState().roundNo).toBe(8)
     expect(useClockStore.getState().gears).toBe(8)
   }, 60000)
@@ -444,7 +474,7 @@ describe('Workshop', () => {
     await waitFor(() => expect(container.querySelector('[aria-label="stop"]')).not.toBeNull())
     for (let i = 0; i < 3; i++) {
       fireEvent.pointerDown(container.querySelector('[aria-label="stop"]') as HTMLElement)
-      if (i < 2) await new Promise((r) => setTimeout(r, 1100))
+      if (i < 2) await sleep(1100)
     }
     await waitFor(() => expect(container.querySelector('[data-phase="summary"]')).not.toBeNull(), { timeout: 5000 })
     expect(useClockStore.getState().roundNo).toBe(8)
