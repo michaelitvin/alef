@@ -79,6 +79,8 @@ interface LadderView {
   lifted?: string
   /** English: what the voice names now: the foot rung ('foot'), the place the new letter goes ('box'); the screen glows it */
   cue?: 'foot' | 'box'
+  /** the swap after the right move (ladderSwap): the plate `id` flies to its place, then (step `swap`) it is in the row */
+  placing?: { id: string; step: 'fly' | 'swap' }
 }
 /** the plate a ladder rung asks for: the changed part (English), else the target */
 export const ladderAnswerId = (s: { target: Choice; parts?: Choice[]; at?: number }): string => (s.at !== undefined && s.parts ? s.parts[s.at].id : s.target.id)
@@ -212,6 +214,10 @@ type NoAt<T> = T extends unknown ? Omit<T, 'at'> : never
 const SPELL_SFX: Record<SpellSfx, SpellQuestSfx> = { drop: 'lock', wrong: 'hit', spell: 'spell', stroke: 'stroke' }
 /** after his fixing move: the effect plays before the next round */
 const FIX_DONE_MS = 700
+/** the ladder's swap (design 2026-11-23 A): the plate flies to its place; then (English) the old letter drops out, and the
+ * lock's click rings before the word (both under the pace rule's 350 ms) */
+const LADDER_FLY_MS = 250
+const LADDER_SWAP_MS = 250
 /** a mistake's feedback (flash, glow, its sound) plays out this long before the flight's finale */
 const FLIGHT_SETTLE_MS = 1400
 /** the flight's finale: the wizard swoops away */
@@ -581,6 +587,8 @@ export class RunController {
     this.resuming = true
     // (the ladder: the pause cuts the voice a cue was lit for, and a lifted plate goes back)
     if (this.view.screen?.screen === 'ladder' && this.view.screen.from) this.setScreen({ lifted: undefined, cue: undefined } as Partial<LadderView>)
+    // (a swap the pause cut: its rung is built at once)
+    if (this.view.screen?.screen === 'ladder' && this.view.screen.placing) this.setScreen({ placing: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>)
     this.set({ paused: true, overlay: null, needNext: false })
     this.track('pause', { screen: this.screenId, phase: this.view.phase })
   }
@@ -1121,7 +1129,7 @@ export class RunController {
       // after a pause the same round starts again from its question (rule); a broom flight restarts its waves
       this.resuming = false
       // (the ladder: a plate lifted before the pause goes back, and no cue stays lit from a voice the pause cut)
-      this.setScreen({ reveal: undefined, ...(cur.screen === 'ladder' && cur.from ? { lifted: undefined, cue: undefined } : {}), ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
+      this.setScreen({ reveal: undefined, ...(cur.screen === 'ladder' && cur.from ? { lifted: undefined, cue: undefined } : {}), ...(cur.screen === 'ladder' ? { placing: undefined } : {}), ...(cur.screen === 'broom' ? { waves: [] } : {}), ...(cur.screen === 'doors' ? { lit: 0, opening: false, zooming: false } : {}) } as Partial<ScreenView>)
       return cur.screen === 'doors' ? doorTarget(cur) : (cur as BroomView).target
     }
     this.resuming = false
@@ -1409,13 +1417,14 @@ export class RunController {
       this.set({ phase: 'feedback' })
       const confident = predict(this.course.rounds.features(answer, screen), this.save.read().tallies, this.save.read().recent) < 0.2 && this.now() - this.cueStarted < CONFIDENT_MS
       if (s.screen === 'cauldron') { this.setScreen({ joined: true } as Partial<CauldronView>); this.sfx('puff') }
-      if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
       if (s.screen === 'ghosts') { this.setScreen({ zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
+      // the ladder: the swap, and its word every time (also after a confident answer: the word is the swap's feedback)
+      if (s.screen === 'ladder') await this.ladderSwap(t, c, tapped.id)
       // let the effect ring a moment before the voice goes on (Michael: effects got cut)
-      await this.sleep(t, SFX_RING_MS)
+      else await this.sleep(t, SFX_RING_MS)
       // (the English cauldron: the made word blends instead)
       if (tiles) await this.wordBlend(t, c, true)
-      else await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
+      else if (s.screen !== 'ladder') await this.say(t, confident ? [] : [{ id: this.cueId(c) }])
       if (intro.length) await this.say(t, intro)
       await this.maybeWordLink(t, c)
       await this.streakMoment(t)
@@ -1441,15 +1450,32 @@ export class RunController {
     await this.fix(t, this.cueId(c))
     this.set({ phase: 'feedback' })
     if (s.screen === 'cauldron') { this.setScreen({ reveal: undefined, joined: true } as Partial<CauldronView>); this.sfx('puff') }
-    if (s.screen === 'ladder') { this.ladder!.built = [...this.ladder!.built, c]; this.setScreen({ reveal: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>); this.sfx('lock') }
     if (s.screen === 'ghosts') { this.setScreen({ reveal: undefined, zapped: c.id } as Partial<GhostsView>); this.sfx('zap') }
-    await this.sleep(t, FIX_DONE_MS)
+    // the ladder: the same swap as after a right answer (its word too); the other screens let the effect play
+    if (s.screen === 'ladder') await this.ladderSwap(t, c, answer.id, { reveal: undefined })
+    else await this.sleep(t, FIX_DONE_MS)
     const blend = this.missBlendDue(c)
     if (tiles) await this.wordBlend(t, c, blend)
     else if (blend) await this.blendAfterMiss(t, c)
     if (intro.length) await this.say(t, intro)
     if (this.explanationDue(screen, c)) await this.explain(t, screen, c)
     return 'next'
+  }
+
+  /**
+   * The ladder's swap after the right move (design 2026-11-23 A, both courses): the plate flies to its place; English: the
+   * old letter drops out and the row reads the new word (Hebrew: the plate sits on the rung while the lock rings); then the
+   * rung is built (the row turns into its plate, the wizard climbs) as the word plays. A pause builds the rung at once.
+   */
+  private async ladderSwap(t: number, c: Choice, plateId: string, more: Partial<LadderView> = {}) {
+    this.ladder!.built = [...this.ladder!.built, c]
+    this.setScreen({ ...more, placing: { id: plateId, step: 'fly' } } as Partial<LadderView>)
+    await this.sleep(t, LADDER_FLY_MS)
+    this.sfx('lock')
+    this.setScreen({ placing: { id: plateId, step: 'swap' } } as Partial<LadderView>)
+    await this.sleep(t, LADDER_SWAP_MS)
+    this.setScreen({ placing: undefined, built: this.ladder!.built, plates: [] } as Partial<LadderView>)
+    await this.say(t, [{ id: this.cueId(c) }])
   }
 
   /** After a mistake: the right answer's sound, then wait until he does the right move; the sound again if he waits. */

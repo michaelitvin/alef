@@ -57,7 +57,7 @@ function ScreenFor({ run, v, demoT, dry, size, course, cue }: {
         correct={test ? s.target.mark : undefined} demo={demoT !== undefined ? { id: s.target.mark!, t: demoT } : undefined} />
     case 'ladder':
       return <Ladder built={s.built} plates={s.plates} rungs={s.rungs} onPick={(id, box) => run.onGesture({ type: 'pick', id, ...(box !== undefined ? { box } : {}) })} phase={v.phase} reveal={s.reveal} correctId={test ? ladderAnswerId(s) : undefined}
-        demo={demoT !== undefined ? { id: ladderAnswerId(s), t: demoT } : undefined} size={size} dir={dir} lifted={s.lifted} cue={cue ?? s.cue}
+        demo={demoT !== undefined ? { id: ladderAnswerId(s), t: demoT } : undefined} size={size} dir={dir} lifted={s.lifted} cue={cue ?? s.cue} placing={s.placing}
         {...(s.from ? { change: { from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked } } : {})} />
     case 'ghosts':
       return <Ghosts dir={dir} signs={s.signs} onPick={pick} phase={v.phase} zapped={s.zapped} reveal={s.reveal} correctId={test ? s.target.id : undefined} />

@@ -25,21 +25,28 @@ const PLATE_HALF = (PLATE_W * PLATE_ASPECT * HIT) / 2
 /** the wizard's height, and where he stands before the first rung: his feet on the stage (it ends at 900) */
 const LADDER_WIZ_H = 230
 const WIZ_START_Y = 855
-/** the wizard's centre x, left of the ladder; his box's right edge (his staff) */
-const LADDER_WIZ_X = 560
-const WIZ_RIGHT = LADDER_WIZ_X + LADDER_WIZ_H * 0.4
 export const LADDER_CX = 800
 export const LADDER_PLATE_X = PLATE_X
 /** the room between the rung he makes and the wizard's staff */
 const ROW_AIR = 20
 /**
- * The boxes of the rung he makes (English): a row over the rung, centred on the ladder, that stays clear of the wizard
- * (his staff is at WIZ_RIGHT) and of the built rung below (rungs are 150 apart, a plate 147 high: 28 to spare)
+ * A box of the rung he makes (English), in stage units: at least this wide for a word of up to 4 boxes (about 44 CSS px on
+ * a 740×360 phone; the rule asks for about 56 px: a recorded exception, the tap strip is the whole row and a tap goes to
+ * the nearest box). Longer rows get narrower boxes.
  */
-export const BOX_ROW_W = 2 * (LADDER_CX - WIZ_RIGHT - ROW_AIR)
-const BOX_MAX_W = 96
-const BOX_H = 96
+export const LADDER_BOX_W = 115
 const BOX_GAP = 8
+/**
+ * The boxes' row: over the rung, centred on the ladder, 4 boxes of LADDER_BOX_W wide. It stays clear of the built rung
+ * below (rungs are 150 apart, a plate 147 high) and the wizard stands left of it (ladderBoxes).
+ */
+export const BOX_ROW_W = 4 * LADDER_BOX_W + 3 * BOX_GAP
+const BOX_MAX_W = LADDER_BOX_W
+const BOX_H = LADDER_BOX_W
+/** the box's letter size: as large as before in a box this high */
+const BOX_GLYPH_PX = 100
+/** the English rows' left edge, and the wizard's staff (his box's right edge) left of it */
+const WIZ_RIGHT_ROW = LADDER_CX - BOX_ROW_W / 2 - ROW_AIR
 
 /** the box row's centres over the rung, left to right (the stage is ltr on English Spell Quest) */
 export function rungBoxXs(n: number): { xs: number[]; w: number } {
@@ -111,8 +118,25 @@ export function rungPlaceX(c: RungChange): number {
 export type RungGlow = 'cue' | 'soft' | 'drag' | 'over'
 const GLOW_FILL: Record<RungGlow | 'lift', number> = { cue: 0.3, soft: 0.1, drag: 0.2, over: 0.45, lift: 0.22 }
 
-function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: the boxes glow and a tap on the row places it */ lifted?: boolean; glow?: RungGlow; onPlace?: (place: number) => void }) {
-  const boxes = rungBoxes(p.change)
+/**
+ * The swap's boxes (the step `swap`): the new letter is in its place (a box more where it comes in), and the letter that
+ * goes out (`out`, its box's index) drops out of the row
+ */
+function swappedBoxes(c: RungChange, text: string): { boxes: { text: string | null; mark: boolean }[]; out?: { text: string; i: number } } {
+  const boxes = c.from.map((x) => ({ text: x.text as string | null, mark: false }))
+  if (c.grow === 1) { boxes.splice(c.at, 0, { text, mark: true }); return { boxes } }
+  const out = { text: c.from[c.at].text, i: c.at }
+  boxes[c.at] = { text, mark: true }
+  return { boxes, out }
+}
+
+function MakingRung(p: {
+  change: RungChange; y: number; /** a plate is lifted: the boxes glow and a tap on the row places it */ lifted?: boolean; glow?: RungGlow; onPlace?: (place: number) => void
+  /** the swap: the new letter (the placed plate's text) is in the row, the old one drops out */
+  swapped?: string
+}) {
+  const sw = p.swapped !== undefined ? swappedBoxes(p.change, p.swapped) : undefined
+  const boxes = sw ? sw.boxes : rungBoxes(p.change)
   const { xs, w } = rungBoxXs(boxes.length)
   const left = xs[0] - w / 2 - BOX_GAP
   const width = xs[xs.length - 1] + w / 2 + BOX_GAP - left
@@ -127,17 +151,23 @@ function MakingRung(p: { change: RungChange; y: number; /** a plate is lifted: t
   const boxGlow = gold >= 0 && (p.glow === 'cue' || p.glow === 'soft') ? p.glow : undefined
   const rowGlow = held ? p.glow : p.lifted ? 'lift' : gold < 0 && (p.glow === 'cue' || p.glow === 'soft') ? p.glow : undefined
   return (
-    <g data-making-rung data-marked={p.change.marked ? '1' : '0'} {...(p.lifted ? { 'data-lifted': '' } : {})}>
+    // it rises from the rung below as it comes (the row is a copy of the word below, made to change)
+    <g data-making-rung data-marked={p.change.marked ? '1' : '0'} className="d2-row-rise" {...(p.lifted ? { 'data-lifted': '' } : {})} {...(sw ? { 'data-swapped': '' } : {})}>
       {rowGlow && <rect data-row-glow={rowGlow} {...(p.lifted ? { 'data-place-glow': '' } : {})} className={rowGlow === 'cue' || rowGlow === 'soft' ? `d2-cue d2-cue-${rowGlow}` : undefined} x={left - 2} y={p.y - BOX_H / 2 - 10} width={width + 4} height={BOX_H + 20} rx={22} fill="#ffd34d" fillOpacity={GLOW_FILL[rowGlow]} stroke="#ffd34d" strokeOpacity={rowGlow === 'over' ? 1 : 0.8} strokeWidth={rowGlow === 'over' ? 10 : 6} pointerEvents="none" />}
       {boxGlow && <rect data-box-glow={boxGlow} className={`d2-cue d2-cue-${boxGlow}`} x={xs[gold] - w / 2 - 12} y={p.y - BOX_H / 2 - 12} width={w + 24} height={BOX_H + 24} rx={24} fill="#ffd34d" fillOpacity={GLOW_FILL[boxGlow]} stroke="#ffd34d" strokeOpacity={0.9} strokeWidth={6} pointerEvents="none" />}
       {boxes.map((b, i) => (
         <g key={i} data-box={b.text ?? '_'} {...(b.mark ? { 'data-marked-box': '' } : {})}>
           <rect x={xs[i] - w / 2} y={p.y - BOX_H / 2} width={w} height={BOX_H} rx={14} fill="#1b0f3c" fillOpacity={0.55}
             stroke={b.mark ? '#ffd34d' : '#fff6d8'} strokeWidth={b.mark ? 7 : 5} strokeDasharray={b.text === null ? '14 10' : undefined} />
-          {/* the marked letter is the one that goes: faded */}
-          {b.text !== null && <g opacity={b.mark ? 0.45 : 1}><Glyph text={b.text} px={fitPx(b.text, w, 84)} x={xs[i]} y={p.y} alphabet="latin" /></g>}
+          {/* the marked letter is the one that goes: faded (after the swap, the marked box holds the new letter) */}
+          {b.text !== null && <g opacity={b.mark && !sw ? 0.45 : 1}><Glyph text={b.text} px={fitPx(b.text, w, BOX_GLYPH_PX)} x={xs[i]} y={p.y} alphabet="latin" /></g>}
         </g>
       ))}
+      {sw?.out && (
+        <g data-out={sw.out.text} className="d2-letter-out" opacity={0.45}>
+          <Glyph text={sw.out.text} px={fitPx(sw.out.text, w, BOX_GLYPH_PX)} x={xs[sw.out.i]} y={p.y} alphabet="latin" />
+        </g>
+      )}
       {/* a lifted plate: a tap on the row (a box, or the gap where one comes in) places it there, as a drop does */}
       {p.lifted && (
         <rect data-place-row x={left - tapL} y={p.y - BOX_H / 2} width={width + tapL + tapR} height={BOX_H} fill="transparent" style={{ cursor: 'pointer' }}
@@ -173,9 +203,13 @@ export function ladderView(size?: { w: number; h: number }): FullView | null {
 export const plateTop = (view: FullView | null) => (view ? belowBand(view) : 0)
 
 /** The screen's boxes (stage units): the ladder, its built rungs, the plates (their hit areas) and the wizard. */
-export function ladderBoxes(built: number, rungs: number, view: FullView | null = null) {
+export function ladderBoxes(built: number, rungs: number, view: FullView | null = null, /** English: the rung he makes has a box row */ row = false) {
   const lh = 790 - RUNG_Y(rungs - 1) + 170
   const lw = lh * (216 / 600)
+  // the wizard stands on the ladder's level: his staff at the left rail (the art's rail is at its edge), or left of the
+  // box row (English), so he never covers a rung's word or the row
+  const wizRight = Math.min(LADDER_CX - lw / 2 + lw * 0.03, row ? WIZ_RIGHT_ROW : Infinity)
+  const wizX = wizRight - LADDER_WIZ_H * 0.4
   const ph = PLATE_W * PLATE_ASPECT
   const standY = built ? RUNG_Y(Math.min(built, rungs) - 1) : WIZ_START_Y
   const ys = plateYs(built, rungs, plateTop(view))
@@ -184,7 +218,7 @@ export function ladderBoxes(built: number, rungs: number, view: FullView | null 
     rungs: Array.from({ length: Math.min(built, rungs) }, (_, k): Box => ({ x: LADDER_CX - RUNG_W / 2, y: RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2, w: RUNG_W, h: RUNG_W * PLATE_ASPECT })),
     plates: built < rungs ? ys.map((y): Box => ({ x: PLATE_X - (PLATE_W * HIT) / 2, y: y - (ph * HIT) / 2, w: PLATE_W * HIT, h: ph * HIT })) : [],
     plateYs: ys,
-    wizard: { x: LADDER_WIZ_X - LADDER_WIZ_H * 0.4, y: standY - LADDER_WIZ_H + 40, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
+    wizard: { x: wizX - LADDER_WIZ_H * 0.4, y: standY - LADDER_WIZ_H + 40, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
   }
 }
 
@@ -204,6 +238,12 @@ export function Ladder(p: {
   lifted?: string
   /** English: what the voice names now: the foot rung, or the place the new letter goes (glows) */
   cue?: 'foot' | 'box'
+  /**
+   * The swap after the right move (the controller steps it): `fly` the plate flies to its place (English: its box or the
+   * gap; Hebrew: onto the rung); `swap` English: the new letter is in the row and the old one drops out (Hebrew: the plate
+   * stays on the rung). Then the rung is built.
+   */
+  placing?: { id: string; step: 'fly' | 'swap' }
 }) {
   // a plate is held: where the finger is (the box row glows, more when it is over it)
   const [held, setHeld] = useState<{ x: number; y: number } | null>(null)
@@ -213,7 +253,7 @@ export function Ladder(p: {
   const px = (text: string, w: number) => (alphabet === 'latin' ? fitPx(text, w, LADDER_GLYPH_PX) : LADDER_GLYPH_PX)
   const wiz = useWizardArt()
   const view = ladderView(p.size)
-  const b = ladderBoxes(p.built.length, p.rungs, view)
+  const b = ladderBoxes(p.built.length, p.rungs, view, alphabet === 'latin')
   const fixY = b.plateYs
   const can = p.phase === 'answer'
   const change = p.change && p.plates.length > 0 && p.built.length < p.rungs ? p.change : undefined
@@ -234,7 +274,7 @@ export function Ladder(p: {
           <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={px(c.text, RUNG_W)} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
         </g>
       ))}
-      {change && <MakingRung change={change} y={nextRungY(p.built.length, p.rungs)} lifted={!change.marked && p.lifted !== undefined && can} glow={glow} onPlace={(place) => p.lifted && p.onPick(p.lifted, place)} />}
+      {change && <MakingRung key={p.built.length} change={change} swapped={p.placing?.step === 'swap' ? p.plates.find((c) => c.id === p.placing!.id)?.text : undefined} y={nextRungY(p.built.length, p.rungs)} lifted={!change.marked && p.lifted !== undefined && can} glow={glow} onPlace={(place) => p.lifted && p.onPick(p.lifted, place)} />}
       {wiz('s-wizard-idle') && (
         // a new ladder: he is back at the start at once (sliding down from the top he would pass under the bar's buttons)
         <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb"
@@ -244,10 +284,21 @@ export function Ladder(p: {
         let state: PickState = p.phase === 'feedback' || p.phase === 'celebrate' ? 'off' : 'idle'
         if (p.reveal?.right === c.id) state = 'reveal'
         else if (p.reveal?.wrong === c.id) state = 'wrong'
+        // the plate he placed stays lit while it flies to its place
+        if (p.placing?.id === c.id) state = 'idle'
         const rungY = nextRungY(p.built.length, p.rungs)
         const lifted = !!change && !change.marked && p.lifted === c.id && can
         const hover = hoverPlate(view, p.built.length, p.rungs)
         const liftY = hover.y
+        // the swap: the plate flies to its place (English: shrunk to its box), and in the step `swap` it is the row's (English)
+        const placing = p.placing?.id === c.id
+        let fly: string | undefined
+        if (placing) {
+          const box = change ? rungBoxXs(change.marked ? rungBoxes(change).length : change.from.length).w : PLATE_W
+          const s = change ? box / PLATE_W : 1
+          const tx = change ? rungPlaceX(change) : LADDER_CX
+          fly = `translate(${tx - s * PLATE_X}px, ${rungY - s * fixY[i]}px) scale(${s})`
+        }
         return (
           <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
             onDrag={(q) => setHeld(q)}
@@ -256,7 +307,8 @@ export function Ladder(p: {
             inZone={(q) => Math.abs(q.x - LADDER_CX) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
             demo={p.demo?.id === c.id ? { t: p.demo.t, dx: (change ? rungPlaceX(change) : LADDER_CX) - PLATE_X, dy: (change ? liftY : rungY) - fixY[i] } : undefined}>
             {/* a tapped plate (unmarked rung) is lifted above the box row; a tap on it puts it back */}
-            <g data-lifted={lifted ? '' : undefined}
+            <g data-lifted={lifted ? '' : undefined} {...(placing ? { 'data-placing': p.placing!.step, className: 'd2-plate-fly' } : {})}
+              style={fly ? { transform: fly, opacity: change && p.placing!.step === 'swap' ? 0 : 1 } : undefined}
               transform={lifted ? `translate(${(hover.x ?? LADDER_CX) - PLATE_X} ${hover.y - fixY[i]}) translate(${PLATE_X} ${fixY[i]}) scale(${hover.s}) translate(${-PLATE_X} ${-fixY[i]})` : undefined}>
               <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
                 <Glyph text={c.text} px={px(c.text, PLATE_W)} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />

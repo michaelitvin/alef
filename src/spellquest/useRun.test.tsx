@@ -173,7 +173,8 @@ describe('run controller', () => {
       expect(c.view.phase).toBe('mistake')
       const score = c.view.score
       c.gesture({ type: 'pick', id: (c.view.screen as { reveal: { right: string } }).reveal.right })
-      await until(c, (v) => !v.fixing && v.phase !== 'mistake')
+      // (the ladder: after its swap, design 2026-11-23 A)
+      await until(c, (v) => !v.fixing && v.phase !== 'mistake' && (v.screen?.screen !== 'ladder' || !v.screen.placing))
       // the right move does what a right answer does on that screen, but no star and no new answer recorded
       const s = c.view.screen!
       if (s.screen === 'ladder') expect(s.built.length).toBe(1)
@@ -550,6 +551,71 @@ describe('run controller', () => {
     expect(s.plates.length).toBe(3)
     expect(useSpellQuestStore.getState().roundNo).toBe(1)
     c.destroy()
+  })
+
+  describe('the ladder swap (design 2026-11-23 A)', () => {
+    type LadderS = Extract<View['screen'], { screen: 'ladder' }>
+    /** each change of the ladder's swap: `step:built`, and the voice and the lock's click as they come */
+    const record = (c: ReturnType<typeof make>) => {
+      const log: string[] = []
+      fakeAudio.onVoice((id) => { log.push(`voice:${id}`); played.push(id); return new Promise((r) => setTimeout(r, 300)) })
+      sfxLog.length = 0
+      let sfx = 0
+      c.subscribe(() => {
+        while (sfx < sfxLog.length) log.push(`sfx:${sfxLog[sfx++]}`)
+        const s = c.view.screen as LadderS | undefined
+        if (s?.screen !== 'ladder') return
+        const line = `${s.placing ? `${s.placing.step}:${s.placing.id}` : 'none'}:${s.built.length}`
+        const views = log.filter((x) => !x.startsWith('voice:') && !x.startsWith('sfx:'))
+        if (views[views.length - 1] !== line) log.push(line)
+      })
+      return log
+    }
+    it('a right answer: the plate flies onto the rung, the lock clicks, then the rung is built as its word plays', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+      const log = record(c)
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const s = c.view.screen as LadderS
+      const id = rightId(c.view)
+      log.length = 0
+      c.gesture({ type: 'pick', id })
+      await until(c, (v) => (v.screen as LadderS).built.length === 1 && log.some((x) => x.startsWith('voice:')))
+      const steps = log.filter((x) => !x.startsWith('voice:') && x !== 'none:0')
+      expect(steps.slice(0, 4)).toEqual([`fly:${id}:0`, 'sfx:lock', `swap:${id}:0`, 'none:1'])
+      // the word, every time, after the rung is built
+      expect(log[log.indexOf('none:1') + 1]).toBe(`voice:${s.target.soundId}`)
+      c.destroy()
+    })
+    it('the fix after a mistake plays the same swap, its word too', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' }, rng: () => 0.9 })
+      const log = record(c)
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      const s = c.view.screen as LadderS
+      c.gesture({ type: 'pick', id: wrongId(c.view) })
+      await until(c, (v) => !!v.fixing)
+      log.length = 0
+      proceed(c)
+      await until(c, (v) => (v.screen as LadderS).built.length === 1 && log.includes(`voice:${s.target.soundId}`))
+      const steps = log.filter((x) => !x.startsWith('voice:') && x !== 'none:0')
+      expect(steps.slice(0, 4)).toEqual([`fly:${s.target.id}:0`, 'sfx:lock', `swap:${s.target.id}:0`, 'none:1'])
+      expect((c.view.screen as LadderS).reveal).toBeUndefined()
+      c.destroy()
+    })
+    it('a pause in the swap builds the rung at once and clears the swap', async () => {
+      const c = make({ force: { screen: 'ladder', stage: 2, fixed: 'letter' } })
+      c.start()
+      await until(c, (v) => v.phase === 'answer')
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await tick(50)
+      expect((c.view.screen as LadderS).placing?.step).toBe('fly')
+      c.pause()
+      const s = c.view.screen as LadderS
+      expect(s.placing).toBeUndefined()
+      expect(s.built.length).toBe(1)
+      c.destroy()
+    })
   })
 
   it('resume keeps the flight kind', async () => {

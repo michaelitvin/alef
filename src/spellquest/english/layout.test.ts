@@ -176,7 +176,7 @@ describe('the ladder', () => {
         const from = Array.from({ length: n }, (_, i) => partChoice('abcdef'[i]))
         const c = render(h(Ladder, { built: Array.from({ length: built }, () => wordChoice('ship')), plates: [partChoice('e')], rungs: 5, onPick: () => {},
           phase: 'answer', dir: 'ltr', change: { from, at: 0, marked: false } })).container
-        const b = ladderBoxes(built, 5)
+        const b = ladderBoxes(built, 5, null, true)
         for (const r of rects(c)) {
           expect(apart(r, b.wizard), `${n} boxes, ${built} built: the wizard`).toBe(true)
           b.rungs.forEach((rung, k) => expect(apart(r, rung), `${n} boxes, ${built} built: rung ${k}`).toBe(true))

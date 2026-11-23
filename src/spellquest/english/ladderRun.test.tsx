@@ -12,6 +12,7 @@ import { memoryEnglishSavePort } from './savePort'
 import type { EnglishSave } from './saveFormat'
 import { unit } from './content/units'
 import { word } from './content/words'
+import { fakeAudio } from '../../shared/gameAudio/fakePlayer'
 
 /** an English save after its placement, the ladder's demo seen */
 function englishSave(stage: number, more: Partial<EnglishSave> = {}) {
@@ -225,6 +226,95 @@ describe('the English ladder in the run', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  describe('the swap (design 2026-11-23 A)', () => {
+    type LadderS = Extract<RunController['view']['screen'], { screen: 'ladder' }>
+    /** the swap's view steps (`step:id:built`), the voice and the effects as they come */
+    const record = (c: RunController) => {
+      const log: string[] = []
+      let n = 0
+      let last = ''
+      const flush = () => { const all = fakeAudio.log(); while (n < all.length) { const e = all[n++]; log.push(`${e.kind}:${e.id}`) } }
+      c.subscribe(() => {
+        flush()
+        const s = c.view.screen
+        if (s?.screen !== 'ladder') return
+        const line = `${s.placing ? `${s.placing.step}:${s.placing.id}` : 'none'}:${s.built.length}`
+        if (line !== last) { log.push(line); last = line }
+      })
+      return { log, flush }
+    }
+    const start = async (stage: number, seed = 5) => {
+      const save = englishSave(stage)
+      const c = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(seed), session: { screen: 'ladder' } })
+      const r = record(c)
+      c.start()
+      await until(c, (v) => v.phase === 'answer' && v.screen?.screen === 'ladder')
+      return { c, s: c.view.screen as LadderS, ...r }
+    }
+
+    it('a right answer: the plate flies into its box, the old letter drops out, then the rung is built as its word plays (every time)', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, s, log, flush } = await start(2)
+        const id = ladderAnswerId(s)
+        const n = s.built.length
+        log.length = 0
+        c.gesture({ type: 'pick', id })
+        await until(c, (v) => (v.screen as LadderS).built.length === n + 1)
+        await wait(100)
+        flush()
+        const steps = log.filter((x) => !x.startsWith('voice:'))
+        expect(steps.slice(0, 4)).toEqual([`fly:${id}:${n}`, expect.stringMatching(/^sfx:.*lock/), `swap:${id}:${n}`, `none:${n + 1}`])
+        expect(log.slice(log.indexOf(`none:${n + 1}`)).find((x) => x.startsWith('voice:'))).toBe(`voice:${s.target.soundId}`)
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('the fix after a mistake plays the same swap', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, s, log, flush } = await start(2)
+        const id = ladderAnswerId(s)
+        const n = s.built.length
+        c.gesture({ type: 'pick', id: s.plates.find((x) => x.id !== id)!.id })
+        await until(c, (v) => !!v.fixing)
+        log.length = 0
+        c.gesture({ type: 'pick', id })
+        await until(c, (v) => (v.screen as LadderS).built.length === n + 1)
+        await wait(100)
+        flush()
+        const steps = log.filter((x) => !x.startsWith('voice:'))
+        expect(steps.slice(0, 4)).toEqual([`fly:${id}:${n}`, expect.stringMatching(/^sfx:.*lock/), `swap:${id}:${n}`, `none:${n + 1}`])
+        expect(log.slice(log.indexOf(`none:${n + 1}`)).find((x) => x.startsWith('voice:'))).toBe(`voice:${s.target.soundId}`)
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('a pause in the swap builds the rung at once; the next rung asks as usual', async () => {
+      vi.useFakeTimers()
+      try {
+        const { c, s } = await start(2)
+        const n = s.built.length
+        c.gesture({ type: 'pick', id: ladderAnswerId(s) })
+        await wait(300)
+        expect((c.view.screen as LadderS).placing?.step).toBe('swap')
+        c.pause()
+        expect((c.view.screen as LadderS).placing).toBeUndefined()
+        expect((c.view.screen as LadderS).built.length).toBe(n + 1)
+        c.resume()
+        await until(c, (v) => v.phase === 'answer' && (v.screen as LadderS).plates.length === 3)
+        expect((c.view.screen as LadderS).built.length).toBe(n + 1)
+        c.destroy()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 
   it('at stage 5 a rung may come with a box more (lip → slip), and its answer counts for the added letter', async () => {
