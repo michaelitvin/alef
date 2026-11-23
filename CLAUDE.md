@@ -62,10 +62,10 @@ When you ship a generated asset (voice, sound, music, image), record the request
 ## Checks
 
 While you work on a task, run the tests of what you changed: `npx vitest related --run <changed files>` and
-`npx tsc --noEmit`. Run the full `npm run check && npm test` before a merge into `main`, before a push and before a
-playtest build (the full suite has ~1,800 tests and is slow on this machine). `npm run check` is the type check, lint,
-dependency-cruiser (the boundary rules in
-`.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
+`npx tsc --noEmit`. Before a push, run `npm run check && npx vitest run --changed origin/main`; CI runs the full suite
+and deploys nothing if it fails. Run the full suite locally (`npm run check && npm run test:full`, six workers, about
+6 minutes for ~2,800 tests) only before a merge into `main` and before a playtest build. `npm run check` is the type
+check, lint, dependency-cruiser (the boundary rules in `.dependency-cruiser.cjs`) and knip (unused code); CI runs it before the tests and the build. To see a change work in the
 real build, use the `/verify` skill (it drives the verify build in a browser with touch on). The test timeout is 20 s
 (`vite.config.ts`): the run tests are slow under load.
 

@@ -33,7 +33,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     // agents' git worktrees live under .claude/worktrees: never run their copies of the tests
     exclude: [...configDefaults.exclude, '.claude/**'],
-    // keep local runs light (parallel agents); CI uses the default
+    // keep local runs light (parallel agents; `npm run test:full` takes 6); CI uses the default
     maxWorkers: process.env.CI ? undefined : 2,
     // heavy tests timed out at the 5 s default under load; the slowest keep their own 60 s
     testTimeout: 20000,
