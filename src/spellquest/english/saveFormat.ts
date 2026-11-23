@@ -1,13 +1,15 @@
-// The English path's save format (localStorage 'alef-english'): its types, its fresh values and a light reader. Kept apart
+// The English path's save format (localStorage 'alef-spellquest-en'): its types, its fresh values and a light reader. Kept apart
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
-// so writing) the store. It never reads or writes Spell Quest's save (alef-spellquest): the English path has its own purse.
+// so writing) the store. It never reads or writes Spell Quest's save (alef-spellquest-he): the English path has its own purse.
+import { readSaveValue } from '../../shared/keyMigration'
+import { SPELLQUEST_EN_SAVE_KEY } from '../../shared/saveKeys'
 import type { SpellQuestSave, SpellQuestSettings } from '../store'
 import { DEFAULT_SETTINGS, renameSpellQuestFieldsV8 } from '../saveFormat'
 import type { ScreenId } from '../logic/predict'
 import type { TowerTallies } from '../tower/logic/tallies'
 import type { PlacementState } from './logic/placement'
 
-export const ENGLISH_SAVE_KEY = 'alef-english'
+export const ENGLISH_SAVE_KEY = SPELLQUEST_EN_SAVE_KEY
 /** the save's version: raise it when a save must be converted */
 export const ENGLISH_SAVE_VERSION = 2
 
@@ -69,7 +71,7 @@ export const ENGLISH_FRESH: Partial<SpellQuestSave> & EnglishFields = {
 /** the English save, read only (null when he has none, or it cannot be read) */
 export function readEnglishSave(): Partial<EnglishSave> | null {
   try {
-    const raw = localStorage.getItem(ENGLISH_SAVE_KEY)
+    const raw = readSaveValue(localStorage, ENGLISH_SAVE_KEY) // the old key while the save's move waits
     if (!raw) return null
     const p = JSON.parse(raw) as { state?: unknown; version?: unknown }
     const s = p?.state

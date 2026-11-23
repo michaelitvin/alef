@@ -3,7 +3,7 @@
 // save (its `settings.range`, which Spell Quest's section still writes), else 100.
 import { useSyncExternalStore } from 'react'
 import { safeSetItem } from './saveStorage'
-import { SPELLQUEST_SAVE_KEY } from './saveKeys'
+import { SPELLQUEST_HE_SAVE_KEY } from './saveKeys'
 
 export type NumberRange = 10 | 100 | 1000
 export const NUMBER_RANGE_KEY = 'alef-range'
@@ -15,7 +15,7 @@ const notify = () => listeners.forEach((l) => l())
 
 function spellQuestRange(): NumberRange {
   try {
-    const r = (JSON.parse(localStorage.getItem(SPELLQUEST_SAVE_KEY) ?? 'null') as { state?: { settings?: { range?: unknown } } } | null)?.state?.settings?.range
+    const r = (JSON.parse(localStorage.getItem(SPELLQUEST_HE_SAVE_KEY) ?? 'null') as { state?: { settings?: { range?: unknown } } } | null)?.state?.settings?.range
     return isRange(r) ? r : 100
   } catch { return 100 }
 }

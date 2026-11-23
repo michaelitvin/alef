@@ -127,7 +127,7 @@ function en(save: SavePort): EnglishSavePort {
 
 export const ENGLISH: Course = {
   id: 'en',
-  game: 'english',
+  game: 'spellquest-en',
   dir: 'ltr',
   stages: {
     maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING,

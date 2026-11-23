@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { MIGRATIONS_KEY, migrateKeys, plannedMoves, saveKeyFor } from './keyMigration'
+import { MIGRATIONS_KEY, fingerprint, migrateKeys, plannedMoves, readSaveValue, saveKeyFor } from './keyMigration'
+import { aliasGame } from './telemetryAliases'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
 import { chunkKey, openJson, rollupKey } from './telemetryChunks'
 import { decodeChunk, encodeChunk } from './telemetryCodec'
@@ -25,7 +26,7 @@ class FakeStorage implements Storage {
 }
 
 const OLD = 'alef-duel2'
-const NEW = 'alef-spellquest'
+const NEW = 'alef-spellquest-he'
 const events = (s: string, t0: number, n: number): TelemetryEvent[] =>
   Array.from({ length: n }, (_, i) => ({ t: t0 + i * 1000, s, run: 1, e: i === 0 ? 'start' : 'tap', g: 'book2', item: `x${i}` }))
 
@@ -52,9 +53,9 @@ describe('migrateKeys', () => {
   it('has nothing to do on a fresh storage and writes the markers', () => {
     const s = new FakeStorage()
     const r = migrateKeys(s)
-    expect(r.steps.map((x) => [x.id, x.status])).toEqual([['spellquest-rename', 'done'], ['tower-history', 'done']])
+    expect(r.steps.map((x) => [x.id, x.status])).toEqual([['spellquest-two-names', 'done'], ['tower-history', 'done']])
     expect(r.steps[0]!.keys.every((k) => k.status === 'absent')).toBe(true)
-    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!)).toEqual({ v: 1, done: ['spellquest-rename', 'tower-history'] })
+    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!)).toEqual({ v: 1, done: ['spellquest-two-names', 'tower-history'] })
     expect(s.length).toBe(1)
   })
 
@@ -67,7 +68,7 @@ describe('migrateKeys', () => {
     expect(s.getItem(OLD)).toBeNull()
     expect(s.getItem(NEW)).toBe(SAVE)
     const pt = JSON.parse(s.getItem('alef-playtime')!)
-    expect(pt.days['2026-11-20']).toEqual({ spellquest: 5000, clock: 100 })
+    expect(pt.days['2026-11-20']).toEqual({ 'spellquest-he': 5000, clock: 100 })
     expect(pt.days['2026-11-21']).toEqual({ lessons: 7 })
     for (const c of oldChunks) {
       expect(s.getItem(c.key)).toBeNull()
@@ -84,7 +85,7 @@ describe('migrateKeys', () => {
     expect(s.getItem('alef-duel-telemetry')).toBeNull()
     expect(s.getItem('alef-progress')).toBe('{"unrelated":1}')
     expect(Object.keys(s.snapshot()).filter((k) => k.startsWith(OLD))).toEqual([])
-    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-rename', 'tower-history'])
+    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-two-names', 'tower-history'])
     expect(plannedMoves(s)).toEqual([])
   })
 
@@ -111,7 +112,7 @@ describe('migrateKeys', () => {
     expect(s.getItem(newKey(oldChunks[1]!.key))).toBe(oldChunks[1]!.value)
     expect(s.getItem(oldChunks[1]!.key)).toBeNull()
     expect(JSON.parse(s.getItem(`${NEW}-telemetry`)!).sealed).toEqual(oldChunks.map((c) => newKey(c.key)))
-    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-rename', 'tower-history'])
+    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-two-names', 'tower-history'])
   })
 
   it('removes the old key when both exist and are equal', () => {
@@ -146,7 +147,7 @@ describe('migrateKeys', () => {
     expect(r.steps[1]!.keys[0]!.status).toBe('waiting-space')
     expect(s.getItem('alef-duel-telemetry')).toBe(FROZEN)
     expect(s.getItem('alef-tower-history-telemetry')).toBeNull()
-    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-rename'])
+    expect(JSON.parse(s.getItem(MIGRATIONS_KEY)!).done).toEqual(['spellquest-two-names'])
     expect(migrateKeys(s).steps[1]!.status).toBe('waiting-space')
     s.limit = Infinity
     expect(migrateKeys(s).steps.map((x) => x.status)).toEqual(['done', 'done'])
@@ -234,11 +235,11 @@ describe('migrateKeys: a late write from an old page', () => {
     const evs = events('se', 1_760_400_000_000, 4)
     const k = chunkKey(`${OLD}-telemetry`, 1_760_400_000_000, 'se')
     s.setItem(k, encodeChunk(evs))
-    s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { '2026-11-20': { book2: 1000, spellquest: 5000 } } }))
+    s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { '2026-11-20': { book2: 1000, 'spellquest-he': 5000 } } }))
     expect(migrateKeys(s).steps[0]!.status).toBe('done')
     expect(s.getItem(k)).toBeNull()
     expect(decodeChunk(s.getItem(newKey(k)))).toEqual(evs)
-    expect(JSON.parse(s.getItem('alef-playtime')!).days['2026-11-20']).toEqual({ spellquest: 6000 })
+    expect(JSON.parse(s.getItem('alef-playtime')!).days['2026-11-20']).toEqual({ 'spellquest-he': 6000 })
   })
 
   it('an old open chunk next to the new one: its events become sealed chunks of the new log, listed in the open chunk', () => {
@@ -280,7 +281,7 @@ describe('migrateKeys: a late write from an old page', () => {
     const spy: Storage = { get length() { reads += 100; return s.length }, key: (i) => { reads += 100; return s.key(i) }, getItem: (k) => { reads++; return s.getItem(k) }, setItem: (k, v) => s.setItem(k, v), removeItem: (k) => s.removeItem(k), clear: () => s.clear() }
     const before = s.snapshot()
     migrateKeys(spy)
-    expect(reads).toBeLessThanOrEqual(6)
+    expect(reads).toBeLessThanOrEqual(11) // the marker, the play time, and per old name (three) its save, open chunk and roll-up
     expect(s.snapshot()).toEqual(before)
   })
 })
@@ -322,6 +323,148 @@ describe('saveKeyFor: a save waiting for space', () => {
     s.setItem(NEW, 'n')
     s.setItem(OLD, 'o')
     expect(saveKeyFor(s, NEW)).toBe(NEW)
-    expect(saveKeyFor(s, 'alef-english')).toBe('alef-english')
+    expect(saveKeyFor(s, 'alef-progress')).toBe('alef-progress')
+  })
+})
+
+// The 2026-11-23 addendum: every earlier name is a source. Production has the original names; staging and dev devices may
+// also have the in-between names of the first Spell Quest build (`alef-spellquest`, its log, playtime `spellquest`, the
+// `spellquest-rename` marker with a fingerprint of `alef-spellquest`).
+describe('migrateKeys: the two names (-he, -en) from every earlier name', () => {
+  const D = 'alef-duel2', Q = 'alef-spellquest', H = 'alef-spellquest-he', E = 'alef-english', N = 'alef-spellquest-en'
+  const ENG = JSON.stringify({ state: { placement: { done: true }, coins: 2 }, version: 2 })
+  const engEvents = events('se', 1_761_000_000_000, 6).map((e) => ({ ...e, g: 'english' }))
+  const engChunk = { key: chunkKey(`${E}-telemetry`, 1_761_000_000_000, 'se'), value: encodeChunk(engEvents) }
+  const marker = (s: Storage) => JSON.parse(s.getItem(MIGRATIONS_KEY)!)
+  const oldKeysLeft = (s: FakeStorage) => Object.keys(s.snapshot()).filter((k) => [D, Q, E].some((b) => k === b || k.startsWith(`${b}~`) || k === `${b}-telemetry`))
+
+  it('production (only the original names, both games): everything moves to the final names', () => {
+    const s = new FakeStorage()
+    fullSet(s)
+    s.setItem(E, ENG)
+    s.setItem(engChunk.key, engChunk.value)
+    s.setItem(`${E}-telemetry`, openJson(engEvents.slice(0, 1), [engChunk.key]))
+    s.setItem(rollupKey(`${E}-telemetry`), JSON.stringify({ v: 1, folded: [{ k: `${E}~zz~sy-telemetry`, s: 'sy', t0: 1, t1: 2, n: 1, at: 3 }], dropped: 0, days: {}, tails: {} }))
+    s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { '2026-11-20': { book2: 5000, english: 700, clock: 1 } } }))
+    expect(migrateKeys(s).steps.map((x) => x.status)).toEqual(['done', 'done'])
+    expect(s.getItem(H)).toBe(SAVE)
+    expect(s.getItem(N)).toBe(ENG)
+    expect(decodeChunk(s.getItem(engChunk.key.replace(`${E}~`, `${N}~`)))).toEqual(engEvents)
+    expect(JSON.parse(s.getItem(`${N}-telemetry`)!).sealed).toEqual([engChunk.key.replace(`${E}~`, `${N}~`)])
+    expect(JSON.parse(s.getItem(rollupKey(`${N}-telemetry`))!).folded[0].k).toBe(`${N}~zz~sy-telemetry`)
+    expect(JSON.parse(s.getItem('alef-playtime')!).days['2026-11-20']).toEqual({ 'spellquest-he': 5000, 'spellquest-en': 700, clock: 1 })
+    expect(oldKeysLeft(s)).toEqual([])
+    expect(marker(s).done).toEqual(['spellquest-two-names', 'tower-history'])
+    expect(marker(s).fp).toEqual({ [H]: fingerprint(SAVE), [N]: fingerprint(ENG) })
+  })
+
+  it('staging (the in-between names, `spellquest-rename` done): the new step runs once and moves them', () => {
+    const s = new FakeStorage()
+    const qChunk = { key: chunkKey(`${Q}-telemetry`, 1_760_000_000_000, 'sa'), value: oldChunks[0]!.value }
+    s.setItem(Q, SAVE)
+    s.setItem(qChunk.key, qChunk.value)
+    s.setItem(`${Q}-telemetry`, openJson(OPEN_EVENTS, [qChunk.key]))
+    s.setItem(E, ENG)
+    s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { '2026-11-22': { spellquest: 300, english: 20 } } }))
+    s.setItem(MIGRATIONS_KEY, JSON.stringify({ v: 1, done: ['spellquest-rename', 'tower-history'], fp: { [Q]: fingerprint(SAVE) } }))
+    const r = migrateKeys(s)
+    expect(r.steps.map((x) => [x.id, x.status])).toEqual([['spellquest-two-names', 'done'], ['tower-history', 'done']])
+    expect(s.getItem(H)).toBe(SAVE)
+    expect(s.getItem(N)).toBe(ENG)
+    expect(s.getItem(qChunk.key.replace(`${Q}~`, `${H}~`))).toBe(qChunk.value)
+    expect(JSON.parse(s.getItem(`${H}-telemetry`)!).sealed).toEqual([qChunk.key.replace(`${Q}~`, `${H}~`)])
+    expect(JSON.parse(s.getItem('alef-playtime')!).days['2026-11-22']).toEqual({ 'spellquest-he': 300, 'spellquest-en': 20 })
+    expect(oldKeysLeft(s)).toEqual([])
+    expect(marker(s).done).toEqual(['spellquest-rename', 'tower-history', 'spellquest-two-names'])
+    const after = s.snapshot()
+    migrateKeys(s)
+    expect(s.snapshot()).toEqual(after) // idempotent
+  })
+
+  describe('both `alef-duel2` and `alef-spellquest` (a page of the build before the first one wrote alef-duel2 late)', () => {
+    const LATE = JSON.stringify({ state: { stars: 9 }, version: 6 })
+    const between = (qFp: string | null, q = SAVE) => {
+      const s = new FakeStorage()
+      s.setItem(Q, q)
+      s.setItem(D, LATE)
+      s.setItem(MIGRATIONS_KEY, JSON.stringify({ v: 1, done: ['spellquest-rename', 'tower-history'], ...(qFp ? { fp: { [Q]: qFp } } : {}) }))
+      return s
+    }
+
+    it('alef-spellquest unchanged since the first move: the late write wins and goes on to -he', () => {
+      const s = between(fingerprint(SAVE))
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(s.getItem(H)).toBe(LATE)
+      expect(s.getItem(D)).toBeNull()
+      expect(s.getItem(Q)).toBeNull()
+      expect(marker(s).fp[H]).toBe(fingerprint(LATE))
+    })
+
+    it('alef-spellquest changed since (or no fingerprint): a conflict, both stay, nothing moves to -he; the store reads alef-spellquest', () => {
+      for (const s of [between(fingerprint('something else')), between(null)]) {
+        const r = migrateKeys(s).steps[0]!
+        expect(r.status).toBe('conflict')
+        expect(r.keys.find((k) => k.status === 'conflict')).toEqual({ from: D, to: Q, status: 'conflict' })
+        expect([s.getItem(D), s.getItem(Q), s.getItem(H)]).toEqual([LATE, SAVE, null])
+        expect(saveKeyFor(s, H)).toBe(Q)
+        expect(readSaveValue(s, H)).toBe(SAVE)
+        const kept = s.snapshot()
+        expect(migrateKeys(s).steps[0]!.status).toBe('conflict') // stable: never decided later against the child's save
+        expect(s.snapshot()).toEqual(kept)
+      }
+    })
+  })
+
+  describe('a stale page of an older build writes its old key after the new step is done', () => {
+    const LATE = JSON.stringify({ state: { stars: 7 }, version: 7 })
+    const done = () => { const s = new FakeStorage(); s.setItem(Q, SAVE); migrateKeys(s); return s }
+
+    it('the first build writes alef-spellquest; -he unchanged since the move: the late write wins', () => {
+      const s = done()
+      s.setItem(Q, LATE)
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(s.getItem(H)).toBe(LATE)
+      expect(s.getItem(Q)).toBeNull()
+    })
+
+    it('the first build writes alef-spellquest; -he changed since: a conflict, both stay', () => {
+      const s = done()
+      s.setItem(H, JSON.stringify({ state: { stars: 8 }, version: 9 }))
+      s.setItem(Q, LATE)
+      expect(migrateKeys(s).steps[0]!.status).toBe('conflict')
+      expect(s.getItem(Q)).toBe(LATE)
+      expect(JSON.parse(s.getItem(H)!).state.stars).toBe(8)
+    })
+
+    it('the build before writes alef-duel2 (no alef-spellquest now): it resolves against -he the same way', () => {
+      const s = done()
+      s.setItem(D, LATE)
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(s.getItem(H)).toBe(LATE)
+      expect(s.getItem(D)).toBeNull()
+    })
+
+    it('the first build writes its open chunk: the events become sealed chunks of the -he log', () => {
+      const s = done()
+      s.setItem(`${H}-telemetry`, openJson(OPEN_EVENTS, []))
+      const late = events('sl', 1_760_500_000_000, 3)
+      s.setItem(`${Q}-telemetry`, openJson(late, []))
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(s.getItem(`${Q}-telemetry`)).toBeNull()
+      const sealed = JSON.parse(s.getItem(`${H}-telemetry`)!).sealed as string[]
+      expect(sealed).toEqual([chunkKey(`${H}-telemetry`, 1_760_500_000_000, 'sl')])
+      expect(decodeChunk(s.getItem(sealed[0]!))).toEqual(late)
+    })
+
+    it('the first build adds play time under `spellquest`: summed into `spellquest-he`', () => {
+      const s = done()
+      s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { d: { 'spellquest-he': 100, spellquest: 50, book2: 5, english: 3, 'spellquest-en': 1 } } }))
+      migrateKeys(s)
+      expect(JSON.parse(s.getItem('alef-playtime')!).days.d).toEqual({ 'spellquest-he': 155, 'spellquest-en': 4 })
+    })
+  })
+
+  it('reads old event ids as the new ones', () => {
+    expect(['book2', 'spellquest', 'english', 'duel', 'clock'].map(aliasGame)).toEqual(['spellquest-he', 'spellquest-he', 'spellquest-en', 'tower', 'clock'])
   })
 })

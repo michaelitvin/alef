@@ -5,7 +5,9 @@
 // A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's, or with
 // ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts; production ignores both).
 
+import { downloadJson } from './download'
 import { migrateKeys, type MigrationReport } from './keyMigration'
+import type { CheckResult, CheckSnapshots } from './migrateCheck'
 import { STAGING_PREFIX } from './stagingPrefix'
 export { STAGING_PREFIX }
 
@@ -46,7 +48,7 @@ export function copyUnprefixedOver(storage: Storage, prefix: string) {
 /** Put a prefixed view of `win.localStorage` in its place (and do a requested ?copy-prod first). The view is installed
  * even when the copy fails (for example on a full storage): otherwise staging would read and write the child's real
  * saves. */
-export function installStagingStorage(win: Window, reload: (url: string) => void = (url) => win.location.replace(url)): Promise<boolean> | null {
+export function installStagingStorage(win: Window, reload: (url: string) => void = (url) => win.location.replace(url), download: (json: string, filename: string) => void = downloadJson): Promise<boolean> | null {
   let storage: Storage
   try { storage = win.localStorage } catch { return null /* no storage: nothing to keep apart */ }
   let check = false
@@ -69,25 +71,31 @@ export function installStagingStorage(win: Window, reload: (url: string) => void
   } catch { /* the copy failed part way: staging keeps what it got */ }
   const view = prefixedStorage(storage, STAGING_PREFIX)
   Object.defineProperty(win, 'localStorage', { value: view, configurable: true })
-  if (check) return startMigrateCheck(storage, view, cleanUrl, reload)
+  if (check) return startMigrateCheck(storage, view, cleanUrl, reload, win, download)
   runKeyMigration(view)
   return null
 }
 
-/** Run `?migrate-check` (after the page's view is installed): the saves' steps load on demand, the result is written to
- * `alef-migration-check` on staging, and the page reloads without the query. The promise is true when the reload is asked for; the entry point waits for the gate (migrateCheckGate). */
-function startMigrateCheck(storage: Storage, view: Storage, cleanUrl: string, reload: (url: string) => void): Promise<boolean> {
+/** Run `?migrate-check` (after the page's view is installed): the saves' steps load on demand, the old result is cleared,
+ * the new one is written to `alef-migration-check` on staging, and the end page (migrateCheckPage.ts) shows it with the
+ * before and after downloads. Its "Continue" reloads the page without the query. The promise is true when the reload is
+ * asked for; the entry point waits for the gate (migrateCheckGate), so the app does not boot under the end page. */
+function startMigrateCheck(storage: Storage, view: Storage, cleanUrl: string, reload: (url: string) => void, win: Window, download: (json: string, filename: string) => void): Promise<boolean> {
   const leave = () => { try { reload(cleanUrl); return true } catch { return false /* the result is in the Data section at the next visit */ } }
-  return Promise.all([import('./migrateCheck'), import('./migrateCheckSteps')]).then(([{ runMigrateCheck, MIGRATION_CHECK_KEY }, { SAVE_STEPS }]) => {
-    let result
+  return Promise.all([import('./migrateCheck'), import('./migrateCheckSteps'), import('./migrateCheckPage')]).then(([{ runMigrateCheck, MIGRATION_CHECK_KEY }, { SAVE_STEPS }, { showCheckEnd }]) => {
+    try { view.removeItem(MIGRATION_CHECK_KEY) } catch { /* nothing to clear */ } // the last check's result (older names) never shows again
+    let result: CheckResult
+    const snap: CheckSnapshots = {}
     try {
-      result = runMigrateCheck(storage, view, SAVE_STEPS)
+      result = runMigrateCheck(storage, view, SAVE_STEPS, Date.now(), snap)
     } catch (e) { // a bug in the check: a FAIL with its message, never a blank page
       result = { v: 1, at: Date.now(), verdict: 'fail', message: `the check stopped: ${e instanceof Error ? e.message : String(e)}`, rows: [] }
     }
-    try { view.setItem(MIGRATION_CHECK_KEY, JSON.stringify(result)) } catch { /* no space for the result: the check shows nothing */ }
+    try { view.setItem(MIGRATION_CHECK_KEY, JSON.stringify(result)) } catch { /* no space for the result: the end page still shows it */ }
     runKeyMigration(view)
-    return leave()
+    return new Promise<boolean>((resolve) => {
+      try { showCheckEnd(win, result, snap, () => resolve(leave()), download) } catch { resolve(leave()) } // no page: reload as before
+    })
   }).catch(() => { runKeyMigration(view); return leave() })
 }
 

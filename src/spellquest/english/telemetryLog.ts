@@ -1,13 +1,14 @@
 // The English path's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
 // The English run is Spell Quest's run on the English course, so its events (and the tower's, `via: 'tower'`) are Spell Quest's
-// names with `g: 'english'` (ADR 0004: one log per game).
+// names with `g: 'spellquest-en'` (ADR 0004: one log per game).
+import { SPELLQUEST_EN_LOG_KEY } from '../../shared/saveKeys'
 import type { RollupFact, TelemetryEvent, TelemetryLog } from '../../shared/telemetry'
 import { runFacts } from '../telemetryLog'
 
 export const ENGLISH_LOG: TelemetryLog = {
-  key: 'alef-english-telemetry',
+  key: SPELLQUEST_EN_LOG_KEY,
   label: 'English path',
-  game: 'english',
+  game: 'spellquest-en',
   about: {
     game: 'Spell Quest, the English path (English letters, sounds and words), at /spellquest/?course=en: Spell Quest\'s run on the English '
       + 'course. Events with via: "tower" come from the tower; `run` is the English run.',

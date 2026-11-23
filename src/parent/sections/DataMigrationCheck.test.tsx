@@ -13,8 +13,8 @@ import { MIGRATION_CHECK_KEY, type CheckResult } from '../../shared/migrateCheck
 const AT = Date.UTC(2026, 10, 23, 9, 30)
 const result = (over: Partial<CheckResult>): CheckResult => ({
   v: 1, at: AT, verdict: 'pass', rows: [
-    { key: 'alef-spellquest', moved: true, content: true, counts: null },
-    { key: 'alef-spellquest-telemetry: whole log, 7 events', moved: null, content: true, counts: true },
+    { key: 'alef-spellquest-he', moved: true, content: true, counts: null },
+    { key: 'alef-spellquest-he-telemetry: whole log, 7 events', moved: null, content: true, counts: true },
   ], ...over,
 })
 const store = (r: CheckResult) => localStorage.setItem(MIGRATION_CHECK_KEY, JSON.stringify(r))
@@ -32,7 +32,7 @@ describe('the migration check in the Data section', () => {
     expect(container.querySelector('[data-migration-verdict]')!.textContent).toBe('Migration check: PASS')
     expect(container.querySelectorAll('[data-migration-row]')).toHaveLength(2)
     expect(container.querySelector('[data-migration-date]')!.textContent).toBe('2026-11-23 09:30 UTC')
-    expect(container.querySelector('[data-migration-row="alef-spellquest"]')!.textContent).toContain('yes')
+    expect(container.querySelector('[data-migration-row="alef-spellquest-he"]')!.textContent).toContain('yes')
   })
 
   it('FAIL: the verdict and the failing row say so', () => {
@@ -70,12 +70,12 @@ describe('MigrationCheck: a conflict of the key migration', () => {
   it('names the old and the new key that both stay', async () => {
     const { runKeyMigration } = await import('../../shared/stagingStorage')
     localStorage.setItem('alef-duel2', '{"state":{"coins":1},"version":7}')
-    localStorage.setItem('alef-spellquest', '{"state":{"coins":2},"version":7}')
+    localStorage.setItem('alef-spellquest-he', '{"state":{"coins":2},"version":7}')
     runKeyMigration(localStorage)
     const { container } = render(<MigrationCheck />)
     const note = container.querySelector('[data-migration-waiting]')!.textContent!
     expect(note).toContain('alef-duel2')
-    expect(note).toContain('alef-spellquest')
+    expect(note).toContain('alef-spellquest-he')
     localStorage.clear()
     runKeyMigration(localStorage) // a clean report for the next test
   })

@@ -16,10 +16,10 @@ describe('the play-time ledger', () => {
   })
 
   it('splits a span over midnight between the two days', () => {
-    addPlaytime('spellquest', at('2026-11-10T23:58:00'), at('2026-11-11T00:03:00'))
+    addPlaytime('spellquest-he', at('2026-11-10T23:58:00'), at('2026-11-11T00:03:00'))
     const d = readPlaytime().days
-    expect(d['2026-11-10']!.spellquest).toBe(2 * MIN)
-    expect(d['2026-11-11']!.spellquest).toBe(3 * MIN)
+    expect(d['2026-11-10']!['spellquest-he']).toBe(2 * MIN)
+    expect(d['2026-11-11']!['spellquest-he']).toBe(3 * MIN)
   })
 
   it('drops days older than 60 days and keeps the rest', () => {
@@ -33,7 +33,7 @@ describe('the play-time ledger', () => {
   })
 
   it('two writers interleaved keep both totals', () => {
-    const a = createMeter('spellquest', () => clockA)
+    const a = createMeter('spellquest-he', () => clockA)
     const b = createMeter('lessons', () => clockB)
     let clockA = at('2026-11-10T10:00:00')
     let clockB = clockA
@@ -43,7 +43,7 @@ describe('the play-time ledger', () => {
     clockB += 20_000; b.flush()
     clockA += 15_000; a.flush()
     clockB += 10_000; b.flush()
-    expect(readPlaytime().days['2026-11-10']).toEqual({ spellquest: 30_000, lessons: 30_000 })
+    expect(readPlaytime().days['2026-11-10']).toEqual({ 'spellquest-he': 30_000, lessons: 30_000 })
   })
 
   it('a hidden page adds nothing, and counts again when shown', () => {
@@ -62,11 +62,11 @@ describe('the play-time ledger', () => {
 
   it('a paused game (not running) adds nothing', () => {
     let t = at('2026-11-10T10:00:00')
-    const m = createMeter('spellquest', () => t)
+    const m = createMeter('spellquest-he', () => t)
     m.setRunning(true); t += 5_000
     m.setRunning(false); t += 10 * MIN
     m.flush()
-    expect(readPlaytime().days['2026-11-10']!.spellquest).toBe(5_000)
+    expect(readPlaytime().days['2026-11-10']!['spellquest-he']).toBe(5_000)
   })
 
   it('lastDays gives 7 days, oldest first, zero where nothing was played', () => {
@@ -74,7 +74,7 @@ describe('the play-time ledger', () => {
     const rows = lastDays(7, at('2026-11-16T12:00:00'))
     expect(rows).toHaveLength(7)
     expect(rows[0]!.day).toBe('2026-11-10')
-    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { spellquest: 0, clock: 2 * MIN, lessons: 0, spacecat: 0, english: 0 } })
+    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { 'spellquest-he': 0, clock: 2 * MIN, lessons: 0, spacecat: 0, 'spellquest-en': 0 } })
     expect(dayKey(at('2026-11-16T00:00:00'))).toBe('2026-11-16')
   })
 
@@ -117,5 +117,12 @@ describe('usePlaytime', () => {
     act(() => { vi.advanceTimersByTime(60_000) })
     expect(readPlaytime().days['2026-11-10']!.clock).toBe(20_000)
     unmount()
+  })
+})
+
+describe('readPlaytime: old entries (the key migration has not run)', () => {
+  it('reads `book2` and `spellquest` as `spellquest-he` and `english` as `spellquest-en`, summed', () => {
+    localStorage.setItem('alef-playtime', JSON.stringify({ v: 1, days: { d: { book2: 1, spellquest: 10, 'spellquest-he': 100, english: 2, 'spellquest-en': 20, clock: 5 } } }))
+    expect(readPlaytime().days.d).toEqual({ 'spellquest-he': 111, 'spellquest-en': 22, clock: 5 })
   })
 })

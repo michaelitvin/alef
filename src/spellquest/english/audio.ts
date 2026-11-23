@@ -12,7 +12,7 @@ import { englishTelemetry } from './telemetry'
 
 export const englishAudio = createGameAudio<SpellQuestSfx, SpellQuestMusic>({
   ...SPELLQUEST_SOUND,
-  game: 'english',
+  game: 'spellquest-en',
   voices: ENGLISH_VOICE_URLS,
   telemetry: englishTelemetry,
 })

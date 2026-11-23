@@ -45,7 +45,7 @@ describe('home parts (spec: one duel, Part 4)', () => {
   })
 })
 
-const save = (state: Record<string, unknown>) => localStorage.setItem('alef-spellquest', JSON.stringify({ state, version: 7 }))
+const save = (state: Record<string, unknown>) => localStorage.setItem('alef-spellquest-he', JSON.stringify({ state, version: 7 }))
 const order = (c: Element) => [...c.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))
 const st = (c: Element, id: string) => c.querySelector(`[data-station="${id}"]`)!
 
@@ -181,22 +181,22 @@ describe('the Spell Quest card and the path (spec: one duel, Part 4)', () => {
 
   it('an existing player whose Spell Quest save is older (version 4): his stations are open and drawing is on, as Spell Quest will show them', () => {
     const raw = JSON.stringify({ state: { stage: { stage: 2, newAnswers: '' }, totalStars: 40, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 })
-    localStorage.setItem('alef-spellquest', raw)
+    localStorage.setItem('alef-spellquest-he', raw)
     const { container } = render(<StationPath />)
     for (const id of ['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand']) expect(st(container, id).getAttribute('data-open')).toBe('true')
     expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
     // read only: the save is converted by Spell Quest itself
-    expect(localStorage.getItem('alef-spellquest')).toBe(raw)
+    expect(localStorage.getItem('alef-spellquest-he')).toBe(raw)
   })
 
   it('the home never writes the Spell Quest save', () => {
     render(<><SpellQuestCard /><StationPath /></>)
     act(() => { document.dispatchEvent(new Event('visibilitychange')) })
-    expect(localStorage.getItem('alef-spellquest')).toBeNull()
+    expect(localStorage.getItem('alef-spellquest-he')).toBeNull()
   })
 
   it('an unreadable Spell Quest save reads as a fresh one', () => {
-    localStorage.setItem('alef-spellquest', '{not json')
+    localStorage.setItem('alef-spellquest-he', '{not json')
     const { container } = render(<StationPath />)
     expect(st(container, 'tower').getAttribute('data-open')).toBe('true')
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')

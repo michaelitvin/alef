@@ -6,14 +6,14 @@ import { ITEMS } from '../logic/content'
 import type { SpellQuestSave } from '../store'
 import { SPELLQUEST_LOG } from '../telemetryLog'
 import { TOWER_HISTORY_LOG } from '../tower/logic/telemetryHistory'
-import { SPELLQUEST_SAVE_KEY } from '../../shared/saveKeys'
+import { SPELLQUEST_HE_SAVE_KEY } from '../../shared/saveKeys'
 
 const glyph = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
 export const spellQuestParent: GameParent = {
-  id: 'spellquest',
+  id: 'spellquest-he',
   title: 'Spell Quest',
-  saveKey: SPELLQUEST_SAVE_KEY,
+  saveKey: SPELLQUEST_HE_SAVE_KEY,
   logs: [SPELLQUEST_LOG, TOWER_HISTORY_LOG],
   Settings: lazy(() => import('./Settings')),
   DevTools: lazy(() => import('./DevTools')),

@@ -81,7 +81,7 @@ describe('the tower on another course’s content', () => {
       const tallies = memoryTallies()
       const save = memorySavePort()
       const events: string[] = []
-      const spellQuestBefore = localStorage.getItem('alef-spellquest')
+      const spellQuestBefore = localStorage.getItem('alef-spellquest-he')
       const spellQuestState = JSON.stringify(useSpellQuestStore.getState())
       const { container, unmount } = render(createElement(Tower, {
         view: { screen: 'tower', wave: 1, waves: 1, boss: false, visit: 1 }, paused: false, onAnswer, onDone: () => {},
@@ -103,10 +103,10 @@ describe('the tower on another course’s content', () => {
       await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
       expect(indexOfRun(said, ['en-sound-m', 'en-name-m', 'en-word-moon'])).toBeGreaterThan(-1)
       unmount()
-      // what was explained is kept in the course's save, the events go to its log; Spell Quest's save (alef-spellquest) is untouched
+      // what was explained is kept in the course's save, the events go to its log; Spell Quest's save (alef-spellquest-he) is untouched
       expect(save.read().demosSeen).toEqual(expect.arrayContaining(['tower-intro', 'tower-screen-letter']))
       expect(events).toContain('round')
-      expect(localStorage.getItem('alef-spellquest')).toBe(spellQuestBefore)
+      expect(localStorage.getItem('alef-spellquest-he')).toBe(spellQuestBefore)
       expect(JSON.stringify(useSpellQuestStore.getState())).toBe(spellQuestState)
     } finally {
       vi.useRealTimers()

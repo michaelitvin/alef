@@ -8,7 +8,7 @@ import { openScreens } from '../../spellquest/station'
 import { rating, screenRecent } from '../../spellquest/logic/mastery'
 import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 import { useProgressStore } from '../../stores/progressStore'
-import { SPELLQUEST_SAVE_KEY } from '../../shared/saveKeys'
+import { SPELLQUEST_HE_SAVE_KEY } from '../../shared/saveKeys'
 import { readSaveValue } from '../../shared/keyMigration'
 
 export interface Station {
@@ -56,7 +56,7 @@ const readState = (key: string) => readSaved(key)?.state ?? null
  * convert it on its next start (its stations open, drawing on), without writing it.
  */
 function readSpellQuestSave(): Partial<SpellQuestSave> | null {
-  const saved = readSaved(SPELLQUEST_SAVE_KEY)
+  const saved = readSaved(SPELLQUEST_HE_SAVE_KEY)
   if (!saved) return null
   return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<SpellQuestSave>
 }

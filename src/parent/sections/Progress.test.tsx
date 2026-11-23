@@ -9,12 +9,12 @@ afterEach(() => vi.useRealTimers())
 describe('the Progress section', () => {
   it('opens with a 7-day table of minutes per game, before the games\' lines', () => {
     addPlaytime('clock', new Date('2026-11-15T09:00:00').getTime(), new Date('2026-11-15T09:12:00').getTime())
-    addPlaytime('spellquest', new Date('2026-11-16T09:00:00').getTime(), new Date('2026-11-16T09:00:20').getTime())
+    addPlaytime('spellquest-he', new Date('2026-11-16T09:00:00').getTime(), new Date('2026-11-16T09:00:20').getTime())
     const { container } = render(<ProgressSection />)
     const rows = container.querySelectorAll('[data-playtime] tbody tr')
     expect(rows).toHaveLength(7)
     expect(rows[5]!.querySelector('[data-game=clock]')!.textContent).toBe('12')
-    expect(rows[6]!.querySelector('[data-game=spellquest]')!.textContent).toBe('<1')
+    expect(rows[6]!.querySelector('[data-game=spellquest-he]')!.textContent).toBe('<1')
     expect(rows[0]!.querySelector('[data-game=lessons]')!.textContent).toBe('0')
     const table = container.querySelector('[data-playtime]')!
     expect(table.compareDocumentPosition(container.querySelector('[data-progress-game]')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

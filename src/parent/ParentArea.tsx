@@ -1,7 +1,7 @@
 // The shared parent area (rule: Interaction; a parent screen, so text and English are allowed). Every entry page mounts it
 // behind the parent gate and opens it at a section, by default the open game's own:
 //
-//   <ParentArea game="spellquest" onClose={toCover} track={spellQuestTelemetry.track} telemetry={spellQuestTelemetry} openDev={setScreen} homeHref={BASE_URL} />
+//   <ParentArea game="spellquest-he" onClose={toCover} track={spellQuestTelemetry.track} telemetry={spellQuestTelemetry} openDev={setScreen} homeHref={BASE_URL} />
 //
 // Sections, top to bottom: Child, Sound, Progress, the open game's settings and reset, Data, Developer. Every game's lines
 // come from the registry (registry.ts); only the open game's settings, reset and developer tools show.

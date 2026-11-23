@@ -9,7 +9,7 @@ export type { SpellQuestSfx } from './spellQuestSound'
 
 const audio = createGameAudio<SpellQuestSfx, SpellQuestMusic>({
   ...SPELLQUEST_SOUND,
-  game: 'spellquest',
+  game: 'spellquest-he',
   voices: VOICE_URLS,
   feminine: (id) => FEMININE_IDS.has(id),
   telemetry: spellQuestTelemetry,

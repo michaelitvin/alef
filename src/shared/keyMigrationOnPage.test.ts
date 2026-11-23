@@ -16,9 +16,9 @@ describe('the key migration on the page', () => {
     localStorage.setItem('alef-duel2-telemetry', openJson([ev(1_000, 'sa')] as never, []))
     await import('./stagingStorage') // the new build's home page: it migrates
     expect(localStorage.getItem('alef-duel2')).toBeNull()
-    expect(localStorage.getItem('alef-spellquest')).toBe(SAVE(1))
+    expect(localStorage.getItem('alef-spellquest-he')).toBe(SAVE(1))
     // the new build writes its own log; then Back: the old page (old code in memory) plays a run
-    localStorage.setItem('alef-spellquest-telemetry', openJson([ev(1_000, 'sa'), ev(2_000, 'sb')] as never, []))
+    localStorage.setItem('alef-spellquest-he-telemetry', openJson([ev(1_000, 'sa'), ev(2_000, 'sb')] as never, []))
     localStorage.setItem('alef-duel2', SAVE(9))
     localStorage.setItem('alef-duel2-telemetry', openJson([ev(5_000, 'sc'), ev(6_000, 'sc')] as never, []))
     vi.resetModules()
@@ -30,7 +30,7 @@ describe('the key migration on the page', () => {
     const { useSpellQuestStore } = await import('../spellquest/store')
     expect(useSpellQuestStore.getState().coins).toBe(9)
     const { readLog } = await import('./telemetry')
-    expect(readLog('alef-spellquest-telemetry').map((e) => e.t)).toEqual([1_000, 2_000, 5_000, 6_000])
+    expect(readLog('alef-spellquest-he-telemetry').map((e) => e.t)).toEqual([1_000, 2_000, 5_000, 6_000])
   })
 
   it('a save whose move waits for space: the store reads it from the old key and writes there, the next load moves it', async () => {
@@ -38,7 +38,7 @@ describe('the key migration on the page', () => {
     let full = true
     const fake: Storage = {
       get length() { return inner.length }, key: (i) => inner.key(i), getItem: (k) => inner.getItem(k), removeItem: (k) => inner.removeItem(k), clear: () => inner.clear(),
-      setItem: (k, v) => { if (full && k === 'alef-spellquest') throw new DOMException('full', 'QuotaExceededError'); inner.setItem(k, v) },
+      setItem: (k, v) => { if (full && k === 'alef-spellquest-he') throw new DOMException('full', 'QuotaExceededError'); inner.setItem(k, v) },
     }
     Object.defineProperty(window, 'localStorage', { value: fake, configurable: true })
     vi.stubGlobal('localStorage', fake)
@@ -48,13 +48,13 @@ describe('the key migration on the page', () => {
     const { useSpellQuestStore } = await import('../spellquest/store')
     expect(useSpellQuestStore.getState().coins).toBe(3) // not a fresh save
     useSpellQuestStore.setState({ coins: 5 })
-    expect(inner.getItem('alef-spellquest')).toBeNull()
+    expect(inner.getItem('alef-spellquest-he')).toBeNull()
     expect(JSON.parse(inner.getItem('alef-duel2')!).state.coins).toBe(5)
     full = false
     vi.resetModules()
     const next = await import('./stagingStorage')
     expect(next.lastMigrationReport()!.steps[0]!.status).toBe('done')
     expect(inner.getItem('alef-duel2')).toBeNull()
-    expect(JSON.parse(inner.getItem('alef-spellquest')!).state.coins).toBe(5)
+    expect(JSON.parse(inner.getItem('alef-spellquest-he')!).state.coins).toBe(5)
   })
 })

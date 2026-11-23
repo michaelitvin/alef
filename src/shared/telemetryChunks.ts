@@ -21,7 +21,7 @@ import type { TelemetryEvent } from './telemetry'
 // ---- keys
 // A log `<base>-telemetry` keeps its open chunk at its own key, its sealed chunks at `<base>~<t0 base36>~<s>-telemetry`
 // and its roll-up at `<base>~sum-telemetry`. Every key ends in `-telemetry`, so `?copy-prod` copies none of them. The `~`
-// keeps the logs apart: `alef-tower-history~` never matches a key of `alef-spellquest`.
+// keeps the logs apart: `alef-tower-history~` never matches a key of `alef-spellquest-he`.
 const SUFFIX = '-telemetry'
 const logBase = (logKey: string) => (logKey.endsWith(SUFFIX) ? logKey.slice(0, -SUFFIX.length) : logKey)
 

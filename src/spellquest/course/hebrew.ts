@@ -51,7 +51,7 @@ const hebrewDrawWords = (ctx: Parameters<Course['rounds']['drawWords']>[0], n?: 
 
 export const HEBREW: Course = {
   id: 'he',
-  game: 'spellquest',
+  game: 'spellquest-he',
   dir: 'rtl',
   stages: HEBREW_STAGES,
   rounds: {

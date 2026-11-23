@@ -8,7 +8,7 @@ const TOP = 5
 const DAYS = 7
 /** the ledger's games that have a section here (English only where it can be opened: production shows no English column) */
 const COLUMNS = PLAYTIME_GAMES.filter((g) => GAMES.some((p) => p.id === g))
-const TITLE: Record<PlaytimeGame, string> = { spellquest: 'Spell Quest', clock: 'Clock', lessons: 'Lessons', spacecat: 'Space Cat', english: 'English' }
+const TITLE: Record<PlaytimeGame, string> = { 'spellquest-he': 'Spell Quest', clock: 'Clock', lessons: 'Lessons', spacecat: 'Space Cat', 'spellquest-en': 'English' }
 /** whole minutes, but a short play shows as `<1` rather than as nothing */
 const minutes = (ms: number) => (ms <= 0 ? '0' : ms < 60_000 ? '<1' : String(Math.round(ms / 60_000)))
 

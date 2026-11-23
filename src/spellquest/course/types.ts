@@ -223,7 +223,7 @@ export type CourseAudio = Pick<
 export interface Course {
   id: CourseId
   /** the GameId of its parent section, its PlaytimeGame and its audio kit's game */
-  game: 'spellquest' | 'english'
+  game: 'spellquest-he' | 'spellquest-en'
   dir: 'rtl' | 'ltr'
   stages: CourseStages
   rounds: CourseRounds

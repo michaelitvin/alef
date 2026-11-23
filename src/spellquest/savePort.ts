@@ -31,7 +31,7 @@ export function portOver<S extends SpellQuestSave & SpellQuestActions>(store: St
   return { ...writes, read: () => store.getState(), towerRecent, range }
 }
 
-/** the real saves: Spell Quest's store (`alef-spellquest`) and the lessons' store, where the tower keeps its answers */
+/** the real saves: Spell Quest's store (`alef-spellquest-he`) and the lessons' store, where the tower keeps its answers */
 export const storeSavePort: SavePort = portOver(useSpellQuestStore, () => useProgressStore.getState().tower?.recent ?? {}, getNumberRange)
 
 /** a save in memory (tests): a fresh save with `initial` over it; the writes work as in the real save */

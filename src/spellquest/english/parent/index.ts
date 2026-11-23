@@ -9,7 +9,7 @@ import { ENGLISH_SAVE_KEY, type EnglishSave } from '../saveFormat'
 import { ENGLISH_LOG } from '../telemetryLog'
 
 export const englishParent: GameParent = {
-  id: 'english',
+  id: 'spellquest-en',
   title: 'English path',
   saveKey: ENGLISH_SAVE_KEY,
   logs: [ENGLISH_LOG],

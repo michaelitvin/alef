@@ -1,4 +1,4 @@
-// The English path's telemetry (localStorage 'alef-english-telemetry' and its sealed chunks, see ./telemetryLog.ts). It
+// The English path's telemetry (localStorage 'alef-spellquest-en-telemetry' and its sealed chunks, see ./telemetryLog.ts). It
 // shares the one live budget of every game's logs (src/shared/telemetryBudget.ts).
 import { createTelemetry } from '../../shared/telemetry'
 import { ENGLISH_LOG } from './telemetryLog'

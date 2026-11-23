@@ -8,6 +8,6 @@ import type { SaveStep } from './migrateCheck'
 /** by the save's key after the move */
 export const SAVE_STEPS: Record<string, SaveStep> = {
   'alef-progress': { version: PROGRESS_PERSIST_VERSION, migrate: migrateProgress },
-  'alef-spellquest': { version: SAVE_VERSION, migrate: migrateSave },
-  'alef-english': { version: ENGLISH_SAVE_VERSION, migrate: migrateEnglishSave },
+  'alef-spellquest-he': { version: SAVE_VERSION, migrate: migrateSave },
+  'alef-spellquest-en': { version: ENGLISH_SAVE_VERSION, migrate: migrateEnglishSave },
 }

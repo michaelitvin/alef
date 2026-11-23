@@ -28,7 +28,7 @@ const real = window.localStorage
 const install = (s: Storage) => Object.defineProperty(window, 'localStorage', { value: s, configurable: true })
 afterEach(() => { install(real); vi.restoreAllMocks() })
 
-const SPELLQUEST_LOG = 'alef-spellquest-telemetry'
+const SPELLQUEST_LOG = 'alef-spellquest-he-telemetry'
 const CLOCK_LOG = 'alef-clock-telemetry'
 const FROZEN = 'alef-tower-history-telemetry'
 /** a log of `n` events numbered 0…n-1 (0 is the oldest), about 60 characters each */
@@ -60,7 +60,7 @@ describe('a child save in a full storage', () => {
   })
 
   it.each([
-    ['Spell Quest', 'alef-spellquest', () => useSpellQuestStore.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
+    ['Spell Quest', 'alef-spellquest-he', () => useSpellQuestStore.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
     ['the clock', 'alef-clock', () => useClockStore.getState().addGears(7), (v: string) => JSON.parse(v).state.gears >= 7],
     ['the lessons', 'alef-progress', () => useProgressStore.getState().addToVocabulary('full-storage-word'),
       (v: string) => JSON.parse(v).state.vocabulary.includes('full-storage-word')],
@@ -130,7 +130,7 @@ describe('a child save in a full storage', () => {
     const frozen = [s.getItem(FROZEN), s.getItem(STAGING_PREFIX + FROZEN)]
     install(s)
     useSpellQuestStore.getState().addStars(1)
-    expect(s.getItem('alef-spellquest')).not.toBeNull()
+    expect(s.getItem('alef-spellquest-he')).not.toBeNull()
     expect(eventsOf(s, STAGING_PREFIX + SPELLQUEST_LOG).length).toBeLessThan(600)
     expect([s.getItem(FROZEN), s.getItem(STAGING_PREFIX + FROZEN)]).toEqual(frozen)
   })
@@ -201,14 +201,14 @@ describe('the request to keep the storage', () => {
 describe('telemetry in a full storage', () => {
   it('its own flush never evicts a save: it gives up its own oldest events', () => {
     const s = new FullStorage()
-    s.setItem('alef-spellquest', JSON.stringify({ state: { totalStars: 9 } }))
+    s.setItem('alef-spellquest-he', JSON.stringify({ state: { totalStars: 9 } }))
     s.setItem(FROZEN, log(100, 'duel'))
     s.limit = s.used() + 3000
     install(s)
     const t = createTelemetry('alef-test-telemetry', { game: 'spellquest' })
     for (let i = 0; i < 200; i++) t.track('round', { i })
     t.flush()
-    expect(s.getItem('alef-spellquest')).toBe(JSON.stringify({ state: { totalStars: 9 } }))
+    expect(s.getItem('alef-spellquest-he')).toBe(JSON.stringify({ state: { totalStars: 9 } }))
     expect(s.getItem(FROZEN)).toBe(log(100, 'duel'))
     const kept = eventsOf(s, 'alef-test-telemetry')
     expect(kept.length).toBeGreaterThan(0)

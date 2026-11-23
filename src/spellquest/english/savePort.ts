@@ -1,5 +1,5 @@
 // What the English run reads from and writes to its save: Spell Quest's port (the run's writes) and the English writes, so
-// that no part of the English path writes past the port. The game writes the real save (alef-english); a test runs on a
+// that no part of the English path writes past the port. The game writes the real save (alef-spellquest-en); a test runs on a
 // save in memory.
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import type { SpellQuestActions, SpellQuestSave } from '../store'
@@ -61,7 +61,7 @@ function englishPortOver(store: StoreApi<EnglishState>, range: () => NumberRange
 }
 
 let real: EnglishSavePort | null = null
-/** the real save (alef-english) */
+/** the real save (alef-spellquest-en) */
 export function englishSavePort(): EnglishSavePort {
   return (real ??= englishPortOver(useEnglishStore, getNumberRange))
 }

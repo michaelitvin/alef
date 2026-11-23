@@ -10,9 +10,9 @@ describe('the English save', () => {
   beforeEach(() => { useEnglishStore.getState().resetProgress(); localStorage.clear() })
 
   it('English coins never reach the Hebrew purse', () => {
-    localStorage.setItem('alef-spellquest', HEBREW_SAVE_RAW)
+    localStorage.setItem('alef-spellquest-he', HEBREW_SAVE_RAW)
     useEnglishStore.getState().addCoins(5)
-    expect(localStorage.getItem('alef-spellquest')).toBe(HEBREW_SAVE_RAW)
+    expect(localStorage.getItem('alef-spellquest-he')).toBe(HEBREW_SAVE_RAW)
     expect(readEnglishSave()!.coins).toBe(5)
   })
 
@@ -21,13 +21,13 @@ describe('the English save', () => {
   })
 
   it('the English store is its own save, at version 2, with the path on', () => {
-    expect(useEnglishStore.persist.getOptions().name).toBe('alef-english')
+    expect(useEnglishStore.persist.getOptions().name).toBe('alef-spellquest-en')
     expect(useEnglishStore.persist.getOptions().version).toBe(2)
     expect(useEnglishStore.getState().settings.path).toBe(true)
   })
 
   it('the Hebrew store is unchanged', () => {
-    expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-spellquest')
+    expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-spellquest-he')
     expect(useSpellQuestStore.persist.getOptions().version).toBe(8)
   })
 
@@ -75,16 +75,16 @@ describe('the English save', () => {
   })
 
   it('the real port writes the English save and leaves the Hebrew one as it is', () => {
-    localStorage.setItem('alef-spellquest', HEBREW_SAVE_RAW)
+    localStorage.setItem('alef-spellquest-he', HEBREW_SAVE_RAW)
     englishSavePort().openStations(['tower'])
     englishSavePort().addCoins(2)
     expect(readEnglishSave()).toMatchObject({ openedStations: ['tower'], coins: 2 })
-    expect(localStorage.getItem('alef-spellquest')).toBe(HEBREW_SAVE_RAW)
+    expect(localStorage.getItem('alef-spellquest-he')).toBe(HEBREW_SAVE_RAW)
   })
 
   it('a missing or broken save reads as null', () => {
     expect(readEnglishSave()).toBeNull()
-    localStorage.setItem('alef-english', '{not json')
+    localStorage.setItem('alef-spellquest-en', '{not json')
     expect(readEnglishSave()).toBeNull()
   })
 })

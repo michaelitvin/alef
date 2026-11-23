@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { getNumberRange, NUMBER_RANGE_KEY, setNumberRange } from './numberRange'
 
-const spellQuestSave = (range: unknown) => localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range } }, version: 7 }))
+const spellQuestSave = (range: unknown) => localStorage.setItem('alef-spellquest-he', JSON.stringify({ state: { settings: { range } }, version: 7 }))
 
 describe('the number range', () => {
   beforeEach(() => localStorage.clear())

@@ -1,7 +1,11 @@
 // The staging check `?migrate-check` (spec 2026-11-22-spell-quest-rename-design.md, "Staging check"): it proves the key
 // migration (keyMigration.ts) and the saves' version steps on a copy of the child's real saves, before a release.
 // Pure over two storage views: `prod` (only read: its unprefixed keys) and `staging` (the view a staging page uses).
-// The page glue is in stagingStorage.ts; the save steps (game code) come in from migrateCheckSteps.ts.
+// The page glue is in stagingStorage.ts; the save steps (game code) come in from migrateCheckSteps.ts; the end page with
+// the before and after downloads is migrateCheckPage.ts.
+// The tables below name production's ORIGINAL keys as sources (production never ran a migration) and the final names
+// (spec 2026-11-22, addendum 2026-11-23: `alef-spellquest-he`, `alef-spellquest-en`) as targets. Staging's own copies
+// under any name (original, the 2026-11-23 in-between `alef-spellquest`, final) are removed first.
 //
 // In order: (1) remove staging's copies of the keys that move (old and new names) and the markers; (2) copy production's
 // old-named keys into staging under their old names (a quota error removes the copies and stops); (3) keep the old values
@@ -48,14 +52,21 @@ const BOOK_FIELDS: [string, string][] = [['bookOpen', 'screensOpen'], ['firstDue
 const SAVES: SaveSpec[] = [
   { oldKey: 'alef-progress', newKey: 'alef-progress', renames: [['duel', 'tower'], ['settings.duelMusic', 'settings.towerMusic']], fullFrom: 0 },
   // before version 7 a Spell Quest save also gets `screensOpen` from its stage: then only the renamed fields are compared
-  { oldKey: 'alef-duel2', newKey: 'alef-spellquest', renames: BOOK_FIELDS, fullFrom: 7 },
-  { oldKey: 'alef-english', newKey: 'alef-english', renames: BOOK_FIELDS, fullFrom: 0 },
+  { oldKey: 'alef-duel2', newKey: 'alef-spellquest-he', renames: BOOK_FIELDS, fullFrom: 7 },
+  // English Spell Quest's save (version 2 renamed the same two fields)
+  { oldKey: 'alef-english', newKey: 'alef-spellquest-en', renames: BOOK_FIELDS, fullFrom: 0 },
 ]
+/** the in-between save name of the 2026-11-23 build (staging and dev devices only): removed with the others in step 1 */
+const BETWEEN_SAVES = ['alef-spellquest']
 const PLAYTIME = 'alef-playtime'
-const OLD_LOG = 'alef-duel2-telemetry'
-const NEW_LOG = 'alef-spellquest-telemetry'
+/** old play-time entry → new */
+const PLAYTIME_IDS: Record<string, string> = { book2: 'spellquest-he', spellquest: 'spellquest-he', english: 'spellquest-en' }
+const OLD_PLAYTIME_IDS = ['book2', 'spellquest', 'english']
+/** the logs by their base (the log's key is `<base>-telemetry`, its chunks `<base>~…-telemetry`) */
+const LOGS = [{ old: 'alef-duel2', new: 'alef-spellquest-he' }, { old: 'alef-english', new: 'alef-spellquest-en' }]
+const ALL_LOG_BASES = [...LOGS.flatMap((l) => [l.old, l.new]), 'alef-spellquest']
 const FROZEN = [{ old: 'alef-duel-telemetry', new: 'alef-tower-history-telemetry' }]
-const newLogName = (k: string) => `alef-spellquest${k.slice('alef-duel2'.length)}`
+const STEPS = ['spellquest-two-names', 'tower-history']
 const FORBIDDEN = new Set(['duel', 'duel2', 'book', 'book2'])
 
 // ---- helpers
@@ -65,8 +76,12 @@ const keysOf = (s: Storage): string[] => {
   return out
 }
 const isRollup = (k: string) => k.endsWith('~sum-telemetry')
-const isOldLogKey = (k: string) => k === OLD_LOG || ownsKey(OLD_LOG, k)
-const isNewLogKey = (k: string) => k === NEW_LOG || ownsKey(NEW_LOG, k)
+const ofLog = (base: string, k: string) => k === `${base}-telemetry` || ownsKey(`${base}-telemetry`, k)
+/** the log (of LOGS) whose old key this is */
+const oldLogOf = (k: string) => LOGS.find((l) => ofLog(l.old, k))
+const isOldLogKey = (k: string) => !!oldLogOf(k)
+const isAnyLogKey = (k: string) => ALL_LOG_BASES.some((b) => ofLog(b, k))
+const newLogName = (k: string) => { const l = oldLogOf(k); return l ? `${l.new}${k.slice(l.old.length)}` : k }
 const isFrozen = (k: string) => FROZEN.some((f) => f.old === k || f.new === k)
 
 export function deepEqual(a: unknown, b: unknown): boolean {
@@ -120,16 +135,24 @@ function summarize(s: Storage, openKey: string): LogSummary {
   return { n: times.length, first: times.length ? Math.min(...times) : null, last: times.length ? Math.max(...times) : null }
 }
 
+/** the two snapshots the end page offers as downloads (kept in memory only: the data is about as large as the quota) */
+export interface CheckSnapshots {
+  /** production's keys exactly as the check copied them (old names, raw strings) */
+  before?: Record<string, string>
+  /** the migrated keys as the check left them (staging's prefix stripped, raw strings) */
+  after?: Record<string, string>
+}
+
 // ---- the run
-export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<string, SaveStep>, now = Date.now()): CheckResult {
+export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<string, SaveStep>, now = Date.now(), snap: CheckSnapshots = {}): CheckResult {
   const done = (verdict: CheckVerdict, rows: CheckRow[], message?: string): CheckResult => ({ v: 1, at: now, verdict, rows, ...(message ? { message } : {}) })
   const prodKeys = keysOf(prod).filter((k) => !k.startsWith(STAGING_PREFIX))
-  const isOld = (k: string) => isOldLogKey(k) || FROZEN.some((f) => f.old === k) || k === 'alef-duel2'
+  const isOld = (k: string) => isOldLogKey(k) || FROZEN.some((f) => f.old === k) || SAVES.some((v) => v.oldKey === k && v.oldKey !== v.newKey)
   if (!prodKeys.some(isOld)) return done('already', [], 'production is already migrated: nothing to check')
 
   // 1. staging's copies of the moving keys (old and new names) and the markers (kept in memory: a stop for space puts them back)
   const removed = new Map(keysOf(staging)
-    .filter((k) => isOldLogKey(k) || isNewLogKey(k) || isFrozen(k) || k === MIGRATIONS_KEY || k === PLAYTIME || SAVES.some((v) => v.oldKey === k || v.newKey === k))
+    .filter((k) => isAnyLogKey(k) || isFrozen(k) || k === MIGRATIONS_KEY || k === PLAYTIME || BETWEEN_SAVES.includes(k) || SAVES.some((v) => v.oldKey === k || v.newKey === k))
     .map((k) => [k, staging.getItem(k)!]))
   removed.forEach((_, k) => staging.removeItem(k))
 
@@ -149,7 +172,8 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
 
   // 3. the expected snapshot: the old values as they were copied
   const old = new Map(toCopy.map((k) => [k, prod.getItem(k)!]))
-  const oldLog = summarize(staging, OLD_LOG)
+  snap.before = Object.fromEntries(old)
+  const oldLogs = LOGS.map((l) => summarize(staging, `${l.old}-telemetry`))
   const oldFrozen = FROZEN.map((f) => summarize(staging, f.old))
 
   // 4. the migration, then the saves' version steps (written back as a store does on load)
@@ -188,7 +212,7 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
     rows.push({ key: spec.newKey, moved, content, counts: null, ...(detail ? { detail } : {}) })
   }
 
-  // play time: the `book2` entries became `spellquest`, the totals are equal
+  // play time: the `book2` entries became `spellquest-he`, the `english` ones `spellquest-en`; the totals are equal
   const oldPt = old.get(PLAYTIME)
   if (oldPt !== undefined) {
     type Days = Record<string, Record<string, unknown>>
@@ -196,10 +220,13 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
     const after = (parse(staging.getItem(PLAYTIME)) as { days?: Days } | undefined)?.days ?? {}
     const num = (x: unknown) => (typeof x === 'number' ? x : 0)
     const total = (days: Days) => Object.values(days).reduce((a, d) => a + Object.values(d ?? {}).reduce<number>((b, ms) => b + num(ms), 0), 0)
-    const noOld = Object.values(after).every((d) => !d || !('book2' in d))
+    const noOld = Object.values(after).every((d) => !d || OLD_PLAYTIME_IDS.every((id) => !(id in d)))
     const daysEqual = Object.entries(before).every(([day, d]) => {
       const a = after[day]
-      return !!a && num(a.spellquest) === num(d?.spellquest) + num(d?.book2)
+      if (!a) return false
+      const want: Record<string, number> = {}
+      for (const [id, ms] of Object.entries(d ?? {})) { const to = PLAYTIME_IDS[id] ?? id; want[to] = (want[to] ?? 0) + num(ms) }
+      return Object.entries(want).every(([id, ms]) => num(a[id]) === ms)
     })
     const sums = total(before) === total(after)
     rows.push({ key: PLAYTIME, moved: null, content: noOld && daysEqual, counts: sums, ...(noOld && daysEqual && sums ? {} : { detail: 'the play-time days differ' }) })
@@ -213,7 +240,7 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
     const moved = newVal !== null && staging.getItem(k) === null
     let content = false
     if (newVal !== null) {
-      if (k === OLD_LOG) {
+      if (k === `${oldLogOf(k)!.old}-telemetry`) {
         const a = parseOpen(oldVal), b = parseOpen(newVal)
         content = !!a && !!b && deepEqual(a.events, b.events) && deepEqual(a.sealed.map(newLogName), b.sealed)
       } else if (isRollup(k)) {
@@ -226,11 +253,13 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
     }
     rows.push({ key: to, moved, content, counts: null, ...(moved && content ? {} : { detail: moved ? 'the moved value differs' : 'not moved' }) })
   }
-  if (toCopy.some(isOldLogKey)) {
-    const now2 = summarize(staging, NEW_LOG)
-    const same = deepEqual(oldLog, now2)
-    rows.push({ key: `${NEW_LOG}: whole log, ${now2.n} events`, moved: null, content: true, counts: same, ...(same ? {} : { detail: `was ${oldLog.n} events, now ${now2.n}` }) })
-  }
+  LOGS.forEach((l, i) => {
+    if (!toCopy.some((k) => ofLog(l.old, k))) return
+    const was = oldLogs[i]!
+    const now2 = summarize(staging, `${l.new}-telemetry`)
+    const same = deepEqual(was, now2)
+    rows.push({ key: `${l.new}-telemetry: whole log, ${now2.n} events`, moved: null, content: true, counts: same, ...(same ? {} : { detail: `was ${was.n} events, now ${now2.n}` }) })
+  })
   FROZEN.forEach((f, i) => {
     const oldVal = old.get(f.old)
     if (oldVal === undefined) return
@@ -242,7 +271,7 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
 
   // the markers
   const marks = (parse(staging.getItem(MIGRATIONS_KEY)) as { done?: string[] } | undefined)?.done ?? []
-  const marked = ['spellquest-rename', 'tower-history'].every((id) => marks.includes(id))
+  const marked = STEPS.every((id) => marks.includes(id))
   rows.push({ key: MIGRATIONS_KEY, moved: null, content: marked, counts: null, ...(marked ? {} : { detail: 'a step is not marked done' }) })
 
   // 6. a second run changes nothing; a half-done run (one old key put back, no marker) resumes to the same result
@@ -251,6 +280,9 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
   const snapshot = () => new Map(keysOf(staging).map((k) => [k, k === MIGRATIONS_KEY ? markerSteps(staging.getItem(k)!) : staging.getItem(k)!]))
   const sameMap = (a: Map<string, string>, b: Map<string, string>) => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v)
   const finished = snapshot()
+  snap.after = Object.fromEntries(keysOf(staging)
+    .filter((k) => isAnyLogKey(k) || isFrozen(k) || k === MIGRATIONS_KEY || k === PLAYTIME || BETWEEN_SAVES.includes(k) || SAVES.some((v) => v.oldKey === k || v.newKey === k))
+    .sort().map((k) => [k, staging.getItem(k)!]))
   migrateKeys(staging)
   const second = sameMap(finished, snapshot())
   rows.push({ key: 'second run', moved: null, content: second, counts: null, ...(second ? {} : { detail: 'a key changed on the second run' }) })

@@ -274,7 +274,7 @@ describe('an English tower run', () => {
   })
   afterEach(() => { vi.useRealTimers() })
 
-  it('an English tower run writes its tallies into alef-english, not alef-progress', async () => {
+  it('an English tower run writes its tallies into alef-spellquest-en, not alef-progress', async () => {
     englishSavePort().setStage(2)
     const progressBefore = localStorage.getItem('alef-progress')
     const towerBefore = structuredClone(useProgressStore.getState().tower)
@@ -302,7 +302,7 @@ describe('an English tower run', () => {
     stop()
     c.destroy()
     expect(done).toEqual([1])
-    const saved = JSON.parse(localStorage.getItem('alef-english')!).state
+    const saved = JSON.parse(localStorage.getItem('alef-spellquest-en')!).state
     const seen = Object.values(saved.tower.byMark as Record<string, { seen: number }>).reduce((n, t) => n + t.seen, 0)
     expect(seen).toBe(5)
     expect(localStorage.getItem('alef-progress')).toBe(progressBefore)

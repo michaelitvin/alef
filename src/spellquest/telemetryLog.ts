@@ -1,12 +1,12 @@
 // Spell Quest's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
 // The tower's board writes here too, with `via: 'tower'` (ADR 0004).
 import type { RollupFact, TelemetryEvent, TelemetryLog } from '../shared/telemetry'
-import { SPELLQUEST_LOG_KEY } from '../shared/saveKeys'
+import { SPELLQUEST_HE_LOG_KEY } from '../shared/saveKeys'
 
 export const SPELLQUEST_LOG: TelemetryLog = {
-  key: SPELLQUEST_LOG_KEY,
+  key: SPELLQUEST_HE_LOG_KEY,
   label: 'Spell Quest',
-  game: 'spellquest',
+  game: 'spellquest-he',
   about: {
     game: 'Spell Quest (letters and syllables), at /spellquest/. Events with via: "tower" come from the tower (its '
       + 'board, src/spellquest/tower/logic/controller.ts); their `visit` is its own visit counter, `run` is Spell Quest\'s run.',

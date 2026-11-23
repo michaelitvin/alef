@@ -35,7 +35,7 @@ describe('Spell Quest save version 8: bookOpen and firstDuelImported get new nam
     expect('bookOpen' in m).toBe(false)
   })
   it('the store loads a version-7 save and reads the values through the new names', async () => {
-    localStorage.setItem('alef-spellquest', JSON.stringify({ state: V7, version: 7 }))
+    localStorage.setItem('alef-spellquest-he', JSON.stringify({ state: V7, version: 7 }))
     await useSpellQuestStore.persist.rehydrate()
     const s = useSpellQuestStore.getState() as unknown as Record<string, unknown>
     expect(s).toMatchObject({ screensOpen: true, towerImported: true, towerTail: 'ooxo', coins: 12 })
@@ -59,7 +59,7 @@ describe('English save version 2: the same two fields', () => {
     expect(renameEnglishFieldsV2({ coins: 3 })).toEqual({ coins: 3 })
   })
   it('the store and the light reader read a version-1 save through the new names', async () => {
-    localStorage.setItem('alef-english', JSON.stringify({ state: EN_V1, version: 1 }))
+    localStorage.setItem('alef-spellquest-en', JSON.stringify({ state: EN_V1, version: 1 }))
     expect(readEnglishSave()).toMatchObject({ screensOpen: true, towerImported: true })
     await useEnglishStore.persist.rehydrate()
     expect(useEnglishStore.getState()).toMatchObject({ screensOpen: true, towerImported: true, coins: 12 })

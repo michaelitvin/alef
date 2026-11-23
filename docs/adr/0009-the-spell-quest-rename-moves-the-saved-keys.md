@@ -36,6 +36,13 @@ keys, the frozen log, and the field names inside the saves.
   over the new one if the new one is unchanged since the move (a fingerprint in the marker), else both stay and the Data
   section shows a conflict with both key names; a late open chunk becomes sealed chunks of the new log. A save whose
   move waits for space is read and written under its old key until it moves.
+- The names changed once more (addendum of 2026-11-23: `-he` and `-en`). One step, `spellquest-two-names`, takes every
+  earlier name as a source: the original names of production and the in-between names (`alef-spellquest`) that staging
+  got from the first build. It runs once on every device, also where the first step is done. A page of either older build
+  can write its old key late. Two sources of one save resolve oldest first, each against the next one that exists, by the
+  same fingerprint rule; a conflict keeps both and stops that save there, and the store goes on with the newer old key.
+- `?migrate-check` ends on a plain page with the result and two downloads: production's keys as copied (before) and the
+  migrated keys (after), in the `?export-prod` file format. The two snapshots stay in memory only. "Continue" opens the app.
 - Old ids live on inside old events. Each reader has to use the alias table in `telemetry.ts`.
 - The old names stay in the old ADRs, in the specs and plans, and in the git history. They are history, not errors. Each
   affected ADR has a note that says so.

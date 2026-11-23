@@ -1,6 +1,6 @@
 // The play-time ledger: how long the child played each game, per day, for the parent area's Progress section.
 // Telemetry cannot give this (its logs are trimmed, and the lessons have none). One key, `alef-playtime`:
-//   { v: 1, days: { 'YYYY-MM-DD': { spellquest: ms, clock: ms, lessons: ms, english: ms } } }   (the device's local days, kept 60 days)
+//   { v: 1, days: { 'YYYY-MM-DD': { 'spellquest-he': ms, clock: ms, lessons: ms, 'spellquest-en': ms } } }   (the device's local days, kept 60 days)
 // Two pages can write it (the main app and Book 2's page), and a page can come back from the back/forward cache, so a
 // flush always reads the key, adds its own span and writes: no copy in memory is ever written back. It is a save-like
 // key: `?copy-prod` copies it (it is a few hundred bytes), and the staging build keeps its own under `staging:`.
@@ -8,8 +8,8 @@ import { useEffect, useRef } from 'react'
 import { safeSetItem } from './saveStorage'
 import { aliasGame } from './telemetryAliases'
 
-export type PlaytimeGame = 'spellquest' | 'clock' | 'lessons' | 'spacecat' | 'english'
-export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['spellquest', 'clock', 'lessons', 'spacecat', 'english']
+export type PlaytimeGame = 'spellquest-he' | 'clock' | 'lessons' | 'spacecat' | 'spellquest-en'
+export const PLAYTIME_GAMES: readonly PlaytimeGame[] = ['spellquest-he', 'clock', 'lessons', 'spacecat', 'spellquest-en']
 export const PLAYTIME_KEY = 'alef-playtime'
 export const PLAYTIME_KEEP_DAYS = 60
 /** how often a visible, running screen writes its time (ms) */
@@ -27,13 +27,18 @@ export const dayKey = (t: number | Date): string => {
 const nextMidnight = (t: number): number => { const d = new Date(t); d.setHours(24, 0, 0, 0); return d.getTime() }
 
 /** the stored ledger, or an empty one (no storage, or a value that does not parse) */
-/** a day that still has the old `book2` entry (the key migration has not run, or it waits for space) reads as `spellquest` (the aliases of telemetryAliases.ts) */
+/** a day that still has an old entry (`book2`, `spellquest`, `english`: the key migration has not run, or it waits for
+ * space) reads under the new id (the aliases of telemetryAliases.ts), summed */
+const OLD_IDS = ['book2', 'spellquest', 'english'] as const
 function aliasDays(doc: Playtime): Playtime {
   for (const day of Object.values(doc.days) as Record<string, number | undefined>[]) {
-    if (!day || typeof day !== 'object' || !('book2' in day)) continue
-    const old = day.book2
-    if (typeof old === 'number') day[aliasGame('book2')] = (day[aliasGame('book2')] ?? 0) + old
-    delete day.book2
+    if (!day || typeof day !== 'object') continue
+    for (const id of OLD_IDS) {
+      if (!(id in day)) continue
+      const old = day[id]
+      if (typeof old === 'number') day[aliasGame(id)] = (day[aliasGame(id)] ?? 0) + old
+      delete day[id]
+    }
   }
   return doc
 }
@@ -70,7 +75,7 @@ export function lastDays(n: number, now = Date.now(), doc: Playtime = readPlayti
     const d = new Date(now); d.setDate(d.getDate() - i)
     const day = dayKey(d)
     const row = doc.days[day] ?? {}
-    out.push({ day, ms: { spellquest: row.spellquest ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0, spacecat: row.spacecat ?? 0, english: row.english ?? 0 } })
+    out.push({ day, ms: { 'spellquest-he': row['spellquest-he'] ?? 0, clock: row.clock ?? 0, lessons: row.lessons ?? 0, spacecat: row.spacecat ?? 0, 'spellquest-en': row['spellquest-en'] ?? 0 } })
   }
   return out
 }
