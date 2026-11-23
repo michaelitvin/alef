@@ -73,6 +73,19 @@ describe('?migrate-check', () => {
     expect(unprefixed().map((k) => [k, localStorage.getItem(k)])).toEqual(before)
   })
 
+  it('PASS on the shape of the release device: a version 4 save from before `bookOpen`, one-key logs (no chunks)', () => {
+    const put = (k: string, v: unknown) => localStorage.setItem(k, JSON.stringify(v))
+    put('alef-progress', { state: { duel: { sessions: 76 }, settings: { duelMusic: true } }, version: 0 })
+    put('alef-duel2', { state: { stage: { stage: 3 }, totalStars: 40, settings: {} }, version: 4 })
+    put(OLD, { v: 1, events: OPEN })
+    put('alef-duel-telemetry', { v: 1, events: [{ t: 500, s: 'x', run: 1, e: 'choice' }] })
+    const r = run()
+    expect(failing(r)).toEqual([])
+    expect(r.verdict).toBe('pass')
+    // the step to version 7 opens the screens from the stage (no old `bookOpen` to carry over)
+    expect(JSON.parse(localStorage.getItem(STAGING_PREFIX + 'alef-spellquest-he')!).state).toMatchObject({ screensOpen: true })
+  })
+
   it('production is only read: no write or remove on an unprefixed key', () => {
     seedProduction()
     const calls: string[] = []

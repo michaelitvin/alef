@@ -57,7 +57,8 @@ interface SaveSpec { oldKey: string; newKey: string; renames: [string, string][]
 const BOOK_FIELDS: [string, string][] = [['bookOpen', 'screensOpen'], ['firstDuelImported', 'towerImported']]
 const SAVES: SaveSpec[] = [
   { oldKey: 'alef-progress', newKey: 'alef-progress', renames: [['duel', 'tower'], ['settings.duelMusic', 'settings.towerMusic']], fullFrom: 0 },
-  // before version 7 a Spell Quest save also gets `screensOpen` from its stage: then only the renamed fields are compared
+  // before version 7 a Spell Quest save also gets `screensOpen` from its stage: then only the renamed fields are compared,
+  // and only those the old save has (the child's release save is a version 4 one, from before `bookOpen`)
   { oldKey: 'alef-duel2', newKey: 'alef-spellquest-he', renames: BOOK_FIELDS, fullFrom: 7 },
   // English Spell Quest's save (version 2 renamed the same two fields)
   { oldKey: 'alef-english', newKey: 'alef-spellquest-en', renames: BOOK_FIELDS, fullFrom: 0 },
@@ -209,7 +210,9 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
         const expected = expectedState(spec, doc.state)
         content = version >= spec.fullFrom
           ? deepEqual(actual, expected)
-          : spec.renames.every(([from, to]) => deepEqual(getPath(actual, to), getPath(expected, to)) && getPath(actual, from) === undefined)
+          // an older save: a renamed field carries its old value when the old save had it (a save from before the field
+          // gets it from a version step), and the old name is gone
+          : spec.renames.every(([from, to]) => (getPath(doc.state, from) === undefined || deepEqual(getPath(actual, to), getPath(expected, to))) && getPath(actual, from) === undefined)
         const left = forbiddenIn(actual)
         if (left) { content = false; detail = `a name from before the rename is left: ${left}` }
         else if (!content) detail = 'the saved value differs from the expected one'
