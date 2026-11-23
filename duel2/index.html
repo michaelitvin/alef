@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The old address of Spell Quest (once Book 2). It imports nothing from the app. A relative target works under /alef/ and /alef/staging/. -->
-    <meta http-equiv="refresh" content="0; url=../spellquest/" />
-    <title>Spell Quest</title>
-    <script>location.replace('../spellquest/' + location.search + location.hash)</script>
+    <!-- The old address of Spell Quest (once Book 2). It imports nothing from the app. Relative targets work under /alef/ and /alef/staging/. -->
+    <meta http-equiv="refresh" content="0; url=../spellquest-he/" />
+    <title>Hebrew Spell Quest</title>
+    <script>
+      // ?course=en went to the English course: its page is spellquest-en/ now, and the parameter is dropped. The rest of the query and the hash stay as they were.
+      var parts = location.search.slice(1).split('&').filter(Boolean)
+      var rest = parts.filter(function (p) { return p.indexOf('course=') !== 0 })
+      var en = parts.indexOf('course=en') >= 0
+      location.replace((en ? '../spellquest-en/' : '../spellquest-he/') + (rest.length ? '?' + rest.join('&') : '') + location.hash)
+    </script>
   </head>
   <body></body>
 </html>

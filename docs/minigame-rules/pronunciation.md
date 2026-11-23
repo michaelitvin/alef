@@ -8,7 +8,7 @@
   app. Example (tower): צֵירֶה, פַּתָּח.
 - Before you generate a word, look for an approved recording of it in the other games, and use that file. Also use their
   pronunciation fixes.
-  Example (Spell Quest): אוֹטוֹבּוּס and אַנָּנָס had the wrong stress again; the tower had fixed both. Spell Quest now plays the tower's files.
+  Example (Hebrew Spell Quest): אוֹטוֹבּוּס and אַנָּנָס had the wrong stress again; the tower had fixed both. Spell Quest now plays the tower's files.
 - You can change the spoken text to get the correct sound. Do not change the text on the screen.
 - Test the spoken text with and without nikkud, and keep the version that sounds correct. Full nikkud can make the
   voice say a silent shva. Without nikkud, a word that has more than one reading is often read wrong: add nikkud (or a
@@ -21,16 +21,16 @@
   Example (clock): "לשתיים" is said "leshtaim", not "lishtaim".
   Examples (tower): צֵירֶה is spoken from "צְרֶה." (else it sounded "tseire"). פַּתָּח is spoken from "פַּתָּךְ." (the final ח was too
   guttural). שִׂיא is spoken from "שִׂי" (else it sounded "sia").
-  Example (Spell Quest): the parent rejected "teit", "veit", "pe", "kaf" (for chaf), and צָדִי with the stress on the last syllable.
+  Example (Hebrew Spell Quest): the parent rejected "teit", "veit", "pe", "kaf" (for chaf), and צָדִי with the stress on the last syllable.
 - The voice does not see a missing dagesh: it reads ב as "b" and פ as "p". Spell a "v" sound with ו (וָה), and test each
   "f" spelling by transcription.
-  Example (Spell Quest): בָ, the "va" syllable, was spoken "ba".
+  Example (Hebrew Spell Quest): בָ, the "va" syllable, was spoken "ba".
 - A lone letter with a vowel can be read as the letter's name. Add the vowel letter (גִּי, not גִ).
-  Example (Spell Quest): גִ was spoken "gimel".
+  Example (Hebrew Spell Quest): גִ was spoken "gimel".
 - Write each syllable for the voice in Hebrew letters, not in Latin letters or IPA. The voice can read Latin letters as
   English letter names, and a Latin "ro." gives an English r and vowel. Use a sign such as the rafe where it helps:
   פִֿי. Do not use IPA alone for a single vowel. Do not put an accent tag on a single syllable.
-  Example (Spell Quest): "fi." became "F, I" and "ru." became "R, U"; "/fi/" read the slashes. "[Israeli accent] רָ" was
+  Example (Hebrew Spell Quest): "fi." became "F, I" and "ru." became "R, U"; "/fi/" read the slashes. "[Israeli accent] רָ" was
   spoken two times.
   Example (tower): "/a/." gave 5–6 bursts of extra speech.
 - Keep a take of a Hebrew r syllable only if a listener hears a guttural (uvular) r each time you ask. Some Hebrew takes
@@ -47,7 +47,7 @@
   "tigREri", "tizREki") and says the ־ְתְּ past forms as the masculine ("nitsachta"). Prefer a neutral wording: the first
   person plural ("נִצַּחְנוּ אֶת הַמִּפְלֶצֶת"), "בּוֹאִי נִתְפֹּס", or a feminine form that the voice says right ("אַתְּ אַלּוּפָה").
   A plain spelling or a meteg on the last syllable (תִּגְרְרִֽי) can fix a future verb. Keep the final-ט trick ("ניצחט") only
-  when the parent approves the take: he heard it as "Nitshat". Example (Spell Quest).
+  when the parent approves the take: he heard it as "Nitshat". Example (Hebrew Spell Quest).
 
 ## Punctuation
 
@@ -81,5 +81,5 @@
     text given), not only a transcript without nikkud: the transcript shows neither gender nor stress.
   - Check the stress of a two-syllable take by measurement (the loudness, length and pitch of each vowel), not by asking
     a listener "TSA-di or tsa-DI?". Calibrate with a take that the parent rejected.
-  Example (Spell Quest): the listener said "first syllable" for every tsadi take, also for the rejected ones; the measurement
+  Example (Hebrew Spell Quest): the listener said "first syllable" for every tsadi take, also for the rejected ones; the measurement
   agreed with the parent's ear.

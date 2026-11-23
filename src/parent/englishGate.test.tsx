@@ -13,7 +13,7 @@ describe('the English gate closed', () => {
   it('the Progress table has no English column', () => {
     const { container } = render(<ProgressSection />)
     const heads = [...container.querySelectorAll('[data-playtime] th')].map((th) => th.textContent)
-    expect(heads).toEqual(['Day', 'Spell Quest', 'Clock', 'Lessons', 'Space Cat'])
+    expect(heads).toEqual(['Day', 'Hebrew Spell Quest', 'Clock', 'Lessons', 'Space Cat'])
     expect(container.querySelector('[data-game="spellquest-en"]')).toBeNull()
     expect(container.querySelector('[data-progress-game="spellquest-en"]')).toBeNull()
   })

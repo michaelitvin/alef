@@ -7,10 +7,10 @@ import { runFacts } from '../telemetryLog'
 
 export const ENGLISH_LOG: TelemetryLog = {
   key: SPELLQUEST_EN_LOG_KEY,
-  label: 'English path',
+  label: 'English Spell Quest',
   game: 'spellquest-en',
   about: {
-    game: 'Spell Quest, the English path (English letters, sounds and words), at /spellquest/?course=en: Spell Quest\'s run on the English '
+    game: 'English Spell Quest (English letters, sounds and words), at /spellquest-en/: Spell Quest\'s run on the English '
       + 'course. Events with via: "tower" come from the tower; `run` is the English run.',
     docs: ['docs/superpowers/specs/2026-11-16-english-path-design.md', 'docs/adr/0004-one-telemetry-log-per-game.md'],
     code: ['src/spellquest/english/course.ts', 'src/spellquest/english/telemetry.ts', 'src/spellquest/english/store.ts', 'src/spellquest/controller.ts'],

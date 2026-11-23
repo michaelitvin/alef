@@ -10,7 +10,7 @@ import { ENGLISH_LOG } from '../telemetryLog'
 
 export const englishParent: GameParent = {
   id: 'spellquest-en',
-  title: 'English path',
+  title: 'English Spell Quest',
   saveKey: ENGLISH_SAVE_KEY,
   logs: [ENGLISH_LOG],
   Settings: lazy(() => import('./Settings')),

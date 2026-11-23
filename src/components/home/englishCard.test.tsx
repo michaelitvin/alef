@@ -30,7 +30,7 @@ describe('the English card (English path design, Part 1)', () => {
     const { container } = render(<EnglishCard />)
     expect(container.textContent).not.toMatch(HEBREW)
     expect(container.innerHTML).not.toMatch(/\p{Extended_Pictographic}/u)
-    expect(container.querySelector('[data-learn="english"]')!.hasAttribute('data-parent-text')).toBe(true)
+    expect(container.querySelector('[data-learn="spellquest-en"]')!.hasAttribute('data-parent-text')).toBe(true)
   })
 
   it('the Hebrew play button still points left', () => {

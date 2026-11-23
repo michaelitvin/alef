@@ -32,7 +32,7 @@ describe('the English section in the parent area', () => {
     expect(container.querySelector('[data-log="alef-spellquest-en-telemetry"]')).not.toBeNull()
     expect(container.querySelector('[data-progress-game="spellquest-en"]')).not.toBeNull()
     await screen.findByText(/Number range for shopping/, {}, LAZY)
-    expect(container.querySelector('[data-english-settings]')).not.toBeNull()
+    expect(container.querySelector('[data-spellquest-en-settings]')).not.toBeNull()
   })
 
   it('the summary line: level, placement, stage, runs, best run, crystals', () => {

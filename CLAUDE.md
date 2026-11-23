@@ -8,8 +8,8 @@ saves), Howler (audio). Domain words: [GLOSSARY.md](GLOSSARY.md). Decisions not 
 | Game | Entry point | Read first |
 | --- | --- | --- |
 | The lessons and home | `index.html` → `src/main.tsx` → `src/App.tsx` (routes) | `src/stores/progressStore.ts` (save `alef-progress`) |
-| Spell Quest (the run, with its tower; save `alef-spellquest`; the old `duel2/` URL redirects) | `spellquest/index.html` → `src/spellquest/main.tsx`; the tower: `src/spellquest/tower/` (flow `logic/controller.ts` as `TowerController`, React bridge `useTower.ts`, `components/`) | [src/spellquest/README.md](src/spellquest/README.md) |
-| English course (Spell Quest's engine with the English course; `?course=en`) | `src/english/` (the course, its content, logic, save and parent part); the engine in `src/spellquest/`, the seam in `src/spellquest/course/` | [src/english/README.md](src/english/README.md) |
+| Hebrew Spell Quest (the run, with its tower; save `alef-spellquest`; the old `duel2/` and `spellquest/` URLs redirect) | `spellquest-he/index.html` → `src/spellquest/main.he.tsx` (`boot('he')`); the engine and the Hebrew course: `src/spellquest/`; the tower: `src/spellquest/tower/` (flow `logic/controller.ts` as `TowerController`, React bridge `useTower.ts`, `components/`) | [src/spellquest/README.md](src/spellquest/README.md) |
+| English Spell Quest (the same engine with the English course; the page, not a query, picks the course) | `spellquest-en/index.html` → `src/spellquest/main.en.tsx` (`boot('en')`); `src/spellquest/english/` (the course, its content, logic, save and parent part); the engine in `src/spellquest/`, the seam in `src/spellquest/course/` | [src/spellquest/english/README.md](src/spellquest/english/README.md) |
 | Clock workshop | `clock/index.html` → `src/clock/main.tsx` | [src/clock/README.md](src/clock/README.md) |
 | Space Cat (flying sums) | `spacecat/index.html` → `src/spacecat/main.tsx` | [src/spacecat/README.md](src/spacecat/README.md) |
 | Code two or more games share (`gameAudio/`, `shell/`, `parentGate/`, device settings, telemetry, saves) | `src/shared/` | [src/shared/README.md](src/shared/README.md) |

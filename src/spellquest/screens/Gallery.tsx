@@ -53,7 +53,7 @@ export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: 
   return (
     <div className="d2-parent">
       <button onClick={onBack} style={{ float: 'right', fontSize: 18 }}>Back</button>
-      <h2>Spell Quest — screens</h2>
+      <h2>Hebrew Spell Quest — screens</h2>
       <p>Each screen starts at once with its demo. Nothing you do here changes his progress. Use Back (bottom right) to return.</p>
       <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 10, maxWidth: 560 }}>
         {galleryFor(course.id).map((e) => (

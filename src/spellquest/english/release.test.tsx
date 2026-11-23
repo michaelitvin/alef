@@ -22,14 +22,14 @@ describe('hidden on production', () => {
   it('released exactly when all nine stages are reviewed', () =>
     expect(ENGLISH_RELEASED).toBe([1, 2, 3, 4, 5, 6, 7, 8, 9].every((s) => REVIEWED_STAGES.includes(s))))
 
-  it('a production build: no card, ?course=en opens Hebrew, no English section', async () => {
+  it('a production build: no card, the English page opens Hebrew, no English section', async () => {
     vi.doMock('./available', () => ({ ENGLISH_AVAILABLE: false, ENGLISH_RELEASED: false, englishAvailable: () => false }))
     const { HomePage, SpellQuestApp, GAMES } = await importFresh()
     const home = render(<MemoryRouter><HomePage /></MemoryRouter>)
-    expect(home.container.querySelector('[data-english-card], [data-card="english"], [data-home-part="english-path"]')).toBeNull()
+    expect(home.container.querySelector('[data-spellquest-en-card], [data-card="spellquest-en"], [data-home-part="spellquest-en-path"]')).toBeNull()
     cleanup()
-    history.replaceState(null, '', '/spellquest/?course=en')
-    render(<SpellQuestApp />)
+    history.replaceState(null, '', '/spellquest-en/')
+    render(<SpellQuestApp courseId="en" />)
     expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('he')
     expect(GAMES.map((g) => g.id)).not.toContain('spellquest-en')
   })

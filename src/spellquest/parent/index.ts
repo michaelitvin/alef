@@ -12,7 +12,7 @@ const glyph = (id: string) => ITEMS.find((i) => i.id === id)?.glyph ?? id
 
 export const spellQuestParent: GameParent = {
   id: 'spellquest-he',
-  title: 'Spell Quest',
+  title: 'Hebrew Spell Quest',
   saveKey: SPELLQUEST_HE_SAVE_KEY,
   logs: [SPELLQUEST_LOG, TOWER_HISTORY_LOG],
   Settings: lazy(() => import('./Settings')),

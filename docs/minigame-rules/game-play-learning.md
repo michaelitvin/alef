@@ -9,7 +9,7 @@
 - Do not ask for the same thing twice in a row, and not twice in one set that the game plans ahead (a ladder). Choose the
   next question after his last answer, or remember what the plan already asked: the adaptive choice picks the same weak
   item again and again otherwise.
-  Example (Spell Quest): a ladder planned all its rungs at the start and asked "דָ" three times in a row.
+  Example (Hebrew Spell Quest): a ladder planned all its rungs at the start and asked "דָ" three times in a row.
 - Make wrong answers only from content that the child learned. A trick must test the current skill, not show an unknown word.
   Example (clock): on level 1 (o'clock only), the answers included "ten to eleven".
 - Make wrong answers clearly different from the right one. Do not offer two answers that differ only in a small detail.
@@ -23,7 +23,7 @@
   search that jumps up after a fast right answer and down after a mistake), and let a clean result move him on at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
   visit, and do not make the visits shorter while the check can still pass.
   Reason: a child who already knows the content gets bored in a long grind, and the next things to learn come late.
-  Example (Spell Quest): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. Now the
+  Example (Hebrew Spell Quest): a child who knew all the nikkud needed about 40 tower answers before the minigames opened. Now the
   first 10 answers ask each mark once, and 10 right answers in a row (each mark's latest answer right) open the
   minigames. The parent wants a placement check for other things as well.
 - Make the placement check look like normal play: the same rounds, hearts and points. Do not show or say that it is a
@@ -59,22 +59,22 @@
   speaker that plays it again, until he taps next. Give the explanation of a mistake from time to time (not every time),
   after he has done the right move.
   Example (clock): after a mistake the next customer came at once, and an explanation went on to the question at once.
-- Exception: in an action game (Spell Quest: the broom flight), do not stop at a mistake. Flash, take a heart, mark the right
+- Exception: in an action game (Hebrew Spell Quest: the broom flight), do not stop at a mistake. Flash, take a heart, mark the right
   answer for a moment, play its sound again, and go on. One wave of choices costs at most one heart: after its target is
   caught or a mistake happens, its other orbs fly past harmlessly. Start a new target only when the screen is empty, and
-  announce it while the game goes on. Example (Spell Quest): the parent: "make it more fluent, like an arcade game"; the old
+  announce it while the game goes on. Example (Hebrew Spell Quest): the parent: "make it more fluent, like an arcade game"; the old
   flight stopped at each mistake and new target.
 - Let a moving answer reach the child before you judge it. Count a miss only when the answer has passed him, and end a
   round only when all the answers that are on the screen are done.
-  Example (Spell Quest): the broom said "missed" while the right letter still overlapped the wizard, and on the last round the
+  Example (Hebrew Spell Quest): the broom said "missed" while the right letter still overlapped the wizard, and on the last round the
   letters still flying vanished.
 - Do not repeat the instruction in each round. The demo teaches a screen; after that, a round plays only the sound to find.
-  Play the instruction (and the sound again) only when the child has not answered for a while (Spell Quest: 8 s).
+  Play the instruction (and the sound again) only when the child has not answered for a while (Hebrew Spell Quest: 8 s).
 
 ## Hints
 
 - Give hints that fit the question. Keep them behind a hint button. Show a hint by itself only when the child has not
-  answered for a long time (Spell Quest: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the
+  answered for a long time (Hebrew Spell Quest: 16 s). Do not show it at the start of a round or after a mistake: after a mistake the
   right answer glows and its sound plays.
   Example (clock): the quarters (the face cut in four, 00/15/30/45) for :15/:30/:45, and the minutes at each number for
   the other five-minute times; none on the hour.
@@ -95,13 +95,13 @@
   the ladder, a crystal) only the first two times of each kind; after that, play only its sound.
   Example (tower): boss hits before the last one get only a sound.
 - Use a timer only where speed is the game. Do not use a clock for slow tasks, such as drawing.
-  Example (Spell Quest): only the broom flight has a time limit.
+  Example (Hebrew Spell Quest): only the broom flight has a time limit.
 
 ## Runs and sessions
 
 - Calculate how many answers a usual run has before the hearts run out (at 1 mistake in 5). Make sure that every screen
   comes up in a usual run.
-  Example (Spell Quest): 3 hearts gave approximately 15 answers, and one cycle of the screens had approximately 25. Now the
+  Example (Hebrew Spell Quest): 3 hearts gave approximately 15 answers, and one cycle of the screens had approximately 25. Now the
   hearts fill again on each new screen, and the next run starts at the next screen.
 - Make a new minigame available from the start. Do not lock it behind levels.
 - Do not let progress go backwards. Keep the progress that the child can see.

@@ -5,10 +5,10 @@ import { SPELLQUEST_HE_LOG_KEY } from '../shared/saveKeys'
 
 export const SPELLQUEST_LOG: TelemetryLog = {
   key: SPELLQUEST_HE_LOG_KEY,
-  label: 'Spell Quest',
+  label: 'Hebrew Spell Quest',
   game: 'spellquest-he',
   about: {
-    game: 'Spell Quest (letters and syllables), at /spellquest/. Events with via: "tower" come from the tower (its '
+    game: 'Hebrew Spell Quest (letters and syllables), at /spellquest-he/. Events with via: "tower" come from the tower (its '
       + 'board, src/spellquest/tower/logic/controller.ts); their `visit` is its own visit counter, `run` is Spell Quest\'s run.',
     docs: ['docs/superpowers/specs/2026-10-19-duel-book-2-design.md', 'docs/superpowers/specs/2026-11-07-book2-flight-boss-design.md',
       'docs/superpowers/specs/2026-11-07-book2-drawing-design.md', 'docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md',

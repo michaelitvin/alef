@@ -11,7 +11,7 @@
 //   ALEF_VERIFY_ONLY a comma-separated list of checks to run (default: all; the names are in CHECKS below)
 //   ALEF_VERIFY_SIZES a comma-separated list of sizes to run (default: every size not marked optIn; the names are in
 //                    VIEWPORTS and FIT_VIEWPORTS below)
-// The English fit check (englishFit) needs the staging verify build (ALEF_STAGING=1): elsewhere the English page is
+// The English fit check (spellquestEnFit) needs the staging verify build (ALEF_STAGING=1): elsewhere the English page is
 // closed, and the check is skipped.
 //
 // Every run opens its own browser context and closes it in a finally, also when a check fails or throws, on Ctrl-C
@@ -29,8 +29,8 @@ const VIEWPORTS = [
   { name: 'tablet', width: 1180, height: 820 },
   // a phone held upright: only the parent area's checks (the games are played sideways), which assert at each section
   // that nothing scrolls sideways
-  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'spellQuestArea', 'clockArea', 'spacecatArea'] },
-  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'spellQuestArea', 'clockArea', 'spacecatArea'] },
+  { name: 'upright390', width: 390, height: 844, mobile: true, upright: true, only: ['home', 'spellquestHeArea', 'clockArea', 'spacecatArea'] },
+  { name: 'upright412', width: 412, height: 915, mobile: true, upright: true, only: ['home', 'spellquestHeArea', 'clockArea', 'spacecatArea'] },
   // Space Cat plays upright and on its side, on a phone and a tablet: its sweep sizes run only when named
   { name: 'phoneUp', width: 412, height: 915, mobile: true, optIn: true },
   { name: 'phoneSide', width: 915, height: 412, mobile: true, optIn: true },
@@ -44,7 +44,7 @@ const FIT_VIEWPORTS = [
   { name: 'fit-1024x768', width: 1024, height: 768 },
 ]
 /** a check that runs at other sizes than VIEWPORTS */
-const SIZES_OF = { englishFit: FIT_VIEWPORTS }
+const SIZES_OF = { spellquestEnFit: FIT_VIEWPORTS }
 /** a check that cannot run on this build: printed as SKIP, not a failure */
 class Skip extends Error {}
 /** the parent gate's year: any year 18 to 100 years back opens it (src/shared/parentGate/acceptYear.ts) */
@@ -356,7 +356,7 @@ async function seedEnglish(page, base, stage) {
 /** one session of `station` on the English page at `stage`: its station cover, play, the play screen */
 async function englishStation(page, base, station, stage) {
   await seedEnglish(page, base, stage)
-  await page.goto(`${base}spellquest/?course=en&station=${station}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${base}spellquest-en/?station=${station}`, { waitUntil: 'domcontentloaded' })
   await page.locator(`[data-screen="station"][data-station="${station}"]`).waitFor()
   await tap(page, page.locator('[data-station-play]'))
   await passGender(page, `[data-screen="play"][data-session="${station}"]`)
@@ -541,7 +541,7 @@ const scSaved = (page) => page.evaluate((k) => { const j = JSON.parse(localStora
 const CHECKS = {
   async home(page, base, vp, note) {
     await page.goto(base, { waitUntil: 'domcontentloaded' })
-    await page.locator('[data-card="spellquest"]').waitFor()
+    await page.locator('[data-card="spellquest-he"]').waitFor()
     await page.locator('[data-card="clock"]').waitFor()
     await page.locator('[data-card="spacecat"]').waitFor()
     note(`Space Cat's credit: ${await page.locator('[data-credit="spacecat"]').textContent()}`)
@@ -549,7 +549,7 @@ const CHECKS = {
     const parts = await page.evaluate(() => [...document.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part')))
     note(`home: ${parts.join(' ')}`)
     const sc = parts.indexOf('spacecat')
-    if (parts.includes('english') && parts.slice(sc - 3, sc).join(' ') !== 'english english-path separator') throw new Error(`the English path is not right before Space Cat: ${parts.join(' ')}`)
+    if (parts.includes('spellquest-en') && parts.slice(sc - 3, sc).join(' ') !== 'spellquest-en spellquest-en-path separator') throw new Error(`English Spell Quest is not right before Space Cat: ${parts.join(' ')}`)
     const open = await page.locator('[data-path] [data-station][data-open="true"]').count()
     if (!open) throw new Error('no open station on the path')
     note(`${open} open station(s)`)
@@ -560,8 +560,8 @@ const CHECKS = {
     await shot(page, vp, 'home-area')
   },
 
-  async spellquest(page, base, vp, note) {
-    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
+  async spellquestHe(page, base, vp, note) {
+    await page.goto(`${base}spellquest-he/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await shot(page, vp, 'spellquest-cover')
     await tap(page, page.locator('[data-screen="cover"] [aria-label="play"]'))
@@ -593,7 +593,7 @@ const CHECKS = {
     await shot(page, vp, 'spellquest-hit')
   },
 
-  async spellQuestStation(page, base, vp, note) {
+  async spellquestHeStation(page, base, vp, note) {
     // the path's first open station, as the home screen links it (a fresh save: the tower)
     await page.goto(base, { waitUntil: 'domcontentloaded' })
     const link = page.locator('[data-path] a[data-station][data-open="true"]').first()
@@ -608,10 +608,10 @@ const CHECKS = {
     await shot(page, vp, `spellquest-station-${id}`)
   },
 
-  async spellQuestSheets(page, base, vp, note) {
+  async spellquestHeSheets(page, base, vp, note) {
     for (const [hash, sel] of [['#/glyphs', '.d2-root'], ['#/tower-glyphs', '.nd-glyphs'], ['#/summary', '[data-screen]']]) {
       await page.goto('about:blank')
-      await page.goto(`${base}spellquest/${hash}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest-he/${hash}`, { waitUntil: 'domcontentloaded' })
       await page.locator(sel).first().waitFor()
       if (await page.locator('[data-screen="cover"]').count()) throw new Error(`${hash} shows the cover: not a verify build?`)
       await page.waitForTimeout(500)
@@ -620,11 +620,11 @@ const CHECKS = {
     note('glyphs, tower-glyphs, summary')
   },
 
-  async spellQuestArea(page, base, vp, note) {
+  async spellquestHeArea(page, base, vp, note) {
     // Spell Quest is played sideways: upright, the "turn the phone" picture covers its cover. Pass the gate sideways, then turn
     // the phone upright (the area and the developer screens show no picture)
     if (vp.upright) await page.setViewportSize({ width: vp.height, height: vp.width })
-    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}spellquest-he/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
     if (vp.upright) await page.setViewportSize({ width: vp.width, height: vp.height })
@@ -1192,7 +1192,7 @@ const CHECKS = {
   async telemetry(page, base, vp, note) {
     // after the play checks (one context per size, so their events are in this storage): the Data section of Spell Quest's
     // area counts them, shows the storage line, and a Download gives the export
-    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}spellquest-he/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await page.evaluate(() => {
       window.__downloads = []
@@ -1205,7 +1205,7 @@ const CHECKS = {
     const count = (key) => data.locator(`[data-log="${key}"] [data-log-count]`).textContent()
     const spellquest = await count('alef-spellquest-telemetry')
     const clock = await count('alef-clock-telemetry')
-    if (!/^[1-9]\d* events$/.test(spellquest)) throw new Error(`Spell Quest's log: ${spellquest}`)
+    if (!/^[1-9]\d* events$/.test(spellquest)) throw new Error(`Hebrew Spell Quest log: ${spellquest}`)
     if (!/^\d+ events$/.test(clock)) throw new Error(`the clock's log: ${clock}`)
     const storage = await data.locator('[data-storage]').textContent()
     if (!/telemetry .* of \d+k chars/.test(storage)) throw new Error(`no storage line: ${storage}`)
@@ -1220,7 +1220,7 @@ const CHECKS = {
     note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)
   },
 
-  async englishFit(page, base, vp, note) {
+  async spellquestEnFit(page, base, vp, note) {
     // the English page is open only on staging (src/spellquest/english/available.ts)
     if (!base.endsWith('/staging/')) throw new Skip('the English page needs the staging verify build (ALEF_STAGING=1)')
     const problems = []
@@ -1296,7 +1296,7 @@ const CHECKS = {
     // the spell book with its longest word (5 boxes): the gallery's test-build link
     {
       await seedEnglish(page, base, 4)
-      await page.goto(`${base}spellquest/?course=en#/gallery/spell-long`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest-en/#/gallery/spell-long`, { waitUntil: 'domcontentloaded' })
       await page.locator('[data-screen="play"]').waitFor({ timeout: 20_000 }).catch(() => {})
       await page.evaluate(() => document.fonts.ready)
       let fiveBoxes = false
@@ -1326,7 +1326,7 @@ const CHECKS = {
     // book's pages; a small letter (the middle line to the baseline) at least 30 px high
     {
       await seedEnglish(page, base, 4)
-      await page.goto(`${base}spellquest/?course=en#/gallery/spell-write`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest-en/#/gallery/spell-write`, { waitUntil: 'domcontentloaded' })
       await page.locator('[data-write-box]').first().waitFor({ timeout: 20_000 }).catch(() => {})
       await page.evaluate(() => document.fonts.ready)
       const g = await page.evaluate(() => {

@@ -35,7 +35,7 @@ export default function Units() {
   const shown = open ? UNITS.find((u) => u.id === open) : undefined
   const t = shown ? tallies[shown.id] : undefined
   return (
-    <div data-english-units>
+    <div data-spellquest-en-units>
       <h3>Sound units</h3>
       {stages.map((st) => (
         <p key={st} data-units-stage={st}>

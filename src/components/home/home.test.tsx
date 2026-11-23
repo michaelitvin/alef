@@ -83,7 +83,7 @@ describe('the Spell Quest card and the path (spec: one duel, Part 4)', () => {
     save({ stage: { stage: 4, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'spell').getAttribute('data-open')).toBe('true')
-    expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=spell`)
+    expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest-he/?station=spell`)
     // the wizard stays at the doors: the spell book opens with them and follows them (writing after reading)
     expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
     expect(st(container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
@@ -221,9 +221,9 @@ describe('the Spell Quest card and the path (spec: one duel, Part 4)', () => {
   it('a station links to its session; the card to the cover; a locked station links nowhere', () => {
     save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true })
     const { container } = render(<><SpellQuestCard /><StationPath /></>)
-    expect(container.querySelector('[data-card="spellquest"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/`)
-    expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=ghosts`)
-    expect(st(container, 'tower').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=tower`)
+    expect(container.querySelector('[data-card="spellquest-he"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest-he/`)
+    expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest-he/?station=ghosts`)
+    expect(st(container, 'tower').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest-he/?station=tower`)
     expect(st(container, 'doors').tagName).not.toBe('A')
     expect(st(container, 'doors').getAttribute('href')).toBeNull()
   })
@@ -233,7 +233,7 @@ describe('the Spell Quest card and the path (spec: one duel, Part 4)', () => {
     expect(container.querySelector('.home-card-art')).not.toBeNull()
     expect([...container.querySelectorAll('.home-card-orb span')].map((e) => e.textContent)).toEqual(['בָּ', 'לִ', 'מוּ'])
     expect(container.querySelector('[data-play="spellquest"]')).not.toBeNull()
-    expect(container.querySelector('[data-learn="spellquest"]')!.textContent).toBe('מה לומדים: לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.')
+    expect(container.querySelector('[data-learn="spellquest-he"]')!.textContent).toBe('מה לומדים: לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.')
   })
 
   it('the Spell Quest card picture follows the saved player: girl → the girl card; boy or not asked yet → the boy card', () => {

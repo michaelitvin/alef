@@ -35,9 +35,9 @@ describe('the home page (spec: one duel, Part 4)', () => {
   it('the home page: Spell Quest card, path, separator, clock card, separator, Space Cat card, separator, shelf — and none of the old cards', () => {
     const c = page()
     const parts = [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
-    expect(parts).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(parts).toEqual(['spellquest-he', 'spellquest-he-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     // one duel card (the old duel and Spell Quest cards are gone), one clock card, no big level cards
-    expect(c.querySelectorAll('a[href$="spellquest/"]').length).toBe(1)
+    expect(c.querySelectorAll('a[href$="spellquest-he/"]').length).toBe(1)
     expect(c.querySelectorAll('[aria-label="clock"]').length).toBe(1)
     expect(c.querySelector('a[href$="clock/"]')).not.toBeNull()
     expect(c.querySelectorAll('h3').length).toBe(0)
@@ -167,7 +167,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
 
 describe('the English card and path on home (English path design, Part 1)', () => {
   const parts = (c: Element) => [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
-  const stations = (c: Element) => [...c.querySelectorAll('[data-home-part="english-path"] [data-station]')]
+  const stations = (c: Element) => [...c.querySelectorAll('[data-home-part="spellquest-en-path"] [data-station]')]
   const open = (c: Element) => stations(c).filter((e) => e.getAttribute('data-open') === 'true').map((e) => e.getAttribute('data-station'))
   beforeEach(() => {
     localStorage.clear()
@@ -179,24 +179,24 @@ describe('the English card and path on home (English path design, Part 1)', () =
 
   it('the English card and its path sit right before the Space Cat card (the parent\'s order: English before the cat)', async () => {
     const p = parts(await pageEn())
-    expect(p).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'english', 'english-path', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(p).toEqual(['spellquest-he', 'spellquest-he-path', 'separator', 'clock', 'separator', 'spellquest-en', 'spellquest-en-path', 'separator', 'spacecat', 'separator', 'shelf'])
     expect(p[p.indexOf('spacecat') - 1]).toBe('separator')
-    expect(p[p.indexOf('spacecat') - 2]).toBe('english-path')
+    expect(p[p.indexOf('spacecat') - 2]).toBe('spellquest-en-path')
   })
 
   it('no English card on production: the order is the Hebrew home\'s, as before the English path', async () => {
     en.available = false
     const c = await pageEn()
-    expect(parts(c)).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
-    expect(c.querySelector('a[href*="course=en"]')).toBeNull()
+    expect(parts(c)).toEqual(['spellquest-he', 'spellquest-he-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(c.querySelector('a[href*="spellquest-en/"]')).toBeNull()
   })
 
   it('turning the path off hides the card', async () => {
     englishSavePort().setSettings({ path: false })
-    expect(parts(await pageEn())).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(parts(await pageEn())).toEqual(['spellquest-he', 'spellquest-he-path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     cleanup()
     englishSavePort().setSettings({ path: true })
-    expect(parts(await pageEn())).toContain('english')
+    expect(parts(await pageEn())).toContain('spellquest-en')
   })
 
   it('a fresh device shows the tower open, the ghosts closed', async () => {
@@ -225,28 +225,28 @@ describe('the English card and path on home (English path design, Part 1)', () =
 
   it('the links open the English course; the card follows the player; the line for the parent', async () => {
     const c = await pageEn()
-    const card = c.querySelector('[data-card="english"]')!
-    expect(card.getAttribute('href')).toMatch(/spellquest\/\?course=en$/)
-    const p = c.querySelector('[data-home-part="english-path"]')!
-    expect(p.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest\/\?course=en&station=tower$/)
+    const card = c.querySelector('[data-card="spellquest-en"]')!
+    expect(card.getAttribute('href')).toMatch(/spellquest-en\/$/)
+    const p = c.querySelector('[data-home-part="spellquest-en-path"]')!
+    expect(p.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest-en\/\?station=tower$/)
     expect(p.querySelector('[data-station="ghosts"]')!.tagName).toBe('DIV')
-    expect(c.querySelector('[data-learn="english"]')!.textContent).toBe(
+    expect(c.querySelector('[data-learn="spellquest-en"]')!.textContent).toBe(
       'What he learns: the sound of each letter, blending sounds into words, spelling, then letter pairs (sh, ch, th), silent e and vowel pairs. The game finds his level in the first run.')
     expect(card.querySelector('[data-card-art]')!.getAttribute('data-card-art')).toBe('boy')
     cleanup()
     setGender('girl', 'child')
     const g = await pageEn()
-    expect(g.querySelector('[data-card="english"] [data-card-art]')!.getAttribute('data-card-art')).toBe('girl')
-    expect(g.querySelector('[data-learn="english"] b')!.textContent).toBe('What she learns:')
+    expect(g.querySelector('[data-card="spellquest-en"] [data-card-art]')!.getAttribute('data-card-art')).toBe('girl')
+    expect(g.querySelector('[data-learn="spellquest-en"] b')!.textContent).toBe('What she learns:')
     clearGender()
   })
 
   it('the Hebrew card and path are unchanged by the English ones', async () => {
     const c = await pageEn()
-    const hebrew = c.querySelector('[data-home-part="path"]')!
+    const hebrew = c.querySelector('[data-home-part="spellquest-he-path"]')!
     expect([...hebrew.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw', 'draw-hand'])
     expect(hebrew.getAttribute('dir')).toBeNull()
-    expect(hebrew.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest\/\?station=tower$/)
-    expect(c.querySelectorAll('a[href$="spellquest/"]').length).toBe(1)
+    expect(hebrew.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest-he\/\?station=tower$/)
+    expect(c.querySelectorAll('a[href$="spellquest-he/"]').length).toBe(1)
   })
 })

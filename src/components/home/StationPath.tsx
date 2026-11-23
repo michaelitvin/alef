@@ -12,7 +12,7 @@ import { LockBadge } from './LevelIcons'
 import { useStations, type StationState } from './stations'
 
 const WIZ = { 's-wizard-cast': wizBoy, 's-wizard-cast-girl': wizGirl }
-const stationHref = (id: string) => `${import.meta.env.BASE_URL}spellquest/?station=${id}`
+const stationHref = (id: string) => `${import.meta.env.BASE_URL}spellquest-he/?station=${id}`
 
 /** what differs between the Hebrew path and the English one: the way it runs, the link, the picture and the caption's marking */
 export interface PathLook {
@@ -24,7 +24,7 @@ export interface PathLook {
   /** the part's name on the page (data-home-part) */
   part: string
 }
-const HEBREW_LOOK: Omit<PathLook, 'wizard'> = { dir: 'rtl', href: stationHref, Pic: StationPic, part: 'path' }
+const HEBREW_LOOK: Omit<PathLook, 'wizard'> = { dir: 'rtl', href: stationHref, Pic: StationPic, part: 'spellquest-he-path' }
 
 function Trail({ n }: { n: number }) {
   const w = (n + 2) * 90

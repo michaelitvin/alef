@@ -19,8 +19,11 @@ export default defineConfig({
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         clock: fileURLToPath(new URL('./clock/index.html', import.meta.url)),
+        spellquestHe: fileURLToPath(new URL('./spellquest-he/index.html', import.meta.url)),
+        spellquestEn: fileURLToPath(new URL('./spellquest-en/index.html', import.meta.url)),
+        // the old addresses: redirect pages to spellquest-he/ (spellquest-en/ with ?course=en)
         spellquest: fileURLToPath(new URL('./spellquest/index.html', import.meta.url)),
-        duel2: fileURLToPath(new URL('./duel2/index.html', import.meta.url)), // redirects to spellquest/
+        duel2: fileURLToPath(new URL('./duel2/index.html', import.meta.url)),
         spacecat: fileURLToPath(new URL('./spacecat/index.html', import.meta.url)),
       },
     },

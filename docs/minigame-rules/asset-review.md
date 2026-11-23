@@ -11,7 +11,7 @@
   section of a page the same controls and layout: when you add a new kind of section, reuse the existing item layout
   and buttons. Make it obvious which item the controls act on: highlight that item, show its name next to the
   controls, and let the parent jump to it.
-  Example (English course): a static page had no way to write rejects and notes or to approve.
+  Example (English Spell Quest): a static page had no way to write rejects and notes or to approve.
   Example (clock): the style-test section used a different layout from the rest of the page. The first review page had
   shared controls with no highlight and no way to find the item they acted on.
 - Make review fast: show one item at a time, and let the parent's decision set the pace. After OK, or after Reject
@@ -20,7 +20,7 @@
   Open the page on the first open item. Give large OK and Reject buttons, Replay, and a "Later" button that goes on
   without a decision. A tap on an item makes it the current item and plays it. When no open item is left, say so, with
   the counts. Show the progress of the current visit: items decided out of items that were open when the page loaded.
-  Example (English course): the parent left a note on the sled and went on without OK or Reject.
+  Example (English Spell Quest): the parent left a note on the sled and went on without OK or Reject.
 - By default, show only the items that need the parent: open and flagged items. Hide decided, superseded and finished
   items behind a "show all" switch, but keep the items that he decides during a visit visible until he leaves the
   page, so that he can change them. Hide items that left the game (retired).
@@ -32,7 +32,7 @@
   Example (clock): the clock face that shows the time next to its phrase.
 - In review, hide the word of a picture by default. Show it only when the parent hovers over the picture or taps it.
   Reason: the parent first looks at the picture as the child does, with no name given. Then he checks the word.
-  Example (English course): "could be a skillet", "could be a chick".
+  Example (English Spell Quest): "could be a skillet", "could be a chick".
 - Show the model and settings in each take's label. Example (tower): "Will · v4 · take 1".
 
 ## Takes and the game

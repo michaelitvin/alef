@@ -32,7 +32,7 @@ export default function Level() {
     setPick(null)
   }
   return (
-    <div data-english-level>
+    <div data-spellquest-en-level>
       <h3>Level</h3>
       <p data-level-found>
         {done ? `Placement found level ${done.level}, after ${done.answers} answers${date ? ` on ${date}` : ''}.` : 'He has not been placed yet.'}

@@ -1,8 +1,8 @@
-// Which course a page plays: Hebrew, or English with `?course=en` where English is available (src/spellquest/english/available.ts).
+// Which course a page plays: its entry page says (spellquest-he/ or spellquest-en/); English only where it is available (src/spellquest/english/available.ts).
 import type { Course, CourseId } from './types'
 
-export function courseIdFromUrl(search: string, available: boolean): CourseId {
-  return available && new URLSearchParams(search).get('course') === 'en' ? 'en' : 'he'
+export function courseIdFor(requested: CourseId, available: boolean): CourseId {
+  return available && requested === 'en' ? 'en' : 'he'
 }
 
 /** The English course loads by dynamic import, so the Hebrew page never loads English data. */
