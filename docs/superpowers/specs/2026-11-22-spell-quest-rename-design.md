@@ -121,3 +121,29 @@ useful. Keys and behaviour change only in T6.
 
 T1 and T2 run in parallel; T4 and T5 run in parallel after them. Then a whole-branch review, `npm run check && npm
 test`, `/verify`, and the staging check.
+
+## Addendum (2026-11-23): two games, Hebrew Spell Quest and English Spell Quest
+
+The parent: the names must be truly consistent. Nothing has gone to production yet (`release` still has the old keys),
+so the keys change once more with no second migration on production.
+
+| | Hebrew | English |
+| --- | --- | --- |
+| Name the parent sees (cards' labels, parent area, page title, docs) | Hebrew Spell Quest | English Spell Quest |
+| Content (the course) | the Hebrew course | the English course |
+| Save | `alef-spellquest-he` | `alef-spellquest-en` (was `alef-english`) |
+| Telemetry | `alef-spellquest-he-telemetry` | `alef-spellquest-en-telemetry` (was `alef-english-telemetry`) |
+| Game id (`g`, playtime, parent) | `spellquest-he` | `spellquest-en` (was `english`) |
+| Code | `src/spellquest/` (the engine and its Hebrew course) | `src/spellquest/english/` (was `src/english/`) |
+| Page | `spellquest/` | `spellquest/?course=en` |
+
+"Spell Quest" alone names the engine and what both games share. The tower's old history keeps
+`alef-tower-history-telemetry`. Not in this change: the Hebrew course's code stays woven into the engine (the parked
+architecture review).
+
+**Migration.** Staging ran the first migration on 2026-11-23, so staging has the in-between names (`alef-spellquest`,
+`alef-spellquest-telemetry`, the `spellquest-rename` marker). The migration's moves take every earlier name as a source:
+`alef-duel2` or `alef-spellquest` → `alef-spellquest-he`; `alef-english` → `alef-spellquest-en`; the same for their
+telemetry bases. A new step id runs once on every device, also where `spellquest-rename` is done. The reader alias
+table maps `book2` and `spellquest` → `spellquest-he`, `english` → `spellquest-en`. `?migrate-check` checks the new
+names, and the old staging check result is cleared.

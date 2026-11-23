@@ -10,9 +10,19 @@ The reading course: letters, nikkud, syllables, words, sentences, stories; the h
 _Avoid_: Book 1
 
 **Spell Quest**:
-The wizard's adventure: a run through a fixed cycle of screens, with stakes and a merchant. It plays one of two courses,
-Hebrew or English.
+The wizard's adventure: a run through a fixed cycle of screens, with stakes and a merchant. One engine, two games:
+Hebrew Spell Quest and English Spell Quest. Say "Spell Quest" alone only for what both games have.
 _Avoid_: Book 2, duel, duel2, the duel game
+
+**Hebrew Spell Quest**:
+Spell Quest with the Hebrew course: letters, nikkud and syllables.
+_Avoid_: Spell Quest (when you mean only the Hebrew game), Book 2
+
+**English Spell Quest**:
+Spell Quest with the English course (`?course=en`): reading and spelling with Latin letters in nine stages, with its own
+save, its own home path and its own parent section. It is open on staging, and hidden on production until all nine
+stages are reviewed.
+_Avoid_: English path (a path is the home's row of stations), English course (that is its content), Book 3, English game
 
 **Clock workshop**:
 A separate game about reading an analogue clock, played as a workday of customers.
@@ -60,7 +70,7 @@ A group of choices that fall or fly together (broom, tower). One wave costs at m
 The moment between two screens where the merchant can come.
 
 **Stage**:
-How far Spell Quest's content has opened. Stage 0 opens only the tower. Passing it opens the next screens.
+How far a Spell Quest game's content has opened. Stage 0 opens only the tower. Passing it opens the next screens.
 
 **Placement**:
 A short check at stage 0 that lets a skilled child move on fast.
@@ -148,17 +158,14 @@ The clock workshop's reward.
 **Bonus**:
 The short extra game at the end of every workday.
 
-## The English course
+## English Spell Quest
 
 **Course**:
 What a run teaches: the Hebrew course (letters, nikkud, syllables) or the English course (sound units and words). One
-Spell Quest engine plays both; the course gives it the content ([ADR 0008](docs/adr/0008-one-engine-two-courses.md)).
+Spell Quest engine plays both; the course gives it the content ([ADR 0008](docs/adr/0008-one-engine-two-courses.md)). The course is the content;
+the game is Hebrew Spell Quest or English Spell Quest.
 _Avoid_: language, mode
 
-**English course**:
-Spell Quest with the English course (`?course=en`): reading and spelling with Latin letters in nine stages, with its own
-save, its own home path and its own parent section. It is open on staging, and hidden on production until all nine stages are reviewed.
-_Avoid_: English course (a path is the home's row of stations), Book 3, English game
 
 **Sound unit**:
 One letter or a group of letters that makes one sound (`s`, `sh`, `a_e`, `igh`). It is the item the English course tracks, as a mark is in Hebrew. A word is a sequence of sound units.
@@ -177,7 +184,7 @@ The English placement check inside the tower: the monsters walk at a fixed pace 
 The screen where the child builds a word in boxes from tiles. Both courses have one. The English one also has a written form: he writes the letters of a word on four lines.
 
 **Blend**:
-The hint of the English course: the word is said as one stretched sound while its sound units light in turn. It plays after every second miss, and for a made word.
+The hint of English Spell Quest: the word is said as one stretched sound while its sound units light in turn. It plays after every second miss, and for a made word.
 _Avoid_: sounding out
 
 ## Space Cat
