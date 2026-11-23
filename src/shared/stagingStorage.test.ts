@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { STAGING_PREFIX, copyUnprefixedOver, installStagingStorage, isStaging, prefixedStorage } from './stagingStorage'
 
 describe('staging storage (keeps staging saves apart from production saves)', () => {
@@ -81,5 +81,49 @@ describe('staging storage (keeps staging saves apart from production saves)', ()
     expect(win.localStorage).not.toBe(failing)
     expect(win.localStorage.getItem('alef-progress')).toBeNull()
     expect(real.getItem('alef-progress')).toBe('real')
+  })
+
+  describe('?export-prod', () => {
+    const setup = (href: string, ok = true) => {
+      const download = vi.fn()
+      const win = {
+        location: { href }, localStorage, confirm: () => ok, navigator: { userAgent: 'UA' },
+        history: { replaceState: vi.fn() },
+      } as unknown as Window
+      return { win, download }
+    }
+    const seed = () => {
+      localStorage.setItem('alef-progress', '{"a":1}')
+      localStorage.setItem('alef-spellquest-telemetry', 'H4sI\u00e9 raw')
+      localStorage.setItem('staging:alef-progress', 'staging')
+    }
+
+    it('downloads exactly the unprefixed keys, byte-equal, and changes no key', () => {
+      seed()
+      const real = () => Object.fromEntries(Object.entries({ ...localStorage }).filter(([k]) => !k.startsWith('staging:'))) // staging's own key migration may write its marker
+      const before = real()
+      const { win, download } = setup('https://example.test/alef/staging/?export-prod')
+      installStagingStorage(win, () => {}, download)
+      expect(download).toHaveBeenCalledOnce()
+      const [json, name] = download.mock.calls[0]
+      const o = JSON.parse(json)
+      expect(o).toMatchObject({ v: 1, kind: 'alef-prod-storage', userAgent: 'UA' })
+      expect(Object.keys(o).sort()).toEqual(['exportedAt', 'keys', 'kind', 'userAgent', 'v'])
+      expect(o.keys).toEqual({ 'alef-progress': '{"a":1}', 'alef-spellquest-telemetry': 'H4sI\u00e9 raw' })
+      expect(name).toMatch(/^alef-prod-storage-\d{4}-\d{2}-\d{2}\.json$/)
+      expect(real()).toEqual(before)
+      expect((win.history.replaceState as ReturnType<typeof vi.fn>).mock.calls[0][2].toString()).not.toContain('export-prod')
+    })
+
+    it('downloads nothing when the parent cancels', () => {
+      seed()
+      const { win, download } = setup('https://example.test/alef/staging/?export-prod', false)
+      installStagingStorage(win, () => {}, download)
+      expect(download).not.toHaveBeenCalled()
+    })
+
+    it('does nothing in a production build (the install is never called there)', () => {
+      expect(isStaging).toBe(false)
+    })
   })
 })

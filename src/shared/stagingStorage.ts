@@ -3,6 +3,7 @@
 // or changes the child's real saves, and new keys on any branch are covered without a change here.
 // Each entry point imports this module first, before any store reads localStorage.
 // A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's, or with
+// ?export-prod to download a copy of them as one JSON file, or with
 // ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts; production ignores both).
 
 import { downloadJson } from './download'
@@ -45,6 +46,17 @@ export function copyUnprefixedOver(storage: Storage, prefix: string) {
   all.filter((k) => !k.startsWith(prefix) && !isTelemetryKey(k)).forEach((k) => storage.setItem(prefix + k, storage.getItem(k)!))
 }
 
+/** The file of `?export-prod`: every key that has no staging prefix, as the exact stored strings (no parsing, so the
+ * compressed telemetry chunks stay byte-exact). No host name is in it. Only reads. */
+export function buildProdExport(storage: Storage, prefix: string, now: Date, userAgent: string) {
+  const keys: Record<string, string> = {}
+  for (let i = 0; i < storage.length; i++) {
+    const k = storage.key(i)!
+    if (!k.startsWith(prefix)) keys[k] = storage.getItem(k) ?? ''
+  }
+  return { v: 1, kind: 'alef-prod-storage', exportedAt: now.toISOString(), userAgent, keys }
+}
+
 /** Put a prefixed view of `win.localStorage` in its place (and do a requested ?copy-prod first). The view is installed
  * even when the copy fails (for example on a full storage): otherwise staging would read and write the child's real
  * saves. */
@@ -60,6 +72,15 @@ export function installStagingStorage(win: Window, reload: (url: string) => void
       win.history.replaceState(null, '', url)
       cleanUrl = url.href
       check = win.confirm('Run the migration check? It replaces the staging copies of the old saves and logs with copies of production’s, and runs the migration on them. Production is only read.')
+    }
+    if (url.searchParams.has('export-prod')) {
+      // Production keys are only read here and staging never changes them, so the order against the migration is free.
+      url.searchParams.delete('export-prod')
+      win.history.replaceState(null, '', url)
+      if (win.confirm('Download a copy of all the child’s real saves and logs from the real game, to test a change? Nothing is changed.')) {
+        const now = new Date()
+        download(JSON.stringify(buildProdExport(storage, STAGING_PREFIX, now, win.navigator.userAgent)), `alef-prod-storage-${now.toISOString().slice(0, 10)}.json`)
+      }
     }
     if (url.searchParams.has('copy-prod')) {
       url.searchParams.delete('copy-prod')
