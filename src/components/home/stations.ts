@@ -9,6 +9,7 @@ import { rating, screenRecent } from '../../spellquest/logic/mastery'
 import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 import { useProgressStore } from '../../stores/progressStore'
 import { SPELLQUEST_SAVE_KEY } from '../../shared/saveKeys'
+import { readSaveValue } from '../../shared/keyMigration'
 
 export interface Station {
   id: ScreenId
@@ -39,7 +40,7 @@ const PROGRESS_KEY = 'alef-progress'
 
 const readSaved = (key: string): { state: Record<string, unknown>; version: number } | null => {
   try {
-    const raw = localStorage.getItem(key)
+    const raw = readSaveValue(localStorage, key) // the old key while the save's move waits for space
     if (!raw) return null
     const p = JSON.parse(raw) as { state?: unknown; version?: unknown }
     const s = p?.state

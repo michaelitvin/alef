@@ -12,7 +12,8 @@ function waiting(): string[] {
   for (const s of lastMigrationReport()?.steps ?? []) {
     if (s.status === 'done') continue
     const what = s.id === 'tower-history' ? 'the tower’s old history' : 'Spell Quest’s old saves and history'
-    out.push(s.status === 'waiting-space' ? `${what} waits for space` : `${what}: an old and a new key differ, so the old key stays`)
+    const both = s.keys.filter((k) => k.status === 'conflict').map((k) => `${k.from} and ${k.to}`).join('; ')
+    out.push(s.status === 'waiting-space' ? `${what} waits for space` : `${what}: an old and a new key differ, so both stay (${both})`)
   }
   return out
 }

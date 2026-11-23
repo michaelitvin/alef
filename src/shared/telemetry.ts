@@ -118,7 +118,7 @@ export const resetFrozenCopyForTest = () => { frozenCopyChecked = false }
 /** The events at or after `since`, with old ids read as the new ones (`book2` as `spellquest`: see telemetryAliases.ts). */
 export function filterEvents(events: TelemetryEvent[], { since }: { since?: number } = {}, logKey = ''): TelemetryEvent[] {
   const kept = since === undefined ? events : events.filter((ev) => typeof ev.t === 'number' && ev.t >= since)
-  return isFrozenLog(logKey) ? kept : aliasEvents(kept, logKey) // the frozen history is exported as it is stored (ADR 0004)
+  return isFrozenLog(logKey) ? kept : aliasEvents(kept) // the frozen history is exported as it is stored (ADR 0004)
 }
 
 function aboutNote(about: TelemetryAbout) {

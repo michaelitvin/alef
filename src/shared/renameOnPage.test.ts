@@ -68,14 +68,14 @@ describe('the rename on a page', () => {
     expect(localStorage.getItem('alef-spellquest')).toBeNull()
   })
 
-  it('a second run after the marker does one getItem and changes nothing', async () => {
+  it('a second run after the marker reads five keys (the marker, then the old keys an old page could write again) and changes nothing', async () => {
     seedOld(localStorage)
     const { runKeyMigration } = await import('./stagingStorage')
     runKeyMigration(localStorage)
     const before = JSON.stringify({ ...localStorage })
     const getItem = vi.spyOn(Storage.prototype, 'getItem')
     runKeyMigration(localStorage)
-    expect(getItem).toHaveBeenCalledTimes(1)
+    expect(getItem).toHaveBeenCalledTimes(5)
     getItem.mockRestore()
     expect(JSON.stringify({ ...localStorage })).toBe(before)
   })

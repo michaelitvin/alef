@@ -79,18 +79,23 @@ export function installStagingStorage(win: Window, reload: (url: string) => void
 function startMigrateCheck(storage: Storage, view: Storage, cleanUrl: string, reload: (url: string) => void): Promise<boolean> {
   const leave = () => { try { reload(cleanUrl); return true } catch { return false /* the result is in the Data section at the next visit */ } }
   return Promise.all([import('./migrateCheck'), import('./migrateCheckSteps')]).then(([{ runMigrateCheck, MIGRATION_CHECK_KEY }, { SAVE_STEPS }]) => {
-    const result = runMigrateCheck(storage, view, SAVE_STEPS)
+    let result
+    try {
+      result = runMigrateCheck(storage, view, SAVE_STEPS)
+    } catch (e) { // a bug in the check: a FAIL with its message, never a blank page
+      result = { v: 1, at: Date.now(), verdict: 'fail', message: `the check stopped: ${e instanceof Error ? e.message : String(e)}`, rows: [] }
+    }
     try { view.setItem(MIGRATION_CHECK_KEY, JSON.stringify(result)) } catch { /* no space for the result: the check shows nothing */ }
     runKeyMigration(view)
     return leave()
-  }, () => { runKeyMigration(view); return leave() })
+  }).catch(() => { runKeyMigration(view); return leave() })
 }
 
 let lastReport: MigrationReport | null = null
 /** what the key migration did on this page load (null before it ran); the parent area's Data section shows it */
 export const lastMigrationReport = (): MigrationReport | null => lastReport
 
-/** Move the old keys to the Spell Quest names on the storage the page uses (ADR 0009). Never throws; one `getItem` when done. */
+/** Move the old keys to the Spell Quest names on the storage the page uses (ADR 0009). Never throws; a few `getItem`s when done (the marker, and the old keys a stale old-build page could write again). */
 export function runKeyMigration(storage: Storage): MigrationReport | null {
   try {
     lastReport = migrateKeys(storage)
@@ -108,7 +113,7 @@ else {
 /** The gate of `?migrate-check`: each entry point opens its app only after it (`migrateCheckGate().then(() => import('./boot'))`),
  * so no store module evaluates (hydrates, persists) while the check works. It resolves at once when there is no check (and
  * on production). With the check on staging it never resolves once the reload is asked for: the page is then reloading
- * without the query. It resolves, and the page starts, if the reload cannot be asked for. */
+ * without the query. It resolves, and the page starts, if the reload cannot be asked for or the check fails. */
 export function migrateCheckGate(pending: Promise<boolean> | null = pendingCheck): Promise<void> {
-  return pending ? pending.then((leaving) => (leaving ? new Promise<void>(() => {}) : undefined)) : Promise.resolve()
+  return pending ? pending.then((leaving) => (leaving ? new Promise<void>(() => {}) : undefined), () => undefined) : Promise.resolve()
 }

@@ -215,11 +215,10 @@ describe('the log registry', () => {
   it('old ids inside events read as the new ones: book2 is spellquest, an old tower event is the tower', async () => {
     const { aliasEvent, filterEvents, readLog } = await import('./telemetry')
     const old = { t: 1, s: 'x', run: 1, e: 'round', g: 'book2' }
-    expect(aliasEvent(old, 'alef-spellquest-telemetry').g).toBe('spellquest')
-    expect(aliasEvent({ ...old, g: 'duel' }, 'alef-tower-history-telemetry').g).toBe('tower')
+    expect(aliasEvent(old).g).toBe('spellquest')
+    expect(aliasEvent({ ...old, g: 'duel' }).g).toBe('tower')
     const noG = { t: 1, s: 'x', run: 1, e: 'round' }
-    expect(aliasEvent(noG, 'alef-tower-history-telemetry').g).toBe('tower') // the table; the frozen log itself is still read as stored
-    expect(aliasEvent(noG, 'alef-clock-telemetry').g).toBeUndefined()
+    expect(aliasEvent(noG)).toBe(noG) // no `g` stays as it is (the frozen tower history is read as stored, ADR 0004)
     expect(filterEvents([old], {}, 'alef-spellquest-telemetry')[0]!.g).toBe('spellquest')
     localStorage.setItem('alef-spellquest-telemetry', JSON.stringify({ v: 1, events: [old], sealed: [] }))
     expect(readLog('alef-spellquest-telemetry')[0]!.g).toBe('spellquest')

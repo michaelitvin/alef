@@ -64,3 +64,19 @@ describe('the migration check in the Data section', () => {
     })
   })
 })
+
+describe('MigrationCheck: a conflict of the key migration', () => {
+  afterEach(() => localStorage.clear())
+  it('names the old and the new key that both stay', async () => {
+    const { runKeyMigration } = await import('../../shared/stagingStorage')
+    localStorage.setItem('alef-duel2', '{"state":{"coins":1},"version":7}')
+    localStorage.setItem('alef-spellquest', '{"state":{"coins":2},"version":7}')
+    runKeyMigration(localStorage)
+    const { container } = render(<MigrationCheck />)
+    const note = container.querySelector('[data-migration-waiting]')!.textContent!
+    expect(note).toContain('alef-duel2')
+    expect(note).toContain('alef-spellquest')
+    localStorage.clear()
+    runKeyMigration(localStorage) // a clean report for the next test
+  })
+})

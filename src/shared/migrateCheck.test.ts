@@ -108,6 +108,25 @@ describe('?migrate-check', () => {
     expect(Object.keys(localStorage).filter((k) => k.startsWith(STAGING_PREFIX))).toEqual([])
   })
 
+  it('quota stop: staging\'s own saves and logs that step 1 removed are put back', () => {
+    seedProduction()
+    const inner = prefixedStorage(localStorage, STAGING_PREFIX)
+    const own = { 'alef-spellquest': '{"state":{"coins":2},"version":7}', 'alef-progress': '{"state":{},"version":3}', 'alef-spellquest-telemetry': '{"v":1,"events":[]}', [MIGRATIONS_KEY]: '{"v":1,"done":["spellquest-rename"]}' }
+    for (const [k, v] of Object.entries(own)) inner.setItem(k, v)
+    let n = 0
+    const limited: Storage = {
+      get length() { return inner.length },
+      key: inner.key, getItem: inner.getItem, removeItem: inner.removeItem, clear: inner.clear,
+      setItem: (k, v) => { if (++n === 4) throw new DOMException('full', 'QuotaExceededError'); inner.setItem(k, v) },
+    }
+    n = 0
+    const r = run(SAVE_STEPS, limited)
+    expect(r.verdict).toBe('no-space')
+    expect(r.message).toMatch(/put staging’s own saves back/)
+    for (const [k, v] of Object.entries(own)) expect(inner.getItem(k)).toBe(v)
+    expect(Object.keys(localStorage).filter((k) => k.startsWith(STAGING_PREFIX)).sort()).toEqual(Object.keys(own).map((k) => STAGING_PREFIX + k).sort())
+  })
+
   it('a second check on the same staging gives the same PASS (it clears its own copies first)', () => {
     seedProduction()
     expect(run().verdict).toBe('pass')

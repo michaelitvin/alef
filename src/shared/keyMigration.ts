@@ -4,14 +4,24 @@
 // never sees another view's keys. Each key moves by copy, read back, compare, remove the old key. It never throws,
 // changes nothing on a second run, and a run that stops (no space, a conflict) goes on at the next call.
 // It uses a plain `setItem` with a catch, not `safeSetItem`: that one may evict telemetry while this moves it.
-import { chunkT0, isChunkKey, ownsKey, rollupKey } from './telemetryChunks'
+//
+// A page of the old build can outlive the release (a tab left open, or Back from the new home page restores it from the
+// back-forward cache) and write the old keys again after the step is done. So every load also looks for the old save
+// key, the old open chunk, the old roll-up and a `book2` entry in the play time (a few `getItem`s) and, when one is back,
+// runs the step's moves again. A late save moves over the new one only when the new one is unchanged since the move (the
+// marker keeps a fingerprint of what the move wrote); when both changed, both stay and the step reports a conflict. A
+// late open chunk next to the new one becomes sealed chunks of the new log, listed in the new open chunk.
+import { chunkKey, chunkT0, dropSealedCopies, isChunkKey, ownsKey, parseOpen, rollupKey, type DecodedChunk } from './telemetryChunks'
+import { decodeChunk, encodeChunk } from './telemetryCodec'
+import type { TelemetryEvent } from './telemetry'
 
 export type KeyStatus = 'moved' | 'already' | 'conflict' | 'waiting-space' | 'absent'
 export interface MigrationReport {
   steps: { id: string; status: 'done' | 'waiting-space' | 'conflict'; keys: { from: string; to: string; status: KeyStatus }[] }[]
 }
 
-/** `{v:1, done: string[]}`: the ids of the steps that are complete */
+/** `{v:1, done: string[], fp?: {[saveKey]: fingerprint}}`: the ids of the steps that are complete, and a fingerprint of
+ * the value each save move wrote (to know later whether the new save changed since) */
 export const MIGRATIONS_KEY = 'alef-migrations'
 
 const OLD_SAVE = 'alef-duel2'
@@ -96,6 +106,84 @@ function moveKey(s: Storage, m: Move): Key {
   return out('moved')
 }
 
+/** a short fingerprint of a value: its length and a 32-bit FNV-1a hash */
+export function fingerprint(v: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < v.length; i++) { h ^= v.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0 }
+  return `${v.length}:${h.toString(36)}`
+}
+
+/**
+ * A save: as `moveKey`, and when both keys exist and differ, the old key is a late write of an old page. If the new save is
+ * unchanged since the move (its fingerprint), the late write is newer: it moves over the new one. Else both stay: a conflict.
+ */
+function moveSave(s: Storage, m: Move): Key {
+  const out = (status: KeyStatus): Key => ({ from: m.from, to: m.to, status })
+  const old = get(s, m.from)
+  const cur = get(s, m.to)
+  if (old === null || cur === null || cur === old) {
+    const r = moveKey(s, m)
+    if (r.status === 'moved') setFingerprint(s, m.to, fingerprint(old!))
+    return r
+  }
+  if (readMarker(s).fp[m.to] !== fingerprint(cur)) return out('conflict')
+  try { s.setItem(m.to, old) } catch { return out('waiting-space') } // a failed setItem keeps the value it had
+  if (get(s, m.to) !== old) { try { s.setItem(m.to, cur) } catch { /* the value it had */ } return out('waiting-space') }
+  setFingerprint(s, m.to, fingerprint(old))
+  remove(s, m.from)
+  return out('moved')
+}
+
+/**
+ * The open chunk: as `moveKey`, and when the new open chunk exists too (a late write of an old page), the old one's events
+ * are sealed as chunks of the new log (one per session, `<t0>~<s>`, so the reader merges them by `t`) and listed in the new
+ * open chunk's `sealed`; then the old key goes. A write that fails undoes the chunks it wrote (waiting for space).
+ */
+function moveOpen(s: Storage, m: Move): Key {
+  const out = (status: KeyStatus): Key => ({ from: m.from, to: m.to, status })
+  const old = get(s, m.from)
+  const cur = get(s, m.to)
+  if (old === null || cur === null || cur === convert('open', old)) return moveKey(s, m)
+  const o = parseOpen(old)
+  let doc: { sealed?: unknown }
+  try { doc = JSON.parse(cur) } catch { return out('conflict') }
+  if (!o || !doc || typeof doc !== 'object') return out('conflict')
+  const oldSealed = o.sealed.map((k) => rewriteKey(k) as string)
+  // the copies of chunks the old page sealed but did not list (as a reader drops them)
+  const chunks: DecodedChunk[] = []
+  for (const k of allKeys(s)) {
+    if (!ownsKey(m.to, k) || !isChunkKey(k)) continue
+    const evs = decodeChunk(get(s, k))
+    if (evs) chunks.push({ key: k, events: evs })
+  }
+  const events = dropSealedCopies(o.events, chunks, new Set(oldSealed)).events
+  const bySession = new Map<string, TelemetryEvent[]>()
+  for (const e of events) { const list = bySession.get(e.s) ?? []; list.push(e); bySession.set(e.s, list) }
+  const written: string[] = []
+  const keys: string[] = []
+  const undo = (status: KeyStatus) => { written.forEach((k) => remove(s, k)); return out(status) }
+  for (const evs of bySession.values()) {
+    let key: string, value: string
+    try { key = chunkKey(m.to, evs[0]!.t, evs[0]!.s); value = encodeChunk(evs) } catch { return undo('conflict') }
+    const want = JSON.stringify(evs)
+    const before = get(s, key)
+    if (before !== null) {
+      if (JSON.stringify(decodeChunk(before)) !== want) return undo('conflict')
+    } else {
+      try { s.setItem(key, value) } catch { remove(s, key); return undo('waiting-space') }
+      written.push(key)
+      if (JSON.stringify(decodeChunk(get(s, key))) !== want) return undo('waiting-space')
+    }
+    keys.push(key)
+  }
+  const sealed = Array.isArray(doc.sealed) ? doc.sealed.filter((k): k is string => typeof k === 'string') : []
+  const next = JSON.stringify({ ...doc, sealed: [...new Set([...sealed, ...oldSealed, ...keys])] })
+  try { s.setItem(m.to, next) } catch { return undo('waiting-space') }
+  if (get(s, m.to) !== next) { try { s.setItem(m.to, cur) } catch { /* the value it had */ } return undo('waiting-space') }
+  remove(s, m.from)
+  return out('moved')
+}
+
 /** `alef-playtime`: the `book2` entry of each day becomes `spellquest`, in place (summed when both exist) */
 function movePlaytime(s: Storage): Key {
   const out = (status: KeyStatus): Key => ({ from: PLAYTIME_KEY, to: PLAYTIME_KEY, status })
@@ -124,16 +212,27 @@ function movePlaytime(s: Storage): Key {
   return out('moved')
 }
 
-function readDone(s: Storage): string[] {
+interface Marker { done: string[]; fp: Record<string, string> }
+function readMarker(s: Storage): Marker {
   try {
-    const d = JSON.parse(get(s, MIGRATIONS_KEY) ?? 'null')?.done
-    return Array.isArray(d) ? d.filter((x: unknown): x is string => typeof x === 'string') : []
-  } catch { return [] }
+    const m = JSON.parse(get(s, MIGRATIONS_KEY) ?? 'null')
+    const done = Array.isArray(m?.done) ? m.done.filter((x: unknown): x is string => typeof x === 'string') : []
+    const fp = m?.fp && typeof m.fp === 'object' ? m.fp as Record<string, string> : {}
+    return { done, fp }
+  } catch { return { done: [], fp: {} } }
+}
+const readDone = (s: Storage) => readMarker(s).done
+function writeMarker(s: Storage, { done, fp }: Marker) {
+  try { s.setItem(MIGRATIONS_KEY, JSON.stringify(Object.keys(fp).length ? { v: 1, done, fp } : { v: 1, done })) } catch { /* no space: the step runs again, harmlessly */ }
 }
 function markDone(s: Storage, id: string) {
-  const done = readDone(s)
-  if (done.includes(id)) return
-  try { s.setItem(MIGRATIONS_KEY, JSON.stringify({ v: 1, done: [...done, id] })) } catch { /* no space: the step runs again, harmlessly */ }
+  const m = readMarker(s)
+  if (!m.done.includes(id)) writeMarker(s, { ...m, done: [...m.done, id] })
+}
+/** no space for it: a later late write of an old page is then a conflict (both kept), never a loss */
+function setFingerprint(s: Storage, key: string, fp: string) {
+  const m = readMarker(s)
+  if (m.fp[key] !== fp) writeMarker(s, { ...m, fp: { ...m.fp, [key]: fp } })
 }
 
 function runStep(s: Storage, id: string, tasks: (() => Key)[]): Step {
@@ -150,22 +249,57 @@ function runStep(s: Storage, id: string, tasks: (() => Key)[]): Step {
   return { id, status: 'done', keys }
 }
 
+/** an old key is back after the rename step was done (an old page wrote it). A sealed chunk is written with its open
+ * chunk, so the open chunk, the roll-up and the save are enough to look at: a few `getItem`s on each load. */
+function lateWrite(s: Storage): boolean {
+  if (get(s, OLD_SAVE) !== null || get(s, OLD_LOG) !== null || get(s, rollupKey(OLD_LOG)) !== null) return true
+  return get(s, PLAYTIME_KEY)?.includes('"book2"') ?? false
+}
+
 /** Run the steps that are not done. Never throws; a second call changes nothing. */
 export function migrateKeys(storage: Storage): MigrationReport {
   const steps: Step[] = []
   try {
     const done = readDone(storage)
-    if (done.includes(STEP_RENAME)) steps.push({ id: STEP_RENAME, status: 'done', keys: [] })
+    if (done.includes(STEP_RENAME) && !lateWrite(storage)) steps.push({ id: STEP_RENAME, status: 'done', keys: [] })
     else {
       const [save, ...rest] = renameMoves(allKeys(storage))
       steps.push(runStep(storage, STEP_RENAME, [
-        () => moveKey(storage, save!), () => movePlaytime(storage), ...rest.map((m) => () => moveKey(storage, m)),
+        () => moveSave(storage, save!), () => movePlaytime(storage),
+        ...rest.map((m) => () => (m.kind === 'open' ? moveOpen(storage, m) : moveKey(storage, m))),
       ]))
     }
     if (done.includes(STEP_TOWER)) steps.push({ id: STEP_TOWER, status: 'done', keys: [] })
     else steps.push(runStep(storage, STEP_TOWER, towerMoves().map((m) => () => moveKey(storage, m))))
   } catch { /* never throws */ }
   return { steps }
+}
+
+/** the old key of a save that moves */
+const OLD_SAVE_OF: Readonly<Record<string, string>> = { [NEW_SAVE]: OLD_SAVE }
+
+/**
+ * The key a save store reads and writes now. Normally `key`. While the save's move waits for space (the old key is there
+ * and the new one is not), it frees space once (`freeSpace`: telemetry, never a save or the frozen log) and tries the
+ * move again; if it still fails, the old key: the store goes on with the child's save there, and a later load moves it.
+ * Never throws.
+ */
+export function saveKeyFor(storage: Storage, key: string, freeSpace?: (chars: number) => unknown): string {
+  try {
+    const from = OLD_SAVE_OF[key]
+    if (!from) return key
+    const old = get(storage, from)
+    if (old === null || get(storage, key) !== null) return key
+    try { freeSpace?.(key.length + old.length + 4096) } catch { /* nothing freed */ }
+    return moveSave(storage, { from, to: key, kind: 'plain' }).status === 'moved' ? key : from
+  } catch { return key }
+}
+
+/** a save's value, read only: under its key, else under its old key while its move waits for space (the home's view) */
+export function readSaveValue(storage: Storage, key: string): string | null {
+  const v = get(storage, key)
+  const from = OLD_SAVE_OF[key]
+  return v !== null || !from ? v : get(storage, from)
 }
 
 /** what `migrateKeys` would move now (for the staging check): the old keys that exist, with their new names */

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { MIGRATIONS_KEY, migrateKeys, plannedMoves } from './keyMigration'
+import { describe, expect, it, vi } from 'vitest'
+import { MIGRATIONS_KEY, migrateKeys, plannedMoves, saveKeyFor } from './keyMigration'
 import { STAGING_PREFIX, prefixedStorage } from './stagingStorage'
 import { chunkKey, openJson, rollupKey } from './telemetryChunks'
 import { decodeChunk, encodeChunk } from './telemetryCodec'
@@ -182,5 +182,146 @@ describe('migrateKeys', () => {
     expect(raw.getItem(`${STAGING_PREFIX}${MIGRATIONS_KEY}`)).not.toBeNull()
     expect(raw.getItem(NEW)).toBeNull()
     expect(raw.getItem(MIGRATIONS_KEY)).toBeNull()
+  })
+})
+
+// A page of the old build that stays open (or comes back from the back-forward cache) after the new build migrated
+// writes the old keys again. The next load finds them, even though the step is marked done.
+describe('migrateKeys: a late write from an old page', () => {
+  const LATE = JSON.stringify({ state: { stars: 5 }, version: 4 })
+  const migrated = () => { const s = new FakeStorage(); fullSet(s); migrateKeys(s); return s }
+
+  it('the old save written again over an untouched new save: the late write is newer and moves over it', () => {
+    const s = migrated()
+    expect(s.getItem(NEW)).toBe(SAVE)
+    s.setItem(OLD, LATE)
+    const r = migrateKeys(s)
+    expect(r.steps[0]!.status).toBe('done')
+    expect(r.steps[0]!.keys).toContainEqual({ from: OLD, to: NEW, status: 'moved' })
+    expect(s.getItem(NEW)).toBe(LATE)
+    expect(s.getItem(OLD)).toBeNull()
+    // and again: the fingerprint follows the new value
+    s.setItem(OLD, SAVE)
+    migrateKeys(s)
+    expect(s.getItem(NEW)).toBe(SAVE)
+    expect(s.getItem(OLD)).toBeNull()
+  })
+
+  it('the old save written again while the new save changed too: both are kept, a conflict with the key names', () => {
+    const s = migrated()
+    s.setItem(NEW, JSON.stringify({ state: { stars: 7 }, version: 4 }))
+    s.setItem(OLD, LATE)
+    const r = migrateKeys(s)
+    expect(r.steps[0]!.status).toBe('conflict')
+    expect(r.steps[0]!.keys).toContainEqual({ from: OLD, to: NEW, status: 'conflict' })
+    expect(s.getItem(OLD)).toBe(LATE)
+    expect(s.getItem(NEW)).toBe(JSON.stringify({ state: { stars: 7 }, version: 4 }))
+    expect(migrateKeys(s).steps[0]!.status).toBe('conflict') // never deletes either, on any later load
+    expect(s.getItem(OLD)).toBe(LATE)
+  })
+
+  it('the old save written again with no new save: it moves as before', () => {
+    const s = migrated()
+    s.removeItem(NEW)
+    s.setItem(OLD, LATE)
+    expect(migrateKeys(s).steps[0]!.status).toBe('done')
+    expect(s.getItem(NEW)).toBe(LATE)
+    expect(s.getItem(OLD)).toBeNull()
+  })
+
+  it('a sealed chunk and the play time of an old page move too', () => {
+    const s = migrated()
+    const evs = events('se', 1_760_400_000_000, 4)
+    const k = chunkKey(`${OLD}-telemetry`, 1_760_400_000_000, 'se')
+    s.setItem(k, encodeChunk(evs))
+    s.setItem('alef-playtime', JSON.stringify({ v: 1, days: { '2026-11-20': { book2: 1000, spellquest: 5000 } } }))
+    expect(migrateKeys(s).steps[0]!.status).toBe('done')
+    expect(s.getItem(k)).toBeNull()
+    expect(decodeChunk(s.getItem(newKey(k)))).toEqual(evs)
+    expect(JSON.parse(s.getItem('alef-playtime')!).days['2026-11-20']).toEqual({ spellquest: 6000 })
+  })
+
+  it('an old open chunk next to the new one: its events become sealed chunks of the new log, listed in the open chunk', () => {
+    const s = migrated()
+    const newOpen = events('sf', 1_760_600_000_000, 3)
+    s.setItem(`${NEW}-telemetry`, openJson(newOpen, oldChunks.map((c) => newKey(c.key))))
+    const late = [...events('se', 1_760_500_000_000, 3), ...events('sg', 1_760_550_000_000, 2)]
+    s.setItem(`${OLD}-telemetry`, openJson(late, oldChunks.map((c) => c.key)))
+    const r = migrateKeys(s)
+    expect(r.steps[0]!.status).toBe('done')
+    expect(s.getItem(`${OLD}-telemetry`)).toBeNull()
+    const kE = chunkKey(`${NEW}-telemetry`, 1_760_500_000_000, 'se')
+    const kG = chunkKey(`${NEW}-telemetry`, 1_760_550_000_000, 'sg')
+    expect(decodeChunk(s.getItem(kE))).toEqual(late.slice(0, 3))
+    expect(decodeChunk(s.getItem(kG))).toEqual(late.slice(3))
+    const open = JSON.parse(s.getItem(`${NEW}-telemetry`)!)
+    expect(open.events).toEqual(newOpen)
+    expect(open.sealed).toEqual([...oldChunks.map((c) => newKey(c.key)), kE, kG])
+    expect(migrateKeys(s).steps[0]!.status).toBe('done')
+  })
+
+  it('an old open chunk that cannot be sealed for space stays, and goes on the next load', () => {
+    const s = migrated()
+    s.setItem(`${NEW}-telemetry`, openJson(events('sf', 1_760_600_000_000, 3), []))
+    const late = events('se', 1_760_500_000_000, 3)
+    s.setItem(`${OLD}-telemetry`, openJson(late, []))
+    s.limit = s.chars()
+    expect(migrateKeys(s).steps[0]!.status).toBe('waiting-space')
+    expect(s.getItem(`${OLD}-telemetry`)).toBe(openJson(late, []))
+    expect(JSON.parse(s.getItem(`${NEW}-telemetry`)!).sealed ?? []).toEqual([])
+    s.limit = Infinity
+    expect(migrateKeys(s).steps[0]!.status).toBe('done')
+    expect(decodeChunk(s.getItem(chunkKey(`${NEW}-telemetry`, 1_760_500_000_000, 'se')))).toEqual(late)
+  })
+
+  it('reads only a few keys when nothing old is back', () => {
+    const s = migrated()
+    let reads = 0
+    const spy: Storage = { get length() { reads += 100; return s.length }, key: (i) => { reads += 100; return s.key(i) }, getItem: (k) => { reads++; return s.getItem(k) }, setItem: (k, v) => s.setItem(k, v), removeItem: (k) => s.removeItem(k), clear: () => s.clear() }
+    const before = s.snapshot()
+    migrateKeys(spy)
+    expect(reads).toBeLessThanOrEqual(6)
+    expect(s.snapshot()).toEqual(before)
+  })
+})
+
+// A save move that fails for space: until it moves, the save store reads and writes the old key (never a fresh save
+// under the new key next to it).
+describe('saveKeyFor: a save waiting for space', () => {
+  const full = () => { const s = new FakeStorage(); fullSet(s); s.limit = s.chars(); return s }
+
+  it('frees telemetry once and moves the save, then uses the new key', () => {
+    const s = full()
+    expect(migrateKeys(s).steps[0]!.status).toBe('waiting-space')
+    const freeSpace = vi.fn(() => { s.removeItem(oldChunks[0]!.key); s.removeItem(oldChunks[1]!.key); return 1 })
+    expect(saveKeyFor(s, NEW, freeSpace)).toBe(NEW)
+    expect(freeSpace).toHaveBeenCalledTimes(1)
+    expect(s.getItem(NEW)).toBe(SAVE)
+    expect(s.getItem(OLD)).toBeNull()
+  })
+
+  it('still no room: the old key; the store writes it; the next load with room moves it (no conflict, nothing lost)', () => {
+    const s = full()
+    migrateKeys(s)
+    const freeSpace = vi.fn(() => 0)
+    expect(saveKeyFor(s, NEW, freeSpace)).toBe(OLD)
+    expect(freeSpace).toHaveBeenCalledTimes(1)
+    expect(s.getItem(NEW)).toBeNull()
+    s.limit = Infinity
+    const played = JSON.stringify({ state: { stars: 4 }, version: 5 })
+    s.setItem(OLD, played) // the store's write
+    const r = migrateKeys(s)
+    expect(r.steps[0]!.status).toBe('done')
+    expect(s.getItem(OLD)).toBeNull()
+    expect(s.getItem(NEW)).toBe(played)
+  })
+
+  it('the new key when it is there or when there is no old key; a key that does not move is itself', () => {
+    const s = new FakeStorage()
+    expect(saveKeyFor(s, NEW)).toBe(NEW)
+    s.setItem(NEW, 'n')
+    s.setItem(OLD, 'o')
+    expect(saveKeyFor(s, NEW)).toBe(NEW)
+    expect(saveKeyFor(s, 'alef-english')).toBe('alef-english')
   })
 })

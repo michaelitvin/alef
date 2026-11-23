@@ -127,10 +127,11 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
   const isOld = (k: string) => isOldLogKey(k) || FROZEN.some((f) => f.old === k) || k === 'alef-duel2'
   if (!prodKeys.some(isOld)) return done('already', [], 'production is already migrated: nothing to check')
 
-  // 1. staging's copies of the moving keys (old and new names) and the markers
-  keysOf(staging)
+  // 1. staging's copies of the moving keys (old and new names) and the markers (kept in memory: a stop for space puts them back)
+  const removed = new Map(keysOf(staging)
     .filter((k) => isOldLogKey(k) || isNewLogKey(k) || isFrozen(k) || k === MIGRATIONS_KEY || k === PLAYTIME || SAVES.some((v) => v.oldKey === k || v.newKey === k))
-    .forEach((k) => staging.removeItem(k))
+    .map((k) => [k, staging.getItem(k)!]))
+  removed.forEach((_, k) => staging.removeItem(k))
 
   // 2. production's old-named keys, under their old names
   const toCopy = prodKeys.filter((k) => isOld(k) || k === PLAYTIME || SAVES.some((v) => v.oldKey === k))
@@ -139,7 +140,11 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
     for (const k of toCopy) { attempted.push(k); staging.setItem(k, prod.getItem(k)!) }
   } catch {
     attempted.forEach((k) => staging.removeItem(k))
-    return done('no-space', [], 'no space: staging has no room for a copy of production’s saves and logs; the check copied nothing')
+    let back = true
+    removed.forEach((v, k) => { try { staging.setItem(k, v) } catch { back = false } })
+    return done('no-space', [], back
+      ? 'no space: staging has no room for a copy of production’s saves and logs; the check copied nothing and put staging’s own saves back'
+      : 'no space: staging has no room for a copy of production’s saves and logs; the check copied nothing, and some of staging’s own saves could not be put back')
   }
 
   // 3. the expected snapshot: the old values as they were copied
@@ -241,7 +246,9 @@ export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<s
   rows.push({ key: MIGRATIONS_KEY, moved: null, content: marked, counts: null, ...(marked ? {} : { detail: 'a step is not marked done' }) })
 
   // 6. a second run changes nothing; a half-done run (one old key put back, no marker) resumes to the same result
-  const snapshot = () => new Map(keysOf(staging).map((k) => [k, staging.getItem(k)!]))
+  // (the marker by its steps: a resume that moves no save writes no save fingerprint)
+  const markerSteps = (v: string) => JSON.stringify((parse(v) as { done?: unknown } | undefined)?.done ?? null)
+  const snapshot = () => new Map(keysOf(staging).map((k) => [k, k === MIGRATIONS_KEY ? markerSteps(staging.getItem(k)!) : staging.getItem(k)!]))
   const sameMap = (a: Map<string, string>, b: Map<string, string>) => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v)
   const finished = snapshot()
   migrateKeys(staging)

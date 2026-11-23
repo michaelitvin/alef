@@ -207,7 +207,7 @@ export const chunksOf = (logKey: string, keys = storageKeys()): ChunkInfo[] =>
 export function readLog(key: string): TelemetryEvent[] {
   try {
     const events = readLogRaw(key)
-    return isFrozenLog(key) ? events : aliasEvents(events, key) // the frozen log is read and exported as it is stored
+    return isFrozenLog(key) ? events : aliasEvents(events) // the frozen log is read and exported as it is stored
   } catch {
     return []
   }

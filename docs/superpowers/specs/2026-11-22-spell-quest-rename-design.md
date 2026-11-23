@@ -51,13 +51,24 @@ Status: approved by the parent (2026-11-22). The names and the answers to the op
   time needs only that key's size free: a sealed chunk is one session, the open chunk stays inside the live budget
   (0.8 M for all logs, ADR 0007). The 1 M frozen log does not move, so no copy is ever near the quota (≈2.5 M).
 - **Idempotent and resumable.** Old key only: move it. Both keys and equal: delete the old. Both and different: keep
-  both, write no marker, record a conflict for the Data section (this cannot happen in normal play). New key only: done.
+  both, write no marker, record a conflict for the Data section, with both key names. New key only: done.
+- **A late write from an old page.** A page of the old build can outlive the release: a tab left open, or Back from the
+  new home page restores the old page from the back-forward cache with the old code in memory. It then writes
+  `alef-duel2` and `alef-duel2-telemetry` again after the step is done. So each load also reads the old save, the old open
+  chunk, the old roll-up and the play time (a few `getItem`s) and, when an old key is back, runs the step's moves again.
+  The save: the marker keeps a fingerprint of what the move wrote; if the new save still has it, the late write is newer
+  and moves over it; if the new save changed too, both stay (a conflict). The open chunk: when the new one exists, the
+  old one's events become sealed chunks of the new log (one per session, `<t0>~<s>`), listed in the new open chunk's
+  `sealed`; a sealed chunk or the roll-up moves as above.
+- **A save that waits for space.** A failed save copy frees telemetry once (never the frozen log) and tries again. If it
+  still fails, the save store reads and writes the old key for the rest of the page (never a fresh save next to it), and
+  a later load moves it.
   A quota error stops the run without a marker; the next load continues. Until then, unmoved chunks stay on disk and show
   again after the move. No event is lost.
 - **Old ids inside events.** *My call*: do not rewrite compressed history. The codec could re-encode exactly, but that
   writes every chunk again (quota risk) and the frozen log must never be rewritten. Instead the readers (`readLog`,
   `filterEvents`, the export, the playtime and the parent filters) map `book2` → `spellquest` and an old first-duel event
-  (`duel` or no `g`) → the tower. New events have the new id. One alias table in `telemetry.ts`.
+  `duel` → the tower (the frozen tower history, whose events have no `g`, is read and exported as stored, ADR 0004). New events have the new id. One alias table in `telemetry.ts`.
 - **Staging.** The same code runs on staging's prefixed view, so staging's own old saves move too. It never sees
   production's keys.
 - **Old URL.** `duel2/index.html` stays as a tiny page that redirects to `../spellquest/` with the same query and hash

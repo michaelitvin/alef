@@ -47,6 +47,21 @@ describe('?migrate-check on the page', () => {
     await expect(migrateCheckGate(failing)).resolves.toBeUndefined()
   })
 
+  it('a check that throws writes a FAIL with the error and still reloads; the gate opens on any error', async () => {
+    vi.doMock('./migrateCheck', async (orig) => ({ ...(await orig<typeof import('./migrateCheck')>()), runMigrateCheck: () => { throw new Error('boom') } }))
+    const { installStagingStorage, migrateCheckGate, STAGING_PREFIX } = await import('./stagingStorage')
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    prod.setItem('alef-duel2', '{"state":{},"version":7}')
+    const reload = vi.fn()
+    expect(await installStagingStorage(window, reload)).toBe(true)
+    expect(reload).toHaveBeenCalled()
+    const r = JSON.parse(prod.getItem(`${STAGING_PREFIX}alef-migration-check`)!)
+    expect(r.verdict).toBe('fail')
+    expect(r.message).toMatch(/boom/)
+    vi.doUnmock('./migrateCheck')
+    await expect(migrateCheckGate(Promise.reject(new Error('x')))).resolves.toBeUndefined()
+  })
+
   it('a refused confirm runs nothing', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false)
     const { installStagingStorage } = await import('./stagingStorage')

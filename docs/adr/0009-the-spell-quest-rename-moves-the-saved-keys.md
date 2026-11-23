@@ -31,6 +31,11 @@ keys, the frozen log, and the field names inside the saves.
 - The frozen log of the first duel (now `alef-tower-history-telemetry`) is about 1 M. Its move needs that much free
   space. Its step waits for space and tries again on each load. It never blocks the other steps, and no data is lost
   while it waits.
+- A page of the old build can outlive the release (a tab left open, or Back to it from the back-forward cache) and write
+  the old keys again after the move. Each load looks for them (a few `getItem`s) and moves them again: a late save moves
+  over the new one if the new one is unchanged since the move (a fingerprint in the marker), else both stay and the Data
+  section shows a conflict with both key names; a late open chunk becomes sealed chunks of the new log. A save whose
+  move waits for space is read and written under its old key until it moves.
 - Old ids live on inside old events. Each reader has to use the alias table in `telemetry.ts`.
 - The old names stay in the old ADRs, in the specs and plans, and in the git history. They are history, not errors. Each
   affected ADR has a note that says so.

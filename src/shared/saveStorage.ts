@@ -6,6 +6,7 @@
 // too, the state stays in memory and nothing throws into the game.
 // It uses `localStorage` at each call, so the staging build's prefixed storage (stagingStorage.ts) applies.
 import { createJSONStorage, type StateStorage } from 'zustand/middleware'
+import { saveKeyFor } from './keyMigration'
 import { freeTelemetrySpace } from './telemetry'
 
 /** what a save write frees beyond its own growth, so the next small write does not fail at once (characters) */
@@ -44,14 +45,26 @@ export function safeSetItem(key: string, value: string): boolean {
   }
 }
 
-/** The `StateStorage` of every persisted child save. */
+/** saves that this page reads and writes under their old key: their move waits for space (keyMigration.ts, saveKeyFor) */
+const atOldKey = new Map<string, string>()
+/** where a save is now: its key, or its old key while its move waits for space (then for the rest of this page) */
+function keyFor(key: string): string {
+  const old = atOldKey.get(key)
+  if (old !== undefined) return old
+  const k = saveKeyFor(localStorage, key, freeTelemetrySpace)
+  if (k !== key) atOldKey.set(key, k)
+  return k
+}
+
+/** The `StateStorage` of every persisted child save. A save whose move to its new key waits for space is read and written
+ * under its old key, so the store never starts a fresh save next to it. */
 export const saveStorage: StateStorage = {
   getItem: (key) => {
-    try { return localStorage.getItem(key) } catch { return null }
+    try { return localStorage.getItem(keyFor(key)) } catch { return null }
   },
-  setItem: (key, value) => { safeSetItem(key, value) },
+  setItem: (key, value) => { safeSetItem(keyFor(key), value) },
   removeItem: (key) => {
-    try { localStorage.removeItem(key) } catch { /* no storage */ }
+    try { localStorage.removeItem(keyFor(key)) } catch { /* no storage */ }
   },
 }
 
@@ -80,4 +93,4 @@ export async function requestPersistentStorage(record?: (persisted: boolean) => 
 }
 
 /** for tests: forget that the request was made */
-export function resetPersistRequestForTest() { persistRequested = false; persistAnswer = null; saveFailedKey = null }
+export function resetPersistRequestForTest() { persistRequested = false; persistAnswer = null; saveFailedKey = null; atOldKey.clear() }

@@ -2,4 +2,6 @@ import './shared/stagingStorage' // first: staging saves are kept apart before a
 import { migrateCheckGate } from './shared/stagingStorage'
 
 // no store module loads before the gate opens (it opens at once, except on `?migrate-check` on staging)
-void migrateCheckGate().then(() => import('./boot'))
+void migrateCheckGate()
+  .then(() => import('./boot'))
+  .catch((e: unknown) => console.error('the page did not start:', e))
