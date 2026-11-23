@@ -7,7 +7,6 @@ import { DEFAULT_SAVE } from '../saveFormat'
 import { useSpaceCatStore } from '../store'
 import { Cover } from './Cover'
 import { End } from './End'
-import { LevelDone } from './LevelDone'
 import { TRIANGLE_PATH } from './PlayTriangle'
 
 const { preload } = vi.hoisted(() => ({ preload: vi.fn(() => Promise.resolve()) }))
@@ -66,7 +65,7 @@ describe('the cover', () => {
     const tip = xs.indexOf(Math.max(...xs))
     expect(xs.filter((x) => x === xs[tip])).toHaveLength(1)
     expect(ys[tip]).toBe(50)
-    for (const c of [cover().container, render(<LevelDone info={{ level: 1, points: 7, newShips: [] }} onNext={() => {}} />).container]) {
+    for (const c of [cover().container]) {
       for (const p of c.querySelectorAll('[data-triangle]')) expect(p.getAttribute('d')).toBe(TRIANGLE_PATH)
     }
   })
@@ -113,33 +112,7 @@ describe('the way into the parent area', () => {
   })
 })
 
-describe('level done and the end', () => {
-  it('level done: the new ship takes the cat\'s place', () => {
-    const a = render(<LevelDone info={{ level: 3, points: 21, newShips: [2] }} onNext={() => {}} />)
-    expect(a.container.querySelector('[data-cat]')).toBeNull()
-    expect(a.container.querySelectorAll('[data-ship="2"]')).toHaveLength(1)
-    a.unmount()
-    const b = render(<LevelDone info={{ level: 1, points: 7, newShips: [] }} onNext={() => {}} />)
-    expect(b.container.querySelector('[data-cat]')).not.toBeNull()
-    expect(b.container.textContent).toMatch(/^[0-9\s]*$/)
-  })
-
-  it('level-done line only the first two times', async () => {
-    for (let i = 0; i < 3; i++) {
-      const r = render(<LevelDone info={{ level: 1, points: 7, newShips: [] }} onNext={() => {}} />)
-      await settle(900)
-      r.unmount()
-    }
-    expect(audio.said().filter((s) => s.startsWith('level-done'))).toHaveLength(2)
-    expect(audio.log().filter((e) => e.id === 'level')).toHaveLength(3)
-  })
-
-  it('level done: the fanfare, the line, then the new ship\'s sound and line', async () => {
-    render(<LevelDone info={{ level: 3, points: 21, newShips: [2] }} onNext={() => {}} />)
-    await settle(1500)
-    expect(audio.log().filter((e) => e.kind !== 'music').map((e) => e.id)).toEqual(['level', 'level-done-1', 'ship', 'new-ship-1'].map((x) => (x.startsWith('level-done') ? audio.said()[0] : x)))
-  })
-
+describe('the end', () => {
   it('the end screen marks a new best', async () => {
     const { container } = render(<End info={{ points: 30, newBest: true, best: 30, level: 4 }} onAgain={() => {}} onHome={() => {}} />)
     expect(container.querySelector('[data-new-best]')).not.toBeNull()

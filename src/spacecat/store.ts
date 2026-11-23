@@ -12,7 +12,7 @@ import type { RoundResult } from './logic/round'
 import { rungDef, type Band } from './logic/rungs'
 import { shipsReached } from './logic/run'
 import { afterRound, HOLD_ROUNDS, speedOfBand } from './logic/speed'
-import { migrateV1 } from './migrate'
+import { flyHighestShip, migrateV1 } from './migrate'
 import { DEFAULT_SAVE, SAVE_KEY, SAVE_VERSION, type Settings, type SpaceCatSave } from './saveFormat'
 
 export { DEFAULT_SAVE, DEFAULT_SETTINGS, SAVE_KEY } from './saveFormat'
@@ -132,7 +132,7 @@ export const useSpaceCatStore = create<SpaceCatState>()(
     spaceCatCreator,
     {
       name: SAVE_KEY, version: SAVE_VERSION, storage: persistSaveStorage(),
-      // Version 2 is the ladder's save shape; version 1 (the nine rungs) is converted by migrate.ts. When SpaceCatSave
+      // Version 2 is the ladder's save shape; version 1 (the nine rungs) is converted by migrate.ts. Version 3: the chosen ship is the highest he has (migrate.ts). When SpaceCatSave
       // changes again, raise `version` and convert older saves here (never drop his progress: rule). Fields added later
       // take their defaults from the initial state (persist merges).
       // A save of this version from before the parent area read the ladder events had a `history` list: drop it.
@@ -141,7 +141,10 @@ export const useSpaceCatStore = create<SpaceCatState>()(
         delete rest.history
         return { ...current, ...rest } as SpaceCatState
       },
-      migrate: (state, version) => (version < 2 ? migrateV1(state) : state) as SpaceCatState,
+      migrate: (state, version) => {
+        const v2 = version < 2 ? migrateV1(state) : state
+        return (version < 3 ? flyHighestShip(v2) : v2) as SpaceCatState
+      },
     },
   ),
 )

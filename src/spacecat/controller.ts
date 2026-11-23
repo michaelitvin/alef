@@ -1,6 +1,7 @@
 // Space Cat's play flow as a framework-free controller (as Spell Quest's RunController): it takes each round from the ladder,
 // hands it to the canvas engine, runs the demo, the zoom tip, the missing-number line and the intros of the new kinds
-// with their glows, records each round, and calls the screens' callbacks at a level's end and the run's end. Every wait
+// with their glows, records each round, runs a level's end as a short beat in flight (one heart back, a new ship) and
+// calls the screen's callback at the run's end. Every wait
 // goes through the Sleeper (ADR 0005); the rules that need no time are in logic/. usePlay.ts is its thin React bridge.
 import type { Rng } from '../shared/adaptive'
 import type { Sleeper } from '../shared/sleeper'
@@ -31,7 +32,6 @@ export const SFX_TO_VOICE_MS = 400
 /** the ship starts in this lane in a new run */
 const START_LANE = 1
 
-export interface LevelDoneInfo { level: number; points: number; newShips: (2 | 3)[] }
 export interface EndInfo { points: number; newBest: boolean; best: number; level: number }
 
 export interface PlayOpts {
@@ -46,15 +46,14 @@ export interface PlayOpts {
   flush?: () => void
   sleeper: Sleeper
   rng: Rng
-  onLevelDone: (info: LevelDoneInfo) => void
   onEnd: (info: EndInfo) => void
 }
 
 /**
  * demo: the first round's hand and line; tip: the zoom tip; missing: the missing-number line; intro: an intro line of a
- * new kind; between: a level done or the end
+ * new kind; level: a level's end beat (between two sums); between: the end
  */
-export type PlayPhase = 'demo' | 'tip' | 'missing' | 'intro' | 'flight' | 'between'
+export type PlayPhase = 'demo' | 'tip' | 'missing' | 'intro' | 'flight' | 'level' | 'between'
 export interface PlayView { paused: boolean; hud: Hud; phase: PlayPhase }
 
 /**
@@ -142,6 +141,11 @@ export class PlayController {
     this.set({ paused: false })
     this.music()
     if (this.view.phase === 'between' || !this.cur) return
+    // the beat was cut: its heart and ship are already given, so the flight goes on with the next sum
+    if (this.view.phase === 'level') {
+      void this.nextRound()
+      return
+    }
     if (this.inRound) {
       const c = this.cur
       this.o.save.recordRound(c.item, this.cutResult(), { cut: true })
@@ -151,15 +155,6 @@ export class PlayController {
       this.o.engine.restart()
       void this.begin(this.cur)
     } else this.o.engine.resume()
-  }
-
-  /** LevelDone's play: the next level, hearts full again */
-  nextLevel(): void {
-    if (!this.running || this.view.phase !== 'between' || this.dead) return
-    this.run = nextLevel(this.run)
-    this.setHud()
-    this.music()
-    void this.nextRound()
   }
 
   /** the page goes away (pagehide): leaving in the middle of a run is an abandon */
@@ -412,7 +407,7 @@ export class PlayController {
     this.run = run
     this.setHud()
     if (over) return this.endRun()
-    if (levelDone) return this.levelDone()
+    if (levelDone) return void this.levelBeat()
     void this.nextRound()
   }
 
@@ -433,12 +428,45 @@ export class PlayController {
     }
   }
 
-  private levelDone() {
+  /**
+   * A level's end, in flight (design 2026-11-23): the heart and the ship are given at once (a pause in the beat loses
+   * nothing), then the fanfare, the heart's chime and the ship's sound and line, each 0.4 s after the one before; then the
+   * next sum. The beat's phase is `level`; a pause cuts it and the triangle goes on to the next sum.
+   */
+  private async levelBeat(): Promise<void> {
+    const my = this.epoch
+    const live = () => my === this.epoch && !this.dead && this.running
+    const { sleeper, audio, engine } = { sleeper: this.o.sleeper, audio: this.o.audio, engine: this.o.engine }
     const newShips = this.o.save.unlockShips(this.run.level + 1)
-    this.o.track('level-done', { level: this.run.level, points: this.run.points })
+    const next = nextLevel(this.run)
+    const heart = next.hearts > this.run.hearts
+    this.o.track('level-done', { level: this.run.level, points: this.run.points, ...(heart ? { heart: true } : {}) })
     for (const n of newShips) this.o.track('ship', { ship: n })
-    this.set({ phase: 'between' })
-    this.o.onLevelDone({ level: this.run.level, points: this.run.points, newShips })
+    const ship = newShips.length ? Math.max(...newShips) as 2 | 3 : null
+    if (ship) {
+      this.o.save.chooseShip(ship)
+      engine.setShip(ship)
+    }
+    this.run = next
+    this.set({ phase: 'level' })
+    this.setHud()
+    engine.levelUp({ heart: heart ? next.hearts - 1 : null, shipChanged: ship !== null })
+    await audio.playSfx('level')
+    if (heart) {
+      await sleeper.sleep(SFX_TO_VOICE_MS)
+      if (!live()) return
+      await audio.playSfx('heart-up')
+    }
+    if (ship) {
+      await sleeper.sleep(SFX_TO_VOICE_MS)
+      if (!live()) return
+      await audio.playSfx('ship')
+      await sleeper.sleep(SFX_TO_VOICE_MS)
+      if (!live()) return
+      await audio.say('new-ship')
+    }
+    if (!live()) return
+    void this.nextRound()
   }
 
   private endRun() {

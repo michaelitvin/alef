@@ -210,7 +210,7 @@ export function numDisc(g: CanvasRenderingContext2D, s: string, x: number, y: nu
 /** the top bar: 7 progress dots after the held house (or on their own row under it), on the right the star with the points and 3 hearts */
 export function drawTopBar(
   g: CanvasRenderingContext2D, G: Geom, hud: { dots: number; points: number; hearts: number },
-  breaking: { i: number; t: number } | null,
+  breaking: { i: number; t: number } | null, popping: { i: number; t: number } | null = null,
 ): { pointsAt: { x: number; y: number } } {
   const y = G.topY
   for (let i = 0; i < 7; i++) {
@@ -221,7 +221,11 @@ export function drawTopBar(
   for (let i = 0; i < 3; i++) {
     const x = G.heartX - (2 - i) * G.heartStep
     if (breaking && breaking.i === i) brokenHeart(g, x, y, G.heartS, breaking.t)
-    else heart(g, x, y, G.heartS, i < hud.hearts)
+    else if (popping && popping.i === i && i < hud.hearts) {
+      // the heart that fills in swells to 1.6 and back, with a bright glow
+      const k = 1 + 0.6 * Math.sin(Math.PI * Math.min(1, popping.t))
+      g.save(); g.translate(x, y); g.scale(k, k); heart(g, 0, 0, G.heartS, true); g.restore()
+    } else heart(g, x, y, G.heartS, i < hud.hearts)
   }
   const sz = G.pointsSize, sx = G.heartX - 2 * G.heartStep - G.starGap
   star(g, sx, y - 2, sz * 0.62)

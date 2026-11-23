@@ -6,7 +6,7 @@ import type { Band } from './logic/rungs'
 import { SPEED_START, type FixedArrival, type SpeedState } from './logic/speed'
 
 export const SAVE_KEY = 'alef-spacecat'
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
 
 export interface Settings extends LadderSettings { arrival: 'auto' | FixedArrival; flightMusic: boolean }
 

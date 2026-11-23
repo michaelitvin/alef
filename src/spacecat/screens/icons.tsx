@@ -1,6 +1,5 @@
-// The still screens' icons, drawn as SVG paths (no emoji): the star of the points, the cup of his best, the hearts, the
-// parent button's sliders. The same shapes as the canvas's top bar and the approved mock.
-import { HEART_GLOW, HeartIcon } from '../../shared/heart'
+// The still screens' icons, drawn as SVG paths (no emoji): the star of the points, the cup of his best, the parent
+// button's sliders. The same shapes as the canvas's top bar and the approved mock.
 
 const starPoints = (r: number) =>
   Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + (i * Math.PI) / 5, q = i % 2 ? r * 0.45 : r; return `${(Math.cos(a) * q).toFixed(2)},${(Math.sin(a) * q).toFixed(2)}` }).join(' ')
@@ -20,13 +19,6 @@ export const Cup = ({ size, glow }: { size: number; glow?: boolean }) => (
     <rect x="-4" y="11" width="8" height="9" fill="#ffc93c" />
     <rect x="-14" y="19" width="28" height="8" rx="3" fill="#ffc93c" />
   </svg>
-)
-
-/** the shared life heart (src/shared/heart.tsx), `size` px wide */
-export const Heart = ({ size, full = true, className }: { size: number; full?: boolean; className?: string }) => (
-  <span className={className} style={{ display: 'inline-block', width: size, height: size, filter: full ? `drop-shadow(0 0 ${size / 7}px ${HEART_GLOW})` : undefined }}>
-    <HeartIcon full={full} />
-  </span>
 )
 
 /** the parent button's sliders, in the held button's 56-unit box */

@@ -22,7 +22,7 @@ import { sumText } from './sumText'
 
 const SFX_LABEL: Record<SfxName, string> = {
   'new-sum': 'new sum', right: 'right', 'right-zoom': 'right with a zoom', wrong: 'wrong', timeout: 'time-out', heart: 'heart lost',
-  level: 'level done', ship: 'new ship', end: 'end of run',
+  'heart-up': 'heart back', level: 'level done', ship: 'new ship', end: 'end of run',
 }
 const HARD_ROWS = 20
 const RECENT_ROWS = 20

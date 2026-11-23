@@ -1,4 +1,4 @@
-// A run: three hearts per level, seven right answers finish a level, points, and the ships that levels unlock.
+// A run: three hearts at most (a level's end gives one back), seven right answers finish a level, points, and the ships that levels unlock.
 import type { RoundResult } from './round'
 
 export const HEARTS = 3, RIGHT_PER_LEVEL = 7
@@ -17,8 +17,8 @@ export function applyResult(r: Run, res: Pick<RoundResult, 'result' | 'points'>)
   return { run, levelDone: false, over: run.hearts === 0 }
 }
 
-/** the next level: hearts full again, the level's count starts over, points stay */
-export const nextLevel = (r: Run): Run => ({ ...r, level: r.level + 1, hearts: HEARTS, rightInLevel: 0 })
+/** the next level: one heart back (at most HEARTS), the level's count starts over, points stay */
+export const nextLevel = (r: Run): Run => ({ ...r, level: r.level + 1, hearts: Math.min(HEARTS, r.hearts + 1), rightInLevel: 0 })
 
 /** the ships he has by reaching this level (ship 1 is always there) */
 export function shipsReached(level: number): (1 | 2 | 3)[] {

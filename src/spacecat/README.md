@@ -21,7 +21,7 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 | The save (`alef-spacecat`) | `saveFormat.ts` (key, defaults, the light read for the home card and the parent area), `store.ts`, `savePort.ts` (the controller's port; `memorySavePort` for tests) |
 | Its telemetry log | `telemetryLog.ts` (`SPACECAT_LOG` and its `rollup`, light), `telemetry.ts` (the instance); analysis: `scripts/spacecat/analyse.ts` |
 | The canvas: game loop, planet renderer, drawing, particles, input, the comparison signs as paths, the equal-groups pods | `canvas/` (`engine.ts`, `planet.ts`, `draw.ts`, `effects.ts`, `input.ts`, `signs.ts`, `pods.ts`) |
-| Screens: cover, play, level done, end, pause cover | `screens/` |
+| Screens: cover, play, end, pause cover (a level's end is a beat in flight, `controller.ts`: [design](../../docs/superpowers/specs/2026-11-23-space-cat-endless-flight.md)) | `screens/` |
 | Its part in the shared parent area | `parent/` (`index.ts` light; `Settings.tsx`, `reset.ts` lazy) |
 | Voice on the shared kit, the coded effects and the tune behind the player port, the line table | `audio/` (`spaceCatAudio.ts`, `coded.ts`, `synth.ts`, `tune.ts`, `lines.ts`) |
 | The root: the shell, the screens' routing | `SpaceCatApp.tsx` (on `useGameShell`, `src/shared/shell/`; no boy or girl question) |

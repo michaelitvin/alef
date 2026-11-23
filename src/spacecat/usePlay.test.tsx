@@ -22,7 +22,7 @@ const settle = async () => { for (let i = 0; i < 6; i++) await act(async () => {
 function renderPlay(over: Partial<Parameters<typeof Play>[0]> = {}) {
   const stub = engineStub()
   const goHome = vi.fn()
-  const r = render(<Play onLevelDone={() => {}} onEnd={() => {}} goHome={goHome} save={memorySavePort({ runs: 1, heard: { demo: 1 } })}
+  const r = render(<Play onEnd={() => {}} goHome={goHome} save={memorySavePort({ runs: 1, heard: { demo: 1 } })}
     makeEngine={() => { stub.made++; return stub as unknown as Engine }} {...over} />)
   return { ...r, stub, goHome }
 }

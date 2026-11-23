@@ -19,13 +19,24 @@ These 9 files are the original's pictures, byte for byte. They are in `src/space
 | `surface-2.png` | `b2a7f869d01e9cd05eef00d78f84a0204d7c8bb34f9bd818e8bda95cdc98b813` | the surface of the planet in lane 2 |
 | `surface-3.png` | `fab8db333477e1d68eb3fd616b42c9341078497a4ea711e93a1744a37e6747d6` | the surface of the planet in lane 3 |
 | `surface-4.png` | `e7538ba45cf4320745bbc4529a20e438ac1a8a8add8a175c062eb214034a43b4` | the surface of the planet in lane 4 |
-| `cat-thumbs-up.png` | `42dc9d3552f738ed0e5db2db760dd0b28931ab86d7219b52f13d6d32db68b8f0` | the level-done screen |
+| `cat-thumbs-up.png` | `42dc9d3552f738ed0e5db2db760dd0b28931ab86d7219b52f13d6d32db68b8f0` | (no longer used: the level-done screen is gone) |
 
 ## Code
 
 The code ports (the planet renderer, the coded sound effects and the tune) are marked in their headers:
 `// Ported from Space Cat Math by Igor (Ray's dad), used by permission. See asset-sources/spacecat/README.md.`
 The original's code is not in this repository.
+
+## Coded effects
+
+The sound effects are synthesised in `src/spacecat/audio/synth.ts` (no request, no take). Effects that are new in alef:
+
+| Effect | Description | Added |
+| --- | --- | --- |
+| `heart-up` | A heart comes back at a level's end. A short rising chime: a soft triangle A5 (880 Hz) at 0 s, then E6 (1319 Hz) at 0.1 s held 0.26 s, with a faint high sweep (5 to 8 kHz). Bright and short, so it is not the low crack of `heart` (a heart lost). Played 0.4 s after the `level` fanfare. | 2026-11-23 |
+
+The voice lines `level-done` and `info-hearts` are no longer in the game (the level-done screen is gone, see
+`docs/superpowers/specs/2026-11-23-space-cat-endless-flight.md`); their takes stay in `audio.json` as history.
 
 ## Voice requests
 

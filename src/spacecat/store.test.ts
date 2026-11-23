@@ -29,7 +29,7 @@ describe('space cat store', () => {
     expect(DEFAULT_SETTINGS).toEqual(store().settings)
   })
   it('the constants', () => {
-    expect(SAVE_VERSION).toBe(2)
+    expect(SAVE_VERSION).toBe(3)
   })
   it('a fresh save starts the first placement', () => {
     expect(store().ladder).toEqual(LADDER_START)
@@ -329,7 +329,16 @@ describe('the migration of a version 1 save', () => {
     expect(s.speed.small.arrivalMs).toBe(6400)
     expect(s.items[it1.id].seen).toBe(3)
     expect(typeof s.takeRound).toBe('function')
-    expect(JSON.parse(localStorage.getItem(SAVE_KEY)!).version).toBe(2)
+    expect(JSON.parse(localStorage.getItem(SAVE_KEY)!).version).toBe(3)
+  })
+  it('a v2 save flies the highest ship he has; a v3 save keeps his shelf choice', async () => {
+    for (const [ships, ship, version, want] of [[[1, 2], 1, 2, 2], [[1, 2, 3], 2, 2, 3], [[1], 1, 2, 1], [[1, 2], 1, 3, 1]] as const) {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ state: { ships, ship }, version }))
+      vi.resetModules()
+      const fresh = (await import('./store')).useSpaceCatStore
+      await Promise.resolve()
+      expect(fresh.getState().ship).toBe(want)
+    }
   })
   it('a v2 save that still has a `history` list is read without it', async () => {
     localStorage.setItem(SAVE_KEY, JSON.stringify({ state: { best: 7, history: [{ t: 1, rung: '1', change: 'passed' }] }, version: 2 }))
@@ -348,7 +357,7 @@ describe('the migration of a version 1 save', () => {
       const fresh = (await import('./store')).useSpaceCatStore
       await Promise.resolve()
       expect(Object.keys(fresh.getState().ladder.rungs).sort()).toEqual(sorted(PLACED_V1[6]))
-      expect(JSON.parse(real.getItem(STAGING_PREFIX + SAVE_KEY)!).version).toBe(2)
+      expect(JSON.parse(real.getItem(STAGING_PREFIX + SAVE_KEY)!).version).toBe(3)
     } finally {
       Object.defineProperty(window, 'localStorage', { value: real, configurable: true })
     }
