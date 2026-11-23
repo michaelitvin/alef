@@ -5,6 +5,7 @@ import { RECENT_KEEP, type Rng } from '../shared/adaptive'
 import { rehydrateOnRestore } from '../shared/rehydrateOnRestore'
 import { persistSaveStorage } from '../shared/saveStorage'
 import { isRareFact, type Item } from './logic/facts'
+import { afterRound as afterSpacing, type Spacing } from './logic/spacing'
 import { afterAnswer, beginRun, chooseRound, relevel, type LadderEvent, type Part } from './logic/ladder/index'
 import type { ItemStats, Mark } from './logic/predict'
 import { pushMark } from './logic/predict'
@@ -22,7 +23,7 @@ export interface Actions {
    * One finished round. A demo or a cut round changes no tally, ladder or speed. `part` (from `takeRound`) defaults to the
    * placement's probe or the frontier; `fast` (fast.ts) to false; `now` to the clock.
    */
-  recordRound: (it: Item, res: RoundResult, opts?: { demo?: boolean; cut?: boolean; part?: Part; fast?: boolean; now?: number }) => { events: LadderEvent[] }
+  recordRound: (it: Item, res: RoundResult, opts?: { demo?: boolean; cut?: boolean; part?: Part; fast?: boolean; now?: number; rng?: Rng }) => { events: LadderEvent[] }
   /** the start of a run: the play-day counter, due holds, the warm-up and the re-check. `playDay`: the run starts a play day. */
   beginRun: (now?: number) => { events: LadderEvent[]; playDay: boolean }
   /** the next round of the ladder (`chooseRound` with the save); the ladder's counters are written back */
@@ -49,6 +50,8 @@ export type SpaceCatState = SpaceCatSave & Actions
 /** the intro counters of the ladder's play day (counters of an earlier day start afresh) */
 const introOfDay = (s: SpaceCatSave): SpaceCatSave['intro'] => (s.intro.day === s.ladder.day ? s.intro : { day: s.ladder.day, mistakes: {}, again: [] })
 
+const spacingOf = (s: SpaceCatSave): Spacing => ({ round: s.roundNo, recent: s.recentFacts, rehearsals: s.rehearsals })
+
 /** hold a band's speed after a rung opened there: the band's next HOLD_ROUNDS rounds do not get shorter */
 const holdBand = (speed: SpaceCatSave['speed'], band: Band): SpaceCatSave['speed'] => ({
   ...speed, [band]: { ...speedOfBand(speed, band), hold: HOLD_ROUNDS },
@@ -59,12 +62,13 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       ...DEFAULT_SAVE,
       recordRound: (it, res, opts) => {
         const s = get()
-        const after = { lastFact: it.fact, sinceZero: isRareFact(it) ? 0 : s.sinceZero + 1 }
         if (opts?.cut) return { events: [] }
+        const m = markOf(res.result)
+        const sp = afterSpacing(spacingOf(s), it.fact, opts?.demo ? undefined : m, opts?.rng ?? Math.random)
+        const after = { lastFact: it.fact, sinceZero: isRareFact(it) ? 0 : s.sinceZero + 1, recentFacts: sp.recent, rehearsals: sp.rehearsals, roundNo: sp.round }
         // the demo round changes no tally, but it is the round before the next pick (never the same fact twice)
         if (opts?.demo) { set(after); return { events: [] } }
         const now = opts?.now ?? Date.now()
-        const m = markOf(res.result)
         const old: ItemStats = s.items[it.id] ?? { seen: 0, wrong: 0, timeout: 0, recent: '', times: [], picks: {} }
         const picks = res.result === 'wrong' ? { ...old.picks, [String(res.number)]: (old.picks[String(res.number)] ?? 0) + 1 } : old.picks
         const stat: ItemStats = {
@@ -96,7 +100,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       },
       takeRound: (rng) => {
         const s = get()
-        const { item, part, ladder } = chooseRound(s.ladder, { rng, set: s.settings, stats: s.items, last: { fact: s.lastFact, sinceZero: s.sinceZero } })
+        const { item, part, ladder } = chooseRound(s.ladder, { rng, set: s.settings, stats: s.items, last: { fact: s.lastFact, sinceZero: s.sinceZero, spacing: spacingOf(s) } })
         set({ ladder })
         return { item, part }
       },

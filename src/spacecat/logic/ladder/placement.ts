@@ -2,7 +2,7 @@
 // the confirmed rungs and all they need are placed. The re-check (*Re-placement now and then*) is a short probe upward.
 import type { Rng } from '../../../shared/adaptive'
 import { itemsOfRung, type Item } from '../facts'
-import { pickNext, type ItemStats, type Mark } from '../predict'
+import { pickNext, type ItemStats, type LastCtx, type Mark } from '../predict'
 import { RUNGS, rungDef, type RungId } from '../rungs'
 import { frontier, isOn, needsClosure, offered } from './frontier'
 import { settleFrontier, type Outcome } from './practice'
@@ -42,8 +42,8 @@ export function placeWithNeeds(l: Ladder, r: RungId, by: 'placement' | 'migratio
   return out
 }
 
-const pickFrom = (rng: Rng, r: RungId, stats: Record<string, ItemStats>, last: { fact?: string; sinceZero: number }): Item =>
-  pickNext(rng, itemsOfRung(r), stats, last)
+const pickFrom = (rng: Rng, r: RungId, stats: Record<string, ItemStats>, last: LastCtx): Item =>
+  pickNext(rng, itemsOfRung(r), stats, { ...last, noRehearsal: true })
 
 /** the rungs a placement probes: the offered ones, or (the migration) only the plus and minus rungs that have no switch */
 export const probeList = (l: Ladder, m: PlacementMode, set: LadderSettings): RungId[] =>
@@ -51,7 +51,7 @@ export const probeList = (l: Ladder, m: PlacementMode, set: LadderSettings): Run
 
 /** the probe of a placement: an item of the rung `at` (mapped onto the offered rungs) */
 export function choosePlacement(
-  l: Ladder, m: PlacementMode, ctx: { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: { fact?: string; sinceZero: number } },
+  l: Ladder, m: PlacementMode, ctx: { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: LastCtx },
 ): { item: Item; ladder: Ladder } {
   const list = probeList(l, m, ctx.set)
   const at = list[positionIn(list, m.at)] ?? '1'
@@ -136,7 +136,7 @@ export function startRecheck(l: Ladder, set: LadderSettings): Ladder {
 
 /** the probe of a re-check */
 export function chooseRecheck(
-  l: Ladder, m: RecheckMode, ctx: { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: { fact?: string; sinceZero: number } },
+  l: Ladder, m: RecheckMode, ctx: { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: LastCtx },
 ): { item: Item; ladder: Ladder } {
   const list = offered(l, ctx.set)
   const at = list[positionIn(list, m.at)] ?? '1'

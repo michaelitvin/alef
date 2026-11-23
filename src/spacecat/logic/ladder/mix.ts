@@ -2,7 +2,7 @@
 // guard's sure wins, and review only when nothing is free. Each part picks its item with the 1-in-5 picker.
 import type { Rng } from '../../../shared/adaptive'
 import { itemsOfRung, variantsOf, type Item, type SumItem } from '../facts'
-import { SAMPLE_MAX, pickNext, predictOf, samplePool, statsMap, type ItemStats } from '../predict'
+import { SAMPLE_MAX, pickNext, predictOf, samplePool, statsMap, type ItemStats, type LastCtx } from '../predict'
 import { RUNGS, rungDef, type RungId } from '../rungs'
 import { earnedOffered, frontier, inRange, isEarned, isOn } from './frontier'
 import { statusOf, type Ladder, type LadderSettings, type Part } from './state'
@@ -18,7 +18,7 @@ export const SURE_RATE = 0.1
 /** with missing100 off, no ring variant has a number above this */
 export const VARIANT_MAX_WITHOUT_MISSING100 = 20
 
-export interface ChooseCtx { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: { fact?: string; sinceZero: number } }
+export interface ChooseCtx { rng: Rng; set: LadderSettings; stats: Record<string, ItemStats>; last: LastCtx }
 export interface Choice { item: Item; part: Part; ladder: Ladder }
 
 const TIMES_VARIANTS: readonly RungId[] = ['T2', 'T3', 'T5']

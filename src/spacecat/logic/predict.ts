@@ -1,6 +1,7 @@
 // The chance of a mistake on a sum, and the choice of the next one (aim: one mistake in five, shared/adaptive.ts).
 import { RECENT_KEEP, pickNearTarget, predictedMistakeRate, type Rng } from '../../shared/adaptive'
 import { isRareFact, type Item } from './facts'
+import { AVOID_LEVELS, avoidSet, dueRehearsal, type Spacing } from './spacing'
 
 /** right, wrong, time-out */
 export type Mark = 'o' | 'x' | 't'
@@ -105,16 +106,34 @@ export function predictOf(it: Item, stats: Record<string, ItemStats>): number {
 }
 
 /**
- * The next item of a part: the pool sampled when large, the narrowing rolls, never the last fact, a rare fact at most
- * once in ZERO_EVERY rounds, then the 1-in-5 picker.
+ * What the next pick knows of the rounds before it: the last fact (a save from before `spacing` has only this), the
+ * rounds since a rare fact, and the spacing (recent facts and the rehearsals of mistakes, spacing.ts). `noRehearsal`:
+ * a placement probe never takes a rehearsal.
  */
-export function pickNext(
-  rng: Rng, candidates: Item[], stats: Record<string, ItemStats>, last: { fact?: string; sinceZero: number },
-): Item {
+export interface LastCtx { fact?: string; sinceZero: number; spacing?: Spacing; noRehearsal?: boolean }
+
+/**
+ * The next item of a part: a rehearsal of a mistake that is due (if the part offers its fact), else the pool sampled when
+ * large, the narrowing rolls, no fact of the last NO_REPEAT rounds (step by step fewer when nothing is left), a rare fact
+ * at most once in ZERO_EVERY rounds, then the 1-in-5 picker.
+ */
+export function pickNext(rng: Rng, candidates: Item[], stats: Record<string, ItemStats>, last: LastCtx): Item {
+  const sp: Spacing = last.spacing ?? { round: 0, recent: last.fact ? [last.fact] : [], rehearsals: [] }
+  if (!last.noRehearsal) {
+    const due = dueRehearsal(sp, (f) => candidates.some((i) => i.fact === f))
+    if (due) {
+      const same = candidates.filter((i) => i.fact === due.fact)
+      return same[pickNearTarget(rng, same.map((i) => predictOf(i, stats)))]
+    }
+  }
   const narrowed = narrow(rng, samplePool(rng, candidates, stats))
   const noRare = last.sinceZero < ZERO_EVERY - 1
-  let pool = narrowed.filter((i) => i.fact !== last.fact && !(noRare && isRareFact(i)))
-  if (pool.length === 0) pool = narrowed.filter((i) => i.fact !== last.fact)
-  if (pool.length === 0) pool = narrowed
-  return pool[pickNearTarget(rng, pool.map((i) => predictOf(i, stats)))]
+  for (let level = 0; level < AVOID_LEVELS.length; level++) {
+    const avoid = avoidSet(sp, level)
+    for (const strict of [noRare, false]) {
+      const pool = narrowed.filter((i) => !avoid.has(i.fact) && !(strict && isRareFact(i)))
+      if (pool.length) return pool[pickNearTarget(rng, pool.map((i) => predictOf(i, stats)))]
+    }
+  }
+  return narrowed[pickNearTarget(rng, narrowed.map((i) => predictOf(i, stats)))]
 }

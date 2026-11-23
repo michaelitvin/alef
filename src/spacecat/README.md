@@ -11,7 +11,7 @@ Spec: `docs/superpowers/specs/2026-11-12-space-cat-design.md`. Origin record and
 | --- | --- |
 | The play flow: each sum, the demo, the zoom tip, the missing-number line, pause, the run's save and telemetry | `controller.ts` (`PlayController`, framework-free; every wait through a `Sleeper`) |
 | React's view of the play flow | `usePlay.ts` (a thin bridge: one controller and one canvas engine per mount, `useSyncExternalStore`) |
-| Pure rules: facts and rungs, prediction and the next sum, the ladder, wrong answers and lanes, speed, one round's state machine, the run | `logic/*.ts` |
+| Pure rules: facts and rungs, prediction and the next sum, the ladder, wrong answers and lanes, speed, one round's state machine, the run | `logic/*.ts` (`logic/spacing.ts`: no fact in the last 4 rounds; a mistake comes back after about 3, then about 8 rounds) |
 | The content of a round (the plug-in for other kinds of question) | `content.ts` (`makeRound`) |
 | The 31 rungs: order, strand, needs, switch and band | `logic/rungs.ts` |
 | The wrong planets that a known mistake picks (the misconception of each rung) | `logic/misconceptions.ts` |

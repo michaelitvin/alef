@@ -48,6 +48,17 @@ describe('space cat store', () => {
     expect(s.lastFact).toBe('+2,3')
     expect(s.sinceZero).toBe(1)
   })
+  it('a mistake is saved as a rehearsal; the recent facts and the round count are saved; a demo asks nothing back', () => {
+    store().recordRound(it1, result({ result: 'wrong' }), { rng: () => 0 })
+    expect(store()).toMatchObject({ recentFacts: ['+2,3'], roundNo: 1, rehearsals: [{ fact: '+2,3', step: 1, due: 4 }] })
+    useSpaceCatStore.setState({ ...DEFAULT_SAVE })
+    store().recordRound(it1, result({ result: 'wrong' }), { demo: true })
+    expect(store().rehearsals).toEqual([])
+    expect(store().recentFacts).toEqual(['+2,3'])
+  })
+  it('a save from before the spacing loads with empty lists', () => {
+    expect(DEFAULT_SAVE).toMatchObject({ recentFacts: [], rehearsals: [], roundNo: 0 })
+  })
   it('a demo round changes no tally', () => {
     store().recordRound(it1, result(), { demo: true })
     expect(store().items).toEqual({})

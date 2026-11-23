@@ -249,6 +249,7 @@ It looks like normal play (the parent). A probe costs a heart like any mistake.
   switch never blocks another strand.)
 - **The mix:** **70%** of rounds from the frontier, **20%** from the rung below (the frontier's nearest need in the
   order, which can be in another strand; for rung 1, which has none, this part goes to the frontier), **10%** review from all other passed and placed rungs. Inside each part the existing 1-in-5 picker chooses.
+- **Spacing (2026-11-23):** inside each part, the picker never takes a fact of the last 4 rounds (fewer when nothing else is left). A mistake or time-out is rehearsed: it comes back after 3-5 other rounds, then (if right) after 7-11 more, a mistake starts again; at most 3 wait, and a placement probe never takes one (`logic/spacing.ts`).
   When review has nothing, its part goes to the rung below, then to the frontier.
   The review part and the rung-below part take **placed rungs first** (lowest first) until each has 4 answers, then
   items with recorded mistakes first.
