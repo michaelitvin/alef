@@ -11,7 +11,7 @@ import { emptyRollup, foldEvents } from '../../shared/telemetryRollup'
 const NOW = new Date('2026-11-16T12:00:00Z').getTime()
 const DAY = 24 * 60 * 60 * 1000
 const put = (key: string, events: object[]) => localStorage.setItem(key, JSON.stringify({ v: 1, events }))
-/** the first duel's history as the old build wrote it (no g, no via) */
+/** the tower's old history as the old build wrote it (no g, no via) */
 const HISTORY = '{"v":1,"events":[{"t":1760000000000,"s":"mf1abc-x1y2z","run":2,"e":"choice","key":"segol","pos":2,"ms":1840}]}'
 
 let files: { name: string; doc: Record<string, unknown> }[]
@@ -38,7 +38,7 @@ const picked = (c: HTMLElement) =>
   [...c.querySelectorAll<HTMLInputElement>('[data-log-pick]')].filter((i) => i.checked).map((i) => i.closest('[data-log]')!.getAttribute('data-log'))
 
 describe('the Data section', () => {
-  it('ticks the open game’s logs at first (not the first duel’s history); the lessons have none, so nothing to download', () => {
+  it('ticks the open game’s logs at first (not the tower’s old history); the lessons have none, so nothing to download', () => {
     expect(picked(render(<DataSection game="spellquest" />).container)).toEqual(['alef-spellquest-telemetry'])
     expect(picked(render(<DataSection game="clock" />).container)).toEqual(['alef-clock-telemetry'])
     const { container } = render(<DataSection game="lessons" />)
@@ -63,7 +63,7 @@ describe('the Data section', () => {
     expect((await downloaded(container)).doc.games[0]!.events.map((e) => e.e)).toEqual(['old', 'new'])
   })
 
-  it('several games in one file; the first duel’s history comes out exactly as it is stored, and it has no Clear', async () => {
+  it('several games in one file; the tower’s old history comes out exactly as it is stored, and it has no Clear', async () => {
     localStorage.setItem('alef-tower-history-telemetry', HISTORY)
     put('alef-spellquest-telemetry', [{ t: NOW, s: 'c', run: 3, e: 'round', g: 'spellquest', via: 'tower', visit: 1 }])
     const { container } = render(<DataSection game="spellquest" />)

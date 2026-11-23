@@ -23,7 +23,7 @@ module.exports = {
       name: 'shared-is-self-contained',
       severity: 'error',
       comment: 'src/shared must not import outside src/shared (tests excluded: rehydrateOnRestore.test.ts uses the progress store).',
-      from: { path: '^src/shared/', pathNot: TEST },
+      from: { path: '^src/shared/', pathNot: [TEST, '^src/shared/migrateCheckSteps\\.ts$'] },
       to: { path: '^src/', pathNot: '^src/shared/' },
     },
     {

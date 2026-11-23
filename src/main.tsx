@@ -1,16 +1,5 @@
 import './shared/stagingStorage' // first: staging saves are kept apart before any store loads
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App'
-import './styles/global.css'
-import { useProgressStore } from './stores/progressStore'
-import { rehydrateOnRestore } from './shared/rehydrateOnRestore'
+import { migrateCheckGate } from './shared/stagingStorage'
 
-// Spell Quest's page also writes the progress save (its tower): coming back with the back button reads it again
-rehydrateOnRestore(useProgressStore)
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// no store module loads before the gate opens (it opens at once, except on `?migrate-check` on staging)
+void migrateCheckGate().then(() => import('./boot'))
