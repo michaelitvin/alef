@@ -66,24 +66,33 @@ function chainsFor(stage: number): Chain[] {
   throw new Error(`no ladder chain at stage ${stage}`)
 }
 
-/** a changed box's plates: the right part and two wrong ones (an added `e`: single letters, as the cauldron's throw) */
-function partPlates(ctx: RoundCtx, right: Choice): Choice[] {
+/**
+ * a changed box's plates: the right part and two wrong ones (an added `e`: single letters, as the cauldron's throw).
+ * No plate has the text or the sound of `out`, the part that goes out: matching it is the easy move, and it is wrong.
+ * On a grow rung nothing goes out (`out` unset). `tilesFor` takes its wrong plates only from the pool, so the filter holds.
+ */
+function partPlates(ctx: RoundCtx, right: Choice, out?: Choice): Choice[] {
+  const keep = (x: Unit) => {
+    if (!out) return true
+    const c = partOf(x)
+    return c.id !== out.id && c.text !== out.text && c.soundId !== out.soundId
+  }
   const u = unit(right.id)
   if (u.kind === 'magic-e') {
-    const singles = letterPool(ctx.stage).filter((x: Unit) => x.kind === 'vowel' || x.kind === 'consonant')
+    const singles = letterPool(ctx.stage).filter((x: Unit) => (x.kind === 'vowel' || x.kind === 'consonant') && keep(x))
     return tilesFor(ctx, right, singles, right.text === 'e' ? 'letter' : 'vowel', PLATES)
   }
-  return tilesFor(ctx, right, tilePool(ctx.stage, [u]), classOf(u), PLATES)
+  return tilesFor(ctx, right, tilePool(ctx.stage, [u]).filter(keep), classOf(u), PLATES)
 }
 
 /** the foot and the first `rungs` changes of a chain: each word's boxes, and where it changed from the word below */
-function rungsOf(chain: Chain, rungs: number): { foot: { w: EnWord; parts: Choice[] }; up: { w: EnWord; parts: Choice[]; change: { at: number; grow?: 1 } }[] } {
+function rungsOf(chain: Chain, rungs: number): { foot: { w: EnWord; parts: Choice[] }; up: { w: EnWord; parts: Choice[]; below: Choice[]; change: { at: number; grow?: 1 } }[] } {
   const ws = chain.words.slice(0, rungs + 1).map(realWord)
   const up = ws.slice(1).map((w, i) => {
     const parts = partsOf(w)
     const change = changeOf(partsOf(ws[i]), parts)
     if (!change) throw new Error(`chain ${chain.stage}${chain.id}: ${ws[i].text} → ${w.text} is not one box changed or added`)
-    return { w, parts, change }
+    return { w, parts, below: partsOf(ws[i]), change }
   })
   return { foot: { w: ws[0], parts: partsOf(ws[0]) }, up }
 }
@@ -98,8 +107,8 @@ export function enLadderPlan(ctx: RoundCtx, rungs: number): LadderPlan {
   const asked = (c: Chain) => [...new Set(rungsOf(c, rungs).up.map((r) => r.parts[r.change.at].id))]
   const chain = pickTarget(ctx.rng, chains, (c) => [...asked(c), 'sc:ladder'], ctx.tallies, ctx.recent, enPrior)
   const { foot, up } = rungsOf(chain, rungs)
-  const steps: LadderPlanStep[] = up.map(({ w, parts, change }) => ({
-    target: wordChoice(word(w.id)), plates: partPlates(ctx, parts[change.at]), parts, at: change.at, ...(change.grow ? { grow: change.grow } : {}),
+  const steps: LadderPlanStep[] = up.map(({ w, parts, below, change }) => ({
+    target: wordChoice(word(w.id)), plates: partPlates(ctx, parts[change.at], change.grow ? undefined : below[change.at]), parts, at: change.at, ...(change.grow ? { grow: change.grow } : {}),
   }))
   return { marked: ctx.stage <= MARKED_UNTIL, base: { target: wordChoice(word(foot.w.id)), parts: foot.parts }, steps }
 }

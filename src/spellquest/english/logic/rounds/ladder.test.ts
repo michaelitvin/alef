@@ -9,6 +9,7 @@ import { seeded } from '../../../testing/runHarness'
 import { CHAINS } from '../../content/chains'
 import { unit } from '../../content/units'
 import { WORDS, word } from '../../content/words'
+import { FULL_SWEEP } from '../../../../test/fullSweep'
 import { enLadderPlan } from './ladder'
 
 const ctxAt = (stage: number, seed = 1): RoundCtx => ({ rng: seeded(seed), stage, tallies: {}, recent: {}, confusions: { letters: {}, syllables: {} } })
@@ -147,5 +148,25 @@ describe('the English ladder', () => {
         })
       }
     }
+  }, 60_000)
+
+  it('no plate has the text or the sound of the part that goes out', () => {
+    for (let stage = 1; stage <= 9; stage++)
+      for (const p of plans(stage, FULL_SWEEP ? 400 : 100)) {
+        let below = p.base!.parts
+        for (const s of p.steps) {
+          expect(s.plates).toHaveLength(3)
+          expect(s.plates.map((x) => x.id)).toContain(rightOf(s).id)
+          if (!s.grow) {
+            const out = below[s.at!]
+            for (const x of s.plates) {
+              expect(x.text, `${stage} ${s.target.id}: ${x.text}`).not.toBe(out.text)
+              expect(x.soundId).not.toBe(out.soundId)
+              expect(x.id).not.toBe(out.id)
+            }
+          }
+          below = s.parts!
+        }
+      }
   }, 60_000)
 })
