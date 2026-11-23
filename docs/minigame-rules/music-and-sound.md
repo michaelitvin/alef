@@ -8,6 +8,10 @@
 - Keep one original track as the signature of a special event. Do not add variations of it.
   Example (tower): the boss keeps its one original track.
 - Make the music quieter under all speech. Stop it for dramatic lines.
+- Make the music quiet before the voice starts, and keep it quiet until the voice has said all its parts. Make every
+  music track about equally loud.
+  Reason (English Spell Quest): the 0.26 s sound "ch" played while the music was still fading down, and the boss track was
+  louder than the others. The child did not hear the sound.
 - Give each repeated event its own sound. Example (tower): the arrival sound means "new question".
 - Make each sound effect sound like the thing that it shows.
   Example (tower): the first spell sound did not sound like a fireball.

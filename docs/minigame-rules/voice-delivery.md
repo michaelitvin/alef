@@ -38,3 +38,6 @@
   Example (English): "at", "it", "dot" and "tif" were rejected with a silent last consonant, "cup" with a weak p.
 - Keep the voice directions out of the spoken text. Reject a take that says a word that is not in the text.
   Example (English): retakes said "clearly hop" and "clearly, log".
+- Make every voice clip about equally loud: a sound clip as loud as a word. Measure the level when you ship a clip, and
+  correct it. Reason (English Spell Quest): "ch" and "th" shipped 9 dB and 17 dB quieter than the words, and the child
+  did not hear them over the music.
