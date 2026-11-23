@@ -31,6 +31,9 @@ export function latinOrbPx(text: string, size: number, px: number): number {
   return Math.min(px, Math.floor((size * ORB_TEXT_R) / Math.hypot(half.w, half.h)))
 }
 
+/** a round box of diameter `d` (where an orb goes): a Latin text's ink keeps inside its ring, less the ring's stroke */
+export const latinRingPx = (text: string, d: number, px: number) => latinOrbPx(text, (d / 2 - 4) / ORB_TEXT_R, px)
+
 let ctx: CanvasRenderingContext2D | null | undefined
 export const canvasMeasurer = (text: string, px: number, alphabet: Alphabet = 'hebrew'): InkBox | null => {
   if (ctx === undefined) {

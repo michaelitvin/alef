@@ -6,7 +6,7 @@ import { useImages } from '../../course/CourseContext'
 import type { Item, Mark, MarkId, Syllable } from '../../logic/content'
 import type { Choice } from '../../logic/rounds'
 import { DragPick } from '../DragPick'
-import { Glyph, latinFitPx as fitPx, latinOrbPx } from '../Glyph'
+import { Glyph, latinOrbPx, latinRingPx } from '../Glyph'
 import { MarkAlone } from '../MarkAlone'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
@@ -99,6 +99,8 @@ export function CauldronWord(p: {
   const can = p.phase === 'answer'
   const potH = POT.w * (600 / 496)
   const { xs, w } = boxXs(p.boxes.length)
+  /** a box's circle: as wide as its room, at most as tall as the row */
+  const d = Math.min(w, BOX_H)
   const gapBox = p.joined ? undefined : { x: xs[p.gap], w }
   const picture = p.joined ? p.target.picture : (p.shown ?? p.target).picture
   return (
@@ -111,9 +113,10 @@ export function CauldronWord(p: {
         const empty = i === p.gap && !p.joined
         return (
           <g key={i} data-box={empty ? '_' : b.text}>
-            <rect x={xs[i] - w / 2} y={BOX_Y - BOX_H / 2} width={w} height={BOX_H} rx={18} fill="#1b0f3c" fillOpacity={0.55}
+            {/* round, as the tiles (orbs) that go into it */}
+            <circle cx={xs[i]} cy={BOX_Y} r={d / 2} fill="#1b0f3c" fillOpacity={0.55}
               stroke={i === p.gap ? '#ffd34d' : '#fff6d8'} strokeWidth={6} strokeDasharray={empty ? '18 12' : undefined} />
-            {!empty && <Glyph text={b.text} px={fitPx(b.text, w, 120)} x={xs[i]} y={BOX_Y} glow={p.joined && i === p.gap ? 'hit' : 'soft'} alphabet="latin" />}
+            {!empty && <Glyph text={b.text} px={latinRingPx(b.text, d, Math.min(120, Math.round(d * 0.75)))} x={xs[i]} y={BOX_Y} glow={p.joined && i === p.gap ? 'hit' : 'soft'} alphabet="latin" />}
           </g>
         )
       })}

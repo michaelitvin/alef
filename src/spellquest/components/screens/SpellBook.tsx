@@ -16,7 +16,7 @@ import { StrokeAnim } from '../StrokeAnim'
 import { InkStrokes, WritingPad, inkWidth } from '../WritingInk'
 import { DemoHand } from '../DemoHand'
 import { DragPick } from '../DragPick'
-import { Glyph, latinFitPx, latinOrbPx } from '../Glyph'
+import { Glyph, latinFitPx, latinOrbPx, latinRingPx } from '../Glyph'
 import { Orb, type PickState } from '../Orb'
 import { Stage, type Dir, type Phase } from './Stage'
 
@@ -188,6 +188,10 @@ function TileBook(p: SpellBookProps) {
   const latin = p.dir === 'ltr'
   const { xs, w, tailX } = spellBoxes(rd.boxes.length, p.dir, !!rd.tail, !!img)
   const tileXs = spellTileXs(rd.tiles.length, p.dir)
+  /** a box's circle: as wide as its room, at most as tall as the row */
+  const d = Math.min(w, BOX_H)
+  const boxMax = Math.min(110, Math.round(d * 0.75))
+  // Hebrew: 0.6 of the circle keeps a syllable's dots (the sin dot) inside its ring
   const next = v.filled.findIndex((x) => x === null)
   const [demoT, setDemoT] = useState(0)
   const px = (text: string, room: number, max: number) => (latin ? latinFitPx(text, room, max) : Math.min(max, Math.round(room * 0.72)))
@@ -217,9 +221,10 @@ function TileBook(p: SpellBookProps) {
         const shown = filled !== null ? b.text : wrong !== null ? rd.tiles.find((x) => x.unit === wrong)?.text ?? wrong : null
         return (
           <g key={i} data-box={i} data-filled={filled ?? undefined} data-wrong={wrong ?? undefined}>
-            <rect x={xs[i] - w / 2} y={BOX_Y - BOX_H / 2} width={w} height={BOX_H} rx={16} fill="#1b0f3c" fillOpacity={filled !== null ? 0.75 : 0.45}
+            {/* round, as the orbs that go into it */}
+            <circle cx={xs[i]} cy={BOX_Y} r={d / 2} fill="#1b0f3c" fillOpacity={filled !== null ? 0.75 : 0.45}
               stroke={wrong !== null ? '#ff4d6a' : i === next ? '#ffd34d' : '#3a2a6a'} strokeWidth={6} strokeDasharray={filled === null && wrong === null ? '16 10' : undefined} />
-            {shown !== null && glyph(shown, xs[i], BOX_Y, w, 110, v.alive ? 'hit' : 'soft')}
+            {shown !== null && glyph(shown, xs[i], BOX_Y, d, boxMax, v.alive ? 'hit' : 'soft', latin ? latinRingPx(shown, d, boxMax) : Math.round(d * 0.6))}
           </g>
         )
       })}

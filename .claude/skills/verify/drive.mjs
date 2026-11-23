@@ -307,6 +307,18 @@ const FIT_PROBE = ({ ringIn }) => {
       continue
     }
     const g = t.closest('[data-box]')
+    const ring = g && [...g.children].find((c) => c.tagName === 'circle')
+    if (ring) {
+      // a round box (the spell book): the ink's corners keep inside the circle, less half its stroke
+      const r = ring.getBoundingClientRect()
+      const half = (parseFloat(getComputedStyle(ring).strokeWidth) || 0) * scaleOf(ring) / 2
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      const worst = Math.max(...[[k.left, k.top], [k.right, k.top], [k.left, k.bottom], [k.right, k.bottom]].map(([x, y]) => Math.hypot(x - cx, y - cy)))
+      const slack = r.width / 2 - half - worst
+      boxes.push({ text: t.textContent, px: +k.px.toFixed(1), slack: +slack.toFixed(1), ok: slack >= 0, fontOk: k.fontOk, font: k.font, ligOk: k.ligOk })
+      continue
+    }
     const rect = g && [...g.children].find((c) => c.tagName === 'rect')
     if (rect) {
       const r = rect.getBoundingClientRect()
@@ -320,7 +332,7 @@ const FIT_PROBE = ({ ringIn }) => {
     orbs, boxes,
     rows: {
       making: rectsOf('[data-making-rung] [data-box] > rect'),
-      boxes: rectsOf('svg [data-box] > rect'),
+      boxes: rectsOf('svg [data-box] > rect, svg [data-box] > circle'),
     },
     things: {
       rungs: rectsOf('[data-rung] image'), wizard: rectsOf('image[data-wizard]'), book: rectsOf('[data-book]'),
