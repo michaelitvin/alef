@@ -16,6 +16,7 @@ import { readRollup } from '../../shared/telemetryRollup'
 import { persistedAnswer, saveFailed } from '../../shared/saveStorage'
 import { STAGING_PREFIX } from '../../shared/stagingStorage'
 import { downloadJson } from '../../shared/download'
+import { MigrationCheck } from './DataMigrationCheck'
 import { GAMES } from '../registry'
 import type { GameId, LiveLog } from '../types'
 
@@ -138,6 +139,7 @@ export function DataSection({ game, live }: DataSectionProps) {
         {' · '}kept by the browser: <span data-storage-persisted>{persisted === null ? 'not known' : persisted ? 'yes' : 'no'}</span>
         {storage.failed !== null && <span data-storage-save-failed> · a save failed on this page ({storage.failed})</span>}
       </p>
+      <MigrationCheck />
       <p>
         Period:{' '}
         <label><input type="radio" name="pa-period" data-period="recent" checked={period === 'recent'} onChange={() => setPeriod('recent')} /> last {PERIOD_DAYS} days</label>{' '}

@@ -2,7 +2,8 @@
 // share one localStorage. In the staging build, every localStorage key gets a prefix: a staging session never reads
 // or changes the child's real saves, and new keys on any branch are covered without a change here.
 // Each entry point imports this module first, before any store reads localStorage.
-// A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's.
+// A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's, or with
+// ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts; production ignores both).
 
 import { migrateKeys, type MigrationReport } from './keyMigration'
 import { STAGING_PREFIX } from './stagingPrefix'
@@ -48,8 +49,16 @@ export function copyUnprefixedOver(storage: Storage, prefix: string) {
 export function installStagingStorage(win: Window) {
   let storage: Storage
   try { storage = win.localStorage } catch { return /* no storage: nothing to keep apart */ }
+  let check = false
+  let cleanUrl = ''
   try {
     const url = new URL(win.location.href)
+    if (url.searchParams.has('migrate-check')) {
+      url.searchParams.delete('migrate-check')
+      win.history.replaceState(null, '', url)
+      cleanUrl = url.href
+      check = win.confirm('Run the migration check? It replaces the staging copies of the old saves and logs with copies of production’s, and runs the migration on them. Production is only read.')
+    }
     if (url.searchParams.has('copy-prod')) {
       url.searchParams.delete('copy-prod')
       win.history.replaceState(null, '', url)
@@ -60,7 +69,20 @@ export function installStagingStorage(win: Window) {
   } catch { /* the copy failed part way: staging keeps what it got */ }
   const view = prefixedStorage(storage, STAGING_PREFIX)
   Object.defineProperty(win, 'localStorage', { value: view, configurable: true })
-  runKeyMigration(view)
+  if (check) startMigrateCheck(win, storage, view, cleanUrl)
+  else runKeyMigration(view)
+}
+
+/** Run `?migrate-check` (after the page's view is installed): the saves' steps load on demand, the result is written to
+ * `alef-migration-check` on staging, and the page reloads without the query, so every store reads the migrated keys. */
+function startMigrateCheck(win: Window, storage: Storage, view: Storage, cleanUrl: string) {
+  const reload = () => { try { win.location.replace(cleanUrl) } catch { /* the result is in the Data section at the next visit */ } }
+  void Promise.all([import('./migrateCheck'), import('./migrateCheckSteps')]).then(([{ runMigrateCheck, MIGRATION_CHECK_KEY }, { SAVE_STEPS }]) => {
+    const result = runMigrateCheck(storage, view, SAVE_STEPS)
+    try { view.setItem(MIGRATION_CHECK_KEY, JSON.stringify(result)) } catch { /* no space for the result: the check shows nothing */ }
+    runKeyMigration(view)
+    reload()
+  }, () => { runKeyMigration(view); reload() })
 }
 
 let lastReport: MigrationReport | null = null
