@@ -103,7 +103,7 @@ export function DataSection({ game, live }: DataSectionProps) {
     <div data-telemetry-export>
       <p>
         One file for the games you tick: give it to an AI coding tool with the repository, and it can analyse his play (the
-        file says where the code and the design notes are). The tower’s events are in Spell Quest’s log, marked
+        file says where the code and the design notes are). The tower’s events are in Hebrew Spell Quest’s log, marked
         <code> via: tower</code>.
       </p>
       <div className="pa-wide"><table data-logs style={{ borderCollapse: 'collapse' }}>

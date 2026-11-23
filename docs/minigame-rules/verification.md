@@ -12,7 +12,7 @@
 - Test every drag with real touch events in a headless browser with touch on (CDP `Input.dispatchTouchEvent`), not with
   mouse or synthetic pointer events. Make the stage itself `touch-action: none`: the browser ignores it on inner SVG parts,
   takes the finger as a page pan and cancels the drag.
-  Example (Spell Quest): the cauldron said "throw the vowel in", but on the tablet the orb did not move. The unit tests passed
+  Example (Hebrew Spell Quest): the cauldron said "throw the vowel in", but on the tablet the orb did not move. The unit tests passed
   with synthetic events.
 
 ## Screenshots

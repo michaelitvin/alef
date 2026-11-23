@@ -1,4 +1,4 @@
-// The English course: what Spell Quest's game plays on the English page (`?course=en`, where English is available:
+// The English course: what Spell Quest's game plays on the English page (`spellquest-en/`, where English is available:
 // ./available.ts). `loadCourse('en')` reaches it by dynamic import, so the Hebrew page never loads it. Its audio, log,
 // save and pictures are its own; its stages are logic/stages.ts. The first run's tower is the placement check
 // (logic/tower.ts); after it, the tower plays the English tower's letter and word rounds (logic/tower.ts). The broom plays

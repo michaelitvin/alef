@@ -10,14 +10,14 @@ import { PlayButton } from './PlayButton'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */
 const ORBS: [string, number, number][] = [['בָּ', 58, -18], ['לִ', 46, 16], ['מוּ', 40, -6]]
-const SPELLQUEST_HREF = () => `${import.meta.env.BASE_URL}spellquest/`
+const SPELLQUEST_HREF = () => `${import.meta.env.BASE_URL}spellquest-he/`
 const SPELLQUEST_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
 
 export function SpellQuestCard() {
   const card = useGender() === 'girl' ? cardGirl : cardBoy
   return (
-    <div data-home-part="spellquest">
-      <a className="home-card" href={SPELLQUEST_HREF()} aria-label="spellquest" data-card="spellquest">
+    <div data-home-part="spellquest-he">
+      <a className="home-card" href={SPELLQUEST_HREF()} aria-label="hebrew spell quest" data-card="spellquest-he">
         <img className="home-card-art" src={card} data-card-art={card === cardGirl ? 'girl' : 'boy'} alt="" draggable={false} />
         <div className="home-orbs" aria-hidden>
           {ORBS.map(([t, z, y]) => (
@@ -29,7 +29,7 @@ export function SpellQuestCard() {
         </div>
         <div className="home-pcol"><PlayButton theme="spellquest" /></div>
       </a>
-      <p className="home-learn" data-learn="spellquest"><b>מה לומדים:</b> {SPELLQUEST_LEARN}</p>
+      <p className="home-learn" data-learn="spellquest-he"><b>מה לומדים:</b> {SPELLQUEST_LEARN}</p>
     </div>
   )
 }

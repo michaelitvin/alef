@@ -1,4 +1,4 @@
-// The English page: `?course=en` opens Spell Quest's app on the English course, with its own save, purse, log and play time;
+// The English page: `spellquest-en/` opens Spell Quest's app on the English course, with its own save, purse, log and play time;
 // the Hebrew page stays as it was.
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -25,8 +25,8 @@ describe('the English page', () => {
   beforeEach(() => { localStorage.clear(); clearGender() })
   afterEach(() => { clearGender(); at('/') })
 
-  it('?course=en opens the English cover', async () => {
-    at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />)
+  it('the English page opens the English cover', async () => {
+    at('/spellquest-en/'); render(<SpellQuestApp courseId="en" goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('en')
   })
 
@@ -34,21 +34,21 @@ describe('the English page', () => {
     localStorage.setItem('alef-spellquest', hebrewSaveWith({ coins: 40 }))
     await useSpellQuestStore.persist.rehydrate()
     expect(useSpellQuestStore.getState().coins).toBe(40)
-    at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest-en/'); render(<SpellQuestApp courseId="en" goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).querySelector('[data-coins]')!.textContent).toBe('0')
   })
 
   it('opening English leaves alef-spellquest and alef-progress byte-equal', async () => {
     const spellQuestSave = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-spellquest', spellQuestSave); localStorage.setItem('alef-progress', PROGRESS_RAW)
     await useSpellQuestStore.persist.rehydrate()
-    at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
+    at('/spellquest-en/'); render(<SpellQuestApp courseId="en" goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
     // the tower's import runs on the Hebrew page only
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
     expect(localStorage.getItem('alef-spellquest')).toBe(spellQuestSave); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
   })
 
   it('the English page tracks into its own log', async () => {
-    at('/spellquest/?course=en'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest-en/'); const { container } = render(<SpellQuestApp courseId="en" goHome={() => {}} />)
     fireEvent.click(within(await screen.findByTestId('cover', {}, { timeout: 15000 })).getByLabelText('play'))
     // boy or girl is not set: the play gate asks first
     await waitFor(() => expect(container.querySelector('[data-gender="boy"]')).not.toBeNull())
@@ -59,7 +59,7 @@ describe('the English page', () => {
   }, 60_000)
 
   it('the Hebrew page is the same as before', async () => {
-    at('/spellquest/'); render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest-he/'); render(<SpellQuestApp goHome={() => {}} />)
     expect((await screen.findByTestId('cover', {}, { timeout: 15000 })).getAttribute('data-course')).toBe('he')
     expect(screen.getByTestId('cover').hasAttribute('dir')).toBe(false)
   })

@@ -6,7 +6,7 @@
   {
    "key": "alef-spellquest-telemetry",
    "about": {
-    "game": "Spell Quest (letters and syllables), at /spellquest/. Events with via: \"tower\" come from the tower (its board, src/spellquest/tower/logic/controller.ts); their `visit` is its own visit counter, `run` is Spell Quest's run.",
+    "game": "Hebrew Spell Quest (letters and syllables), at /spellquest-he/. Events with via: \"tower\" come from the tower (its board, src/spellquest/tower/logic/controller.ts); their `visit` is its own visit counter, `run` is Spell Quest's run.",
     "repo": "https://github.com/michaelitvin/alef",
     "docs": [
      "docs/superpowers/specs/2026-10-19-duel-book-2-design.md",

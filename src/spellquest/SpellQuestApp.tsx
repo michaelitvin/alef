@@ -19,10 +19,10 @@ import { useProgressStore } from '../stores/progressStore'
 import type { View } from './controller'
 import { StationCover } from './screens/StationCover'
 import { openScreens, stationFromUrl } from './station'
-import { courseIdFromUrl, loadCourse } from './course'
+import { courseIdFor, loadCourse } from './course'
 import { HEBREW } from './course/hebrew'
 import { CourseProvider } from './course/CourseContext'
-import type { Course } from './course/types'
+import type { Course, CourseId } from './course/types'
 import { ENGLISH_AVAILABLE } from './english/available'
 
 type Screen = 'cover' | 'station' | 'play' | 'summary' | 'parent' | 'gallery' | 'gallery-play' | 'strokes' | 'drawtest' | 'leaving'
@@ -47,12 +47,12 @@ function RotateHint() {
 const ASK_CUES = { boy: 1.17 / VOICE_RATE, girl: 1.73 / VOICE_RATE }
 
 /**
- * The page plays one course: Hebrew, or English with `?course=en` where English is available. The Hebrew course is here
+ * The page plays one course, the one its entry page gives (`spellquest-he/`: Hebrew; `spellquest-en/`: English, where English is available). The Hebrew course is here
  * at once (the page renders as before); the English one loads first (by dynamic import, so the Hebrew page never loads
  * it), then the shell starts with it.
  */
-export default function SpellQuestApp(props: { goHome?: () => void } = {}) {
-  const [id] = useState(() => (typeof location === 'undefined' ? 'he' : courseIdFromUrl(location.search, ENGLISH_AVAILABLE)))
+export default function SpellQuestApp({ courseId = 'he', ...props }: { courseId?: CourseId; goHome?: () => void } = {}) {
+  const [id] = useState(() => courseIdFor(courseId, ENGLISH_AVAILABLE))
   const [course, setCourse] = useState<Course | null>(() => (id === 'he' ? HEBREW : null))
   useEffect(() => {
     let alive = true
@@ -66,7 +66,7 @@ export default function SpellQuestApp(props: { goHome?: () => void } = {}) {
 
 function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome?: () => void }) {
   const { audio, telemetry } = course
-  // a station link from the home screen's path (?station=<screen>, on English ?course=en&station=<screen>): one session
+  // a station link from the home screen's path (?station=<screen>, the same on the English page): one session
   // of that minigame, if it is open for him in the open course's save and stages
   const [station] = useState(() => {
     if (typeof location === 'undefined' || !new URLSearchParams(location.search).has('station')) return null

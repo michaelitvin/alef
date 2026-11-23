@@ -1,4 +1,4 @@
-# English course (`src/english`)
+# English Spell Quest (`src/spellquest/english`)
 
 Reading and spelling with Latin letters, in nine stages, on Spell Quest's engine. It is the English *course*: the engine
 (`src/spellquest`) plays it through the course seam ([ADR 0008](../../../docs/adr/0008-one-engine-two-courses.md),
@@ -6,7 +6,7 @@ Reading and spelling with Latin letters, in nine stages, on Spell Quest's engine
 placement walk, spell book, blend). Design: `docs/superpowers/specs/2026-11-16-english-path-design.md`; plan:
 `docs/superpowers/plans/` (newest English one).
 
-The page is `spellquest/index.html?course=en`. Only `src/spellquest/SpellQuestApp.tsx` and the home's stations import this folder, and
+The page is `spellquest-en/index.html` (Hebrew Spell Quest is `spellquest-he/`; the entry gives the course, not a query: `main.en.tsx` calls `boot('en')`; the old `?course=en` address redirects). Only `src/spellquest/SpellQuestApp.tsx` and the home's stations import this folder, and
 only lazily (`loadCourse`), so the Hebrew page never loads it.
 
 ## Where things are
@@ -22,14 +22,14 @@ only lazily (`loadCourse`), so the Hebrew page never loads it.
 | The save (`alef-english`, made by Spell Quest's store factory) | `store.ts`, `saveFormat.ts`, `savePort.ts` |
 | Telemetry (`alef-english-telemetry`) | `telemetryLog.ts`; the word of an answer is saved with the run's ids (`onRunEnd`) |
 | Voice files and pictures | `assets/audioFiles.ts` (`assets/audio/voice/<id>.mp3`), `assets/images.ts` (`wordPicture`), `assets/img/` (recoloured art), `assets/towerArt.ts` (the green tower) |
-| A station link from home (`?course=en&station=`) and the home's rows | `station.ts`; `src/components/home/englishStations.ts`; `doorsPlayable.ts` (doors wait for a word's picture) |
+| A station link from home (`spellquest-en/?station=`) and the home's rows | `station.ts`; `src/components/home/englishStations.ts`; `doorsPlayable.ts` (doors wait for a word's picture) |
 | The parent's part (the section, units and words, the stage, settings, the off-screen check) | `parent/` |
 | Measuring text at real size (glyph fit) | `measure.ts` |
 
 ## The production gate
 
 English is open on staging, in the dev server and in tests (`available.ts`: `ENGLISH_AVAILABLE`). On production the
-home has no English card, `?course=en` opens Hebrew, and the parent area has no English section, until it is released.
+home has no English card, `spellquest-en/` opens Hebrew, and the parent area has no English section, until it is released.
 
 To release (two edits on `main`, then the ordinary release):
 1. The parent reviews every asset of the stages. Put each reviewed stage in `REVIEWED_STAGES` (`content/ready.ts`).

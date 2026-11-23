@@ -1,4 +1,4 @@
-# Spell Quest (`src/spellquest`)
+# Spell Quest (`src/spellquest`): the engine and Hebrew Spell Quest
 
 The run: a fixed cycle of screens with hearts, coins and the merchant. Terms: [GLOSSARY.md](../../GLOSSARY.md).
 Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) and `2026-11-11-one-duel-design.md`
@@ -19,8 +19,8 @@ Specs: `docs/superpowers/specs/2026-10-19-duel-book-2-design.md` (the screens) a
 | A station link from home (`?station=`) | `station.ts` |
 | The run's pure policies: the merchant's visit, a drawing round, the flight boss, the pass and its hearts (`step(state, event)` returns what the run does; the controller does it), see [ADR 0005](../../docs/adr/0005-run-policies-and-the-sleeper.md) | `policies/*.ts` (a depcruise rule keeps them pure) |
 | The run's seams: the saves it reads and writes, the time it waits on | `savePort.ts` (`storeSavePort`; the gallery reads it through `readOnlySavePort`; `memorySavePort` for tests), `src/shared/sleeper.ts` (`realSleeper`, `instantSleeper`) |
-| The course seam: what the run reads from the course it plays (Hebrew: `course/hebrew.ts`; English: `src/english/course.ts`, loaded by `?course=en`), see [ADR 0008](../../docs/adr/0008-one-engine-two-courses.md) | `course/types.ts` (`Course`), `course/CourseContext.tsx` (`useCourse`; the default is Hebrew) |
-| The spell book (both courses; the Hebrew one is held back on production, `src/shared/hebrewSpell.ts`, see `src/english/README.md`): tiles into boxes, and in English the written form | `policies/spell.ts`, `policies/spellWrite.ts`; `policies/latinRow.ts` is the Latin row rules that drawing (`policies/draw.ts`) and the written spell book share; the course gives the round (`rounds.spellRound`) |
+| The course seam: what the run reads from the course it plays (Hebrew: `course/hebrew.ts`; English: `src/spellquest/english/course.ts`, loaded by the page `spellquest-en/`), see [ADR 0008](../../docs/adr/0008-one-engine-two-courses.md) | `course/types.ts` (`Course`), `course/CourseContext.tsx` (`useCourse`; the default is Hebrew) |
+| The spell book (both courses; the Hebrew one is held back on production, `src/shared/hebrewSpell.ts`, see `src/spellquest/english/README.md`): tiles into boxes, and in English the written form | `policies/spell.ts`, `policies/spellWrite.ts`; `policies/latinRow.ts` is the Latin row rules that drawing (`policies/draw.ts`) and the written spell book share; the course gives the round (`rounds.spellRound`) |
 | Layout numbers the run and the views share | `layout.ts` (`ZOOM_MS`), `broomLayout.ts` (the flight's geometry), `viewTypes.ts`; the controller imports nothing from `components/` (a depcruise rule) |
 
 ## The course seam

@@ -2,6 +2,8 @@
 
 Renamed 2026-11-22: Book 2 is Spell Quest, the first duel is its tower, the English path is its English course; old paths and keys below are history (see ADR 0009).
 
+2026-11-23: two games, Hebrew Spell Quest and English Spell Quest; see the addendum of the rename design (`docs/superpowers/specs/2026-11-22-spell-quest-rename-design.md`). The page picks the course (`spellquest-en/`), not `?course=en`.
+
 The English path (reading with Latin letters) needs the same screens as Book 2: tower, broom, ghosts, cauldron, ladder,
 doors, spell book, drawing, with hearts, coins, the merchant and a stage ladder. The parent wanted one game and one
 reward system (the same wish as [ADR 0002](0002-first-duel-is-book-2s-tower.md)). A second app would copy about 1700 lines
@@ -10,7 +12,7 @@ of `RunController`, its policies, its saves' format and its tests, and every lat
 So `RunController` and the screens stay one engine, and what differs is a `Course` (`src/duel2/course/types.ts`): its
 stages and visit lengths, its content functions (`rounds`), its audio and telemetry, its save, and a few optional
 members for what only one course has. Hebrew is `course/hebrew.ts` (today's modules, unchanged); English is built in
-`src/english/course.ts`, and `?course=en` loads it lazily, so the Hebrew page never imports it.
+`src/spellquest/english/course.ts`, and the page `spellquest-en/` loads it lazily, so the Hebrew page never imports it.
 
 ## The seam's members that are not content functions
 

@@ -16,10 +16,10 @@ export default function EnglishSettingsSection({ goTo }: SectionProps) {
   const range = useNumberRange()
   const set = (p: Partial<EnglishSettings>) => { englishSavePort().setSettings(p); englishTelemetry.track('settings', { keys: Object.keys(p), ...p }) }
   return (
-    <div data-english-settings>
-      <h3>The English path</h3>
+    <div data-spellquest-en-settings>
+      <h3>English Spell Quest</h3>
       <p>
-        <label><input type="checkbox" data-setting-path checked={settings.path !== false} onChange={(e) => set({ path: e.target.checked })} /> The English path on the home screen</label>
+        <label><input type="checkbox" data-setting-path checked={settings.path !== false} onChange={(e) => set({ path: e.target.checked })} /> English Spell Quest’s path on the home screen</label>
       </p>
       <p>
         <label><input type="checkbox" data-setting-drawing checked={!!settings.drawing} onChange={(e) => set({ drawing: e.target.checked })} /> Drawing screens in the game</label>
@@ -43,7 +43,7 @@ export default function EnglishSettingsSection({ goTo }: SectionProps) {
       <OffScreenCheck />
       <h3>Telemetry</h3>
       <p>
-        Export or clear the English path’s event log in{' '}
+        Export or clear English Spell Quest’s event log in{' '}
         <button type="button" data-goto-data onClick={() => goTo('data')}>Data</button>.
       </p>
     </div>

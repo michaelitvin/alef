@@ -22,12 +22,12 @@
 ## Rewards
 
 - Give rewards at several paces: points for each answer (the run), a count that is kept between plays and only grows
-  (Spell Quest: all his stars), and a rare prize (a crystal per lap). Spending money is a different thing: it goes up and down.
+  (Hebrew Spell Quest: all his stars), and a rare prize (a crystal per lap). Spending money is a different thing: it goes up and down.
   Example (tower): each right answer pays coins (more for a streak), and he spends them at the merchant, so the stars
   are the count that only grows.
 - Let the child see what he collects. Show the points of the run in the top bar, the run and his best at the end, and
   all his points so far on the start screen. Digits are allowed; mark them for the no-text scan.
-  Example (Spell Quest): the child asked "where can I see my points?". The crystals were a moment only; now the start screen
+  Example (Hebrew Spell Quest): the child asked "where can I see my points?". The crystals were a moment only; now the start screen
   shows them by kind.
 - Celebrate big wins and streaks with voice and a visual effect. Give each reward its own moment. Show a progress reward
   in its own moment (when it grows, at the end of a session, on the start screen), with a voice line, not as a silent

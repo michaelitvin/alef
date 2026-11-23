@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { courseIdFromUrl } from './index'
+import { courseIdFor } from './index'
 import { HEBREW } from './hebrew'
 import { cycleOf } from '../logic/run'
 import { screensOfStage } from '../logic/stages'
@@ -7,11 +7,10 @@ import { spellQuestTelemetry } from '../telemetry'
 import { SPELLQUEST_LOG } from '../telemetryLog'
 
 describe('the course', () => {
-  it('?course=en picks English only where it is available', () => {
-    expect(courseIdFromUrl('?course=en', true)).toBe('en')
-    expect(courseIdFromUrl('?course=en', false)).toBe('he')
-    expect(courseIdFromUrl('?station=broom', true)).toBe('he')
-    expect(courseIdFromUrl('', true)).toBe('he')
+  it('the English page plays English only where it is available', () => {
+    expect(courseIdFor('en', true)).toBe('en')
+    expect(courseIdFor('en', false)).toBe('he')
+    expect(courseIdFor('he', true)).toBe('he')
   })
   it("the Hebrew course is today's modules", () => {
     expect(HEBREW.stages.screensOfStage).toBe(screensOfStage)

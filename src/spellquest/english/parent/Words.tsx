@@ -39,7 +39,7 @@ export default function Words() {
   const tally = (w: EnWord): Tally | undefined => sum(byMark?.[w.id], tallies[`w:${w.id}`])
   const real = WORDS.filter((w) => w.kind !== 'nonsense')
   return (
-    <div data-english-words>
+    <div data-spellquest-en-words>
       <h3>Words</h3>
       <p>“Alone” counts the answers he gave without the hint; “with the hint” the ones after it blended the word.</p>
       <Table title="Words" words={real} tally={tally} />

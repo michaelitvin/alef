@@ -40,3 +40,4 @@ keys, the frozen log, and the field names inside the saves.
 - The old names stay in the old ADRs, in the specs and plans, and in the git history. They are history, not errors. Each
   affected ADR has a note that says so.
 - Old links to `duel2/` keep working.
+- 2026-11-23: two games, Hebrew Spell Quest and English Spell Quest; see the addendum of the rename design (`docs/superpowers/specs/2026-11-22-spell-quest-rename-design.md`).

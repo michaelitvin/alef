@@ -10,15 +10,15 @@
   have a native reviewer (a person, or a model told to act as an Israeli kindergarten teacher) check each line in its
   sequence and its nikkud.
   Reason: the parent found the instructions "unnatural and out of place" in every game.
-  Example (Spell Quest): "תִּתְפֹּס אֶת מָה שֶׁתִּשְׁמַע." + [בָּ] became "אֵיפֹה כָּתוּב..." + [בָּ]; "the word on the gate" for a door became
+  Example (Hebrew Spell Quest): "תִּתְפֹּס אֶת מָה שֶׁתִּשְׁמַע." + [בָּ] became "אֵיפֹה כָּתוּב..." + [בָּ]; "the word on the gate" for a door became
   "מָה כָּתוּב עַל הַדֶּלֶת?"; the dotted-letter introduction says "בְּלִי נְקֻדָּה..." + [וָ], "וְעִם נְקֻדָּה..." + [בָּ].
 - Let a line that a sound follows lead into it. The speaker says "what I say", not "what you will hear". Do not end it
   with "…": the voice made a moan at the end. End it with ":" or "." and listen to the end of each take.
-  Example (Spell Quest): "בְּלִי נְקֻדָּה..." was "too moany". The plain spelling "ועם נקודה" was read "ve'en" (ואין, the opposite):
+  Example (Hebrew Spell Quest): "בְּלִי נְקֻדָּה..." was "too moany". The plain spelling "ועם נקודה" was read "ve'en" (ואין, the opposite):
   keep nikkud on a word that the plain spelling makes ambiguous.
 - Make sure each line is correct in its context, and that its feeling agrees with the moment.
   Example (tower): "המגדל נפל. כל הכבוד" praised the child for a loss. The first "כִּמְעַט" sounded disappointed; it must encourage.
-  Example (Spell Quest): "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל" was wrong: the coins are not worth more, he gets more coins. The line is
+  Example (Hebrew Spell Quest): "הַמַּטְבְּעוֹת שֶׁלְּךָ שָׁוִים כָּפוּל" was wrong: the coins are not worth more, he gets more coins. The line is
   now "עַכְשָׁו כָּל תְּשׁוּבָה נְכוֹנָה נוֹתֶנֶת פִּי שְׁנַיִם מַטְבְּעוֹת".
 - A line must not point at a thing that is not on the screen ("this", "here", "that one"). If the thing is not shown
   yet, name it. Example (clock): a customer said "אַתָּה יוֹדֵעַ אֵיךְ מְכַוְּנִים אֶת זֶה?" before its clock was on the bench;
@@ -37,7 +37,7 @@
   Example (tower): the boss line said "3 spells". Then the boss got 8 hit points.
 - Do not use game or technical words. Say what happens.
   Example (tower): "wave" and "combo" were removed. "עוד מפלצות בדרך" replaced the wave line.
-- Use the full name of a thing when its short name has another meaning. Example (Spell Quest): רוּחַ alone is "wind"; the
+- Use the full name of a thing when its short name has another meaning. Example (Hebrew Spell Quest): רוּחַ alone is "wind"; the
   ghosts are רוּחוֹת רְפָאִים.
 - In a bilingual game, keep the child in one language for a block of questions (the non-English language first), then
   change. Do not switch the language at every question. Example (clock): a workday is 4 Hebrew customers, then 4 English.

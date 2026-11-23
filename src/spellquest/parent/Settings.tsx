@@ -29,7 +29,7 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
   )
   return (
     <div data-spellquest-settings>
-      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower alone; Spell Quest’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
+      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower alone; the minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       {s.screensOpen === false && (
         <p data-open-book>
           <label>

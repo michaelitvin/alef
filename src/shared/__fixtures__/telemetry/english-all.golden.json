@@ -6,7 +6,7 @@
   {
    "key": "alef-english-telemetry",
    "about": {
-    "game": "Spell Quest, the English path (English letters, sounds and words), at /spellquest/?course=en: Spell Quest's run on the English course. Events with via: \"tower\" come from the tower; `run` is the English run.",
+    "game": "English Spell Quest (English letters, sounds and words), at /spellquest-en/: Spell Quest's run on the English course. Events with via: \"tower\" come from the tower; `run` is the English run.",
     "repo": "https://github.com/michaelitvin/alef",
     "docs": [
      "docs/superpowers/specs/2026-11-16-english-path-design.md",

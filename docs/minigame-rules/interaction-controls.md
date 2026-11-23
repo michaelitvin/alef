@@ -6,9 +6,9 @@
   covers nothing. Keep the content area below the top bar: start the game area under the bar, and do not let content
   go up into it.
   Example (clock): the hint button under the gear counter covered the question; now it is in the top bar beside the gears.
-  Example (Spell Quest): on a phone on its side the ladder's top plates went under the coins and the stars; now the stage
+  Example (Hebrew Spell Quest): on a phone on its side the ladder's top plates went under the coins and the stars; now the stage
   starts below the bar on every screen.
-- Make the go-on button of an explanation large and glowing, and put it where the explanation leaves room (Spell Quest: at the
+- Make the go-on button of an explanation large and glowing, and put it where the explanation leaves room (Hebrew Spell Quest: at the
   bottom). Check at phone size that it covers nothing he must see.
 
 ## The way home and the parent gate
@@ -22,7 +22,7 @@
     screen in the same corner. The hold keeps it safe next to the speaker.
   Reason: a plain home button takes the child out by mistake, and with no way out at all the parent cannot leave a run.
   Alef's home screen is the hub of all the games, and one way home is one thing to learn.
-  Example (Spell Quest): a home button next to "play again" took the child to the old tower twice; he did not know what he
+  Example (Hebrew Spell Quest): a home button next to "play again" took the child to the old tower twice; he did not know what he
   pressed. The parent asked for the house on the left, not in the right corner after the counts.
   Example (clock): a plain-tap home button went back to the clock's own door; the parent: "make consistent between games".
 - Every way into a parent screen (settings, progress, export, developer tools) must need a 2 s hold and then the
@@ -39,7 +39,7 @@
   Example (clock): Set the clock had no way to hear the time again, and the time caption in Find the clock played on a tap
   with no speaker; now each has a speaker, and so has each explanation.
 - Make the hint button a question mark. Do not use a symbol that the child must learn first, such as a wand.
-  Reason: a child knows the question mark as "help"; he did not know what the wand did (Spell Quest).
+  Reason: a child knows the question mark as "help"; he did not know what the wand did (Hebrew Spell Quest).
 - On a screen that a walkthrough teaches, give one help button (the question mark) that plays the walkthrough again.
   Do not add a second help button or a speaker for the last line there. Let the replay keep the state of the task, and let
   a touch on an answer end it.
@@ -48,7 +48,7 @@
 - Use the play triangle for every go-on and next button. Point it in the direction of the motion that the child sees.
   A path that goes right to left takes a triangle that points left; a scene where the wizard flies to the right takes a
   triangle that points right. With no motion, follow the reading direction (right to left).
-  Example: the home screen's path runs right to left, so its play buttons point left; inside Spell Quest the wizard flies to
+  Example: the home screen's path runs right to left, so its play buttons point left; inside Hebrew Spell Quest the wizard flies to
   the right, so its play and next buttons point right.
 - Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
 - Let the action itself be the answer. Do not add a button to confirm or to say yes.
