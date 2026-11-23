@@ -14,7 +14,7 @@
 // again (nothing may change), then the half-done case (one old key put back, no marker; it must resume to the same result).
 // The expected value of a save is built from this file's OWN table of old and new field paths, never from the migration's
 // map, so a wrong map in the migration fails here.
-import { migrateKeys, MIGRATIONS_KEY } from './keyMigration'
+import { migrateKeys, MIGRATIONS_KEY, STEP_TWO_NAMES } from './keyMigration'
 import { STAGING_PREFIX } from './stagingPrefix'
 import { decodeChunk } from './telemetryCodec'
 import { isChunkKey, ownsKey, parseOpen } from './telemetryChunks'
@@ -34,13 +34,19 @@ export interface CheckRow {
   detail?: string
 }
 export type CheckVerdict = 'pass' | 'fail' | 'already' | 'no-space'
-export interface CheckResult { v: 1; at: number; verdict: CheckVerdict; message?: string; rows: CheckRow[] }
+/** `v: 2` and `step`: the migration step the check ran (an older result, of an older step, is never shown as current) */
+export interface CheckResult { v: 2; step: string; at: number; verdict: CheckVerdict; message?: string; rows: CheckRow[] }
 
 export function readCheckResult(storage: Storage): CheckResult | null {
   try {
     const d = JSON.parse(storage.getItem(MIGRATION_CHECK_KEY) ?? 'null') as CheckResult | null
-    return d && d.v === 1 && Array.isArray(d.rows) ? d : null
+    return d && d.v === 2 && d.step === STEP_TWO_NAMES && Array.isArray(d.rows) ? d : null
   } catch { return null }
+}
+
+/** a result is stored, but of an older check (an older step): it is not shown as current */
+export function staleCheckResult(storage: Storage): boolean {
+  try { return storage.getItem(MIGRATION_CHECK_KEY) !== null && readCheckResult(storage) === null } catch { return false }
 }
 
 /** a save's version step and its current version, given in by migrateCheckSteps.ts */
@@ -145,7 +151,7 @@ export interface CheckSnapshots {
 
 // ---- the run
 export function runMigrateCheck(prod: Storage, staging: Storage, steps: Record<string, SaveStep>, now = Date.now(), snap: CheckSnapshots = {}): CheckResult {
-  const done = (verdict: CheckVerdict, rows: CheckRow[], message?: string): CheckResult => ({ v: 1, at: now, verdict, rows, ...(message ? { message } : {}) })
+  const done = (verdict: CheckVerdict, rows: CheckRow[], message?: string): CheckResult => ({ v: 2, step: STEP_TWO_NAMES, at: now, verdict, rows, ...(message ? { message } : {}) })
   const prodKeys = keysOf(prod).filter((k) => !k.startsWith(STAGING_PREFIX))
   const isOld = (k: string) => isOldLogKey(k) || FROZEN.some((f) => f.old === k) || SAVES.some((v) => v.oldKey === k && v.oldKey !== v.newKey)
   if (!prodKeys.some(isOld)) return done('already', [], 'production is already migrated: nothing to check')

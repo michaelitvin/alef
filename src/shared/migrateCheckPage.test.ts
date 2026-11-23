@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { showCheckEnd, snapshotName } from './migrateCheckPage'
 import type { CheckResult } from './migrateCheck'
 
-const RESULT: CheckResult = { v: 1, at: 1, verdict: 'fail', rows: [
+const RESULT: CheckResult = { v: 2, step: 'spellquest-two-names', at: 1, verdict: 'fail', rows: [
   { key: 'alef-spellquest-he', moved: true, content: true, counts: null },
   { key: 'alef-spellquest-en', moved: false, content: false, counts: null, detail: 'the new key is missing' },
 ] }

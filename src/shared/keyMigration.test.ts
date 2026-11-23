@@ -415,6 +415,73 @@ describe('migrateKeys: the two names (-he, -en) from every earlier name', () => 
     })
   })
 
+  describe('both older Hebrew generations come back after the step is done', () => {
+    it('they conflict: all three keys stay, the conflict is reported, the store reads -he, nothing is deleted', () => {
+      const s = new FakeStorage()
+      s.setItem(Q, SAVE); migrateKeys(s)
+      const NEWER = JSON.stringify({ state: { stars: 8 }, version: 9 })
+      s.setItem(H, NEWER)
+      s.setItem(Q, JSON.stringify({ state: { stars: 7 }, version: 7 }))
+      s.setItem(D, JSON.stringify({ state: { stars: 6 }, version: 5 }))
+      const before = s.snapshot()
+      const r = migrateKeys(s).steps[0]!
+      expect(r.status).toBe('conflict')
+      expect(r.keys.some((k) => k.status === 'conflict')).toBe(true)
+      expect(saveKeyFor(s, H)).toBe(H)
+      expect(s.getItem(H)).toBe(NEWER)
+      expect(s.getItem(Q)).toBe(before[Q])
+      expect(s.getItem(D)).toBe(before[D])
+    })
+  })
+
+  describe('two old roll-ups of one log (an old page of each older build)', () => {
+    const item = (n: number) => ({ n, wrong: 0, near: 0, special: 0, hints: 0, replays: 0, ms: [n], chosen: {} })
+    const day = (n: number) => ({ minutes: n, runs: [], abandons: {}, items: { a: item(n) } })
+    const tomb = (base: string, id: string, at: number) => ({ k: `${base}~${id}~sz-telemetry`, s: 'sz', t0: 1, t1: 2, n: 1, at })
+    const roll = (base: string, ids: string[], n: number, at = 5) =>
+      JSON.stringify({ v: 1, folded: ids.map((i) => tomb(base, i, at)), dropped: 1, days: { '2026-11-01': day(n) }, tails: { sz: n } })
+    const BACKUP = 'alef-spellquest-he~sum-old-telemetry'
+
+    it('different chunks: merged (tombstones united, tallies summed); the step completes and stays done', () => {
+      const s = new FakeStorage()
+      s.setItem(rollupKey('alef-duel2-telemetry'), roll('alef-duel2', ['aaa'], 3))
+      s.setItem(rollupKey('alef-spellquest-telemetry'), roll('alef-spellquest', ['bbb'], 4))
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      const m = JSON.parse(s.getItem(rollupKey('alef-spellquest-he-telemetry'))!)
+      expect(m.folded.map((t: { k: string }) => t.k).sort()).toEqual(['alef-spellquest-he~aaa~sz-telemetry', 'alef-spellquest-he~bbb~sz-telemetry'])
+      expect(m.days['2026-11-01'].items.a.n).toBe(7)
+      expect(m.dropped).toBe(2)
+      expect(s.getItem(rollupKey('alef-duel2-telemetry'))).toBeNull()
+      expect(s.getItem(rollupKey('alef-spellquest-telemetry'))).toBeNull()
+      expect(s.getItem(BACKUP)).toBeNull()
+      const kept = s.snapshot()
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(s.snapshot()).toEqual(kept)
+    })
+
+    it('the same chunk folded in both: the newer stays, the other is kept under a key nothing reads; the step completes', () => {
+      const s = new FakeStorage()
+      const older = roll('alef-duel2', ['aaa'], 3, 5)
+      const newer = roll('alef-spellquest', ['aaa', 'ccc'], 9, 8)
+      s.setItem(rollupKey('alef-duel2-telemetry'), older)
+      s.setItem(rollupKey('alef-spellquest-telemetry'), newer)
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      const kept = JSON.parse(s.getItem(rollupKey('alef-spellquest-he-telemetry'))!)
+      expect(kept.days['2026-11-01'].items.a.n).toBe(9)
+      expect(JSON.parse(s.getItem(BACKUP)!).days['2026-11-01'].items.a.n).toBe(3)
+      expect(s.getItem(rollupKey('alef-duel2-telemetry'))).toBeNull()
+    })
+
+    it('English: two roll-ups on the new key and an old one also complete the step', () => {
+      const s = new FakeStorage()
+      s.setItem(rollupKey('alef-english-telemetry'), roll('alef-english', ['aaa'], 2))
+      migrateKeys(s)
+      s.setItem(rollupKey('alef-english-telemetry'), roll('alef-english', ['bbb'], 5))
+      expect(migrateKeys(s).steps[0]!.status).toBe('done')
+      expect(JSON.parse(s.getItem(rollupKey('alef-spellquest-en-telemetry'))!).days['2026-11-01'].items.a.n).toBe(7)
+    })
+  })
+
   describe('a stale page of an older build writes its old key after the new step is done', () => {
     const LATE = JSON.stringify({ state: { stars: 7 }, version: 7 })
     const done = () => { const s = new FakeStorage(); s.setItem(Q, SAVE); migrateKeys(s); return s }

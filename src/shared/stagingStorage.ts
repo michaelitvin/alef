@@ -7,7 +7,7 @@
 // ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts; production ignores both).
 
 import { downloadJson } from './download'
-import { migrateKeys, type MigrationReport } from './keyMigration'
+import { migrateKeys, STEP_TWO_NAMES, type MigrationReport } from './keyMigration'
 import type { CheckResult, CheckSnapshots } from './migrateCheck'
 import { STAGING_PREFIX } from './stagingPrefix'
 export { STAGING_PREFIX }
@@ -110,7 +110,7 @@ function startMigrateCheck(storage: Storage, view: Storage, cleanUrl: string, re
     try {
       result = runMigrateCheck(storage, view, SAVE_STEPS, Date.now(), snap)
     } catch (e) { // a bug in the check: a FAIL with its message, never a blank page
-      result = { v: 1, at: Date.now(), verdict: 'fail', message: `the check stopped: ${e instanceof Error ? e.message : String(e)}`, rows: [] }
+      result = { v: 2, step: STEP_TWO_NAMES, at: Date.now(), verdict: 'fail', message: `the check stopped: ${e instanceof Error ? e.message : String(e)}`, rows: [] }
     }
     try { view.setItem(MIGRATION_CHECK_KEY, JSON.stringify(result)) } catch { /* no space for the result: the end page still shows it */ }
     runKeyMigration(view)

@@ -1,4 +1,4 @@
-// The course the page plays, for the screens: SpellQuestApp provides it (Hebrew, or English with `?course=en`). A screen
+// The course the page plays, for the screens: SpellQuestApp provides it (the page decides the course: Hebrew Spell Quest or English Spell Quest). A screen
 // rendered without a provider plays the Hebrew course, as before the seam.
 import { createContext, useContext } from 'react'
 import { HEBREW } from './hebrew'

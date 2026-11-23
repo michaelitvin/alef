@@ -25,13 +25,14 @@
 //   1. `alef-duel2` and `alef-spellquest` both there: `alef-duel2` is a late write of a page of the first build's
 //      predecessor (the first build moved it). It moves over `alef-spellquest` when that one is unchanged since the first
 //      build's move (`fp['alef-spellquest']`); else both stay, a conflict, and the Hebrew save goes no further this load
-//      (`alef-spellquest` does not move on: the conflict stays visible and nothing is decided against the child's save,
-//      and the store goes on reading `alef-spellquest`, as the first build did). With no `alef-spellquest`,
+//      (`alef-spellquest` does not move on: all three keys stay, the conflict shows in the Data section and nothing is
+//      decided against the child's save; the store reads `-he` when it exists, else `alef-spellquest`). With no `alef-spellquest`,
 //      `alef-duel2` resolves against `alef-spellquest-he` the same way (or moves to it when it is not there).
 //   2. Then `alef-spellquest` resolves against `alef-spellquest-he` (`fp['alef-spellquest-he']`).
 // So a late write of either older build wins over a new save that nobody changed since its move, and two changes that
 // cannot be ordered are never merged or dropped: both stay and the Data section reports them.
-import { chunkKey, chunkT0, dropSealedCopies, isChunkKey, ownsKey, parseOpen, rollupKey, type DecodedChunk } from './telemetryChunks'
+import { chunkKey, chunkT0, dropSealedCopies, isChunkKey, ownsKey, parseOpen, rollupKey, tombsIn, type DecodedChunk } from './telemetryChunks'
+import { mergeRollups, type Rollup } from './telemetryRollup'
 import { decodeChunk, encodeChunk } from './telemetryCodec'
 import { SPELLQUEST_EN_SAVE_KEY, SPELLQUEST_HE_SAVE_KEY, TOWER_HISTORY_LOG_KEY, OLD_TOWER_HISTORY_LOG_KEY } from './saveKeys'
 import type { TelemetryEvent } from './telemetry'
@@ -156,6 +157,53 @@ function moveSave(s: Storage, m: Move): Key {
   setFingerprint(s, m.to, fingerprint(old))
   remove(s, m.from)
   return out('moved')
+}
+
+/**
+ * A roll-up: as `moveKey`, and when the new roll-up exists too and differs (two older builds each wrote one), a roll-up is
+ * a summary, so the two are merged (`mergeRollups`). When they cannot be merged exactly (both folded the same chunk), the
+ * newer one stays under the new name and the other goes to `<base>~sum-old-telemetry` (nothing reads it, nothing is lost).
+ * Either way the step can complete.
+ */
+function moveRollup(s: Storage, m: Move): Key {
+  const out = (status: KeyStatus): Key => ({ from: m.from, to: m.to, status })
+  const old = get(s, m.from)
+  const cur = get(s, m.to)
+  if (old === null || cur === null) return moveKey(s, m)
+  const want = convert(m, old)
+  if (cur === want) return moveKey(s, m)
+  let a: Rollup, b: Rollup
+  try {
+    a = parseRollup(cur); b = parseRollup(want)
+  } catch { return out('conflict') } // does not parse: both stay
+  const merged = mergeRollups(a, b)
+  let keep: string, spare: string | null
+  if (merged) { keep = JSON.stringify(merged); spare = null } else {
+    const newest = (r: Rollup) => Math.max(0, ...r.folded.map((t) => t.at))
+    ;[keep, spare] = newest(b) > newest(a) ? [want, cur] : [cur, want]
+  }
+  let backup: string | null = null
+  if (spare !== null) {
+    const base = m.to.slice(0, -'~sum-telemetry'.length)
+    for (let i = 1; backup === null; i++) {
+      const k = `${base}~sum-old${i > 1 ? i : ''}-telemetry`
+      const have = get(s, k)
+      if (have === null || have === spare) backup = k
+    }
+    try { s.setItem(backup, spare) } catch { remove(s, backup); return out('waiting-space') }
+    if (get(s, backup) !== spare) return out('waiting-space')
+  }
+  if (keep !== cur) {
+    try { s.setItem(m.to, keep) } catch { return out('waiting-space') } // a failed setItem keeps the old value
+    if (get(s, m.to) !== keep) { try { s.setItem(m.to, cur) } catch { /* the value it had */ } return out('waiting-space') }
+  }
+  remove(s, m.from)
+  return out('moved')
+}
+function parseRollup(raw: string): Rollup {
+  const r = JSON.parse(raw) as Rollup | null
+  if (!r || r.v !== 1 || !Array.isArray(r.folded) || !r.days || typeof r.days !== 'object') throw new Error('not a roll-up')
+  return { ...r, folded: tombsIn(r.folded), tails: r.tails ?? {} }
 }
 
 /**
@@ -319,7 +367,7 @@ export function migrateKeys(storage: Storage): MigrationReport {
     else {
       steps.push(runStep(storage, STEP_TWO_NAMES, [
         ...GAMES.map((g) => () => moveSaves(storage, g)), () => movePlaytime(storage),
-        ...twoNamesLogMoves(allKeys(storage)).map((m) => () => (m.kind === 'open' ? moveOpen(storage, m) : moveKey(storage, m))),
+        ...twoNamesLogMoves(allKeys(storage)).map((m) => () => (m.kind === 'open' ? moveOpen(storage, m) : m.kind === 'rollup' ? moveRollup(storage, m) : moveKey(storage, m))),
       ]))
     }
     if (done.includes(STEP_TOWER)) steps.push({ id: STEP_TOWER, status: 'done', keys: [] })

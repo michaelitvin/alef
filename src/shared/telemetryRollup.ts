@@ -145,6 +145,24 @@ function mergeDay(into: DayStats, d: DayStats) {
   }
 }
 
+/**
+ * Two roll-ups of one log (an older page wrote its roll-up again next to the new one) as one, or null when that cannot
+ * be done exactly: when both hold a tombstone of the same chunk, that chunk's tallies are in both and cannot be told
+ * apart. Else the tombstones are united, the tallies summed per day and item, the tails kept at their latest.
+ */
+export function mergeRollups(a: Rollup, b: Rollup): Rollup | null {
+  const keys = new Set(a.folded.map((t) => t.k))
+  if (b.folded.some((t) => keys.has(t.k))) return null
+  const out = emptyRollup()
+  out.folded = [...a.folded, ...b.folded]
+  out.dropped = (a.dropped || 0) + (b.dropped || 0)
+  for (const r of [a, b]) {
+    for (const [day, d] of Object.entries(r.days)) mergeDay((out.days[day] ??= emptyDay()), d)
+    for (const [s, t] of Object.entries(r.tails ?? {})) out.tails[s] = Math.max(out.tails[s] ?? t, t)
+  }
+  return out
+}
+
 /** Fold days older than ROLLUP_DAYS (before `now`) into their ISO weeks, in place. */
 export function foldOldDays(r: Rollup, now = Date.now()) {
   const cut = dayOf(now - ROLLUP_DAYS * 86_400_000)

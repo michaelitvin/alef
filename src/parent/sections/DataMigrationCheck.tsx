@@ -1,7 +1,7 @@
 // The Data section's migration check: the result of `?migrate-check` on staging (PASS or FAIL, one row per key, the date)
 // and the state of the key migration on this page (a step that waits for space or has a conflict). Nothing shows on
 // production, where there is no result and the migration is done. The parent area is behind the gate already.
-import { readCheckResult, type CheckRow } from '../../shared/migrateCheck'
+import { readCheckResult, staleCheckResult, type CheckRow } from '../../shared/migrateCheck'
 import { lastMigrationReport } from '../../shared/stagingStorage'
 
 const yn = (v: boolean | null) => (v === null ? '-' : v ? 'yes' : 'NO')
@@ -21,7 +21,8 @@ function waiting(): string[] {
 export function MigrationCheck() {
   const result = readCheckResult(window.localStorage)
   const notes = waiting()
-  if (!result && notes.length === 0) return null
+  const older = !result && staleCheckResult(window.localStorage)
+  if (!result && !older && notes.length === 0) return null
   const date = result ? new Date(result.at).toISOString().replace('T', ' ').slice(0, 16) : ''
   const verdict = result?.verdict === 'pass' ? 'PASS' : result?.verdict === 'fail' ? 'FAIL' : null
   return (
@@ -53,6 +54,7 @@ export function MigrationCheck() {
           </tbody>
         </table></div>
       )}
+      {older && <p data-migration-none>No migration check yet for this version. To run one, open staging with ?migrate-check.</p>}
       {notes.map((n) => <p key={n} data-migration-waiting>{n}</p>)}
     </div>
   )

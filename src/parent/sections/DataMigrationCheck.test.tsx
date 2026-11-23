@@ -12,7 +12,7 @@ import { MIGRATION_CHECK_KEY, type CheckResult } from '../../shared/migrateCheck
 
 const AT = Date.UTC(2026, 10, 23, 9, 30)
 const result = (over: Partial<CheckResult>): CheckResult => ({
-  v: 1, at: AT, verdict: 'pass', rows: [
+  v: 2, step: 'spellquest-two-names', at: AT, verdict: 'pass', rows: [
     { key: 'alef-spellquest-he', moved: true, content: true, counts: null },
     { key: 'alef-spellquest-he-telemetry: whole log, 7 events', moved: null, content: true, counts: true },
   ], ...over,
@@ -24,6 +24,21 @@ describe('the migration check in the Data section', () => {
 
   it('shows nothing without a result (production)', () => {
     expect(render(<MigrationCheck />).container.innerHTML).toBe('')
+  })
+
+  it('an older check result (v1, the first rename) is never shown as PASS; it says that no check ran for this version', () => {
+    localStorage.setItem(MIGRATION_CHECK_KEY, JSON.stringify({ v: 1, at: AT, verdict: 'pass', rows: [{ key: 'alef-spellquest', moved: true, content: true, counts: null }] }))
+    const { container } = render(<MigrationCheck />)
+    expect(container.querySelector('[data-migration-verdict]')).toBeNull()
+    expect(container.textContent).toContain('No migration check yet for this version')
+    expect(container.textContent).toContain('?migrate-check')
+  })
+
+  it('a v2 result of another step is not shown either', () => {
+    store({ ...result({}), step: 'spellquest-rename' })
+    const { container } = render(<MigrationCheck />)
+    expect(container.querySelector('[data-migration-verdict]')).toBeNull()
+    expect(container.textContent).toContain('No migration check yet')
   })
 
   it('PASS: the verdict, one row per key, the date', () => {
