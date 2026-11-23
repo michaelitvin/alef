@@ -72,3 +72,7 @@
   Reason: the portrait layout shrunk into a phone on its side made the planets too small to tap.
 - Make the background fill the whole screen on any shape of screen. Keep the game area fixed and extend the background
   around it. Example (Hebrew Spell Quest): wide phones showed black bars on both sides.
+- Show what the child's move does, in the place where it happens. Do not replace a picked part with a new object in
+  one step. Example (Spell Quest ladder): the letter plate disappeared and a whole-word rung appeared, and the child did
+  not see that one letter changed the word. Now the letter flies into its box, the old letter drops out, and the row
+  becomes the rung. Also do not offer the part that goes out as a choice: a child who cannot read matches it.
