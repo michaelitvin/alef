@@ -4238,6 +4238,42 @@
    ]
   },
   {
+   "id": "exp-fix-toAsPast-en",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-fix-toAsPast-en.mp3",
+   "where": "After repeated mistakes: a 'to' time read as 'past' the next hour",
+   "caption": "Quarter to four is before four. It is three, not four: the short hand is almost on the four, and the long hand is on the nine.",
+   "take": "clips/exp-fix-toAsPast-en/v1.mp3",
+   "request": {
+    "text": "[playful] Quarter to four is before four. It is three, not four: the short hand is almost on the four, and the long hand is on the nine.",
+    "model_id": "eleven_v4",
+    "language_code": "en",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "exp-fix-toAsPast-he",
+   "kind": "tts",
+   "file": "src/clock/assets/audio/voice/exp-fix-toAsPast-he.mp3",
+   "where": "After repeated mistakes: a 'to' time read as 'past' the next hour",
+   "caption": "רֶבַע לְאַרְבַּע זֶה לִפְנֵי אַרְבַּע. הַשָּׁעָה הִיא שָׁלוֹשׁ, לֹא אַרְבַּע: הַמָּחוֹג הַקָּצָר כִּמְעַט עַל אַרְבַּע, וְהַמָּחוֹג הָאָרוֹךְ עַל תֵּשַׁע.",
+   "take": "clips/exp-fix-toAsPast-he/v1.mp3",
+   "request": {
+    "text": "[playful] רבע לארבע זה לפני ארבע. השעה היא שלוש, לא ארבע: המחוג הקצר כמעט על ארבע, והמחוג הָאָרוֹךְ על תשע.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 0
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
    "id": "exp-hands-en",
    "kind": "tts",
    "file": "src/clock/assets/audio/voice/exp-hands-en.mp3",
