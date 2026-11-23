@@ -4,7 +4,7 @@ Code that two or more games use. A game may import from here. Code here never im
 
 | Module | What it gives |
 | --- | --- |
-| `stagingStorage.ts` | The `staging:` prefix on every save in the staging build, and `?copy-prod`. Every entry point imports it first ([ADR 0001](../../docs/adr/0001-staging-shares-the-origin.md)). |
+| `stagingStorage.ts` | The `staging:` prefix on every save in the staging build, `?copy-prod`, and `?export-prod` (one JSON file with every real key, byte-exact; staging only, writes nothing). Every entry point imports it first ([ADR 0001](../../docs/adr/0001-staging-shares-the-origin.md)). |
 | `keyMigration.ts` | The one-time move of the old keys to the Spell Quest names (design 2026-11-22, ADR 0009); every page runs it through `stagingStorage`, and it moves again what a stale old-build page writes after it. `saveKeyFor` is where a save store reads and writes while the save's move waits for space. |
 | `adaptive.ts` | Desirable difficulty: `predictedMistakeRate`, `pickNearTarget`, `pushRecent`, `Tally` |
 | `gameAudio/` | A game's audio ([ADR 0003](../../docs/adr/0003-audio-through-a-player-port.md)). `kit.ts`: `createGameAudio({ … })` gives the voice queue (`sayParts`, `say`, `sayInfo`, `cancelVoice`, `stopVoice`), `playLine`, the feminine take, effects and music. `output.ts`: the device output, one per page (`useAudioOutput` follows the device setting and mutes on hide; `holdAudio`, `unlockAudioOutput`). `port.ts`: the player port; `howlerPlayer.ts` is the Howler adapter (the Howl cache, `playOnce`), `fakePlayer.ts` the one fake for tests (`installFakeAudio()`). `coded.ts`: coded sound (WebAudio code) plays behind the port as `coded:` urls (`registerCoded`); the Howler adapter plays it into the master gain. |
