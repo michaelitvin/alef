@@ -23,8 +23,10 @@ The parent's export of 2026-11-23 holds 187 clock rounds (Oct 19 – Oct 30), 92
 
 ### 1. A name and an explanation for the "to" read as "past" (the parent: "for sure")
 
-- **The "to" times:** the minutes whose phrase says "to": 45, 50, 55, and 40 when it is not read as "forty" (the
-  `saysTo` test in `levels.ts`, `introsFor`; reuse it, do not copy it). :35 never says "to".
+- **The "to" times:** the minutes whose phrase says "to": 45, 50, 55, and 40 when it is not read as "forty". Export a
+  pure `saysTo(m, digital40)` from `phrases.ts` (next to `readsDigital`) and use it in grading and in `introsFor`
+  (which keeps its own "no time yet" case). :35 never says "to". `grade()` in `useWorkday.ts` passes the exercise and
+  `digital40` to `evaluateSet` / `evaluateChoice`.
 - A new mistake tag **`toAsPast`**: for a "to" time X:m, the answer **(X+1):(60−m)**: 3:45 → 4:15, 3:50 → 4:10.
   It applies only to rounds where he **heard** the phrase: `find`, `what`, `setShort`/`setLong`/`setBoth`. Not
   `digitalPick` or `digitalSet` (no phrase there, so the line would make no sense).
@@ -37,7 +39,10 @@ The parent's export of 2026-11-23 holds 187 clock rounds (Oct 19 – Oct 30), 92
     tag does not feed the tallies or the confusions, so this is safe.
 - A new explanation **`fix-toAsPast`**, fixed audio with `example: '3-45'` (like `exp-level-4`), under the same
   cooldown as the other fixes. It shows both clocks from the start (`communication.md`: a comparison shows both): his
-  4:15 next to the right 3:45. The wording keeps the approved form of `exp-fix-notAdvanced` and avoids "עוֹד"
+  4:15 next to the right 3:45. `ExplainPlayer` has one face today (the `fix-mirror` past/to are sectors on it), so
+  this line gets its own branch: a second `ClockFace` at `poseOf(mirrorTime(t))`, both faces smaller so that two fit
+  on a phone, the `{short}`/`{long}` glow on the right clock only, and the wrong clock marked without text (dimmed, a
+  red ring). The wording keeps the approved form of `exp-fix-notAdvanced` and avoids "עוֹד"
   (`pronunciation.md`: "הַשָּׁעָה עוֹד שָׁלוֹשׁ" stressed עוד in every take):
   - he: "רֶבַע לְאַרְבַּע זֶה לִפְנֵי אַרְבַּע. הַשָּׁעָה הִיא שָׁלוֹשׁ, לֹא אַרְבַּע: הַמָּחוֹג {short}הַקָּצָר כִּמְעַט עַל אַרְבַּע, וְהַמָּחוֹג {long}הָאָרוֹךְ עַל תֵּשַׁע."
   - No verb in it shows gender, so there is no `HE_F` entry.
@@ -51,19 +56,24 @@ The parent's export of 2026-11-23 holds 187 clock rounds (Oct 19 – Oct 30), 92
 
 ### 2. The level needs the set rounds too (the parent asked for my view; recommended)
 
-- `recordNewAnswer` gets the exercise of the answer. The level passes when the current window passes (8 of the last
-  10 on the new times) **and** 3 of the last 5 set rounds from the spoken time (`setShort`, `setLong`, `setBoth`) on
-  the new times are right. `digitalSet` does not count.
-- **Fast-forward** (the first 5 all right) also needs at least 1 set round among the 5, so level 6 cannot pass on
-  choices alone.
+- `recordNewAnswer` gets the exercise of the answer and keeps two windows. **Choice window:** the answers on the new
+  times of every exercise except the spoken set ones (`newAnswers`, 8 of the last 10, as today). **Set window:** the
+  spoken set rounds (`setShort`, `setLong`, `setBoth`) on the new times (`newSetAnswers`, 3 right of the last 5).
+  `digitalSet` goes into the choice window. The level passes when both pass. Two separate windows stop the gate from
+  swinging: failed forced set rounds do not pull the choice window down.
+- **Fast-forward:** while every answer on this level's new times is right, the level passes as soon as there are at
+  least 5 such answers and at least 1 of them is a spoken set round. The first mistake ends fast-forward, as today.
 - **No stall:** the round chooser aims at a 20% mistake rate (`pickNearTarget`), so it almost never picks a set round he
-  fails. Once the choice window passes and the set window does not, every 3rd round is a set round at a new time
-  (`forcedExercise` / `forcedTime` in `rounds.ts`). That keeps him moving and gives the explanation its chance.
+  fails. A pure `needsSetRound(progress, roundNo)` in `levels.ts` is true when the choice window passes, the set
+  window does not, and `roundNo % 3 === 0`. Then `useWorkday.ts` (where it builds the plan) passes `forcedExercise` =
+  the set exercise of `exercisesFor(level)` and a new `forceNew` flag that `pickTime` in `rounds.ts` follows (a new
+  time of the level only). The real-time round wins when both apply. This keeps him moving and gives the explanation
+  its chance.
   This is the way out that `game-play-learning.md` asks for, so the design needs no automatic level-up.
 - The bar for set rounds is lower (3/5) because setting is harder than choosing.
 - **Save:** a second string `newSetAnswers` next to `newAnswers`. The store goes to version 2 with a `migrate` that
-  adds `''` (Zustand's shallow merge replaces `progress` as a whole, so an old save would have `undefined`). Register
-  `'alef-clock'` in `src/shared/migrateCheckSteps.ts`.
+  adds `''` (Zustand's shallow merge replaces `progress` as a whole, so an old save would have `undefined`). The clock
+  key does not move, so it gets no migrate-check step: `store.test.ts` tests the `migrate` on a version 1 save.
 - **Parent area:** the clock summary line shows the set progress (for example "set 1/5"), so the parent sees why the
   level stays. The level-up telemetry logs `newSetAnswers`.
 
@@ -74,12 +84,12 @@ The parent's export of 2026-11-23 holds 187 clock rounds (Oct 19 – Oct 30), 92
 ## Tasks (independent: build in parallel)
 
 1. **Tag, grading and line:** `toAsPast` in `grade.ts` (set; the type `Evaluation.tag`) and in the choice evaluation,
-   limited to the phrase exercises; `fix-toAsPast` in `FIX_FOR`, `ExplainId`, the line table and the id list in
-   `lines.test.ts`; the explanation shows both clocks. Tests on geared poses (`poseOf()`): his real poses (3:45 → 4:15,
+   limited to the phrase exercises; `saysTo` in `phrases.ts`; the exercise and `digital40` into the grading; `fix-toAsPast` in `FIX_FOR`, `ExplainId`, the line table and the id list in
+   `lines.test.ts`; the second clock in `ExplainPlayer`. Tests on geared poses (`poseOf()`): his real poses (3:45 → 4:15,
    10:45 → 11:15) give `toAsPast`; the same at :50 and :55; `digitalPick` keeps its old tag; a past-side mirror stays
    `mirror`.
 2. **Level rule:** `newSetAnswers`, the exercise passed into `recordNewAnswer` (`store.ts` `recordRound`), the
-   fast-forward rule, the forced set round, store version 2 with `migrate`, the migrate-check step, the parent
+   two windows, the fast-forward rule, `needsSetRound` and `forceNew`, store version 2 with `migrate`, the parent
    summary, the telemetry field. Tests: his level 4 sequence (choices pass, set 1/18) does not pass; 8/10 plus 3/5
    passes; a set round comes every 3rd round while the set window blocks; an old version 1 save loads.
 3. **Voice:** the he and en takes of `fix-toAsPast` through the clock voice pipeline, the request in
