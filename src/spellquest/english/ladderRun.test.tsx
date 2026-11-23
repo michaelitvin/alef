@@ -76,6 +76,17 @@ describe('the English ladder in the run', () => {
     expect(Object.keys(save.read().confusions.letters).length).toBeGreaterThan(0)
   })
 
+  it('"And now" (target-new-1) comes right before the new word on every rung after the first, and not on the first', async () => {
+    const log = await session(englishSave(2))
+    const rungs = asked(log.views)
+    const chain = chainOf(rungs[rungs.length - 1].built)
+    const at = (id: string) => log.voice.indexOf(id)
+    expect(rungs.length).toBeGreaterThanOrEqual(3)
+    // the first rung: the foot word, then its word, with nothing between
+    expect(log.voice[at(`w-${chain.words[1]}`) - 1]).not.toBe('target-new-1')
+    for (let i = 2; i < chain.words.length; i++) expect(log.voice[at(`w-${chain.words[i]}`) - 1]).toBe('target-new-1')
+  })
+
   it('from stage 4 the place is not marked, and the drop on the place counts', async () => {
     const save = englishSave(4)
     const log = await session(save, () => 'right')

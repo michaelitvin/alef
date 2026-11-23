@@ -40,7 +40,7 @@ export const EN_LINES: EnLine[] = [
   line('q-ghosts', 'Ghosts (words), when he waits; then the word', 'I', PLAY, ['Where is:', 'Which ghost has:', 'Find:']),
   line('q-ghosts-sound', 'Ghosts (letters, by sound), when he waits; then the sound', 'I', PLAY, ['Which ghost has the sound:', 'Find the sound:', "Where's the letter that says:"]),
   line('q-door', 'Door, when he waits; never says the word', 'I', WARM, ['What does the door say? Bring the right key.', 'Read the word, and pick a key.', 'Which key opens the door?']),
-  line('target-new', 'Broom: a new target; then it', 'I', PLAY, ['And now:', 'Now catch:', 'Now something new:']),
+  line('target-new', 'Broom: a new target; the ladder: before each new word after the first rung; then it', 'I', PLAY, ['And now:', 'Now catch:', 'Now something new:']),
   line('almost', 'A near miss, forgiven (encouraging)', 'I', ENCOURAGE, ['Almost.', 'So close. Look again.', 'Really close.']),
   line('streak', 'A streak', 'D', EXCITED, ["Wow, you're on fire.", "You're unstoppable.", "You're really flying through these."]),
   line('ladder-top', 'The ladder is built to the top', 'D', EXCITED, ['You made it to the top.', 'You built the whole ladder.', 'Wow, all the way to the sky.']),

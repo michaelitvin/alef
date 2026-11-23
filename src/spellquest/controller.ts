@@ -1265,7 +1265,10 @@ export class RunController {
     const boxCue = screen === 'ladder' && (this.view.screen as LadderView).from !== undefined
     const skipSay = screen === 'ladder' && this.demoSaidWords
     this.demoSaidWords = false
-    const said = skipSay ? Promise.resolve() : this.say(t, [{ id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }])
+    // ("And now:" comes before every new word after the first rung; the foot counts as built in English)
+    const andNow = screen === 'ladder' && this.ladder !== null && this.ladder.built.length > (this.ladder.base ? 1 : 0)
+    const word = { id: this.cueId(c), onStart: () => { open(); if (boxCue) this.setScreen({ cue: 'box' } as Partial<LadderView>) } }
+    const said = skipSay ? Promise.resolve() : this.say(t, andNow ? [{ id: this.course.lineAudioId('target-new', 1) }, word] : [word])
     let picked = await Promise.race([said.then(() => null), early])
     if (boxCue) this.setScreen({ cue: undefined } as Partial<LadderView>)
     // the answers open after the cue even if it was cut short (a stopped voice must never leave the round shut)

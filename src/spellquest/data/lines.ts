@@ -46,7 +46,7 @@ export const LINES: LineDef[] = [
   line('q-door', 'Door, when he waits; it never says the word (he reads it)', [
     'מָה כָּתוּב עַל הַדֶּלֶת? תָּבִיא אֶת הַמַּפְתֵּחַ הַנָּכוֹן.', 'תִּקְרָא אֶת הַמִּלָּה, וְתִבְחַר מַפְתֵּחַ.', 'אֵיזֶה מַפְתֵּחַ פּוֹתֵחַ אֶת הַדֶּלֶת?',
   ], 0.5, 'warmly'),
-  line('target-new', 'Broom flight: a new sound to catch (then the new sound)', [
+  line('target-new', 'Broom flight: a new sound to catch (then the new sound); the ladder: before each new word after the first rung (then the word)', [
     'וְעַכְשָׁו...', 'עַכְשָׁו תִּתְפֹּס אֶת...', 'וְעַכְשָׁו מַשֶּׁהוּ אַחֵר:',
   ], 0.5, 'playful'),
   line('almost', 'Near miss: the other form of a dotted letter (encouraging; he tries again)', [
