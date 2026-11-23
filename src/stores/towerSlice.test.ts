@@ -7,7 +7,7 @@ beforeEach(() => {
   useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
 })
 
-describe('duel slice', () => {
+describe('tower slice', () => {
   it('records rounds and twins', () => {
     const st = useProgressStore.getState()
     st.recordTowerRound('kamatz', 'A', 'correct', 1200)
@@ -38,7 +38,7 @@ describe('duel slice', () => {
     for (let i = 0; i < 20; i++) st.recordTowerRound('kamatz', 'A', i % 2 ? 'wrong' : 'correct', 100)
     expect(useProgressStore.getState().tower.recent!.kamatz).toBe('oxoxoxoxoxox')
   })
-  it('persists the duel slice', () => {
+  it('persists the tower slice', () => {
     useProgressStore.getState().recordTowerRound('kamatz', 'A', 'correct', 1200)
     const saved = JSON.parse(localStorage.getItem('alef-progress')!)
     expect(saved.state.tower.byMark.kamatz.correct).toBe(1)
@@ -60,7 +60,7 @@ describe('duel slice', () => {
     expect(s.settings.volume).toBe(0.8)
     expect(s.tower).toMatchObject({ sessions: 4, bestScore: 900, bestWave: 6 })
   })
-  it('a save with an explicit undefined duel still loads empty stats', async () => {
+  it('a save with an explicit undefined tower still loads empty stats', async () => {
     localStorage.setItem('alef-progress', JSON.stringify({ state: { ...INITIAL_PROGRESS_STATE, tower: null }, version: 0 }))
     await useProgressStore.persist.rehydrate()
     expect(useProgressStore.getState().tower.sessions).toBe(0)

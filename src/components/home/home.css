@@ -2,7 +2,7 @@
    right, play buttons on the left pointing left, the path starts on the right. */
 .home-reading, .home-clock-sec { direction: rtl; }
 
-/* the duel card */
+/* the Spell Quest card */
 .home-card { --k: 1; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto; align-items: center; gap: 6px;
   padding: 8px 10px 8px 12px; direction: rtl; border: 2px solid #ffd34db3; border-radius: 22px; overflow: hidden; text-decoration: none;
   background: radial-gradient(ellipse at 70% 20%, #a050ff73, transparent 60%), linear-gradient(135deg, #3b1d6e, #1a1240);
@@ -39,7 +39,7 @@
 .home-path.ltr .latin { font-family: Andika, system-ui, sans-serif; color: #17503d; line-height: 1; }
 .home-path.ltr .home-orb span { color: #fff6d8; }
 
-/* the path of the duel's minigames: scrolls sideways only */
+/* the path of the tower's minigames: scrolls sideways only */
 .home-path { position: relative; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 40px 6px 16px; direction: rtl;
   scrollbar-width: thin; }
 .home-trail { position: absolute; right: 0; top: 0; transform: scaleX(-1); height: 100%; pointer-events: none; }
@@ -130,7 +130,7 @@
   border-radius: 18px; padding: 14px; box-shadow: 0 2px 10px #0002; margin: 0 12px; }
 @media (max-width: 480px) { .home-box { padding: 10px; width: calc(100% - 2 * 8px); margin: 0 8px; } }
 
-/* a phone on its side: a short header, so the duel's card is whole in the first view (the parent's proportions review) */
+/* a phone on its side: a short header, so the tower's card is whole in the first view (the parent's proportions review) */
 @media (orientation: landscape) and (max-height: 500px) {
   .home-header { padding: 8px 16px !important; }
   .home-header h1 { font-size: 2rem !important; margin: 0 !important; line-height: 1.1; }

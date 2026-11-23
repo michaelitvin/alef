@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { lineById } from '../../spellquest/data/lines.ts'
 import { EN_LINES, EN_TOWER_LINE_IDS, FEMININE_IDS, enLine, enLineAudioId } from './lines.ts'
 
-// the ids the controller and the policies name that the English run shares with Book 2 (line-how-silent has no English
+// the ids the controller and the policies name that the English run shares with Spell Quest (line-how-silent has no English
 // counterpart; the renamed ones have English ids of their own: q-ghosts-sound, demo-broom-sound, demo-ghosts-sound,
 // demo-ghosts-word, draw-dot and draw-cross)
 const RUN_LINE_IDS = [

@@ -1,10 +1,10 @@
-// The English path's pictures: the green file where there is one, Book 2's elsewhere, and the pictures that never change.
+// The English path's pictures: the green file where there is one, Spell Quest's elsewhere, and the pictures that never change.
 import { describe, expect, it } from 'vitest'
 import { IMAGES } from '../../spellquest/assets/images'
 import { ENGLISH_IMAGES, greenImages } from './images'
 
 describe('the English path\'s pictures', () => {
-  it('has a picture for every key of Book 2, and the spell book that Book 2 does not have', () => {
+  it('has a picture for every key of Spell Quest, and the spell book that Spell Quest does not have', () => {
     expect(Object.keys(ENGLISH_IMAGES).sort()).toEqual([...Object.keys(IMAGES), 's-book'].sort())
     expect(IMAGES['s-book']).toBeUndefined()
   })
@@ -30,7 +30,7 @@ describe('the English path\'s pictures', () => {
 })
 
 describe('the English tower\'s art', () => {
-  it('is green: it differs from the first duel\'s tower and wizards, which stay the default', async () => {
+  it('is green: it differs from the tower\'s tower and wizards, which stay the default', async () => {
     const { ENGLISH_TOWER_ART } = await import('./towerArt')
     const { TOWER, WIZARD, WIZARD_GIRL } = await import('../../spellquest/tower/assets/sprites')
     const { HEBREW } = await import('../../spellquest/course/hebrew')
@@ -39,7 +39,7 @@ describe('the English tower\'s art', () => {
       expect(ENGLISH_TOWER_ART.wizard[pose], pose).not.toBe(WIZARD[pose])
       expect(ENGLISH_TOWER_ART.wizardGirl[pose], pose).not.toBe(WIZARD_GIRL[pose])
     }
-    // the Hebrew course has none of its own: the board falls back to the duel's sprites
+    // the Hebrew course has none of its own: the board falls back to the tower's sprites
     expect(HEBREW.tower.art).toBeUndefined()
   })
 })

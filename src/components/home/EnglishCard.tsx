@@ -6,7 +6,7 @@ import type { ScreenId } from '../../spellquest/logic/predict'
 import cardBoy from '../../english/assets/img/card.webp'
 import cardGirl from '../../english/assets/img/card-girl.webp'
 import orb from '../../english/assets/img/s-orb.webp'
-import tower from '../../english/assets/img/duel-tower.webp'
+import tower from '../../english/assets/img/tower-tower.webp'
 import ghost from '../../english/assets/img/s-ghost.webp'
 import cauldron from '../../english/assets/img/s-cauldron.webp'
 import ladder from '../../english/assets/img/s-ladder.webp'
@@ -37,7 +37,7 @@ export function EnglishCard() {
             </div>
           ))}
         </div>
-        <div className="home-pcol"><PlayButton theme="duel" dir="right" /></div>
+        <div className="home-pcol"><PlayButton theme="spellquest" dir="right" /></div>
       </a>
       <p className="home-learn" data-learn="english" data-parent-text dir="ltr"><b>What {girl ? 'she' : 'he'} learns:</b> {LEARN.replace('{his}', girl ? 'her' : 'his')}</p>
     </div>

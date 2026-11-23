@@ -1,5 +1,5 @@
 // What the tower reads and writes of the child's answers: the adaptive data its rounds are picked from (each rune's
-// tally, recent answers and confusions) and the pace. The Hebrew tower keeps them in the first duel's save
+// tally, recent answers and confusions) and the pace. The Hebrew tower keeps them in the tower's save
 // (`useProgressStore.tower`, alef-progress); another course gives its own, so its answers never land there.
 import type { RoundResult, ScreenType, Tally } from '../types'
 import { RECENT_KEEP } from '../../../shared/adaptive'
@@ -26,7 +26,7 @@ export interface TowerTallyPort {
   setTowerPace(pace: number): void
 }
 
-/** the first duel's save (alef-progress), looked up on each call: the default */
+/** the tower's save (alef-progress), looked up on each call: the default */
 export const progressTallies: TowerTallyPort = {
   read() {
     const d = useProgressStore.getState().tower

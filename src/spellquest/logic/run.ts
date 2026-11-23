@@ -7,7 +7,7 @@ import type { CourseStages } from '../course/types'
 
 export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell']
 /** the two drawing screens (print, then handwriting) go after the doors, when drawing is on (spec: one duel, Part 5) */
-/** the first duel's tower opens every cycle (spec: one duel, Part 3); the spell book follows the doors (English path, Part 7) */
+/** the tower's tower opens every cycle (spec: one duel, Part 3); the spell book follows the doors (English path, Part 7) */
 const ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand']
 const DRAWING: ScreenId[] = ['draw', 'draw-hand']
 /** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words / words per visit (spec:
@@ -70,7 +70,7 @@ export function onAnswer(h: Hearts, a: 'right' | 'wrong' | 'near'): { hearts: He
 /** base travel time of an orb (spec 2026-11-07: 5800, was 5200; the per-lap speed-up is gone: the flight follows him) */
 export const BASE_TRAVEL_MS = 5800
 export const travelMs = (pace: number) => BASE_TRAVEL_MS * pace
-/** Spell Quest's own pace rule (the duel keeps its own): a catch speeds the flight up 1%, a mistake slows it 4% (was 12%). */
+/** Spell Quest's own pace rule (the tower keeps its own): a catch speeds the flight up 1%, a mistake slows it 4% (was 12%). */
 export function flightPace(pace: number, r: 'catch' | 'miss'): number {
   return Math.min(PACE_MAX, Math.max(PACE_MIN, pace * (r === 'catch' ? 0.99 : 1.04)))
 }

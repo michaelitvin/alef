@@ -45,7 +45,7 @@ function make(opts: ConstructorParameters<typeof RunController>[0] = {}) {
   return new RunController({ rng: seeded(3), now: () => Date.now(), ...opts })
 }
 const tick = (ms = 100) => act(async () => { await vi.advanceTimersByTimeAsync(ms) })
-/** the tower's board (the first duel's hook) is not mounted here: most tests let its visit end at once */
+/** the tower's board (the tower's hook) is not mounted here: most tests let its visit end at once */
 let towerAuto = true
 function autoTower(c: RunController) {
   const s = c.view.screen
@@ -1274,7 +1274,7 @@ describe('run controller', () => {
     })
   })
 
-  describe('the first duel’s tower in the run (spec: one duel, Part 3)', () => {
+  describe('the tower’s tower in the run (spec: one duel, Part 3)', () => {
     beforeEach(() => { towerAuto = false })
     const tv = (c: RunController) => c.view.screen as Extract<View['screen'], { screen: 'tower' }>
     /** stage 4, the last run ended on the spell book (the cycle's last screen): this one starts with the tower */
@@ -1300,7 +1300,7 @@ describe('run controller', () => {
       expect(c.towerAnswer('wrong', 'segol')).toBe('on')
       expect(c.view.hearts).toBe(2)
       expect(c.view.mult).toBe(1)
-      // the tower's adaptive data stays in the first duel's save: Spell Quest's tallies are not touched
+      // the tower's adaptive data stays in the tower's save: Spell Quest's tallies are not touched
       expect(useSpellQuestStore.getState().tallies).toEqual({})
       c.destroy()
     })
@@ -1342,7 +1342,7 @@ describe('run controller', () => {
       d.destroy()
     })
 
-    it('the last heart on the tower ends the run after that answer, with Book 2’s summary', async () => {
+    it('the last heart on the tower ends the run after that answer, with Spell Quest’s summary', async () => {
       const c = atTower()
       await until(c, (v) => v.screen?.screen === 'tower')
       c.towerAnswer('right', 'kamatz')
@@ -1350,7 +1350,7 @@ describe('run controller', () => {
       c.towerAnswer('wrong', 'kamatz')
       expect(c.towerAnswer('wrong', 'kamatz')).toBe('over')
       expect(c.view.hearts).toBe(0)
-      // the duel's feedback of that answer is still playing: no defeat yet, and a lock cannot cancel the end
+      // the tower's feedback of that answer is still playing: no defeat yet, and a lock cannot cancel the end
       await tick(2000)
       expect(c.view.defeat).toBeFalsy()
       c.pause()
@@ -1360,13 +1360,13 @@ describe('run controller', () => {
       await until(c, (v) => v.over !== null)
       expect(c.view.defeat).toBe(true)
       expect(c.view.over).toMatchObject({ score: 1 })
-      // no right answer is said again (the duel said the mark): only the defeat line
+      // no right answer is said again (the tower said the mark): only the defeat line
       expect(played.slice(n).every((id) => id.startsWith('defeat'))).toBe(true)
       expect(useSpellQuestStore.getState().lastEnded).toBe('tower')
       c.destroy()
     })
 
-    it('a lock during the tower: Book 2’s pause holds, and resume goes on with the same visit', async () => {
+    it('a lock during the tower: Spell Quest’s pause holds, and resume goes on with the same visit', async () => {
       const c = atTower()
       await until(c, (v) => v.screen?.screen === 'tower')
       const visit = tv(c).visit
@@ -1428,7 +1428,7 @@ describe('run controller', () => {
       })
       const mastered = () => Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
 
-      it('a new player starts with the tower; Book 2 opens when the tower is mastered, and the next screen is the broom', async () => {
+      it('a new player starts with the tower; Spell Quest opens when the tower is mastered, and the next screen is the broom', async () => {
         spellQuestTelemetry.clear()
         const c = make()
         c.start()
@@ -1481,7 +1481,7 @@ describe('run controller', () => {
         expect(tv(c).waves).toBe(2)
         // not passed yet: the visit goes on
         expect(c.towerWaveEnd(1)).toBe(false)
-        // ten right answers, one on each mark (the placement check), recorded by the duel's own store
+        // ten right answers, one on each mark (the placement check), recorded by the tower's own store
         const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'o']))
         useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent } })
         for (const m of TOWER_MARKS) c.towerAnswer('right', m.id)
@@ -1571,7 +1571,7 @@ describe('run controller', () => {
         d.destroy()
       })
 
-      it('a Book 2 player who never played the first duel: the tower first, nothing closes, nothing imported', async () => {
+      it('a Spell Quest player who never played the tower: the tower first, nothing closes, nothing imported', async () => {
         useSpellQuestStore.setState({ screensOpen: true, stage: { stage: 3, newAnswers: '' }, lastEnded: 'ghosts', totalStars: 120, towerImported: false })
         useSpellQuestStore.getState().importTower(useProgressStore.getState().tower)
         expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 120, screensOpen: true })

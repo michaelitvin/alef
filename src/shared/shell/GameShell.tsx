@@ -23,7 +23,7 @@ export interface AskGender {
   stop: () => void
   /** after the child chose (the game's telemetry) */
   onChosen?: (g: Gender) => void
-  /** the question's wrapper class (Book 2 draws it in its root) */
+  /** the question's wrapper class (Spell Quest draws it in its root) */
   className?: string
 }
 
@@ -41,7 +41,7 @@ export interface GameShellOptions {
   welcome?: () => Promise<void>
   /** the question is about to show (the clock stops its door music) */
   onAsk?: () => void
-  /** the page hides (Book 2 holds the audio when the run's pause cover will show) */
+  /** the page hides (Spell Quest holds the audio when the run's pause cover will show) */
   onHide?: () => void
 }
 

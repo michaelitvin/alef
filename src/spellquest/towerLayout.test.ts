@@ -1,4 +1,4 @@
-// The first duel's tower in Spell Quest's run (the parent's pick): the cue bubble below the top bar, the marks bigger in
+// The tower's tower in Spell Quest's run (the parent's pick): the cue bubble below the top bar, the marks bigger in
 // their runes (a vav mark stays in its glyph), and no time line.
 import { describe, expect, it } from 'vitest'
 import { BAR_H_PX, BAR_ITEMS_PX, BAR_TOP_PX, TOWER_GLYPH_PX, TOWER_LAYOUT, towerCueTop } from './layout'
@@ -21,7 +21,7 @@ const block = (s: string, q: string) => {
   return ''
 }
 
-describe('the tower in Book 2’s run', () => {
+describe('the tower in Spell Quest’s run', () => {
   it('the cue bubble (a monster’s and a boss’s) is below every item of the top bar at every size', () => {
     const barBottom = BAR_TOP_PX + Math.max(...Object.values(BAR_ITEMS_PX))
     expect(barBottom).toBeLessThanOrEqual(BAR_TOP_PX + BAR_H_PX)

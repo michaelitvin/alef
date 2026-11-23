@@ -1,5 +1,5 @@
 // The English stages (design Part 5): nine stages; the cycle, its visit lengths and the stage pass. A stage passes as in
-// Book 2: the first 5 answers on its new items all right, or 8 of the last 10. Stage 9 never passes, and no stage passes
+// Spell Quest: the first 5 answers on its new items all right, or 8 of the last 10. Stage 9 never passes, and no stage passes
 // into one whose content is not ready (content/ready.ts).
 import type { ScreenId } from '../../spellquest/logic/predict'
 import { SESSION_LENGTH } from '../../spellquest/logic/run'
@@ -17,7 +17,7 @@ export const EN_DRAWING: ScreenId[] = ['draw']
 // tower 1, doors 6 (not 2 and 8): spec Part 5 wants 3–4 screens a run and every screen in 2–3 runs; measured 3.35 / 0.83
 export const EN_VISIT: Record<ScreenId, number> = { tower: 1, broom: 5, cauldron: 5, ladder: 5, ghosts: 5, doors: 6, spell: 5, draw: 5, 'draw-hand': 0 }
 
-/** a session from the home path: Book 2's numbers */
+/** a session from the home path: Spell Quest's numbers */
 export const EN_SESSION_LENGTH: Record<ScreenId, number> = { ...SESSION_LENGTH }
 
 /** every screen from stage 1, the ghosts from stage 2 (the doors' phrases from stage 4 are a round choice, not a screen) */

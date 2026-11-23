@@ -7,7 +7,7 @@ import { TOWER_MARKS } from './tower/logic/marks'
 const ch = (itemId: string, group: 'a' | 'i', mark: 'kamatz' | 'chirik'): Choice =>
   ({ kind: 'syllable', id: `${itemId}-${mark}`, text: '', soundId: '', itemId, group, mark })
 
-describe('duel2 store', () => {
+describe('Spell Quest store', () => {
   beforeEach(() => useSpellQuestStore.getState().resetProgress())
   it('drawing is on for a new player', () => { expect(DEFAULT_SETTINGS.drawing).toBe(true) })
   it('the parent can still turn drawing off', () => {
@@ -228,56 +228,56 @@ describe('duel2 store', () => {
     expect(s.potionIntroSeen).toBe(false)
   })
 
-  describe('the first duel moves into the run (spec: one duel, Part 3)', () => {
+  describe('the tower moves into the run (spec: one tower, Part 3)', () => {
     const t = (correct: number, mega = 0): Tally => ({ seen: correct + mega, correct, wrong: 0, timeout: 0, twin: 0, mega })
-    const duel = (over: Partial<TowerStats> = {}): TowerStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
+    const tower = (over: Partial<TowerStats> = {}): TowerStats => ({ sessions: 4, roundsMs: 0, bestScore: 900, bestWave: 6, lastPlayed: null, byMark: {}, byType: {}, ...over })
 
     it('a new player starts at stage 0 (the tower alone), and nothing is imported yet', () => {
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: false, towerImported: false, towerWave: 1, towerVisits: 0 })
     })
-    it('an existing Book 2 save keeps Book 2 open and gets the tower in front', () => {
+    it('an existing Spell Quest save keeps Spell Quest open and gets the tower in front', () => {
       const out = migrateSave({ stage: { stage: 2, newAnswers: '' }, coins: 30, totalStars: 300 }, 6)
       expect(out.screensOpen).toBe(true)
       expect(out.coins).toBe(30)
       expect(out.totalStars).toBe(300)
       expect(out.stage).toEqual({ stage: 2, newAnswers: '' })
     })
-    it('a stored save with no stage field still opens Book 2', () => {
+    it('a stored save with no stage field still opens Spell Quest', () => {
       expect(migrateSave({ coins: 3 }, 6).screensOpen).toBe(true)
       expect(migrateSave({}, 4).screensOpen).toBe(true)
     })
-    it('the first duel is imported once: correct answers become stars and a tenth of them coins; mega not counted', () => {
+    it('the tower is imported once: correct answers become stars and a tenth of them coins; mega not counted', () => {
       useSpellQuestStore.setState({ totalStars: 10, coins: 5 })
-      const d = duel({ byMark: { kamatz: t(25, 9), chirik: t(7) } })
+      const d = tower({ byMark: { kamatz: t(25, 9), chirik: t(7) } })
       const copy = JSON.parse(JSON.stringify(d))
       useSpellQuestStore.getState().importTower(d)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 42, coins: 8, towerImported: true })
       // a second start (a reload) adds nothing
       useSpellQuestStore.getState().importTower(d)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 42, coins: 8 })
-      // the first duel's own save is only read
+      // the tower's own save is only read
       expect(d).toEqual(copy)
     })
-    it('a first duel player who never played Book 2 keeps stage 0 unless his marks are mastered', () => {
-      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
+    it('a first tower player who never played Spell Quest keeps stage 0 unless his marks are mastered', () => {
+      useSpellQuestStore.getState().importTower(tower({ byMark: { kamatz: t(3) }, recent: { kamatz: 'ooo' } }))
       expect(useSpellQuestStore.getState().screensOpen).toBe(false)
     })
-    it('a first-duel player who mastered his marks starts with Book 2 open', () => {
+    it('a tower player who mastered his marks starts with Spell Quest open', () => {
       const recent = Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo']))
-      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(40) }, recent }))
+      useSpellQuestStore.getState().importTower(tower({ byMark: { kamatz: t(40) }, recent }))
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: true, totalStars: 40, coins: 4 })
     })
-    it('no first duel at all: nothing added, the import is done', () => {
+    it('no first tower at all: nothing added, the import is done', () => {
       useSpellQuestStore.getState().importTower(undefined)
       expect(useSpellQuestStore.getState()).toMatchObject({ totalStars: 0, coins: 0, towerImported: true, screensOpen: false })
     })
-    it('a Book 2 player keeps Book 2 open after the import, even with no first duel', () => {
+    it('a Spell Quest player keeps Spell Quest open after the import, even with no first tower', () => {
       useSpellQuestStore.setState({ screensOpen: true })
-      useSpellQuestStore.getState().importTower(duel())
+      useSpellQuestStore.getState().importTower(tower())
       expect(useSpellQuestStore.getState().screensOpen).toBe(true)
     })
     it('the parent’s reset starts stage 0 again and lets the import run again', () => {
-      useSpellQuestStore.getState().importTower(duel({ byMark: { kamatz: t(20) } }))
+      useSpellQuestStore.getState().importTower(tower({ byMark: { kamatz: t(20) } }))
       useSpellQuestStore.setState({ screensOpen: true, towerWave: 9 })
       useSpellQuestStore.getState().resetProgress()
       expect(useSpellQuestStore.getState()).toMatchObject({ screensOpen: false, towerImported: false, towerWave: 1, totalStars: 0 })

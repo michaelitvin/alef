@@ -560,10 +560,10 @@ const CHECKS = {
     await shot(page, vp, 'home-area')
   },
 
-  async book2(page, base, vp, note) {
+  async spellquest(page, base, vp, note) {
     await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
-    await shot(page, vp, 'book2-cover')
+    await shot(page, vp, 'spellquest-cover')
     await tap(page, page.locator('[data-screen="cover"] [aria-label="play"]'))
     await passGender(page, '[data-screen="play"]')
     // a fresh save starts at the tower (Book 1): its right rune carries data-correct in the verify build
@@ -590,7 +590,7 @@ const CHECKS = {
     const audio = await page.evaluate(() => window.__d2audio)
     if (!audio.length) throw new Error('the audio log is empty')
     note(`audio: ${audio.slice(0, 8).join(' ')}${audio.length > 8 ? ` … (${audio.length})` : ''}`)
-    await shot(page, vp, 'book2-hit')
+    await shot(page, vp, 'spellquest-hit')
   },
 
   async spellQuestStation(page, base, vp, note) {
@@ -605,7 +605,7 @@ const CHECKS = {
     await tap(page, page.locator('[data-station-play]'))
     await passGender(page, `[data-screen="play"][data-session="${id}"]`)
     note(`session: ${id}`)
-    await shot(page, vp, `book2-station-${id}`)
+    await shot(page, vp, `spellquest-station-${id}`)
   },
 
   async spellQuestSheets(page, base, vp, note) {
@@ -615,7 +615,7 @@ const CHECKS = {
       await page.locator(sel).first().waitFor()
       if (await page.locator('[data-screen="cover"]').count()) throw new Error(`${hash} shows the cover: not a verify build?`)
       await page.waitForTimeout(500)
-      await shot(page, vp, `book2-${hash.slice(2)}`)
+      await shot(page, vp, `spellquest-${hash.slice(2)}`)
     }
     note('glyphs, tower-glyphs, summary')
   },
@@ -629,7 +629,7 @@ const CHECKS = {
     await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
     if (vp.upright) await page.setViewportSize({ width: vp.width, height: vp.height })
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
-    await shot(page, vp, 'book2-area')
+    await shot(page, vp, 'spellquest-area')
     // the developer screens the area opens (gallery, stroke review): their Back goes back to the area
     for (const dev of ['gallery', 'strokes']) {
       await tap(page, page.locator(`[data-dev="${dev}"]`))
@@ -637,7 +637,7 @@ const CHECKS = {
       await back.waitFor()
       await page.waitForTimeout(500)
       await noSideScroll(page, `the ${dev} screen`)
-      await shot(page, vp, `book2-${dev}`)
+      await shot(page, vp, `spellquest-${dev}`)
       await tap(page, back)
       await page.locator('[data-parent-area="spellquest"]').waitFor()
     }
@@ -1203,19 +1203,19 @@ const CHECKS = {
     const data = page.locator('[data-telemetry-export]')
     await data.scrollIntoViewIfNeeded()
     const count = (key) => data.locator(`[data-log="${key}"] [data-log-count]`).textContent()
-    const book2 = await count('alef-spellquest-telemetry')
+    const spellquest = await count('alef-spellquest-telemetry')
     const clock = await count('alef-clock-telemetry')
-    if (!/^[1-9]\d* events$/.test(book2)) throw new Error(`Book 2's log: ${book2}`)
+    if (!/^[1-9]\d* events$/.test(spellquest)) throw new Error(`Spell Quest's log: ${spellquest}`)
     if (!/^\d+ events$/.test(clock)) throw new Error(`the clock's log: ${clock}`)
     const storage = await data.locator('[data-storage]').textContent()
     if (!/telemetry .* of \d+k chars/.test(storage)) throw new Error(`no storage line: ${storage}`)
-    note(`Book 2 ${book2}, clock ${clock}; ${storage.trim()}`)
+    note(`Spell Quest ${spellquest}, clock ${clock}; ${storage.trim()}`)
     await shot(page, vp, 'telemetry-data')
     await tap(page, data.locator('[data-telemetry-download]'))
     await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
     const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
     const part = doc.games?.find((g) => g.key === 'alef-spellquest-telemetry')
-    if (doc.v !== 2 || !part || !part.events.length) throw new Error('the download has no Book 2 events')
+    if (doc.v !== 2 || !part || !part.events.length) throw new Error('the download has no Spell Quest events')
     const names = [...new Set(part.events.map((e) => e.e))]
     note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)
   },

@@ -289,7 +289,7 @@ describe('the pass policy', () => {
       expect(e.last).toMatchObject({ end: true, over: { crystals: 0, best: true } })
     })
 
-    it('after the tower no answer is said (the duel said it); not a best run', () => {
+    it('after the tower no answer is said (the tower said it); not a best run', () => {
       const e = end({ score: 2, bestRun: 3 })
       expect(e.said).toEqual(['defeat'])
       expect(e.r0.run).toMatchObject({ defeat: true })

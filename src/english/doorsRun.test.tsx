@@ -56,9 +56,9 @@ describe('the English doors in the run', () => {
     const t = save.read().tallies
     expect(t['sc:doors']?.seen ?? 0).toBeGreaterThanOrEqual(3)
     expect(t['sc:doors']?.wrong ?? 0).toBeGreaterThan(0)
-    // the English features: the key word's units (never a Book 2 word feature)
+    // the English features: the key word's units (never a Spell Quest word feature)
     for (const u of word(doors[0].key).units) expect(t[u]?.seen ?? 0).toBeGreaterThan(0)
-    // (and for the parent's words view, w:<English word>: never a Book 2 word)
+    // (and for the parent's words view, w:<English word>: never a Spell Quest word)
     for (const f of Object.keys(t).filter((k) => k.startsWith('w:'))) expect(WORDS.some((w) => w.id === f.slice(2))).toBe(true)
     expect(t[`w:${doors[0].key}`]?.seen ?? 0).toBeGreaterThan(0)
   })

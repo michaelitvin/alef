@@ -392,7 +392,7 @@ export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.keys(ENGLISH).map((n) => (n === 'tower-answer' ? 'answer' : n)), ...Object.keys(TOWER_ENGLISH), ...Object.keys(SPELLQUEST_SPELL),
 ])
 
-/** the first duel's frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
+/** the tower's old frozen history as the old build wrote it (no g, no via): the string Data.test.tsx uses */
 export const FROZEN_HISTORY = '{"v":1,"events":[{"t":1760000000000,"s":"mf1abc-x1y2z","run":2,"e":"choice","key":"segol","pos":2,"ms":1840}]}'
 
 /** a fixed export time for goldens */

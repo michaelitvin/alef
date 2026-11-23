@@ -39,7 +39,7 @@ describe('the parent area', () => {
     } finally { vi.unstubAllGlobals(); resetPersistRequestForTest() }
   })
 
-  it('every game registers its part; the registry knows book2, the clock, Space Cat, the lessons and English', () => {
+  it('every game registers its part; the registry knows spellquest, the clock, Space Cat, the lessons and English', () => {
     expect(GAMES.map((g) => g.id)).toEqual(['spellquest', 'clock', 'spacecat', 'lessons', 'english'])
   })
 
@@ -63,7 +63,7 @@ describe('the parent area', () => {
   it('only the open game\'s settings show', async () => {
     const { container } = render(<ParentArea game="spellquest" onClose={() => {}} />)
     await screen.findByText(/Number range for shopping/, {}, LAZY)
-    expect(container.querySelector('[data-book2-settings]')).not.toBeNull()
+    expect(container.querySelector('[data-spellquest-settings]')).not.toBeNull()
     expect(container.querySelector('[data-clock-settings]')).toBeNull()
     // the frame has the close, boy or girl and sound: the embedded game part does not repeat them
     expect(container.querySelectorAll('[data-parent-close]').length).toBe(1)
@@ -118,7 +118,7 @@ describe('the parent area', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('developer: the open game\'s tools only (Book 2\'s screens open through the page)', async () => {
+  it('developer: the open game\'s tools only (Spell Quest\'s screens open through the page)', async () => {
     const openDev = vi.fn()
     const b2 = render(<ParentArea game="spellquest" onClose={() => {}} openDev={openDev} />)
     fireEvent.click(await screen.findByText('Stroke review', {}, LAZY))
@@ -140,7 +140,7 @@ describe('the parent area', () => {
 
   // jsdom has no layout, so the width itself is checked by the /verify driver on an upright phone; here: the structure
   it('every table, in every game\'s area, sits in its own sideways-scrolling box (a phone upright never pans the page)', async () => {
-    // the first duel's history shows its tables only with marks played (the module is loaded here, not at the top: the
+    // the tower's history shows its tables only with marks played (the module is loaded here, not at the top: the
     // other tests check that the area creates no other game's store)
     const { useProgressStore } = await import('../stores/progressStore')
     const { INITIAL_PROGRESS_STATE } = await import('../types/progress')

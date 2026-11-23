@@ -55,7 +55,7 @@ describe('the English section in the parent area', () => {
     expect(JSON.parse(raw('alef-english')!).state.crystals).toBe(0)
   })
 
-  it('and the other way: Book 2\'s reset leaves alef-english byte-equal', () => {
+  it('and the other way: Spell Quest\'s reset leaves alef-english byte-equal', () => {
     useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
     const englishBefore = raw('alef-english')
@@ -65,7 +65,7 @@ describe('the English section in the parent area', () => {
     expect(raw('alef-english')).toBe(englishBefore)
   })
 
-  it('the number range is one setting: set in English, Book 2\'s merchant uses it', () => {
+  it('the number range is one setting: set in English, Spell Quest\'s merchant uses it', () => {
     const { container } = render(<ParentArea game="english" onClose={() => {}} />)
     return screen.findByText(/Number range for shopping/, {}, LAZY).then(() => {
       const track = vi.spyOn(englishTelemetry, 'track')
@@ -84,7 +84,7 @@ describe('the English section in the parent area', () => {
     expect(memoryEnglishSavePort().range()).toBe(100)
   })
 
-  it('the range seeds from an old Book 2 save once', () => {
+  it('the range seeds from an old Spell Quest save once', () => {
     localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range: 1000 } }, version: 7 }))
     expect(getNumberRange()).toBe(1000)
     setNumberRange(10)

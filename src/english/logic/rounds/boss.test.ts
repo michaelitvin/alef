@@ -29,7 +29,7 @@ describe('the English flight bosses', () => {
     expect(k.scores).toEqual({ mimic: 3, bat: 4, shin: 1, dot: 2 })
     // beaten all, so no bonus decides: bat (4) is his most-made mix-up
     expect(chooseBoss({ stage: 4, confusions: { letters: {}, vowels: {} }, beaten: ['dot', 'shin', 'mimic', 'bat'], last: null, rng: seeded(1), kinds: k })).toBe('bat')
-    // Book 2's course keeps its own gates and scores
+    // Spell Quest's course keeps its own gates and scores
     expect(HEBREW.rounds.bossKinds).toBeUndefined()
   })
 

@@ -5,7 +5,7 @@ import { PICTURE_WORDS } from '../logic/words'
 import { TOWER_MARKS, SOUND_GROUPS } from '../logic/marks'
 import { ROSTER } from '../logic/rules'
 
-describe('duel assets', () => {
+describe('tower assets', () => {
   it('every monster (roster + bosses) has a sprite and a facing (no per-monster voice)', () => {
     for (const id of [...ROSTER.map((m) => m.id), 'dragon', 'troll']) {
       const m = MONSTERS[id]
@@ -65,7 +65,7 @@ describe('image preloading', () => {
 // spec 2026-11-07 girls
 import { TOWER_FEMININE } from '../logic/towerAudio'
 import { WIZARD_GIRL } from './sprites'
-describe('duel girl assets', () => {
+describe('tower girl assets', () => {
   it('every line with a feminine version ships its -f file; the girl wizard ships', () => {
     for (const id of TOWER_FEMININE) expect(VOICE_URLS[`${id}-f`], `${id}-f`).toBeTruthy()
     for (const id of Object.keys(VOICE_URLS)) if (id.endsWith('-f')) expect(TOWER_FEMININE.has(id.slice(0, -2)), id).toBe(true)

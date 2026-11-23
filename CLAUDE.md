@@ -57,7 +57,7 @@ tasks), have it reviewed, and build its independent tasks in parallel. Do not wr
 extras that the parent did not ask for; offer them as one line instead.
 
 When you ship a generated asset (voice, sound, music, image), record the request of the chosen take in
-`asset-sources/<game>/` (see [asset-sources/duel/README.md](asset-sources/duel/README.md)).
+`asset-sources/<game>/` (see [asset-sources/spellquest/tower/README.md](asset-sources/spellquest/tower/README.md)).
 
 ## Checks
 

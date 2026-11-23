@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { TOWER_MARKS, SOUND_GROUPS, markById, twinOf } from './marks'
 import { PICTURE_WORDS, wordsFor } from './words'
 
-describe('duel marks', () => {
+describe('tower marks', () => {
   it('has the 10 marks from nikkud.yaml with groups', () => {
     expect(TOWER_MARKS.map((m) => m.id)).toEqual(['kamatz', 'patach', 'tzeire', 'segol', 'chirik', 'cholam', 'kubutz', 'shva', 'holam-male', 'shuruk'])
     expect(markById('shva').group).toBe('silent')

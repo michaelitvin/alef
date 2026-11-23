@@ -1,4 +1,4 @@
-// Space Cat's play flow as a framework-free controller (as Book 2's RunController): it takes each round from the ladder,
+// Space Cat's play flow as a framework-free controller (as Spell Quest's RunController): it takes each round from the ladder,
 // hands it to the canvas engine, runs the demo, the zoom tip, the missing-number line and the intros of the new kinds
 // with their glows, records each round, and calls the screens' callbacks at a level's end and the run's end. Every wait
 // goes through the Sleeper (ADR 0005); the rules that need no time are in logic/. usePlay.ts is its thin React bridge.

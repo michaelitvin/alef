@@ -60,7 +60,7 @@ describe('a child save in a full storage', () => {
   })
 
   it.each([
-    ['Book 2', 'alef-spellquest', () => useSpellQuestStore.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
+    ['Spell Quest', 'alef-spellquest', () => useSpellQuestStore.getState().addStars(5), (v: string) => JSON.parse(v).state.totalStars > 0],
     ['the clock', 'alef-clock', () => useClockStore.getState().addGears(7), (v: string) => JSON.parse(v).state.gears >= 7],
     ['the lessons', 'alef-progress', () => useProgressStore.getState().addToVocabulary('full-storage-word'),
       (v: string) => JSON.parse(v).state.vocabulary.includes('full-storage-word')],
@@ -75,9 +75,9 @@ describe('a child save in a full storage', () => {
     expect(value).not.toBeNull()
     expect(saved(value!)).toBe(true)
     // a live log lost its oldest events; what is left is the newest, in order
-    const book2 = eventsOf(s, SPELLQUEST_LOG)
-    expect(book2.length + eventsOf(s, CLOCK_LOG).length).toBeLessThan(before)
-    if (book2.length) expect(last(book2).i).toBe(599)
+    const sqEvents = eventsOf(s, SPELLQUEST_LOG)
+    expect(sqEvents.length + eventsOf(s, CLOCK_LOG).length).toBeLessThan(before)
+    if (sqEvents.length) expect(last(sqEvents).i).toBe(599)
     // the frozen log and the other save are untouched
     expect(s.getItem(FROZEN)).toBe(frozen)
     expect(s.getItem('alef-other-save')).toBe(other)

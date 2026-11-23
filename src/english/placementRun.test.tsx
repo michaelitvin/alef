@@ -1,7 +1,7 @@
 // The placement check in the run (design Part 4): the first English run's tower plays the placement's rounds, each
 // answer is walked and saved at once, and his level seeds the stage, the tallies and the stations. The tower's board is
-// the first duel's controller, mounted here as Tower.tsx mounts it (its content from the course's placement), on the
-// fake clock, with a duel audio that ends each line at once.
+// the tower's controller, mounted here as Tower.tsx mounts it (its content from the course's placement), on the
+// fake clock, with a tower audio that ends each line at once.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RunController } from '../spellquest/controller'
 import { TowerController, type TowerAudio } from '../spellquest/tower/logic/controller'
@@ -30,7 +30,7 @@ const towerAudio: TowerAudio = {
   stopAllLines: () => {}, mute: () => {}, unlock: () => {}, setLog: () => {},
 }
 
-interface Board { save: EnglishSavePort; duel: TowerController | null; visit: number; ended: boolean }
+interface Board { save: EnglishSavePort; tower: TowerController | null; visit: number; ended: boolean }
 const boards = new Map<RunController, Board>()
 
 /** the tower's board for the run's tower visit, as Tower.tsx mounts it (the placement's rounds while it is due) */
@@ -38,16 +38,16 @@ function sync(run: RunController) {
   const b = boards.get(run)!
   const s = run.view.screen
   if (s?.screen !== 'tower' || !s.placement) {
-    b.duel?.destroy()
-    b.duel = null
+    b.tower?.destroy()
+    b.tower = null
     return
   }
   if (s.visit !== b.visit) {
-    b.duel?.destroy()
+    b.tower?.destroy()
     b.visit = s.visit
     b.ended = false
     const save = b.save
-    const duel: TowerController = new TowerController({
+    const tower: TowerController = new TowerController({
       content: ENGLISH.placement!.tower(save), tallies: save.towerTallies(), audio: towerAudio, rng: seeded(5),
       walkOverride: ENGLISH.placement!.walkMs,
       embedded: () => ({
@@ -59,16 +59,16 @@ function sync(run: RunController) {
       }),
       telemetry: ENGLISH.telemetry,
     })
-    b.duel = duel
-    duel.start()
+    b.tower = tower
+    tower.start()
   }
-  if (run.view.paused) b.duel!.pause()
-  else b.duel!.resume()
+  if (run.view.paused) b.tower!.pause()
+  else b.tower!.resume()
 }
 
 function startEnglishRun(save: EnglishSavePort = memoryEnglishSavePort()): RunController {
   const run = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(11) })
-  boards.set(run, { save, duel: null, visit: -1, ended: false })
+  boards.set(run, { save, tower: null, visit: -1, ended: false })
   run.subscribe(() => sync(run))
   run.start()
   sync(run)
@@ -84,10 +84,10 @@ async function until(pred: () => boolean, max = 120_000) {
 }
 
 const board = (run: RunController) => boards.get(run)!
-const towerRound = (run: RunController): Round => board(run).duel!.getView().state.round!
+const towerRound = (run: RunController): Round => board(run).tower!.getView().state.round!
 /** a round waits for his tap */
 const asking = (run: RunController) => {
-  const d = board(run).duel
+  const d = board(run).tower
   const s = d?.getView().state
   return !!s && s.phase === 'playing' && !s.paused && !s.preview && !!s.round && !s.outcome
 }
@@ -102,7 +102,7 @@ async function inPlacement(save: EnglishSavePort = memoryEnglishSavePort()): Pro
 async function towerAnswer(run: RunController, a: 'right' | 'wrong') {
   await until(() => asking(run) || board(run).ended)
   if (board(run).ended) throw new Error('the placement is over')
-  const d = board(run).duel!
+  const d = board(run).tower!
   const r = towerRound(run)
   d.choose({ kind: 'rune', mark: a === 'right' ? r.target : r.runes.find((m) => m.id !== r.target.id)! })
   await until(() => board(run).ended || (asking(run) && towerRound(run).id !== r.id))
@@ -128,7 +128,7 @@ async function placementWith(save: EnglishSavePort, child: Child) {
 
 beforeEach(() => { vi.useFakeTimers(); said.length = 0; localStorage.clear(); ENGLISH.telemetry.clear() })
 afterEach(() => {
-  for (const [run, b] of boards) { b.duel?.destroy(); run.destroy() }
+  for (const [run, b] of boards) { b.tower?.destroy(); run.destroy() }
   boards.clear()
   vi.useRealTimers()
 })
@@ -275,12 +275,12 @@ describe('the placement check, its credit, walk and spell', () => {
       if (right) hits++
     }
     expect(board(run).ended).toBe(false)
-    expect(board(run).duel!.getView().state.mega).toBe(MEGA_MAX)
+    expect(board(run).tower!.getView().state.mega).toBe(MEGA_MAX)
     expect(said).not.toContain('line-mega')
     const asked = save.read().placement.state!.asked
-    board(run).duel!.megaCast()
+    board(run).tower!.megaCast()
     await vi.advanceTimersByTimeAsync(3000)
-    expect(board(run).duel!.getView().state.outcome).toBeNull()
+    expect(board(run).tower!.getView().state.outcome).toBeNull()
     expect(save.read().placement.state!.asked).toBe(asked)
   })
 })

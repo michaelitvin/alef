@@ -287,7 +287,7 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 .d2-station .home-orb span { position: absolute; inset: 0; display: grid; place-items: center; font-family: Sigalit, serif; color: #fff6d8; text-shadow: 0 0 4px #1b0f3c; }
 
 /* The English course's green look (design Part 2): the colours the parent approved in the mock, as variables on the course's
-   own root. Only [data-course="en"] reads them, so Book 2 (data-course="he", or none) draws as before. SVG parts the screens
+   own root. Only [data-course="en"] reads them, so Spell Quest (data-course="he", or none) draws as before. SVG parts the screens
    draw with a purple fill attribute take the green by their attribute (a CSS rule wins over a presentation attribute). */
 [data-course="en"] {
   --en-night: #0a2826; --en-deep: #0d3d38; --en-mid: #12564e;
@@ -314,7 +314,7 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 [data-course="en"] svg [fill="#1b0f3ccc"] { fill: #0b2f2ccc; }
 /* the Latin learning text is Andika (src/shared/latinText.ts keeps its letters apart) */
 .latin { font-family: Andika, system-ui, sans-serif; font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
-/* the tower's runes (the first duel's board, played inside the English run) */
+/* the tower's runes (the tower's board, played inside the English run) */
 [data-course="en"] .nd-rune:not(.hit):not(.miss) { background: linear-gradient(var(--en-rune-top), var(--en-rune)); border-color: var(--en-rune-edge); box-shadow: inset 0 -5px 0 #0003, 0 0 12px var(--en-button-glow); }
 /* what the screens draw in code with purple: the broom's orb trails and the boss aura, the glyph outline, the boss silhouettes, the legibility sheet's page */
 [data-course="en"] #d2-trail stop:first-child { stop-color: var(--en-trail-top); }
@@ -324,7 +324,7 @@ circle.d2-glow-strong { filter: drop-shadow(0 0 30px #fff6a0) drop-shadow(0 0 12
 [data-course="en"] .d2-trophy-dark { background: var(--en-silhouette); border-color: var(--en-silhouette-edge); }
 [data-course="en"] .d2-trophy-dark img { filter: brightness(0) drop-shadow(0 0 2px var(--en-silhouette-glow)) drop-shadow(0 0 4px var(--en-silhouette-glow)); }
 [data-course="en"][data-glyph-sheet] { background: var(--en-night) !important; }
-/* the tower's night, ground and pad in the course's green (the first duel's board keeps its purple on Book 1's own page and in Hebrew) */
+/* the tower's night, ground and pad in the course's green (the tower's board keeps its purple on Book 1's own page and in Hebrew) */
 [data-course="en"] .nd-screen { background: radial-gradient(ellipse at 75% 18%, #2fd6a040, transparent 55%), radial-gradient(ellipse at 20% 35%, #3fb8d030, transparent 50%), linear-gradient(var(--en-night), var(--en-mid) 55%, var(--en-deep)); }
 [data-course="en"] .nd-ground { background: linear-gradient(#3fa08a59, #06211fe6); border-top-color: #7fd6c280; box-shadow: 0 -6px 30px #2fd6a059; }
 [data-course="en"] .nd-pad-area { background: linear-gradient(#0a282ad9, #06211f); }

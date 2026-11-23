@@ -68,7 +68,7 @@ interface ProgressActions {
   setVolume: (volume: number) => void
   setDevMode: (enabled: boolean) => void
   setFont: (font: FontType) => void
-  /** `opts.recent: false`: the round is tallied but kept out of `recent` (Book 2's run: a מגה kill is not reading) */
+  /** `opts.recent: false`: the round is tallied but kept out of `recent` (Spell Quest's run: a מגה kill is not reading) */
   recordTowerRound: (markId: string, type: ScreenType, result: RoundResult, ms: number, opts?: { recent?: boolean }) => void
   recordTowerTwin: (markId: string, type: ScreenType) => void
   /** He tapped `tappedId` when `askedId` was the answer (directional). */
@@ -604,7 +604,7 @@ export const useProgressStore = create<ProgressStore>()(
         vocabulary: state.vocabulary,
         tower: state.tower,
       }),
-      // Saves from before the duel lack `duel` (or carry null): keep the defaults.
+      // Saves from before the tower lack `tower` (or carry null): keep the defaults.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<ProgressState>
         return { ...current, ...p, tower: p.tower ?? current.tower, settings: { ...current.settings, ...p.settings } }

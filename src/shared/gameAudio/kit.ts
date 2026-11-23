@@ -185,7 +185,7 @@ export function createGameAudio<S extends string = string, M extends string = st
   }
 
   /**
-   * Plays one voice line now, outside the queue (the first duel, the clock). Resolves when it ends; true when a file
+   * Plays one voice line now, outside the queue (the tower, the clock). Resolves when it ends; true when a file
    * played, false when it has none (every cue has fired by then either way). A stopVoice stops it.
    */
   async function playLine(lineId: string, opts: PlayLineOptions = {}): Promise<boolean> {

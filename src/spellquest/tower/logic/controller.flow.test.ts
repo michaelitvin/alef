@@ -73,7 +73,7 @@ const flushLines = async () => {
 }
 const lines = () => audio.playLine.mock.calls.map((c) => c[0])
 const rngConst = (v: number) => () => v
-/** the log the hook writes to (Book 2's in the tower) */
+/** the log the hook writes to (Spell Quest's in the tower) */
 const tel = createTelemetry('t-tower', { game: 'spellquest' })
 const exportTelemetry = () => tel.events()
 
@@ -106,7 +106,7 @@ function emb(over: Partial<NonNullable<Emb>> = {}) {
 const firstVisit = (over: Partial<NonNullable<Emb>> = {}) => emb({ seen: [], waves: 3, ...over }).e
 
 describe('TowerController', () => {
-  it('telemetry: every event says via: tower and its visit, and the log keeps the run number it was given (Book 2’s run)', async () => {
+  it('telemetry: every event says via: tower and its visit, and the log keeps the run number it was given (Spell Quest’s run)', async () => {
     tel.setRun(7)
     const { result, unmount } = game({ telemetry: tel, rng: rngConst(0.01), embedded: firstVisit() })
     act(() => result.current.start())
@@ -472,7 +472,7 @@ describe('clues are spoken once, cleanly, by the narrator (no monster voice)', (
   })
 })
 
-describe('embedded in Book 2’s run (spec: one duel, Part 3)', () => {
+describe('embedded in Spell Quest’s run (spec: one duel, Part 3)', () => {
   /** answers every monster right until `n` answers were given or the visit is done */
   async function playRight(result: ReturnType<typeof game>['result'], n: number, done: number[]) {
     await flushLines()

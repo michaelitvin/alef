@@ -27,7 +27,7 @@ export default function EnglishSettingsSection({ goTo }: SectionProps) {
       <h3>Number range for shopping</h3>
       <p>
         At the merchant he pays the exact price of a potion from his coins. The range sets the coin values and the highest
-        price. It is one setting: Book 2 uses the same range.
+        price. It is one setting: Spell Quest uses the same range.
       </p>
       <p>
         {([10, 100, 1000] as const).map((r) => (

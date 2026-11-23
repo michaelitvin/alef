@@ -1,4 +1,4 @@
-// The path of the duel's minigames on the home screen (spec: one duel, Part 4): the stations in path order, each with
+// The path of the tower's minigames on the home screen (spec: one duel, Part 4): the stations in path order, each with
 // what it teaches (for the parent: never the minigame's name) and how its picture is drawn.
 import type { ScreenId } from '../../spellquest/logic/predict'
 import { useEffect, useState } from 'react'
@@ -60,7 +60,7 @@ function readSpellQuestSave(): Partial<SpellQuestSave> | null {
   return saved.version < SAVE_VERSION ? migrateSave(saved.state, saved.version) : saved.state as Partial<SpellQuestSave>
 }
 
-/** the first duel's recent answers per mark: the saved ones (Spell Quest's tower writes them on its own page), else the store's */
+/** the tower's recent answers per mark: the saved ones (Spell Quest's tower writes them on its own page), else the store's */
 function readTowerRecent(): Record<string, string> {
   const d = readState(PROGRESS_KEY)?.tower as { recent?: Record<string, string> } | undefined
   return d?.recent ?? useProgressStore.getState().tower?.recent ?? {}
@@ -69,7 +69,7 @@ function readTowerRecent(): Record<string, string> {
 export interface StationState { id: ScreenId; learn: string; pic: Station['pic']; open: boolean; rating: 0 | 1 | 2 | 3 }
 
 /**
- * Each station: open when it is in his cycle (Spell Quest open, or his first-duel marks mastered; the tower always), and its
+ * Each station: open when it is in his cycle (Spell Quest open, or his tower marks mastered; the tower always), and its
  * 0–3 rating from his recent answers there. A missing save reads as a fresh one. Open stations first, then the locked
  * ones, each group in path order.
  */

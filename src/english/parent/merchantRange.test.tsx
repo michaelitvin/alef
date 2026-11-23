@@ -18,7 +18,7 @@ async function merchantCoins(): Promise<number[]> {
   return coins
 }
 
-describe('Book 2\'s merchant reads the shared number range', () => {
+describe('Spell Quest\'s merchant reads the shared number range', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     localStorage.clear()

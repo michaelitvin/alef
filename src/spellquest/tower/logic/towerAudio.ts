@@ -1,8 +1,8 @@
-// Tower audio (the tower in Book 2's run): the shared game-audio kit (src/shared/gameAudio) with the tower's files
+// Tower audio (the tower in Spell Quest's run): the shared game-audio kit (src/shared/gameAudio) with the tower's files
 // and numbers. Each line plays on its own (`playLine`, no queue: the hook awaits each one) on html5 at VOICE_RATE (pitch
 // kept), with its LINE_CUES timed from the call; effects on Web Audio pick a take at random. The tower has no music of
-// its own (Book 2's run plays its own), so nothing ducks. Missing files never stall. The device's sound setting
-// (effects, volume) reaches the kit through the device output, which Book 2's root follows.
+// its own (Spell Quest's run plays its own), so nothing ducks. Missing files never stall. The device's sound setting
+// (effects, volume) reaches the kit through the device output, which Spell Quest's root follows.
 import { createGameAudio } from '../../../shared/gameAudio/kit'
 import { holdAudio, unlockAudioOutput } from '../../../shared/gameAudio/output'
 import { SFX_URLS, VOICE_URLS } from '../assets/audioFiles'
@@ -78,5 +78,5 @@ export function playLine(lineId: string, onCue?: (cue: LineCue) => void): Promis
 /** Stops the line that plays now. */
 export const stopAllLines = audio.stopVoice
 
-/** The pause: everything stays silent until the play (the device output's hold, shared with Book 2's cover). */
+/** The pause: everything stays silent until the play (the device output's hold, shared with Spell Quest's cover). */
 export const muteTowerAudio = holdAudio

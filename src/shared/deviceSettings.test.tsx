@@ -12,7 +12,7 @@ beforeEach(() => localStorage.clear())
 afterEach(() => vi.restoreAllMocks())
 
 describe('device settings: one sound setting for every game', () => {
-  it('seeds once from an old Book 2 save, and writes the key at once', async () => {
+  it('seeds once from an old Spell Quest save, and writes the key at once', async () => {
     localStorage.setItem('alef-spellquest', SPELLQUEST_SAVE)
     localStorage.setItem('alef-clock', CLOCK_SAVE)
     const d = await load()
@@ -23,13 +23,13 @@ describe('device settings: one sound setting for every game', () => {
     expect(localStorage.getItem('alef-clock')).toBe(CLOCK_SAVE)
   })
 
-  it('seeds from the clock save when there is no Book 2 save', async () => {
+  it('seeds from the clock save when there is no Spell Quest save', async () => {
     localStorage.setItem('alef-clock', CLOCK_SAVE)
     const d = await load()
     expect(d.getDeviceSettings()).toEqual({ v: 1, sfx: true, music: false, volume: 0.5 })
   })
 
-  it('a Book 2 save from before it had sound fields falls through to the clock, then the defaults', async () => {
+  it('a Spell Quest save from before it had sound fields falls through to the clock, then the defaults', async () => {
     localStorage.setItem('alef-spellquest', '{"state":{"totalStars":5},"version":1}')
     localStorage.setItem('alef-clock', '{"state":{"settings":{"music":false}},"version":1}')
     const d = await load()
@@ -46,7 +46,7 @@ describe('device settings: one sound setting for every game', () => {
     expect(d.getDeviceSettings()).toEqual({ v: 1, sfx: true, music: true, volume: 0.8 })
   })
 
-  it('a later change in the Book 2 save does not seed again', async () => {
+  it('a later change in the Spell Quest save does not seed again', async () => {
     localStorage.setItem('alef-spellquest', SPELLQUEST_SAVE)
     let d = await load()
     d.getDeviceSettings()

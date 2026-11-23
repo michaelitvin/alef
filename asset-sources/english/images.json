@@ -1,212 +1,212 @@
 {
- "note": "One entry per green image in src/english/assets/img/: the Book 2 picture (or the first duel's sprite) it was derived from and how. Every other English picture is Book 2's (src/english/assets/images.ts).",
+ "note": "One entry per green image in src/english/assets/img/: the Spell Quest picture (or the tower's sprite) it was derived from and how. Every other English picture is Spell Quest's (src/english/assets/images.ts).",
  "images": [
   {
    "name": "bg-ground",
    "source": "src/spellquest/assets/img/bg-ground.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-bg-ground, no note)"
   },
   {
    "name": "bg-sky",
    "source": "src/spellquest/assets/img/bg-sky.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-bg-sky, no note)"
   },
   {
    "name": "s-cauldron",
    "source": "src/spellquest/assets/img/s-cauldron.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-cauldron, no note)"
   },
   {
    "name": "s-crystal-1",
    "source": "src/spellquest/assets/img/s-crystal-1.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-crystal-1, no note)"
   },
   {
    "name": "s-crystal-2",
    "source": "src/spellquest/assets/img/s-crystal-2.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-crystal-2, no note)"
   },
   {
    "name": "s-crystal-3",
    "source": "src/spellquest/assets/img/s-crystal-3.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-crystal-3, no note)"
   },
   {
    "name": "s-crystal-4",
    "source": "src/spellquest/assets/img/s-crystal-4.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-crystal-4, no note)"
   },
   {
    "name": "s-door",
    "source": "src/spellquest/assets/img/s-door.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-door, no note)"
   },
   {
    "name": "s-door-open",
    "source": "src/spellquest/assets/img/s-door-open.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-door-open, no note)"
   },
   {
    "name": "s-ghost",
    "source": "src/spellquest/assets/img/s-ghost.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-ghost, no note)"
   },
   {
    "name": "s-key",
    "source": "src/spellquest/assets/img/s-key.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-key, no note)"
   },
   {
    "name": "s-ladder",
    "source": "src/spellquest/assets/img/s-ladder.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-ladder, no note)"
   },
   {
    "name": "s-orb",
    "source": "src/spellquest/assets/img/s-orb.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-orb, no note)"
   },
   {
    "name": "s-plate",
    "source": "src/spellquest/assets/img/s-plate.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-plate, no note)"
   },
   {
    "name": "s-wizard-cast",
    "source": "src/spellquest/assets/img/s-wizard-cast.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-cast, no note)"
   },
   {
    "name": "s-wizard-cast-girl",
    "source": "src/spellquest/assets/img/s-wizard-cast-girl.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-cast-girl, no note)"
   },
   {
    "name": "s-wizard-dizzy",
    "source": "src/spellquest/assets/img/s-wizard-dizzy.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-dizzy, no note)"
   },
   {
    "name": "s-wizard-dizzy-girl",
    "source": "src/spellquest/assets/img/s-wizard-dizzy-girl.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-dizzy-girl, no note)"
   },
   {
    "name": "s-wizard-idle",
    "source": "src/spellquest/assets/img/s-wizard-idle.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-idle, no note)"
   },
   {
    "name": "s-wizard-idle-girl",
    "source": "src/spellquest/assets/img/s-wizard-idle-girl.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizard-idle-girl, no note)"
   },
   {
    "name": "s-wizbroom",
    "source": "src/spellquest/assets/img/s-wizbroom.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizbroom, no note)"
   },
   {
    "name": "s-wizbroom-girl",
    "source": "src/spellquest/assets/img/s-wizbroom-girl.webp",
-   "method": "recolour of the Book 2 picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the Spell Quest picture: only the purple hues (235 to 325 degrees, fading 25 degrees each side) turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-s-wizbroom-girl, no note)"
   },
   {
-   "name": "duel-tower",
+   "name": "tower-tower",
    "source": "src/spellquest/tower/assets/sprites/tower.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-tower, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-idle",
+   "name": "tower-wizard-idle",
    "source": "src/spellquest/tower/assets/sprites/wizard-idle.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-idle, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-idle-girl",
+   "name": "tower-wizard-idle-girl",
    "source": "src/spellquest/tower/assets/sprites/wizard-idle-girl.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-idle-girl, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-cast",
+   "name": "tower-wizard-cast",
    "source": "src/spellquest/tower/assets/sprites/wizard-cast.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-cast, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-cast-girl",
+   "name": "tower-wizard-cast-girl",
    "source": "src/spellquest/tower/assets/sprites/wizard-cast-girl.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-cast-girl, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-dizzy",
+   "name": "tower-wizard-dizzy",
    "source": "src/spellquest/tower/assets/sprites/wizard-dizzy.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"
   },
   {
-   "name": "duel-wizard-dizzy-girl",
+   "name": "tower-wizard-dizzy-girl",
    "source": "src/spellquest/tower/assets/sprites/wizard-dizzy-girl.webp",
-   "method": "recolour of the first duel's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
+   "method": "recolour of the tower's picture (the tower board's own sprite): only the purple hues turn 105 degrees to green; gold, skin and white stay",
    "script": "<scratch>/english/mock/recolor.py",
    "review": "approved by the parent on the review kit (item rc-duel-wizard-dizzy-girl, no note)",
    "use": "src/english/assets/towerArt.ts (Course.tower.art)"

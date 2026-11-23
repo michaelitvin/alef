@@ -1,5 +1,5 @@
 // The adaptive choice of the English path: the features of a choice (what his answers are tallied under) and the pick of a
-// sound unit near the one-mistake-in-five aim. Same method as Book 2 (`pickTarget`), with the English features.
+// sound unit near the one-mistake-in-five aim. Same method as Spell Quest (`pickTarget`), with the English features.
 import type { ScreenId } from '../../spellquest/logic/predict'
 import { featurePrior, pickTarget } from '../../spellquest/logic/predict'
 import type { Choice, RoundCtx } from '../../spellquest/logic/rounds'

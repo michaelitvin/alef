@@ -37,9 +37,9 @@ describe('the voice table', () => {
   it('lines with a tag that needs drama are creative; instructions are natural', () => {
     for (const l of LINES) expect(l.tag === 'excited' ? l.stability === 0 : l.stability === 0.5).toBe(true)
   })
-  it('new-best reuses Book 2\'s take', () => {
+  it('new-best reuses Spell Quest\'s take', () => {
     const nb = LINES.find((l) => l.id === 'new-best')!
-    expect(nb.reuse).toBe('duel2/new-best-1')
+    expect(nb.reuse).toBe('spellquest/new-best-1')
     expect(VOICE_URLS[lineAudioId('new-best', 1)]).toMatch(/new-best-1\.mp3/)
   })
   it('the four intro lines: one sentence-pair each, natural stability, the design\'s tags', () => {
@@ -51,7 +51,7 @@ describe('the voice table', () => {
       expect(l.he).toHaveLength(1)
     }
   })
-  it('the narrator is Book 2\'s', () => {
+  it('the narrator is Spell Quest\'s', () => {
     expect(VOICE.id).toBe('bIHbv24MWmeRgasZH58o')
   })
 })

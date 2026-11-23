@@ -99,7 +99,7 @@ const doorTarget = (s: DoorsView): Choice | Word => (s.plate ? s.plate.find((c) 
 /** the parts of a door's plate that light one at a time: the Hebrew word's two syllables, or the English door's words */
 const doorParts = (s: DoorsView) => (s.plate ? s.plate.length : 2)
 interface CrystalView { screen: 'crystal'; kind: number }
-/** The first duel's tower (spec: one duel, Part 3): drawn by `Tower` (the duel's own board), which reports each answer
+/** The tower's tower (spec: one duel, Part 3): drawn by `Tower` (the tower's own board), which reports each answer
  * (towerAnswer) and the end of the visit (towerDone). `visit` changes with each new visit (a pause keeps it). */
 export interface TowerView {
   screen: 'tower'; wave: number; waves: number; boss: boolean; visit: number
@@ -108,7 +108,7 @@ export interface TowerView {
    * (`Course.placement`: the tower plays its rounds; a miss costs no heart and no streak, and there is no hint)
    */
   placement?: boolean
-  /** the duel's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
+  /** the tower's מגה charge at the visit's start: it carries over from the run's last tower visit (none at a run's start) */
   mega?: number
 }
 export type ScreenView = BroomView | CauldronView | LadderView | GhostsView | DoorsView | CrystalView | DrawView | TowerView | SpellView
@@ -345,7 +345,7 @@ export class RunController {
   /** the tower's visit in progress (it survives a pause: the same visit goes on); `done` = its last wave, once over */
   private tower: { wave: number; waves: number; boss: boolean; visit: number; done: number | null; coins: number; ended?: boolean; placement?: boolean } | null = null
   private towerNo = 0
-  /** the duel's מגה charge: it carries over between the tower's visits within this run, and starts empty in a new run */
+  /** the tower's מגה charge: it carries over between the tower's visits within this run, and starts empty in a new run */
   private towerMegaCharge = 0
   private towerWaiter: ((lastWave: number) => void) | null = null
   /** this visit's length (rounds, waves, rungs, doors or words), decided when it starts */
@@ -867,7 +867,7 @@ export class RunController {
     this.tower = null
   }
 
-  // ---- the first duel's tower (spec: one duel, Part 3)
+  // ---- the tower's tower (spec: one duel, Part 3)
   /** every third tower visit is a boss visit (the run's boss rhythm); the gallery forces it */
   private towerBossNext(): boolean {
     if (this.opts.force) return !!this.opts.force.towerBoss
@@ -875,7 +875,7 @@ export class RunController {
   }
 
   /**
-   * A tower visit: the duel's board plays two waves from where his last visit ended (a boss visit: the boss alone, at the
+   * A tower visit: the tower's board plays two waves from where his last visit ended (a boss visit: the boss alone, at the
    * next multiple of 5). Its answers come in through towerAnswer; the visit ends with towerDone. A pause keeps the visit.
    */
   private async runTower(t: number) {
@@ -905,7 +905,7 @@ export class RunController {
     this.resuming = false
     const last = tw.done ?? await this.guard(t, new Promise<number>((r) => { this.towerWaiter = r }))
     this.towerWaiter = null
-    // the hearts ran out on the tower: its answer has finished on the screen (the duel said the mark); the run ends
+    // the hearts ran out on the tower: its answer has finished on the screen (the tower said the mark); the run ends
     if (this.ending) { await this.endRun(); throw new Aborted() }
     if (!tw.placement) this.save.setTowerWave(last + 1)
     if (!tw.ended) { tw.ended = true; this.track('tower-end', { wave: tw.wave, last, boss: tw.boss }) }
@@ -920,7 +920,7 @@ export class RunController {
         await this.sleep(t, COIN_POP_MS)
       }
     }
-    // stage 0 passes when his marks are mastered by the duel's own measure (the slow lane) or he has shown that he
+    // stage 0 passes when his marks are mastered by the tower's own measure (the slow lane) or he has shown that he
     // knows them (the fast lane): Spell Quest's minigames open (once). A pass in the middle of a visit ended it at that wave.
     const lane = this.stage0Passed()
     if (lane) {
@@ -969,7 +969,7 @@ export class RunController {
     if (r === 'right') {
       this.streak++
       this.gainStar()
-      // the badge follows the streak; the duel's own streak line celebrates on the board (no second voice over it)
+      // the badge follows the streak; the tower's own streak line celebrates on the board (no second voice over it)
       const m = multiplierOf(this.streak)
       if (m > this.view.mult) { this.set({ mult: m }); this.track('mult', { mult: m, streak: this.streak }) }
       return 'on'
@@ -978,7 +978,7 @@ export class RunController {
     this.resetStreak()
     this.set({ hearts: this.hearts.left })
     if (!outcome.over) return 'on'
-    // the answer on the screen finishes (the duel's feedback), then towerDone ends the run; a pause no longer cancels it
+    // the answer on the screen finishes (the tower's feedback), then towerDone ends the run; a pause no longer cancels it
     this.ending = true
     return 'over'
   }
@@ -1013,7 +1013,7 @@ export class RunController {
     this.track('tower-mega', { target: markId, clock: Date.now(), ...(this.opts.sandbox ? { gallery: true } : {}) })
   }
 
-  /** the duel's מגה charge changed: kept for the run's next tower visit */
+  /** the tower's מגה charge changed: kept for the run's next tower visit */
   towerCharge(mega: number) {
     // (a placement check has no מגה spell: its charge is not kept)
     if (this.view.screen?.screen === 'tower' && !this.tower?.placement) this.towerMegaCharge = mega
@@ -1702,7 +1702,7 @@ export class RunController {
   }
 
   /**
-   * Ends the run: says the right answer (none after the tower: the duel said it), then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
+   * Ends the run: says the right answer (none after the tower: the tower said it), then the short defeat scene (the dizzy wizard spins and falls, a hit and its line,
    * playful, never praise for a loss), then the summary. A pause can no longer cancel it (it is already saved).
    */
   private async endRun(cue?: string): Promise<'over'> {

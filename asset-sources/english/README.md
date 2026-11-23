@@ -1,7 +1,7 @@
 # English course asset sources
 
 This folder records how each asset that is only for the English course was made. It follows the format of
-[../duel2/README.md](../duel2/README.md). The tools and the working files are kept outside this repository, under
+[../spellquest/README.md](../spellquest/README.md). The tools and the working files are kept outside this repository, under
 `<scratch>`.
 
 ## `images.json`
@@ -14,7 +14,7 @@ One entry for each green picture in `src/english/assets/img/`: `{name, source, m
 - A picture with no file in `img/` keeps the Spell Quest file (`greenImages` in `src/english/assets/images.ts`).
 - Ship only a recolour that the parent approved on the asset review. Ask the review kit (`node tools/review/cli.ts english ship`).
 
-`duel-*` are the tower's and the wizard's poses; the English tower board draws them (`towerArt.ts`). The home
+`tower-*` are the tower's and the wizard's poses; the English tower board draws them (`towerArt.ts`). The home
 card's recolours (`card*`) are approved too and belong to the home card task.
 
 ## `audio.json`

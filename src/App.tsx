@@ -124,7 +124,7 @@ function App() {
         {/* the shared parent area, behind the gate on every visit */}
         <Route path="/settings" element={<ParentPage />} />
         <Route path="/debug/routes" element={<RoutesPage />} />
-        {/* the first duel's own page is gone (it is Book 2's tower now): an old link or bookmark goes home, not to a blank page */}
+        {/* the tower's own page is gone (it is Spell Quest's tower now): an old link or bookmark goes home, not to a blank page */}
         <Route path="/duel/*" element={<Navigate to="/" replace />} />
         {/* the child's progress page is gone too (its stats are the parent's, in the parent area's Progress section) */}
         <Route path="/progress/*" element={<Navigate to="/" replace />} />

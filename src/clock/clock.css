@@ -82,7 +82,7 @@ html, body, #root { margin: 0; height: 100%; }
 }
 /* away from the corners: a tablet's rounded screen corners cut into the first ~16px (the parent 2026-10-17: the home button
    was a bit outside the screen) */
-/* the held house (src/shared/HomeButton.tsx, its look in holdButton.css): the top-left corner, as in Book 2, on the door,
+/* the held house (src/shared/HomeButton.tsx, its look in holdButton.css): the top-left corner, as in Spell Quest, on the door,
    the workshop and the pause cover */
 .ck-root .home-btn { position: absolute; top: calc(12px + env(safe-area-inset-top)); left: calc(24px + env(safe-area-inset-left)); z-index: 7; }
 /* the top bar's right end: the hint button, then the gear counter; clear of the corner */

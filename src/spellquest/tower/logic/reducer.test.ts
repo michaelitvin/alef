@@ -9,7 +9,7 @@ const mk = (over: Partial<Round> = {}): Round => ({
   id: 1, type: 'A', target: markById('kamatz'), runes: [markById('kamatz'), markById('segol')], word: wordsFor('a')[0],
   padWords: [], monster: 'fuzzy', boss: false, walkMs: 9000, ...over,
 })
-/** a visit of Book 2's run from wave 1 (the only way the duel starts) */
+/** a visit of Spell Quest's run from wave 1 (the only way the tower starts) */
 const start = () => towerReducer(initialTowerState, { type: 'START_AT', wave: 1, boss: false })
 const ready = (s: TowerState, r = mk()) => towerReducer(s, { type: 'ROUND_READY', round: r })
 const tap = (s: TowerState, id: string) => towerReducer(s, { type: 'CHOOSE', choice: { kind: 'rune', mark: markById(id) }, effect: 'boom' })
@@ -128,7 +128,7 @@ describe('towerReducer', () => {
   })
 })
 
-describe('START_AT (Book 2’s run)', () => {
+describe('START_AT (Spell Quest’s run)', () => {
   const at = (wave: number, boss = false) => towerReducer(initialTowerState, { type: 'START_AT', wave, boss })
   it('starts at that wave, with the run owning the hearts', () => {
     const s = at(7)
@@ -145,7 +145,7 @@ describe('START_AT (Book 2’s run)', () => {
     expect(s.bossHp).toBe(BOSS_HP)
     expect(s.next).toMatchObject({ kind: 'spawn', wave: 10, boss: true, announce: 'boss' })
   })
-  it('no boss after a 5th wave; the מגה meter charges as in the duel (the parent brought it back, 2026-11-14)', () => {
+  it('no boss after a 5th wave; the מגה meter charges as in the tower (the parent brought it back, 2026-11-14)', () => {
     let s = at(5)
     for (let k = 0; k < MONSTERS_PER_WAVE; k++) {
       s = tap(ready(s, mk({ id: k + 1 })), 'kamatz')

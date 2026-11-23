@@ -24,7 +24,7 @@ describe('Battlefield', () => {
     rerender(<Battlefield round={r('imp')} outcome={null} walking paused landscape={false} banner={null} />)
     expect(container.querySelector('.nd-timebar')).toBeNull()
   })
-  it('in Book 2\'s run there is no time line (the parent\'s pick), while the monster walks too', () => {
+  it('in Spell Quest\'s run there is no time line (the parent\'s pick), while the monster walks too', () => {
     const { container } = render(<Battlefield round={r('imp')} outcome={null} walking paused={false} landscape banner={null} timeLine={false} />)
     expect(container.querySelector('.nd-monster')).not.toBeNull()
     expect(container.querySelector('.nd-timebar')).toBeNull()
@@ -35,7 +35,7 @@ describe('Battlefield', () => {
     expect(container.querySelector('.nd-wizard')!.getAttribute('src')).toContain('wizard-cast')
     expect(container.querySelector('.nd-blast')).not.toBeNull()
   })
-  it('in Book 2\'s run the hit shows no +points (the first duel\'s points are retired: the top bar counts the stars)', () => {
+  it('in Spell Quest\'s run the hit shows no +points (the tower\'s points are retired: the top bar counts the stars)', () => {
     const hit = { kind: 'hit' as const, choiceKey: 'kamatz', mega: false, final: true, points: 280, effect: 'boom' as const }
     const own = render(<Battlefield round={r('imp')} outcome={hit} walking paused={false} landscape={false} banner={null} />)
     expect(own.container.querySelector('.nd-plus')!.textContent).toBe('+280')

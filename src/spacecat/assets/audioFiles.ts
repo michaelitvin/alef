@@ -1,5 +1,5 @@
 // Space Cat's voice files, generated host-locally and copied in once the parent has picked a take (asset-sources/spacecat/).
-// Files arrive progressively: a line whose file is missing simply does not play. `new-best` plays Book 2's approved take.
+// Files arrive progressively: a line whose file is missing simply does not play. `new-best` plays Spell Quest's approved take.
 import newBest from '../../spellquest/assets/audio/voice/new-best-1.mp3'
 
 const byName = (files: Record<string, string>) =>

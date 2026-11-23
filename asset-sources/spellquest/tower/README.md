@@ -1,6 +1,6 @@
 # Tower asset sources
 
-This folder records how each shipped asset of the tower of Spell Quest (once the first duel) was made.
+This folder records how each shipped asset of the tower of Spell Quest (once the tower) was made.
 Use it to make a similar asset, to make a new take of an asset, or to learn which prompt worked.
 
 | File | Contents |
@@ -12,7 +12,7 @@ Use it to make a similar asset, to make a new take of an asset, or to learn whic
 | `tools/gen_ref.py` | Gemini image generator with a style-reference image. |
 | `tools/export_final.py` | Magenta background → transparent, cropped WebP sprite. |
 
-Read [docs/minigame-rules/](../../docs/minigame-rules/README.md) before you make new assets. Its files voice-wording.md, voice-delivery.md and pronunciation.md have the voice and pronunciation rules.
+Read [docs/minigame-rules/](../../../docs/minigame-rules/README.md) before you make new assets. Its files voice-wording.md, voice-delivery.md and pronunciation.md have the voice and pronunciation rules.
 
 ## Keys
 

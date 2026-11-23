@@ -22,13 +22,13 @@ describe('telemetry export', () => {
   })
 
   it('one document for several games: one about per game, each with its events', () => {
-    const a = { game: 'Book 2', docs: ['docs/a.md'] }
+    const a = { game: 'Spell Quest', docs: ['docs/a.md'] }
     const b = { game: 'Clock', docs: ['docs/b.md'] }
     const ev = (e: string) => ({ t: 1, s: 'x', run: 0, e })
     const doc = JSON.parse(exportDoc([{ about: a, events: [ev('one')] }, { about: b, events: [ev('two'), ev('three')] }]))
     expect(typeof doc.exportedAt).toBe('string')
     expect(doc.games).toHaveLength(2)
-    expect(doc.games[0].about).toMatchObject({ game: 'Book 2', repo: 'https://github.com/michaelitvin/alef' })
+    expect(doc.games[0].about).toMatchObject({ game: 'Spell Quest', repo: 'https://github.com/michaelitvin/alef' })
     expect(doc.games[0].about.docs).toEqual(['docs/a.md', 'docs/minigame-rules/README.md'])
     expect(doc.games[1].events.map((e: { e: string }) => e.e)).toEqual(['two', 'three'])
     expect(doc.since).toBeNull()
@@ -114,7 +114,7 @@ describe('readLog and filterEvents (for logs of games that are not on this page)
 describe('the storage budget', () => {
   // localStorage counts UTF-16 code units; a 5 MB quota is ≈2.5 M of them in the strictest browsers.
   const QUOTA_CHARS = 2_500_000
-  const FROZEN_WORST = 1_000_000 // the frozen first-duel log at its old cap, the most it can hold
+  const FROZEN_WORST = 1_000_000 // the frozen tower log at its old cap, the most it can hold
 
   it('one live budget of 0.8 M for every game, 0.15 M of roll-ups, and staging keeps a quarter of each', () => {
     expect(LIVE_BUDGET).toBe(800_000)
@@ -212,7 +212,7 @@ describe('the log registry', () => {
     expect(FROZEN_LOG_KEYS).toContain('alef-tower-history-telemetry')
   })
 
-  it('old ids inside events read as the new ones: book2 is spellquest, an old first-duel event is the tower', async () => {
+  it('old ids inside events read as the new ones: book2 is spellquest, an old tower event is the tower', async () => {
     const { aliasEvent, filterEvents, readLog } = await import('./telemetry')
     const old = { t: 1, s: 'x', run: 1, e: 'round', g: 'book2' }
     expect(aliasEvent(old, 'alef-spellquest-telemetry').g).toBe('spellquest')

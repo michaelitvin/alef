@@ -143,7 +143,7 @@ describe('the English doors', () => {
   })
 
   it('a word without a picture file is neither a key nor a door\'s word', () => {
-    // the course's picture rule: the files of assets/images (pw-<word>, word-<word>, or a renamed Book 2 picture)
+    // the course's picture rule: the files of assets/images (pw-<word>, word-<word>, or a renamed Spell Quest picture)
     const d = { picture: wordPicture }
     for (const stage of [2, 4, 9]) {
       for (const { round, keys } of visits(stage, 40, d).flat()) {

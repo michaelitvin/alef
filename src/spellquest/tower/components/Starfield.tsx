@@ -1,4 +1,4 @@
-// The tower's night sky and its announcement banner (shared by the duel's page and Book 2's tower screen).
+// The tower's night sky and its announcement banner (shared by the tower's page and Spell Quest's tower screen).
 import { useMemo } from 'react'
 import type { BannerVisual } from '../logic/controller'
 import { Icon } from './Icon'

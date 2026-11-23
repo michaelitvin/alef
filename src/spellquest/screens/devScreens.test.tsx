@@ -9,7 +9,7 @@ import { STROKES } from '../data/strokes'
 import { WORDS } from '../data/words'
 import { useSpellQuestStore } from '../store'
 
-describe('Book 2\'s developer screens (opened from the parent area)', () => {
+describe('Spell Quest\'s developer screens (opened from the parent area)', () => {
   afterEach(() => vi.restoreAllMocks())
   it('gallery lists every screen and stage', () => {
     const { container } = render(<Gallery onBack={() => {}} onStart={() => {}} />)

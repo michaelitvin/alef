@@ -1,10 +1,10 @@
-// Mastery (spec: one duel, Part 3): when the first duel's tower is mastered (stage 0 passes and Spell Quest opens), which
+// Mastery (spec: one duel, Part 3): when the tower's tower is mastered (stage 0 passes and Spell Quest opens), which
 // screens get a shorter visit or are skipped in every other cycle (never removed), and the 0–3 station rating.
 import type { ScreenId } from './predict'
 
 /**
  * The tower is mastered when every mark has at least `minAnswers` recent answers and, over all marks' recent answers
- * together, at least `rate` are right. A per-mark bar was far too strict: the duel's picker aims each round at one mistake
+ * together, at least `rate` are right. A per-mark bar was far too strict: the tower's picker aims each round at one mistake
  * in five, so some mark always sits near 80 %, and a simulated 80 %-right player needed thousands of answers. With this
  * rule he needs about 95 (mastery.test), about ten tower visits of two waves (tune in playtest).
  */
@@ -41,7 +41,7 @@ export function stage0Lane(recent: Record<string, string>, markIds: string[], ta
   return towerMastered(recent, markIds) ? 'slow' : null
 }
 
-/** his recent answers on a screen: the tower's are the first duel's (every mark's, joined); the others Spell Quest's `sc:` feature */
+/** his recent answers on a screen: the tower's are the tower's (every mark's, joined); the others Spell Quest's `sc:` feature */
 export function screenRecent(screen: ScreenId, d2recent: Record<string, string>, towerRecent: Record<string, string>): string {
   if (screen === 'tower') return Object.values(towerRecent).join('')
   return d2recent[`sc:${screen}`] ?? ''

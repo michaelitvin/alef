@@ -7,7 +7,7 @@ export const SOUND_GROUPS: SoundGroup[] = ['a', 'e', 'i', 'o', 'u', 'silent']
 
 const VAV: Record<string, TowerMark['vav']> = { 'holam-male': 'holam', shuruk: 'shuruk' }
 
-/** The duel's view of nikkud.yaml — no new copy of the data. */
+/** The tower's view of nikkud.yaml — no new copy of the data. */
 export const TOWER_MARKS: TowerMark[] = (nikkudYaml as { nikkud: YamlNikkud[] }).nikkud.map((n) => ({
   id: n.id,
   name: n.name,

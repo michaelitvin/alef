@@ -247,17 +247,17 @@ export interface Course {
   /** the boy and girl pictures of the play gate's question, and its line id */
   genderPictures: { boy: string; girl: string; askLine: string }
   /**
-   * the tower (the first duel's board): its rounds and spoken parts, where its answers are kept (lazy, like `save`), and
-   * the duel's line player (default: the duel's own audio)
+   * the tower's board: its rounds and spoken parts, where its answers are kept (lazy, like `save`), and
+   * the tower's line player (default: the tower's own audio)
    */
   tower: {
     content: TowerContent; tallies: () => TowerTallyPort; audio?: TowerAudio
     /**
      * what a tower answer on `round` counts for (its target, by what the round asks): the run records it as any screen's answer (its features, and the stage
-     * pass when `newStage`). Hebrew: unset, the tower's answers stay the first duel's (English: logic/tower's towerFacts)
+     * pass when `newStage`). Hebrew: unset, the tower's answers stay the tower's (English: logic/tower's towerFacts)
      */
     facts?: (round: Round, stage: number) => { features: string[]; newStage: boolean }
-    /** the tower and the wizard's poses the board draws (English: the green ones); unset: the first duel's own */
+    /** the tower and the wizard's poses the board draws (English: the green ones); unset: the tower's own */
     art?: TowerArt
   }
   /**
@@ -278,7 +278,7 @@ export interface CoursePlacement {
   due(save: SavePort): boolean
   /** the placement's rounds over this save (they ask what its walk asks next) */
   tower(save: SavePort): TowerContent
-  /** every round's walk time (the duel's walkOverride): the pace never adapts during the check */
+  /** every round's walk time (the tower's walkOverride): the pace never adapts during the check */
   walkMs: number
   /**
    * one answer on the round of `target`, walked, credited and saved at once; `stage`: the stage it asked; `done`: he is

@@ -1,4 +1,4 @@
-// The clock's way home (rule: a way out of the game on a child screen needs a 2 s hold): the same held house as Book 2,
+// The clock's way home (rule: a way out of the game on a child screen needs a 2 s hold): the same held house as Spell Quest,
 // in the top-left corner of the door, the workshop (also during the bonus game and on the day summary) and the pause
 // cover. A tap never leaves; a 2 s hold leaves to alef's home screen, the hub of all the games.
 import { act, fireEvent, render } from '@testing-library/react'
@@ -42,7 +42,7 @@ describe('the clock\'s held house', () => {
   beforeEach(() => { vi.useFakeTimers(); state.phase = 'enter'; state.paused = false; state.exits = 0 })
   afterEach(() => { vi.useRealTimers() })
 
-  it('is Book 2\'s house: the shared held button with the same glyph, no text, no link', () => {
+  it('is Spell Quest\'s house: the shared held button with the same glyph, no text, no link', () => {
     const { container } = render(<Workshop onExit={() => {}} />)
     const btn = container.querySelector(HOME)!
     expect(btn).not.toBeNull()
@@ -109,7 +109,7 @@ describe('the clock\'s held house', () => {
     expect(onHome).toHaveBeenCalledTimes(1)
   })
 
-  it('the corner: top left, 24 px from the edge, as in Book 2 (the stylesheet)', async () => {
+  it('the corner: top left, 24 px from the edge, as in Spell Quest (the stylesheet)', async () => {
     const fs = (await import(/* @vite-ignore */ 'node:' + 'fs')) as { readFileSync: (p: string, enc: string) => string }
     const css = fs.readFileSync('src/clock/clock.css', 'utf8').replace(/\s+/g, ' ')
     const rule = css.match(/\.ck-root \.home-btn \{([^}]*)\}/)![1]
@@ -119,7 +119,7 @@ describe('the clock\'s held house', () => {
   })
 })
 
-describe('the clock leaves to alef\'s home, the way Book 2 does', () => {
+describe('the clock leaves to alef\'s home, the way Spell Quest does', () => {
   beforeEach(() => { setGender('boy', 'parent'); useClockStore.setState({ welcomed: true }); state.phase = 'enter'; state.paused = false; state.exits = 0 })
   afterEach(() => { clearGender(); vi.useRealTimers() })
 

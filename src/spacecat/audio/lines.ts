@@ -16,7 +16,7 @@ export interface LineDef {
   reuse?: string
 }
 
-/** Book 2's narrator (the game's narrator; Space Cat has no speaking character) */
+/** Spell Quest's narrator (the game's narrator; Space Cat has no speaking character) */
 export const VOICE = { id: 'bIHbv24MWmeRgasZH58o', model: 'eleven_v4', lang: 'he' } as const
 
 const line = (id: string, where: string, he: string[], stability: number, tag?: string, reuse?: string): LineDef => ({
@@ -38,7 +38,7 @@ export const LINES: LineDef[] = [
   line('jumps', 'The first two jump rounds, after the numbers have hopped in; again after 3 picks of "the last number + 1" in a play day', ['סוֹפְרִים בִּקְפִיצוֹת שָׁווֹת. אֵיזֶה מִסְפָּר בָּא עַכְשָׁו?'], 0.5, 'playful'),
   line('times', 'The first two times rounds, with the pods; again after 3 picks of the sum in a play day', ['כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכֻלָּן יַחַד?'], 0.5, 'warmly'),
   line('divide', 'The first two divide rounds, while the dots fall into the pods; again after 3 picks of the divisor or the difference in a play day', ['חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכָל קְבוּצָה?'], 0.5, 'warmly'),
-  line('new-best', 'The end screen: a new best (each time; it is rare)', ['שִׂיא חָדָשׁ.'], 0.5, undefined, 'duel2/new-best-1'),
+  line('new-best', 'The end screen: a new best (each time; it is rare)', ['שִׂיא חָדָשׁ.'], 0.5, undefined, 'spellquest/new-best-1'),
 ]
 
 /** the file id of a line's variation n (from 1) */

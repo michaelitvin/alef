@@ -19,7 +19,7 @@ export const galleryFor = (course: CourseId): GalleryEntry[] => GALLERY
   .filter((e) => course !== 'he' || HEBREW_SPELL_AVAILABLE || e.force.screen !== 'spell')
   .map((e) => (course === 'en' && e.en ? { ...e, label: e.en.label ?? e.label, force: { ...e.force, ...e.en.force } } : e))
 export const GALLERY: GalleryEntry[] = [
-  { id: 'tower', label: 'Tower — two waves (the first duel, in the run)', force: { screen: 'tower', stage: 1 } },
+  { id: 'tower', label: 'Tower — two waves (the tower, in the run)', force: { screen: 'tower', stage: 1 } },
   { id: 'tower-boss', label: 'Tower — boss', force: { screen: 'tower', stage: 1, towerBoss: true } },
   { id: 'broom-letter', label: 'Broom flight — letters (hear a letter name)', force: { screen: 'broom', stage: 1, kind: 'letter', demo: true } },
   { id: 'broom-syllable', label: 'Broom flight — syllables', force: { screen: 'broom', stage: 2, kind: 'syllable', demo: true } },
@@ -53,7 +53,7 @@ export function Gallery({ onBack, onStart }: { onBack: () => void; onStart: (e: 
   return (
     <div className="d2-parent">
       <button onClick={onBack} style={{ float: 'right', fontSize: 18 }}>Back</button>
-      <h2>Book 2 — screens</h2>
+      <h2>Spell Quest — screens</h2>
       <p>Each screen starts at once with its demo. Nothing you do here changes his progress. Use Back (bottom right) to return.</p>
       <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 10, maxWidth: 560 }}>
         {galleryFor(course.id).map((e) => (

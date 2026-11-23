@@ -1,11 +1,11 @@
 // The English tower's green look (design Part 2: the wizard fully green): the tower and the wizard's poses, in place of the
-// first duel's own (src/assets/duel/sprites.ts), which the Hebrew board keeps.
+// tower's own (src/spellquest/tower/assets/sprites.ts), which the Hebrew board keeps.
 import type { TowerArt } from '../../spellquest/tower/assets/sprites'
 
-const files = import.meta.glob('./img/duel-*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+const files = import.meta.glob('./img/tower-*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 const file = (name: string): string => {
-  const url = files[`./img/duel-${name}.webp`]
-  if (!url) throw new Error(`no green file duel-${name}`)
+  const url = files[`./img/tower-${name}.webp`]
+  if (!url) throw new Error(`no green file tower-${name}`)
   return url
 }
 

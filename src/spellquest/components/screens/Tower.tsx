@@ -1,8 +1,8 @@
-// The first duel's tower as a screen of Spell Quest's run (spec: one duel, Part 3): the duel's own board (Battlefield and
-// SpellPad, its rules and timing in useTower's embedded mode), drawn over the stage under Spell Quest's top bar. No DuelHud
-// (the top bar shows the run's hearts, stars and coins) and none of the duel's covers: Spell Quest's pause cover holds, and the
-// run's summary ends the run. The מגה spell is the duel's (the parent brought it back, 2026-11-14): its lightning button
-// sits above the rune row, as in the duel.
+// The tower's tower as a screen of Spell Quest's run (spec: one duel, Part 3): the tower's own board (Battlefield and
+// SpellPad, its rules and timing in useTower's embedded mode), drawn over the stage under Spell Quest's top bar. No tower HUD
+// (the top bar shows the run's hearts, stars and coins) and none of the tower's covers: Spell Quest's pause cover holds, and the
+// run's summary ends the run. The מגה spell is the tower's (the parent brought it back, 2026-11-14): its lightning button
+// sits above the rune row, as in the tower.
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { useTower } from '../../tower/useTower'
@@ -94,7 +94,7 @@ export function Tower({ view, paused, dry, onAnswer, onDone, onWaveEnd, onMega, 
       placement: !dry && !!view.placement, onWaveEnd: dry ? undefined : onWaveEnd,
       mega: view.mega, onMega, onCharge, megaOff: !!placing,
     },
-    // the duel's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Spell Quest's)
+    // the tower's events go to the course's log (via: 'tower'), in its run (ADR 0004; Hebrew: Spell Quest's)
     telemetry: dry ? NO_TELEMETRY : course?.telemetry ?? spellQuestTelemetry,
   })
   const { state } = game

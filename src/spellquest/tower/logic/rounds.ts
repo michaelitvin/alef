@@ -20,7 +20,7 @@ export type Confusions = Record<string, Record<string, number>>
 
 /**
  * Pick the mark whose predicted mistake rate is closest to 1 in 5; when none is that hard, the hardest available
- * (see pickNearTarget). `cover` (the placement check of Book 2's stage 0): while a mark has no recent answer, one of
+ * (see pickNearTarget). `cover` (the placement check of Spell Quest's stage 0): while a mark has no recent answer, one of
  * those marks, at random, so that the first answers ask every mark once.
  */
 export function pickTarget(rng: Rng, lifetime: Record<string, LifetimeTally>, recent: Record<string, string> = {}, opts: { cover?: boolean } = {}): TowerMark {
@@ -61,7 +61,7 @@ export interface MakeRoundOpts {
   confusions?: Confusions
   /** a boss fight continuing: where the boss starts (0..1 along the path) */
   bossStart?: number
-  /** the placement check (Book 2's stage 0): the marks with no recent answer first (pickTarget) */
+  /** the placement check (Spell Quest's stage 0): the marks with no recent answer first (pickTarget) */
   cover?: boolean
 }
 

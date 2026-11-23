@@ -74,7 +74,7 @@ describe('the English tower\'s rounds', () => {
     expect(texts(r)).not.toContain('o')
     // a tap on the sign says the picture's word
     expect(t.questionParts(r)).toEqual(['w-fox'])
-    // a first-sound picture keeps the first duel's explanation
+    // a first-sound picture keeps the tower's explanation
     const m = enTowerRound(deps(at(3)), opts(), { kind: 'letter', unit: 'm' })
     expect(t.howLine(m)).toMatchObject({ id: 'line-how-A', key: 'A' })
   })
@@ -204,7 +204,7 @@ describe('the English tower\'s rounds', () => {
     const tower = new Set<string>([...EN_TOWER_LINE_IDS, ...EN_TOWER_OWN_LINES])
     const bad = [...ids].filter((id) => !tower.has(id) && !isVoiceId(id))
     expect(bad).toEqual([])
-    // the tower's own lines have English texts; no Hebrew duel line (wiz-*, mon-*) is ever named
+    // the tower's own lines have English texts; no Hebrew tower line (wiz-*, mon-*) is ever named
     for (const id of EN_TOWER_OWN_LINES) expect(enLine(id)).toBeDefined()
     expect([...ids].filter((id) => /^(wiz|mon)-/.test(id))).toEqual([])
   })
@@ -277,7 +277,7 @@ describe('an English tower run', () => {
   it('an English tower run writes its tallies into alef-english, not alef-progress', async () => {
     englishSavePort().setStage(2)
     const progressBefore = localStorage.getItem('alef-progress')
-    const duelBefore = structuredClone(useProgressStore.getState().tower)
+    const towerBefore = structuredClone(useProgressStore.getState().tower)
     const said: string[] = []
     const audio: TowerAudio = {
       playLine: (id) => { said.push(id); return Promise.resolve() }, playSfx: () => Promise.resolve(),
@@ -306,8 +306,8 @@ describe('an English tower run', () => {
     const seen = Object.values(saved.tower.byMark as Record<string, { seen: number }>).reduce((n, t) => n + t.seen, 0)
     expect(seen).toBe(5)
     expect(localStorage.getItem('alef-progress')).toBe(progressBefore)
-    expect(useProgressStore.getState().tower).toEqual(duelBefore)
-    // it spoke English: no Hebrew duel line
+    expect(useProgressStore.getState().tower).toEqual(towerBefore)
+    // it spoke English: no Hebrew tower line
     expect(said.filter((id) => /^(wiz|mon)-/.test(id))).toEqual([])
   })
 
@@ -379,7 +379,7 @@ describe('an English tower run', () => {
 })
 
 describe('the English course', () => {
-  it('reads its lines\' takes from the English lines, the Hebrew course from Book 2\'s', async () => {
+  it('reads its lines\' takes from the English lines, the Hebrew course from Spell Quest\'s', async () => {
     const { HEBREW } = await import('../../spellquest/course/hebrew')
     const { lineById } = await import('../../spellquest/data/lines')
     expect(ENGLISH.lineVariations('q-ghosts-sound')).toBe(enLine('q-ghosts-sound')!.variations)
@@ -444,7 +444,7 @@ describe('the tower\'s answers count as any screen\'s', () => {
     expect(englishTower(deps(at(1))).feedbackParts(heart, FULL)).toEqual(['hw-a'])
   })
 
-  it('the Hebrew tower\'s answers stay the first duel\'s', async () => {
+  it('the Hebrew tower\'s answers stay the tower\'s', async () => {
     const { HEBREW } = await import('../../spellquest/course/hebrew')
     expect(HEBREW.tower.facts).toBeUndefined()
   })

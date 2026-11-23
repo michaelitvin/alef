@@ -39,12 +39,12 @@ describe('the English page', () => {
   })
 
   it('opening English leaves alef-spellquest and alef-progress byte-equal', async () => {
-    const duel2 = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-spellquest', duel2); localStorage.setItem('alef-progress', PROGRESS_RAW)
+    const spellQuestSave = hebrewSaveWith({ coins: 40 }); localStorage.setItem('alef-spellquest', spellQuestSave); localStorage.setItem('alef-progress', PROGRESS_RAW)
     await useSpellQuestStore.persist.rehydrate()
     at('/spellquest/?course=en'); render(<SpellQuestApp goHome={() => {}} />); await screen.findByTestId('cover', {}, { timeout: 15000 })
-    // the first duel's import runs on the Hebrew page only
+    // the tower's import runs on the Hebrew page only
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
-    expect(localStorage.getItem('alef-spellquest')).toBe(duel2); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
+    expect(localStorage.getItem('alef-spellquest')).toBe(spellQuestSave); expect(localStorage.getItem('alef-progress')).toBe(PROGRESS_RAW)
   })
 
   it('the English page tracks into its own log', async () => {

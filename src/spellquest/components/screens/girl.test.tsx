@@ -15,7 +15,7 @@ const wave = [syllableChoice(syllable('bet', 'kamatz')), syllableChoice(syllable
 const hrefs = (root: Element) => [...root.querySelectorAll('image, img')].map((e) => e.getAttribute('href') ?? e.getAttribute('src') ?? '')
   .filter((h) => /wiz/.test(h))
 
-describe('the girl wizard (Book 2)', () => {
+describe('the girl wizard (Spell Quest)', () => {
   afterEach(() => clearGender())
   const screens = () => [
     render(<Broom waves={[]} travelMs={5000} lane={1} onLane={() => {}} phase="answer" clock={() => 0} />).container,

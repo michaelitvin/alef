@@ -21,7 +21,7 @@ export const ROSTER: { id: string; fromWave: number }[] = [
 export const unlockedMonsters = (wave: number) => ROSTER.filter((m) => m.fromWave <= wave).map((m) => m.id)
 export const newMonsterAt = (wave: number) => (wave > 1 ? (ROSTER.find((m) => m.fromWave === wave)?.id ?? null) : null)
 /**
- * The monsters whose "new monster" wave lies in [from, to]: a tower boss visit of Book 2's run jumps from the wave where
+ * The monsters whose "new monster" wave lies in [from, to]: a tower boss visit of Spell Quest's run jumps from the wave where
  * the last visit ended to the boss's wave, so their introductions are owed (they come the first time each appears).
  */
 export const skippedMonsters = (from: number, to: number) => ROSTER.filter((m) => m.fromWave > 1 && m.fromWave >= from && m.fromWave <= to).map((m) => m.id)

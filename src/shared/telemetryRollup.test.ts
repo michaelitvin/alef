@@ -51,7 +51,7 @@ const flat = (r: Rollup) => {
 }
 
 describe('folding chunks into a roll-up', () => {
-  it.each([['Book 2', spellQuestEvents, spellQuestFacts], ['the clock', clockEvents, clockFacts], ['Space Cat', spaceCatEvents, spaceCatFacts]] as const)(
+  it.each([['Spell Quest', spellQuestEvents, spellQuestFacts], ['the clock', clockEvents, clockFacts], ['Space Cat', spaceCatEvents, spaceCatFacts]] as const)(
     '%s: per item and day, the same counts, wrongs, nears, mix-ups, abandons and histogram as the raw events', (_, gen, facts) => {
       const evs = gen({ days: 20 })
       const r = emptyRollup()
@@ -85,7 +85,7 @@ describe('folding chunks into a roll-up', () => {
       e(2, { screen: 'tower', target: 'segol', result: 'wrong', gallery: true })])).toEqual([])
   })
 
-  it('Book 2: the tower answer takes its latency, near and pick from the tower\'s choice of the same round', () => {
+  it('Spell Quest: the tower answer takes its latency, near and pick from the tower\'s choice of the same round', () => {
     const tw = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'spellquest', ...data, via: 'tower', visit: 1 })
     const facts = spellQuestFacts([
       tw(1, 'round', { round: 4, target: 'segol' }),

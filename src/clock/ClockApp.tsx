@@ -22,7 +22,7 @@ function askCues(id: string) {
   return { boy: at(/^(בן|boy)/i, 1.2), girl: at(/^(בת|girl)/i, 1.7) }
 }
 
-/** back to alef's home screen, the hub of all the games (Book 2 leaves the same way) */
+/** back to alef's home screen, the hub of all the games (Spell Quest leaves the same way) */
 function defaultGoHome() { location.assign(import.meta.env.BASE_URL) }
 
 export default function ClockApp({ goHome = defaultGoHome }: { goHome?: () => void } = {}) {
@@ -79,7 +79,7 @@ export default function ClockApp({ goHome = defaultGoHome }: { goHome?: () => vo
     return () => window.removeEventListener('pointerdown', start)
   }, [door, screen])
   // the held house (the door, the workshop, its pause cover): the workday has ended (Workshop: its exit), the game leaves
-  // to alef's home screen, as Book 2 does; nothing of the game stays mounted meanwhile (the workshop's play time is
+  // to alef's home screen, as Spell Quest does; nothing of the game stays mounted meanwhile (the workshop's play time is
   // written as it unmounts)
   const leave = () => {
     stopVoices()

@@ -18,7 +18,7 @@ export const englishAudio = createGameAudio<SpellQuestSfx, SpellQuestMusic>({
 })
 
 /**
- * The cues the duel waits for (the tower shows after the intro names it, the מגה button after "mega spell ready"). The
+ * The cues the tower waits for (the tower shows after the intro names it, the מגה button after "mega spell ready"). The
  * English takes have no cue timings: each fires as its line ends (or at once, when the line has no file).
  */
 const LINE_CUES: Record<string, LineCue[]> = { 'line-intro': ['tower'], 'line-mega': ['lightning'] }
@@ -28,12 +28,12 @@ const fileOf = (id: string) => {
   const l = enLine(id)
   return l ? enLineAudioId(id, 1 + Math.floor(Math.random() * l.variations)) : id
 }
-/** the file lineAsset chose for an id, played by the playLine that follows it (the duel logs, then plays) */
+/** the file lineAsset chose for an id, played by the playLine that follows it (the tower logs, then plays) */
 const chosen = new Map<string, string>()
 
 /**
- * The tower's line player on the English kit: the English lines and voices (never the Hebrew duel's), the duel's own
- * effects (the board is the duel's). A missing file plays nothing and the flow goes on.
+ * The tower's line player on the English kit: the English lines and voices (never the Hebrew tower's), the tower's own
+ * effects (the board is the tower's). A missing file plays nothing and the flow goes on.
  */
 export const englishTowerAudio: TowerAudio = {
   playLine(id, onCue, onHeard) {

@@ -22,7 +22,7 @@ const draw = (v: SpellView, dir: 'ltr' | 'rtl', onDrop = vi.fn(), phase: 'answer
   render(<SpellBook view={v} phase={phase} dir={dir} onDrop={onDrop} />).container
 
 describe('the spell book screen', () => {
-  it('Book 2 keeps the drawn pages and their geometry (only the course with the picture moves the book)', () => {
+  it('Spell Quest keeps the drawn pages and their geometry (only the course with the picture moves the book)', () => {
     expect(bookGeometry(false)).toEqual({ book: { x: 100, y: 50, w: 1400, h: 620 }, mid: { left: 0.25, right: 0.75 }, pageW: 0.5, pagePad: 45, boxY: 360 })
     expect(BOOK).toEqual({ x: 100, y: 50, w: 1400, h: 620 })
     expect(BOX_Y).toBe(360)

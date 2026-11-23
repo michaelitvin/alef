@@ -5,8 +5,8 @@ import { ENGLISH_VOICE_URLS } from './assets/audioFiles'
 import { contentStages } from './content/ready'
 import { enRecordStageAnswer } from './logic/stages'
 
-/** strict in the staging and production builds; dev, tests and the verify build (VITE_DUEL2_TEST) open every stage with words */
-const strict = !import.meta.env.DEV && import.meta.env.MODE !== 'test' && import.meta.env.VITE_DUEL2_TEST !== '1'
+/** strict in the staging and production builds; dev, tests and the verify build (VITE_SPELLQUEST_TEST) open every stage with words */
+const strict = !import.meta.env.DEV && import.meta.env.MODE !== 'test' && import.meta.env.VITE_SPELLQUEST_TEST !== '1'
 
 export const READY_STAGES: number[] = contentStages({ strict, voices: new Set(Object.keys(ENGLISH_VOICE_URLS)) })
 

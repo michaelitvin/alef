@@ -13,10 +13,10 @@ describe('a page restored from the back/forward cache reads the saves again', ()
   let off = () => {}
   afterEach(() => { off(); localStorage.clear() })
 
-  it('the progress store takes what another page (Book 2’s tower) saved meanwhile, so a later write cannot undo it', async () => {
+  it('the progress store takes what another page (Spell Quest’s tower) saved meanwhile, so a later write cannot undo it', async () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
     off = rehydrateOnRestore(useProgressStore)
-    // Book 2's page saved his tower answers while this page waited in the cache
+    // Spell Quest's page saved his tower answers while this page waited in the cache
     const saved = JSON.parse(localStorage.getItem('alef-progress')!)
     saved.state.tower = { ...saved.state.tower, recent: { kamatz: 'ooxo' } }
     localStorage.setItem('alef-progress', JSON.stringify(saved))

@@ -31,7 +31,7 @@ export interface PassFacts {
   draw: boolean
   /** Spell Quest's minigames are open (before: stage 0, the tower alone) */
   screensOpen: boolean
-  /** Spell Quest's recent answers per feature, and the first duel's per mark */
+  /** Spell Quest's recent answers per feature, and the tower's per mark */
   recent: Readonly<Record<string, string>>
   towerRecent: Readonly<Record<string, string>>
   /** the cycles he has started (the save) */
@@ -295,7 +295,7 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
       payOwed()
       r.save.push({ op: 'endRun', screen: s.screen === 'crystal' ? 'doors' : s.screen, score: ev.score })
       r.track.push({ e: 'run-end', data: { screen: s.screen, score: ev.score, crystals: s.crystals } })
-      // the right answer is said (none after the tower: the duel said it), then the defeat scene (playful, never praise)
+      // the right answer is said (none after the tower: the tower said it), then the defeat scene (playful, never praise)
       if (ev.cue) { r.say.push({ id: ev.cue }); go({ k: 'cue' }, { for: 'say' }) } else defeat()
       break
     }

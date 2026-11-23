@@ -1,4 +1,4 @@
-// Duel sprites: Gemini renders in the approved "night sky magic" style (sheet B), magenta keyed out by
+// Tower sprites: Gemini renders in the approved "night sky magic" style (sheet B), magenta keyed out by
 // <scratch>/nikkud-duel/art/export_final.py. Monsters walk right → left: `faces` records the drawing's
 // direction and right-facing ones are mirrored (motion cues count — the ghost's trailing tail).
 import wizardIdle from './sprites/wizard-idle.webp'

@@ -34,7 +34,7 @@ describe('the English card (English path design, Part 1)', () => {
   })
 
   it('the Hebrew play button still points left', () => {
-    const { container } = render(<PlayButton theme="duel" />)
+    const { container } = render(<PlayButton theme="spellquest" />)
     expect(container.querySelector('[data-tri]')!.getAttribute('d')).toBe('M59 31 L29 50 L59 69 Z')
   })
 })

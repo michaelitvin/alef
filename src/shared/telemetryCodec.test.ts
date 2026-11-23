@@ -75,7 +75,7 @@ describe('the codec', () => {
     expect(() => encodeChunk([{ ...ev(1, 'a'), t: 1.5 }])).toThrow()
   })
 
-  it('compresses the synthetic logs against today\'s JSON: Book 2 at least 5×, the clock at least 6×', () => {
+  it('compresses the synthetic logs against today\'s JSON: Spell Quest at least 5×, the clock at least 6×', () => {
     const r = { spellquest: ratio(GOLDEN_SPELLQUEST()), clock: ratio(GOLDEN_CLOCK()), spellQuestBig: ratio(spellQuestEvents()), clockBig: ratio(clockEvents()) }
     process.stderr.write('codec ratio ' + JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k, Math.round(v * 10) / 10]))) + '\n')
     // the synthetic values are more random than a child's play (uniform picks, wide ranges), so they compress worse

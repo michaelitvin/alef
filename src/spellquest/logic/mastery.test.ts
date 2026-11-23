@@ -12,7 +12,7 @@ const seeded = (a: number) => () => {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296
 }
 /**
- * A new player who is right 80 % of the time, on the tower's own target picker (the first duel's adaptive data, kept as
+ * A new player who is right 80 % of the time, on the tower's own target picker (the tower's adaptive data, kept as
  * recordTowerRound keeps it): the answers until the tower is mastered (`cap` if never).
  */
 function answersToOpen(seed: number, cap = 5000): number {
@@ -84,7 +84,7 @@ describe('mastery', () => {
     expect(towerMastered({ kamatz: 'ooooo' }, ['kamatz', 'chirik'])).toBe(false)
     expect(towerMastered({}, [])).toBe(false)
   })
-  it('a simulated 80 %-right new player opens Book 2 after about ten tower visits, not thousands of answers', () => {
+  it('a simulated 80 %-right new player opens Spell Quest after about ten tower visits, not thousands of answers', () => {
     const n = Array.from({ length: 200 }, (_, k) => answersToOpen(k + 1)).sort((a, b) => a - b)
     const median = n[100]
     // measured: median 95 answers (10 per tower visit), 10th percentile 51, 90th 168
@@ -121,7 +121,7 @@ describe('mastery', () => {
   //    95 %   40 / 50 / 81       10 / 10 / 60       188
   //    90 %   42 / 63 / 121      10 / 46 / 97       142
   //    80 %   57 / 100 / 182     31 / 92 / 170       36
-  it('a perfect player opens Book 2 after the placement check: 10 answers (2 waves)', () => {
+  it('a perfect player opens Spell Quest after the placement check: 10 answers (2 waves)', () => {
     const r = runs(1, 'new')
     expect(r.every((x) => x.n === 10 && x.lane === 'fast')).toBe(true)
     // the old rule needed about 40
@@ -145,7 +145,7 @@ describe('mastery', () => {
     expect(now[100]).toBeGreaterThanOrEqual(60)
     expect(now[100]).toBeLessThanOrEqual(old[100])
   })
-  it('a screen’s recent answers: the tower’s are the first duel’s, the others Book 2’s screen feature', () => {
+  it('a screen’s recent answers: the tower’s are the tower’s, the others Spell Quest’s screen feature', () => {
     expect(screenRecent('tower', { 'sc:ghosts': 'xx' }, { kamatz: 'oo', chirik: 'x' })).toBe('oox')
     expect(screenRecent('ghosts', { 'sc:ghosts': 'xo' }, { kamatz: 'oo' })).toBe('xo')
     expect(screenRecent('ladder', {}, {})).toBe('')

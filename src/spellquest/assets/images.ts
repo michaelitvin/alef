@@ -1,4 +1,4 @@
-// Spell Quest art (generated, see asset-sources/duel2/) plus the duel's picture words (`word-<key>`). Missing images fall back to
+// Spell Quest art (generated, see asset-sources/spellquest/) plus the tower's picture words (`word-<key>`). Missing images fall back to
 // simple SVG in the components (the spell book's `s-book` is the English path's green file; Spell Quest has none and SpellBook draws its pages).
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.webp', ''), url]))

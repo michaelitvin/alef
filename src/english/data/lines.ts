@@ -1,5 +1,5 @@
 // The English voice lines: what an adult says to a child in natural American English at each moment (asset plan 3.5).
-// One for one with Book 2's lines where the run shares the line: same id, same number of variations, so the policies and
+// One for one with Spell Quest's lines where the run shares the line: same id, same number of variations, so the policies and
 // the controller name them as before. No "!" (it makes the voice shout); a line that a sound follows ends with ":" (no
 // "…": the voice moaned). No girl forms: a girl is a "wizard" too. Every line is voiced by Puck except the merchant's.
 // Loaded by plain Node too: erasable TS only.
@@ -34,7 +34,7 @@ const line = (id: string, where: string, kind: LineKind, direction: string, en: 
 const m = (id: string, where: string, en: string[]) => line(id, where, 'M', TRADER, en)
 
 export const EN_LINES: EnLine[] = [
-  // ---- from Book 2's lines (74 texts)
+  // ---- from Spell Quest's lines (74 texts)
   line('q-cauldron', 'Cauldron, when he waits; then the word', 'I', WARM, ['Which sound is missing from:', 'Put the missing sound in the pot to make:', "What's missing to make:"]),
   line('q-ladder', 'Ladder, when he waits; then the word', 'I', WARM, ['Find the letter that makes:', 'Drag the letter up the ladder to make:', 'Which letter makes:']),
   line('q-ghosts', 'Ghosts (words), when he waits; then the word', 'I', PLAY, ['Where is:', 'Which ghost has:', 'Find:']),
@@ -98,7 +98,7 @@ export const EN_LINES: EnLine[] = [
   m('m-undo', 'Merchant: too much, the first time only; a coin flies back', ['Take a coin back.']),
   m('m-empty', 'Merchant: the potion tapped with nothing in his hand', ['Coins first.', 'First, give me some coins.']),
 
-  // ---- the tower (the first duel's lines, 13 texts)
+  // ---- the tower (13 texts)
   line('line-intro', 'The tower rises', 'I', '[mysterious] then [determined]', ['The monsters are coming. Protect the tower.']),
   line('line-how-A', 'Tower picture round, first sound', 'I', '[curious] then ' + WARM, ["What's the first sound in the picture? Pick its letter."]),
   line('line-how-B', 'Tower sound round', 'I', WARM, ['Listen to the sound, and pick its letter.']),
@@ -133,7 +133,7 @@ export const EN_LINES: EnLine[] = [
   line('spell-near', 'Stage 9 near miss (ee/ea), forgiven once', 'I', ENCOURAGE, ['That sounds right, but this word uses the other one.']),
 ]
 
-/** the tower lines the English tower and the placement tower play through the duel's audio adapter (13) */
+/** the tower lines the English tower and the placement tower play through the tower's audio adapter (13) */
 export const EN_TOWER_LINE_IDS: readonly string[] = [
   'line-intro', 'line-how-A', 'line-how-B', 'line-how-C', 'line-new-monster', 'line-combo', 'line-mega', 'line-boss',
   'line-boss-win', 'line-over', 'line-record', 'line-almost', 'line-wave',
@@ -141,5 +141,5 @@ export const EN_TOWER_LINE_IDS: readonly string[] = [
 
 export const enLine = (id: string): EnLine | undefined => EN_LINES.find((l) => l.id === id)
 export const enLineAudioId = (id: string, n: number): string => `${id}-${n}`
-/** English marks no gender here: no girl forms (Book 2's takes `<id>-<n>-f` have no English counterpart) */
+/** English marks no gender here: no girl forms (Spell Quest's takes `<id>-<n>-f` have no English counterpart) */
 export const FEMININE_IDS: ReadonlySet<string> = new Set()

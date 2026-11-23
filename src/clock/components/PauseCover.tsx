@@ -1,5 +1,5 @@
 // Opaque cover while paused (rule): the workshop picture (plain brown until it exists), a big play button, and the held
-// house in the top-left corner (the way home, as on Book 2's pause cover).
+// house in the top-left corner (the way home, as on Spell Quest's pause cover).
 import { PlayIcon } from './icons'
 import { IMAGES } from '../assets/images'
 import { HomeButton } from '../../shared/HomeButton'

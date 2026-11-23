@@ -58,7 +58,7 @@ export interface TelemetryLog {
   /** the game in the export's file name */
   game: TelemetryGame
   about: TelemetryAbout
-  /** history: nothing writes it any more, and it is never cleared or rewritten (the first duel's old log) */
+  /** history: nothing writes it any more, and it is never cleared or rewritten (the tower's old log) */
   history?: boolean
   /** what an evicted chunk of this log leaves behind: the facts of one chunk's events (one page session, in order) */
   rollup?: (events: TelemetryEvent[]) => RollupFact[]

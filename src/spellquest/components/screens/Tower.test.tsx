@@ -1,4 +1,4 @@
-// The tower screen: the first duel's board inside Spell Quest's run (spec: one duel, Part 3).
+// The tower screen: the tower's board inside Spell Quest's run (spec: one duel, Part 3).
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../tower/logic/towerAudio', async (orig) => {
@@ -25,7 +25,7 @@ describe('Tower', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('the duel’s events go to Book 2’s log: g book2, via tower, the page’s one session, Book 2’s run; none in the old log (ADR 0004)', async () => {
+  it('the tower’s events go to Spell Quest’s log: g book2, via tower, the page’s one session, Spell Quest’s run; none in the old log (ADR 0004)', async () => {
     localStorage.clear()
     spellQuestTelemetry.clear()
     spellQuestTelemetry.setRun(5)
@@ -50,7 +50,7 @@ describe('Tower', () => {
     expect(localStorage.getItem('alef-tower-history-telemetry')).toBeNull()
   })
 
-  it('draws the duel’s board with no HUD, no מגה button before the charge, and none of the duel’s covers', async () => {
+  it('draws the tower’s board with no HUD, no מגה button before the charge, and none of the tower’s covers', async () => {
     const { container } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     expect(container.querySelector('.nd-embedded')).not.toBeNull()
@@ -60,8 +60,8 @@ describe('Tower', () => {
     expect(container.querySelector('.nd-pad')).not.toBeNull()
   })
 
-  it('a phone on its side gets the landscape board (Book 2 plays only sideways; the portrait board left no room for the field)', async () => {
-    // a phone held sideways: landscape, but shorter than the duel's tablet query (min-height 500)
+  it('a phone on its side gets the landscape board (Spell Quest plays only sideways; the portrait board left no room for the field)', async () => {
+    // a phone held sideways: landscape, but shorter than the tower's tablet query (min-height 500)
     const mm = vi.fn((q: string) => ({ matches: q === '(orientation: landscape)', media: q, addEventListener: () => {}, removeEventListener: () => {} }))
     vi.stubGlobal('matchMedia', mm)
     try {
@@ -85,13 +85,13 @@ describe('Tower', () => {
     expect(walked).toBe(true)
   })
 
-  it('its intro is kept in Book 2’s save, so it plays once ever', async () => {
+  it('its intro is kept in Spell Quest’s save, so it plays once ever', async () => {
     render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     expect(useSpellQuestStore.getState().demosSeen).toContain('tower-intro')
   })
 
-  it('a lock pauses the board under Book 2’s cover (the duel shows no cover of its own); the play resumes it', async () => {
+  it('a lock pauses the board under Spell Quest’s cover (the tower shows no cover of its own); the play resumes it', async () => {
     const { container, rerender } = render(<Tower view={view} paused={false} onAnswer={() => 'on'} onDone={() => {}} />)
     await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
     rerender(<Tower view={view} paused onAnswer={() => 'on'} onDone={() => {}} />)

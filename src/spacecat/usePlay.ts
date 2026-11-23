@@ -1,4 +1,4 @@
-// The play controller as a React hook (as Book 2's useRun): one controller and one canvas engine per mount, the view
+// The play controller as a React hook (as Spell Quest's useRun): one controller and one canvas engine per mount, the view
 // through useSyncExternalStore; the tablet lock or another app pauses it, a page that goes away abandons the run (rule).
 import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react'
 import { realSleeper, type Sleeper } from '../shared/sleeper'

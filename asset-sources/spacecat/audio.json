@@ -1,5 +1,5 @@
 {
- "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Book 2's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Book 2's take new-best-1 (see asset-sources/duel2/audio.json). The four ladder lines (compare, jumps, times, divide) were made and picked on 2026-11-20 (take 2 of each).",
+ "note": "One entry per Space Cat voice line: the ElevenLabs request of each take (2 takes per line, 2026-11-17; a third take for demo). The voice is Spell Quest's narrator. The spoken text can differ from the caption (pronunciation fixes: שִׂיא from \"שִׂי\", the kamatz katan of כָּל from \"כֹּל\"). `chosen` is filled in when the parent has picked a take; only a chosen take is copied to `file`. new-best plays Spell Quest's take new-best-1 (see asset-sources/duel2/audio.json). The four ladder lines (compare, jumps, times, divide) were made and picked on 2026-11-20 (take 2 of each).",
  "files": [
   {
    "id": "demo-1",

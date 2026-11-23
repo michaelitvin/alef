@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the events and the first duel's save; twice the same 1`] = `
+exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the events and the tower's save; twice the same 1`] = `
 {
   "answers": [
     "right:kamatz",
@@ -4848,7 +4848,7 @@ exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the
 }
 `;
 
-exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the events and the first duel's save; twice the same 2`] = `
+exports[`the tower baseline > two waves, then a boss: the lines, the rounds, the events and the tower's save; twice the same 2`] = `
 {
   "bestScore": 0,
   "bestWave": 0,

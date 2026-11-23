@@ -109,7 +109,7 @@ describe('reading a log of sealed chunks and an open chunk', () => {
     expect(logStats(KEY).chunks).toBe(0)
   })
 
-  it('the frozen log beside Book 2\'s chunks reads byte-equal to today', () => {
+  it('the frozen log beside Spell Quest\'s chunks reads byte-equal to today', () => {
     localStorage.setItem('alef-tower-history-telemetry', FROZEN_HISTORY)
     seal(A)
     localStorage.setItem('alef-tower-history~zz~A-telemetry', encodeChunk(A)) // even a stray chunk-shaped key under its base

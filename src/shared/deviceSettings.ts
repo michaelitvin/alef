@@ -2,7 +2,7 @@
 // key (`alef-device`) that every entry reads (they share the origin; staging gets its own `staging:` copy by itself).
 // Not `alef-settings`: old browsers can still hold the data of a settings store that is gone (src/shared/README.md).
 //
-// The first read on a device seeds the key once, from the settings the parent set before: Book 2's save, else the
+// The first read on a device seeds the key once, from the settings the parent set before: Spell Quest's save, else the
 // clock's, else the defaults. The old fields stay in those saves, unread (no save migration).
 // The lessons' voice follows the volume only: `sfx` never silences a voice line (the child cannot read).
 import { useSyncExternalStore } from 'react'
@@ -45,7 +45,7 @@ function parse(raw: string | null): DeviceSettings | null {
   }
 }
 
-/** The one-time seed: each field from Book 2's save, else the clock's, else the default. */
+/** The one-time seed: each field from Spell Quest's save, else the clock's, else the default. */
 function seedFromSaves(): DeviceSettings {
   const sources = SEED_SOURCES.map(savedSettings)
   const pick = <T,>(f: 'sfx' | 'music' | 'volume', check: (x: unknown) => T | undefined, dflt: T): T => {

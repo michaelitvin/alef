@@ -1,4 +1,4 @@
-// The English tower on the duel's board: the monster's sign shows the round's own picture, the result banner its Latin
+// The English tower on the tower's board: the monster's sign shows the round's own picture, the result banner its Latin
 // rune and that picture, and no Hebrew picture word stands in for a missing one.
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'

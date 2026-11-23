@@ -4,8 +4,8 @@
 import { pickNearTarget, predictedMistakeRate, type Rng, type Tally } from '../../shared/adaptive'
 import type { Item, Mark } from './content.ts'
 
-/** 'draw' is drawing in print, 'draw-hand' drawing in handwriting; 'tower' is the first duel's screen (its own rules:
- * `features()` is not called for it, its adaptive data stays in the first duel's save); 'spell' is the spell book (no
+/** 'draw' is drawing in print, 'draw-hand' drawing in handwriting; 'tower' is the tower's screen (its own rules:
+ * `features()` is not called for it, its adaptive data stays in the tower's save); 'spell' is the spell book (no
  * course's order holds it yet) */
 export type ScreenId = 'tower' | 'broom' | 'cauldron' | 'ladder' | 'ghosts' | 'doors' | 'draw' | 'draw-hand' | 'spell'
 type Target = { item: Item; mark?: Mark } | { wordId: string }

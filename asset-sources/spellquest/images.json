@@ -4,163 +4,163 @@
   {
    "name": "bg-ground",
    "prompt": "Game background art for a children's tablet game, landscape. Drawn in EXACTLY the art style, colors and glow of the reference images. Deep purple-blue magical night sky with soft swirling nebula. Soft glowing lavender rolling ground along the bottom 18% of the image. Calm, nothing else. Stars are ONLY a few large 4-point sparkle shapes. Absolutely NO small round dots, NO dust, NO specks, NO dot clusters, NO tiny stars anywhere. No characters, no objects, no text.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "bg-sky",
    "prompt": "Game background art for a children's tablet game, landscape. Drawn in EXACTLY the art style, colors and glow of the reference images. Deep purple-blue magical night sky with soft swirling nebula. Calm, nothing else in it. Stars are ONLY a few large 4-point sparkle shapes. Absolutely NO small round dots, NO dust, NO specks, NO dot clusters, NO tiny stars anywhere. No characters, no objects, no text.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-ball",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a classic black and white soccer ball (כדור), front view. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-banana",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one yellow banana (בננה), curved, peel closed. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-carrot",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one orange carrot (גזר) with green leafy top, diagonal. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-cat",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute orange cartoon cat (חתול) sitting, full body, front view, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-dog",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute brown cartoon dog (כלב) sitting, full body, floppy ears, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-fish",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute cartoon orange fish (דג), side view, big fins, smooth body with no scales drawn as dots. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-fox",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute orange cartoon fox (שועל) sitting, full body, bushy tail with a white tip, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-horse",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cute brown cartoon horse (סוס) standing, full body, side view, dark mane. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-lemon",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one yellow lemon (לימון), whole, with one small green leaf. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "pw-strawberry",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one big red strawberry (תות) with green leaves on top; its seeds drawn as tiny short yellow strokes, NOT round dots. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-cauldron",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A big round black iron witch cauldron on three short legs, full of glowing bubbling bright green brew with soft green steam rising above it. Front view. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-crystal-1",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing clear white quartz (rock crystal) crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-crystal-2",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing deep purple amethyst crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-crystal-3",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing pink rose quartz crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-crystal-4",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. One magical glowing smoky brown-gold quartz (citrine) crystal cluster: a big central pointed hexagonal prism crystal with two smaller ones at its base, faceted, translucent, shining, with soft light rays. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-door-open",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. The same large arched magic door as the reference door image (dark purple wood planks, glowing polished golden arched frame, gold curl ornaments), but now swung OPEN inward: the doorway is filled with warm bright golden magical light. Front view, symmetric frame. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local) + the Book 2 door sprite",
+   "reference": "the tower's style sheet B and concept p3 (host-local) + the Spell Quest door sprite",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-door",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A large arched magic door, closed, front view: dark purple wood planks with a glowing polished golden arched frame and a few elegant gold curl ornaments near the edges, the middle of the door left plain. Symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-ghost",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). One cute friendly white ghost, front view, smiling, floating, both small arms stretched forward and slightly down at belly height, hands empty, as if holding a round sign in front of its belly (but no sign). Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-key",
    "prompt": "Single game sprite drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. A fantasy golden magic key standing upright: at the top a big round handle that is a thick polished gold ring holding a plain flat dark purple disc (completely blank, a picture will be placed on it), below it a short gold shaft with simple teeth at the bottom. Front view, symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green background (#00FF00): no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-ladder",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A tall golden magic ladder standing straight up, front view: two glowing polished gold rails and exactly four thin gold rungs, evenly spaced, perfectly symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-orb",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A large round glowing magic orb seen straight on: deep purple glass sphere with a soft highlight at the top left and a thick polished gold rim ring around it, completely blank inside. Perfect circle, symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green (#00FF00) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-plate",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). A wide rounded-rectangle magic plaque seen straight on, about 2.2 times wider than tall: deep purple smooth panel with a thick glowing polished gold frame, completely blank inside. Perfectly symmetric. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure green (#00FF00) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
    "name": "s-wizard-cast",
-   "prompt": "The duel's wizard sprite (src/spellquest/tower/assets/sprites/wizard-cast.webp), reused",
+   "prompt": "The tower's wizard sprite (src/spellquest/tower/assets/sprites/wizard-cast.webp), reused",
    "reference": null,
    "model": null
   },
   {
    "name": "s-wizard-idle",
-   "prompt": "The duel's wizard sprite (src/spellquest/tower/assets/sprites/wizard-idle.webp), reused",
+   "prompt": "The tower's wizard sprite (src/spellquest/tower/assets/sprites/wizard-idle.webp), reused",
    "reference": null,
    "model": null
   },
   {
    "name": "s-wizbroom",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images (same kid wizard character where he appears). The kid wizard SITTING astride a broomstick, flying to the RIGHT: one leg on each side of the broom, both hands gripping the handle in front of him, leaning forward, cape streaming back, determined happy face, broom bristles behind him on the left. Side view, full body. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no sparkles, no other objects. No text, no letters, no symbols.",
-   "reference": "the duel's style sheet B and concept p3 (host-local)",
+   "reference": "the tower's style sheet B and concept p3 (host-local)",
    "model": "gemini-3-pro-image"
   },
   {
@@ -168,123 +168,123 @@
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a sneaky chubby raccoon bandit with grey fur, a black bandit eye-mask, a striped ringed tail, small bat-like flying cape, holding a brown cloth sack over its shoulder that spills a few big round glowing golden balls of light (it steals the glowing balls). Pose 1 (left): flying idle, hovering confidently, holding the sack up proudly and grinning slyly. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the fly pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-dot-hit",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a sneaky chubby raccoon bandit with grey fur, a black bandit eye-mask, a striped ringed tail, small bat-like flying cape, holding a brown cloth sack over its shoulder that spills a few big round glowing golden balls of light (it steals the glowing balls). Pose 1 (left): flying idle, hovering confidently, holding the sack up proudly and grinning slyly. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the hit pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-dot-down",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a sneaky chubby raccoon bandit with grey fur, a black bandit eye-mask, a striped ringed tail, small bat-like flying cape, holding a brown cloth sack over its shoulder that spills a few big round glowing golden balls of light (it steals the glowing balls). Pose 1 (left): flying idle, hovering confidently, holding the sack up proudly and grinning slyly. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the down pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-shin-fly",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big round fluffy two-headed bird, one body with two necks and two heads side by side, bright teal and orange feathers, big flapping wings, each head has a small orange beak and a little crest, and above EACH of the two heads floats one single big round glowing golden ball of light (exactly two glowing balls in total per bird, one above each head). Pose 1 (left): flying idle, hovering confidently, wings spread, both heads looking left with mischievous smiles. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the fly pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-shin-hit",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big round fluffy two-headed bird, one body with two necks and two heads side by side, bright teal and orange feathers, big flapping wings, each head has a small orange beak and a little crest, and above EACH of the two heads floats one single big round glowing golden ball of light (exactly two glowing balls in total per bird, one above each head). Pose 1 (left): flying idle, hovering confidently, wings spread, both heads looking left with mischievous smiles. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the hit pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-shin-down",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big round fluffy two-headed bird, one body with two necks and two heads side by side, bright teal and orange feathers, big flapping wings, each head has a small orange beak and a little crest, and above EACH of the two heads floats one single big round glowing golden ball of light (exactly two glowing balls in total per bird, one above each head). Pose 1 (left): flying idle, hovering confidently, wings spread, both heads looking left with mischievous smiles. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the down pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-mimic-fly",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big wobbly shapeshifting jelly blob made of glossy translucent mint-green and turquoise goo, two big googly eyes on stalks and a wide wavy grin, its top stretching into a pointy wobbly shape as if copying something, small goo droplets flying off. Pose 1 (left): flying idle, hovering confidently, floating, its jelly body wobbling and morphing. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the fly pose",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-mimic-hit",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big wobbly shapeshifting jelly blob made of glossy translucent mint-green and turquoise goo, two big googly eyes on stalks and a wide wavy grin, its top stretching into a pointy wobbly shape as if copying something, small goo droplets flying off. Pose 1 (left): flying idle, hovering confidently, floating, its jelly body wobbling and morphing. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the hit pose",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-mimic-down",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big wobbly shapeshifting jelly blob made of glossy translucent mint-green and turquoise goo, two big googly eyes on stalks and a wide wavy grin, its top stretching into a pointy wobbly shape as if copying something, small goo droplets flying off. Pose 1 (left): flying idle, hovering confidently, floating, its jelly body wobbling and morphing. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure magenta (#FF00FF) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the down pose",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-bat-fly",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big perfectly round chubby bat shaped like a ball, dark midnight-blue fur with a pale golden round belly, huge pointed ears, big wide leathery wings, two small fangs, large round amber eyes, and its mouth makes a big round open shape. Pose 1 (left): flying idle, hovering confidently, wings spread wide, flapping, mouth open in a round shape. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image. The three poses stand far apart in a row with WIDE empty green gaps between them; no wing or part of one pose may touch or overlap another; keep the wings folded closer to the body if needed.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the fly pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-bat-hit",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big perfectly round chubby bat shaped like a ball, dark midnight-blue fur with a pale golden round belly, huge pointed ears, big wide leathery wings, two small fangs, large round amber eyes, and its mouth makes a big round open shape. Pose 1 (left): flying idle, hovering confidently, wings spread wide, flapping, mouth open in a round shape. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image. The three poses stand far apart in a row with WIDE empty green gaps between them; no wing or part of one pose may touch or overlap another; keep the wings folded closer to the body if needed.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the hit pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "boss-bat-down",
    "prompt": "Game sprite sheet. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. Game character sheet for a children's tablet game: the SAME boss monster drawn THREE times side by side in one row, with identical character design, colors, markings and proportions in all three, all three facing LEFT, the same size, each one complete (nothing cut off) and separated from the others by wide empty space. Cute-menacing and funny, never scary: big expressive eyes, round soft shapes, a cheeky grin, friendly for a 6-year-old. The boss: a big perfectly round chubby bat shaped like a ball, dark midnight-blue fur with a pale golden round belly, huge pointed ears, big wide leathery wings, two small fangs, large round amber eyes, and its mouth makes a big round open shape. Pose 1 (left): flying idle, hovering confidently, wings spread wide, flapping, mouth open in a round shape. Pose 2 (middle): hit and flinching, body jerked backwards, both eyes squeezed shut in a squint, a few small yellow 4-point stars around its head. Pose 3 (right): defeated, dizzy spiral eyes, tongue out, tilted and tumbling downward, the lower part of its body puffing away into soft golden 4-point sparkles. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no numbers, no symbols, no writing anywhere in the image. The three poses stand far apart in a row with WIDE empty green gaps between them; no wing or part of one pose may touch or overlap another; keep the wings folded closer to the body if needed.",
    "model": "gemini-3-pro-image",
    "note": "one 3-pose sheet (fly, hit, down), cut into poses; this is the down pose; drawn facing right, mirrored in the game",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "s-potion",
    "prompt": "Single game sprite. Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. A friendly healing potion that a child instantly reads as \"gives you a heart back\": a glass bottle SHAPED LIKE A BIG HEART (the whole bottle is heart-shaped), clear sparkling glass filled with bright glowing pink-red healing liquid with tiny rising bubbles, a short neck with a small light-brown cork, two small white feathery angel wings on the sides of the bottle, a soft warm golden-pink glow around it, happy and gentle, clearly NOT a bomb, no fuse, no round black body, no dark colors. Front view. Exactly ONE subject, centered, complete (nothing cut off), with empty margin around it. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects, no sparkles. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
    "model": "gemini-3-pro-image",
-   "reference": "the duel's style sheet B and concept p3 (host-local)"
+   "reference": "the tower's style sheet B and concept p3 (host-local)"
   },
   {
    "name": "s-wizbroom-girl",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She flies on the same wooden broom, sitting the same way, holding it with both hands, her cape flowing behind her as in the reference, smiling and determined. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots.",
    "reference": "the boy sprite s-wizbroom.webp (this folder) on a flat magenta canvas; take 2 of 2 (spec 2026-11-07 girls)",
    "model": "gemini-3-pro-image",
-   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
+   "post": "magenta keyed like the boy (the tower's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
   },
   {
    "name": "s-wizard-cast-girl",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She casts a spell exactly like the reference: one arm stretched forward holding the same wooden staff with the same big glowing swirling magic orb at its tip, happy excited open-mouth smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots.",
    "reference": "the boy sprite s-wizard-cast.webp (this folder) on a flat magenta canvas; take 2 of 2 (spec 2026-11-07 girls)",
    "model": "gemini-3-pro-image",
-   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
+   "post": "magenta keyed like the boy (the tower's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
   },
   {
    "name": "s-wizard-dizzy-girl",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She is dizzy exactly like the reference: spiral eyes, the same few gold stars circling her hat on a thin ring, arms out to the sides, staggering on one leg. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots.",
    "reference": "the boy sprite s-wizard-dizzy.webp (this folder) on a flat magenta canvas; take 2 of 2 (spec 2026-11-07 girls)",
    "model": "gemini-3-pro-image",
-   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
+   "post": "magenta keyed like the boy (the tower's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
   },
   {
    "name": "s-wizard-idle-girl",
    "prompt": "Redraw the character in the reference image as a GIRL kid wizard, about 7 years old. Keep EVERYTHING else exactly the same as the reference: the same art style, line quality, shading, colors and glow; the same pose, the same body proportions and size, the same framing and position in the image, the same facing direction, the same big blue pointed wizard hat with the gold band, the same blue robe with gold trim and buttons, the same boots. Only make her clearly a girl: a friendly girl's face, and long brown hair in two braids that come out under the hat and hang over her shoulders (the braids must stay inside the outline of the figure as much as possible). She stands calmly exactly like the reference, front view, holding the same tall wooden staff with the same flame at its tip, gentle smile. Exactly ONE subject, complete (nothing cut off), with the same empty margin around it as the reference, on a perfectly flat solid pure magenta (#FF00FF) background: no gradient, no ground, no shadow, no scenery, no extra sparkles, no other objects. No text, no letters, no symbols, no small round dots.",
    "reference": "the boy sprite s-wizard-idle.webp (this folder) on a flat magenta canvas; take 2 of 2 (spec 2026-11-07 girls)",
    "model": "gemini-3-pro-image",
-   "post": "magenta keyed like the boy (the duel's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
+   "post": "magenta keyed like the boy (the tower's export_final.py alpha: magenta-ness, so the glows stay soft), crop with a 6 px margin, then fitted into the boy sprite's exact canvas (same width and height, bottom-aligned)"
   },
   {
    "name": "merchant-sell",
    "prompt": "Character sheet for a game: the SAME character three times, side by side in one row, with wide empty gaps between the three figures (they must not touch or overlap). Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. The character: a cute, cheeky travelling merchant — a chubby little GNOME pedlar (a human-like gnome, NOT an animal), about as tall as a child, with a big round red nose, rosy cheeks, a bushy white beard, a sly but friendly face, a tall floppy green pointed hat with a patch, a colorful patched vest over a round belly, a little coin pouch on his belt and a big wooden backpack rack full of bottles and bundles. Full body, all three facing LEFT (three-quarter view towards the left side of the image).\nPose 1 (left): selling — big welcoming smile, one paw raised open, the other paw palm up as if presenting something, eyebrows up, eager.\nPose 2 (middle): INSULTED — arms crossed, nose turned up high, eyes closed, cheeks puffed, turning his body away, very theatrical and funny, clearly offended but not scary or angry-mean.\nPose 3 (right): EMBARRASSED — caught out, sheepish grin, one paw scratching the back of his head, blushing cheeks, a single sweat drop.\nExactly three figures, each complete (nothing cut off), with empty margin around each. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
-   "reference": "the duel's style sheet (host-local)",
+   "reference": "the tower's style sheet (host-local)",
    "model": "gemini-3-pro-image",
    "status": "placeholder from the merchant mock, to be replaced by final art",
    "note": "pose 1 (selling), cut out of the sheet; the figure faces right as drawn, so the game mirrors it to face the wizard"
@@ -292,7 +292,7 @@
   {
    "name": "merchant-shy",
    "prompt": "Character sheet for a game: the SAME character three times, side by side in one row, with wide empty gaps between the three figures (they must not touch or overlap). Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. The character: a cute, cheeky travelling merchant — a chubby little GNOME pedlar (a human-like gnome, NOT an animal), about as tall as a child, with a big round red nose, rosy cheeks, a bushy white beard, a sly but friendly face, a tall floppy green pointed hat with a patch, a colorful patched vest over a round belly, a little coin pouch on his belt and a big wooden backpack rack full of bottles and bundles. Full body, all three facing LEFT (three-quarter view towards the left side of the image).\nPose 1 (left): selling — big welcoming smile, one paw raised open, the other paw palm up as if presenting something, eyebrows up, eager.\nPose 2 (middle): INSULTED — arms crossed, nose turned up high, eyes closed, cheeks puffed, turning his body away, very theatrical and funny, clearly offended but not scary or angry-mean.\nPose 3 (right): EMBARRASSED — caught out, sheepish grin, one paw scratching the back of his head, blushing cheeks, a single sweat drop.\nExactly three figures, each complete (nothing cut off), with empty margin around each. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
-   "reference": "the duel's style sheet (host-local)",
+   "reference": "the tower's style sheet (host-local)",
    "model": "gemini-3-pro-image",
    "status": "placeholder from the merchant mock, to be replaced by final art",
    "note": "pose 3 (embarrassed), cut out of the sheet; not used yet; the figure faces right as drawn, so the game mirrors it to face the wizard"
@@ -300,7 +300,7 @@
   {
    "name": "merchant-insulted",
    "prompt": "Character sheet for a game: the SAME character three times, side by side in one row, with wide empty gaps between the three figures (they must not touch or overlap). Drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference images. The character: a cute, cheeky travelling merchant — a chubby little GNOME pedlar (a human-like gnome, NOT an animal), about as tall as a child, with a big round red nose, rosy cheeks, a bushy white beard, a sly but friendly face, a tall floppy green pointed hat with a patch, a colorful patched vest over a round belly, a little coin pouch on his belt and a big wooden backpack rack full of bottles and bundles. Full body, all three facing LEFT (three-quarter view towards the left side of the image).\nPose 1 (left): selling — big welcoming smile, one paw raised open, the other paw palm up as if presenting something, eyebrows up, eager.\nPose 2 (middle): INSULTED — arms crossed, nose turned up high, eyes closed, cheeks puffed, turning his body away, very theatrical and funny, clearly offended but not scary or angry-mean.\nPose 3 (right): EMBARRASSED — caught out, sheepish grin, one paw scratching the back of his head, blushing cheeks, a single sweat drop.\nExactly three figures, each complete (nothing cut off), with empty margin around each. Background: a perfectly flat solid pure green (#00FF00) background behind everything: no gradient, no ground, no shadow, no scenery, no other objects, no sparkles, no small round dots. No text, no letters, no numbers, no symbols, no writing anywhere in the image.",
-   "reference": "the duel's style sheet (host-local)",
+   "reference": "the tower's style sheet (host-local)",
    "model": "gemini-3-pro-image",
    "status": "placeholder from the merchant mock, to be replaced by final art",
    "note": "pose 2 (insulted), cut out of the sheet; not used yet; the figure faces right as drawn, so the game mirrors it to face the wizard"

@@ -1,5 +1,5 @@
 // One budget for every live telemetry log of every game: it does not grow with the number of games. Past it, the oldest
-// sealed chunk across all logs goes, folded into its log's roll-up first (telemetryRollup.ts). The frozen first-duel log
+// sealed chunk across all logs goes, folded into its log's roll-up first (telemetryRollup.ts). The frozen tower-history log
 // is never counted here, trimmed or evicted; neither is a save, nor an unreadable chunk.
 //
 // Each build budgets its own keys: the production build sees the staging build's `staging:` keys too (the raw storage)

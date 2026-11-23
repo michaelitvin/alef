@@ -72,7 +72,7 @@ describe('TowerController', () => {
     expect(events.length).toBeGreaterThan(0)
     for (const x of events) expect(x.data).toMatchObject({ via: 'tower', visit: 1 })
     expect(events.filter((x) => x.e === 'outcome')).toHaveLength(MONSTERS_PER_WAVE)
-    // the adaptive data is the first duel's
+    // the adaptive data is the tower's
     expect(Object.values(useProgressStore.getState().tower.byMark).reduce((n, t) => n + t.correct, 0)).toBe(MONSTERS_PER_WAVE)
     c.destroy()
   })

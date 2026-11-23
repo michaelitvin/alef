@@ -76,6 +76,6 @@ export const HEBREW: Course = {
   genderPictures: { boy: IMAGES['s-wizard-idle'], girl: IMAGES['s-wizard-idle-girl'] ?? IMAGES['s-wizard-idle'], askLine: 'ask-gender-1' },
   lineAudioId: (id, n = 1) => lineAudioId(id, n),
   lineVariations: (id) => lineById(id)?.variations ?? 1,
-  // the first duel's rounds, lines and save, as always
+  // the tower's rounds, lines and save, as always
   tower: { content: HEBREW_TOWER, tallies: () => progressTallies },
 }

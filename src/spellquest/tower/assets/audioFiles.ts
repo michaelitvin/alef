@@ -1,6 +1,6 @@
-// Duel audio, picked by Michael on the review page (/nikkud-duel/review/) and synced by sync_voice.py.
+// Tower audio, picked by Michael on the review page (/nikkud-duel/review/) and synced by sync_voice.py.
 // SFX picks (Michael, review 2026-10-05): arrival = 3 non-vocal options rotating, cast = new fireball (pending review), boom option 1 (both slots), ouch option 4, mega option 3, sparkle 1.
-// The duel's own music went with its standalone page (Book 2's run plays its own; it keeps music-boss-1).
+// The tower's own music went with its standalone page (Spell Quest's run plays its own; it keeps music-boss-1).
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.mp3', ''), url]))
 

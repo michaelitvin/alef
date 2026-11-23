@@ -1,4 +1,4 @@
-// the tower's flow (Book 2's tower), framework-free. The reducer (reducer.ts) owns the rules; this controller owns
+// the tower's flow (Spell Quest's tower), framework-free. The reducer (reducer.ts) owns the rules; this controller owns
 // time: announcements, spoken instructions, clue-then-clock, the outcome's effects and speech, pause, and stats.
 // Pacing rule: the next monster appears only after the effects AND every wizard line have finished (+500 ms).
 //
@@ -28,10 +28,10 @@ export type BannerVisual = { icons: IconName[] } | { sprite: string }
 const LINE_GAP_MS = 800
 
 /**
- * Book 2's run plays the duel as one of its screens (spec: one duel, Part 3): the run owns the hearts (each answer
+ * Spell Quest's run plays the tower as one of its screens (spec: one duel, Part 3): the run owns the hearts (each answer
  * is reported; a מגה kill is not an answer: it goes to `onMega`, and it is kept out of the mastery data), a fixed visit
  * of `waves` waves from `wave` (or one boss), no session or run-end records (the rounds, confusions and pace are still
- * recorded: the adaptive data), no duel music, and no own visibility pause (the run pauses it through pause()/resume()).
+ * recorded: the adaptive data), no tower music, and no own visibility pause (the run pauses it through pause()/resume()).
  * The intro and the screen explanations play once ever: `seen` / `onSeen` keep them (keys 'tower-intro' and
  * 'tower-screen-<key>').
  */
@@ -66,7 +66,7 @@ export interface TowerEmbedded {
    */
   owed?: string[]
   onIntroduced?: (id: string) => void
-  /** the placement check (Book 2's stage 0): every mark with no recent answer is asked first (pickTarget's cover) */
+  /** the placement check (Spell Quest's stage 0): every mark with no recent answer is asked first (pickTarget's cover) */
   placement?: boolean
   /**
    * a wave of the visit ended and another one would start: true ends the visit there (onDone with that wave), e.g. when
@@ -76,15 +76,15 @@ export interface TowerEmbedded {
 }
 
 /**
- * Where the duel's events go: Book 2's log (ADR 0004). The controller adds `via: 'tower'` and its own visit counter
- * `visit` to every event, and never sets the log's run number (that is Book 2's run).
+ * Where the tower's events go: Spell Quest's log (ADR 0004). The controller adds `via: 'tower'` and its own visit counter
+ * `visit` to every event, and never sets the log's run number (that is Spell Quest's run).
  */
 export interface TowerTelemetry {
   track: (e: string, data?: Record<string, unknown>) => void
   flush: () => void
 }
 
-/** The duel's audio (towerAudio.ts by default; it plays through the device output's player, a fake one in tests). */
+/** The tower's audio (towerAudio.ts by default; it plays through the device output's player, a fake one in tests). */
 export interface TowerAudio {
   /** `onHeard`: the file really plays, with its length in ms when known (the English hint's lights); never for a missing file */
   playLine(id: string, onCue?: (c: LineCue) => void, onHeard?: (ms: number | null) => void): Promise<void>
@@ -119,7 +119,7 @@ export interface TowerOpts {
   makeRound?: (o: MakeRoundOpts) => Round
   /** the course's rounds, runes and spoken parts (default: the Hebrew tower) */
   content?: TowerContent
-  /** where the answers are read from and recorded (default: the first duel's save, alef-progress) */
+  /** where the answers are read from and recorded (default: the tower's save, alef-progress) */
   tallies?: TowerTallyPort
   /** the time the flow waits on (default: the browser's timers) */
   sleeper?: Sleeper
@@ -308,7 +308,7 @@ export class TowerController {
     if ((s.round !== p.round || s.outcome !== p.outcome || s.paused !== p.paused || s.preview !== p.preview)
       && this.megaQueued && s.round && !s.outcome && !s.paused && !s.preview) this.megaCast()
     if (s.mega !== p.mega || s.phase !== p.phase) {
-      // Book 2's run keeps the charge for its next visit
+      // Spell Quest's run keeps the charge for its next visit
       if (s.phase === 'playing') this.emb.onCharge?.(s.mega)
       if (s.mega < MEGA_MAX) {
         this.set({ lightning: false })
@@ -322,7 +322,7 @@ export class TowerController {
     const next = s.next
     if (!next) return
     const e = this.emb
-    // a visit of Book 2's run: its waves are done (or its boss is beaten): no next monster
+    // a visit of Spell Quest's run: its waves are done (or its boss is beaten): no next monster
     if (next.wave >= e.wave + (e.boss ? 1 : e.waves)) return this.finish(next.wave - 1)
     // a wave ended in the middle of the visit: the run may end the visit here
     if (this.waveStart >= 0 && next.wave > this.waveStart && e.onWaveEnd?.(next.wave - 1)) return this.finish(next.wave - 1)
@@ -542,7 +542,7 @@ export class TowerController {
     // a right answer after the hint blended the word is helped: counted apart from right (the Hebrew tower never is)
     const helped = this.hinted && o.kind === 'hit' && !o.mega
     if (this.view.canHint) this.set({ canHint: false })
-    // Book 2's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
+    // Spell Quest's run: a מגה kill is not reading (spec: count special results separately): its tally is kept, but it is no
     // right answer for the mastery data (`recent`) nor for the pace
     const megaInRun = o.mega
     // what the course says after the feedback (English: a new unit's introduction); the answer is the course's to keep.
@@ -554,7 +554,7 @@ export class TowerController {
       if (helped && tallies.recordTowerHelped) tallies.recordTowerHelped(r.target.id, r.type)
       else tallies.recordTowerRound(r.target.id, r.type, result, this.time.now() - this.spawnedAt, megaInRun ? { recent: false } : undefined)
     }
-    // Book 2's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
+    // Spell Quest's run owns the hearts, the stars and the coins: each answer goes to it (a מגה kill is not an answer)
     if (megaInRun) emb.onMega?.(r.target.id)
     else {
       const res = o.kind === 'hit' ? 'right' : 'wrong'
@@ -596,7 +596,7 @@ export class TowerController {
       })
     }
     if (o.mega) this.megaAnnounced = false
-    // (in Book 2's run a מגה kill leaves the streak as it was: no second celebration of it)
+    // (in Spell Quest's run a מגה kill leaves the streak as it was: no second celebration of it)
     const comboLine = o.kind === 'hit' && !megaInRun && state.combo > 0 && state.combo % 5 === 0
     if (comboLine) this.track('combo', { round: r.id, combo: state.combo })
     const megaLine = o.kind === 'hit' && !o.mega && state.mega >= MEGA_MAX && !this.megaAnnounced && !emb.megaOff
@@ -816,7 +816,7 @@ export class TowerController {
     this.batch(() => {
       const s = this.state
       const r = s.round
-      // (Book 2's run: not after its hearts ran out or its visit ended)
+      // (Spell Quest's run: not after its hearts ran out or its visit ended)
       if (s.paused || s.mega < MEGA_MAX || this.over || this.done || this.emb.megaOff) return
       this.track('mega_tap', { round: r?.id ?? null, queued: !r || !!s.outcome })
       if (!r || s.outcome || s.preview) {
@@ -892,7 +892,7 @@ export class TowerController {
   /** Leaving the screen stops everything (a later start() begins a new visit). */
   destroy() {
     const s = this.state
-    // (a visit of Book 2's run that is done is no abandon)
+    // (a visit of Spell Quest's run that is done is no abandon)
     if (s.phase === 'playing' && !this.done) {
       // left mid-run (home button, back): churn
       this.track('abandon', {

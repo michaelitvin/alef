@@ -1,5 +1,5 @@
 // The English path's event log as the parent area lists it (light: no instance here; the instance is ./telemetry.ts).
-// The English run is Book 2's run on the English course, so its events (and the tower's, `via: 'tower'`) are Book 2's
+// The English run is Spell Quest's run on the English course, so its events (and the tower's, `via: 'tower'`) are Spell Quest's
 // names with `g: 'english'` (ADR 0004: one log per game).
 import type { RollupFact, TelemetryEvent, TelemetryLog } from '../shared/telemetry'
 import { runFacts } from '../spellquest/telemetryLog'
@@ -9,8 +9,8 @@ export const ENGLISH_LOG: TelemetryLog = {
   label: 'English path',
   game: 'english',
   about: {
-    game: 'Wizard Duel, the English path (English letters, sounds and words), at /spellquest/?course=en: Book 2\'s run on the English '
-      + 'course. Events with via: "tower" come from the tower (the first duel\'s board); `run` is the English run.',
+    game: 'Spell Quest, the English path (English letters, sounds and words), at /spellquest/?course=en: Spell Quest\'s run on the English '
+      + 'course. Events with via: "tower" come from the tower; `run` is the English run.',
     docs: ['docs/superpowers/specs/2026-11-16-english-path-design.md', 'docs/adr/0004-one-telemetry-log-per-game.md'],
     code: ['src/english/course.ts', 'src/english/telemetry.ts', 'src/english/store.ts', 'src/spellquest/controller.ts'],
   },
@@ -18,7 +18,7 @@ export const ENGLISH_LOG: TelemetryLog = {
 }
 
 /**
- * What an evicted chunk of the English log keeps: Book 2's facts (`runFacts`: the answer, the tower's pairing of choice and
+ * What an evicted chunk of the English log keeps: Spell Quest's facts (`runFacts`: the answer, the tower's pairing of choice and
  * answer, replay, idle, hint, explain) with these changes. An item is `<screen>:<target>`.
  * - An answer that names its `word` (the cauldron's missing unit, a ladder's changed part: `target` is the unit) is
  *   keyed by the word, and gives a second fact keyed by the unit, `unit:<screen>:<target>`, with the same result.

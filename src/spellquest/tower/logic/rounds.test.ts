@@ -123,7 +123,7 @@ describe('pickTarget: aim at a 1-in-5 predicted mistake rate', () => {
   })
 })
 
-describe('pickTarget with cover: the placement check (Book 2 stage 0)', () => {
+describe('pickTarget with cover: the placement check (Spell Quest stage 0)', () => {
   it('the first answers ask every mark once, in a random order', () => {
     const orders = new Set<string>()
     for (let seed = 1; seed <= 20; seed++) {
@@ -150,7 +150,7 @@ describe('pickTarget with cover: the placement check (Book 2 stage 0)', () => {
     const a = seeded(5), b = seeded(5)
     for (let i = 0; i < 50; i++) expect(pickTarget(a, {}, recent, { cover: true }).id).toBe(pickTarget(b, {}, recent).id)
   })
-  it('makeRound passes cover to the picker; without it the duel’s own game is as it was', () => {
+  it('makeRound passes cover to the picker; without it the tower’s own game is as it was', () => {
     const recent = Object.fromEntries(TOWER_MARKS.filter((m) => m.id !== 'shva').map((m) => [m.id, 'ooo']))
     const rng = seeded(2)
     for (let i = 0; i < 10; i++) expect(makeRound({ id: i, wave: 1, kills: 1, boss: false, rng, lifetime: {}, recent, cover: true }).target.id).toBe('shva')

@@ -126,7 +126,7 @@ export function Strokes({ onBack }: { onBack: () => void }) {
   return (
     <div className="d2-parent" data-strokes-page>
       <button onClick={onBack} style={{ float: 'right', fontSize: 18 }}>Back</button>
-      <h2>{latin ? 'English' : 'Book 2'} — stroke order</h2>
+      <h2>{latin ? 'English' : 'Spell Quest'} — stroke order</h2>
       <p>
         Every letter as the drawing screen teaches and checks it: the glowing hand writes each stroke in order (the numbers
         are the order; the first point of a line is where it starts). Tap a letter to play it, or animate all. Mark each one;

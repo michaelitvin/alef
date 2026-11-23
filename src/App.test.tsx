@@ -1,4 +1,4 @@
-// The first duel's own page (#/duel) is gone: it is Book 2's tower now. An old link or bookmark must land on the home
+// The tower's own page (#/duel) is gone: it is Spell Quest's tower now. An old link or bookmark must land on the home
 // screen, because a HashRouter with no matching route shows a blank page. The child's progress page (#/progress) is gone
 // too: its stats are the parent's, in the parent area.
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'

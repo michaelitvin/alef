@@ -22,7 +22,7 @@ const el = (c: HTMLElement, sel: string) => c.querySelector(sel) as HTMLElement
 
 describe('the English section: level, sound units, words', () => {
   beforeEach(() => {
-    // (Book 2's settings test leaves `alef-range` in storage: nothing here depends on it)
+    // (Spell Quest's settings test leaves `alef-range` in storage: nothing here depends on it)
     localStorage.clear()
     useEnglishStore.getState().resetProgress()
   })

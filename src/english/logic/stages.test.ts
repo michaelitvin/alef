@@ -37,7 +37,7 @@ describe('the English stages', () => {
     expect(cycleOf(4, true, true, ENGLISH.stages)).toEqual(EN_ORDER)
     expect(cycleOf(4, false, true, ENGLISH.stages)).not.toContain('draw')
   })
-  it('a visit is 5 answers on a screen; the doors 6; the tower 1 wave; a session is Book 2\'s', () => {
+  it('a visit is 5 answers on a screen; the doors 6; the tower 1 wave; a session is Spell Quest\'s', () => {
     expect(EN_VISIT).toEqual({ tower: 1, broom: 5, cauldron: 5, ladder: 5, ghosts: 5, doors: 6, spell: 5, draw: 5, 'draw-hand': 0 })
     expect(EN_SESSION_LENGTH).toEqual(SESSION_LENGTH)
   })

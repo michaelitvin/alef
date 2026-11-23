@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { colors, typography, spacing } from '../../styles/theme'
 import { useProgressStore } from '../../stores/progressStore'
 import { useResponsive } from '../../hooks/useResponsive'
-import { DuelCard } from '../../components/home/DuelCard'
+import { SpellQuestCard } from '../../components/home/SpellQuestCard'
 import { StationPath } from '../../components/home/StationPath'
 import { Separator } from '../../components/home/Separator'
 import { ClockCard } from '../../components/home/ClockCard'
@@ -87,9 +87,9 @@ export function HomePage() {
         </p>
       </motion.header>
 
-      {/* the duel and its path, the clock, the English path (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
+      {/* the tower and its path, the clock, the English path (where it is open), Space Cat, the older activities (the approved mock's layout and values) */}
       <main className="home-box" data-home>
-        <DuelCard />
+        <SpellQuestCard />
         <StationPath />
         <Separator />
         <ClockCard />

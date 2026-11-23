@@ -21,9 +21,9 @@ node .claude/skills/verify/drive.mjs [shots-dir]     # exit 0: all passed
   the browser runs on another machine or in a container, start the preview yourself where that browser can reach it,
   and set `ALEF_VERIFY_URL` to the app's base as the browser sees it (it ends in `/alef/`). Stop that preview by its
   PID when you are done.
-- **Fewer checks.** `ALEF_VERIFY_ONLY=book2,clock` runs only those checks (names: `home`, `book2`, `spellQuestStation`,
+- **Fewer checks.** `ALEF_VERIFY_ONLY=spellquest,clock` runs only those checks (names: `home`, `spellquest`, `spellQuestStation`,
   `spellQuestSheets`, `spellQuestArea`, `clock`, `clockArea`, `spacecat`, `spacecatPause`, `spacecatRungs`, `spacecatKinds`, `spacecatPlacement`, `spacecatMigration`, `spacecatTurn`, `spacecatArea`,
-  `telemetry`, `englishFit`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `book2`
+  `telemetry`, `englishFit`). `telemetry` reads the events the play checks left in the same size's storage, so run it with `spellquest`
   (and `clock`); `spacecatArea` exports what `spacecat` left. `ALEF_VERIFY_SIZES=upright390` runs only those sizes
   (names: `phone`, `tablet`, `upright390`, `upright412`; and Space Cat's `phoneUp`, `phoneUpSmall` (390×844), `phoneSide`, `tabletUp`,
   `tabletSide`, which run only when named: Space Cat plays upright and on its side; and the English fit check's `fit-740x360`,
@@ -44,7 +44,7 @@ and no boy or girl yet. Each check gets its own page.
 | Check | Does |
 | --- | --- |
 | `home` | the Spell Quest and clock cards, an open station on the path; the gear's gate; every section of the lessons' area |
-| `book2` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
+| `spellquest` | cover → play → boy or girl → a tower round: taps the right rune (`data-correct`), waits for the hit (up to three rounds: a slow browser can change the pad before the tap); `window.__d2audio` is not empty |
 | `spellQuestStation` | the path's first open station link (`?station=`) → its cover → a session of that screen |
 | `spellQuestSheets` | the test-build pages `#/glyphs`, `#/tower-glyphs`, `#/summary` (screenshots to look at) |
 | `spellQuestArea`, `clockArea` | the game's gate on its cover, then every section of the area (each nav button brings its section to the top); Spell Quest's also opens the gallery and the stroke review from its Developer section. Upright, Spell Quest's gate is passed sideways (its "turn the phone" picture covers the cover), then the phone turns |

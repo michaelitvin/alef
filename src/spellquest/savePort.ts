@@ -1,4 +1,4 @@
-// What the run (controller.ts) reads from and writes to the saves: Spell Quest's save, and the first duel's recent answers
+// What the run (controller.ts) reads from and writes to the saves: Spell Quest's save, and the tower's recent answers
 // (the lessons' save holds them). A seam: the game writes the real saves, the gallery reads them and writes nothing, and a
 // test runs on a save in memory.
 import { createStore, type StoreApi } from 'zustand/vanilla'
@@ -17,7 +17,7 @@ type SaveWrites = Pick<SpellQuestActions, (typeof WRITES)[number]>
 export interface SavePort extends SaveWrites {
   /** Spell Quest's save as it is now (a snapshot: it does not change after a write; read again) */
   read(): Readonly<SpellQuestSave>
-  /** the first duel's recent answers per mark (o / x, newest last) */
+  /** the tower's recent answers per mark (o / x, newest last) */
   towerRecent(): Readonly<Record<string, string>>
   /** the parent's number range for shopping (one setting for both paths, never read from a save's own settings) */
   range(): NumberRange
@@ -31,7 +31,7 @@ export function portOver<S extends SpellQuestSave & SpellQuestActions>(store: St
   return { ...writes, read: () => store.getState(), towerRecent, range }
 }
 
-/** the real saves: Spell Quest's store (`alef-spellquest`) and the lessons' store, where the first duel keeps its answers */
+/** the real saves: Spell Quest's store (`alef-spellquest`) and the lessons' store, where the tower keeps its answers */
 export const storeSavePort: SavePort = portOver(useSpellQuestStore, () => useProgressStore.getState().tower?.recent ?? {}, getNumberRange)
 
 /** a save in memory (tests): a fresh save with `initial` over it; the writes work as in the real save */

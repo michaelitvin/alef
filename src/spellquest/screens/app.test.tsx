@@ -1,4 +1,4 @@
-// What SpellQuestApp does around its screens (the shell keeps all of it): the preload and the first duel's import on mount,
+// What SpellQuestApp does around its screens (the shell keeps all of it): the preload and the tower's import on mount,
 // the test-build addresses, the turn-the-phone picture, the screen check after the preload, the way home, the station
 // link read once.
 import { act, fireEvent, render, screen } from '@testing-library/react'
@@ -46,7 +46,7 @@ describe('SpellQuestApp around its screens', () => {
     expect(pre.calls).toBeGreaterThan(0)
   })
 
-  it('moves the first duel\'s progress over on mount', () => {
+  it('moves the tower\'s progress over on mount', () => {
     const spy = vi.spyOn(useSpellQuestStore.getState(), 'importTower')
     render(<SpellQuestApp goHome={() => {}} />)
     expect(spy).toHaveBeenCalledTimes(1)
@@ -132,7 +132,7 @@ describe('SpellQuestApp around its screens', () => {
     expect(exits[exits.length - 1]).toBeUndefined()
   })
 
-  it('the parent button opens the shared area at Book 2; its developer screens go back to the area, Close to the cover', async () => {
+  it('the parent button opens the shared area at Spell Quest; its developer screens go back to the area, Close to the cover', async () => {
     vi.useFakeTimers()
     const scroll = vi.fn()
     Element.prototype.scrollIntoView = scroll

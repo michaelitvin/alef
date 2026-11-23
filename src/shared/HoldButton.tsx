@@ -1,6 +1,6 @@
 // A button that acts only after a 2 s hold (rule: a way out on a child screen needs a hold). A ring fills while it is
 // held; a tap or a short press only shows how far the ring got (the hint), then it empties again. Used by every game's
-// parent button (through the parent gate) and by Book 2's home button.
+// parent button (through the parent gate) and by Spell Quest's home button.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import './holdButton.css'
 
@@ -9,7 +9,7 @@ export const HOLD_MS = 2000
 const HOLD_HINT_MS = 700
 const RING_C = 2 * Math.PI * 25
 
-/** the ring's look: Book 2's gold ring by default, each game may give its own */
+/** the ring's look: Spell Quest's gold ring by default, each game may give its own */
 export interface HoldRing { track: string; fill: string; width?: number; trackWidth?: number; round?: boolean }
 const GOLD: HoldRing = { track: '#ffffff22', fill: '#ffd34d', width: 4, trackWidth: 4 }
 

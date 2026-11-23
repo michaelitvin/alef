@@ -79,7 +79,7 @@ describe('Space Cat on the audio kit', () => {
     expect(await line).toBe(false)
   })
 
-  it('new-best plays Book 2\'s take', async () => {
+  it('new-best plays Spell Quest\'s take', async () => {
     await say('new-best')
     expect(audio.said()).toEqual(['new-best-1'])
   })

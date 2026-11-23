@@ -16,7 +16,7 @@ const PORTRAIT: Geo = { start: 78, end: 27, wizLeft: 15, wizBottom: 50 }
 const LANDSCAPE: Geo = { start: 84, end: 16, wizLeft: 9, wizBottom: 52 } // start leaves room for the clue bubble
 const LANDSCAPE_QUERY = '(orientation: landscape) and (min-width: 640px) and (min-height: 500px)'
 
-/** Book 2 plays only sideways, so its tower takes the landscape layout on a phone on its side too */
+/** Spell Quest plays only sideways, so its tower takes the landscape layout on a phone on its side too */
 export const EMBEDDED_LANDSCAPE_QUERY = '(orientation: landscape)'
 
 /** Tablet landscape layout; a phone on its side (too short) keeps the portrait layout (unless `query` says otherwise). */
@@ -38,7 +38,7 @@ export function useLandscape(query = LANDSCAPE_QUERY) {
 const CAST_ANIM = { pulse: { scale: [1, 1.12, 1] }, twirl: { rotate: [0, 360] }, jump: { y: [0, -26, 0] } }
 
 interface Props {
-  /** the course's own tower and wizard pictures (English: the green ones); unset: the duel's */
+  /** the course's own tower and wizard pictures (English: the green ones); unset: the tower's */
   art?: TowerArt
   round: Round | null
   outcome: Outcome | null
@@ -54,9 +54,9 @@ interface Props {
   fx?: FxStyle | null
   /** show the result banner (off for a boss hit that does not finish it) */
   resultBanner?: boolean
-  /** a hit shows its +points (Book 2's run: no, the first duel's points are retired there) */
+  /** a hit shows its +points (Spell Quest's run: no, the tower's points are retired there) */
   points?: boolean
-  /** the time line at the field's top (Book 2's run: no, the parent's pick; the walking monster shows the time) */
+  /** the time line at the field's top (Spell Quest's run: no, the parent's pick; the walking monster shows the time) */
   timeLine?: boolean
   onReplay?: () => void
 }

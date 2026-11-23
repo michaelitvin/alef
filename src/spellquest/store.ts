@@ -1,4 +1,4 @@
-// Spell Quest's own save (localStorage 'alef-spellquest'); reset never touches alef's progress or the duel's.
+// Spell Quest's own save (localStorage 'alef-spellquest'); reset never touches alef's progress or the tower's.
 import { create, type StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { persistSaveStorage } from '../shared/saveStorage'
@@ -18,12 +18,12 @@ export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }
 
 export interface SpellQuestSettings {
   sfx: boolean; music: boolean; volume: number
-  /** the two drawing screens in the lap: on by default since the parent reviewed the strokes (spec: one duel, Part 5) */
+  /** the two drawing screens in the lap: on by default since the parent reviewed the strokes (spec: one tower, Part 5) */
   drawing?: boolean
   /** the parent's number range for shopping at the merchant: the coin values and the top price (default 100) */
   range: NumberRange
 }
-/** the merchant's counters (the parent's money section) and his adaptive level (spec: one duel, Part 2) */
+/** the merchant's counters (the parent's money section) and his adaptive level (spec: one tower, Part 2) */
 export interface MerchantSave {
   visits: number; purchases: number; declines: number
   /** tries that were not enough / too much */
@@ -45,7 +45,7 @@ export interface SpellQuestSave {
   tallies: Record<string, Tally>
   recent: Record<string, string>
   confusions: { letters: Conf; vowels: Conf; syllables: Conf }
-  /** the broom's hidden speed multiplier (the duel's adaptive pace) */
+  /** the broom's hidden speed multiplier (the tower's adaptive pace) */
   pace: number
   /** the screen where the last run ended; the next run starts after it */
   lastEnded: ScreenId | null
@@ -81,16 +81,16 @@ export interface SpellQuestSave {
   merchant: MerchantSave
   /** checkpoints since the merchant's last visit, across runs (a declined visit counts as a visit) */
   checkpointsSinceVisit: number
-  /** the first duel's tower in the run: the wave its next visit starts at, and its visits so far (every third a boss) */
+  /** the tower's tower in the run: the wave its next visit starts at, and its visits so far (every third a boss) */
   towerWave: number
   towerVisits: number
   /** monsters whose "new monster" introduction a tower boss visit jumped over: each is introduced when it first appears */
   towerOwed: string[]
-  /** Spell Quest's minigames are open (stage 0 has passed: the first duel's tower is mastered, or he had a Spell Quest save) */
+  /** Spell Quest's minigames are open (stage 0 has passed: the tower's tower is mastered, or he had a Spell Quest save) */
   screensOpen: boolean
   /** the tower's last answers in time order, newest last (o / x): the fast lane of stage 0 (mastery.fastLane) */
   towerTail: string
-  /** the first duel's right answers were added to his stars and coins (once; a progress reset does it again) */
+  /** the tower's right answers were added to his stars and coins (once; a progress reset does it again) */
   towerImported: boolean
   /** the cycles of the run so far, across runs: a long-mastered screen is skipped in every other one */
   cycleNo: number
@@ -147,10 +147,10 @@ export interface SpellQuestActions {
   /** a broom session from the path starts */
   noteBroomSession: () => void
   /**
-   * Once: the first duel's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
-   * tenth of them coins; Spell Quest opens if his marks are already mastered. The first duel's own save is only read.
+   * Once: the tower's right answers (`correct` over its marks; lightning kills are not counted) become stars, and a
+   * tenth of them coins; Spell Quest opens if his marks are already mastered. The tower's own save is only read.
    */
-  importTower: (duel: TowerStats | null | undefined) => void
+  importTower: (tower: TowerStats | null | undefined) => void
   resetProgress: () => void
 }
 
@@ -254,10 +254,10 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
   markScreensOpen: () => set({ screensOpen: true }),
   nextCycle: () => set((s) => ({ cycleNo: (s.cycleNo ?? 0) + 1 })),
   noteBroomSession: () => set((s) => ({ broomSessions: (s.broomSessions ?? 0) + 1 })),
-  importTower: (duel) => set((s) => {
+  importTower: (tower) => set((s) => {
     if (s.towerImported) return s
-    const right = Object.values(duel?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
-    const mastered = towerMastered(duel?.recent ?? {}, TOWER_MARKS.map((m) => m.id))
+    const right = Object.values(tower?.byMark ?? {}).reduce((a, t) => a + Math.max(0, t?.correct ?? 0), 0)
+    const mastered = towerMastered(tower?.recent ?? {}, TOWER_MARKS.map((m) => m.id))
     return {
       totalStars: (s.totalStars ?? 0) + right, coins: (s.coins ?? 0) + coinsOf(right),
       screensOpen: !!s.screensOpen || mastered, towerImported: true,

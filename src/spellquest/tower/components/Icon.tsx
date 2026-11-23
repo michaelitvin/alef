@@ -1,4 +1,4 @@
-// Drawn UI icons for the duel (ported from the prototype). No emoji in the child's UI: emoji depend on the device's font
+// Drawn UI icons for the tower (ported from the prototype). No emoji in the child's UI: emoji depend on the device's font
 // (older Android tablets lack some; the headless test browser has none) and don't match the art. Shapes follow the legibility
 // rules: nothing that looks like a nikkud mark (no dot clusters, no short bars in rows).
 import type { CSSProperties } from 'react'

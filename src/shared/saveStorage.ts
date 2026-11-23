@@ -2,7 +2,7 @@
 // it too, ADR 0001). Zustand's `persist` does not catch a quota error: the write throws inside the child's game action
 // and the save is lost. Every persisted save and every small direct writer (player, device settings, play time) writes
 // through `safeSetItem`: on a quota error it frees space by trimming the live telemetry logs (oldest events first: this
-// page's logs, then the others; never the frozen first-duel log, never another save) and tries once more. If that fails
+// page's logs, then the others; never the frozen tower-history log, never another save) and tries once more. If that fails
 // too, the state stays in memory and nothing throws into the game.
 // It uses `localStorage` at each call, so the staging build's prefixed storage (stagingStorage.ts) applies.
 import { createJSONStorage, type StateStorage } from 'zustand/middleware'

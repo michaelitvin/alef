@@ -2,8 +2,8 @@ import type { Choice, TowerState, EffectPreset, Next, Round } from '../types'
 import { BOSS_HP, MEGA_MAX, MONSTERS_PER_WAVE, isCorrect, isTwin, keyOf, newMonsterAt, points } from './rules'
 
 export type TowerAction =
-  /** Book 2's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
-   * screens already explained (kept by Book 2's save); `mega` = the מגה charge the run kept from its last visit */
+  /** Spell Quest's run: start at this wave (a boss visit starts with the boss); the run owns the hearts; `seen` = the
+   * screens already explained (kept by Spell Quest's save); `mega` = the מגה charge the run kept from its last visit */
   | { type: 'START_AT'; wave: number; boss: boolean; seen?: string[]; mega?: number }
   | { type: 'ROUND_READY'; round: Round }
   /** Show the round while the wizard explains it: the monster waits, taps don't count yet. */
@@ -69,7 +69,7 @@ function nextAfter(s: TowerState): { state: Partial<TowerState>; next: Next } {
   }
   const kills = s.kills + 1
   if (kills < MONSTERS_PER_WAVE) return { state: { kills }, next: { kind: 'spawn', wave: s.wave, boss: false, announce: null } }
-  // only START_AT makes a boss visit (Book 2's run)
+  // only START_AT makes a boss visit (Spell Quest's run)
   return newWave(s.wave + 1)
 }
 

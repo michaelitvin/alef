@@ -144,11 +144,11 @@ describe('the English tower\'s hint', () => {
     })
     const d = deps(save)
     const run = new RunController({ course: ENGLISH, save, now: () => Date.now(), rng: seeded(11), session: { screen: 'tower' } })
-    let duel: TowerController | null = null
+    let tower: TowerController | null = null
     const mount = () => {
       const s = run.view.screen
-      if (s?.screen !== 'tower' || duel) return
-      duel = new TowerController({
+      if (s?.screen !== 'tower' || tower) return
+      tower = new TowerController({
         content: englishTower(d), makeRound: (o) => enTowerRound(d, o, { kind: 'name', word: NAME }), tallies: save.towerTallies(), audio: fakeAudio([]), rng: seeded(5),
         embedded: {
           wave: s.wave, waves: s.waves, boss: s.boss, seen: save.read().demosSeen, onSeen: (k) => save.markDemo(k), owed: [], onDone: (w) => run.towerDone(w),
@@ -157,21 +157,21 @@ describe('the English tower\'s hint', () => {
         },
         telemetry: englishTelemetry,
       })
-      duel.start()
+      tower.start()
     }
     run.subscribe(mount)
     run.start()
     mount()
-    const asking = () => { const s = duel?.getView().state; return !!s && s.phase === 'playing' && !s.paused && !s.preview && !!s.round && !s.outcome && s.walking }
+    const asking = () => { const s = tower?.getView().state; return !!s && s.phase === 'playing' && !s.paused && !s.preview && !!s.round && !s.outcome && s.walking }
     await settle(asking)
-    const round = duel!.getView().state.round!
+    const round = tower!.getView().state.round!
     const features = towerFacts(round, 3).features
     const before = save.read().tallies
     const recentBefore = { ...save.read().recent }
     englishTelemetry.clear()
-    duel!.hint()
-    await settle(() => !!duel!.getView().blend)
-    duel!.choose({ kind: 'rune', mark: round.target })
+    tower!.hint()
+    await settle(() => !!tower!.getView().blend)
+    tower!.choose({ kind: 'rune', mark: round.target })
     await settle(() => (englishTelemetry.events() as { e: string }[]).some((x) => x.e === 'answer'))
     const after = save.read()
     for (const f of features) expect(after.tallies[f]).toMatchObject({ seen: (before[f]?.seen ?? 0) + 1, helped: (before[f]?.helped ?? 0) + 1, wrong: before[f]?.wrong ?? 0 })
@@ -183,7 +183,7 @@ describe('the English tower\'s hint', () => {
     expect(all.some((x) => x.e === 'blend-hint' && x.via === 'tower' && x.round !== undefined)).toBe(true)
     expect(all.some((x) => x.e === 'answer' && x.via === undefined)).toBe(true)
     expect(all.every((x) => x.g === 'english')).toBe(true)
-    duel!.destroy()
+    tower!.destroy()
     run.destroy()
   })
 

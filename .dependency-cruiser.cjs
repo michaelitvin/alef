@@ -29,7 +29,7 @@ module.exports = {
     {
       name: 'clock-not-into-spellquest',
       severity: 'error',
-      comment: 'The clock does not import Book 2, except the wizard pictures (known exception: src/spellquest/assets/img/).',
+      comment: 'The clock does not import Spell Quest, except the wizard pictures (known exception: src/spellquest/assets/img/).',
       from: { path: '^src/clock/', pathNot: TEST },
       to: { path: '^src/spellquest/', pathNot: '^src/spellquest/assets/img/' },
     },
@@ -53,11 +53,11 @@ module.exports = {
       to: { path: '^src/spacecat/screens/' },
     },
     {
-      name: 'spellquest-into-first-duel-only-through-its-surface',
+      name: 'spellquest-into-tower-only-through-its-surface',
       severity: 'error',
       comment:
-        'Book 2 reaches the first duel only through its public surface. progressStore: Duel2App, main and the parent part read it; the run reads it only through savePort.ts. ' +
-        'components/home/StationPath is a known exception (Book 2 shows the home path wizard).',
+        'Spell Quest reaches the tower only through its public surface. progressStore: SpellQuestApp, main and the parent part read it; the run reads it only through savePort.ts. ' +
+        'components/home/StationPath is a known exception (Spell Quest shows the home path wizard).',
       from: { path: '^src/spellquest/', pathNot: TEST },
       to: {
         path: '^src/(hooks|components|types|stores|pages)/',
@@ -65,7 +65,7 @@ module.exports = {
           '^src/types/progress\\.ts$',
           '^src/stores/progressStore\\.ts$',
           '^src/components/home/StationPic\\.tsx$',
-          '^src/components/home/StationPath\\.tsx$', // known exception: used by Book 2's home-path screen
+          '^src/components/home/StationPath\\.tsx$', // known exception: used by Spell Quest's home-path screen
         ],
       },
     },
@@ -73,7 +73,7 @@ module.exports = {
       name: 'run-controller-imports-no-view',
       severity: 'error',
       comment:
-        'Book 2\'s run (controller.ts) imports no view (components/, screens/) and not the lessons\' store (src/stores): shared types are in viewTypes.ts, ' +
+        'Spell Quest\'s run (controller.ts) imports no view (components/, screens/) and not the lessons\' store (src/stores): shared types are in viewTypes.ts, ' +
         'layout numbers in layout.ts and broomLayout.ts, and the saves go through savePort.ts.',
       from: { path: '^src/spellquest/controller\\.ts$' },
       to: { path: ['^src/spellquest/(components|screens)/', '^src/stores/'] },
@@ -82,7 +82,7 @@ module.exports = {
       name: 'run-engine-is-course-free',
       severity: 'error',
       comment:
-        'The run engine (Book 2\'s controller.ts, logic/ and policies/, and the first duel in src/spellquest/tower/logic) never imports the ' +
+        'The run engine (Spell Quest\'s controller.ts, logic/ and policies/, and the tower in src/spellquest/tower/logic) never imports the ' +
         'English course (src/english): a course reaches the run only as the Course it is given (RunOpts.course).',
       from: { path: ['^src/spellquest/(controller|logic/|policies/)', '^src/spellquest/tower/logic/'] },
       to: { path: '^src/english/' },
@@ -91,7 +91,7 @@ module.exports = {
       name: 'run-policies-are-pure',
       severity: 'error',
       comment:
-        'Book 2\'s run policies (src/spellquest/policies) are pure: they import only the pure rules (logic/) and each other, never ' +
+        'Spell Quest\'s run policies (src/spellquest/policies) are pure: they import only the pure rules (logic/) and each other, never ' +
         'a store, the audio, the clock, the telemetry or a view. The run does what a step returns.',
       from: { path: '^src/spellquest/policies/', pathNot: TEST },
       to: { path: '^src/', pathNot: '^src/spellquest/(logic|policies)/' },
@@ -121,7 +121,7 @@ module.exports = {
     {
       name: 'home-into-spellquest-only-through-its-surface',
       severity: 'error',
-      comment: 'The home reads Book 2 only through its save format, station, mastery/predict logic and pictures.',
+      comment: 'The home reads Spell Quest only through its save format, station, mastery/predict logic and pictures.',
       from: { path: '^src/components/home/', pathNot: TEST },
       to: {
         path: '^src/spellquest/',

@@ -1,4 +1,4 @@
-// The life heart every game shares (Book 2's, which the parent knows): one shape in a 24-unit box, one pink, a soft glow.
+// The life heart every game shares (Spell Quest's, which the parent knows): one shape in a 24-unit box, one pink, a soft glow.
 // A heart that is lost is a ghost of it (a faint fill and a pale outline), for a game that keeps the place of a lost life.
 export const HEART_PATH = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.5 1.1 4.6 2.6l1 1.3 1-1.3C14.1 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z'
 export const HEART_FULL = '#ff5a7a'

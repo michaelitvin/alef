@@ -1,5 +1,5 @@
-// Spell Quest's section in the parent area (moved from the old parent screen's test and the first duel's stats card's test):
-// the placement control, the stage line, drawing, the shopping range and money, the first duel's history, the flight
+// Spell Quest's section in the parent area (moved from the old parent screen's test and the tower's stats card's test):
+// the placement control, the stage line, drawing, the shopping range and money, the tower's history, the flight
 // speed, the export, the developer screens and the reset of Spell Quest only.
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -14,11 +14,11 @@ import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
 const section = () => render(<SpellQuestSettings goTo={() => {}} />)
 
-describe('Book 2\'s section in the parent area', () => {
+describe('Spell Quest\'s section in the parent area', () => {
   beforeEach(() => { useProgressStore.setState({ ...INITIAL_PROGRESS_STATE }) })
   afterEach(() => vi.restoreAllMocks())
 
-  it('“already knows nikkud”: the parent opens Book 2 at stage 0 (logged); the switch shows only while the book is closed', () => {
+  it('“already knows nikkud”: the parent opens Spell Quest at stage 0 (logged); the switch shows only while the book is closed', () => {
     useSpellQuestStore.getState().resetProgress()
     useSpellQuestStore.setState({ screensOpen: false })
     const track = vi.spyOn(spellQuestTelemetry, 'track')
@@ -32,7 +32,7 @@ describe('Book 2\'s section in the parent area', () => {
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
-  it('the stage line says stage 0 (the tower) before Book 2 opens', () => {
+  it('the stage line says stage 0 (the tower) before Spell Quest opens', () => {
     useSpellQuestStore.setState({ screensOpen: false })
     const { container, unmount } = section()
     expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 0: the tower/)
@@ -42,38 +42,38 @@ describe('Book 2\'s section in the parent area', () => {
     expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
-  it('the first duel’s history: sessions, minutes, best score, best wave, and a row per mark played, most misses first', () => {
+  it('the tower’s history: sessions, minutes, best score, best wave, and a row per mark played, most misses first', () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, tower: { ...INITIAL_PROGRESS_STATE.tower, sessions: 7, bestScore: 4321, bestWave: 9, roundsMs: 180_000,
       byMark: { kamatz: { seen: 30, correct: 20, wrong: 4, timeout: 2, twin: 1, mega: 4 }, segol: { seen: 10, correct: 2, wrong: 6, timeout: 2, twin: 0, mega: 0 } } } })
     const { container } = section()
-    expect(container.querySelector('[data-duel-best]')!.textContent).toBe('4321')
-    expect(container.querySelector('[data-duel-wave]')!.textContent).toBe('9')
-    expect(container.querySelector('[data-duel-sessions]')!.textContent).toBe('7')
-    expect(container.querySelector('[data-duel-minutes]')!.textContent).toBe('3')
-    const marks = [...container.querySelectorAll('[data-duel-mark]')].map((r) => r.getAttribute('data-duel-mark'))
+    expect(container.querySelector('[data-tower-best]')!.textContent).toBe('4321')
+    expect(container.querySelector('[data-tower-wave]')!.textContent).toBe('9')
+    expect(container.querySelector('[data-tower-sessions]')!.textContent).toBe('7')
+    expect(container.querySelector('[data-tower-minutes]')!.textContent).toBe('3')
+    const marks = [...container.querySelectorAll('[data-tower-mark]')].map((r) => r.getAttribute('data-tower-mark'))
     expect(marks).toEqual(['segol', 'kamatz'])
-    const row = container.querySelector('[data-duel-mark="kamatz"]')!
+    const row = container.querySelector('[data-tower-mark="kamatz"]')!
     expect([...row.querySelectorAll('td')].slice(1).map((td) => td.textContent)).toEqual(['30', '67%', '4', '2', '1', '4'])
   })
 
-  it('the first duel’s screens table: twin and lightning columns, no row for the dropped picture screen', () => {
+  it('the tower’s screens table: twin and lightning columns, no row for the dropped picture screen', () => {
     const st = useProgressStore.getState()
     st.recordTowerRound('kamatz', 'C', 'correct', 1000)
     st.recordTowerTwin('kamatz', 'C')
     st.recordTowerRound('chirik', 'D', 'mega', 1000)
     const { container } = section()
-    expect(container.querySelector('[data-duel-mark="kamatz"] [data-col="twin"]')!.textContent).toBe('1')
-    expect(container.querySelector('[data-duel-mark="chirik"] [data-col="mega"]')!.textContent).toBe('1')
-    expect(container.querySelector('[data-duel-mark="chirik"] [data-col="correct"]')!.textContent).toBe('0%')
-    expect(container.querySelector('[data-duel-type="C"] [data-col="twin"]')!.textContent).toBe('1')
-    expect(container.querySelector('[data-duel-type="D"]')).toBeNull()
+    expect(container.querySelector('[data-tower-mark="kamatz"] [data-col="twin"]')!.textContent).toBe('1')
+    expect(container.querySelector('[data-tower-mark="chirik"] [data-col="mega"]')!.textContent).toBe('1')
+    expect(container.querySelector('[data-tower-mark="chirik"] [data-col="correct"]')!.textContent).toBe('0%')
+    expect(container.querySelector('[data-tower-type="C"] [data-col="twin"]')!.textContent).toBe('1')
+    expect(container.querySelector('[data-tower-type="D"]')).toBeNull()
   })
 
-  it('has no export of its own: Book 2’s telemetry and the first duel’s history link to the Data section', () => {
+  it('has no export of its own: Spell Quest’s telemetry and the tower’s history link to the Data section', () => {
     const goTo = vi.fn()
     const { container } = render(<SpellQuestSettings goTo={goTo} />)
     expect(screen.queryByText('Export telemetry')).toBeNull()
-    expect(container.querySelector('[data-duel-export]')).toBeNull()
+    expect(container.querySelector('[data-tower-export]')).toBeNull()
     const links = container.querySelectorAll('[data-goto-data]')
     expect(links).toHaveLength(2)
     links.forEach((l) => fireEvent.click(l))
@@ -137,7 +137,7 @@ describe('Book 2\'s section in the parent area', () => {
     expect(openDev.mock.calls.map((c) => c[0])).toEqual(['gallery', 'strokes', 'drawtest'])
   })
 
-  it('reset clears Book 2 only (the lessons and the first duel’s history stay)', async () => {
+  it('reset clears Spell Quest only (the lessons and the tower’s history stay)', async () => {
     useSpellQuestStore.setState({ crystals: 4 })
     useProgressStore.setState({ tower: { ...INITIAL_PROGRESS_STATE.tower, sessions: 3 }, stats: { ...INITIAL_PROGRESS_STATE.stats, lettersLearned: 5 } })
     await spellQuestParent.reset()

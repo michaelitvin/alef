@@ -1,4 +1,4 @@
-// The path under the duel card (spec: one duel, Part 4; the approved mock): the duel's minigames as stations on a dotted
+// The path under the duel card (spec: one duel, Part 4; the approved mock): the tower's minigames as stations on a dotted
 // zigzag trail, right to left, scrolling sideways only. Open stations first; locked ones greyed out with a lock (they do
 // nothing). Three small dots under each disc fill with his recent accuracy there (not stars). The wizard stands at the
 // newest open reading station. Each open station opens one short session of its minigame. Captions are for the parent.
@@ -59,7 +59,7 @@ function StationItem({ s, i, wizard, look }: { s: StationState; i: number; wizar
     : <div className={cls} aria-disabled {...data}>{body}</div>
 }
 
-/** The Hebrew path (read from Book 2's save), or any path given its stations and its look. */
+/** The Hebrew path (read from Spell Quest's save), or any path given its stations and its look. */
 export function StationPath({ stations, look }: { stations?: StationState[]; look?: PathLook }) {
   return stations && look ? <PathView stations={stations} look={look} /> : <HebrewPath />
 }
@@ -72,7 +72,7 @@ function HebrewPath() {
 
 function PathView({ stations, look }: { stations: StationState[]; look: PathLook }) {
   const wizard = look.wizard
-  // the newest open station: the last open reading station (drawing opens with stage 1, together with the first Book 2
+  // the newest open station: the last open reading station (drawing opens with stage 1, together with the first Spell Quest
   // minigames, and only comes last on the path because writing follows reading: it is never the newest; the spell book
   // opens with the doors and follows them for the same reason, so the doors stay the newest)
   const reading = stations.filter((s) => s.open && s.id !== 'draw' && s.id !== 'draw-hand' && s.id !== 'spell')

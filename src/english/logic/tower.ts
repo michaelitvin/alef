@@ -1,4 +1,4 @@
-// The English tower's content (the first duel's board, ADR 0002): two TowerContents, so that the tower keeps one round
+// The English tower's content (the tower's board, ADR 0002): two TowerContents, so that the tower keeps one round
 // path (TowerController.makeRound → content.makeRound). The placement tower of the first English run (design Part 4): its
 // rounds ask what the walk (./placement.ts) asks next, read from the English save; its answers are walked and saved at
 // once (`placementAnswer`), so a pause or a reload goes on where it was. And the English tower's own letter and word
@@ -44,7 +44,7 @@ const current = (p: PlacementSave, ready: number[]): PlacementState => p.state ?
 const RUNES = 3
 
 /**
- * Every placement round's walk (the duel's walkOverride: the tower's pace never adapts during the check): the first
+ * Every placement round's walk (the tower's walkOverride: the tower's pace never adapts during the check): the first
  * wave's walk. The placement measures his reading, not his speed (my call); a monster that reaches the tower is a miss,
  * which costs nothing here.
  */
@@ -89,7 +89,7 @@ export function choosePlacementRound(
 const textOf = (x: string | PlacementText) => (typeof x === 'string' ? word(x).text : x.text)
 const mark = (id: string, text: string): TowerMark => ({ id, name: text, group: 'a' })
 
-/** a placement round as the duel plays it: a picture round is screen A (it walks at once), a name round screen C (said first) */
+/** a placement round as the tower plays it: a picture round is screen A (it walks at once), a name round screen C (said first) */
 function placementRound(o: MakeRoundOpts, pr: PlacementRound, picture: PictureOf): Round {
   const words = shuffle(o.rng, [pr.target, ...pr.others].slice(0, RUNES).map((x) => ({ id: textOf(x), text: textOf(x) })))
   const runes = words.map((w) => mark(w.id, w.text))
@@ -103,7 +103,7 @@ function placementRound(o: MakeRoundOpts, pr: PlacementRound, picture: PictureOf
     // right after "a new monster!" comes that monster
     monster: (o.kills === 0 && newMonsterAt(o.wave)) || unlocked[Math.floor(o.rng() * unlocked.length) % unlocked.length],
     boss: false,
-    // (the duel's walkOverride sets every round's walk: PLACEMENT_WALK_MS)
+    // (the tower's walkOverride sets every round's walk: PLACEMENT_WALK_MS)
     walkMs: PLACEMENT_WALK_MS,
   }
 }
@@ -398,7 +398,7 @@ export function towerFacts(r: Round, stage: number): { features: string[]; newSt
   return { features: enFeatures(wordChoice(w), 'tower'), newStage: w.stage === stage }
 }
 
-/** the English tower's own lines beyond the first duel's 13 (data/lines.ts, EN_TOWER_LINE_IDS) */
+/** the English tower's own lines beyond the tower's 13 (data/lines.ts, EN_TOWER_LINE_IDS) */
 export const EN_TOWER_OWN_LINES = ['line-how-last', 'line-how-word'] as const
 
 const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text) : w.kind === 'heart' ? heartVoice(w.text) : wordVoice(w.text))
@@ -406,7 +406,7 @@ const wordVoiceOf = (w: EnWord) => (w.kind === 'nonsense' ? nonsenseVoice(w.text
 /**
  * The English tower: letter rounds (a picture or a sound, four letter runes), from stage 2 name rounds (a nonsense name,
  * three word runes), from stage 6 picture-word rounds. Feedback: the unit's sound, then the word ("fff. fox."). The
- * monsters never speak; the board, the waves, the bosses and the מגה spell are the duel's own. A new unit (or the
+ * monsters never speak; the board, the waves, the bosses and the מגה spell are the tower's own. A new unit (or the
  * stage's first blend word) is asked once before its introduction (logic/intro.ts), which follows the feedback. A word
  * round has the hint (`?`): the words on its runes blend (logic/blend.ts).
  */

@@ -1,6 +1,6 @@
 // Spell Quest's section in the parent area (src/parent; parent text, English allowed): the stage, the "open Spell Quest" placement
 // control, drawing, the shopping range and the money table, the per-screen, letter and vowel tables, the top mix-ups,
-// the first duel's history and the flight speed. The frame has the close, boy or girl, sound, reset and developer tools.
+// the tower's history and the flight speed. The frame has the close, boy or girl, sound, reset and developer tools.
 import { useSpellQuestStore, type SpellQuestSettings } from '../store'
 import { spellQuestTelemetry } from '../telemetry'
 import { setNumberRange, useNumberRange } from '../../shared/numberRange'
@@ -28,14 +28,14 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
     </table></div>
   )
   return (
-    <div data-book2-settings>
-      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower (the first duel) alone; Book 2’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
+    <div data-spellquest-settings>
+      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower alone; Spell Quest’s minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       {s.screensOpen === false && (
         <p data-open-book>
           <label>
             <input type="checkbox" data-setting-open-book checked={false}
               onChange={() => { s.markScreensOpen(); spellQuestTelemetry.track('book-open', { by: 'parent', stars: s.totalStars }) }} /> Already knows
-            nikkud: open Book 2 (its minigames join the tower in the run)
+            nikkud: open Spell Quest (its minigames join the tower in the run)
           </label>
         </p>
       )}
@@ -90,7 +90,7 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
       </p>
       <h3>Telemetry</h3>
       <p>
-        Export or clear Book 2’s event log (the tower’s events are in it) in{' '}
+        Export or clear Spell Quest’s event log (the tower’s events are in it) in{' '}
         <button type="button" data-goto-data onClick={() => goTo('data')}>Data</button>.
       </p>
     </div>

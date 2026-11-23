@@ -1,10 +1,10 @@
-// The home cards' vector play button (the approved mock): a gold (duel), brass (clock) or silver-blue (Space Cat) rim, a dark centre, and the
+// The home cards' vector play button (the approved mock): a gold (Spell Quest), brass (clock) or silver-blue (Space Cat) rim, a dark centre, and the
 // triangle pointing LEFT (rule: with no motion, the play triangle follows the reading direction; Hebrew reads right to
 // left). Decorative: the card around it is the link.
 import { useId } from 'react'
 
 const THEMES = {
-  duel: {
+  spellquest: {
     rim: ['#fff1a8', '#ffd34d', '#b8860b'], centre: ['#8a5cff', '#2a1260'], glow: '#ffd34d99',
     tri: 'M59 31 L29 50 L59 69 Z', triFill: '#fff6d8', triStroke: 6,
   },
@@ -19,7 +19,7 @@ const THEMES = {
 } as const
 
 /** `dir`: where the triangle points: left for the Hebrew card, the clock and Space Cat (they read right to left), right for the English card */
-export function PlayButton({ theme, size, dir = 'left' }: { theme: 'duel' | 'clock' | 'spacecat'; size?: string; dir?: 'left' | 'right' }) {
+export function PlayButton({ theme, size, dir = 'left' }: { theme: 'spellquest' | 'clock' | 'spacecat'; size?: string; dir?: 'left' | 'right' }) {
   const id = useId().replace(/:/g, '')
   const t = THEMES[theme]
   // pointing right: the triangle's x mirrored in the 100-wide box (the tip on the right, the base on the left)
@@ -36,7 +36,7 @@ export function PlayButton({ theme, size, dir = 'left' }: { theme: 'duel' | 'clo
       <circle cx="50" cy="50" r="46" fill={`url(#${id}r)`} />
       <circle cx="50" cy="50" r="38" fill={`url(#${id}c)`} />
       <path data-tri d={tri} fill={t.triFill} stroke={t.triFill} strokeWidth={t.triStroke} strokeLinejoin="round" />
-      {theme === 'duel'
+      {theme === 'spellquest'
         ? <path d="M78 36 A30 30 0 0 0 56 20" transform={dir === 'right' ? 'matrix(-1 0 0 1 100 0)' : undefined} stroke="#ffffff88" strokeWidth="4" fill="none" strokeLinecap="round" />
         : <ellipse cx="62" cy="28" rx="16" ry="7" fill="#ffffff40" transform="rotate(25 62 28)" />}
     </svg>

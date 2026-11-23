@@ -13,7 +13,7 @@ import { FIXTURE_EVENT_NAMES, FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_SPELLQUE
 const SINCE = GOLDEN_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
 
 describe('the export goldens', () => {
-  it('Book 2: all, and the last 30 days', async () => {
+  it('Spell Quest: all, and the last 30 days', async () => {
     await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST())).toMatchFileSnapshot('./__fixtures__/telemetry/spellquest-all.golden.json')
     await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST(), SINCE)).toMatchFileSnapshot('./__fixtures__/telemetry/spellquest-30d.golden.json')
   })
@@ -34,7 +34,7 @@ describe('the export goldens', () => {
     await expect(goldenExport(SPACECAT_LOG, GOLDEN_SPACECAT())).toMatchFileSnapshot('./__fixtures__/telemetry/spacecat-all.golden.json')
   })
 
-  it('the first duel\'s frozen history, read from storage', async () => {
+  it('the tower\'s frozen history, read from storage', async () => {
     localStorage.setItem(TOWER_HISTORY_LOG.key, FROZEN_HISTORY)
     await expect(goldenExport(TOWER_HISTORY_LOG, readLog(TOWER_HISTORY_LOG.key))).toMatchFileSnapshot('./__fixtures__/telemetry/frozen.golden.json')
     expect(localStorage.getItem(TOWER_HISTORY_LOG.key)).toBe(FROZEN_HISTORY)

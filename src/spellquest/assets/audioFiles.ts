@@ -1,10 +1,10 @@
-// Spell Quest audio, generated host-locally and copied in by the pipeline's sync script (asset-sources/duel2/).
-// Files arrive progressively: anything missing simply does not play. The vowel names are the duel's approved files.
+// Spell Quest audio, generated host-locally and copied in by the pipeline's sync script (asset-sources/spellquest/).
+// Files arrive progressively: anything missing simply does not play. The vowel names are the tower's approved files.
 const byName = (files: Record<string, string>) =>
   Object.fromEntries(Object.entries(files).map(([p, url]) => [p.split('/').pop()!.replace('.mp3', ''), url]))
 
 const own = byName(import.meta.glob('./audio/voice/*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
-const duel = byName(import.meta.glob('../tower/assets/audio/voice/wiz-{kamatz,patach,tzeire,segol,chirik,cholam,holam-male,kubutz,shuruk}.mp3',
+const towerVoice = byName(import.meta.glob('../tower/assets/audio/voice/wiz-{kamatz,patach,tzeire,segol,chirik,cholam,holam-male,kubutz,shuruk}.mp3',
   { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
 const VOWEL_NAME_FILE: Record<string, string> = {
   kamatz: 'wiz-kamatz', patach: 'wiz-patach', tsere: 'wiz-tzeire', segol: 'wiz-segol', chirik: 'wiz-chirik',
@@ -12,12 +12,12 @@ const VOWEL_NAME_FILE: Record<string, string> = {
 }
 /** voice id → url; vowel names as `vn-<markId>` */
 export const VOICE_URLS: Record<string, string> = { ...own }
-for (const [markId, file] of Object.entries(VOWEL_NAME_FILE)) if (duel[file]) VOICE_URLS[`vn-${markId}`] = duel[file]
+for (const [markId, file] of Object.entries(VOWEL_NAME_FILE)) if (towerVoice[file]) VOICE_URLS[`vn-${markId}`] = towerVoice[file]
 
-// Words the duel already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Spell Quest plays those
+// Words the tower already recorded and Michael approved (its stress fixes too: אֽוֹטוֹבּוּס, /anaˈnas/): Spell Quest plays those
 // (rule: ship the approved take; do not record a word again).
 const towerWords = byName(import.meta.glob('../tower/assets/audio/voice/wiz-word-*.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>)
-/** Spell Quest word id → the duel's picture-word key */
+/** Spell Quest word id → the tower's picture-word key */
 export const TOWER_WORD: Record<string, string> = {
   tent: 'tent', camel: 'camel', cake: 'u', house: 'house', rose: 'rose', book: 'book', lion: 'a', pineapple: 'pineapple',
   mouse: 'mouse', eye: 'eye', butterfly: 'butterfly', chick: 'e', tree: 'tree', fire: 'fire', door: 'door', pencil: 'i',
@@ -34,6 +34,6 @@ const music = byName(import.meta.glob('./audio/music/*.mp3', { eager: true, quer
 /** music kind (flight, celebrate) → tracks */
 export const MUSIC_URLS: Record<string, string[]> = {}
 for (const [file, url] of Object.entries(music)) (MUSIC_URLS[file.replace(/-\d+$/, '')] ??= []).push(url)
-// the boss keeps the first duel's one boss track: the signature of a special event (rule)
+// the boss keeps the tower's one boss track: the signature of a special event (rule)
 const towerBoss = import.meta.glob('../tower/assets/audio/music/music-boss-1.mp3', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 MUSIC_URLS.boss = Object.values(towerBoss)

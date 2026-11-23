@@ -61,7 +61,7 @@ describe('towerAudio', () => {
     const track = vi.fn()
     player.setGender('girl', 'child')
     const audio = await import('./towerAudio')
-    audio.setTowerAudioLog({ track }) // the tower's visit sets its log (Book 2's)
+    audio.setTowerAudioLog({ track }) // the tower's visit sets its log (Spell Quest's)
     const cues: string[] = []
     void audio.playLine('line-intro', (c) => cues.push(c))
     expect(byUrl('lif')).toBeTruthy()

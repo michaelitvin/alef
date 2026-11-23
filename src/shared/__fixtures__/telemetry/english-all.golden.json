@@ -6,7 +6,7 @@
   {
    "key": "alef-english-telemetry",
    "about": {
-    "game": "Wizard Duel, the English path (English letters, sounds and words), at /spellquest/?course=en: Book 2's run on the English course. Events with via: \"tower\" come from the tower (the first duel's board); `run` is the English run.",
+    "game": "Spell Quest, the English path (English letters, sounds and words), at /spellquest/?course=en: Spell Quest's run on the English course. Events with via: \"tower\" come from the tower; `run` is the English run.",
     "repo": "https://github.com/michaelitvin/alef",
     "docs": [
      "docs/superpowers/specs/2026-11-16-english-path-design.md",

@@ -68,7 +68,7 @@ const howlOf = (url: string) => howls.find((h) => h.src === url)!
 const base = (url: string) => url.split('/').pop()!.replace(/\.mp3.*$/, '').replace(/-[A-Za-z0-9_]{8}$/, '')
 const voiceIds = Object.keys(VOICE_URLS).filter((id) => !id.endsWith('-f')).slice(0, 3)
 
-describe('Book 2 audio through Howler', () => {
+describe('Spell Quest audio through Howler', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     endAfter.ms = 100

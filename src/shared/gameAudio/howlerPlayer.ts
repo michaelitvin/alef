@@ -5,7 +5,7 @@ import { Howl, Howler } from 'howler'
 import { codedSource, isCoded } from './coded'
 import type { AudioPlayer, PlayOptions, Sound } from './port'
 
-/** Playtest (duel): the recorded speech felt slow and made the whole game feel slow. */
+/** Playtest (the tower): the recorded speech felt slow and made the whole game feel slow. */
 export const VOICE_RATE = 1.15
 const howls = new Map<string, Howl>()
 /**

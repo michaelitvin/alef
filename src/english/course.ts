@@ -138,7 +138,7 @@ export const ENGLISH: Course = {
     recordStageAnswer: englishStageRule, visit: EN_VISIT, sessionLength: EN_SESSION_LENGTH,
   },
   rounds: EN_ROUNDS,
-  // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew duel's lines)
+  // its answers are kept in the English save (its `tower`), and it speaks English (never the Hebrew tower's lines)
   tower: { content: EN_TOWER, tallies: () => englishSavePort().towerTallies(), audio: englishTowerAudio, facts: towerFacts, art: ENGLISH_TOWER_ART },
   hint: EN_HINT,
   writing: EN_WRITING,

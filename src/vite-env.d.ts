@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_TTS_ENDPOINT?: string
-  readonly VITE_DUEL2_TEST?: string
+  readonly VITE_SPELLQUEST_TEST?: string
 }
 
 interface ImportMeta {

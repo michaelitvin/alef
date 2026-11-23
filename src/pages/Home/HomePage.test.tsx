@@ -32,11 +32,11 @@ describe('the home page (spec: one duel, Part 4)', () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
   })
 
-  it('the home page: duel card, path, separator, clock card, separator, Space Cat card, separator, shelf — and none of the old cards', () => {
+  it('the home page: Spell Quest card, path, separator, clock card, separator, Space Cat card, separator, shelf — and none of the old cards', () => {
     const c = page()
     const parts = [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
-    expect(parts).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
-    // one duel card (the old duel and Book 2 cards are gone), one clock card, no big level cards
+    expect(parts).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    // one duel card (the old duel and Spell Quest cards are gone), one clock card, no big level cards
     expect(c.querySelectorAll('a[href$="spellquest/"]').length).toBe(1)
     expect(c.querySelectorAll('[aria-label="clock"]').length).toBe(1)
     expect(c.querySelector('a[href$="clock/"]')).not.toBeNull()
@@ -179,7 +179,7 @@ describe('the English card and path on home (English path design, Part 1)', () =
 
   it('the English card and its path sit right before the Space Cat card (the parent\'s order: English before the cat)', async () => {
     const p = parts(await pageEn())
-    expect(p).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'english', 'english-path', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(p).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'english', 'english-path', 'separator', 'spacecat', 'separator', 'shelf'])
     expect(p[p.indexOf('spacecat') - 1]).toBe('separator')
     expect(p[p.indexOf('spacecat') - 2]).toBe('english-path')
   })
@@ -187,13 +187,13 @@ describe('the English card and path on home (English path design, Part 1)', () =
   it('no English card on production: the order is the Hebrew home\'s, as before the English path', async () => {
     en.available = false
     const c = await pageEn()
-    expect(parts(c)).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(parts(c)).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     expect(c.querySelector('a[href*="course=en"]')).toBeNull()
   })
 
   it('turning the path off hides the card', async () => {
     englishSavePort().setSettings({ path: false })
-    expect(parts(await pageEn())).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
+    expect(parts(await pageEn())).toEqual(['spellquest', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     cleanup()
     englishSavePort().setSettings({ path: true })
     expect(parts(await pageEn())).toContain('english')

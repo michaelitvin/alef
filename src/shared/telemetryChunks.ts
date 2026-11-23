@@ -35,7 +35,7 @@ export const ownsKey = (logKey: string, k: string) => k.startsWith(`${logBase(lo
 export const isChunkKey = (k: string) => k.endsWith(SUFFIX) && !k.endsWith(`~sum${SUFFIX}`) && k.split('~').length >= 3
 
 /**
- * Logs that are never trimmed, cleared or rewritten: the first duel's old log (owner decision, 2026-11-16, ADR 0004). A
+ * Logs that are never trimmed, cleared or rewritten: the tower's old log (owner decision, 2026-11-16, ADR 0004). A
  * key matches with or without the staging prefix.
  */
 export const FROZEN_LOG_KEYS: readonly string[] = [TOWER_HISTORY_LOG_KEY, OLD_TOWER_HISTORY_LOG_KEY]

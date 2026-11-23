@@ -25,7 +25,7 @@ describe('the English end screen\'s boss teaser', () => {
 
   it('an English stage-3 save never teases the bird', () => {
     expect(teaserAt(3, [])).toBe('dot')
-    // the open ones beaten: no teaser (Book 2 would tease the closed bird)
+    // the open ones beaten: no teaser (Spell Quest would tease the closed bird)
     expect(teaserAt(3, ['dot', 'mimic', 'bat'])).toBeNull()
     expect(teaserAt(4, ['dot', 'mimic', 'bat'])).toBe('shin')
     expect(teaserAt(1, [])).toBeNull()

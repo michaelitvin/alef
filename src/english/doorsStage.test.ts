@@ -1,5 +1,5 @@
 // A doors word answer counts towards the stage on every English stage from 4 (the run's `newStage` for a word), not only
-// at stage 4 (Book 2's last). The run plays the Hebrew rounds here (the English doors come with Task 20) on the English
+// at stage 4 (Spell Quest's last). The run plays the Hebrew rounds here (the English doors come with Task 20) on the English
 // stages and an English save.
 import { describe, expect, it } from 'vitest'
 import { HEBREW } from '../spellquest/course/hebrew'

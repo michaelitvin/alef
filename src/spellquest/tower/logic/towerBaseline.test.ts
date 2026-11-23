@@ -1,5 +1,5 @@
-// The baseline of the tower (Book 2's first duel) before the course seam: four waves (name screens, and their twin trap, start at wave 3) and a boss on a seeded rng, an
-// instant clock and the fake audio kit, embedded as Book 2 embeds it. A later diff in these snapshots is a regression.
+// The baseline of the tower (Spell Quest's first screen) before the course seam: four waves (name screens, and their twin trap, start at wave 3) and a boss on a seeded rng, an
+// instant clock and the fake audio kit, embedded as Spell Quest embeds it. A later diff in these snapshots is a regression.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TowerController, type TowerEmbedded } from './controller'
 import { setTowerAudioLog } from './towerAudio'
@@ -30,7 +30,7 @@ async function until(pred: () => boolean, what: string) {
 
 interface Visit { rounds: { type: string; target: string; runes: string[] }[]; events: unknown[]; done: number[]; answers: string[] }
 
-/** one visit as Book 2 embeds it (nothing seen yet, nothing owed): right, right, wrong (a twin first when the round has one), right, … */
+/** one visit as Spell Quest embeds it (nothing seen yet, nothing owed): right, right, wrong (a twin first when the round has one), right, … */
 async function visit(emb: Pick<TowerEmbedded, 'wave' | 'waves' | 'boss'>): Promise<Visit> {
   const v: Visit = { rounds: [], events: [], done: [], answers: [] }
   const seen: string[] = []
@@ -95,7 +95,7 @@ async function scenario() {
 }
 
 describe('the tower baseline', () => {
-  it('two waves, then a boss: the lines, the rounds, the events and the first duel\'s save; twice the same', async () => {
+  it('two waves, then a boss: the lines, the rounds, the events and the tower\'s save; twice the same', async () => {
     const a = await scenario()
     const b = await scenario()
     expect(b).toEqual(a)

@@ -12,8 +12,8 @@ export function stationFromUrl(search: string, open: ScreenId[]): ScreenId | nul
 }
 
 /**
- * His open screens, as the home's path shows them: Spell Quest counts as open once his first-duel marks are mastered, even
- * before he first opened Spell Quest (its save then moves the first duel's progress over). `stages`: the course's (the English
+ * His open screens, as the home's path shows them: Spell Quest counts as open once his tower marks are mastered, even
+ * before he first opened Spell Quest (its save then moves the tower's progress over). `stages`: the course's (the English
  * page passes its save, its tower's answers and its stages; default Hebrew).
  */
 export function openScreens(save: { stage?: { stage: number }; settings?: { drawing?: boolean }; screensOpen?: boolean } | null, towerRecent: Record<string, string>,

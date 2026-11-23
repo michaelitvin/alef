@@ -1,6 +1,6 @@
 import { act, render } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { DuelCard } from './DuelCard'
+import { SpellQuestCard } from './SpellQuestCard'
 import { StationPath } from './StationPath'
 import { useProgressStore } from '../../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
@@ -15,20 +15,20 @@ const KINDS: LevelKind[] = ['letters', 'nikkud', 'syllables', 'words', 'sentence
 
 describe('home parts (spec: one duel, Part 4)', () => {
   it('the play button points left', () => {
-    for (const theme of ['duel', 'clock', 'spacecat'] as const) {
+    for (const theme of ['spellquest', 'clock', 'spacecat'] as const) {
       const { container, unmount } = render(<PlayButton theme={theme} />)
       const d = container.querySelector('[data-tri]')!.getAttribute('d')!
       const xs = [...d.matchAll(/[ML]\s*(\d+)/g)].map((m) => Number(m[1]))
       // the tip (the smallest x) is on the left; the base (two points with the same, larger x) on the right
       expect(Math.min(...xs)).toBeLessThan(35)
       expect(xs.filter((x) => x > 55).length).toBe(2)
-      if (theme === 'duel') expect(d.startsWith('M59')).toBe(true)
+      if (theme === 'spellquest') expect(d.startsWith('M59')).toBe(true)
       unmount()
     }
   })
 
   it('two play buttons on one page keep their own gradients', () => {
-    const { container } = render(<><PlayButton theme="duel" /><PlayButton theme="clock" /></>)
+    const { container } = render(<><PlayButton theme="spellquest" /><PlayButton theme="clock" /></>)
     const ids = [...container.querySelectorAll('radialGradient, linearGradient')].map((g) => g.id)
     expect(new Set(ids).size).toBe(ids.length)
   })
@@ -49,7 +49,7 @@ const save = (state: Record<string, unknown>) => localStorage.setItem('alef-spel
 const order = (c: Element) => [...c.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))
 const st = (c: Element, id: string) => c.querySelector(`[data-station="${id}"]`)!
 
-describe('the duel card and the path (spec: one duel, Part 4)', () => {
+describe('the Spell Quest card and the path (spec: one duel, Part 4)', () => {
   beforeEach(() => {
     localStorage.clear()
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE })
@@ -167,7 +167,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(st(b.container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
   })
 
-  it('coming back to the page re-reads the Book 2 save', () => {
+  it('coming back to the page re-reads the Spell Quest save', () => {
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')
     save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true, recent: { 'sc:broom': 'ooo' } })
@@ -179,30 +179,30 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(st(container, 'doors').getAttribute('data-open')).toBe('true')
   })
 
-  it('an existing player whose Book 2 save is older (version 4): his stations are open and drawing is on, as Book 2 will show them', () => {
+  it('an existing player whose Spell Quest save is older (version 4): his stations are open and drawing is on, as Spell Quest will show them', () => {
     const raw = JSON.stringify({ state: { stage: { stage: 2, newAnswers: '' }, totalStars: 40, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 })
     localStorage.setItem('alef-spellquest', raw)
     const { container } = render(<StationPath />)
     for (const id of ['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand']) expect(st(container, id).getAttribute('data-open')).toBe('true')
     expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
-    // read only: the save is converted by Book 2 itself
+    // read only: the save is converted by Spell Quest itself
     expect(localStorage.getItem('alef-spellquest')).toBe(raw)
   })
 
-  it('the home never writes the Book 2 save', () => {
-    render(<><DuelCard /><StationPath /></>)
+  it('the home never writes the Spell Quest save', () => {
+    render(<><SpellQuestCard /><StationPath /></>)
     act(() => { document.dispatchEvent(new Event('visibilitychange')) })
     expect(localStorage.getItem('alef-spellquest')).toBeNull()
   })
 
-  it('an unreadable Book 2 save reads as a fresh one', () => {
+  it('an unreadable Spell Quest save reads as a fresh one', () => {
     localStorage.setItem('alef-spellquest', '{not json')
     const { container } = render(<StationPath />)
     expect(st(container, 'tower').getAttribute('data-open')).toBe('true')
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')
   })
 
-  it('a first-duel-only player who mastered the tower sees Book 2’s first stations open', () => {
+  it('a tower-only player who mastered the tower sees Spell Quest’s first stations open', () => {
     useProgressStore.setState({ tower: { ...useProgressStore.getState().tower, recent: Object.fromEntries(TOWER_MARKS.map((m) => [m.id, 'ooooo'])) } })
     const { container } = render(<StationPath />)
     expect(st(container, 'broom').getAttribute('data-open')).toBe('true')
@@ -220,7 +220,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
 
   it('a station links to its session; the card to the cover; a locked station links nowhere', () => {
     save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true })
-    const { container } = render(<><DuelCard /><StationPath /></>)
+    const { container } = render(<><SpellQuestCard /><StationPath /></>)
     expect(container.querySelector('[data-card="spellquest"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/`)
     expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=ghosts`)
     expect(st(container, 'tower').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=tower`)
@@ -228,27 +228,27 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     expect(st(container, 'doors').getAttribute('href')).toBeNull()
   })
 
-  it('the duel card: the mirrored picture, three orbs, the play button, and the parent line', () => {
-    const { container } = render(<DuelCard />)
+  it('the Spell Quest card: the mirrored picture, three orbs, the play button, and the parent line', () => {
+    const { container } = render(<SpellQuestCard />)
     expect(container.querySelector('.home-card-art')).not.toBeNull()
     expect([...container.querySelectorAll('.home-card-orb span')].map((e) => e.textContent)).toEqual(['בָּ', 'לִ', 'מוּ'])
-    expect(container.querySelector('[data-play="duel"]')).not.toBeNull()
-    expect(container.querySelector('[data-learn="duel"]')!.textContent).toBe('מה לומדים: לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.')
+    expect(container.querySelector('[data-play="spellquest"]')).not.toBeNull()
+    expect(container.querySelector('[data-learn="spellquest"]')!.textContent).toBe('מה לומדים: לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.')
   })
 
-  it('the duel card picture follows the saved player: girl → the girl card; boy or not asked yet → the boy card', () => {
+  it('the Spell Quest card picture follows the saved player: girl → the girl card; boy or not asked yet → the boy card', () => {
     const art = (c: Element) => c.querySelector('.home-card-art')!
-    const unset = render(<DuelCard />)
+    const unset = render(<SpellQuestCard />)
     expect(art(unset.container).getAttribute('data-card-art')).toBe('boy')
     const boySrc = art(unset.container).getAttribute('src')
     unset.unmount()
     setGender('boy', 'child')
-    const boy = render(<DuelCard />)
+    const boy = render(<SpellQuestCard />)
     expect(art(boy.container).getAttribute('data-card-art')).toBe('boy')
     expect(art(boy.container).getAttribute('src')).toBe(boySrc)
     boy.unmount()
     setGender('girl', 'child')
-    const girl = render(<DuelCard />)
+    const girl = render(<SpellQuestCard />)
     expect(art(girl.container).getAttribute('data-card-art')).toBe('girl')
     expect(art(girl.container).getAttribute('src')).toMatch(/card-girl/)
     expect(art(girl.container).getAttribute('src')).not.toBe(boySrc)

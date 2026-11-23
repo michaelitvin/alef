@@ -152,7 +152,7 @@ export interface Settings {
   /** Selected font for Hebrew text */
   font: FontType
   /**
-   * The first duel's own music switch, from its standalone page (removed): no code reads it any more, but saves from
+   * The tower's own music switch, from its standalone page (removed): no code reads it any more, but saves from
    * then still hold it
    */
   towerMusic?: boolean

@@ -1,6 +1,6 @@
 // The duel card (spec: one duel, Part 4; the approved mock): the tower with the wizard flying out of it on his broom
 // (mirrored: the picture reads right to left), three nikkud orbs, and the vector play button in its own column, pointing
-// left. The card starts the full adventure: Book 2's cover. Then the line for the parent: what is learned.
+// left. The card starts the full adventure: Spell Quest's cover. Then the line for the parent: what is learned.
 // The picture follows the saved player (shared/player): before the boy/girl question has been asked, the boy shows.
 import cardBoy from '../../assets/home/card.webp'
 import cardGirl from '../../assets/home/card-girl.webp'
@@ -10,14 +10,14 @@ import { PlayButton } from './PlayButton'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */
 const ORBS: [string, number, number][] = [['בָּ', 58, -18], ['לִ', 46, 16], ['מוּ', 40, -6]]
-const DUEL_HREF = () => `${import.meta.env.BASE_URL}spellquest/`
-const DUEL_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
+const SPELLQUEST_HREF = () => `${import.meta.env.BASE_URL}spellquest/`
+const SPELLQUEST_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
 
-export function DuelCard() {
+export function SpellQuestCard() {
   const card = useGender() === 'girl' ? cardGirl : cardBoy
   return (
-    <div data-home-part="duel">
-      <a className="home-card" href={DUEL_HREF()} aria-label="spellquest" data-card="spellquest">
+    <div data-home-part="spellquest">
+      <a className="home-card" href={SPELLQUEST_HREF()} aria-label="spellquest" data-card="spellquest">
         <img className="home-card-art" src={card} data-card-art={card === cardGirl ? 'girl' : 'boy'} alt="" draggable={false} />
         <div className="home-orbs" aria-hidden>
           {ORBS.map(([t, z, y]) => (
@@ -27,9 +27,9 @@ export function DuelCard() {
             </div>
           ))}
         </div>
-        <div className="home-pcol"><PlayButton theme="duel" /></div>
+        <div className="home-pcol"><PlayButton theme="spellquest" /></div>
       </a>
-      <p className="home-learn" data-learn="duel"><b>מה לומדים:</b> {DUEL_LEARN}</p>
+      <p className="home-learn" data-learn="spellquest"><b>מה לומדים:</b> {SPELLQUEST_LEARN}</p>
     </div>
   )
 }

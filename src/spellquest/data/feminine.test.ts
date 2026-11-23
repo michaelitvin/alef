@@ -3,7 +3,7 @@ import { FEMININE_IDS, LINES } from './lines'
 
 // spec 2026-11-07 girls: every line that speaks to the child has a feminine take
 const MASCULINE = /(^|\s)(אַתָּה|שֶׁלְּךָ|לְךָ|בּוֹא|תִּתְפֹּס|תִּגְרֹר|תִּזְרֹק|תִּמְצָא|תִּקְרָא|תָּבִיא|תִּסְתַּכֵּל|תִּכְתֹּב|תְּקַבֵּל|תִּגַּע)(?=[\s.,:?]|$)|תָּ(?=[\s.,:]|$)|הַקּוֹסֵם/u
-describe('Book 2 feminine lines', () => {
+describe('Spell Quest feminine lines', () => {
   it('give one entry per variation, a real change, and no "!" or "…" ending', () => {
     for (const l of LINES) {
       if (!l.fe) continue

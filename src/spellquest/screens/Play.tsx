@@ -74,7 +74,7 @@ function ScreenFor({ run, v, demoT, dry, size, course, cue }: {
         onStroke={(pts) => run.onGesture({ type: 'stroke', pts })} correct={TEST_HOOKS && next >= 0 ? s.round.boxes[next].unit : undefined} />
     }
     case 'tower':
-      // the duel's own board, over the stage (HTML, not the stage's SVG); one mount per visit
+      // the tower's own board, over the stage (HTML, not the stage's SVG); one mount per visit
       return <Tower key={s.visit} view={s} paused={v.paused} dry={dry} onAnswer={run.towerAnswer} onDone={run.towerDone} onWaveEnd={run.towerWaveEnd}
         onMega={run.towerMega} onCharge={run.towerCharge} course={course} />
   }
@@ -176,7 +176,7 @@ export function Play({ opts, onOver, onExit }: {
     return () => window.clearTimeout(timer)
   }, [bfx?.id, bfx?.kind])
   // the merchant's visit has one help button (?) that replays his walkthrough, and no speaker (the parent)
-  // (the tower has its own speaker on the duel's board)
+  // (the tower has its own speaker on the tower's board)
   const into = fullView(v, size) ? 'full' : bandWidth(v)
   // the way home (a 2 s hold): a full run only, in the bar's corner unless the content rises into the band there (layout.ts)
   const exit = onExit && !opts.session && !opts.sandbox ? () => { run.exit(); onExit() } : undefined

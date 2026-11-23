@@ -1,4 +1,4 @@
-// the tower's flow (logic/controller.ts) as a React hook for Book 2's tower: one controller per mount, its view
+// the tower's flow (logic/controller.ts) as a React hook for Spell Quest's tower: one controller per mount, its view
 // through useSyncExternalStore, the newest props read through a ref. The tower starts the visit and pauses it (the
 // run's cover); leaving the page mid-visit records an abandon; unmounting stops everything.
 import { useEffect, useRef, useState } from 'react'

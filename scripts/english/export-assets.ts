@@ -61,7 +61,7 @@ const gameVoices = new Set<string>([
   ...EN_LINES.flatMap((l) => Array.from({ length: l.variations }, (_, i) => `${l.id}-${i + 1}`)),
 ])
 const gamePictures = new Set<string>(WORDS.flatMap((w) => (w.picture ? [w.picture] : [])))
-/** a picture word that the game already has from Spell Quest or the first duel (`wordPicture` in src/english/assets/images.ts) */
+/** a picture word that the game already has from Spell Quest or the tower (`wordPicture` in src/english/assets/images.ts) */
 const spellQuestPictures = new Set([
   ...readdirSync('src/spellquest/assets/img').filter((f) => f.startsWith('pw-')).map((f) => f.slice(3, -5)),
   ...readdirSync('src/spellquest/tower/assets/sprites').filter((f) => f.startsWith('word-')).map((f) => f.slice(5, -5)),

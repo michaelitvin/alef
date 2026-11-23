@@ -1,10 +1,10 @@
-// The English path's pictures: Book 2's, with the green look's own file (./img/<key>.webp) in place of each one that has it.
+// The English path's pictures: Spell Quest's, with the green look's own file (./img/<key>.webp) in place of each one that has it.
 import { IMAGES } from '../../spellquest/assets/images'
 
 /** the pictures that never turn green: the monsters, bosses, merchant, potion, coins, hearts, stars and the picture words */
 const STAYS = /^(boss-|merchant-|pw-|word-|s-potion|coin|heart|star)/
 
-/** the green files that have no Book 2 picture: the English path's own sprites */
+/** the green files that have no Spell Quest picture: the English path's own sprites */
 const ONLY_GREEN = ['s-book']
 
 /**
@@ -23,12 +23,12 @@ const GREEN: Record<string, string> = Object.fromEntries(
 
 export const ENGLISH_IMAGES: Record<string, string> = greenImages(IMAGES, GREEN)
 
-/** reused Book 2 pictures named for another word (asset plan 2.1: word-a is a lion, word-i a pencil…) */
+/** reused Spell Quest pictures named for another word (asset plan 2.1: word-a is a lion, word-i a pencil…) */
 const RENAMED: Record<string, string> = { lion: 'word-a', chick: 'word-e', pencil: 'word-i', cake: 'word-u', bike: 'word-bicycle' }
-/** Book 2 pictures the English path does not reuse (asset plan 2.1: another name, or another first sound) */
+/** Spell Quest pictures the English path does not reuse (asset plan 2.1: another name, or another first sound) */
 const NOT_REUSED = new Set(['ball', 'eye', 'island', 'silent', 'rose'])
 
-/** The file of a word's picture (its EnWord.picture key): the English path's own `img/pw-<key>.webp`, else Book 2's picture word of that name; undefined: no file yet. */
+/** The file of a word's picture (its EnWord.picture key): the English path's own `img/pw-<key>.webp`, else Spell Quest's picture word of that name; undefined: no file yet. */
 export function wordPicture(key: string): string | undefined {
   if (NOT_REUSED.has(key)) return undefined
   return GREEN[`pw-${key}`] || (RENAMED[key] && ENGLISH_IMAGES[RENAMED[key]]) || ENGLISH_IMAGES[`pw-${key}`] || ENGLISH_IMAGES[`word-${key}`]
