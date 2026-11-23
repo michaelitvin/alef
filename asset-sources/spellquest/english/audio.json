@@ -509,7 +509,7 @@
     "response": "audio",
     "prompt": "[warmly, to a 7-year-old] This word is:"
    },
-   "processing": "Silence trimmed at both ends by the pipeline (no change of speed); then MP3, mono, 96 kbit/s. Shipped ahead of the parent's review: his review of this take is pending (asset review is non-blocking)",
+   "processing": "Silence trimmed at both ends by the pipeline (no change of speed); then MP3, mono, 96 kbit/s. Shipped ahead of the parent's review (asset review is non-blocking); the parent approved this take on 2026-11-23 (\"sounds fine\", in the session, not on the review kit)",
    "earlier_takes": [
     {
      "take": "demo-ladder-look-1__B",
