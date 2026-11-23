@@ -113,7 +113,7 @@ const noItem = [
 // ---- provenance bookkeeping ----
 interface AudioEntry {
   id: string; file: string; take: string; source_sha256: string; where: string; caption: string
-  request: unknown; processing: string; earlier_takes: { take: string; verdict: string | null; note?: string }[] | null
+  request: unknown; gain_db: number; processing: string; earlier_takes: { take: string; verdict: string | null; note?: string }[] | null
 }
 interface PictureEntry {
   key: string; file: string; take: string; source_sha256: string; caption: string; model: string; reference: string
@@ -142,8 +142,91 @@ function voiceRequest(takeId: string): unknown {
   return { model: VOICE_MODEL, voice: ('voice' in r && r.voice) || 'Puck', response: 'audio', prompt: r.prompt }
 }
 
-const encode = (src: string, dest: string): void => {
+// ---- level matching: the sound clips (snd-*) came out of text-to-speech much quieter than the word clips ----
+/** the loudness all voice clips are brought to: the median active RMS (dBFS) of the sources of all word clips (w-*),
+ *  found with `--word-median` on 2026-11-23: the median of 351 word clips was -18.80 dBFS (it prints that and exits) */
+const TARGET_ACTIVE_RMS_DB = -18.8
+const MIN_GAIN_DB = -6
+const MAX_GAIN_DB = 20
+/** after the gain, no sample is above this (dBFS) */
+const PEAK_CEILING_DB = -1
+/** a 20 ms frame counts as speech when its own RMS is above this (dBFS) */
+const ACTIVE_FRAME_DB = -45
+const toDb = (x: number): number => (x > 0 ? 20 * Math.log10(x) : -Infinity)
+
+/** the samples of a RIFF/WAVE file (PCM 16/24-bit or float32), mixed to mono, as numbers in -1..1, and the sample rate */
+function readWav(path: string): { samples: Float64Array; rate: number } {
+  const b = readFileSync(path)
+  if (b.toString('ascii', 0, 4) !== 'RIFF' || b.toString('ascii', 8, 12) !== 'WAVE') throw new Error(`${path} is not a WAV file`)
+  let fmt: { tag: number; ch: number; rate: number; bits: number } | null = null
+  let off = 12
+  while (off + 8 <= b.length) {
+    const id = b.toString('ascii', off, off + 4)
+    const size = b.readUInt32LE(off + 4)
+    const body = off + 8
+    if (id === 'fmt ') {
+      let tag = b.readUInt16LE(body)
+      if (tag === 0xfffe) tag = b.readUInt16LE(body + 24) // WAVE_FORMAT_EXTENSIBLE: the sub-format starts with the real tag
+      fmt = { tag, ch: b.readUInt16LE(body + 2), rate: b.readUInt32LE(body + 4), bits: b.readUInt16LE(body + 14) }
+    } else if (id === 'data') {
+      if (!fmt) throw new Error(`${path}: data before fmt`)
+      const bytes = fmt.bits / 8
+      const end = Math.min(body + size, b.length)
+      const frames = Math.floor((end - body) / (bytes * fmt.ch))
+      const out = new Float64Array(frames)
+      for (let i = 0; i < frames; i++) {
+        let sum = 0
+        for (let c = 0; c < fmt.ch; c++) {
+          const o = body + (i * fmt.ch + c) * bytes
+          sum += fmt.tag === 3 && fmt.bits === 32 ? b.readFloatLE(o)
+            : fmt.tag === 1 && fmt.bits === 16 ? b.readInt16LE(o) / 32768
+            : fmt.tag === 1 && fmt.bits === 24 ? b.readIntLE(o, 3) / 8388608
+            : (() => { throw new Error(`${path}: unsupported WAV format (tag ${fmt.tag}, ${fmt.bits} bit)`) })()
+        }
+        out[i] = sum / fmt.ch
+      }
+      return { samples: out, rate: fmt.rate }
+    }
+    off = body + size + (size & 1)
+  }
+  throw new Error(`${path}: no data chunk`)
+}
+
+/** peak and "active RMS" (RMS over the 20 ms frames whose own RMS is above ACTIVE_FRAME_DB), both in dBFS */
+function levels(path: string): { peakDb: number; activeRmsDb: number } {
+  const { samples, rate } = readWav(path)
+  let peak = 0
+  for (const x of samples) peak = Math.max(peak, Math.abs(x))
+  const n = Math.max(1, Math.round(rate * 0.02))
+  let sumSq = 0
+  let count = 0
+  for (let i = 0; i < samples.length; i += n) {
+    const end = Math.min(i + n, samples.length)
+    let f = 0
+    for (let k = i; k < end; k++) f += samples[k] * samples[k]
+    if (toDb(Math.sqrt(f / (end - i))) > ACTIVE_FRAME_DB) { sumSq += f; count += end - i }
+  }
+  return { peakDb: toDb(peak), activeRmsDb: count ? toDb(Math.sqrt(sumSq / count)) : -Infinity }
+}
+
+/** the gain (dB, one decimal) that brings a clip to the target, within the limits and with the peak at or below the ceiling */
+function gainFor(path: string): number {
+  const { peakDb, activeRmsDb } = levels(path)
+  if (!Number.isFinite(activeRmsDb)) return 0 // silent: nothing to match
+  const wanted = Math.min(MAX_GAIN_DB, Math.max(MIN_GAIN_DB, TARGET_ACTIVE_RMS_DB - activeRmsDb))
+  // round down so that the rounded gain never lifts the peak over the ceiling
+  return Math.floor(Math.min(wanted, PEAK_CEILING_DB - peakDb) * 10) / 10
+}
+
+if (flag('word-median')) {
+  const v = voiceJobs.filter((j) => j.gameId.startsWith('w-')).map((j) => levels(j.src).activeRmsDb).filter(Number.isFinite).sort((a, b) => a - b)
+  console.log(`word clips: ${v.length}, median active RMS ${v[Math.floor((v.length - 1) / 2)] / 2 + v[Math.ceil((v.length - 1) / 2)] / 2} dBFS`)
+  process.exit(0)
+}
+
+const encode = (src: string, dest: string, gainDb: number): void => {
   const p = spawnSync('gst-launch-1.0', ['-q', 'filesrc', `location=${src}`, '!', 'wavparse', '!', 'audioconvert', '!', 'audioresample', '!',
+    'volume', `volume=${(10 ** (gainDb / 20)).toFixed(5)}`, '!', 'audioconvert', '!',
     'lamemp3enc', 'target=bitrate', `bitrate=${MP3_KBPS}`, 'cbr=true', 'mono=true', '!', 'xingmux', '!', 'filesink', `location=${dest}`], { encoding: 'utf8' })
   if (p.status !== 0) throw new Error(`encoding ${src} failed: ${p.stderr}`)
 }
@@ -154,15 +237,16 @@ if (!dry) { mkdirSync(VOICE_DIR, { recursive: true }); mkdirSync(IMG_DIR, { recu
 for (const j of voiceJobs) {
   const hash = sha(j.src)
   const old = audioBy.get(j.gameId)
-  if (!force && old && old.take === j.state.current!.id && old.source_sha256 === hash && existsSync(j.dest)) { counts.skipped++; continue }
+  const gain = gainFor(j.src)
+  if (!force && old && old.take === j.state.current!.id && old.source_sha256 === hash && old.gain_db === gain && existsSync(j.dest)) { counts.skipped++; continue }
   counts.voice++
   if (dry) continue
-  encode(j.src, j.dest)
+  encode(j.src, j.dest, gain)
   const item = j.state.item
   audioBy.set(j.gameId, {
     id: j.gameId, file: j.dest, take: j.state.current!.id, source_sha256: hash, where: item.where ?? '', caption: item.caption ?? '',
-    request: voiceRequest(j.state.current!.id),
-    processing: `Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then MP3, mono, ${MP3_KBPS} kbit/s`,
+    request: voiceRequest(j.state.current!.id), gain_db: gain,
+    processing: `Silence trimmed at both ends by the pipeline (the parent approved the trimmed take; no change of speed); then level-matched to the word clips (gain_db); then MP3, mono, ${MP3_KBPS} kbit/s`,
     earlier_takes: j.state.takes.filter((t) => t.take.id !== j.state.current!.id).map((t) => ({ take: basename(t.take.id, '.wav'), verdict: t.verdict, ...(t.text ? { note: t.text } : {}) })).sort((a, b) => a.take.localeCompare(b.take)),
   })
 }

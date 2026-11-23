@@ -23,7 +23,7 @@ One entry for each file in `src/spellquest/english/assets/audio/voice/`: `{id, f
 processing, earlier_takes}`. `request` is the Gemini text-to-speech request of the chosen take (model, voice, and the
 `prompt`: the direction in brackets followed by the spoken text). `earlier_takes` lists the other takes of the item with
 the parent's verdict and note. Text-to-speech output changes from run to run: keep the MP3; the request only gets a
-similar take. Written by `node scripts/english/export-assets.ts` (see below), never by hand.
+similar take. `gain_db` is the level match: the export measures the active RMS of the source WAV (20 ms frames above -45 dBFS) and applies a gain (-6 to +20 dB, peak kept at or below -1 dBFS) that brings the clip to the median of the word clips, so quiet sounds such as `snd-th` and `snd-ch` play as loud as the words. Written by `node scripts/english/export-assets.ts` (see below), never by hand.
 
 ## `pictures.json`
 
