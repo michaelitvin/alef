@@ -2,13 +2,11 @@
 <html lang="he">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/alef/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0824" />
-    <title>ספר 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The old address of Spell Quest (once Book 2). It imports nothing from the app. A relative target works under /alef/ and /alef/staging/. -->
+    <meta http-equiv="refresh" content="0; url=../spellquest/" />
+    <title>Spell Quest</title>
+    <script>location.replace('../spellquest/' + location.search + location.hash)</script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/spellquest/main.tsx"></script>
-  </body>
+  <body></body>
 </html>

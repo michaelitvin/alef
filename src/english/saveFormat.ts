@@ -1,6 +1,6 @@
 // The English path's save format (localStorage 'alef-english'): its types, its fresh values and a light reader. Kept apart
 // from the store, with no side effects, so that the alef home and the parent index can read the save without creating (and
-// so writing) the store. It never reads or writes Spell Quest's save (alef-duel2): the English path has its own purse.
+// so writing) the store. It never reads or writes Spell Quest's save (alef-spellquest): the English path has its own purse.
 import type { SpellQuestSave, SpellQuestSettings } from '../spellquest/store'
 import { DEFAULT_SETTINGS, renameSpellQuestFieldsV8 } from '../spellquest/saveFormat'
 import type { ScreenId } from '../spellquest/logic/predict'

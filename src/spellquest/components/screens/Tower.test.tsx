@@ -33,10 +33,10 @@ describe('Tower', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
     spellQuestTelemetry.flush()
-    const rounds = readLog('alef-duel2-telemetry').filter((e) => e.e === 'round')
+    const rounds = readLog('alef-spellquest-telemetry').filter((e) => e.e === 'round')
     expect(rounds.length).toBeGreaterThan(0)
-    for (const r of rounds) expect(r).toMatchObject({ g: 'book2', via: 'tower', s: SESSION, run: 5, visit: 1 })
-    expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
+    for (const r of rounds) expect(r).toMatchObject({ g: 'spellquest', via: 'tower', s: SESSION, run: 5, visit: 1 })
+    expect(localStorage.getItem('alef-tower-history-telemetry')).toBeNull()
     spellQuestTelemetry.setRun(0)
   })
 
@@ -47,7 +47,7 @@ describe('Tower', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
     unmount()
     expect(spellQuestTelemetry.events().length).toBe(0)
-    expect(localStorage.getItem('alef-duel-telemetry')).toBeNull()
+    expect(localStorage.getItem('alef-tower-history-telemetry')).toBeNull()
   })
 
   it('draws the duel’s board with no HUD, no מגה button before the charge, and none of the duel’s covers', async () => {

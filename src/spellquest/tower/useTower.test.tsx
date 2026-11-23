@@ -10,7 +10,7 @@ import { createTelemetry } from '../../shared/telemetry'
 import { INITIAL_PROGRESS_STATE } from '../../types/progress'
 
 const audio = installFakeAudio()
-const tel = createTelemetry('t-tower-hook', { game: 'book2' })
+const tel = createTelemetry('t-tower-hook', { game: 'spellquest' })
 const events = () => tel.events() as Record<string, unknown>[]
 const SEEN = ['tower-intro', 'tower-screen-A', 'tower-screen-B', 'tower-screen-C', 'tower-screen-D', 'tower-screen-silent']
 

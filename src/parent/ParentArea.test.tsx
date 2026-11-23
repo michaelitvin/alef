@@ -40,28 +40,28 @@ describe('the parent area', () => {
   })
 
   it('every game registers its part; the registry knows book2, the clock, Space Cat, the lessons and English', () => {
-    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'spacecat', 'lessons', 'english'])
+    expect(GAMES.map((g) => g.id)).toEqual(['spellquest', 'clock', 'spacecat', 'lessons', 'english'])
   })
 
   it('progress: each game\'s line and top mix-ups come from its raw save, and no other game\'s save is written', async () => {
-    save('alef-duel2', { stage: { stage: 2 }, runs: 4, bestRun: 9, crystals: 1, screensOpen: true, confusions: { letters: { 'l-bet': { 'l-kaf': 3 } }, vowels: {}, syllables: {} } }, 7)
+    save('alef-spellquest', { stage: { stage: 2 }, runs: 4, bestRun: 9, crystals: 1, screensOpen: true, confusions: { letters: { 'l-bet': { 'l-kaf': 3 } }, vowels: {}, syllables: {} } }, 7)
     save('alef-clock', { progress: { level: 3 }, roundNo: 20, gears: 5, workdays: 2, bestStreak: 6, confusions: { '3:15': { '3:45': 2 } } })
     const writes: string[] = []
     const set = Storage.prototype.setItem
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, k: string, v: string) { writes.push(k); set.call(this, k, v) })
     const { container } = render(<ParentArea game="clock" onClose={() => {}} />)
     const line = (g: string) => container.querySelector(`[data-progress-game="${g}"] [data-summary]`)!.textContent
-    expect(line('book2')).toBe('Stage 2 · runs 4 · best run 9 · crystals 1')
+    expect(line('spellquest')).toBe('Stage 2 · runs 4 · best run 9 · crystals 1')
     expect(line('clock')).toBe('Level 3 · rounds 20 · gears 5 · workdays 2 · best streak 6')
     expect(line('lessons')).toBe('Not played yet.')
     expect(container.querySelector('[data-progress-game="clock"] [data-mixups]')!.textContent).toBe('3:15 → 3:45: 2')
-    expect(container.querySelector('[data-progress-game="book2"] [data-mixups] li')!.textContent).toMatch(/→ .*: 3$/)
+    expect(container.querySelector('[data-progress-game="spellquest"] [data-mixups] li')!.textContent).toMatch(/→ .*: 3$/)
     await screen.findByText(/Hebrew: mix print and cursive/, {}, LAZY)
-    expect(writes.filter((k) => k === 'alef-duel2' || k === 'alef-progress')).toEqual([])
+    expect(writes.filter((k) => k === 'alef-spellquest' || k === 'alef-progress')).toEqual([])
   })
 
   it('only the open game\'s settings show', async () => {
-    const { container } = render(<ParentArea game="book2" onClose={() => {}} />)
+    const { container } = render(<ParentArea game="spellquest" onClose={() => {}} />)
     await screen.findByText(/Number range for shopping/, {}, LAZY)
     expect(container.querySelector('[data-book2-settings]')).not.toBeNull()
     expect(container.querySelector('[data-clock-settings]')).toBeNull()
@@ -93,7 +93,7 @@ describe('the parent area', () => {
 
   it('boy or girl and sound are set here and logged by the open game', () => {
     const track = vi.fn()
-    const { container } = render(<ParentArea game="book2" onClose={() => {}} track={track} />)
+    const { container } = render(<ParentArea game="spellquest" onClose={() => {}} track={track} />)
     fireEvent.click(screen.getByLabelText('Girl'))
     expect(getGender()).toBe('girl')
     expect(track).toHaveBeenCalledWith('player', { gender: 'girl', by: 'parent' })
@@ -108,7 +108,7 @@ describe('the parent area', () => {
     const onClose = vi.fn()
     const scroll = vi.fn()
     Element.prototype.scrollIntoView = scroll
-    const { container } = render(<ParentArea game="book2" section="data" onClose={onClose} homeHref="/alef/" />)
+    const { container } = render(<ParentArea game="spellquest" section="data" onClose={onClose} homeHref="/alef/" />)
     expect(scroll).toHaveBeenCalledTimes(1)
     expect(scroll.mock.contexts[0]).toBe(container.querySelector('[data-section="data"]'))
     fireEvent.click(container.querySelector('[data-goto="sound"]')!)
@@ -120,7 +120,7 @@ describe('the parent area', () => {
 
   it('developer: the open game\'s tools only (Book 2\'s screens open through the page)', async () => {
     const openDev = vi.fn()
-    const b2 = render(<ParentArea game="book2" onClose={() => {}} openDev={openDev} />)
+    const b2 = render(<ParentArea game="spellquest" onClose={() => {}} openDev={openDev} />)
     fireEvent.click(await screen.findByText('Stroke review', {}, LAZY))
     expect(openDev).toHaveBeenCalledWith('strokes')
     expect(b2.container.querySelector('[data-dev="dev-mode"]')).toBeNull()
@@ -135,7 +135,7 @@ describe('the parent area', () => {
     localStorage.setItem('alef-clock-telemetry', JSON.stringify({ v: 1, events: [{ t: 1, s: 'a', run: 0, e: 'x' }, { t: 2, s: 'a', run: 0, e: 'y' }] }))
     const { container } = render(<ParentArea game="clock" onClose={() => {}} />)
     expect(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-count]')!.textContent).toBe('2 events')
-    expect(container.querySelector('[data-log="alef-duel-telemetry"]')).not.toBeNull()
+    expect(container.querySelector('[data-log="alef-tower-history-telemetry"]')).not.toBeNull()
   })
 
   // jsdom has no layout, so the width itself is checked by the /verify driver on an upright phone; here: the structure
@@ -146,7 +146,7 @@ describe('the parent area', () => {
     const { INITIAL_PROGRESS_STATE } = await import('../types/progress')
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, tower: { ...INITIAL_PROGRESS_STATE.tower,
       byMark: { kamatz: { seen: 3, correct: 2, wrong: 1, timeout: 0, twin: 0, mega: 0 } } } })
-    for (const [game, lazyText] of [['lessons', /Dev mode/], ['book2', /Mark \(most misses first\)/], ['clock', /Predicted miss/], ['spacecat', /Sums he finds hard/]] as const) {
+    for (const [game, lazyText] of [['lessons', /Dev mode/], ['spellquest', /Mark \(most misses first\)/], ['clock', /Predicted miss/], ['spacecat', /Sums he finds hard/]] as const) {
       const { container, unmount } = render(<ParentArea game={game} onClose={() => {}} />)
       await screen.findByText(lazyText, {}, LAZY)
       const tables = [...container.querySelectorAll('table')]

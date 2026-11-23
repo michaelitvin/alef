@@ -14,8 +14,8 @@ const SINCE = GOLDEN_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
 
 describe('the export goldens', () => {
   it('Book 2: all, and the last 30 days', async () => {
-    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-all.golden.json')
-    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST(), SINCE)).toMatchFileSnapshot('./__fixtures__/telemetry/book2-30d.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST())).toMatchFileSnapshot('./__fixtures__/telemetry/spellquest-all.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST(), SINCE)).toMatchFileSnapshot('./__fixtures__/telemetry/spellquest-30d.golden.json')
   })
 
   it('the clock: all', async () => {
@@ -27,7 +27,7 @@ describe('the export goldens', () => {
   })
 
   it('the Hebrew spell book: all', async () => {
-    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/book2-spell.golden.json')
+    await expect(goldenExport(SPELLQUEST_LOG, GOLDEN_SPELLQUEST_SPELL())).toMatchFileSnapshot('./__fixtures__/telemetry/spellquest-spell.golden.json')
   })
 
   it('Space Cat: all', async () => {

@@ -5,18 +5,20 @@ import {
   FROZEN_LOG_KEYS, OPEN_SEAL_CHARS, SESSION_IDLE_MS, clearLog, getRaw, isFrozenLog, onIdle, openJson, parseOpen, prepareChunk, readLog,
   reconcile, writeChunk, type PreparedChunk,
 } from './telemetryChunks'
+import { aliasEvents } from './telemetryAliases'
 import { enforceBudget, freeChunks } from './telemetryBudget'
 import { MS_EDGES, dayOf, readRollup, weekOf } from './telemetryRollup'
 
 export {
   LIVE_BUDGET, RAW_FLOOR_DAYS, ROLLUP_BUDGET, STAGING_SHARE, frozenLogSizes, liveBudget, liveChars, rollupBudget,
 } from './telemetryBudget'
+export { GAME_ALIASES, aliasEvent, aliasEvents, aliasGame } from './telemetryAliases'
 export {
   FROZEN_LOG_KEYS, chunkKey, clearLog, isChunkKey, logStats, ownsKey, readLog, rollupKey, type LogStats,
 } from './telemetryChunks'
 
 /**
- * The game an event belongs to (`book2`, `clock`, `duel`, …). Every event carries it as `g`; events written before it
+ * The game an event belongs to (`spellquest`, `clock`, `tower`, …; old events say `book2` or `duel`, read through the alias table). Every event carries it as `g`; events written before it
  * existed have none. A string, so a new game declares its log without a change here.
  */
 export type TelemetryGame = string
@@ -91,7 +93,7 @@ export const registeredLogs = (): TelemetryLog[] => [...registry.values()]
 
 let frozenCopyChecked = false
 /**
- * The staging build's copy of the frozen log (`staging:alef-duel-telemetry`, from an old `?copy-prod`) is not the
+ * The staging build's copy of the frozen log (`staging:alef-tower-history-telemetry`, from an old `?copy-prod`) is not the
  * child's history: the staging build deletes it once per page that finds it (owner decision, 2026-11-17). The production
  * build never does, and the staging build cannot see production's key (its storage is the prefixed view). Gives what it
  * removed. Never throws.
@@ -113,8 +115,10 @@ export function removeStagingFrozenCopy(staging = isStaging): { key: string; cha
 /** for tests: look for the copy again */
 export const resetFrozenCopyForTest = () => { frozenCopyChecked = false }
 
-export function filterEvents(events: TelemetryEvent[], { since }: { since?: number } = {}): TelemetryEvent[] {
-  return since === undefined ? events : events.filter((ev) => typeof ev.t === 'number' && ev.t >= since)
+/** The events at or after `since`, with old ids read as the new ones (`book2` as `spellquest`: see telemetryAliases.ts). */
+export function filterEvents(events: TelemetryEvent[], { since }: { since?: number } = {}, logKey = ''): TelemetryEvent[] {
+  const kept = since === undefined ? events : events.filter((ev) => typeof ev.t === 'number' && ev.t >= since)
+  return isFrozenLog(logKey) ? kept : aliasEvents(kept, logKey) // the frozen history is exported as it is stored (ADR 0004)
 }
 
 function aboutNote(about: TelemetryAbout) {

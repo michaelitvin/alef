@@ -8,10 +8,10 @@ import { FROZEN_HISTORY, GOLDEN_SPELLQUEST, GOLDEN_CLOCK, GOLDEN_NOW, goldenExpo
 import { SPELLQUEST_LOG } from '../spellquest/telemetryLog'
 import { CLOCK_LOG } from '../clock/telemetryLog'
 
-const KEY = 'alef-duel2-telemetry'
+const KEY = 'alef-spellquest-telemetry'
 beforeEach(() => localStorage.clear())
 
-const ev = (s: string, t: number, e = 'x', data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s, run: 1, e, g: 'book2', ...data })
+const ev = (s: string, t: number, e = 'x', data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s, run: 1, e, g: 'spellquest', ...data })
 const seal = (evs: TelemetryEvent[], key = KEY) => {
   const k = chunkKey(key, evs[0]!.t, evs[0]!.s)
   localStorage.setItem(k, encodeChunk(evs))
@@ -110,13 +110,13 @@ describe('reading a log of sealed chunks and an open chunk', () => {
   })
 
   it('the frozen log beside Book 2\'s chunks reads byte-equal to today', () => {
-    localStorage.setItem('alef-duel-telemetry', FROZEN_HISTORY)
+    localStorage.setItem('alef-tower-history-telemetry', FROZEN_HISTORY)
     seal(A)
-    localStorage.setItem('alef-duel~zz~A-telemetry', encodeChunk(A)) // even a stray chunk-shaped key under its base
-    expect(str(readLog('alef-duel-telemetry'))).toBe(str(JSON.parse(FROZEN_HISTORY).events))
-    expect(logStats('alef-duel-telemetry')).toMatchObject({ events: 1, chunks: 0 })
-    clearLog('alef-duel-telemetry')
-    expect(localStorage.getItem('alef-duel-telemetry')).toBe(FROZEN_HISTORY)
+    localStorage.setItem('alef-tower-history~zz~A-telemetry', encodeChunk(A)) // even a stray chunk-shaped key under its base
+    expect(str(readLog('alef-tower-history-telemetry'))).toBe(str(JSON.parse(FROZEN_HISTORY).events))
+    expect(logStats('alef-tower-history-telemetry')).toMatchObject({ events: 1, chunks: 0 })
+    clearLog('alef-tower-history-telemetry')
+    expect(localStorage.getItem('alef-tower-history-telemetry')).toBe(FROZEN_HISTORY)
   })
 
   it('the staging build reads its own prefixed chunks only', () => {
@@ -146,10 +146,10 @@ describe('reading a log of sealed chunks and an open chunk', () => {
     const k = seal(A)
     putOpen(B, [k])
     localStorage.setItem(rollupKey(KEY), '{}')
-    localStorage.setItem('alef-duel-telemetry', FROZEN_HISTORY)
-    localStorage.setItem('alef-duel2', '{"save":1}')
+    localStorage.setItem('alef-tower-history-telemetry', FROZEN_HISTORY)
+    localStorage.setItem('alef-spellquest', '{"save":1}')
     clearLog(KEY)
-    expect(Object.keys(localStorage).sort()).toEqual(['alef-duel-telemetry', 'alef-duel2'])
+    expect(Object.keys(localStorage).sort()).toEqual(['alef-spellquest', 'alef-tower-history-telemetry'])
   })
 })
 

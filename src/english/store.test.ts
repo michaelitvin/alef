@@ -10,9 +10,9 @@ describe('the English save', () => {
   beforeEach(() => { useEnglishStore.getState().resetProgress(); localStorage.clear() })
 
   it('English coins never reach the Hebrew purse', () => {
-    localStorage.setItem('alef-duel2', HEBREW_SAVE_RAW)
+    localStorage.setItem('alef-spellquest', HEBREW_SAVE_RAW)
     useEnglishStore.getState().addCoins(5)
-    expect(localStorage.getItem('alef-duel2')).toBe(HEBREW_SAVE_RAW)
+    expect(localStorage.getItem('alef-spellquest')).toBe(HEBREW_SAVE_RAW)
     expect(readEnglishSave()!.coins).toBe(5)
   })
 
@@ -27,7 +27,7 @@ describe('the English save', () => {
   })
 
   it('the Hebrew store is unchanged', () => {
-    expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-duel2')
+    expect(useSpellQuestStore.persist.getOptions().name).toBe('alef-spellquest')
     expect(useSpellQuestStore.persist.getOptions().version).toBe(8)
   })
 
@@ -75,11 +75,11 @@ describe('the English save', () => {
   })
 
   it('the real port writes the English save and leaves the Hebrew one as it is', () => {
-    localStorage.setItem('alef-duel2', HEBREW_SAVE_RAW)
+    localStorage.setItem('alef-spellquest', HEBREW_SAVE_RAW)
     englishSavePort().openStations(['tower'])
     englishSavePort().addCoins(2)
     expect(readEnglishSave()).toMatchObject({ openedStations: ['tower'], coins: 2 })
-    expect(localStorage.getItem('alef-duel2')).toBe(HEBREW_SAVE_RAW)
+    expect(localStorage.getItem('alef-spellquest')).toBe(HEBREW_SAVE_RAW)
   })
 
   it('a missing or broken save reads as null', () => {

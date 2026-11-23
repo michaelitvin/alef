@@ -10,14 +10,14 @@ import { PlayButton } from './PlayButton'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */
 const ORBS: [string, number, number][] = [['בָּ', 58, -18], ['לִ', 46, 16], ['מוּ', 40, -6]]
-const DUEL_HREF = () => `${import.meta.env.BASE_URL}duel2/`
+const DUEL_HREF = () => `${import.meta.env.BASE_URL}spellquest/`
 const DUEL_LEARN = 'לשמוע ולקרוא אותיות, ניקוד והברות, ואחר כך מילים; להבחין בין אותיות דומות; ואחרי הקריאה — לכתוב בדפוס ובכתב יד. המשחק מתאים את עצמו לילד.'
 
 export function DuelCard() {
   const card = useGender() === 'girl' ? cardGirl : cardBoy
   return (
     <div data-home-part="duel">
-      <a className="home-card" href={DUEL_HREF()} aria-label="duel" data-card="duel">
+      <a className="home-card" href={DUEL_HREF()} aria-label="spellquest" data-card="spellquest">
         <img className="home-card-art" src={card} data-card-art={card === cardGirl ? 'girl' : 'boy'} alt="" draggable={false} />
         <div className="home-orbs" aria-hidden>
           {ORBS.map(([t, z, y]) => (

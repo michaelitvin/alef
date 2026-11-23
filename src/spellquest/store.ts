@@ -1,4 +1,4 @@
-// Spell Quest's own save (localStorage 'alef-duel2'); reset never touches alef's progress or the duel's.
+// Spell Quest's own save (localStorage 'alef-spellquest'); reset never touches alef's progress or the duel's.
 import { create, type StateCreator } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { persistSaveStorage } from '../shared/saveStorage'
@@ -12,6 +12,7 @@ import { pushTowerTail, towerMastered } from './logic/mastery'
 import { TOWER_MARKS } from './tower/logic/marks'
 import type { TowerStats } from './tower/types'
 import { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, SAVE_VERSION, coinsOf, migrateSave } from './saveFormat'
+import { SPELLQUEST_SAVE_KEY } from '../shared/saveKeys'
 
 export { DEFAULT_SETTINGS, FRESH_MERCHANT, NEVER_VISITED, coinsOf, migrateSave }
 
@@ -269,7 +270,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
 export const spellQuestState = runState(recordStageAnswer)
 
 /**
- * A run's persisted save under `key`: Spell Quest's (alef-duel2) and the English path's (alef-english). `X` is the save's own
+ * A run's persisted save under `key`: Spell Quest's (alef-spellquest) and the English path's (alef-english). `X` is the save's own
  * fields beyond Spell Quest's, with their fresh values in `initial`. Fields added later take their defaults from the initial
  * state: persist merges a saved state over it.
  */
@@ -289,4 +290,4 @@ export function createRunStore<X extends object = Record<never, never>>(o: {
   )
 }
 
-export const useSpellQuestStore = createRunStore({ key: 'alef-duel2', version: SAVE_VERSION, migrate: migrateSave, recordStageAnswer })
+export const useSpellQuestStore = createRunStore({ key: SPELLQUEST_SAVE_KEY, version: SAVE_VERSION, migrate: migrateSave, recordStageAnswer })

@@ -37,7 +37,7 @@ describe('the home page (spec: one duel, Part 4)', () => {
     const parts = [...c.querySelectorAll('[data-home] > [data-home-part]')].map((e) => e.getAttribute('data-home-part'))
     expect(parts).toEqual(['duel', 'path', 'separator', 'clock', 'separator', 'spacecat', 'separator', 'shelf'])
     // one duel card (the old duel and Book 2 cards are gone), one clock card, no big level cards
-    expect(c.querySelectorAll('a[href$="duel2/"]').length).toBe(1)
+    expect(c.querySelectorAll('a[href$="spellquest/"]').length).toBe(1)
     expect(c.querySelectorAll('[aria-label="clock"]').length).toBe(1)
     expect(c.querySelector('a[href$="clock/"]')).not.toBeNull()
     expect(c.querySelectorAll('h3').length).toBe(0)
@@ -226,9 +226,9 @@ describe('the English card and path on home (English path design, Part 1)', () =
   it('the links open the English course; the card follows the player; the line for the parent', async () => {
     const c = await pageEn()
     const card = c.querySelector('[data-card="english"]')!
-    expect(card.getAttribute('href')).toMatch(/duel2\/\?course=en$/)
+    expect(card.getAttribute('href')).toMatch(/spellquest\/\?course=en$/)
     const p = c.querySelector('[data-home-part="english-path"]')!
-    expect(p.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/duel2\/\?course=en&station=tower$/)
+    expect(p.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest\/\?course=en&station=tower$/)
     expect(p.querySelector('[data-station="ghosts"]')!.tagName).toBe('DIV')
     expect(c.querySelector('[data-learn="english"]')!.textContent).toBe(
       'What he learns: the sound of each letter, blending sounds into words, spelling, then letter pairs (sh, ch, th), silent e and vowel pairs. The game finds his level in the first run.')
@@ -246,7 +246,7 @@ describe('the English card and path on home (English path design, Part 1)', () =
     const hebrew = c.querySelector('[data-home-part="path"]')!
     expect([...hebrew.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))).toEqual(['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'doors', 'spell', 'draw', 'draw-hand'])
     expect(hebrew.getAttribute('dir')).toBeNull()
-    expect(hebrew.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/duel2\/\?station=tower$/)
-    expect(c.querySelectorAll('a[href$="duel2/"]').length).toBe(1)
+    expect(hebrew.querySelector('[data-station="tower"]')!.getAttribute('href')).toMatch(/spellquest\/\?station=tower$/)
+    expect(c.querySelectorAll('a[href$="spellquest/"]').length).toBe(1)
   })
 })

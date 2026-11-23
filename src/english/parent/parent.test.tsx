@@ -44,14 +44,14 @@ describe('the English section in the parent area', () => {
     expect(englishParent.summary(null)).toBeNull()
   })
 
-  it('a reset clears alef-english and leaves alef-duel2 byte-equal', async () => {
+  it('a reset clears alef-english and leaves alef-spellquest byte-equal', async () => {
     useSpellQuestStore.setState({ crystals: 3 })
     useEnglishStore.setState({ crystals: 9, runs: 2 })
-    const spellQuestBefore = raw('alef-duel2')
+    const spellQuestBefore = raw('alef-spellquest')
     expect(spellQuestBefore).not.toBeNull()
     await englishParent.reset()
     expect(useEnglishStore.getState().crystals).toBe(0)
-    expect(raw('alef-duel2')).toBe(spellQuestBefore)
+    expect(raw('alef-spellquest')).toBe(spellQuestBefore)
     expect(JSON.parse(raw('alef-english')!).state.crystals).toBe(0)
   })
 
@@ -85,10 +85,10 @@ describe('the English section in the parent area', () => {
   })
 
   it('the range seeds from an old Book 2 save once', () => {
-    localStorage.setItem('alef-duel2', JSON.stringify({ state: { settings: { range: 1000 } }, version: 7 }))
+    localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range: 1000 } }, version: 7 }))
     expect(getNumberRange()).toBe(1000)
     setNumberRange(10)
-    localStorage.setItem('alef-duel2', JSON.stringify({ state: { settings: { range: 100 } }, version: 7 }))
+    localStorage.setItem('alef-spellquest', JSON.stringify({ state: { settings: { range: 100 } }, version: 7 }))
     expect(getNumberRange()).toBe(10)
   })
 

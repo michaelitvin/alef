@@ -86,7 +86,7 @@ export function DataSection({ game, live }: DataSectionProps) {
     const parts = chosen.map((log) => {
       const all = read(log)
       const rollups = rollupsFor(log.key, all, since)
-      return { key: log.key, about: log.about, events: filterEvents(all, { since }), ...(rollups ? { rollups } : {}) }
+      return { key: log.key, about: log.about, events: filterEvents(all, { since }, log.key), ...(rollups ? { rollups } : {}) }
     })
     downloadJson(exportDoc(parts, { since }), exportFileName(chosen.map((l) => l.game)))
     setVersion((v) => v + 1)

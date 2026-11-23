@@ -28,7 +28,7 @@ describe('hidden on production', () => {
     const home = render(<MemoryRouter><HomePage /></MemoryRouter>)
     expect(home.container.querySelector('[data-english-card], [data-card="english"], [data-home-part="english-path"]')).toBeNull()
     cleanup()
-    history.replaceState(null, '', '/duel2/?course=en')
+    history.replaceState(null, '', '/spellquest/?course=en')
     render(<SpellQuestApp />)
     expect((await screen.findByTestId('cover')).getAttribute('data-course')).toBe('he')
     expect(GAMES.map((g) => g.id)).not.toContain('english')

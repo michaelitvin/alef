@@ -1,6 +1,6 @@
 // The English card and path on home (English path design, Part 1), left to right: the green card picture on the left, three
 // green orbs (a, sh, m in Andika), the play button on the right pointing right; under it the line for the parent, then the
-// path of the English stations. The links open the English course (`duel2/?course=en`). The picture and the wizard follow
+// path of the English stations. The links open the English course (`spellquest/?course=en`). The picture and the wizard follow
 // the saved player, as on the Hebrew card.
 import type { ScreenId } from '../../spellquest/logic/predict'
 import cardBoy from '../../english/assets/img/card.webp'
@@ -20,7 +20,7 @@ import type { StationState } from './stations'
 
 /** the orbs: text, size (px at --k 1, before the mock's .85), lift (px) */
 const ORBS: [string, number, number][] = [['a', 58, -18], ['sh', 46, 16], ['m', 40, -6]]
-const href = (q = '') => `${import.meta.env.BASE_URL}duel2/?course=en${q}`
+const href = (q = '') => `${import.meta.env.BASE_URL}spellquest/?course=en${q}`
 const LEARN = 'the sound of each letter, blending sounds into words, spelling, then letter pairs (sh, ch, th), silent e and vowel pairs. The game finds {his} level in the first run.'
 
 export function EnglishCard() {

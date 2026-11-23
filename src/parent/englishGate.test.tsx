@@ -8,7 +8,7 @@ import { ProgressSection } from './sections/Progress'
 
 describe('the English gate closed', () => {
   it('the registry lists no English section', () => {
-    expect(GAMES.map((g) => g.id)).toEqual(['book2', 'clock', 'spacecat', 'lessons'])
+    expect(GAMES.map((g) => g.id)).toEqual(['spellquest', 'clock', 'spacecat', 'lessons'])
   })
   it('the Progress table has no English column', () => {
     const { container } = render(<ProgressSection />)

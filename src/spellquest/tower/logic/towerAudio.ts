@@ -23,7 +23,7 @@ let audioLog: { track(e: string, data?: Record<string, unknown>): void } | null 
 export function setTowerAudioLog(log: typeof audioLog) { audioLog = log }
 
 const audio = createGameAudio<SfxName, never>({
-  game: 'duel',
+  game: 'tower',
   voices: VOICE_URLS,
   sfx: {
     arrival: [SFX_URLS.arrival1, SFX_URLS.arrival2, SFX_URLS.arrival3],

@@ -12,14 +12,16 @@
 // evicted only when the stored open chunk no longer holds its events, but a stale view (a second tab) can still write
 // them back: the reader and `reconcile` drop an open-chunk run that matches a tombstone, so the events count once (in
 // the roll-up) and are never sealed or folded again.
-import { STAGING_PREFIX } from './stagingStorage'
+import { STAGING_PREFIX } from './stagingPrefix'
+import { OLD_TOWER_HISTORY_LOG_KEY, TOWER_HISTORY_LOG_KEY } from './saveKeys'
+import { aliasEvents } from './telemetryAliases'
 import { chunkHeader, decodeChunk, encodeChunk, type ChunkHeader } from './telemetryCodec'
 import type { TelemetryEvent } from './telemetry'
 
 // ---- keys
 // A log `<base>-telemetry` keeps its open chunk at its own key, its sealed chunks at `<base>~<t0 base36>~<s>-telemetry`
 // and its roll-up at `<base>~sum-telemetry`. Every key ends in `-telemetry`, so `?copy-prod` copies none of them. The `~`
-// keeps the logs apart: `alef-duel~` never matches a key of `alef-duel2`.
+// keeps the logs apart: `alef-tower-history~` never matches a key of `alef-spellquest`.
 const SUFFIX = '-telemetry'
 const logBase = (logKey: string) => (logKey.endsWith(SUFFIX) ? logKey.slice(0, -SUFFIX.length) : logKey)
 
@@ -36,7 +38,7 @@ export const isChunkKey = (k: string) => k.endsWith(SUFFIX) && !k.endsWith(`~sum
  * Logs that are never trimmed, cleared or rewritten: the first duel's old log (owner decision, 2026-11-16, ADR 0004). A
  * key matches with or without the staging prefix.
  */
-export const FROZEN_LOG_KEYS: readonly string[] = ['alef-duel-telemetry']
+export const FROZEN_LOG_KEYS: readonly string[] = [TOWER_HISTORY_LOG_KEY, OLD_TOWER_HISTORY_LOG_KEY]
 export const isFrozenLog = (k: string) => FROZEN_LOG_KEYS.some((f) => k === f || k === STAGING_PREFIX + f)
 
 // ---- storage access (never throws)
@@ -203,6 +205,14 @@ export const chunksOf = (logKey: string, keys = storageKeys()): ChunkInfo[] =>
  * stored. Never throws.
  */
 export function readLog(key: string): TelemetryEvent[] {
+  try {
+    const events = readLogRaw(key)
+    return isFrozenLog(key) ? events : aliasEvents(events, key) // the frozen log is read and exported as it is stored
+  } catch {
+    return []
+  }
+}
+function readLogRaw(key: string): TelemetryEvent[] {
   try {
     const open = parseOpen(getRaw(key)) ?? { events: [], sealed: [] }
     if (isFrozenLog(key)) return open.events

@@ -8,6 +8,7 @@ import { openScreens } from '../../spellquest/station'
 import { rating, screenRecent } from '../../spellquest/logic/mastery'
 import { HEBREW_SPELL_AVAILABLE } from '../../shared/hebrewSpell'
 import { useProgressStore } from '../../stores/progressStore'
+import { SPELLQUEST_SAVE_KEY } from '../../shared/saveKeys'
 
 export interface Station {
   id: ScreenId
@@ -34,7 +35,6 @@ const STATIONS = ALL_STATIONS.filter((s) => s.id !== 'spell' || HEBREW_SPELL_AVA
 
 // ---- the state of the path, read from the saves (the home never creates or writes the Spell Quest save)
 
-const SPELLQUEST_SAVE_KEY = 'alef-duel2'
 const PROGRESS_KEY = 'alef-progress'
 
 const readSaved = (key: string): { state: Record<string, unknown>; version: number } | null => {

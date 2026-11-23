@@ -1,5 +1,5 @@
 // The English path's save (localStorage 'alef-english', version 2): Spell Quest's store, made by its factory, with its own key,
-// its own purse and the English fields. It never touches Spell Quest's save (alef-duel2).
+// its own purse and the English fields. It never touches Spell Quest's save (alef-spellquest).
 import type { StateCreator } from 'zustand'
 import { createRunStore, runState, type SpellQuestActions, type SpellQuestSave } from '../spellquest/store'
 import { englishStageRule } from './readyStages'

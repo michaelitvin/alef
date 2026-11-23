@@ -4,9 +4,9 @@
  "since": null,
  "games": [
   {
-   "key": "alef-duel-telemetry",
+   "key": "alef-tower-history-telemetry",
    "about": {
-    "game": "Nikkud Wizard Duel (vowel marks): its log from before it became the tower of Book 2",
+    "game": "Nikkud Wizard Duel (vowel marks): its log from before it became the tower of Spell Quest",
     "repo": "https://github.com/michaelitvin/alef",
     "docs": [
      "docs/superpowers/specs/2026-10-05-nikkud-wizard-duel-design.md",
@@ -14,7 +14,7 @@
      "docs/minigame-rules/README.md"
     ],
     "code": [
-     "src/hooks/useDuelGame.ts"
+     "src/spellquest/tower/useTower.ts"
     ],
     "howToAnalyse": "Clone https://github.com/michaelitvin/alef, open Claude Code (or another AI coding tool) in it, and give it this file. Ask it to read the docs above (the telemetry section of each design says what every event means) and the code that sends the events, then analyse the child's progress: accuracy per screen and over time, his real mix-ups, where runs end, and what to change."
    },

@@ -3,10 +3,10 @@
 // save (its `settings.range`, which Spell Quest's section still writes), else 100.
 import { useSyncExternalStore } from 'react'
 import { safeSetItem } from './saveStorage'
+import { SPELLQUEST_SAVE_KEY } from './saveKeys'
 
 export type NumberRange = 10 | 100 | 1000
 export const NUMBER_RANGE_KEY = 'alef-range'
-const SPELLQUEST_SAVE_KEY = 'alef-duel2'
 const RANGES: readonly NumberRange[] = [10, 100, 1000]
 const isRange = (r: unknown): r is NumberRange => RANGES.includes(r as NumberRange)
 

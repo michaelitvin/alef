@@ -4,7 +4,9 @@
 // Each entry point imports this module first, before any store reads localStorage.
 // A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's.
 
-export const STAGING_PREFIX = 'staging:'
+import { migrateKeys, type MigrationReport } from './keyMigration'
+import { STAGING_PREFIX } from './stagingPrefix'
+export { STAGING_PREFIX }
 
 export const isStaging = import.meta.env.BASE_URL.endsWith('/staging/')
 
@@ -56,7 +58,26 @@ export function installStagingStorage(win: Window) {
       }
     }
   } catch { /* the copy failed part way: staging keeps what it got */ }
-  Object.defineProperty(win, 'localStorage', { value: prefixedStorage(storage, STAGING_PREFIX), configurable: true })
+  const view = prefixedStorage(storage, STAGING_PREFIX)
+  Object.defineProperty(win, 'localStorage', { value: view, configurable: true })
+  runKeyMigration(view)
+}
+
+let lastReport: MigrationReport | null = null
+/** what the key migration did on this page load (null before it ran); the parent area's Data section shows it */
+export const lastMigrationReport = (): MigrationReport | null => lastReport
+
+/** Move the old keys to the Spell Quest names on the storage the page uses (ADR 0009). Never throws; one `getItem` when done. */
+export function runKeyMigration(storage: Storage): MigrationReport | null {
+  try {
+    lastReport = migrateKeys(storage)
+    const waiting = lastReport.steps.filter((s) => s.status !== 'done')
+    if (waiting.length) console.info('key migration:', waiting.map((s) => `${s.id} ${s.status}`).join(', '))
+  } catch { /* never throws */ }
+  return lastReport
 }
 
 if (isStaging) installStagingStorage(window)
+else {
+  try { runKeyMigration(window.localStorage) } catch { /* no storage */ }
+}

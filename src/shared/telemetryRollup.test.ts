@@ -80,20 +80,20 @@ describe('folding chunks into a roll-up', () => {
   })
 
   it('gallery events count nowhere', () => {
-    const e = (t: number, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e: 'answer', g: 'book2', ...data })
+    const e = (t: number, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e: 'answer', g: 'spellquest', ...data })
     expect(spellQuestFacts([e(1, { screen: 'letters', target: 'bet', result: 'right', ms: 900, tapped: 'bet', gallery: true }),
       e(2, { screen: 'tower', target: 'segol', result: 'wrong', gallery: true })])).toEqual([])
   })
 
   it('Book 2: the tower answer takes its latency, near and pick from the tower\'s choice of the same round', () => {
-    const tw = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'book2', ...data, via: 'tower', visit: 1 })
+    const tw = (t: number, e: string, data: Record<string, unknown>): TelemetryEvent => ({ t, s: 'x', run: 1, e, g: 'spellquest', ...data, via: 'tower', visit: 1 })
     const facts = spellQuestFacts([
       tw(1, 'round', { round: 4, target: 'segol' }),
       tw(2, 'choice', { round: 4, key: 'tsere', correct: false, twin: true, msShown: 2300 }),
-      { t: 3, s: 'x', run: 1, e: 'answer', g: 'book2', screen: 'tower', target: 'segol', result: 'wrong', clock: 3 },
+      { t: 3, s: 'x', run: 1, e: 'answer', g: 'spellquest', screen: 'tower', target: 'segol', result: 'wrong', clock: 3 },
       tw(4, 'replay', { round: 4 }),
-      { t: 5, s: 'x', run: 1, e: 'answer', g: 'book2', screen: 'letters', stage: 1, target: 'bet', tapped: 'kaf', result: 'near', ms: 1200 },
-      { t: 6, s: 'x', run: 1, e: 'hint', g: 'book2', target: 'bet', auto: true },
+      { t: 5, s: 'x', run: 1, e: 'answer', g: 'spellquest', screen: 'letters', stage: 1, target: 'bet', tapped: 'kaf', result: 'near', ms: 1200 },
+      { t: 6, s: 'x', run: 1, e: 'hint', g: 'spellquest', target: 'bet', auto: true },
     ])
     expect(facts).toEqual([
       { item: 'tower:segol', ok: false, near: true, t: 3, ms: 2300, chosen: 'tsere' },

@@ -1,4 +1,4 @@
-// A station link from the English path on home (`duel2/?course=en&station=<id>`) opens that English screen, through the
+// A station link from the English path on home (`spellquest/?course=en&station=<id>`) opens that English screen, through the
 // course's `openScreens(save, course)`; a station that is not open for him opens the cover.
 import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,7 +30,7 @@ describe('a station link of the English path', () => {
 
   it('a station link opens that English screen', async () => {
     saveAt(1)
-    at('/duel2/?course=en&station=broom'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest/?course=en&station=broom'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
     await waitFor(() => expect(station(container)).toBe('broom'), { timeout: 10_000 })
     expect(container.querySelector('[data-testid="cover"]')).toBeNull()
   })
@@ -38,7 +38,7 @@ describe('a station link of the English path', () => {
   it('a doors link on a save where the doors play opens the English doors session', async () => {
     expect(doorsStage, 'a stage that plays the doors').toBeDefined()
     saveAt(doorsStage!)
-    at('/duel2/?course=en&station=doors'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest/?course=en&station=doors'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
     await waitFor(() => expect(station(container)).toBe('doors'), { timeout: 10_000 })
   })
 
@@ -48,7 +48,7 @@ describe('a station link of the English path', () => {
     const save = readEnglishSave()
     expect(englishOpenStations(save, englishDoorsPlayable)).toContain('ghosts')
     expect(englishPlayableStations(save, englishDoorsPlayable)).not.toContain('ghosts')
-    at('/duel2/?course=en&station=ghosts'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
+    at('/spellquest/?course=en&station=ghosts'); const { container } = render(<SpellQuestApp goHome={() => {}} />)
     await screen.findByTestId('cover', {}, { timeout: 10_000 })
     expect(station(container)).toBeNull()
   })

@@ -14,7 +14,7 @@ export const ratio = (evs: TelemetryEvent[]) =>
   JSON.stringify({ v: 1, events: evs }).length / bySession(evs).reduce((n, s) => n + encodeChunk(s).length, 0)
 
 const S = 'mf1abc-x1y2z'
-const ev = (t: number, e: string, data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s: S, run: 1, e, g: 'book2', ...data })
+const ev = (t: number, e: string, data: Record<string, unknown> = {}): TelemetryEvent => ({ t, s: S, run: 1, e, g: 'spellquest', ...data })
 
 describe('the codec', () => {
   it('round-trips every session of the fixtures byte for byte', () => {
@@ -27,7 +27,7 @@ describe('the codec', () => {
       ev(1_760_000_000_000, 'answer', { tapped: null, picture: null, ms: 1.25, neg: -42, big: 9_007_199_254_740_991, small: 1e-7 }),
       { t: 1_760_000_000_001, s: S, run: 1, e: 'old' }, // no g
       ev(1_760_000_000_002, 'settings', { keys: ['name'], name: 'דני הקטן', emoji: '🙂' }),
-      { e: 'reordered', run: 2, s: S, t: 1_760_000_000_003, g: 'book2' }, // its keys in a new order
+      { e: 'reordered', run: 2, s: S, t: 1_760_000_000_003, g: 'spellquest' }, // its keys in a new order
       ev(1_760_000_000_004, 'mixed', { v: 'a' }),
       ev(1_760_000_000_005, 'mixed', { v: 3 }), // one key, a string in one row and a number in another
       { t: 1_760_000_000_006, s: 'another', run: 1, e: 'foreign s' },
@@ -76,7 +76,7 @@ describe('the codec', () => {
   })
 
   it('compresses the synthetic logs against today\'s JSON: Book 2 at least 5×, the clock at least 6×', () => {
-    const r = { book2: ratio(GOLDEN_SPELLQUEST()), clock: ratio(GOLDEN_CLOCK()), spellQuestBig: ratio(spellQuestEvents()), clockBig: ratio(clockEvents()) }
+    const r = { spellquest: ratio(GOLDEN_SPELLQUEST()), clock: ratio(GOLDEN_CLOCK()), spellQuestBig: ratio(spellQuestEvents()), clockBig: ratio(clockEvents()) }
     process.stderr.write('codec ratio ' + JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k, Math.round(v * 10) / 10]))) + '\n')
     // the synthetic values are more random than a child's play (uniform picks, wide ranges), so they compress worse
     // The synthetic Spell Quest values are more random than a child's play (uniform picks over wide ranges), so they compress

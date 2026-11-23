@@ -356,7 +356,7 @@ async function seedEnglish(page, base, stage) {
 /** one session of `station` on the English page at `stage`: its station cover, play, the play screen */
 async function englishStation(page, base, station, stage) {
   await seedEnglish(page, base, stage)
-  await page.goto(`${base}duel2/?course=en&station=${station}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${base}spellquest/?course=en&station=${station}`, { waitUntil: 'domcontentloaded' })
   await page.locator(`[data-screen="station"][data-station="${station}"]`).waitFor()
   await tap(page, page.locator('[data-station-play]'))
   await passGender(page, `[data-screen="play"][data-session="${station}"]`)
@@ -541,7 +541,7 @@ const scSaved = (page) => page.evaluate((k) => { const j = JSON.parse(localStora
 const CHECKS = {
   async home(page, base, vp, note) {
     await page.goto(base, { waitUntil: 'domcontentloaded' })
-    await page.locator('[data-card="duel"]').waitFor()
+    await page.locator('[data-card="spellquest"]').waitFor()
     await page.locator('[data-card="clock"]').waitFor()
     await page.locator('[data-card="spacecat"]').waitFor()
     note(`Space Cat's credit: ${await page.locator('[data-credit="spacecat"]').textContent()}`)
@@ -561,7 +561,7 @@ const CHECKS = {
   },
 
   async book2(page, base, vp, note) {
-    await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await shot(page, vp, 'book2-cover')
     await tap(page, page.locator('[data-screen="cover"] [aria-label="play"]'))
@@ -611,7 +611,7 @@ const CHECKS = {
   async spellQuestSheets(page, base, vp, note) {
     for (const [hash, sel] of [['#/glyphs', '.d2-root'], ['#/tower-glyphs', '.nd-glyphs'], ['#/summary', '[data-screen]']]) {
       await page.goto('about:blank')
-      await page.goto(`${base}duel2/${hash}`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest/${hash}`, { waitUntil: 'domcontentloaded' })
       await page.locator(sel).first().waitFor()
       if (await page.locator('[data-screen="cover"]').count()) throw new Error(`${hash} shows the cover: not a verify build?`)
       await page.waitForTimeout(500)
@@ -624,9 +624,9 @@ const CHECKS = {
     // Spell Quest is played sideways: upright, the "turn the phone" picture covers its cover. Pass the gate sideways, then turn
     // the phone upright (the area and the developer screens show no picture)
     if (vp.upright) await page.setViewportSize({ width: vp.height, height: vp.width })
-    await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
-    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="book2"]')
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
     if (vp.upright) await page.setViewportSize({ width: vp.width, height: vp.height })
     note(`area sections: ${(await eachSection(page)).join(' ')}`)
     await shot(page, vp, 'book2-area')
@@ -639,7 +639,7 @@ const CHECKS = {
       await noSideScroll(page, `the ${dev} screen`)
       await shot(page, vp, `book2-${dev}`)
       await tap(page, back)
-      await page.locator('[data-parent-area="book2"]').waitFor()
+      await page.locator('[data-parent-area="spellquest"]').waitFor()
     }
     note('gallery, strokes')
   },
@@ -1192,18 +1192,18 @@ const CHECKS = {
   async telemetry(page, base, vp, note) {
     // after the play checks (one context per size, so their events are in this storage): the Data section of Spell Quest's
     // area counts them, shows the storage line, and a Download gives the export
-    await page.goto(`${base}duel2/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${base}spellquest/`, { waitUntil: 'domcontentloaded' })
     await page.locator('[data-screen="cover"]').waitFor()
     await page.evaluate(() => {
       window.__downloads = []
       const make = URL.createObjectURL.bind(URL)
       URL.createObjectURL = (b) => { void b.text().then((t) => window.__downloads.push(t)); return make(b) }
     })
-    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="book2"]')
+    await passGate(page, page.locator('[aria-label="parent settings (hold)"]'), '[data-parent-area="spellquest"]')
     const data = page.locator('[data-telemetry-export]')
     await data.scrollIntoViewIfNeeded()
     const count = (key) => data.locator(`[data-log="${key}"] [data-log-count]`).textContent()
-    const book2 = await count('alef-duel2-telemetry')
+    const book2 = await count('alef-spellquest-telemetry')
     const clock = await count('alef-clock-telemetry')
     if (!/^[1-9]\d* events$/.test(book2)) throw new Error(`Book 2's log: ${book2}`)
     if (!/^\d+ events$/.test(clock)) throw new Error(`the clock's log: ${clock}`)
@@ -1214,7 +1214,7 @@ const CHECKS = {
     await tap(page, data.locator('[data-telemetry-download]'))
     await page.waitForFunction(() => window.__downloads.length > 0, null, { timeout: 10_000 })
     const doc = JSON.parse(await page.evaluate(() => window.__downloads[0]))
-    const part = doc.games?.find((g) => g.key === 'alef-duel2-telemetry')
+    const part = doc.games?.find((g) => g.key === 'alef-spellquest-telemetry')
     if (doc.v !== 2 || !part || !part.events.length) throw new Error('the download has no Book 2 events')
     const names = [...new Set(part.events.map((e) => e.e))]
     note(`download: ${part.events.length} events (${names.slice(0, 8).join(' ')}${names.length > 8 ? ' …' : ''})`)
@@ -1296,7 +1296,7 @@ const CHECKS = {
     // the spell book with its longest word (5 boxes): the gallery's test-build link
     {
       await seedEnglish(page, base, 4)
-      await page.goto(`${base}duel2/?course=en#/gallery/spell-long`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest/?course=en#/gallery/spell-long`, { waitUntil: 'domcontentloaded' })
       await page.locator('[data-screen="play"]').waitFor({ timeout: 20_000 }).catch(() => {})
       await page.evaluate(() => document.fonts.ready)
       let fiveBoxes = false
@@ -1326,7 +1326,7 @@ const CHECKS = {
     // book's pages; a small letter (the middle line to the baseline) at least 30 px high
     {
       await seedEnglish(page, base, 4)
-      await page.goto(`${base}duel2/?course=en#/gallery/spell-write`, { waitUntil: 'domcontentloaded' })
+      await page.goto(`${base}spellquest/?course=en#/gallery/spell-write`, { waitUntil: 'domcontentloaded' })
       await page.locator('[data-write-box]').first().waitFor({ timeout: 20_000 }).catch(() => {})
       await page.evaluate(() => document.fonts.ready)
       const g = await page.evaluate(() => {

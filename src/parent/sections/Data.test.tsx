@@ -39,7 +39,7 @@ const picked = (c: HTMLElement) =>
 
 describe('the Data section', () => {
   it('ticks the open game’s logs at first (not the first duel’s history); the lessons have none, so nothing to download', () => {
-    expect(picked(render(<DataSection game="book2" />).container)).toEqual(['alef-duel2-telemetry'])
+    expect(picked(render(<DataSection game="spellquest" />).container)).toEqual(['alef-spellquest-telemetry'])
     expect(picked(render(<DataSection game="clock" />).container)).toEqual(['alef-clock-telemetry'])
     const { container } = render(<DataSection game="lessons" />)
     expect(picked(container)).toEqual([])
@@ -64,39 +64,39 @@ describe('the Data section', () => {
   })
 
   it('several games in one file; the first duel’s history comes out exactly as it is stored, and it has no Clear', async () => {
-    localStorage.setItem('alef-duel-telemetry', HISTORY)
-    put('alef-duel2-telemetry', [{ t: NOW, s: 'c', run: 3, e: 'round', g: 'book2', via: 'tower', visit: 1 }])
-    const { container } = render(<DataSection game="book2" />)
-    fireEvent.click(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-pick]')!)
+    localStorage.setItem('alef-tower-history-telemetry', HISTORY)
+    put('alef-spellquest-telemetry', [{ t: NOW, s: 'c', run: 3, e: 'round', g: 'spellquest', via: 'tower', visit: 1 }])
+    const { container } = render(<DataSection game="spellquest" />)
+    fireEvent.click(container.querySelector('[data-log="alef-tower-history-telemetry"] [data-log-pick]')!)
     fireEvent.click(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-pick]')!)
     fireEvent.click(container.querySelector('[data-period="all"]')!)
     const f = await downloaded(container)
-    expect(f.name).toBe('alef-telemetry-book2-duel-clock-2026-11-16.json')
+    expect(f.name).toBe('alef-telemetry-spellquest-tower-clock-2026-11-16.json')
     expect(f.doc.since).toBeNull()
-    expect(f.doc.games.map((g) => g.key)).toEqual(['alef-duel2-telemetry', 'alef-duel-telemetry', 'alef-clock-telemetry'])
-    expect(f.doc.games[0]!.events[0]).toMatchObject({ via: 'tower', g: 'book2' })
+    expect(f.doc.games.map((g) => g.key)).toEqual(['alef-spellquest-telemetry', 'alef-tower-history-telemetry', 'alef-clock-telemetry'])
+    expect(f.doc.games[0]!.events[0]).toMatchObject({ via: 'tower', g: 'spellquest' })
     expect(f.doc.games[1]!.events).toEqual(JSON.parse(HISTORY).events)
-    expect(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-clear]')).toBeNull()
-    expect(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-history]')).not.toBeNull()
-    expect(localStorage.getItem('alef-duel-telemetry')).toBe(HISTORY)
+    expect(container.querySelector('[data-log="alef-tower-history-telemetry"] [data-log-clear]')).toBeNull()
+    expect(container.querySelector('[data-log="alef-tower-history-telemetry"] [data-log-history]')).not.toBeNull()
+    expect(localStorage.getItem('alef-tower-history-telemetry')).toBe(HISTORY)
   })
 
   it('the open game’s log is read through its instance: its unflushed events are in the export', async () => {
-    const live = createTelemetry('alef-duel2-telemetry', { game: 'book2' })
+    const live = createTelemetry('alef-spellquest-telemetry', { game: 'spellquest' })
     live.track('round', { target: 'bet' }) // not flushed yet
-    expect(localStorage.getItem('alef-duel2-telemetry')).toBeNull()
-    const { container } = render(<DataSection game="book2" live={live} />)
-    expect(container.querySelector('[data-log="alef-duel2-telemetry"] [data-log-count]')!.textContent).toBe('1 events')
+    expect(localStorage.getItem('alef-spellquest-telemetry')).toBeNull()
+    const { container } = render(<DataSection game="spellquest" live={live} />)
+    expect(container.querySelector('[data-log="alef-spellquest-telemetry"] [data-log-count]')!.textContent).toBe('1 events')
     const f = await downloaded(container)
-    expect(f.doc.games[0]!.events).toEqual([expect.objectContaining({ e: 'round', target: 'bet', g: 'book2' })])
+    expect(f.doc.games[0]!.events).toEqual([expect.objectContaining({ e: 'round', target: 'bet', g: 'spellquest' })])
     live.clear()
   })
 
   it('the counts read the open game’s log once, not on every render: a tick or a period change does not flush it', () => {
     const events = vi.fn(() => [])
     const flush = vi.fn()
-    const live = { key: 'alef-duel2-telemetry', events, flush, clear: vi.fn() }
-    const { container } = render(<DataSection game="book2" live={live} />)
+    const live = { key: 'alef-spellquest-telemetry', events, flush, clear: vi.fn() }
+    const { container } = render(<DataSection game="spellquest" live={live} />)
     const reads = flush.mock.calls.length
     expect(events).not.toHaveBeenCalled() // the counts come from storage, after a flush
     fireEvent.click(container.querySelector('[data-log="alef-clock-telemetry"] [data-log-pick]')!)
@@ -105,24 +105,24 @@ describe('the Data section', () => {
   })
 
   it('a clear of the open game’s log goes through its instance, so the cleared events do not come back on its next flush', () => {
-    const live = createTelemetry('alef-duel2-telemetry', { game: 'book2' })
+    const live = createTelemetry('alef-spellquest-telemetry', { game: 'spellquest' })
     live.track('round', { n: 1 })
     live.flush()
     live.track('round', { n: 2 }) // in memory only
     vi.spyOn(window, 'confirm').mockReturnValue(true)
-    const { container } = render(<DataSection game="book2" live={live} />)
-    fireEvent.click(container.querySelector('[data-log="alef-duel2-telemetry"] [data-log-clear]')!)
-    expect(readLog('alef-duel2-telemetry')).toEqual([])
-    expect(container.querySelector('[data-log="alef-duel2-telemetry"] [data-log-count]')!.textContent).toBe('0 events')
+    const { container } = render(<DataSection game="spellquest" live={live} />)
+    fireEvent.click(container.querySelector('[data-log="alef-spellquest-telemetry"] [data-log-clear]')!)
+    expect(readLog('alef-spellquest-telemetry')).toEqual([])
+    expect(container.querySelector('[data-log="alef-spellquest-telemetry"] [data-log-count]')!.textContent).toBe('0 events')
     live.track('round', { n: 3 })
     live.flush()
-    expect(JSON.parse(localStorage.getItem('alef-duel2-telemetry')!).events.map((e: { n: number }) => e.n)).toEqual([3])
+    expect(JSON.parse(localStorage.getItem('alef-spellquest-telemetry')!).events.map((e: { n: number }) => e.n)).toEqual([3])
   })
 
   it('another game’s log is cleared in storage; a refused confirm clears nothing', () => {
     put('alef-clock-telemetry', [{ t: NOW, s: 'a', run: 0, e: 'x' }])
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
-    const { container } = render(<DataSection game="book2" />)
+    const { container } = render(<DataSection game="spellquest" />)
     const btn = container.querySelector('[data-log="alef-clock-telemetry"] [data-log-clear]')!
     fireEvent.click(btn)
     expect(localStorage.getItem('alef-clock-telemetry')).not.toBeNull()
@@ -185,21 +185,21 @@ describe('the Data section', () => {
       const k = seal([ev('a', NOW - DAY)])
       localStorage.setItem(KEY, openJson([], [k]))
       localStorage.setItem(rollupKey(KEY), JSON.stringify(emptyRollup()))
-      localStorage.setItem('alef-duel-telemetry', HISTORY)
+      localStorage.setItem('alef-tower-history-telemetry', HISTORY)
       vi.spyOn(window, 'confirm').mockReturnValue(true)
-      const { container } = render(<DataSection game="book2" />)
+      const { container } = render(<DataSection game="spellquest" />)
       fireEvent.click(container.querySelector(`[data-log="${KEY}"] [data-log-clear]`)!)
-      expect(Object.keys(localStorage)).toEqual(['alef-duel-telemetry'])
-      expect(localStorage.getItem('alef-duel-telemetry')).toBe(HISTORY)
+      expect(Object.keys(localStorage)).toEqual(['alef-tower-history-telemetry'])
+      expect(localStorage.getItem('alef-tower-history-telemetry')).toBe(HISTORY)
     })
 
     it('the storage line shows the telemetry against its budget and each frozen log\'s size', () => {
-      localStorage.setItem('alef-duel-telemetry', HISTORY)
+      localStorage.setItem('alef-tower-history-telemetry', HISTORY)
       put(KEY, [ev('c', NOW)])
       const { container } = render(<DataSection game="clock" />)
       expect(container.querySelector('[data-storage]')!.textContent).toMatch(/of 800k chars/)
       expect(container.querySelector('[data-storage-persisted]')!.textContent).toBe('not known')
-      expect(container.querySelector('[data-log="alef-duel-telemetry"] [data-log-size]')!.textContent).toBe(`${((HISTORY.length + 19) / 1000).toFixed(1)}k chars`)
+      expect(container.querySelector('[data-log="alef-tower-history-telemetry"] [data-log-size]')!.textContent).toBe(`${((HISTORY.length + 19) / 1000).toFixed(1)}k chars`)
     })
   })
 })

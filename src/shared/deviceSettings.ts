@@ -7,12 +7,13 @@
 // The lessons' voice follows the volume only: `sfx` never silences a voice line (the child cannot read).
 import { useSyncExternalStore } from 'react'
 import { safeSetItem } from './saveStorage'
+import { SPELLQUEST_SAVE_KEY } from './saveKeys'
 
 export interface DeviceSettings { v: 1; sfx: boolean; music: boolean; volume: number }
 export const DEVICE_KEY = 'alef-device'
 const DEFAULTS: DeviceSettings = { v: 1, sfx: true, music: true, volume: 0.8 }
 /** the saves the seed reads, in order: the first one that holds a field gives it */
-const SEED_SOURCES = ['alef-duel2', 'alef-clock'] as const
+const SEED_SOURCES = [SPELLQUEST_SAVE_KEY, 'alef-clock'] as const
 
 const bool = (x: unknown): boolean | undefined => (typeof x === 'boolean' ? x : undefined)
 const vol = (x: unknown): number | undefined => (typeof x === 'number' && Number.isFinite(x) ? Math.max(0, Math.min(1, x)) : undefined)

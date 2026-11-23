@@ -35,7 +35,7 @@ describe('Spell Quest save version 8: bookOpen and firstDuelImported get new nam
     expect('bookOpen' in m).toBe(false)
   })
   it('the store loads a version-7 save and reads the values through the new names', async () => {
-    localStorage.setItem('alef-duel2', JSON.stringify({ state: V7, version: 7 }))
+    localStorage.setItem('alef-spellquest', JSON.stringify({ state: V7, version: 7 }))
     await useSpellQuestStore.persist.rehydrate()
     const s = useSpellQuestStore.getState() as unknown as Record<string, unknown>
     expect(s).toMatchObject({ screensOpen: true, towerImported: true, towerTail: 'ooxo', coins: 12 })

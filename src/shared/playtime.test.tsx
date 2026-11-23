@@ -16,10 +16,10 @@ describe('the play-time ledger', () => {
   })
 
   it('splits a span over midnight between the two days', () => {
-    addPlaytime('book2', at('2026-11-10T23:58:00'), at('2026-11-11T00:03:00'))
+    addPlaytime('spellquest', at('2026-11-10T23:58:00'), at('2026-11-11T00:03:00'))
     const d = readPlaytime().days
-    expect(d['2026-11-10']!.book2).toBe(2 * MIN)
-    expect(d['2026-11-11']!.book2).toBe(3 * MIN)
+    expect(d['2026-11-10']!.spellquest).toBe(2 * MIN)
+    expect(d['2026-11-11']!.spellquest).toBe(3 * MIN)
   })
 
   it('drops days older than 60 days and keeps the rest', () => {
@@ -33,7 +33,7 @@ describe('the play-time ledger', () => {
   })
 
   it('two writers interleaved keep both totals', () => {
-    const a = createMeter('book2', () => clockA)
+    const a = createMeter('spellquest', () => clockA)
     const b = createMeter('lessons', () => clockB)
     let clockA = at('2026-11-10T10:00:00')
     let clockB = clockA
@@ -43,7 +43,7 @@ describe('the play-time ledger', () => {
     clockB += 20_000; b.flush()
     clockA += 15_000; a.flush()
     clockB += 10_000; b.flush()
-    expect(readPlaytime().days['2026-11-10']).toEqual({ book2: 30_000, lessons: 30_000 })
+    expect(readPlaytime().days['2026-11-10']).toEqual({ spellquest: 30_000, lessons: 30_000 })
   })
 
   it('a hidden page adds nothing, and counts again when shown', () => {
@@ -62,11 +62,11 @@ describe('the play-time ledger', () => {
 
   it('a paused game (not running) adds nothing', () => {
     let t = at('2026-11-10T10:00:00')
-    const m = createMeter('book2', () => t)
+    const m = createMeter('spellquest', () => t)
     m.setRunning(true); t += 5_000
     m.setRunning(false); t += 10 * MIN
     m.flush()
-    expect(readPlaytime().days['2026-11-10']!.book2).toBe(5_000)
+    expect(readPlaytime().days['2026-11-10']!.spellquest).toBe(5_000)
   })
 
   it('lastDays gives 7 days, oldest first, zero where nothing was played', () => {
@@ -74,7 +74,7 @@ describe('the play-time ledger', () => {
     const rows = lastDays(7, at('2026-11-16T12:00:00'))
     expect(rows).toHaveLength(7)
     expect(rows[0]!.day).toBe('2026-11-10')
-    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { book2: 0, clock: 2 * MIN, lessons: 0, spacecat: 0, english: 0 } })
+    expect(rows[6]).toEqual({ day: '2026-11-16', ms: { spellquest: 0, clock: 2 * MIN, lessons: 0, spacecat: 0, english: 0 } })
     expect(dayKey(at('2026-11-16T00:00:00'))).toBe('2026-11-16')
   })
 
@@ -92,7 +92,7 @@ describe('the play-time ledger', () => {
 
   it('stays small: 60 days of three games is under 10 000 characters', () => {
     const days: Record<string, unknown> = {}
-    for (let i = 0; i < 60; i++) days[`2026-0${1 + (i % 9)}-${String(10 + (i % 18))}-${i}`] = { book2: 99_999_999, clock: 99_999_999, lessons: 99_999_999 }
+    for (let i = 0; i < 60; i++) days[`2026-0${1 + (i % 9)}-${String(10 + (i % 18))}-${i}`] = { spellquest: 99_999_999, clock: 99_999_999, lessons: 99_999_999 }
     expect(JSON.stringify({ v: 1, days }).length).toBeLessThan(10_000)
   })
 })

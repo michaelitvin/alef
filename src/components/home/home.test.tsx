@@ -45,7 +45,7 @@ describe('home parts (spec: one duel, Part 4)', () => {
   })
 })
 
-const save = (state: Record<string, unknown>) => localStorage.setItem('alef-duel2', JSON.stringify({ state, version: 7 }))
+const save = (state: Record<string, unknown>) => localStorage.setItem('alef-spellquest', JSON.stringify({ state, version: 7 }))
 const order = (c: Element) => [...c.querySelectorAll('[data-station]')].map((e) => e.getAttribute('data-station'))
 const st = (c: Element, id: string) => c.querySelector(`[data-station="${id}"]`)!
 
@@ -83,7 +83,7 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
     save({ stage: { stage: 4, newAnswers: '' }, screensOpen: true, settings: { drawing: true } })
     act(() => { window.dispatchEvent(new Event('pageshow')) })
     expect(st(container, 'spell').getAttribute('data-open')).toBe('true')
-    expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=spell`)
+    expect(st(container, 'spell').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=spell`)
     // the wizard stays at the doors: the spell book opens with them and follows them (writing after reading)
     expect(container.querySelectorAll('[data-wizard]').length).toBe(1)
     expect(st(container, 'doors').querySelector('[data-wizard]')).not.toBeNull()
@@ -181,22 +181,22 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
 
   it('an existing player whose Book 2 save is older (version 4): his stations are open and drawing is on, as Book 2 will show them', () => {
     const raw = JSON.stringify({ state: { stage: { stage: 2, newAnswers: '' }, totalStars: 40, settings: { sfx: true, music: true, volume: 0.8, drawing: false } }, version: 4 })
-    localStorage.setItem('alef-duel2', raw)
+    localStorage.setItem('alef-spellquest', raw)
     const { container } = render(<StationPath />)
     for (const id of ['tower', 'broom', 'ghosts', 'cauldron', 'ladder', 'draw', 'draw-hand']) expect(st(container, id).getAttribute('data-open')).toBe('true')
     expect(st(container, 'doors').getAttribute('data-open')).toBe('false')
     // read only: the save is converted by Book 2 itself
-    expect(localStorage.getItem('alef-duel2')).toBe(raw)
+    expect(localStorage.getItem('alef-spellquest')).toBe(raw)
   })
 
   it('the home never writes the Book 2 save', () => {
     render(<><DuelCard /><StationPath /></>)
     act(() => { document.dispatchEvent(new Event('visibilitychange')) })
-    expect(localStorage.getItem('alef-duel2')).toBeNull()
+    expect(localStorage.getItem('alef-spellquest')).toBeNull()
   })
 
   it('an unreadable Book 2 save reads as a fresh one', () => {
-    localStorage.setItem('alef-duel2', '{not json')
+    localStorage.setItem('alef-spellquest', '{not json')
     const { container } = render(<StationPath />)
     expect(st(container, 'tower').getAttribute('data-open')).toBe('true')
     expect(st(container, 'broom').getAttribute('data-open')).toBe('false')
@@ -221,9 +221,9 @@ describe('the duel card and the path (spec: one duel, Part 4)', () => {
   it('a station links to its session; the card to the cover; a locked station links nowhere', () => {
     save({ stage: { stage: 1, newAnswers: '' }, screensOpen: true })
     const { container } = render(<><DuelCard /><StationPath /></>)
-    expect(container.querySelector('[data-card="duel"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/`)
-    expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=ghosts`)
-    expect(st(container, 'tower').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}duel2/?station=tower`)
+    expect(container.querySelector('[data-card="spellquest"]')!.getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/`)
+    expect(st(container, 'ghosts').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=ghosts`)
+    expect(st(container, 'tower').getAttribute('href')).toBe(`${import.meta.env.BASE_URL}spellquest/?station=tower`)
     expect(st(container, 'doors').tagName).not.toBe('A')
     expect(st(container, 'doors').getAttribute('href')).toBeNull()
   })

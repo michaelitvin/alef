@@ -376,7 +376,7 @@ function generate(game: string, table: Table, tower: boolean, seed: number, o: F
 }
 
 /** Spell Quest's log (with the tower's `via: 'tower'` events), several sessions over 40+ days, in `t` order */
-export const spellQuestEvents = (o: FixtureOpts = {}) => generate('book2', SPELLQUEST, true, 7, o)
+export const spellQuestEvents = (o: FixtureOpts = {}) => generate('spellquest', SPELLQUEST, true, 7, o)
 /** the clock's log */
 export const clockEvents = (o: FixtureOpts = {}) => generate('clock', CLOCK, false, 11, o)
 /** Space Cat's log */
@@ -384,7 +384,7 @@ export const spaceCatEvents = (o: FixtureOpts = {}) => generate('spacecat', SPAC
 /** the English path's log (`g: 'english'`) */
 export const englishEvents = (o: FixtureOpts = {}) => generate('english', ENGLISH, true, 13, o, TOWER_ENGLISH)
 /** Spell Quest's log with the Hebrew spell book's events in it (the spell book writes to Spell Quest's log) */
-const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('book2', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
+const spellQuestSpellEvents = (o: FixtureOpts = {}) => generate('spellquest', { ...SPELLQUEST, ...SPELLQUEST_SPELL }, true, 17, o)
 
 /** every event name the generators can send (Spell Quest, the tower, the clock, Space Cat, the English path, the Hebrew spell book) */
 export const FIXTURE_EVENT_NAMES: ReadonlySet<string> = new Set([
@@ -407,4 +407,4 @@ export const GOLDEN_SPELLQUEST_SPELL = () => spellQuestSpellEvents({ eventsPerSe
 
 /** the export of one log, all of it or since a time, as the Data section makes it, at GOLDEN_NOW */
 export const goldenExport = (log: { key: string; about: TelemetryAbout }, events: TelemetryEvent[], since?: number) =>
-  exportDoc([{ key: log.key, about: log.about, events: filterEvents(events, { since }) }], { since, now: GOLDEN_NOW })
+  exportDoc([{ key: log.key, about: log.about, events: filterEvents(events, { since }, log.key) }], { since, now: GOLDEN_NOW })
