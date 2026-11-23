@@ -135,11 +135,13 @@ so the keys change once more with no second migration on production.
 | Telemetry | `alef-spellquest-he-telemetry` | `alef-spellquest-en-telemetry` (was `alef-english-telemetry`) |
 | Game id (`g`, playtime, parent) | `spellquest-he` | `spellquest-en` (was `english`) |
 | Code | `src/spellquest/` (the engine and its Hebrew course) | `src/spellquest/english/` (was `src/english/`) |
-| Page | `spellquest/` | `spellquest/?course=en` |
+| Page | `spellquest-he/` | `spellquest-en/` (no `?course=` query) |
 
-"Spell Quest" alone names the engine and what both games share. The tower's old history keeps
-`alef-tower-history-telemetry`. Not in this change: the Hebrew course's code stays woven into the engine (the parked
-architecture review).
+"Spell Quest" alone names the engine and what both games share. Old URLs redirect, with the rest of their query: `duel2/` and
+`spellquest/` → `spellquest-he/`; any of them with `?course=en` → `spellquest-en/` (the `course` parameter dropped).
+The Hebrew course's code stays inside the engine folder for now (the parent, 2026-11-23: the full split, with the
+seam's Hebrew-shaped types, comes with the architecture refactor), so there is no `src/spellquest/hebrew/` yet. The tower's old history keeps
+`alef-tower-history-telemetry`.
 
 **Migration.** Staging ran the first migration on 2026-11-23, so staging has the in-between names (`alef-spellquest`,
 `alef-spellquest-telemetry`, the `spellquest-rename` marker). The migration's moves take every earlier name as a source:
