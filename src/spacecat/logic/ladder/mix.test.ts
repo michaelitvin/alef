@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { isRareFact } from '../facts'
 import type { ItemStats } from '../predict'
-import type { Spacing } from '../spacing'
+import { NO_REPEAT, SPACING_START, afterRound, type Spacing } from '../spacing'
 import { RUNGS, type RungId } from '../rungs'
 import { MIX, REVIEW_VARIANT_SHARE, SURE_RATE, TOP_RUNGS, TOP_SHARE, VARIANT_MAX_WITHOUT_MISSING100, belowOf, choosePractice, variantsFor } from './mix'
 import type { Ladder, LadderSettings, Part } from './state'
@@ -119,6 +120,38 @@ describe('the mix', () => {
     expect(rounds.some((r) => ['C1', 'S1'].includes(r.rung))).toBe(false)
   })
 
+  it('a few mistaken items in the rung below and in review: no fact comes back within NO_REPEAT rounds', () => {
+    const l = ladderWith(passedThrough(ORDER, '6'))
+    const stats: Record<string, ItemStats> = {}
+    for (const r of ['1', '2', '3', '4', '5', '6'] as RungId[]) for (const i of [2, 3]) {
+      stats[itemOf(r, i).id] = { seen: 3, wrong: 2, timeout: 0, recent: 'xxo', times: [], picks: {} }
+    }
+    const rng = lcg(5)
+    let sp: Spacing = SPACING_START
+    let sinceZero = 0
+    const facts: string[] = []
+    const parts: Part[] = []
+    for (let i = 0; i < 400; i++) {
+      const c = choosePractice(l, { rng, set: ALL_ON, stats, last: { sinceZero, spacing: sp } })
+      sinceZero = isRareFact(c.item) ? 0 : sinceZero + 1
+      facts.push(c.item.fact)
+      parts.push(c.part)
+      sp = afterRound(sp, c.item.fact, 'o', rng, c.item.id)
+    }
+    expect(parts).toContain('below')
+    expect(parts).toContain('review')
+    const repeats = facts.filter((f, i) => facts.slice(Math.max(0, i - NO_REPEAT), i).includes(f))
+    expect(repeats).toEqual([])
+  })
+  it('the guard does not repeat a sure win of the last rounds when it has other items', () => {
+    const l = ladderWith(passedThrough(ORDER, '6'))
+    const easy = itemOf('2', 3)
+    const stats = { [easy.id]: { seen: 40, wrong: 0, timeout: 0, recent: 'oooooooooooo', times: [], picks: {} } }
+    const c = choosePractice({ ...l, guardLeft: 1 }, { rng: lcg(2), set: ALL_ON, stats, last: { sinceZero: 0, spacing: { round: 5, recent: [easy.fact], rehearsals: [] } } })
+    expect(c.part).toBe('guard')
+    expect(c.item.fact).not.toBe(easy.fact)
+  })
+
   describe('a mistake that is due', () => {
     const l = ladderWith({ ...passedThrough(ORDER, '6') })
     const missed = itemOf('1')
@@ -138,6 +171,10 @@ describe('the mix', () => {
     it('a rehearsal without an item id (an older save) is not served this way', () => {
       const c = choosePractice({ ...l, guardLeft: 0 }, ctx([{ fact: 'zzz', step: 1, due: 9 }]))
       expect(c.item.fact).not.toBe('zzz')
+    })
+    it('is not served right after its own fact (it waits one round)', () => {
+      const c = choosePractice(l, { ...ctx([{ fact: missed.fact, item: missed.id, step: 1, due: 9 }]), last: { sinceZero: 0, spacing: { round: 10, recent: [missed.fact], rehearsals: [{ fact: missed.fact, item: missed.id, step: 1, due: 9 }] } } })
+      expect(c.item.fact).not.toBe(missed.fact)
     })
     it('the guard never takes a rehearsal', () => {
       const c = choosePractice({ ...l, guardLeft: 2 }, ctx([{ fact: missed.fact, item: missed.id, step: 1, due: 9 }]))

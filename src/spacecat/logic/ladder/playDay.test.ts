@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { itemsOfRung } from '../facts'
 import type { Mark } from '../predict'
 import type { RungId } from '../rungs'
 import { afterAnswer, beginRun, chooseRound, frontier, relevel } from './index'
@@ -142,5 +143,16 @@ describe('relevel', () => {
     expect(r.mode).toEqual(placementMode('parent', '1', 8, 16))
     expect(r).toMatchObject({ day: 8, strikeLeft: 0, guardLeft: 0, passes: [], recheckDue: false })
     expect(r.lastAt).toBe(l.lastAt)
+  })
+})
+
+describe('the warm-up and the spacing', () => {
+  it('a mistake that is due comes back on time in the warm-up, as a review round', () => {
+    const l = ladderWith(SIX, { mode: { kind: 'warmup', rung: '6', recent: '', fastRun: 0, strikes: 0, rounds: 2, reviewLeft: 0 } })
+    const missed = itemsOfRung('2')[4]
+    const spacing = { round: 10, recent: ['a', 'b'], rehearsals: [{ fact: missed.fact, item: missed.id, step: 1 as const, due: 9 }] }
+    const c = chooseRound(l, { rng: lcg(1), set: ALL_ON, stats: {}, last: { sinceZero: 0, spacing } })
+    expect(c).toMatchObject({ part: 'review' })
+    expect(c.item.id).toBe(missed.id)
   })
 })

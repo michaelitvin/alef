@@ -112,13 +112,20 @@ export function predictOf(it: Item, stats: Record<string, ItemStats>): number {
  */
 export interface LastCtx { fact?: string; sinceZero: number; spacing?: Spacing; noRehearsal?: boolean }
 
+/** the spacing the next pick knows (a save from before it: only the last fact) */
+export const spacingOfLast = (last: LastCtx): Spacing => last.spacing ?? { round: 0, recent: last.fact ? [last.fact] : [], rehearsals: [] }
+/** the facts that a free pick avoids while anything else is left (spacing.ts avoidSet, the strictest level) */
+export const avoidedOf = (last: LastCtx): Set<string> => avoidSet(spacingOfLast(last), 0)
+/** the items of `pool` whose fact is not in `avoid` */
+export const freeOf = (pool: Item[], avoid: ReadonlySet<string>): Item[] => pool.filter((i) => !avoid.has(i.fact))
+
 /**
  * The next item of a part: a rehearsal of a mistake that is due (if the part offers its fact), else the pool sampled when
  * large, the narrowing rolls, no fact of the last NO_REPEAT rounds (step by step fewer when nothing is left), a rare fact
  * at most once in ZERO_EVERY rounds, then the 1-in-5 picker.
  */
 export function pickNext(rng: Rng, candidates: Item[], stats: Record<string, ItemStats>, last: LastCtx): Item {
-  const sp: Spacing = last.spacing ?? { round: 0, recent: last.fact ? [last.fact] : [], rehearsals: [] }
+  const sp = spacingOfLast(last)
   if (!last.noRehearsal) {
     const due = dueRehearsal(sp, (f) => candidates.some((i) => i.fact === f))
     if (due) {

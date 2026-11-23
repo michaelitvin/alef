@@ -715,7 +715,9 @@ const CHECKS = {
     const tip = await page.locator('.sc-stage[data-phase="tip"]').waitFor({ timeout: 6000 }).then(() => true, () => false)
     if (tip) { await page.waitForTimeout(900); await shot(page, vp, 'sc-zoom-tip') }
     note(tip ? 'the zoom tip showed after he parked under the right planet' : 'no zoom tip (the round ended first)')
-    await scFlick(page, { ...(await scProbe(page)), shipLane: r.right }, vp)
+    // (a round that ended already gets no flick: it would land on the next sum)
+    const q = await scProbe(page)
+    if (q.n === r.n && !q.result) await scFlick(page, { ...q, shipLane: r.right }, vp)
     await scEnded(page, r.n)
     let n = r.n
     // the touches at the edges, over two rounds that then end right with a zoom (no heart lost): a release between two
@@ -753,6 +755,14 @@ const CHECKS = {
     // the rest of the level: right answers with a wrong one and a time-out among them
     const plan = ['right', 'wrong', 'right', 'timeout', 'right', 'right', 'right', 'right', 'right', 'right']
     const results = []
+    // a level's end is a beat in flight (no screen, no tap): the stage's phase is `level` for about 2 s, right after the
+    // answer that ends the level, so the loop watches for it (a flag from the moment it starts, and a shot while it lasts)
+    await page.evaluate(() => {
+      window.__scLevelSeen = false
+      const mark = () => { if (document.querySelector('.sc-stage[data-phase="level"]')) window.__scLevelSeen = true }
+      new MutationObserver(mark).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-phase'] })
+    })
+    let levelShot = false
     for (const how of plan) {
       if ((await scScreen(page)) !== 'play') break
       if (!results.length) {
@@ -764,13 +774,25 @@ const CHECKS = {
       if (a.did === 'none') break
       results.push(`${a.did}→${a.result}`)
       n = a.n
+      if (!levelShot) {
+        // the beat, or the next round in flight
+        const next = await page.waitForFunction((m) => {
+          const ph = document.querySelector('.sc-stage')?.getAttribute('data-phase')
+          if (ph === 'level') return 'level'
+          const x = window.__scRound
+          return x && x.n > m && !x.result ? 'round' : false
+        }, a.n, { timeout: 8000, polling: 50 }).then((h) => h.jsonValue(), () => null)
+        if (next === 'level') { await shot(page, vp, 'sc-level-done'); levelShot = true; await scNoText(page) }
+      }
       if (a.did === 'wrong' && results.filter((x) => x.startsWith('wrong')).length === 1) await shot(page, vp, 'sc-wrong-mark')
     }
     note(`level 1: ${results.join(' ')}`)
     // a level's end is a beat in flight (no screen, no tap): the stage's phase is `level` for about 1.5 s
-    await page.locator('.sc-stage[data-phase="level"]').waitFor({ timeout: 40_000 })
-    await shot(page, vp, 'sc-level-done')
-    await scNoText(page)
+    if (!levelShot && !(await page.evaluate(() => window.__scLevelSeen))) {
+      await page.locator('.sc-stage[data-phase="level"]').waitFor({ timeout: 40_000 })
+      await shot(page, vp, 'sc-level-done')
+    }
+    if (!levelShot) note('the level beat: seen, but over before its shot')
     await scUntilScreen(page, 'play')
     // lose the run: wrong answers until the hearts run out
     for (let i = 0; i < 3; i++) { const a = await scAnswer(page, vp, 'wrong', n); n = a.n; if (i === 0) await page.waitForTimeout(100) }

@@ -58,9 +58,12 @@ export function afterRound(sp: Spacing, fact: string, mark: Mark | undefined, rn
   return { round, recent, rehearsals }
 }
 
+/** a rehearsal is due now; it waits one more round when its fact was the last one asked (never the same fact twice in a row) */
+export const isDue = (sp: Spacing, r: Rehearsal): boolean => sp.round >= r.due && sp.recent[sp.recent.length - 1] !== r.fact
+
 /** the oldest rehearsal that is due now and whose fact `offered` accepts */
 export function dueRehearsal(sp: Spacing, offered: (fact: string) => boolean): Rehearsal | undefined {
-  return sp.rehearsals.find((r) => sp.round >= r.due && offered(r.fact))
+  return sp.rehearsals.find((r) => isDue(sp, r) && offered(r.fact))
 }
 
 /**

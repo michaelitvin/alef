@@ -1,10 +1,10 @@
 // Play days and the warm-up (the design's *Held*, *The warm-up* and *Re-placement now and then*): a run that starts
 // 12 hours or more after his last answer frees the holds that are due and starts one rung below his level.
 import { itemsOfRung, type Item } from '../facts'
-import { pickNext, type Mark } from '../predict'
+import { avoidedOf, pickNext, type Mark } from '../predict'
 import { rungDef, type Band, type RungId } from '../rungs'
 import { earnedOffered, frontier } from './frontier'
-import { choosePractice, reviewPool, type ChooseCtx, type Choice } from './mix'
+import { choosePractice, dueMissed, reviewPool, type ChooseCtx, type Choice } from './mix'
 import { recheckDue, startRecheck } from './placement'
 import { STRIKE_ROUNDS, applyPractice, passWay, settleFrontier, struck, type Outcome } from './practice'
 import { pushWindow, statusOf, withRung, type Ladder, type LadderEvent, type LadderSettings, type WarmupMode } from './state'
@@ -64,13 +64,16 @@ export function beginRun(l: Ladder, ctx: { now: number; set: LadderSettings }): 
 /** a warm-up round: the guard first, then review after a strike, else 70% the warm-up rung and 30% review */
 export function chooseWarmup(l: Ladder, m: WarmupMode, ctx: ChooseCtx): Choice {
   if (l.guardLeft > 0) return choosePractice(l, ctx)
+  // a mistake that is due comes back on time in the warm-up too
+  const missed = dueMissed(ctx)
+  if (missed) return { item: missed, part: 'review', ladder: l }
   const { rng, set, stats } = ctx
   const review = earnedOffered(l, set).filter((r) => r !== m.rung)
   const pick = (pool: Item[], own = false) => pickNext(rng, pool, stats, own ? { ...ctx.last, noRehearsal: true } : ctx.last)
   if (m.reviewLeft > 0 || (review.length > 0 && rng() >= WARMUP_SHARE)) {
     const ladder = m.reviewLeft > 0 ? { ...l, mode: { ...m, reviewLeft: m.reviewLeft - 1 } } : l
     if (review.length === 0) return { item: pick(itemsOfRung(m.rung), true), part: 'warmup', ladder }
-    return { item: pick(reviewPool(rng, l, review, set, stats)), part: 'review', ladder }
+    return { item: pick(reviewPool(rng, l, review, set, stats, avoidedOf(ctx.last))), part: 'review', ladder }
   }
   return { item: pick(itemsOfRung(m.rung), true), part: 'warmup', ladder: l }
 }

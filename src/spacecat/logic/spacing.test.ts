@@ -95,11 +95,17 @@ describe('a mistake in the picker', () => {
   it('a wrong answer on the return starts again at the first gap', () => {
     const rng = lcg(7)
     let sp = afterRound(SPACING_START, cands[0].fact, 'x', rng)
-    sp = { ...sp, round: sp.rehearsals[0].due }
+    // the rounds in between asked other facts
+    sp = { ...sp, round: sp.rehearsals[0].due, recent: [cands[0].fact, 'a', 'b', 'c'] }
     expect(pickNext(rng, cands, {}, { sinceZero: 0, spacing: sp }).fact).toBe(cands[0].fact)
     const again = afterRound(sp, cands[0].fact, 'x', rng)
     expect(again.rehearsals[0]).toMatchObject({ step: 1 })
     expect(again.rehearsals[0].due - again.round).toBeLessThanOrEqual(GAP_FIRST[1])
+  })
+  it('a due rehearsal waits one round when its fact was the last one asked', () => {
+    const sp: Spacing = { round: 5, recent: ['x', cands[0].fact], rehearsals: [{ fact: cands[0].fact, step: 1, due: 5 }] }
+    expect(dueRehearsal(sp, () => true)).toBeUndefined()
+    expect(dueRehearsal({ ...sp, recent: [cands[0].fact, 'x'] }, () => true)?.fact).toBe(cands[0].fact)
   })
   it('a probe never takes a rehearsal, and a due fact that the part does not offer waits', () => {
     const sp: Spacing = { round: 5, recent: [], rehearsals: [{ fact: cands[0].fact, step: 1, due: 5 }] }
