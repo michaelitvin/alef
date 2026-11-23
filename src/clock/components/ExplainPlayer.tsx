@@ -8,6 +8,7 @@ import { useGender } from '../../shared/player'
 import type { ExplainId } from '../logic/levels'
 import type { Lang } from '../logic/phrases'
 import { type ClockTime, type HandPose, digital, parseTimeId, poseOf } from '../logic/time'
+import { mirrorTime } from '../logic/tricks'
 import { ClockFace, type Sector } from './ClockFace'
 import { Caption, type CaptionScript } from './Caption'
 import { DigitalCard } from './DigitalCard'
@@ -63,14 +64,25 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, on
   const faceSize = size * 0.55
 
   const glow = lastCue === 'short' ? 'hour' : lastCue === 'long' ? 'minute' : lastCue === 'seconds' ? 'second' : lastCue === 'quarters' ? 'quarters' : null
+  // "quarter to four" set as four and a quarter: his clock beside the right one, both from the start (a comparison shows both)
+  const wrongTime = id === 'fix-toAsPast' ? mirrorTime(t) : null
   return (
     <div className="ck-explain">
       <div className="ck-explain-row">
-        {/* forward, except into the five-minute count, which starts again from the 5 (a short step back, not a lap) */}
+        {wrongTime && (
+          <>
+            <ClockFace pose={poseOf(t)} glow={glow} glide size={size * 0.38} numbers="all" />
+            <div className="ck-explain-wrong" data-wrong>
+              <ClockFace pose={poseOf(wrongTime)} size={size * 0.38} numbers="all" />
+            </div>
+          </>
+        )}
+        {!wrongTime && (
         <ClockFace pose={pose} sectors={sectors} glow={glow} glide={!sweep} forward={!has('fives')} size={faceSize}
           numbers={id === 'nonumbers' ? 'none' : 'all'} ring={has('ring') || has('fives')}
           secondsFrom={has('seconds') ? 0 : null}
           overlay={sweep && <Finger angle={sweep.angle} opacity={sweep.opacity} face={faceSize} />} />
+        )}
         {/* the playtest: both clocks show from the start; the one being named glows and pulses as the voice names it */}
         {text.includes('{digital}') && (
           <motion.div animate={has('digital') ? { scale: [1, 1.12, 1] } : { scale: 1 }} transition={has('digital') ? { repeat: Infinity, duration: 1.2 } : {}}>

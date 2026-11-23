@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { HOURS, MINUTES } from './time'
-import { phrase, phraseText, stripNikkud } from './phrases'
+import { phrase, phraseText, saysTo, stripNikkud } from './phrases'
 
 const all = HOURS.flatMap((h) => MINUTES.map((m) => ({ h, m })))
 
@@ -46,4 +46,14 @@ describe('phrases', () => {
     expect(phrase({ h: 1, m: 35 }, 'he', true).audioId).toBe('ph-he-1-35') // only :40 has a second file
   })
   it('stripNikkud keeps the maqaf', () => expect(stripNikkud('אַחַת־עֶשְׂרֵה')).toBe('אחת־עשרה'))
+})
+
+describe('saysTo', () => {
+  it('45, 50 and 55 say "to"; :35 never; :40 only when it is not read as "forty"', () => {
+    expect([45, 50, 55].every((m) => saysTo(m, false))).toBe(true)
+    expect(saysTo(35, false)).toBe(false)
+    expect(saysTo(40, false)).toBe(true)
+    expect(saysTo(40, true)).toBe(false)
+    expect([0, 5, 15, 30].some((m) => saysTo(m, false))).toBe(false)
+  })
 })

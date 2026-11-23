@@ -66,4 +66,11 @@ describe('ExplainPlayer', () => {
     const { container } = render(<ExplainPlayer id="level-5" lang="en" script="small" word={0} cues={[]} fallback={{ h: 3, m: 0 }} size={400} />)
     expect((container.querySelector('[data-hand="minute"]') as HTMLElement).getAttribute('style') ?? '').toContain('rotate(0deg)')
   })
+  it('fix-toAsPast shows two faces: the glow is on the right clock only, the wrong one is marked', () => {
+    const { container } = render(<ExplainPlayer id="fix-toAsPast" lang="en" script="small" word={8} cues={['short']} fallback={{ h: 3, m: 0 }} size={400} />)
+    expect(container.querySelectorAll('.ck-face')).toHaveLength(2)
+    expect(container.querySelectorAll('[data-hand="hour"]')).toHaveLength(2)
+    expect(container.querySelectorAll('[data-glow="on"]')).toHaveLength(1)
+    expect(container.querySelectorAll('[data-wrong]')).toHaveLength(1)
+  })
 })

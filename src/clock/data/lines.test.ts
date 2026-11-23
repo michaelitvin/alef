@@ -14,7 +14,7 @@ describe('lines', () => {
     }
   })
   it('every explanation id from levels.ts has a line', async () => {
-    const ids = ['hands', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6', 'nonumbers', 'ex-find', 'ex-what', 'ex-set', 'ex-digital', 'seconds', 'fix-swap', 'fix-notAdvanced', 'fix-mirror', 'fix-numberAsMin', 'fix-hour1', 'fix-five']
+    const ids = ['hands', 'level-2', 'level-3', 'level-4', 'level-5', 'level-6', 'nonumbers', 'ex-find', 'ex-what', 'ex-set', 'ex-digital', 'seconds', 'fix-swap', 'fix-notAdvanced', 'fix-mirror', 'fix-numberAsMin', 'fix-hour1', 'fix-five', 'fix-toAsPast']
     for (const id of ids) expect(LINES.some((l) => l.id === `exp-${id}`)).toBe(true)
   })
   it('{fives} sits on the first counted number, so the long hand steps on five, ten, fifteen, twenty', () => {

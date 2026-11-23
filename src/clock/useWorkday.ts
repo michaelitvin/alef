@@ -435,8 +435,9 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
 }
 
 function grade(plan: RoundPlan, a: Answer, nearMissUsed: boolean): Evaluation {
-  if (a.kind === 'choice') return evaluateChoice(plan.options, plan.correctIndex, a.index)
-  return evaluateSet(plan.time, a.pose, checkFor(plan.exercise), nearMissUsed)
+  const ctx = { exercise: plan.exercise, digital40: !!plan.digital40 }
+  if (a.kind === 'choice') return evaluateChoice(plan.options, plan.correctIndex, a.index, ctx)
+  return evaluateSet(plan.time, a.pose, checkFor(plan.exercise), nearMissUsed, ctx)
 }
 
 /** The narrator's question for a round of this exercise. */

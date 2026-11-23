@@ -54,3 +54,10 @@ describe('levels', () => {
     expect(fixFor({ explained: {}, roundNo: 7 }, null)).toBeNull()
   })
 })
+
+describe('fix-toAsPast', () => {
+  it('fixFor maps the tag, with the cooldown', () => {
+    expect(fixFor({ explained: {}, roundNo: 5 }, 'toAsPast')).toBe('fix-toAsPast')
+    expect(fixFor({ explained: { 'fix-toAsPast': 4 }, roundNo: 5 }, 'toAsPast')).toBeNull()
+  })
+})

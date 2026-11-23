@@ -1,5 +1,6 @@
 // Levels and explanations (spec: Levels, Explanations).
 import { LEVEL_MINUTES, MAX_LEVEL } from './time'
+import { saysTo } from './phrases'
 import type { Exercise, Scaffolds } from './types'
 
 /** Michael chose fast-forward over a placement test: the first 5 rounds on a level's new times all right pass it. */
@@ -30,7 +31,7 @@ export function recordNewAnswer(p: LevelProgress, correct: boolean): { progress:
 export type ExplainId =
   | 'hands' | 'level-2' | 'level-3' | 'level-4' | 'level-5' | 'level-6' | 'nonumbers'
   | 'ex-find' | 'ex-what' | 'ex-set' | 'ex-digital' | 'seconds'
-  | 'fix-swap' | 'fix-notAdvanced' | 'fix-mirror' | 'fix-numberAsMin' | 'fix-hour1' | 'fix-five'
+  | 'fix-swap' | 'fix-notAdvanced' | 'fix-mirror' | 'fix-numberAsMin' | 'fix-hour1' | 'fix-five' | 'fix-toAsPast'
 
 interface ExplainState {
   /** round number at which each explanation last played */
@@ -51,8 +52,8 @@ export function introsFor(
   const fresh = (id: ExplainId) => s.explained[id] === undefined
   if (fresh('hands')) out.push('hands')
   // level 6 explains the "to" side: it waits for a round whose phrase says "to" (:35, and :40 read as "forty", do not)
-  const saysTo = !plan.time || plan.time.m === 50 || plan.time.m === 55 || (plan.time.m === 40 && !plan.digital40)
-  if (plan.isNew && plan.level >= 2 && plan.level <= 6 && (plan.level !== 6 || saysTo)) {
+  const toSide = !plan.time || saysTo(plan.time.m, !!plan.digital40)
+  if (plan.isNew && plan.level >= 2 && plan.level <= 6 && (plan.level !== 6 || toSide)) {
     const id = `level-${plan.level}` as ExplainId
     if (fresh(id)) out.push(id)
   }
@@ -69,7 +70,7 @@ export function introsFor(
 const FIX_COOLDOWN = 6
 const FIX_FOR: Record<string, ExplainId | undefined> = {
   swap: 'fix-swap', notAdvanced: 'fix-notAdvanced', mirror: 'fix-mirror', numberAsMin: 'fix-numberAsMin',
-  hour1: 'fix-hour1', five: 'fix-five', seconds: 'seconds',
+  hour1: 'fix-hour1', five: 'fix-five', toAsPast: 'fix-toAsPast', seconds: 'seconds',
 }
 
 /** The explanation for the mistake just made (its trick tag), unless it played in the last FIX_COOLDOWN rounds. */

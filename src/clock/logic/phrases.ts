@@ -33,6 +33,9 @@ const EN_DIGITAL: Record<number, string> = { 35: 'thirty-five', 40: 'forty' }
 /** The minutes a phrase reads as digits: always :35; :40 when the round chose its digital form. */
 const readsDigital = (m: number, digital40: boolean) => m === 35 || (m === 40 && digital40)
 
+/** The minutes whose phrase says "to" (:45, :50, :55, and :40 when it is not read as "forty"). :35 never does. */
+export const saysTo = (m: number, digital40: boolean) => m === 45 || m === 50 || m === 55 || (m === 40 && !digital40)
+
 const EN_HOUR = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
 const EN_MIN: Record<number, string> = { 5: 'five', 10: 'ten', 15: 'quarter', 20: 'twenty', 25: 'twenty-five', 30: 'half' }
 

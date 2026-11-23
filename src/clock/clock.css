@@ -162,6 +162,7 @@ html, body, #root { margin: 0; height: 100%; }
 .ck-pause { position: fixed; inset: 0; background: #5a3417 center / cover no-repeat; display: flex; align-items: center; justify-content: center; z-index: 50; }
 .ck-explain { display: flex; flex-direction: column; align-items: center; gap: 1rem; position: relative; max-width: 100%; padding: 0 12px; box-sizing: border-box; }
 /* narrow screens: the second picture (digital card, check mark) wraps under the clock, never past the screen edge */
+.ck-explain-wrong { opacity: 0.55; border-radius: 50%; box-shadow: 0 0 0 6px #d33; line-height: 0; }
 .ck-explain-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem 2rem; max-width: 100%; padding: 0 12px; box-sizing: border-box; }
 .ck-bonus { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
 .ck-bonus-face { position: relative; width: 320px; height: 320px; background: none; border: 0; padding: 0; }
