@@ -6,7 +6,7 @@
 // The counts and sizes come from the chunk headers (`logStats`); only Download decodes every chunk. The storage line
 // shows the live telemetry against its budget, the frozen log's size, the browser's answer to `persist()` and a save
 // that failed on this page.
-// The first duel's history is exported as it is and has no Clear: it is never cleared or rewritten.
+// The tower's old history is exported as it is and has no Clear: it is never cleared or rewritten.
 import { useEffect, useMemo, useState } from 'react'
 import {
   clearLog, exportDoc, exportFileName, filterEvents, frozenLogSizes, liveBudget, liveChars, logStats, readLog, rollupKey, rollupsFor,
@@ -103,7 +103,7 @@ export function DataSection({ game, live }: DataSectionProps) {
     <div data-telemetry-export>
       <p>
         One file for the games you tick: give it to an AI coding tool with the repository, and it can analyse his play (the
-        file says where the code and the design notes are). The tower’s events are in Book 2’s log, marked
+        file says where the code and the design notes are). The tower’s events are in Spell Quest’s log, marked
         <code> via: tower</code>.
       </p>
       <div className="pa-wide"><table data-logs style={{ borderCollapse: 'collapse' }}>
@@ -134,7 +134,7 @@ export function DataSection({ game, live }: DataSectionProps) {
       <p data-storage>
         Storage: telemetry <span data-storage-used>{kchars(storage.used)}</span> of {kchars(storage.budget)} chars
         {Object.entries(storage.frozen).map(([k, n]) => (
-          <span key={k} data-storage-frozen={k}> · {k.startsWith(STAGING_PREFIX) ? 'staging’s copy of the first duel’s history' : 'first duel’s history'} {kchars(n)} chars</span>
+          <span key={k} data-storage-frozen={k}> · {k.startsWith(STAGING_PREFIX) ? 'staging’s copy of Tower (history)' : 'Tower (history)'} {kchars(n)} chars</span>
         ))}
         {' · '}kept by the browser: <span data-storage-persisted>{persisted === null ? 'not known' : persisted ? 'yes' : 'no'}</span>
         {storage.failed !== null && <span data-storage-save-failed> · a save failed on this page ({storage.failed})</span>}

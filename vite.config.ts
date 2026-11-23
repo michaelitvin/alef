@@ -13,6 +13,8 @@ export default defineConfig({
   base,
   plugins: [react(), yaml()],
   build: {
+    // es2022: stagingStorage.ts awaits `?migrate-check` at its top level (iPad Safari 15+)
+    target: 'es2022',
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
