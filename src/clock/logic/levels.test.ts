@@ -28,6 +28,9 @@ describe('levels', () => {
     expect(run(START_PROGRESS, 'oooXo').passed).toBe(false)
     expect(run(START_PROGRESS, 'oooXoOOOOOO').passed).toBe(false)
   })
+  it('an old slip that scrolled out of the kept window still blocks fast-forward', () => {
+    expect(run(START_PROGRESS, 'x' + 'o'.repeat(60) + 'O').passed).toBe(false)
+  })
   it('8 of 10 choices plus 3 of 5 set rounds pass; either alone does not', () => {
     expect(run(START_PROGRESS, 'ooxooooxoo').passed).toBe(false)
     expect(run(START_PROGRESS, 'ooxooooxooXXOOO').passed).toBe(true)

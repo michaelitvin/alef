@@ -101,7 +101,7 @@ export function Workshop({ onExit }: { onExit: () => void }) {
           // a new explanation starts with its own clock (QA 2026-10-15: carried over, the long hand glided backwards from
           // the last one's pose)
           <ExplainPlayer key={`${view.explain.id}-${view.explain.run}`} id={view.explain.id} lang={view.explain.lang} script={view.script} word={view.explain.word}
-            cues={view.explain.cues} fallback={plan.time} size={size} onReplay={view.awaitNext ? explainAgain : undefined} />
+            cues={view.explain.cues} fallback={plan.time} size={size} boxW={box.w} onReplay={view.awaitNext ? explainAgain : undefined} />
         ) : view.phase === 'enter' || view.phase === 'explain' ? (
           // the customer comes in and the explanations play first: the question is not shown before them, so it is
           // never shown and then hidden (rule)

@@ -37,7 +37,9 @@ export function recordNewAnswer(p: LevelProgress, correct: boolean, exercise: Ex
   const newAnswers = isSet ? p.newAnswers : p.newAnswers + mark
   const newSetAnswers = isSet ? prevSet + mark : prevSet
   if (p.level >= MAX_LEVEL) return { progress: { ...p, newAnswers: newAnswers.slice(-PASS_WINDOW), newSetAnswers: newSetAnswers.slice(-SET_WINDOW) }, passed: false }
-  const fast = newAnswers.length + newSetAnswers.length >= FAST_FORWARD && newSetAnswers.length >= 1 && !newAnswers.includes('x') && !newSetAnswers.includes('x')
+  // fast-forward holds only while the windows still hold every answer on this level (shorter than KEEP): an old mistake cannot scroll out
+  const whole = newAnswers.length < KEEP && newSetAnswers.length < KEEP
+  const fast = whole && newAnswers.length + newSetAnswers.length >= FAST_FORWARD && newSetAnswers.length >= 1 && !newAnswers.includes('x') && !newSetAnswers.includes('x')
   const steady = choicePasses(newAnswers) && setPasses(newSetAnswers)
   if (fast || steady) return { progress: { level: p.level + 1, newAnswers: '', newSetAnswers: '' }, passed: true }
   return { progress: { ...p, newAnswers: newAnswers.slice(-KEEP), newSetAnswers: newSetAnswers.slice(-KEEP) }, passed: false }

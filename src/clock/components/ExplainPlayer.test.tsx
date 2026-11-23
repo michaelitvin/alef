@@ -73,4 +73,13 @@ describe('ExplainPlayer', () => {
     expect(container.querySelectorAll('[data-glow="on"]')).toHaveLength(1)
     expect(container.querySelectorAll('[data-wrong]')).toHaveLength(1)
   })
+  it('fix-toAsPast: two faces are bigger when the box holds both, smaller when it does not', () => {
+    const faceW = (boxW: number) => {
+      const { container, unmount } = render(<ExplainPlayer id="fix-toAsPast" lang="en" script="small" word={8} cues={['short']} fallback={{ h: 3, m: 0 }} size={400} boxW={boxW} />)
+      const w = parseFloat((container.querySelector('.ck-face') as HTMLElement).style.width)
+      unmount()
+      return w
+    }
+    expect(faceW(1000)).toBeGreaterThan(faceW(300))
+  })
 })

@@ -43,7 +43,7 @@ export default function ClockSettings({ goTo }: SectionProps) {
         <input type="checkbox" checked={s.settings.enCapsMix} onChange={(e) => setSettings({ enCapsMix: e.target.checked })} /> English: mix small letters and CAPITALS
       </label>
       <h3>Progress</h3>
-      <p data-clock-progress>Level {s.progress.level} (recent new-time answers: {s.progress.newAnswers || '—'}) · rounds {s.roundNo} · gears {s.gears} · workdays {s.workdays} · best streak {s.bestStreak}</p>
+      <p data-clock-progress>Level {s.progress.level} (recent new-time answers: {s.progress.newAnswers || '—'}, set rounds: {s.progress.newSetAnswers || '—'}) · rounds {s.roundNo} · gears {s.gears} · workdays {s.workdays} · best streak {s.bestStreak}</p>
       <div className="pa-wide"><table data-clock-features style={{ borderCollapse: 'collapse' }}>
         <thead><tr><th align="left">Feature</th><th>Seen</th><th>Wrong</th><th>Recent</th><th>Predicted miss</th></tr></thead>
         <tbody>

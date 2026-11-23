@@ -27,11 +27,13 @@ interface ExplainPlayerProps {
   /** the clock to show when the line has no example time (the current round's time) */
   fallback: ClockTime
   size: number
+  /** the width of the free box: two faces side by side get a bigger size when it holds them */
+  boxW?: number
   /** set when the explanation has finished: its speaker plays it again */
   onReplay?: () => void
 }
 
-export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, onReplay }: ExplainPlayerProps) {
+export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, boxW, onReplay }: ExplainPlayerProps) {
   const line = lineById(explainLineId(id))!
   // the caption says what the voice says: the feminine line for a girl (spec 2026-11-07 girls)
   useGender() // re-render when the setting changes
@@ -62,6 +64,7 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, on
   const sweep = useFingerSweep(has('finger'))
   if (sweep) pose = { minute: sweep.angle, hour: (t.h % 12) * 30 + sweep.angle / 12 }
   const faceSize = size * 0.55
+  const pairSize = boxW !== undefined && boxW >= 2 * faceSize + 60 ? faceSize : size * 0.38
 
   const glow = lastCue === 'short' ? 'hour' : lastCue === 'long' ? 'minute' : lastCue === 'seconds' ? 'second' : lastCue === 'quarters' ? 'quarters' : null
   // "quarter to four" set as four and a quarter: his clock beside the right one, both from the start (a comparison shows both)
@@ -71,12 +74,13 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, on
       <div className="ck-explain-row">
         {wrongTime && (
           <>
-            <ClockFace pose={poseOf(t)} glow={glow} glide size={size * 0.38} numbers="all" />
+            <ClockFace pose={poseOf(t)} glow={glow} glide size={pairSize} numbers="all" />
             <div className="ck-explain-wrong" data-wrong>
-              <ClockFace pose={poseOf(wrongTime)} size={size * 0.38} numbers="all" />
+              <ClockFace pose={poseOf(wrongTime)} size={pairSize} numbers="all" />
             </div>
           </>
         )}
+        {/* forward, except into the five-minute count, which starts again from the 5 (a short step back, not a lap) */}
         {!wrongTime && (
         <ClockFace pose={pose} sectors={sectors} glow={glow} glide={!sweep} forward={!has('fives')} size={faceSize}
           numbers={id === 'nonumbers' ? 'none' : 'all'} ring={has('ring') || has('fives')}
