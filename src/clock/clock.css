@@ -163,6 +163,8 @@ html, body, #root { margin: 0; height: 100%; }
 .ck-explain { display: flex; flex-direction: column; align-items: center; gap: 1rem; position: relative; max-width: 100%; padding: 0 12px; box-sizing: border-box; }
 /* narrow screens: the second picture (digital card, check mark) wraps under the clock, never past the screen edge */
 .ck-explain-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem 2rem; max-width: 100%; padding: 0 12px; box-sizing: border-box; }
+/* the wrong clock's ring is 6px outside its face: room for it above and below */
+.ck-explain-row:has(.ck-explain-wrong) { padding: 8px 12px; }
 .ck-explain-wrong { border-radius: 50%; box-shadow: 0 0 0 6px #d33; line-height: 0; }
 .ck-explain-wrong > * { opacity: 0.55; }
 .ck-bonus { display: flex; flex-direction: column; align-items: center; gap: 1rem; }

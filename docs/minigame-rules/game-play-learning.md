@@ -22,6 +22,16 @@
   and a choice that differs in the vowel only is the right test of it. Example: the ladder's rungs change one letter at
   a time (`lip`, `slip`), and the cauldron makes `cap` into `cape`. The rule stays for the Hebrew path and the clock.
 - Record confusions by direction (the item asked, the item tapped). Put the confused item on the board when its pair is asked.
+- Move the child up a level only when each way of answering the new content passes, not the total of all of them.
+  Give the way that makes him produce the answer (such as setting the hands) its own count, and offer it on purpose
+  while that count blocks: the round chooser avoids rounds that he fails.
+  Reason: choices can pass by elimination while the skill is missing.
+  Example (clock, the parent, 2026-11-23): level 4 (quarter to) passed on choices, but he set the hands right 1 time in
+  18 (he set 4:15 for "quarter to four"). Now 3 of the last 5 set rounds must also be right, and every 3rd round is a
+  set round while that count blocks.
+- Give each frequent mistake a name and an explanation. When the data shows a wrong answer that comes again and again
+  without a tag, add the tag.
+  Example (clock): the 4:15 pose for 3:45 was tagged "other", so no explanation played for his most frequent mistake.
 - Place a skilled child fast. Start with a placement check: ask a few items across the range early (each item once, or a
   search that jumps up after a fast right answer and down after a mistake), and let a clean result move him on at once. Keep the slow path for the other children. Check after each short part (a wave), not only at the end of a
   visit, and do not make the visits shorter while the check can still pass.

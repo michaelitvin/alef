@@ -64,7 +64,8 @@ export function ExplainPlayer({ id, lang, script, word, cues, fallback, size, bo
   const sweep = useFingerSweep(has('finger'))
   if (sweep) pose = { minute: sweep.angle, hour: (t.h % 12) * 30 + sweep.angle / 12 }
   const faceSize = size * 0.55
-  const pairSize = boxW !== undefined && boxW >= 2 * faceSize + 60 ? faceSize : size * 0.38
+  // two faces side by side a little smaller than one (0.5): the wrong one's ring and the caption need the height
+  const pairSize = boxW !== undefined && boxW >= 2 * faceSize + 60 ? size * 0.5 : size * 0.38
 
   const glow = lastCue === 'short' ? 'hour' : lastCue === 'long' ? 'minute' : lastCue === 'seconds' ? 'second' : lastCue === 'quarters' ? 'quarters' : null
   // "quarter to four" set as four and a quarter: his clock beside the right one, both from the start (a comparison shows both)
