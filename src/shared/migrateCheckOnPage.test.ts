@@ -13,7 +13,7 @@ describe('?migrate-check on the page', () => {
   afterEach(() => { if (real) Object.defineProperty(window, 'localStorage', real); window.history.replaceState(null, '', '/'); vi.restoreAllMocks(); vi.unstubAllGlobals() })
 
   it('a store imported after the check sees the migrated save; the reload drops the query; the result is stored', async () => {
-    const { installStagingStorage, STAGING_PREFIX } = await import('./stagingStorage')
+    const { installStagingStorage, migrateCheckGate, STAGING_PREFIX } = await import('./stagingStorage')
     // (a production page migrates on import, so production's old keys are put in after it)
     prod.setItem('alef-duel2', JSON.stringify({ state: { bookOpen: true, firstDuelImported: true, stage: { stage: 2 }, coins: 4, settings: { range: 100 } }, version: 7 }))
     const k = chunkKey(OLD, 1_000, 'sa')
@@ -25,6 +25,8 @@ describe('?migrate-check on the page', () => {
     expect(pending).not.toBeNull()
     expect(reload).not.toHaveBeenCalled() // the check is still running; nothing else may start
     expect(await pending).toBe(true)
+    // the gate stays shut once the reload is asked for: the entry point's `import('./boot')` never runs
+    expect(await Promise.race([migrateCheckGate(pending).then(() => 'open'), new Promise((r) => setTimeout(() => r('shut'), 50))])).toBe('shut')
     expect(reload).toHaveBeenCalledWith(expect.stringMatching(/\/\?x=1$/)) // without ?migrate-check
     vi.stubGlobal('localStorage', window.localStorage) // in a browser the global is the window's (now the prefixed view)
     // a store module that evaluates now reads the post-check storage
@@ -34,6 +36,15 @@ describe('?migrate-check on the page', () => {
     expect(prod.getItem(`${STAGING_PREFIX}alef-duel2`)).toBeNull()
     expect(prod.getItem('alef-duel2')).not.toBeNull() // production untouched
     expect(JSON.parse(prod.getItem(`${STAGING_PREFIX}alef-migration-check`)!).verdict).toBe('pass')
+  })
+
+  it('the gate opens at once without a check, and when the reload cannot be asked for', async () => {
+    const { migrateCheckGate, installStagingStorage } = await import('./stagingStorage')
+    await expect(migrateCheckGate()).resolves.toBeUndefined()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    prod.setItem('alef-duel2', '{"state":{},"version":7}')
+    const failing = installStagingStorage(window, () => { throw new Error('no navigation') })
+    await expect(migrateCheckGate(failing)).resolves.toBeUndefined()
   })
 
   it('a refused confirm runs nothing', async () => {

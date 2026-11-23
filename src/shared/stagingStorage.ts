@@ -75,8 +75,7 @@ export function installStagingStorage(win: Window, reload: (url: string) => void
 }
 
 /** Run `?migrate-check` (after the page's view is installed): the saves' steps load on demand, the result is written to
- * `alef-migration-check` on staging, and the page reloads without the query. The promise is true when the reload is asked for; the module's top level waits for it, so no store module evaluates (hydrates or persists)
- * while the check works. */
+ * `alef-migration-check` on staging, and the page reloads without the query. The promise is true when the reload is asked for; the entry point waits for the gate (migrateCheckGate). */
 function startMigrateCheck(storage: Storage, view: Storage, cleanUrl: string, reload: (url: string) => void): Promise<boolean> {
   const leave = () => { try { reload(cleanUrl); return true } catch { return false /* the result is in the Data section at the next visit */ } }
   return Promise.all([import('./migrateCheck'), import('./migrateCheckSteps')]).then(([{ runMigrateCheck, MIGRATION_CHECK_KEY }, { SAVE_STEPS }]) => {
@@ -106,6 +105,10 @@ if (isStaging) pendingCheck = installStagingStorage(window)
 else {
   try { runKeyMigration(window.localStorage) } catch { /* no storage */ }
 }
-// ?migrate-check: hold back every module that imports after this one (top-level await) until the check is done. The page
-// is then reloading without the query, so the held modules never start: no store reads or writes during the check.
-if (pendingCheck) await pendingCheck.then((leaving) => (leaving ? new Promise<void>(() => {}) : undefined))
+/** The gate of `?migrate-check`: each entry point opens its app only after it (`migrateCheckGate().then(() => import('./boot'))`),
+ * so no store module evaluates (hydrates, persists) while the check works. It resolves at once when there is no check (and
+ * on production). With the check on staging it never resolves once the reload is asked for: the page is then reloading
+ * without the query. It resolves, and the page starts, if the reload cannot be asked for. */
+export function migrateCheckGate(pending: Promise<boolean> | null = pendingCheck): Promise<void> {
+  return pending ? pending.then((leaving) => (leaving ? new Promise<void>(() => {}) : undefined)) : Promise.resolve()
+}

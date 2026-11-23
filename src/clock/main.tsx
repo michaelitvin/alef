@@ -1,12 +1,5 @@
 import '../shared/stagingStorage' // first: staging saves are kept apart before any store loads
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import ClockApp from './ClockApp'
-import '../styles/fonts.css'
-import './clock.css'
+import { migrateCheckGate } from '../shared/stagingStorage'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ClockApp />
-  </StrictMode>,
-)
+// no store module loads before the gate opens (it opens at once, except on `?migrate-check` on staging)
+void migrateCheckGate().then(() => import('./boot'))
