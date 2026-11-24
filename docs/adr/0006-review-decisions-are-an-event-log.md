@@ -33,4 +33,6 @@ in one module (`rules.ts`). The page, the sync and the agent CLI all ask that mo
   of the real files when `REVIEW_LEGACY_DIR` is set).
 - The clock's 8 clips with an OK'd older take ship that take under this rule, until the parent re-reviews the newer
   takes or an agent withdraws the old ones on his word.
+- A take that passed its automatic checks and was not drawn for the parent's sample ships on an agent `auto-ship`
+  event (status `checked`), never on an OK, so the log tells what he heard from what only the checks heard.
 - Strokes and screens stay in the parent area for now. The kit can add them as more media kinds later.

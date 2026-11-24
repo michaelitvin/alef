@@ -8,7 +8,7 @@ export type Actor = 'parent' | 'agent'
 /** Events the parent makes on the review page. */
 export const PARENT_EVENTS = ['ok', 'reject', 'reset', 'note', 'name', 'retake'] as const
 /** Events an agent (pipeline) makes through the CLI. They never stand for a click of the parent. */
-export const AGENT_EVENTS = ['accept', 'answer', 'ask', 'withdraw', 'restore', 'retire', 'unretire', 'prefer'] as const
+export const AGENT_EVENTS = ['accept', 'answer', 'ask', 'withdraw', 'restore', 'retire', 'unretire', 'prefer', 'auto-ship'] as const
 
 export type ParentEventType = (typeof PARENT_EVENTS)[number]
 export type AgentEventType = (typeof AGENT_EVENTS)[number]
@@ -30,6 +30,9 @@ export type EventType = ParentEventType | AgentEventType
  * - withdraw / restore: the pipeline took a take back (failed check, reverted spelling); `take`, `text` = why.
  * - retire / unretire: the item left the game; `text` = why.
  * - prefer: the agent's choice among takes the parent has not decided; `take`.
+ * - auto-ship: the take passed its automatic checks and was not drawn for the parent's sample, so it ships without his
+ *   review; `take`, `text` = why. Not an approval: the item leaves the views that need him (status "checked"), and his
+ *   own decision, a newer take or an ask brings it back.
  */
 export interface ReviewEvent {
   seq: number
@@ -106,6 +109,9 @@ export interface Item {
   ask?: string
   /** In the sample view (the adapter chooses: one per pattern). */
   sample?: boolean
+  /** The kind of line the item is one of (a minute pattern, a customer line in every voice). The `auto-ship` command
+   * samples per pattern; an item with no pattern is a kind of its own. */
+  pattern?: string
   /** Retired in the adapter's own data (a reason, or true). */
   retired?: string | boolean
   /** An approval the parent gave in a message, kept in the old pipeline's data. `import-choices --accepted` turns it

@@ -3,7 +3,8 @@
 import type { Item, ReviewEvent, Take } from './model.ts'
 
 export type Verdict = 'ok' | 'accepted' | 'rejected'
-export type Status = 'open' | 'ok' | 'rejected' | 'empty' | 'retired'
+/** 'checked': ships on its automatic checks, not reviewed by the parent (an `auto-ship` event on the current take). */
+export type Status = 'open' | 'checked' | 'ok' | 'rejected' | 'empty' | 'retired'
 export type NoteKind = 'reject' | 'note' | 'name'
 export type NoteState = 'open' | 'answered' | 'closed'
 
@@ -61,8 +62,12 @@ function marks(item: Item, events: ReviewEvent[]) {
   let ask = item.ask || null
   let askTake: string | null = null
   let askSeq = 0
+  const autoShipped = new Set<string>()
   for (const e of events) {
-    if (e.type === 'withdraw' && e.take) withdrawn.set(e.take, e.text || 'withdrawn')
+    if (e.type === 'auto-ship' && e.take) autoShipped.add(e.take)
+    // his own decision replaces the checks' (a reset after it puts the item back in his review)
+    else if (e.by === 'parent' && (e.type === 'ok' || e.type === 'reject' || e.type === 'reset')) autoShipped.clear()
+    else if (e.type === 'withdraw' && e.take) withdrawn.set(e.take, e.text || 'withdrawn')
     else if (e.type === 'restore' && e.take) withdrawn.set(e.take, null)
     else if (e.type === 'retire') retired = e.text || 'retired'
     else if (e.type === 'unretire') retired = null
@@ -73,7 +78,7 @@ function marks(item: Item, events: ReviewEvent[]) {
       askSeq = e.seq
     }
   }
-  return { withdrawn, retired, prefer, ask, askTake, askSeq }
+  return { withdrawn, retired, prefer, ask, askTake, askSeq, autoShipped }
 }
 
 /** Fold the take decisions: the last ok / accept / reject / reset on a take decides it. */
@@ -182,7 +187,9 @@ export function deriveItem(item: Item, allEvents: ReviewEvent[]): ItemState {
         ? 'rejected'
         : cv
           ? 'ok'
-          : 'open'
+          : m.autoShipped.has(current.id) && !current.flags?.length
+            ? 'checked'
+            : 'open'
   // An open ask surfaces the item whatever its status, on the asked-about take (the newest, or the one the ask names),
   // until the parent decides on that take or an agent clears the ask. The take to ship does not change. The adapter's
   // own ask line (no ask event) is the item's check question: any decision of his on the item answers it, so an item
@@ -255,6 +262,56 @@ export function inView(s: ItemState, view: View): boolean {
   if (view === 'open') return true
   if (view === 'focus') return !!s.ask || s.flagged
   return !!s.item.sample || s.flagged || !!s.ask || s.notes.some((n) => n.state === 'answered')
+}
+
+export interface AutoShipOptions {
+  /** One item in `rate` of each pattern stays for his review (at least one per pattern). Default 10. */
+  rate?: number
+  /** A pattern he has never decided keeps up to this many items for his review. Default 3. */
+  fresh?: number
+}
+
+/** FNV-1a: a stable pseudo-random order, so a re-run draws the same sample. */
+function hash(s: string): number {
+  let h = 2166136261
+  for (const ch of s) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+  return h >>> 0
+}
+
+/**
+ * Which open items ship on their automatic checks without his review. Only an open audio item whose current take
+ * has a check, no failed check, no ask and no open or answered note can ship so. Per pattern, a sample stays for him:
+ * one in `rate`, at least one, and up to `fresh` items of a pattern he has never decided (a new kind of line).
+ * Returns the items that stay for him and the items to auto-ship, each with its take and pattern.
+ */
+export function autoShipPlan(states: ItemState[], events: ReviewEvent[], opts: AutoShipOptions = {}) {
+  const rate = opts.rate ?? 10
+  const fresh = opts.fresh ?? 3
+  const patternOf = (s: ItemState) => s.item.pattern ?? s.item.id
+  const decided = new Set(events.filter((e) => e.by === 'parent' && (e.type === 'ok' || e.type === 'reject')).map((e) => e.item))
+  const heard = new Set(states.filter((s) => decided.has(s.item.id)).map(patternOf))
+  const groups = new Map<string, ItemState[]>()
+  for (const s of states) {
+    const eligible =
+      s.status === 'open' && s.item.kind === 'audio' && !!s.current?.check && !s.flagged && !s.ask && !s.askTake &&
+      !s.notes.some((n) => n.state !== 'closed')
+    if (!eligible) continue
+    const p = patternOf(s)
+    const g = groups.get(p)
+    if (g) g.push(s)
+    else groups.set(p, [s])
+  }
+  const review: { item: string; pattern: string; why: string }[] = []
+  const ship: { item: string; take: string; pattern: string; text: string }[] = []
+  for (const [p, g] of groups) {
+    const keep = Math.max(1, Math.ceil(g.length / rate), heard.has(p) ? 0 : Math.min(fresh, g.length))
+    const order = [...g].sort((a, b) => hash(a.item.id) - hash(b.item.id))
+    const why = heard.has(p) ? `sample of ${p}: ${keep} of ${g.length}` : `new kind of line ${p}: ${keep} of ${g.length}`
+    for (const s of order.slice(0, keep)) review.push({ item: s.item.id, pattern: p, why })
+    for (const s of order.slice(keep))
+      ship.push({ item: s.item.id, take: s.current!.id, pattern: p, text: `passed its checks; not drawn for the sample of ${p} (${keep} of ${g.length} kept for review)` })
+  }
+  return { review, ship }
 }
 
 /** Item id -> take id to ship, for the items still in the game. */
