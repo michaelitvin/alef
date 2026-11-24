@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { syllable } from '../logic/content.ts'
 import { WORDS, wordLinkFor } from './words.ts'
@@ -13,6 +14,11 @@ describe('words', () => {
   it('door words use no final letters and no door', () => {
     for (const w of doors) expect(/[ךםןףץ]/.test(w.text), w.id).toBe(false)
     expect(doors.some((w) => w.id === 'door' || w.picture.endsWith('door'))).toBe(false)
+  })
+  it('every door word has a picture and a voice file', () => {
+    const dir = (d: string) => new URL(`../assets/${d}/`, import.meta.url)
+    for (const w of doors.filter((x) => x.picture.startsWith('pw-'))) expect(existsSync(new URL(`${w.picture}.webp`, dir('img'))), w.id).toBe(true)
+    for (const w of doors.filter((x) => x.picture.startsWith('pw-'))) expect(existsSync(new URL(`w-${w.id}.mp3`, dir('audio/voice'))), w.id).toBe(true)
   })
   it('at least 10 door words with unique pictures', () => {
     expect(doors.length).toBeGreaterThanOrEqual(10)

@@ -2593,7 +2593,7 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   }, 60_000)
 
   it('strokes are accepted on the handwriting screen, and a pause resumes it in handwriting', async () => {
-    const c = make({ force: { screen: 'draw-hand', stage: 1 } })
+    const c = make({ force: { screen: 'draw-hand', stage: 1 }, rng: seeded(4) })
     c.start()
     await answering(c)
     expect(dv(c).screen).toBe('draw')

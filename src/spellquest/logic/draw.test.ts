@@ -149,7 +149,7 @@ describe('drawing marks in any order (the parent: שׁוּעָל, פַּרְפַ
   // dagesh and the vowel under the same letter (בּ כּ פּ with patach, segol, kamatz)
   const multi = WORDS.filter((w) => marksFor(w, 3).length > 1)
   it('the words with more than one mark are known', () => {
-    expect(multi.map((w) => w.id).sort()).toEqual(['ball', 'banana', 'butterfly', 'dog', 'fox', 'house'])
+    expect(multi.map((w) => w.id).sort()).toEqual(['ball', 'banana', 'butterfly', 'cow', 'crown', 'dog', 'flashlight', 'fox', 'house', 'sheep'])
   })
   for (const script of ['print', 'hand'] as const) {
     it(`${script}: every part of every mark in every order passes, on his own letter (each form of it), drawn a bit off the hand's place`, () => {

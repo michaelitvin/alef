@@ -220,9 +220,9 @@ describe('doors at the last stage', () => {
       expect(keys).toHaveLength(3)
       expect(new Set(idsOf(keys)).size).toBe(3)
       expect(keys.map((k) => k.id)).toContain('camel')
-      expect(keys.map((k) => k.id)).toContain('carrot')
+      expect(keys.map((k) => k.id)).toContain('fence')
       const ball = idsOf(doorKeys(ctx(4, s), word('ball')))
-      expect(ball).toContain('dog')
+      expect(ball.some((k) => k === 'dog' || k === 'crown' || k === 'sheep')).toBe(true)
       const cat = doorKeys(ctx(4, s), word('cat')).filter((k) => k.id !== 'cat')
       expect(cat.some((k) => group(k.id) === 'a')).toBe(true)
       const rose = doorKeys(ctx(4, s), word('rose')).filter((k) => k.id !== 'rose')
@@ -250,6 +250,19 @@ describe('doors at the last stage', () => {
       expect(keysOf('carrot', s)).toContain('bridge')
       expect(keysOf('sheep', s)).toContain('crown')
       expect(new Set(keysOf('camel', s)).size).toBe(2)
+    }
+  })
+
+  it('with the real words, every door word with a first-syllable partner gets one as a key', () => {
+    const doors = WORDS.filter((w) => w.door)
+    const sameSyl = (a: Word, b: Word) => a.id !== b.id && a.first.item === b.first.item && a.first.mark === b.first.mark
+    for (const id of ['dog', 'crown', 'sheep', 'cat', 'milk', 'grasshopper', 'carrot', 'bridge', 'camel', 'fence', 'snake', 'tiger', 'cow', 'flashlight']) {
+      const w = doors.find((x) => x.id === id)!
+      for (let s = 1; s <= 20; s++) {
+        const keys = doorKeys(ctx(4, s), w)
+        expect(keys, id).toHaveLength(3)
+        expect(keys.some((k) => sameSyl(w, k)), id).toBe(true)
+      }
     }
   })
 
