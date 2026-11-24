@@ -130,7 +130,7 @@ export const ENGLISH: Course = {
   game: 'spellquest-en',
   dir: 'ltr',
   stages: {
-    maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING,
+    maxStage: EN_MAX_STAGE, order: EN_ORDER, drawing: EN_DRAWING, orderOf: () => EN_ORDER, visitOf: () => EN_VISIT,
     // the doors only where a door can be made (stage 1's pictures, map and fan, have no file yet): they come back by
     // themselves when one lands
     screensOfStage: (s) => enScreensOfStage(s).filter((x) => x !== 'doors' || englishDoorsPlayable(s)),

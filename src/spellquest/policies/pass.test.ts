@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { HEARTS, SESSION_LENGTH, VISIT } from '../logic/run'
+import { HEARTS, HEBREW_STAGES, SESSION_LENGTH, VISIT } from '../logic/run'
 import {
   DEFEAT_MS, DEFEAT_REST_MS, DEFEAT_RING_MS,
   runPass, stepPass, visitLength,
@@ -16,6 +16,8 @@ function freeze<T>(x: T): T {
 const facts = (f: Partial<PassFacts> = {}): PassFacts => ({
   stage: 4, draw: false, screensOpen: true, recent: {}, towerRecent: {}, cycleNo: 0, towerTail: '', ...f,
 })
+/** the Hebrew course without the last stage's rehearsal (the mastery rules for every screen, as below it) */
+const PLAIN = { ...HEBREW_STAGES, orderOf: () => HEBREW_STAGES.order, visitOf: () => VISIT, rehearse: undefined }
 /** a screen's recent answers, all right (mastered) */
 const mastered = (screen: string) => ({ [`sc:${screen}`]: 'o'.repeat(20) })
 
@@ -77,7 +79,7 @@ describe('the pass policy', () => {
     })
 
     it('skipped doors: their crystal still comes at the end of the cycle, then the next cycle', () => {
-      const f = facts({ recent: mastered('doors'), cycleNo: 1 })
+      const f = facts({ recent: mastered('doors'), cycleNo: 1, stages: PLAIN })
       const p = pass({ lastEnded: 'ladder' })
       p.done(f)
       expect(p.state).toMatchObject({ screen: 'spell', crystalOwed: true })
@@ -105,7 +107,7 @@ describe('the pass policy', () => {
   describe('the doors were skipped: their crystal', () => {
     it('comes at the cycle\'s end, then the next screen', () => {
       const p = pass({ lastEnded: 'ladder' })
-      const f = facts({ recent: mastered('doors'), cycleNo: 1 })
+      const f = facts({ recent: mastered('doors'), cycleNo: 1, stages: PLAIN })
       expect(p.state.screen).toBe('ghosts')
       expect(p.done(f).track).toEqual([{ e: 'skip', data: { screen: 'doors', cycle: 1 } }])
       // (the spell book comes after the skipped doors, before the cycle's end)
@@ -119,8 +121,8 @@ describe('the pass policy', () => {
 
     it('is paid once when the run ends or closes before the cycle\'s end', () => {
       // the spell book and the drawing screens come after the skipped doors, before the cycle's end
-      const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true }) })
-      p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1 }))
+      const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true, stages: PLAIN }) })
+      p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1, stages: PLAIN }))
       expect(p.state.screen).toBe('spell')
       expect(p.state.crystalOwed).toBe(true)
       expect(p.send({ type: 'owed' }).save).toEqual([{ op: 'addCrystal', owed: true }])
@@ -251,6 +253,27 @@ describe('the pass policy', () => {
       expect(visitLength('run', 'tower', facts({ towerRecent: { a: 'oooo', b: 'ooox' } }))).toBe(VISIT.tower)
     })
 
+    it('the last stage: the doors and drawing are never halved; the others keep the mastery rule; below it nothing changes', () => {
+      for (const sc of ['doors', 'draw', 'draw-hand'] as const) {
+        expect(visitLength('run', sc, facts({ draw: true, recent: mastered(sc) }))).toBe(4)
+      }
+      expect(visitLength('run', 'broom', facts({ draw: true }))).toBe(6)
+      expect(visitLength('run', 'broom', facts({ draw: true, recent: mastered('broom') }))).toBe(3)
+      expect(visitLength('run', 'doors', facts({ stage: 3, recent: mastered('doors') }))).toBe(2)
+      expect(visitLength('session', 'doors', facts())).toBe(SESSION_LENGTH.doors)
+    })
+    it('the visit event: the pass logs the screen and its length, with rehearse at the last stage only', () => {
+      const p = pass()
+      expect(p.send({ type: 'visit', screen: 'doors', facts: facts() }).track).toEqual([{ e: 'visit', data: { screen: 'doors', len: 4, rehearse: true } }])
+      const q = pass()
+      expect(q.send({ type: 'visit', screen: 'doors', facts: facts({ stage: 3 }) }).track).toEqual([{ e: 'visit', data: { screen: 'doors', len: 3 } }])
+    })
+    it('the doors are never skipped at the last stage, even long mastered', () => {
+      const f = facts({ recent: mastered('doors'), cycleNo: 1 })
+      const p = pass({ lastEnded: 'ladder' })
+      p.done(f)
+      expect(p.state).toMatchObject({ screen: 'doors', crystalOwed: false })
+    })
     it('the gallery\'s visit refills the hearts (a run\'s keeps them)', () => {
       const g = pass({ mode: 'gallery', screen: 'ghosts' })
       g.lose()
@@ -297,8 +320,8 @@ describe('the pass policy', () => {
     })
 
     it('the crystal of skipped doors is paid first, and counted in the summary; the crystal screen ends as the doors', () => {
-      const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true }) })
-      p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1 }))
+      const p = pass({ lastEnded: 'ladder', facts: facts({ draw: true, stages: PLAIN }) })
+      p.done(facts({ draw: true, recent: mastered('doors'), cycleNo: 1, stages: PLAIN }))
       const r = p.send({ type: 'lost', score: 1, bestRun: 9 })
       expect(r.save).toEqual([{ op: 'addCrystal', owed: true }, { op: 'endRun', screen: 'spell', score: 1 }])
       expect(r.track[0]).toEqual({ e: 'run-end', data: { screen: 'spell', score: 1, crystals: 1 } })

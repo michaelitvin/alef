@@ -10,14 +10,25 @@ export const CYCLE: ScreenId[] = ['broom', 'cauldron', 'ladder', 'ghosts', 'door
 /** the tower's tower opens every cycle (spec: one duel, Part 3); the spell book follows the doors (English path, Part 7) */
 const ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand']
 const DRAWING: ScreenId[] = ['draw', 'draw-hand']
+/** the last stage (rehearse): an action screen and a calm screen take turns, drawing between them; runs end on the broom,
+ * so the next run starts on the cauldron */
+const REHEARSE_ORDER: ScreenId[] = ['tower', 'broom', 'cauldron', 'draw', 'ladder', 'draw-hand', 'ghosts', 'doors', 'spell']
 /** the tower's waves (5 monsters each) / waves / rounds / rungs / rounds / doors / words / words / words per visit (spec:
  * visit lengths, tune in playtest) */
 export const VISIT: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 4, ladder: 5, ghosts: 4, doors: 3, draw: 3, 'draw-hand': 3, spell: 3 }
+/** the last stage: the broom 6 waves (it costs most hearts), the doors and the drawing 4 words (the medium shift, tune after play) */
+export const REHEARSE_VISIT: Record<ScreenId, number> = { ...VISIT, broom: 6, doors: 4, draw: 4, 'draw-hand': 4 }
 /** a session from the home screen's path (spec: one duel, Part 3): about 10 questions, or one boss — the tower's waves,
  * the broom's waves, rounds, rungs (a ladder has at most 5), rounds, doors, words, words */
 export const SESSION_LENGTH: Record<ScreenId, number> = { tower: 2, broom: 10, cauldron: 10, ladder: 5, ghosts: 10, doors: 6, draw: 6, 'draw-hand': 6, spell: 6 }
 /** Spell Quest's Hebrew course's stages (the course seam, src/spellquest/course) */
-export const HEBREW_STAGES: CourseStages = { maxStage: 4, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH }
+const MAX_STAGE = 4
+export const HEBREW_STAGES: CourseStages = {
+  maxStage: MAX_STAGE, order: ORDER, drawing: DRAWING, screensOfStage, recordStageAnswer, visit: VISIT, sessionLength: SESSION_LENGTH,
+  orderOf: (stage) => (stage >= MAX_STAGE ? REHEARSE_ORDER : ORDER),
+  visitOf: (stage) => (stage >= MAX_STAGE ? REHEARSE_VISIT : VISIT),
+  rehearse: { at: (stage) => stage >= MAX_STAGE, keep: ['doors', 'draw', 'draw-hand'] },
+}
 export const HEARTS = 3
 /** broom: a new target after this many catches */
 export const TARGET_EVERY = 3
@@ -27,13 +38,14 @@ export const TARGET_EVERY = 3
  * opens (`screensOpen` false: stage 0) only the tower; drawing too waits for stage 1. `stages`: the course's (Hebrew by default).
  */
 export const cycleOf = (stage: number, draw = false, screensOpen = true, stages: CourseStages = HEBREW_STAGES): ScreenId[] =>
-  !screensOpen ? ['tower'] : stages.order.filter((s) => (s === 'tower' ? true : stages.drawing.includes(s) ? draw : stages.screensOfStage(stage).includes(s)))
+  !screensOpen ? ['tower'] : stages.orderOf(stage).filter((s) => (s === 'tower' ? true : stages.drawing.includes(s) ? draw : stages.screensOfStage(stage).includes(s)))
 
 /** The screen after `current` (which need not be in the cycle, e.g. drawing turned off since). */
 export function nextScreen(stage: number, current: ScreenId, draw = false, screensOpen = true, stages: CourseStages = HEBREW_STAGES): { screen: ScreenId; newCycle: boolean } {
   const c = cycleOf(stage, draw, screensOpen, stages)
-  const at = stages.order.indexOf(current)
-  const after = c.find((s) => stages.order.indexOf(s) > at)
+  const order = stages.orderOf(stage)
+  const at = order.indexOf(current)
+  const after = c.find((s) => order.indexOf(s) > at)
   return after ? { screen: after, newCycle: false } : { screen: c[0], newCycle: true }
 }
 

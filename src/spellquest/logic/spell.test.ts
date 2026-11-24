@@ -36,7 +36,7 @@ describe('the Hebrew spell book', () => {
     for (const w of DOOR_WORDS_AT_4) for (const t of heSpellRound(ctxFor(w.id))!.tiles) for (const b of heSpellRound(ctxFor(w.id))!.boxes)
       if (t.unit !== b.unit) expect(sameSoundSyl(t, b)).toBe(false)
   })
-  it('the spell book opens with the doors (stage 4), after them', () => { expect(screensOfStage(3)).not.toContain('spell'); expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand']) })
+  it('the spell book opens with the doors (stage 4), after them', () => { expect(screensOfStage(3)).not.toContain('spell'); expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'draw', 'ladder', 'draw-hand', 'ghosts', 'doors', 'spell']) })
 
   it('every door word: its syllables as boxes, each tile once, the word\'s voice and picture, the answers on its syllables', () => {
     const seen = new Set<string>()

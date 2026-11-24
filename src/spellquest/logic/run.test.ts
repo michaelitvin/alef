@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CYCLE, HEARTS, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, waveTick, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
+import { CYCLE, HEARTS, HEBREW_STAGES, VISIT, coinsFor, cycleOf, heartsAtRunStart, laneAt, multiplierOf, passEndHeart, newRound, nextScreen, onAnswer, runStart, travelMs, waveX, BASE_TRAVEL_MS, orbEvents, waveTick, wavePos, CATCH_AT, PASS_AT, flightPace, PACE_MIN, PACE_MAX } from './run'
 
 describe('run', () => {
   it('cycle per stage: the tower first', () => {
@@ -14,13 +14,13 @@ describe('run', () => {
     expect(nextScreen(1, 'ghosts')).toEqual({ screen: 'tower', newCycle: true })
   })
   it('drawing comes after the doors: print, then handwriting, from stage 1, only when on', () => {
-    expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell', 'draw', 'draw-hand'])
+    expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'draw', 'ladder', 'draw-hand', 'ghosts', 'doors', 'spell'])
     expect(cycleOf(1, true)).toEqual(['tower', 'broom', 'ghosts', 'draw', 'draw-hand'])
     expect(cycleOf(4, false)).toEqual(['tower', ...CYCLE])
     expect(nextScreen(4, 'doors', true)).toEqual({ screen: 'spell', newCycle: false })
-    expect(nextScreen(4, 'spell', true)).toEqual({ screen: 'draw', newCycle: false })
-    expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'draw-hand', newCycle: false })
-    expect(nextScreen(4, 'draw-hand', true)).toEqual({ screen: 'tower', newCycle: true })
+    expect(nextScreen(3, 'spell', true)).toEqual({ screen: 'draw', newCycle: false })
+    expect(nextScreen(3, 'draw', true)).toEqual({ screen: 'draw-hand', newCycle: false })
+    expect(nextScreen(3, 'draw-hand', true)).toEqual({ screen: 'tower', newCycle: true })
     expect(VISIT['draw-hand']).toBe(3)
   })
   it('stage 0: only the tower; then the tower comes first', () => {
@@ -30,8 +30,25 @@ describe('run', () => {
     expect(runStart(3, 'ladder', true, false)).toBe('tower')
     expect(VISIT.tower).toBe(2)
   })
+  it('the last stage rehearses: drawing between the action and the calm screens, 4 words at the doors and drawing, 6 waves', () => {
+    expect(cycleOf(4, true)).toEqual(['tower', 'broom', 'cauldron', 'draw', 'ladder', 'draw-hand', 'ghosts', 'doors', 'spell'])
+    expect(cycleOf(4, false)).toEqual(['tower', 'broom', 'cauldron', 'ladder', 'ghosts', 'doors', 'spell'])
+    expect(HEBREW_STAGES.orderOf(3)).toEqual(HEBREW_STAGES.order)
+    expect(HEBREW_STAGES.visitOf(3)).toEqual(VISIT)
+    expect(HEBREW_STAGES.visitOf(4)).toMatchObject({ broom: 6, doors: 4, draw: 4, 'draw-hand': 4, cauldron: 4, ladder: 5, ghosts: 4, tower: 2 })
+    expect(nextScreen(4, 'cauldron', true)).toEqual({ screen: 'draw', newCycle: false })
+    expect(nextScreen(4, 'draw', true)).toEqual({ screen: 'ladder', newCycle: false })
+    expect(nextScreen(4, 'spell', true)).toEqual({ screen: 'tower', newCycle: true })
+  })
+  it('a run that ended on the broom starts on the cauldron, not on drawing (the old order too)', () => {
+    expect(runStart(4, 'broom', true)).toBe('cauldron')
+    expect(runStart(4, 'broom', false)).toBe('cauldron')
+    expect(runStart(4, 'ghosts', true)).toBe('doors')
+    expect(runStart(4, 'draw-hand', true)).toBe('ghosts')
+    expect(runStart(4, 'draw', false)).toBe('tower')
+  })
   it('an old save that ended on the drawing screen starts the next run at a valid screen', () => {
-    expect(runStart(4, 'draw', true)).toBe('draw-hand')
+    expect(runStart(4, 'draw', true)).toBe('ladder')
     expect(runStart(4, 'draw', false)).toBe('tower')
   })
   it('next run starts after the screen where the last ended', () => {

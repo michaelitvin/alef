@@ -136,6 +136,11 @@ export interface PassState {
 
 /** the course's stages of these facts */
 const stagesOf = (f: PassFacts): CourseStages => f.stages ?? HEBREW_STAGES
+/** a screen of the last stage's rehearsal that the mastery rules never halve nor skip */
+const kept = (f: PassFacts, screen: ScreenId): boolean => {
+  const re = stagesOf(f).rehearse
+  return !!re && re.at(f.stage) && re.keep.includes(screen)
+}
 
 /**
  * A run as it starts: a session plays its screen, the gallery its forced screen, a run the screen after the one where the
@@ -167,7 +172,7 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
     const len = cycleOf(f.stage, f.draw, f.screensOpen, stagesOf(f)).length
     for (let k = 0; k < len && s.mode !== 'session'; k++) {
       // a new cycle starts at the tower, which is never skipped
-      if (nx.newCycle || !skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.towerRecent), f.cycleNo, len)) break
+      if (nx.newCycle || !(kept(f, nx.screen) ? false : skipInCycle(nx.screen, screenRecent(nx.screen, f.recent, f.towerRecent), f.cycleNo, len))) break
       if (nx.screen === 'doors') s.crystalOwed = true
       r.track.push({ e: 'skip', data: { screen: nx.screen, cycle: f.cycleNo } })
       nx = nextScreen(f.stage, nx.screen, f.draw, f.screensOpen, stagesOf(f))
@@ -199,6 +204,10 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
       // the hearts last the run; only the gallery refills them when its forced screen starts (a pause keeps them)
       if (s.mode === 'gallery') s.hearts = heartsAtRunStart()
       r.len = visitLength(s.mode, ev.screen, ev.facts)
+      // the Hebrew course logs each visit's start (the English course's log stays as it was); the last stage's visits are
+      // marked, so that the parent's analysis can tell them from the old ones
+      const re = stagesOf(ev.facts).rehearse
+      if (re) r.track.push({ e: 'visit', data: { screen: ev.screen, len: r.len, ...(re.at(ev.facts.stage) ? { rehearse: true } : {}) } })
       break
     }
     case 'round':
@@ -330,8 +339,8 @@ export function stepPass(state: PassState, ev: PassEvent): PassStep {
  */
 export function visitLength(mode: PassMode, screen: ScreenId, f: PassFacts): number {
   if (mode === 'session') return stagesOf(f).sessionLength[screen]
-  const full = stagesOf(f).visit[screen]
-  if (mode === 'gallery') return full
+  const full = stagesOf(f).visitOf(f.stage)[screen]
+  if (mode === 'gallery' || kept(f, screen)) return full
   // stage 0 (the tower alone): never shorter, so that the check after each wave comes after fewer answers, not more stops
   if (screen === 'tower' && !f.screensOpen) return full
   const r = screenRecent(screen, f.recent, f.towerRecent)

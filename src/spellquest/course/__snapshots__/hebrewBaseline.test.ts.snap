@@ -8,6 +8,10 @@ exports[`the Hebrew baseline > Hebrew broom at stage 1 1`] = `
       "screen": "broom",
     },
     {
+      "e": "visit",
+      "screen": "broom",
+    },
+    {
       "e": "flight",
     },
     {
@@ -107,6 +111,10 @@ exports[`the Hebrew baseline > Hebrew broom at stage 2 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "broom",
+    },
+    {
+      "e": "visit",
       "screen": "broom",
     },
     {
@@ -212,6 +220,10 @@ exports[`the Hebrew baseline > Hebrew broom at stage 3 1`] = `
       "screen": "broom",
     },
     {
+      "e": "visit",
+      "screen": "broom",
+    },
+    {
       "e": "flight",
     },
     {
@@ -314,6 +326,10 @@ exports[`the Hebrew baseline > Hebrew broom at stage 4 1`] = `
       "screen": "broom",
     },
     {
+      "e": "visit",
+      "screen": "broom",
+    },
+    {
       "e": "flight",
     },
     {
@@ -413,6 +429,10 @@ exports[`the Hebrew baseline > Hebrew cauldron at stage 2 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "cauldron",
+    },
+    {
+      "e": "visit",
       "screen": "cauldron",
     },
     {
@@ -548,6 +568,10 @@ exports[`the Hebrew baseline > Hebrew cauldron at stage 3 1`] = `
       "screen": "cauldron",
     },
     {
+      "e": "visit",
+      "screen": "cauldron",
+    },
+    {
       "e": "answer",
       "screen": "cauldron",
       "target": "khaf-shuruk",
@@ -671,6 +695,10 @@ exports[`the Hebrew baseline > Hebrew cauldron at stage 4 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "cauldron",
+    },
+    {
+      "e": "visit",
       "screen": "cauldron",
     },
     {
@@ -806,6 +834,10 @@ exports[`the Hebrew baseline > Hebrew doors at stage 4 1`] = `
       "screen": "doors",
     },
     {
+      "e": "visit",
+      "screen": "doors",
+    },
+    {
       "e": "answer",
       "screen": "doors",
       "target": "book",
@@ -890,6 +922,10 @@ exports[`the Hebrew baseline > Hebrew draw at stage 1 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "visit",
       "screen": "draw",
     },
     {
@@ -1027,6 +1063,10 @@ exports[`the Hebrew baseline > Hebrew draw at stage 2 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "visit",
       "screen": "draw",
     },
     {
@@ -1197,6 +1237,10 @@ exports[`the Hebrew baseline > Hebrew draw at stage 3 1`] = `
       "screen": "draw",
     },
     {
+      "e": "visit",
+      "screen": "draw",
+    },
+    {
       "e": "draw-start",
     },
     {
@@ -1361,6 +1405,10 @@ exports[`the Hebrew baseline > Hebrew draw at stage 4 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "draw",
+    },
+    {
+      "e": "visit",
       "screen": "draw",
     },
     {
@@ -1531,6 +1579,10 @@ exports[`the Hebrew baseline > Hebrew draw-hand at stage 1 1`] = `
       "screen": "draw-hand",
     },
     {
+      "e": "visit",
+      "screen": "draw-hand",
+    },
+    {
       "e": "draw-start",
     },
     {
@@ -1659,6 +1711,10 @@ exports[`the Hebrew baseline > Hebrew draw-hand at stage 2 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "visit",
       "screen": "draw-hand",
     },
     {
@@ -1823,6 +1879,10 @@ exports[`the Hebrew baseline > Hebrew draw-hand at stage 3 1`] = `
       "screen": "draw-hand",
     },
     {
+      "e": "visit",
+      "screen": "draw-hand",
+    },
+    {
       "e": "draw-start",
     },
     {
@@ -1981,6 +2041,10 @@ exports[`the Hebrew baseline > Hebrew draw-hand at stage 4 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "draw-hand",
+    },
+    {
+      "e": "visit",
       "screen": "draw-hand",
     },
     {
@@ -2145,6 +2209,10 @@ exports[`the Hebrew baseline > Hebrew ghosts at stage 1 1`] = `
       "screen": "ghosts",
     },
     {
+      "e": "visit",
+      "screen": "ghosts",
+    },
+    {
       "e": "answer",
       "screen": "ghosts",
       "target": "alef",
@@ -2268,6 +2336,10 @@ exports[`the Hebrew baseline > Hebrew ghosts at stage 2 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "visit",
       "screen": "ghosts",
     },
     {
@@ -2397,6 +2469,10 @@ exports[`the Hebrew baseline > Hebrew ghosts at stage 3 1`] = `
       "screen": "ghosts",
     },
     {
+      "e": "visit",
+      "screen": "ghosts",
+    },
+    {
       "e": "answer",
       "screen": "ghosts",
       "target": "bet",
@@ -2520,6 +2596,10 @@ exports[`the Hebrew baseline > Hebrew ghosts at stage 4 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "ghosts",
+    },
+    {
+      "e": "visit",
       "screen": "ghosts",
     },
     {
@@ -2649,6 +2729,10 @@ exports[`the Hebrew baseline > Hebrew ladder at stage 2 1`] = `
       "screen": "ladder",
     },
     {
+      "e": "visit",
+      "screen": "ladder",
+    },
+    {
       "e": "answer",
       "screen": "ladder",
       "target": "kaf-kubutz",
@@ -2733,6 +2817,10 @@ exports[`the Hebrew baseline > Hebrew ladder at stage 3 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "ladder",
+    },
+    {
+      "e": "visit",
       "screen": "ladder",
     },
     {
@@ -2823,6 +2911,10 @@ exports[`the Hebrew baseline > Hebrew ladder at stage 4 1`] = `
       "screen": "ladder",
     },
     {
+      "e": "visit",
+      "screen": "ladder",
+    },
+    {
       "e": "answer",
       "screen": "ladder",
       "target": "fe-chirik",
@@ -2907,6 +2999,10 @@ exports[`the Hebrew baseline > Hebrew spell at stage 4 1`] = `
   "events": [
     {
       "e": "session-start",
+      "screen": "spell",
+    },
+    {
+      "e": "visit",
       "screen": "spell",
     },
     {
@@ -3105,11 +3201,11 @@ exports[`the Hebrew baseline > the cycle at stage 4 1`] = `
   "tower",
   "broom",
   "cauldron",
+  "draw",
   "ladder",
+  "draw-hand",
   "ghosts",
   "doors",
   "spell",
-  "draw",
-  "draw-hand",
 ]
 `;

@@ -1217,14 +1217,14 @@ describe('run controller', () => {
     const c = make({ force: { screen: 'doors', stage: 4 } })
     c.start()
     const behind: string[] = []
-    for (let r = 0; r < 3; r++) {
+    for (let r = 0; r < 4; r++) {
       await until(c, (v) => v.phase === 'answer' && !v.needNext)
       const s = c.view.screen as Extract<View['screen'], { screen: 'doors' }>
       behind.push(s.behind ? 'crystal' : 'door')
       c.gesture({ type: 'pick', id: rightId(c.view) })
       await until(c, (v) => v.phase !== 'answer')
     }
-    expect(behind).toEqual(['door', 'door', 'crystal'])
+    expect(behind).toEqual(['door', 'door', 'door', 'crystal'])
     c.destroy()
   })
 
@@ -1726,7 +1726,7 @@ describe('run controller', () => {
       return counts
     }
 
-    it('a short ladder has as many rungs as its visit; short doors put the crystal behind the last of them', async () => {
+    it('a short ladder has as many rungs as its visit; the last stage doors keep their 4 words, the crystal behind the last', async () => {
       useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ladder': O8, 'sc:doors': O8 } })
       const c = make()
       c.start()
@@ -1734,24 +1734,17 @@ describe('run controller', () => {
       expect((c.view.screen as { rungs: number }).rungs).toBe(3)
       const n = await playCounting(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer')
       expect(n.ladder).toBe(3)
-      expect((c.view.screen as { behind?: unknown }).behind).toBeUndefined()
-      c.gesture({ type: 'pick', id: rightId(c.view) })
+      // the last stage rehearses: the doors are never halved (4 words), so the crystal is behind the fourth
+      for (let d = 0; d < 3; d++) {
+        expect((c.view.screen as { behind?: unknown }).behind).toBeUndefined()
+        c.gesture({ type: 'pick', id: rightId(c.view) })
+        await until(c, (v) => v.phase !== 'answer')
+        await until(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer' && !v.needNext)
+      }
       await until(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer' && !!(v.screen as { behind?: unknown }).behind)
       c.gesture({ type: 'pick', id: rightId(c.view) })
       await until(c, (v) => v.screen?.screen === 'crystal')
       c.destroy()
-    }, 60_000)
-
-    it('closing the game before the cycle ends still gives the crystal of the skipped doors, once', async () => {
-      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0,
-        settings: { ...DEFAULT_SETTINGS, drawing: true } })
-      const c = make()
-      c.start()
-      await playCounting(c, (v) => v.screen?.screen === 'draw')
-      expect(useSpellQuestStore.getState().crystals).toBe(0)
-      c.destroy()
-      c.destroy()
-      expect(useSpellQuestStore.getState().crystals).toBe(1)
     }, 60_000)
 
     it('a mastered tower gets one wave (the visit\'s length reaches the tower)', async () => {
@@ -2514,14 +2507,14 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
     c.destroy()
   })
 
-  it('in the lap only when drawing is on: after the doors and the spell book', async () => {
-    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'spell', settings: { ...useSpellQuestStore.getState().settings, drawing: true } })
+  it('in the lap only when drawing is on: between the cauldron and the ladder (the last stage)', async () => {
+    useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', settings: { ...useSpellQuestStore.getState().settings, drawing: true } })
     const c = make()
     c.start()
     await until(c, (v) => !!v.screen)
     expect(c.view.screen!.screen).toBe('draw')
     c.destroy()
-    useSpellQuestStore.setState({ lastEnded: 'spell', settings: { ...useSpellQuestStore.getState().settings, drawing: false } })
+    useSpellQuestStore.setState({ lastEnded: 'cauldron', settings: { ...useSpellQuestStore.getState().settings, drawing: false } })
     const d = make()
     d.start()
     await until(d, (v) => !!v.screen)

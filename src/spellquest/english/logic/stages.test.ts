@@ -74,7 +74,7 @@ describe('the English stages', () => {
     expect(runPass({ mode: 'run', lastEnded: 'doors', facts: he }).screen).toBe('spell')
     expect(runPass({ mode: 'run', lastEnded: 'spell', facts: he }).screen).toBe('tower')
     expect(visitLength('gallery', 'doors', en)).toBe(6)
-    expect(visitLength('gallery', 'doors', he)).toBe(3)
+    expect(visitLength('gallery', 'doors', he)).toBe(4)  // the Hebrew last stage rehearses: 4 words at the doors
     expect(visitLength('session', 'cauldron', en)).toBe(EN_SESSION_LENGTH.cauldron)
   })
 })

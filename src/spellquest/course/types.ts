@@ -25,8 +25,14 @@ export type CourseId = 'he' | 'en'
 
 export interface CourseStages {
   maxStage: number
-  /** the cycle's order, tower first; screens not open at a stage are skipped */
+  /** the cycle's order, tower first; screens not open at a stage are skipped (the order below the last stage) */
   order: ScreenId[]
+  /** the cycle's order at `stage` (English: `order` at every stage; Hebrew: the last stage rehearses) */
+  orderOf(stage: number): ScreenId[]
+  /** the visit lengths at `stage` (English: `visit` at every stage) */
+  visitOf(stage: number): Record<ScreenId, number>
+  /** the last stage's rehearsal (unset: none): the stage plays it; its screens are never halved nor skipped by mastery */
+  rehearse?: { at(stage: number): boolean; keep: ScreenId[] }
   /** screens that the drawing setting turns off */
   drawing: ScreenId[]
   screensOfStage(stage: number): ScreenId[]
