@@ -5,6 +5,7 @@ import { useSpellQuestStore, type SpellQuestSettings } from '../store'
 import { spellQuestTelemetry } from '../telemetry'
 import { setNumberRange, useNumberRange } from '../../shared/numberRange'
 import { ITEMS } from '../logic/content'
+import { HEBREW_STAGES } from '../logic/run'
 import type { SectionProps } from '../../parent/types'
 import { TowerHistory } from './TowerHistory'
 
@@ -29,7 +30,7 @@ export default function SpellQuestSettings({ goTo }: SectionProps) {
   )
   return (
     <div data-spellquest-settings>
-      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower alone; the minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
+      <p data-stage-line>{s.screensOpen === false ? 'Stage 0: the tower alone; the minigames open when its marks are mastered.' : <>Stage {s.stage.stage}: {STAGE_NAME[s.stage.stage]}.{s.stage.stage >= HEBREW_STAGES.maxStage && <span data-last-stage> This is the last stage: each run now gives more time to drawing and to the word doors, and more rounds to the letters and vowels he mixes up.</span>}</>} Runs: {s.runs}. Best run: {s.bestRun} right answers. Crystals: {s.crystals}. Flight bosses beaten: {(s.bossesBeaten ?? []).join(', ') || 'none yet'}.</p>
       {s.screensOpen === false && (
         <p data-open-book>
           <label>

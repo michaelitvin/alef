@@ -42,6 +42,15 @@ describe('Spell Quest\'s section in the parent area', () => {
     expect(r.container.querySelector('[data-stage-line]')!.textContent).toMatch(/^Stage 1/)
   })
 
+  it('the stage line says the last stage gives more time to drawing and doors, and more rounds to his mix-ups', () => {
+    useSpellQuestStore.setState({ screensOpen: true, stage: { ...useSpellQuestStore.getState().stage, stage: 4 } })
+    const { container, unmount } = section()
+    expect(container.querySelector('[data-stage-line]')!.textContent).toMatch(/Stage 4: .*This is the last stage: each run now gives more time to drawing and to the word doors, and more rounds to the letters and vowels he mixes up\./)
+    unmount()
+    useSpellQuestStore.setState({ stage: { ...useSpellQuestStore.getState().stage, stage: 3 } })
+    expect(section().container.querySelector('[data-last-stage]')).toBeNull()
+  })
+
   it('the tower’s history: sessions, minutes, best score, best wave, and a row per mark played, most misses first', () => {
     useProgressStore.setState({ ...INITIAL_PROGRESS_STATE, tower: { ...INITIAL_PROGRESS_STATE.tower, sessions: 7, bestScore: 4321, bestWave: 9, roundsMs: 180_000,
       byMark: { kamatz: { seen: 30, correct: 20, wrong: 4, timeout: 2, twin: 1, mega: 4 }, segol: { seen: 10, correct: 2, wrong: 6, timeout: 2, twin: 0, mega: 0 } } } })
