@@ -8,6 +8,12 @@ const PASS_WINDOW = 10
 const PASS_CORRECT = 8
 /** share of rounds aimed at the newest stage's items */
 export const NEW_SHARE = 0.6
+/** the last stage (Hebrew): the stage that has no newer items, so it rehearses */
+export const LAST_STAGE = 4
+/** share of rounds at the last stage aimed at his weak items (mix-ups, weakest vowel group) */
+export const WEAK_SHARE = 0.3
+/** the weak subset is used only when its mean predicted mistake rate is at most this (the visit stays near 1 in 5) */
+export const WEAK_GATE = 0.25
 
 export interface StageProgress { stage: number; newAnswers: string }
 export const START_STAGE: StageProgress = { stage: 1, newAnswers: '' }

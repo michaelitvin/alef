@@ -252,3 +252,54 @@ describe('doors at the last stage', () => {
     expect(off).toBeGreaterThan(0)
   })
 })
+
+describe('the weak share at the last stage', () => {
+  const MIXED = ['pe', 'fe', 'shin', 'sin', 'kaf', 'khaf']
+  const letters = { pe: { fe: 4 }, fe: { pe: 3 }, shin: { sin: 5 }, sin: { shin: 3 }, kaf: { khaf: 4 }, khaf: { kaf: 3 } }
+  const confusions = { letters, syllables: {} }
+  const plain = { letters: {}, syllables: {} }
+  const hits = (stage: Stage, conf: RoundCtx['confusions'], pickOf: (c: RoundCtx) => string, tallies: RoundCtx['tallies'] = {}) => {
+    let n = 0
+    for (let s = 1; s <= 300; s++) if (MIXED.includes(pickOf(ctx(stage, s, { confusions: conf, tallies })))) n++
+    return n
+  }
+  const screens: [string, (c: RoundCtx) => string][] = [
+    ['broom', (c) => broomTarget(c, 'letter').itemId],
+    ['ghosts', (c) => ghostRound(c, 'letter').target.itemId],
+    ['cauldron', (c) => cauldronRound(c).target.item.id],
+    ['ladder', (c) => ladderPlan(c, 1, 'letter').steps[0].target.itemId],
+  ]
+
+  for (const [name, pickOf] of screens) {
+    it(`${name}: his real confusions come up more at stage 4`, () => {
+      expect(hits(4, confusions, pickOf)).toBeGreaterThan(hits(4, plain, pickOf) + 20)
+    })
+  }
+
+  it('a weak subset above the gate gets no extra share', () => {
+    const tallies: RoundCtx['tallies'] = {}
+    for (const id of MIXED) tallies[`l:${id}`] = { seen: 20, wrong: 18 }
+    for (let s = 1; s <= 40; s++) {
+      const a = broomTarget(ctx(4, s, { confusions, tallies }), 'letter').id
+      const b = broomTarget(ctx(4, s, { confusions: plain, tallies }), 'letter').id
+      expect(a).toBe(b)
+    }
+  })
+
+  it('stage 3 is unchanged by his confusions', () => {
+    for (let s = 1; s <= 40; s++) {
+      expect(broomTarget(ctx(3, s, { confusions }), 'letter').id).toBe(broomTarget(ctx(3, s, { confusions: plain }), 'letter').id)
+      expect(broomTarget(ctx(3, s, { confusions }), 'syllable').id).toBe(broomTarget(ctx(3, s, { confusions: plain }), 'syllable').id)
+    }
+  })
+
+  it('syllables of his weakest vowel group come up more', () => {
+    const tallies: RoundCtx['tallies'] = { 'v:o': { seen: 40, wrong: 2 }, 'v:a': { seen: 40, wrong: 0 } }
+    const o = (conf: RoundCtx['tallies']) => {
+      let n = 0
+      for (let s = 1; s <= 300; s++) if (broomTarget(ctx(4, s, { tallies: conf }), 'syllable').group === 'o') n++
+      return n
+    }
+    expect(o(tallies)).toBeGreaterThan(o({}) + 20)
+  })
+})

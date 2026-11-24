@@ -7,8 +7,8 @@ import {
   GROUPS, GROUP_MARKS, ITEMS, SHAPE_GROUPS, isAllowed, item as itemOf, mark as markOf, syllable,
   type Item, type Mark, type MarkId, type Syllable, type VowelGroup,
 } from './content.ts'
-import { features, pickTarget, type ScreenId } from './predict'
-import { NEW_SHARE } from './stages'
+import { features, pickTarget, predict, type ScreenId } from './predict'
+import { LAST_STAGE, NEW_SHARE, WEAK_SHARE, WEAK_GATE } from './stages'
 import { WORDS, type Word } from '../data/words'
 
 export type Kind = 'letter' | 'syllable'
@@ -133,6 +133,38 @@ function syl(itemId: string, m: Mark): Choice {
   return syllableChoice(syllable(itemId, m.id))
 }
 
+/** Items he mixed up 3+ times (either side of the mix-up), and syllables with such a mix-up of their own */
+function confusedIds(ctx: RoundCtx): { letters: Set<string>; syllables: Set<string> } {
+  const out = { letters: new Set<string>(), syllables: new Set<string>() }
+  const scan = (conf: Conf, into: Set<string>) => {
+    for (const [a, row] of Object.entries(conf)) for (const [b, n] of Object.entries(row)) if (n >= CONFUSION_GROUP_MIN) { into.add(a); into.add(b) }
+  }
+  scan(ctx.confusions.letters, out.letters)
+  scan(ctx.confusions.syllables, out.syllables)
+  return out
+}
+
+/** His weakest vowel group: the highest predicted `v:` rate among groups that he has answered */
+function weakestGroup(ctx: RoundCtx): VowelGroup | null {
+  let best: VowelGroup | null = null
+  let top = -1
+  for (const g of GROUPS) {
+    if (!ctx.tallies[`v:${g}`]?.seen) continue
+    const r = predict([`v:${g}`], ctx.tallies, ctx.recent)
+    if (r > top) { top = r; best = g }
+  }
+  return best
+}
+
+/** The candidates that he mixes up (or, for syllables, of his weakest vowel group) */
+function weakSubset(ctx: RoundCtx, cands: Choice[]): Choice[] {
+  const conf = confusedIds(ctx)
+  const group = weakestGroup(ctx)
+  return cands.filter((c) =>
+    c.kind === 'letter' ? conf.letters.has(c.itemId)
+      : conf.letters.has(c.itemId) || conf.syllables.has(`${c.itemId}-${c.group}`) || (group !== null && c.group === group))
+}
+
 /** The target of a broom flight (and of ghost rounds): a letter, or a syllable with a rotating mark. */
 export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: ScreenId = 'broom'): Choice {
   const { rng, stage } = ctx
@@ -145,6 +177,14 @@ export function broomTarget(ctx: RoundCtx, kind: Kind, avoid?: string, screen: S
   if (avoid) cands = cands.filter((c) => c.id !== avoid && c.soundId !== avoid)
   const fresh = cands.filter((c) => isNewStageChoice(stage, c))
   if (fresh.length && fresh.length < cands.length && rng() < NEW_SHARE) cands = fresh
+  if (stage >= LAST_STAGE) {
+    // the last stage: a share of the rounds go to his weak items, only while the subset is near 1 mistake in 5
+    const weak = weakSubset(ctx, cands)
+    if (weak.length && weak.length < cands.length) {
+      const mean = weak.reduce((t, c) => t + predict(featureOf(c, screen), ctx.tallies, ctx.recent), 0) / weak.length
+      if (mean <= WEAK_GATE && rng() < WEAK_SHARE) cands = weak
+    }
+  }
   return pickTarget(rng, cands, (c) => featureOf(c, screen), ctx.tallies, ctx.recent)
 }
 
