@@ -175,6 +175,18 @@ describe('the draw policy', () => {
     expect(g.d.save[0]).toMatchObject({ op: 'recordAnswer', miss: true })
   })
 
+  it('the judge: one wrong stroke that he puts right himself is not a miss; two wrong strokes are; the hand\'s help is', () => {
+    const one = round(ctxOf('camel', 1)).open()
+    one.stroke([...one.strokes()[0]].reverse())
+    one.drawLetter()
+    expect(one.tracked('draw-done')[0]).toMatchObject({ wrongStrokes: 1, helped: false })
+    expect(one.d.save[0]).toMatchObject({ op: 'recordAnswer', miss: false })
+    const helped = round(ctxOf('camel', 1)).open()
+    for (let i = 0; i < 3; i++) helped.stroke([...helped.strokes()[0]].reverse())
+    for (const x of helped.strokes().slice(1)) helped.stroke(x)
+    expect(helped.d.save[0]).toMatchObject({ miss: true })
+  })
+
   it('after 3 wrong tries of the same stroke the hand draws it for him and the round goes on', () => {
     const g = round(ctxOf('camel', 1)).open()
     const all = g.strokes()
@@ -258,7 +270,8 @@ describe('the draw policy', () => {
     expect(end.view?.mode).toBe('done')
     g.settle()
     expect(g.d.end).toBe(true)
-    expect(g.d.save[0]).toMatchObject({ miss: true })
+    // one wrong mark that he put right himself is not a miss (Hebrew drawing judge)
+    expect(g.d.save[0]).toMatchObject({ miss: false })
     expect(g.tracked('draw-mark').map((x) => x.ok)).toEqual([false, true])
   })
 

@@ -131,7 +131,7 @@ export interface LadderPlan { fixed?: LadderFixed; marked: boolean; base?: { tar
  */
 export interface CauldronRound { target: Choice; boxes: Choice[]; gap: number; orbs: Choice[]; becomes?: Choice; noStage?: true }
 /** what the drawing's rounds are chosen by: his answers, his mix-ups of letters and his stage */
-export interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; stage: number; avoid?: string }
+export interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; stage: number; avoid?: string; held?: Record<string, number> }
 /**
  * A drawing round, for both courses: the letters he writes, one box each, left to right (Hebrew: the one letter of the
  * slot; English: the first letter of the heard word, or from stage 2 sometimes the whole three-letter word); `voice`, the

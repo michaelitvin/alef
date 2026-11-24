@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
 import { strokesOf, type Pt } from '../data/strokes'
-import { drawFeature, drawWords, marksFor, needsDemo, scriptOf, splitWord } from './draw'
+import { HOLD_VISITS, decayHeld, drawFeature, drawWords, holdAfter, marksFor, needsDemo, scriptOf, splitWord } from './draw'
 import { drawLayout } from './drawLayout'
 import { judgeMarks, markTargets, type Box, type MarkSpec } from './recognizer'
 
@@ -10,6 +10,46 @@ function seeded(seed: number) {
   let a = seed >>> 0
   return () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296 }
 }
+
+describe('drawing rounds at the last stage', () => {
+  const L = (w: ReturnType<typeof word>) => splitWord(w, 'print').letter
+  const lettersOf = (ws: ReturnType<typeof drawWords>) => ws.map(L)
+  const allLetters = [...new Set(WORDS.map(L))]
+  const f = (l: string) => drawFeature(l, 'print')
+  /** every letter seen 6 times; the ones in `missed` mostly wrong */
+  const tallyOf = (missed: string[]) => Object.fromEntries(allLetters.map((l) => [f(l), { seen: 6, wrong: missed.includes(l) ? 4 : 0 }]))
+  const recentOf = (missed: string[]) => Object.fromEntries(allLetters.map((l) => [f(l), missed.includes(l) ? 'oxxx' : 'oooo']))
+  it('a visit of 4 has 4 different letters', () => {
+    for (let s = 1; s < 40; s++) expect(new Set(lettersOf(drawWords({ rng: seeded(s), tallies: {}, recent: {}, confusions: {}, stage: 4 }, 4))).size).toBe(4)
+  })
+  it('the first word has his best letter', () => {
+    const missed = allLetters.filter((l) => l !== 'ב')
+    for (let s = 1; s < 20; s++) {
+      const ws = drawWords({ rng: seeded(s), tallies: tallyOf(missed), recent: recentOf(missed), confusions: {}, stage: 4 }, 4)
+      expect(L(ws[0])).toBe('ב')
+    }
+  })
+  it('at most 1 weak letter a visit', () => {
+    const weak = allLetters.slice(0, 5)
+    for (let s = 1; s < 40; s++) {
+      const ws = drawWords({ rng: seeded(s), tallies: tallyOf(weak), recent: recentOf(weak), confusions: {}, stage: 4 }, 4)
+      expect(lettersOf(ws).filter((l) => weak.includes(l)).length).toBeLessThanOrEqual(1)
+    }
+  })
+  it('a held letter is not offered; below stage 4 the hold and the weak limit are not used', () => {
+    for (let s = 1; s < 40; s++) expect(lettersOf(drawWords({ rng: seeded(s), tallies: {}, recent: {}, confusions: {}, stage: 4, held: { ג: 2, ב: 1 } }, 4))).not.toContain('ג')
+    let held = 0
+    for (let s = 1; s < 60; s++) if (lettersOf(drawWords({ rng: seeded(s), tallies: {}, recent: {}, confusions: {}, stage: 3, held: { ג: 2 } }, 4)).includes('ג')) held++
+    expect(held).toBeGreaterThan(0)
+  })
+  it('the hold: two misses in a row in either script hold the letter for 3 visits, then it is offered again', () => {
+    expect(holdAfter({}, 'ג', { [drawFeature('ג', 'hand')]: 'oxx' })).toEqual({ ג: HOLD_VISITS })
+    expect(holdAfter({}, 'ג', { [f('ג')]: 'xox' })).toEqual({})
+    let h: Record<string, number> = { ג: HOLD_VISITS }
+    for (let v = 1; v <= HOLD_VISITS; v++) { expect(h.ג).toBeGreaterThan(0); h = decayHeld(h) }
+    expect(h).toEqual({})
+  })
+})
 
 describe('drawing rounds', () => {
   it('3 words a visit, each with another first letter', () => {

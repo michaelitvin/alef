@@ -58,7 +58,7 @@ the subset only when the subset's mean predicted mistake rate is at most 0.25, s
 
 **D. Drawing at the 1-in-5 rule.**
 - The judge (Hebrew drawing, every stage): a round is a miss only when the hand helped him (after `DRAW_TRIES`) or he
-  made 2 or more wrong strokes or mark tries. One wrong stroke that he corrected himself counts as right. Reason: the
+  made 2 or more wrong strokes or mark tries. One wrong stroke that he corrected himself counts as right. (It applies at every stage, and to the Hebrew board only: the English Latin board keeps its own judge.) Reason: the
   adaptive picker (`drawWords`, `needsDemo`) and the 1-in-5 rule read this result; at 69% every letter looks equally
   weak, and the weights say nothing. `draw-done` keeps `wrongStrokes` for the parent.
 - A visit's words (`drawWords`, at the last stage): the first word has his best letter (the lowest predicted `dr:`),

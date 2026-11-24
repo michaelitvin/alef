@@ -108,6 +108,13 @@ describe('Spell Quest store', () => {
     expect(s.totalStars).toBe(42)
     expect(s.settings.drawing).toBe(true)
   })
+  it('a save without drawHeld loads with {}, and the field is kept once set', async () => {
+    localStorage.setItem('alef-spellquest-he', JSON.stringify({ state: { totalStars: 42 }, version: 8 }))
+    await useSpellQuestStore.persist.rehydrate()
+    expect(useSpellQuestStore.getState().drawHeld ?? {}).toEqual({})
+    useSpellQuestStore.getState().setDrawHeld({ ג: 3 })
+    expect(useSpellQuestStore.getState().drawHeld).toEqual({ ג: 3 })
+  })
   it('an older save runs every step: the stroke marks are cleared and the coins moved over', () => {
     const out = migrateSave({ totalStars: 25, strokeMarks: { 'ה-print': 'ok', 'ש-hand': 'ok' } }, 3)
     expect(out.strokeMarks).toEqual({ 'ש-hand': 'ok' })

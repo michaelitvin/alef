@@ -325,7 +325,9 @@ export function stepDraw(state: DrawState, ev: DrawEvent): DrawStep {
     show({ mode: 'done', glow: undefined, demo: undefined })
     r.sfx.push('drawn')
     r.drawn = true
-    const clean = s.wrongStrokes === 0 && !s.helped && !s.markWrong
+    // (Hebrew, every stage: a round is a miss only when the hand helped him or he made 2 or more wrong strokes or mark
+    // tries; one wrong try that he put right himself counts as right: the 1-in-5 rule. `draw-done` keeps `wrongStrokes`.)
+    const clean = s.latin ? s.wrongStrokes === 0 && !s.helped && !s.markWrong : !s.helped && s.wrongStrokes + s.markTries < 2
     // (the Latin board, English: a round the hand finished for him is `helped`, not a miss, as on the spell book; the
     // Hebrew drawing is unchanged)
     const helpedOnly = !!s.latin && s.helped

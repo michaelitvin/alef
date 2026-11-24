@@ -61,7 +61,33 @@ export function marksFor(w: Word, stage: number): MarkSpec[] {
 /** Print and handwriting are two drawing minigames (spec: one duel, Part 5): the screen decides the script. */
 export const scriptOf = (screen: 'draw' | 'draw-hand'): Script => (screen === 'draw-hand' ? 'hand' : 'print')
 
-interface DrawCtx { rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; avoid?: string }
+interface DrawCtx {
+  rng: Rng; tallies: Record<string, Tally>; recent: Record<string, string>; confusions: Conf; avoid?: string
+  /** the last stage's rehearse picks (stage 4); below it the picks are as before */
+  stage?: number
+  /** letter → drawing visits left that it is held back (the save's `drawHeld`) */
+  held?: Record<string, number>
+}
+
+/** The last stage (`HEBREW_STAGES.maxStage`): the visit's words are picked for the 1-in-5 rule. */
+const REHEARSE_FROM = 4
+/** a letter whose last 2 rounds were misses is held back for this many drawing visits, then offered again */
+export const HOLD_VISITS = 3
+const SCRIPTS: Script[] = ['print', 'hand']
+const tail = (recent: Record<string, string>, letter: string, script: Script, n: number) => (recent[drawFeature(letter, script)] ?? '').slice(-n)
+
+/** After a drawn round: the held letters with `letter` added (HOLD_VISITS) when its last 2 rounds in a script were misses. */
+export function holdAfter(held: Record<string, number>, letter: string, recent: Record<string, string>): Record<string, number> {
+  const two = SCRIPTS.some((sc) => tail(recent, letter, sc, 2) === 'xx')
+  return two ? { ...held, [letter]: HOLD_VISITS } : held
+}
+
+/** When a visit's words are picked: every held letter has one visit less to wait (a letter at 0 is offered again). */
+export function decayHeld(held: Record<string, number>): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const [l, n] of Object.entries(held)) if (n > 1) out[l] = n - 1
+  return out
+}
 
 /**
  * The words of a visit: from WORDS (each has a picture and its spoken word), more often those whose first letter he mixes
@@ -76,19 +102,38 @@ export function drawWords(ctx: DrawCtx, n = DRAW_WORDS): Word[] {
   const pool = WORDS.map((w) => {
     const letter = splitWord(w, 'print').letter
     const p = predict([drawFeature(letter, 'print'), drawFeature(letter, 'hand')].filter((f) => ctx.tallies[f]), ctx.tallies, ctx.recent)
-    return { w, letter, weight: 1 + Math.min(3, mixups(w.first.item) / 2) + 6 * p }
+    return { w, letter, weight: 1 + Math.min(3, mixups(w.first.item) / 2) + 6 * p, p }
   })
   const out: Word[] = []
   const used = new Set<string>(ctx.avoid ? [ctx.avoid] : [])
+  const rehearse = (ctx.stage ?? 0) >= REHEARSE_FROM
+  const weak = (letter: string) => SCRIPTS.some((sc) => tail(ctx.recent, letter, sc, 3).includes('x'))
+  let weakPicked = 0
   while (out.length < n) {
-    const left = pool.filter((x) => !used.has(x.letter))
+    let left = pool.filter((x) => !used.has(x.letter))
+    if (rehearse) {
+      // held letters wait; at most 1 weak letter a visit (each rule gives way when it would leave no word)
+      const kept = left.filter((x) => !(ctx.held?.[x.letter] ?? 0))
+      if (kept.length) left = kept
+      const calm = left.filter((x) => !(weakPicked && weak(x.letter)))
+      if (calm.length) left = calm
+    }
     const from = left.length ? left : pool.filter((x) => !out.includes(x.w))
+    if (rehearse && !out.length) {
+      // the first word: his best letter (the lowest predicted mistake rate)
+      const best = Math.min(...from.map((x) => x.p))
+      const pick = from.filter((x) => x.p === best)
+      const first = pick[Math.floor(ctx.rng() * pick.length)]
+      out.push(first.w); used.add(first.letter); if (weak(first.letter)) weakPicked++
+      continue
+    }
     const total = from.reduce((a, x) => a + x.weight, 0)
     let r = ctx.rng() * total
     let pick = from[from.length - 1]
     for (const x of from) { r -= x.weight; if (r <= 0) { pick = x; break } }
     out.push(pick.w)
     used.add(pick.letter)
+    if (rehearse && weak(pick.letter)) weakPicked++
   }
   return out
 }

@@ -23,7 +23,7 @@ import type { BlendPart, BlendPlan, Course, CourseId, DoorKey, DoorRound, DrawIt
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, splitMarks } from './logic/recognizer'
-import { marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
+import { decayHeld, holdAfter, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, latinLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView, type LatinRound } from './policies/draw'
 import { spellVisit, stepSpell, type SpellAnswer, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellView } from './policies/spell'
@@ -1773,7 +1773,12 @@ export class RunController {
     this.resuming = false
     this.answered = false
     const st = this.save.read()
-    this.drawPlan ??= this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters, stage: this.stage })
+    if (!this.drawPlan) {
+      const held = st.drawHeld ?? {}
+      // n = the visit's length (a visit of 4 must not repeat a word); the last stage's held letters wait one visit less
+      this.drawPlan = this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters, stage: this.stage, held }, this.visitLen || undefined)
+      if (this.course.id === 'he' && this.stage >= this.course.stages.maxStage && Object.keys(held).length) this.save.setDrawHeld(decayHeld(held))
+    }
     const item = this.drawPlan[this.roundInScreen % this.drawPlan.length]
     this.drawCur = item
     const v = item.alphabet === 'latin' ? this.latinDraw(item) : this.hebrewDraw(item.word!, script)
@@ -1873,7 +1878,17 @@ export class RunController {
    */
   private drawAnswer(features: string[], miss: boolean, helped = false) {
     const asked = this.drawCur?.asked
-    if (!asked) { this.save.recordAnswer({ features, miss, newStage: false, ...(helped ? { helped } : {}) }); return }
+    if (!asked) {
+      this.save.recordAnswer({ features, miss, newStage: false, ...(helped ? { helped } : {}) })
+      // the last stage: a letter whose last 2 rounds were misses sits out the next drawing visits
+      const letter = this.drawCur?.alphabet === 'hebrew' ? this.drawCur.letters[0] : undefined
+      if (letter && miss && this.stage >= this.course.stages.maxStage) {
+        const st = this.save.read()
+        const held = holdAfter(st.drawHeld ?? {}, letter, st.recent)
+        if (held !== (st.drawHeld ?? {})) this.save.setDrawHeld(held)
+      }
+      return
+    }
     const { passed } = this.save.recordAnswer({
       features: [...new Set([...features, ...this.course.rounds.features(asked, 'draw')])], miss, asked,
       newStage: this.course.rounds.isNewStageChoice(this.stage, asked), ...(helped ? { helped } : {}),

@@ -78,6 +78,8 @@ export interface SpellQuestSave {
   strokeMarks: Record<string, 'ok' | 'wrong'>
   /** his drawing rounds so far (telemetry only: the screen now decides print or handwriting) */
   drawRounds: number
+  /** letter → drawing visits left that the letter is held back (its last 2 rounds were misses); missing in an old save: {} */
+  drawHeld: Record<string, number>
   merchant: MerchantSave
   /** checkpoints since the merchant's last visit, across runs (a declined visit counts as a visit) */
   checkpointsSinceVisit: number
@@ -124,6 +126,8 @@ export interface SpellQuestActions {
   setSettings: (p: Partial<SpellQuestSettings>) => void
   markStrokes: (key: string, mark: 'ok' | 'wrong' | null) => void
   noteDrawRound: () => void
+  /** the letters held back from the drawing visits (logic/draw: holdAfter, decayHeld) */
+  setDrawHeld: (h: Record<string, number>) => void
   noteMerchant: (e: 'visit' | 'purchase' | 'decline' | 'short' | 'over' | 'hint') => void
   setMerchantFlag: (k: 'demoSeen' | 'undoShown') => void
   /** a purchase: `exactNoHint` = exact at the first try with no hint; `hinted` = he used the hint (the level adapts) */
@@ -156,7 +160,7 @@ export interface SpellQuestActions {
 
 const fresh = (): Omit<SpellQuestSave, 'settings' | 'strokeMarks'> => ({
   stage: START_STAGE, tallies: {}, recent: {}, confusions: { letters: {}, vowels: {}, syllables: {} }, pace: 1, lastEnded: null,
-  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0,
+  demosSeen: [], dotIntrosSeen: [], hintsSeen: {}, mistakes: [], roundNo: 0, runs: 0, bestRun: 0, crystals: 0, totalStars: 0, coins: 0, praiseHeard: {}, drawRounds: 0, drawHeld: {},
   bossesBeaten: [], bossNewHeard: [], lastBoss: null, potionIntroSeen: false,
   merchant: { ...FRESH_MERCHANT }, checkpointsSinceVisit: NEVER_VISITED,
   towerWave: 1, towerVisits: 0, towerOwed: [], screensOpen: false, towerTail: '', towerImported: false, cycleNo: 0, broomSessions: 0,
@@ -230,6 +234,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
     return { strokeMarks: m }
   }),
   noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
+  setDrawHeld: (h) => set({ drawHeld: h }),
   noteMerchant: (e) => set((s) => {
     const m = { ...FRESH_MERCHANT, ...s.merchant }
     const key = ({ visit: 'visits', purchase: 'purchases', decline: 'declines', short: 'short', over: 'over', hint: 'hints' } as const)[e]
