@@ -296,18 +296,20 @@ export function createTelemetry(key: string, { game, about }: TelemetryOptions) 
           json = openJson(all(), sealed)
         }
       }
-      const out = all()
       // A full storage: never another key's space (a save is never evicted). A long open chunk keeps its events in
-      // memory and the stored one stays as it was, until a seal shrinks it; a short one gives up its own oldest events.
+      // memory and the stored one stays as it was, until a seal shrinks it; a short one gives up this page's own oldest
+      // events, never another session's (those wait for their seal, as in the hard-cap loop above).
       for (let attempt = 0; attempt < 4; attempt++) {
         try {
           localStorage.setItem(key, json)
           break
         } catch {
           if (json.length > OPEN_SEAL_CHARS) { scheduleSeal(); return }
-          if (out.length <= 1) return
-          out.splice(0, Math.ceil(out.length / 2))
-          json = openJson(out, sealed)
+          const own = all().filter((e) => e.s === SESSION)
+          if (own.length <= 1) return
+          const drop = new Set(own.slice(0, Math.ceil(own.length / 2)))
+          mem = all().filter((e) => !drop.has(e))
+          json = openJson(all(), sealed)
         }
       }
       if (json.length > OPEN_SEAL_CHARS) scheduleSeal()

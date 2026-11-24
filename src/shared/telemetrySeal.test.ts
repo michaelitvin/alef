@@ -131,6 +131,18 @@ describe('sealing the open chunk', () => {
     expect(open().events).toHaveLength(151)
   })
 
+  it('a quota error on a short open chunk drops only this page\'s oldest events, never another session\'s', () => {
+    const other = session('older-page', NOW - 10 * MIN, 5)
+    real.setItem(KEY, openJson(other, []))
+    const t = createTelemetry(KEY, { game: 'spellquest-he' })
+    for (let i = 0; i < 6; i++) t.track('x', { i })
+    faulty((k, n) => k === KEY && n === 0)
+    t.flush()
+    const stored = open().events
+    expect(str(stored.filter((e) => e.s !== SESSION))).toBe(str(other))
+    expect(stored.filter((e) => e.s === SESSION).map((e) => e.i)).toEqual([3, 4, 5])
+  })
+
   it('two instances on one log (one seals, the other flushes its older view after): the sealed session is neither lost nor doubled', async () => {
     const stale = session('old-1', NOW - 40 * MIN, 150)
     real.setItem(KEY, openJson(stale, []))
