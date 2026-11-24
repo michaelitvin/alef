@@ -1,8 +1,7 @@
 // End of a run (spec 2026-11-07: an end screen that pulls him back; one duel: after the defeat scene): his coin balance,
 // the crystals he won, the trophy of a boss beaten in this run, the next boss he has not beaten as a dark
-// silhouette, the points of this run and his best, a big glowing play button, and in the corner the home button that needs
-// a 2 s hold (a plain home button next to play again took him out of the game by mistake; the parent, 2026-11-14: "there
-// is no way out of the game and back to the main menu"). A session from the path has no home button: it goes home by
+// silhouette, the points of this run and his best, a big glowing play button, and in the corner the home button (a plain
+// tap; the parent: "If the kid wants out don't stop him." Before, a 2 s hold). A session from the path has no home button: it goes home by
 // itself. The voice says the run-end line (and the new-best line) — neither
 // praise for a loss nor disappointment (rule).
 import { useEffect, useRef } from 'react'
@@ -22,7 +21,7 @@ export function Summary({ over, onAgain, onHome, onExit }: {
   over: { score: number; crystals: number; best: boolean; bosses?: BossKind[]; startStars?: number; session?: boolean }; onAgain: () => void
   /** a session from the path: no play button; home by itself after its line (once, also after a pause) */
   onHome?: () => void
-  /** a full run: the home button (a 2 s hold) in the corner */
+  /** a full run: the home button (a tap) in the corner */
   onExit?: () => void
 }) {
   // the open course's voice, log and save (English Spell Quest has its own purse and bests)

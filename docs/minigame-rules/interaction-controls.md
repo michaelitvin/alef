@@ -14,17 +14,26 @@
 ## The way home and the parent gate
 
 - Every game has one way home, and it goes to alef's home screen, not to the game's own cover. Use the shared house
-  (`src/shared/HomeButton.tsx`): the same look, the same hold, the same corner, on the cover, each play screen, the pause
-  cover and the end screen (a session from the home screen's path has none: it goes home by itself).
-  - It needs a 2 s hold, with a ring that fills. A tap must never leave: a tap or a short press only shows how far the
-    ring got. It is the same held button as the parent button.
-  - Put it in the left corner of the top bar, as the first item (where a back button usually is), and on the end
-    screen in the same corner. The hold keeps it safe next to the speaker.
-  Reason: a plain home button takes the child out by mistake, and with no way out at all the parent cannot leave a run.
-  Alef's home screen is the hub of all the games, and one way home is one thing to learn.
+  (`src/shared/HomeButton.tsx`): the same look, the same tap, the same corner, on the cover, the pause screen and the end
+  screen (a session from the home screen's path has none: it goes home by itself).
+  - A tap on the house leaves at once. Do not add a hold, a ring, or a question.
+  - Put it in the left corner of the screen (in the top bar, as the first item, where a back button usually is), and
+    on the end screen in the same corner.
+- During play, the top-left corner holds a pause button, not the house (`PauseButton` in `src/shared/HomeButton.tsx`:
+  two cream bars, the same round size and corner as the house, no text).
+  - A tap pauses the run and shows the game's pause screen, the same one that shows when the page is hidden. The pause
+    screen has the house and the play button.
+  - Play continues at once. The house leaves at once.
+  - Do not save when he pauses or leaves. If he goes home from the pause screen, the round is lost. If he continues
+    right away, nothing is lost.
+  Reason: the parent: "just pause like now without saving. If he continues right away then ok, otherwise the round may
+  be lost." and "the button leading to the pause screen should be pause, not home". A house in play looked like a
+  way out that keeps the game; a pause button says what happens.
   Example (Hebrew Spell Quest): a home button next to "play again" took the child to the old tower twice; he did not know what he
   pressed. The parent asked for the house on the left, not in the right corner after the counts.
-  Example (clock): a plain-tap home button went back to the clock's own door; the parent: "make consistent between games".
+  Example (clock): a home button went back to the clock's own door; the parent: "make consistent between games".
+  Reason for one way home: the parent: "If the kid wants out don't stop him." Alef's home screen is the hub of all the
+  games, and one way home is one thing to learn.
 - Every way into a parent screen (settings, progress, export, developer tools) must need a 2 s hold and then the
   parent's year of birth on a number pad. Accept any adult year and do not store it. A wrong year goes back to where the
   child was, with no message.

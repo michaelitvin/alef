@@ -1,6 +1,6 @@
 // The start screen shows the game's world and its learning content (rule): the wizard on his broom and glowing syllable
-// orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and the held house home to alef
-// (a 2 s hold, top left, the same in every game: src/shared/HomeButton.tsx).
+// orbs drifting by, a big play button, a parent button behind the parent gate (a 2 s hold, then the year of birth), and the house home to alef
+// (a tap, top left, the same in every game: src/shared/HomeButton.tsx).
 import { Glyph, GlyphDefs, latinOrbPx } from '../components/Glyph'
 import { PlayIcon } from '../components/icons'
 import { CoinCount } from '../components/CoinCount'

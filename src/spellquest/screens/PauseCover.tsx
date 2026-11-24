@@ -1,5 +1,5 @@
 // While paused, an opaque cover hides the game (rule): the wizard and a big play button; in a full run also the home button
-// (a 2 s hold) in the top bar's corner, where it is during the game.
+// (a tap) in the top bar's corner, where it is during the game.
 import { useWizardArt } from '../course/CourseContext'
 import { PlayIcon } from '../components/icons'
 import { HomeButton } from '../components/TopBar'

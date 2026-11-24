@@ -1,6 +1,6 @@
-// A button that acts only after a 2 s hold (rule: a way out on a child screen needs a hold). A ring fills while it is
+// A button that acts only after a 2 s hold (rule: the parent screens need a hold). A ring fills while it is
 // held; a tap or a short press only shows how far the ring got (the hint), then it empties again. Used by every game's
-// parent button (through the parent gate) and by Spell Quest's home button.
+// parent button (through the parent gate). The home button is a plain tap (HomeButton.tsx).
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import './holdButton.css'
 

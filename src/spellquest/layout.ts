@@ -12,7 +12,7 @@ export const BAR_TOP_PX = 8
 export const BAR_H_PX = 64
 /** free space between the band and the stage (the go-on button's pulse grows into it) */
 export const BAR_GAP_PX = 6
-/** the items in the bar (spellquest.css): the round buttons, a heart, the go-on button (as tall as the band), the held home button */
+/** the items in the bar (spellquest.css): the round buttons, a heart, the go-on button (as tall as the band), the home button */
 export const BAR_ITEMS_PX = { button: 60, heart: 40, next: BAR_H_PX, home: 56 }
 /** the go-on button's pulse (d2-pulse) */
 export const NEXT_PULSE = 1.08
@@ -29,7 +29,7 @@ const BAR_LEFT_END_PX = BAR_SIDE_PX + 2 * BAR_ITEMS_PX.button + BAR_ITEM_GAP_PX
  */
 const BAR_COUNTS_PX = 438
 /**
- * The home button (a 2 s hold; rule: a way out on a child screen needs a hold) is the bar's first item on the left, in
+ * The home button (a plain tap) is the bar's first item on the left, in
  * the corner before the speaker (the parent: the home button belongs on the left): its slot (the button and a gap) moves
  * the speaker and the hint button to the right. A full run only; it is not there in a path session (that goes home by
  * itself) or where the content rises into the band (homeInBar).
@@ -86,7 +86,7 @@ interface BarItems {
   nextSide: boolean
   /** the counts at their widest */
   counts: Span
-  /** the held home button, in the left corner before the speaker (a full run only) */
+  /** the home button, in the left corner before the speaker (a full run only) */
   home?: Span
   /** the left group: the home button (if shown) to the hint button (the go-on button in the hint's place is no wider) */
   left: Span
@@ -197,7 +197,7 @@ export function layoutVars(size?: { w: number; h: number }, top = 0, into?: 'ful
 const LEFT_INTO_BAND = ['tower']
 
 /**
- * The held home button shows in the bar unless the screen's content rises into the band (layoutVars' `into`: the ladder's
+ * The home button shows in the bar unless the screen's content rises into the band (layoutVars' `into`: the ladder's
  * full view, or the doors' band box on a phone on its side; LEFT_INTO_BAND: the tower on a phone on its side). There the
  * band's free part is the content's (the parent's pick): the doors and the ladder are placed in the gap right of the left
  * group without the home button (bandGap), and the tower's wizard stands in the band's left end, so the button in the

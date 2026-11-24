@@ -66,7 +66,7 @@ export default function ClockApp({ goHome = defaultGoHome }: { goHome?: () => vo
       return
     }
     const start = (e?: PointerEvent) => {
-      // the parent-settings button, its number pad and the held house lead away from the door: their presses start no music
+      // the parent-settings button, its number pad and the house lead away from the door: their presses start no music
       if (e?.target instanceof Element && e.target.closest('.ck-parent-btn, [data-parent-gate], .home-btn')) return
       window.removeEventListener('pointerdown', start)
       tapped.current = true
@@ -78,7 +78,7 @@ export default function ClockApp({ goHome = defaultGoHome }: { goHome?: () => vo
     window.addEventListener('pointerdown', start)
     return () => window.removeEventListener('pointerdown', start)
   }, [door, screen])
-  // the held house (the door, the workshop, its pause cover): the workday has ended (Workshop: its exit), the game leaves
+  // the house (the door, the workshop, its pause cover): the workday has ended (Workshop: its exit), the game leaves
   // to alef's home screen, as Spell Quest does; nothing of the game stays mounted meanwhile (the workshop's play time is
   // written as it unmounts)
   const leave = () => {

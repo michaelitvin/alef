@@ -1,10 +1,10 @@
-// The clock's way home (rule: a way out of the game on a child screen needs a 2 s hold): the same held house as Spell Quest,
-// in the top-left corner of the door, the workshop (also during the bonus game and on the day summary) and the pause
-// cover. A tap never leaves; a 2 s hold leaves to alef's home screen, the hub of all the games.
+// The clock's way home (rule: a plain tap, no hold): the same house as Spell Quest, in the top-left corner of the door,
+// the day summary and the pause cover (in a round and the bonus game that corner holds the pause button). A tap leaves at once to alef's
+// home screen, the hub of all the games.
 import { act, fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { state } = vi.hoisted(() => ({ state: { phase: 'enter', paused: false, exits: 0 } }))
+const { state } = vi.hoisted(() => ({ state: { phase: 'enter', paused: false, exits: 0, pauses: 0, resumes: 0 } }))
 vi.mock('../useWorkday', async () => {
   const { CUSTOMERS } = await import('../logic/workday')
   return {
@@ -12,7 +12,7 @@ vi.mock('../useWorkday', async () => {
       view: { phase: state.phase, plan: { exercise: 'find', scaffolds: {}, time: { h: 3, m: 0 } }, customer: CUSTOMERS[0], mood: 'idle',
         gearsToday: 4, fixedKinds: [], explain: null, burst: false, awaitNext: false },
       choose: () => {}, submit: () => {}, replay: () => {}, snap: () => {}, next: () => {}, explainAgain: () => {},
-      bonusDone: () => {}, bonusTry: () => {}, again: () => {}, paused: state.paused, resume: () => {},
+      bonusDone: () => {}, bonusTry: () => {}, again: () => {}, paused: state.paused, pause: () => { state.pauses++ }, resume: () => { state.resumes++ },
       exit: () => { state.exits++ },
     }),
   }
@@ -22,90 +22,75 @@ vi.mock('../assets/preload', () => ({ preloadClockAssets: preload }))
 import ClockApp from '../ClockApp'
 import { Workshop } from './Workshop'
 import { Cover } from './Cover'
-import { HOLD_MS } from '../../shared/HoldButton'
 import { clockTelemetry } from '../telemetry'
 import { setGender, clearGender } from '../../shared/player'
 import { useClockStore } from '../store'
 import { installFakeAudio } from '../../shared/gameAudio/fakePlayer'
 
 installFakeAudio()
-const HOME = '[aria-label="home (hold)"]'
+const HOME = '[aria-label="home"]'
+const PAUSE = '[aria-label="pause"]'
 
-/** a press of `ms` on the button, then the finger goes up */
-function press(btn: Element, ms: number) {
-  fireEvent.pointerDown(btn)
-  act(() => { vi.advanceTimersByTime(ms) })
-  fireEvent.pointerUp(btn)
-}
-
-describe('the clock\'s held house', () => {
-  beforeEach(() => { vi.useFakeTimers(); state.phase = 'enter'; state.paused = false; state.exits = 0 })
+describe('the clock\'s house', () => {
+  beforeEach(() => { vi.useFakeTimers(); state.phase = 'enter'; state.paused = false; state.exits = 0; state.pauses = 0; state.resumes = 0 })
   afterEach(() => { vi.useRealTimers() })
 
-  it('is Spell Quest\'s house: the shared held button with the same glyph, no text, no link', () => {
-    const { container } = render(<Workshop onExit={() => {}} />)
+  it('is Spell Quest\'s house: the shared plain button with the same glyph, no text, no link', () => {
+    const { container } = render(<Cover onPlay={() => {}} onHome={() => {}} onParent={() => {}} />)
     const btn = container.querySelector(HOME)!
     expect(btn).not.toBeNull()
     expect(btn.tagName).toBe('BUTTON')
-    expect(btn.classList.contains('hold-btn')).toBe(true)
+    expect(btn.classList.contains('hold-btn')).toBe(false)
     expect(btn.classList.contains('home-btn')).toBe(true)
     expect(btn.querySelector('[data-icon="home"]')).not.toBeNull()
     expect(btn.textContent).toBe('')
-    // the old plain home button is gone
-    expect(container.querySelector('[aria-label="home"]')).toBeNull()
   })
 
-  it('in the workshop: a tap or a short press only shows the hint and never leaves', () => {
+  it('in a round the corner holds the pause button, not the house: a tap pauses and does not leave', () => {
     const onExit = vi.fn()
     const { container } = render(<Workshop onExit={onExit} />)
-    const btn = container.querySelector(HOME)!
-    press(btn, 300)
-    expect(btn.getAttribute('data-hold')).toBe('hint')
-    act(() => { vi.advanceTimersByTime(HOLD_MS * 2) })
+    expect(container.querySelector(HOME)).toBeNull()
+    const btn = container.querySelector(PAUSE)!
+    expect(btn.classList.contains('home-btn')).toBe(true)
+    expect(btn.querySelector('[data-icon="pause"]')).not.toBeNull()
+    expect(btn.textContent).toBe('')
     fireEvent.click(btn)
-    fireEvent.pointerDown(btn)
-    act(() => { vi.advanceTimersByTime(HOLD_MS - 100) })
-    fireEvent.pointerLeave(btn)
-    act(() => { vi.advanceTimersByTime(HOLD_MS) })
-    expect(onExit).not.toHaveBeenCalled()
+    expect(state.pauses).toBe(1)
     expect(state.exits).toBe(0)
+    expect(onExit).not.toHaveBeenCalled()
   })
 
-  it('in the workshop: a 2 s hold ends the workday (its exit), then leaves', () => {
+  it('the pause cover: play resumes, the house ends the workday (its exit), then leaves', () => {
+    state.paused = true
     const onExit = vi.fn(() => { expect(state.exits).toBe(1) })
     const { container } = render(<Workshop onExit={onExit} />)
-    fireEvent.pointerDown(container.querySelector(HOME)!)
-    act(() => { vi.advanceTimersByTime(HOLD_MS) })
+    expect(container.querySelector(`.ck-workshop > ${PAUSE}`)).toBeNull()
+    fireEvent.click(container.querySelector('.ck-pause [aria-label="play"]')!)
+    expect(state.resumes).toBe(1)
+    fireEvent.click(container.querySelector(`.ck-pause ${HOME}`)!)
     expect(onExit).toHaveBeenCalledTimes(1)
   })
 
-  it('it is on every child screen of the workday: a round, the bonus game, the day summary and the pause cover', () => {
-    for (const [phase, paused] of [['enter', false], ['bonus', false], ['summary', false], ['enter', true]] as const) {
+  it('the pause button is on a round and the bonus game; the day summary keeps the house', () => {
+    for (const [phase, pause] of [['enter', true], ['bonus', true], ['summary', false]] as const) {
       state.phase = phase
-      state.paused = paused
       const onExit = vi.fn()
       const { container, unmount } = render(<Workshop onExit={onExit} />)
-      const homes = container.querySelectorAll(HOME)
-      // one house only: on the pause cover it is the cover's own (the workshop's is under the opaque cover)
-      const btn = paused ? container.querySelector(`.ck-pause ${HOME}`) : homes[0]
-      expect(btn, `${phase}${paused ? ' paused' : ''}`).not.toBeNull()
-      fireEvent.pointerDown(btn!)
-      act(() => { vi.advanceTimersByTime(HOLD_MS) })
-      expect(onExit, `${phase}${paused ? ' paused' : ''}`).toHaveBeenCalledTimes(1)
+      expect(container.querySelector(PAUSE) !== null, phase).toBe(pause)
+      if (!pause) {
+        fireEvent.click(container.querySelector(HOME)!)
+        expect(onExit).toHaveBeenCalledTimes(1)
+      }
       unmount()
     }
   })
 
-  it('on the door: a tap does not leave, a 2 s hold does; it replaces the plain link', () => {
+  it('on the door: a tap leaves; it replaces the plain link', () => {
     const onHome = vi.fn()
     const { container } = render(<Cover onPlay={() => {}} onParent={() => {}} onHome={onHome} />)
     expect(container.querySelector('a[href]')).toBeNull()
     const btn = container.querySelector(HOME)!
-    press(btn, 300)
     fireEvent.click(btn)
-    expect(onHome).not.toHaveBeenCalled()
-    fireEvent.pointerDown(btn)
-    act(() => { vi.advanceTimersByTime(HOLD_MS) })
     expect(onHome).toHaveBeenCalledTimes(1)
   })
 
@@ -120,19 +105,22 @@ describe('the clock\'s held house', () => {
 })
 
 describe('the clock leaves to alef\'s home, the way Spell Quest does', () => {
-  beforeEach(() => { setGender('boy', 'parent'); useClockStore.setState({ welcomed: true }); state.phase = 'enter'; state.paused = false; state.exits = 0 })
+  beforeEach(() => { setGender('boy', 'parent'); useClockStore.setState({ welcomed: true }); state.phase = 'enter'; state.paused = false; state.exits = 0; state.pauses = 0; state.resumes = 0 })
   afterEach(() => { clearGender(); vi.useRealTimers() })
 
-  it('from the workshop: the hold ends the workday, writes the log, and goes to alef\'s home (not the clock\'s door)', async () => {
+  it('from the workshop: pause, then the cover\'s house ends the workday, writes the log, and goes to alef\'s home (not the clock\'s door)', async () => {
     const flush = vi.spyOn(clockTelemetry, 'flush')
     const goHome = vi.fn()
-    const { container } = render(<ClockApp goHome={goHome} />)
+    const { container, rerender } = render(<ClockApp goHome={goHome} />)
     fireEvent.click(container.querySelector('[aria-label="play"]')!)
     await act(async () => { await new Promise((r) => setTimeout(r, 50)) })
     expect(container.querySelector('.ck-workshop')).not.toBeNull()
-    vi.useFakeTimers()
-    fireEvent.pointerDown(container.querySelector(HOME)!)
-    act(() => { vi.advanceTimersByTime(HOLD_MS) })
+    fireEvent.click(container.querySelector(PAUSE)!)
+    expect(state.pauses).toBe(1)
+    expect(goHome).not.toHaveBeenCalled()
+    state.paused = true
+    rerender(<ClockApp goHome={goHome} />)
+    fireEvent.click(container.querySelector(`.ck-pause ${HOME}`)!)
     expect(state.exits).toBe(1)
     expect(flush).toHaveBeenCalled()
     expect(goHome).toHaveBeenCalledTimes(1)
@@ -143,15 +131,11 @@ describe('the clock leaves to alef\'s home, the way Spell Quest does', () => {
     flush.mockRestore()
   })
 
-  it('from the door: the hold goes to alef\'s home; a tap does not', () => {
-    vi.useFakeTimers()
+  it('from the door: a tap goes to alef\'s home', () => {
     const goHome = vi.fn()
     const { container } = render(<ClockApp goHome={goHome} />)
     const btn = container.querySelector(`.ck-cover ${HOME}`)!
-    press(btn, 300)
-    expect(goHome).not.toHaveBeenCalled()
-    fireEvent.pointerDown(btn)
-    act(() => { vi.advanceTimersByTime(HOLD_MS) })
+    fireEvent.click(btn)
     expect(goHome).toHaveBeenCalledTimes(1)
   })
 })

@@ -12,7 +12,7 @@ import { Customer } from '../components/Customer'
 import { benchSide } from '../assets/facing'
 import { PauseCover } from '../components/PauseCover'
 import { GearPileIcon, HintIcon, PlayIcon } from '../components/icons'
-import { HomeButton } from '../../shared/HomeButton'
+import { HomeButton, PauseButton } from '../../shared/HomeButton'
 import { clockTelemetry } from '../telemetry'
 import type { RoundPlan } from '../logic/types'
 import { StreakBurst } from '../components/StreakBurst'
@@ -49,9 +49,9 @@ function useBenchBox() {
   return { ref, box, portrait: port }
 }
 
-/** `onExit`: the held house (a 2 s hold) was held: the workday has ended (its exit), the game leaves to alef's home */
+/** `onExit`: the house was tapped: the workday has ended (its exit), the game leaves to alef's home */
 export function Workshop({ onExit }: { onExit: () => void }) {
-  const { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume, exit } = useWorkday()
+  const { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, pause, resume, exit } = useWorkday()
   usePlaytime('clock', !paused)
   const gears = useClockStore((s) => s.gears)
   const workdays = useClockStore((s) => s.workdays)
@@ -78,12 +78,14 @@ export function Workshop({ onExit }: { onExit: () => void }) {
   const hintButton = !!hint && !hintOn && (view.phase === 'ask' || view.phase === 'answer')
   const openHint = () => { setHintPlan(plan); clockTelemetry.track('hint', { hint, time: `${plan.time.h}-${plan.time.m}`, exercise: plan.exercise }) }
   const isSet = !['find', 'what', 'digitalPick'].includes(plan.exercise)
-  // the way home (rule: a 2 s hold, top-left corner): in a round, the bonus game, the day summary and the pause cover
+  // the way home (rule: a plain tap, top-left corner): the pause cover's house (in a round and the bonus game the pause button is in its place; the day summary keeps the house)
   const home = () => { exit(); onExit() }
 
   return (
     <div className="ck-root ck-workshop" data-phase={view.phase}>
-      {!paused && <HomeButton className="ck-home" onHome={home} />}
+      {!paused && (view.phase === 'summary'
+        ? <HomeButton className="ck-home" onHome={home} />
+        : <PauseButton className="ck-home" onPause={pause} />)}
       {/* the top bar's right end: the hint button (when there is a hint to ask for) beside the gears, above the bench, so it
           never covers the question (the parent 2026-10-17: under the gears it hid text) */}
       <div className="ck-topright">

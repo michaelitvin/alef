@@ -64,9 +64,9 @@ describe('Bonus', { timeout: 30000 }, () => {
 })
 
 describe('Cover', () => {
-  it('has the held SVG house to alef\'s home (no link, no text): see home.test.tsx', () => {
+  it('has the SVG house to alef\'s home (no link, no text): see home.test.tsx', () => {
     const { getByLabelText } = render(<Cover onPlay={() => {}} onParent={() => {}} onHome={() => {}} />)
-    const home = getByLabelText('home (hold)')
+    const home = getByLabelText('home')
     expect(home.getAttribute('href')).toBeNull()
     expect(home.querySelector('svg')).not.toBeNull()
     expect(home.textContent).toBe('')

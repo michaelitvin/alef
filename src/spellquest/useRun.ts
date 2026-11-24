@@ -26,6 +26,8 @@ export function useRun(opts: RunOpts) {
     onNext: () => c.next(),
     onReplay: () => c.replay(),
     onHint: () => c.hint(),
+    /** the pause button (a tap): the same pause as a hidden page */
+    pause: () => c.pause(),
     resume: () => c.resume(),
     /** he held the home button: the run stops (RunController.exit) */
     exit: () => c.exit(),

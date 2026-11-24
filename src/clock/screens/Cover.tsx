@@ -1,5 +1,5 @@
 // The shop door: one big cuckoo clock showing the real time, its cuckoo popping out to greet him, the play button hanging
-// under it like a weight, two customers waiting. No text (rule). The held house home to alef (a 2 s hold, top left), and the parent gate
+// under it like a weight, two customers waiting. No text (rule). The house home to alef (a tap, top left), and the parent gate
 // (a 2-second hold, then the year of birth) for the parent area. The playtest: "The initial screen is just pure ugly" (a cropped wall, a small tower, a circle).
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'

@@ -112,7 +112,7 @@ function CoursePage({ course, goHome = defaultGoHome }: { course: Course; goHome
   if (TEST_HOOKS && location.hash === '#/summary-session') return <Summary over={{ score: 12, crystals: 0, best: false, session: true }} onAgain={() => {}} onHome={() => {}} />
 
   const play = shell.play
-  // the held home button (a full run and its summary): the run has stopped (Play: RunController.exit), the game leaves
+  // the home button (a full run and its summary): the run has stopped (Play: RunController.exit), the game leaves
   // to the alef home screen (the parent area's way home goes there too); nothing of the game stays mounted meanwhile
   const leave = () => {
     audio.stopVoice()

@@ -28,7 +28,7 @@ export default function SpaceCatApp({ goHome = defaultGoHome }: { goHome?: () =>
   const newRun = () => { setRunKey((k) => k + 1); setScreen('play') }
   // no askGender: no line of this game has a boy or girl form, so play never asks (spec *Voice*; the parent)
   const shell = useGameShell({ preload: preloadSpaceCat, canStart: () => screenRef.current === 'cover', onPlay: newRun })
-  // the held house (the cover, the end screen; the play screen has its own, which also ends the run): alef's home screen
+  // the held house (the cover, the end screen; the play screen has the pause button, whose cover has the house): alef's home screen
   const leave = () => {
     stopAll()
     spaceCatTelemetry.flush()

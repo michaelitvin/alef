@@ -1,7 +1,6 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
-import { HOLD_MS } from '../shared/HoldButton'
 import { PLAYTIME_KEY } from '../shared/playtime'
 import type { Engine } from './canvas/engine'
 import { memorySavePort } from './savePort'
@@ -73,27 +72,28 @@ describe('the play hook', () => {
 })
 
 describe('the play screen', () => {
-  it('the held house is the top bar\'s first item and is on the pause cover', async () => {
+  it('the pause button is the top bar\'s first item (no house in play); the house is on the pause cover', async () => {
     const { container } = renderPlay()
     await settle()
-    expect(container.querySelector('.sc-topbar')!.firstElementChild!.matches('.home-btn')).toBe(true)
+    const first = container.querySelector('.sc-topbar')!.firstElementChild!
+    expect(first.matches('.home-btn[aria-label="pause"]')).toBe(true)
+    expect(container.querySelector('.sc-topbar [aria-label="home"]')).toBeNull()
     act(() => { window.dispatchEvent(new Event('pagehide')) })
-    expect(container.querySelector('.sc-pause .home-btn')).not.toBeNull()
+    expect(container.querySelector('.sc-pause .home-btn[aria-label="home"]')).not.toBeNull()
   })
 
-  it('the held house leaves only after 2 s', async () => {
+  it('a tap on pause shows the pause cover and stays; play resumes; the cover\'s house leaves', async () => {
     const { container, goHome } = renderPlay()
     await settle()
-    vi.useFakeTimers()
-    try {
-      const house = container.querySelector('.sc-topbar .home-btn')!
-      fireEvent.pointerDown(house)
-      act(() => { vi.advanceTimersByTime(HOLD_MS / 2) })
-      fireEvent.pointerUp(house)
-      expect(goHome).not.toHaveBeenCalled()
-      fireEvent.pointerDown(house)
-      act(() => { vi.advanceTimersByTime(HOLD_MS) })
-      expect(goHome).toHaveBeenCalledTimes(1)
-    } finally { vi.useRealTimers() }
+    expect(container.querySelector('[data-paused]')).toBeNull()
+    fireEvent.click(container.querySelector('.sc-topbar [aria-label="pause"]')!)
+    expect(container.querySelector('[data-paused]')).not.toBeNull()
+    expect(container.querySelector('.sc-pause')).not.toBeNull()
+    expect(goHome).not.toHaveBeenCalled()
+    fireEvent.pointerDown(container.querySelector('.sc-pause [aria-label="play"]')!)
+    expect(container.querySelector('[data-paused]')).toBeNull()
+    fireEvent.click(container.querySelector('.sc-topbar [aria-label="pause"]')!)
+    fireEvent.click(container.querySelector('.sc-pause [aria-label="home"]')!)
+    expect(goHome).toHaveBeenCalledTimes(1)
   })
 })

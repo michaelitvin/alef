@@ -1,6 +1,6 @@
 // The cover (spec *The cover*): the space background with turning planets; all his points (star) and his best (cup) at
 // the top; the ship shelf with his ship large in its middle and the two others small beside it (a locked one a dark
-// outline); the play triangle; the parent button (the shared gate) and the held house, inset from the corners. No text
+// outline); the play triangle; the parent button (the shared gate) and the house, inset from the corners. No text
 // but digits. The tune plays here once he has touched the screen (browsers allow sound only after a tap).
 import { useEffect, type PointerEvent } from 'react'
 import { HomeButton } from '../../shared/HomeButton'

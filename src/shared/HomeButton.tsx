@@ -1,7 +1,8 @@
-// The way home from a game to alef's home screen (the hub of all the games), the same in every game: a house in the
-// held button (src/shared/HoldButton.tsx: a 2 s hold, a tap only shows the hint), in the top-left corner of the game's
-// child screens (rule: docs/minigame-rules/interaction-controls.md). Each game places it with its own class.
-import { HoldButton } from './HoldButton'
+// The way home from a game to alef's home screen (the hub of all the games), the same in every game: a house in a
+// plain button (a tap leaves at once, no hold), in the top-left corner of the game's cover, pause and end screens; on the
+// play screen the same corner holds the pause button (PauseButton) (rule: docs/minigame-rules/interaction-controls.md).
+// Each game places them with its own class.
+import './holdButton.css'
 
 /** the house: cream walls, a gold roof, a dark door, in the ring's 56-unit box */
 export const HouseGlyph = () => (
@@ -12,7 +13,29 @@ export const HouseGlyph = () => (
   </g>
 )
 
-/** the held house: `onHome` runs after a 2 s hold; `className` places it on the game's screen */
+/** the house: `onHome` runs on a tap; `className` places it on the game's screen */
 export function HomeButton({ onHome, className = '' }: { onHome: () => void; className?: string }) {
-  return <HoldButton label="home (hold)" className={`home-btn ${className}`.trim()} onHold={onHome}><HouseGlyph /></HoldButton>
+  return (
+    <button type="button" aria-label="home" className={`home-btn ${className}`.trim()} onClick={onHome}>
+      <svg viewBox="0 0 56 56" width="56" height="56" aria-hidden="true"><HouseGlyph /></svg>
+    </button>
+  )
+}
+
+/** the pause: two cream bars, in the ring's 56-unit box */
+export const PauseGlyph = () => (
+  <g data-icon="pause" fill="#fff6d8">
+    <rect x="18" y="16" width="7" height="24" rx="2.5" />
+    <rect x="31" y="16" width="7" height="24" rx="2.5" />
+  </g>
+)
+
+/** the pause (a plain tap), in the same corner and size as the house, on a game's play screen: it shows the pause cover
+ *  (the cover has the house and the play button). `className` places it on the game's screen */
+export function PauseButton({ onPause, className = '' }: { onPause: () => void; className?: string }) {
+  return (
+    <button type="button" aria-label="pause" className={`home-btn pause-btn ${className}`.trim()} onClick={onPause}>
+      <svg viewBox="0 0 56 56" width="56" height="56" aria-hidden="true"><PauseGlyph /></svg>
+    </button>
+  )
 }

@@ -2,14 +2,13 @@
 // the hint (a question mark) on the left — at the merchant one help button (the same ?) that replays his walkthrough, next in the middle after a mistake or an explanation (on a phone in the hint's place: the middle is
 // over the counts there), the run's points beside the hearts (the child
 // asked where to see his points), and the streak multiplier of the coins (×2, ×3) beside them. Every button answers on
-// finger-down. In a full run the left corner holds the home button, before the speaker, which needs a 2 s hold
-// (HoldButton: a tap only shows the hint ring).
+// finger-down. In a full run the left corner holds the pause button, before the speaker, a plain tap (the pause cover has the house).
 import { useEffect, useState, type ReactNode } from 'react'
 import { HeartIcon, HintIcon, NextIcon, SpeakerIcon } from './icons'
 import { StarCount } from './StarCount'
 import { CoinCount } from './CoinCount'
 import { InfoTap } from './InfoTap'
-import { HomeButton as SharedHomeButton } from '../../shared/HomeButton'
+import { HomeButton as SharedHomeButton, PauseButton as SharedPauseButton } from '../../shared/HomeButton'
 
 /** how long the hearts flash: from just before the flying heart lands (HealFly) to the end of the flash (spellquest.css) */
 const FLASH_MS = 1700
@@ -46,8 +45,8 @@ export function TopBar(p: {
   heartFlash?: number
   /** a phone: the middle is over the counts, so the go-on button takes the ?'s place after the speaker (layout.ts nextInMiddle) */
   nextSide?: boolean
-  /** a full run: the home button in the left corner, after a 2 s hold (layout.ts BAR_HOME_SLOT_PX) */
-  onHome?: () => void
+  /** a full run: the pause button in the left corner (layout.ts BAR_HOME_SLOT_PX) */
+  onPause?: () => void
 }) {
   const flash = useFlash(p.heartFlash)
   const next = p.onNext && <Btn label="next" onPress={p.onNext} big><NextIcon /></Btn>
@@ -55,7 +54,7 @@ export function TopBar(p: {
   return (
     <div className="d2-topbar">
       <div className="d2-topbar-side">
-        {p.onHome && <HomeButton onHome={p.onHome} />}
+        {p.onPause && <SharedPauseButton className="d2-home-btn" onPause={p.onPause} />}
         {p.onReplay && <Btn label="replay" onPress={p.onReplay}><SpeakerIcon /></Btn>}
         {side ? next : p.onHint && <Btn label={p.help ? 'help' : 'hint'} onPress={p.onHint} glow={p.hintGlow}><HintIcon /></Btn>}
       </div>
@@ -78,7 +77,7 @@ export function TopBar(p: {
   )
 }
 
-/** the way home (a 2 s hold): in the bar's left corner, on the pause cover and on the run's summary */
+/** the way home (a tap): on the pause cover and on the run's summary */
 export function HomeButton({ onHome }: { onHome: () => void }) {
   return <SharedHomeButton className="d2-home-btn" onHome={onHome} />
 }

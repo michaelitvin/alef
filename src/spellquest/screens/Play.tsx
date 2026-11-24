@@ -142,7 +142,7 @@ const bandWidth = (v: View): number | undefined => (v.merchant || !v.screen ? un
 
 export function Play({ opts, onOver, onExit }: {
   opts: RunOpts; onOver: (o: NonNullable<View['over']>) => void
-  /** a full run: the held home button leaves the run (it stops first: RunController.exit); none in a session or the gallery */
+  /** a full run: the home button leaves the run (it stops first: RunController.exit); none in a session or the gallery */
   onExit?: () => void
 }) {
   // the course the run plays: the one given, else the page's (CourseContext; Hebrew without a provider)
@@ -178,8 +178,10 @@ export function Play({ opts, onOver, onExit }: {
   // the merchant's visit has one help button (?) that replays his walkthrough, and no speaker (the parent)
   // (the tower has its own speaker on the tower's board)
   const into = fullView(v, size) ? 'full' : bandWidth(v)
-  // the way home (a 2 s hold): a full run only, in the bar's corner unless the content rises into the band there (layout.ts)
+  // the pause button (a tap; the pause cover has the house): a full run only, in the bar's corner unless the content rises into the band there (layout.ts)
   const exit = onExit && !opts.session && !opts.sandbox ? () => { run.exit(); onExit() } : undefined
+  // the same pause as a hidden page: the run stops and the audio is held until he taps play
+  const pause = () => { holdAudio(true); run.pause() }
   const homeBar = !!exit && !v.over && homeInBar(size, contentTop(v), into, v.merchant ? 'merchant' : v.screen?.screen)
   const canReplay = v.merchant ? false : v.screen && v.screen.screen !== 'crystal' && v.screen.screen !== 'doors' && v.screen.screen !== 'tower' && (v.phase === 'answer' || v.phase === 'mistake')
   return (
@@ -217,7 +219,7 @@ export function Play({ opts, onOver, onExit }: {
         <TopBar hearts={opts.session ? undefined : v.hearts} score={v.score} coins={v.coins ?? coins} mult={v.mult} heartFlash={v.heartFlash}
           onReplay={canReplay ? run.onReplay : undefined}
           onHint={v.hintAvailable && v.phase === 'answer' ? run.onHint : undefined} hintGlow={v.hintGlow} help={!!v.merchant}
-          onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w, homeBar)} onHome={homeBar ? exit : undefined} />
+          onNext={v.needNext ? run.onNext : undefined} nextSide={!nextInMiddle(size.w, homeBar)} onPause={homeBar ? pause : undefined} />
       )}
       <MistakeFx active={v.phase === 'mistake'} kind={missed ? 'miss' : 'hit'} />
       {bfx && <MistakeFx key={bfx.id} active kind={bfx.kind} />}

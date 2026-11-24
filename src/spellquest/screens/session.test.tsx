@@ -121,7 +121,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     expect(home).toHaveBeenCalledTimes(1)
   })
 
-  it('the held home button: a session has none (it goes home by itself); a full run leaves through it to the home screen', async () => {
+  it('the home button: a session has none (it goes home by itself); a full run leaves through it to the home screen', async () => {
     at('?station=ghosts')
     const a = render(<SpellQuestApp goHome={() => {}} />)
     fireEvent.pointerDown(a.container.querySelector('[data-station-play]')!)
@@ -129,7 +129,7 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     expect(exits[exits.length - 1]).toBeUndefined()
     fireEvent.click(a.container.querySelector('[data-screen="play"]')!)
     await act(async () => { await new Promise((r) => setTimeout(r, 0)) })
-    expect(a.container.querySelector('[aria-label="home (hold)"]')).toBeNull()
+    expect(a.container.querySelector('[aria-label="home"]')).toBeNull()
     a.unmount()
     at('')
     const home = vi.fn()
@@ -142,22 +142,16 @@ describe('a station link from the home screen (spec: one duel, Part 3)', () => {
     expect(home).toHaveBeenCalledTimes(1)
     expect(b.container.querySelector('[data-screen="play"]')).toBeNull()
     b.unmount()
-    // the summary of a full run: the hold leaves too, with a run-exit
+    // the summary of a full run: a tap leaves too, with a run-exit
     const home2 = vi.fn()
     const c = render(<SpellQuestApp goHome={home2} />)
     fireEvent.click(c.container.querySelector('[aria-label="play"]')!)
     await act(async () => { await gate.p; await new Promise((r) => setTimeout(r, 0)) })
     fireEvent.click(c.container.querySelector('[data-screen="play"]')!)
     await act(async () => { await new Promise((r) => setTimeout(r, 0)) })
-    const btn = c.container.querySelector('[data-screen="summary"] [aria-label="home (hold)"]')!
+    const btn = c.container.querySelector('[data-screen="summary"] [aria-label="home"]')!
     expect(btn).not.toBeNull()
-    vi.useFakeTimers()
-    fireEvent.pointerDown(btn)
-    fireEvent.pointerUp(btn)
-    await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
-    expect(home2).not.toHaveBeenCalled()
-    fireEvent.pointerDown(btn)
-    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+    fireEvent.click(btn)
     expect(home2).toHaveBeenCalledTimes(1)
     expect(c.container.querySelector('[data-screen="leaving"]')).not.toBeNull()
   })

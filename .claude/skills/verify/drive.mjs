@@ -603,6 +603,18 @@ const CHECKS = {
     if (!audio.length) throw new Error('the audio log is empty')
     note(`audio: ${audio.slice(0, 8).join(' ')}${audio.length > 8 ? ` … (${audio.length})` : ''}`)
     await shot(page, vp, 'spellquest-hit')
+    // the bar's left corner holds the pause button (where the layout has room for it): a tap shows the pause cover;
+    // its house goes to alef's home
+    const pauseBtn = page.locator('.d2-topbar [aria-label="pause"]')
+    if (await pauseBtn.count()) {
+      if (await page.locator('.d2-topbar [aria-label="home"]').count()) throw new Error('the house is in the play bar')
+      await tap(page, pauseBtn)
+      await page.locator('.d2-pause').waitFor({ timeout: 10_000 })
+      await shot(page, vp, 'spellquest-pause')
+      await tap(page, page.locator('.d2-pause [aria-label="home"]'))
+      await page.waitForURL((u) => !u.pathname.includes('/spellquest-he/'), { timeout: 20_000 })
+      note(`after the pause and the house: ${new URL(page.url()).pathname}`)
+    } else note('no pause button in the bar at this size')
   },
 
   async spellquestHeStation(page, base, vp, note) {
@@ -660,10 +672,8 @@ const CHECKS = {
     await page.goto(`${base}clock/`, { waitUntil: 'domcontentloaded' })
     await page.locator('.ck-play').waitFor()
     await shot(page, vp, 'clock-cover')
-    // the held house on the door: a tap leaves nothing
-    await tap(page, page.locator('.ck-cover [aria-label="home (hold)"]'))
-    await page.waitForTimeout(400)
-    if (!(await page.locator('.ck-cover').count())) throw new Error('a tap on the door\'s house left the door')
+    // the house on the door: it is there (a tap on it would leave; the workshop's house is tapped below)
+    if (!(await page.locator('.ck-cover [aria-label="home"]').count())) throw new Error('no house on the door')
     await tap(page, page.locator('.ck-play'))
     await passGender(page, '.ck-workshop')
     // the first customer may bring explanations first: each waits for a tap on next
@@ -683,12 +693,12 @@ const CHECKS = {
     await page.locator('.ck-workshop:not([data-phase="answer"])').waitFor({ timeout: 10_000 })
     note(`after the answer: ${await page.locator('.ck-workshop').getAttribute('data-phase')}`)
     await shot(page, vp, 'clock-answered')
-    // the way home: a short hold on the house stays in the workshop, a 2 s hold goes to alef's home (not the door)
-    const house = page.locator('.ck-workshop > [aria-label="home (hold)"]')
-    await hold(page, house, 600)
-    await page.waitForTimeout(400)
-    if (!(await page.locator('.ck-workshop').count())) throw new Error('a short hold on the house left the workshop')
-    await hold(page, house, 2300)
+    // the way home: the corner holds the pause button; a tap shows the pause cover, and its house goes to alef's home at once (not the door)
+    if (await page.locator('.ck-workshop > [aria-label="home"]').count()) throw new Error('the house is in the workshop (the pause button belongs there)')
+    await tap(page, page.locator('.ck-workshop > [aria-label="pause"]'))
+    await page.locator('.ck-pause').waitFor({ timeout: 10_000 })
+    await shot(page, vp, 'clock-pause')
+    await tap(page, page.locator('.ck-pause [aria-label="home"]'))
     await page.waitForURL((u) => !u.pathname.includes('/clock/'), { timeout: 20_000 })
     note(`after the house: ${new URL(page.url()).pathname}`)
   },
@@ -709,10 +719,7 @@ const CHECKS = {
     await page.waitForTimeout(800)
     await shot(page, vp, 'sc-cover')
     await scNoText(page)
-    // a tap on the house stays on the cover
-    await tap(page, page.locator('.sc-root [aria-label="home (hold)"]').first())
-    await page.waitForTimeout(400)
-    if ((await scScreen(page)) !== 'cover') throw new Error('a tap on the cover\'s house left the cover')
+    if (!(await page.locator('.sc-root [aria-label="home"]').count())) throw new Error('no house on the cover')
     await tap(page, page.locator('.sc-root[data-screen="cover"] [aria-label="play"]'))
     await scUntilScreen(page, 'play')
     // the demo: the hand shows the answer while its line plays; he can already play (input on, the planets move)
@@ -812,7 +819,7 @@ const CHECKS = {
     await page.waitForTimeout(1500)
     await shot(page, vp, 'sc-end')
     await scNoText(page)
-    if (!(await page.locator('.sc-root[data-screen="end"] [aria-label="home (hold)"]').count())) throw new Error('no house on the end screen')
+    if (!(await page.locator('.sc-root[data-screen="end"] [aria-label="home"]').count())) throw new Error('no house on the end screen')
     // play again: a new run, no demo now
     await tap(page, page.locator('.sc-root[data-screen="end"] [aria-label="play"]'))
     await scUntilScreen(page, 'play')
@@ -823,12 +830,11 @@ const CHECKS = {
     note(`audio order: ${audio.order.slice(0, 600)}`)
     note(`canvas strings: ${JSON.stringify(await page.evaluate(() => window.__scText))}`)
     await scNoText(page)
-    // the house: a short hold stays, a 2 s hold goes to alef's home screen (never the game's cover)
-    const house = page.locator('.sc-stage [aria-label="home (hold)"]')
-    await hold(page, house, 600)
-    await page.waitForTimeout(400)
-    if ((await scScreen(page)) !== 'play') throw new Error('a short hold on the house left the play screen')
-    await hold(page, house, 2300)
+    // the pause button (no house in play): a tap shows the pause cover; its house goes to alef's home screen at once (never the game's cover)
+    if (await page.locator('.sc-stage > .sc-topbar [aria-label="home"]').count()) throw new Error('the house is in the play bar')
+    await tap(page, page.locator('.sc-stage .sc-topbar [aria-label="pause"]'))
+    await page.locator('.sc-stage[data-paused]').waitFor({ timeout: 10_000 })
+    await tap(page, page.locator('.sc-pause [aria-label="home"]'))
     await page.waitForURL((u) => !u.pathname.includes('/spacecat/'), { timeout: 20_000 })
     note(`after the house: ${new URL(page.url()).pathname}`)
   },

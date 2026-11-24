@@ -55,6 +55,8 @@ export function usePlay(o: UsePlayOpts) {
   return {
     canvasRef,
     view,
+    /** the pause button (a tap): the same pause as a hidden page */
+    pause: () => c?.pause(),
     resume: () => c?.resume(),
     /** the held house: the run stops and writes the log (the controller's leave), then alef's home screen */
     leave: () => {

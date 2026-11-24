@@ -3,7 +3,7 @@
 /* the play screen: the canvas fills the screen (the engine letterboxes the game area inside it) */
 .sc-stage { position: absolute; inset: 0; touch-action: none; }
 .sc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-/* the top bar's DOM part: only the held house, its first item, in the corner the canvas keeps free */
+/* the top bar's DOM part: only the house, its first item, in the corner the canvas keeps free */
 .sc-topbar { position: absolute; top: 0; left: 0; pointer-events: none; }
 .sc-root .sc-home { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); z-index: 7; }
 

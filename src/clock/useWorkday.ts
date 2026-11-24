@@ -65,7 +65,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
   const [paused, setPaused] = useState(false)
   const pausedRef = useRef(paused)
   pausedRef.current = paused
-  /** he left with the held house (exit) */
+  /** he left with the house (exit) */
   const exited = useRef(false)
   const [roundKey, setRoundKey] = useState(0)
   const answerRef = useRef<((a: Answer) => void) | null>(null)
@@ -363,16 +363,18 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
   // the pause cover keeps all audio silent until he taps play (rule)
   usePauseHold(paused)
 
+  // the pause: the tablet locks (rule) or he taps the pause button (by: 'button')
+  const pause = (by?: 'button') => {
+    if (day.current.phase === 'done') return
+    if (viewRef.current) clockTelemetry.track('pause', by ? { phase: viewRef.current.phase, by } : { phase: viewRef.current.phase })
+    setPaused(true)
+  }
+  const pauseRef = useRef(pause)
+  pauseRef.current = pause
   // pause when the tablet locks (rule); resume asks the same question again (or, after the answer was counted, brings
   // the next customer)
   useEffect(() => {
-    const onVis = () => {
-      if (document.visibilityState === 'hidden') {
-        if (day.current.phase === 'done') return
-        if (viewRef.current) clockTelemetry.track('pause', { phase: viewRef.current.phase })
-        setPaused(true)
-      }
-    }
+    const onVis = () => { if (document.visibilityState === 'hidden') pauseRef.current() }
     // after the way home (exit) the page goes: that is no abandon
     const onHide = () => { if (!exited.current) clockTelemetry.track('abandon', { served: day.current.served, phase: viewRef.current?.phase }) }
     document.addEventListener('visibilitychange', onVis)
@@ -405,7 +407,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     setRoundKey((k) => k + 1)
   }, [])
   const resume = useCallback(() => setPaused(false), [])
-  /** the held house: he leaves the workday; an 'exit' says where (once; no 'abandon' after it) */
+  /** the house: he leaves the workday; an 'exit' says where (once; no 'abandon' after it) */
   const exit = useCallback(() => {
     if (exited.current) return
     exited.current = true
@@ -429,7 +431,7 @@ export function useWorkday({ rng = Math.random, now = () => new Date() }: { rng?
     void playVoice(p.audioId, p.words, (w) => { if (viewRef.current?.phase === 'answer') setView((x) => (x ? { ...x, word: { target, index: w } } : x)) })
   }, [])
 
-  return { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, resume, exit }
+  return { view, choose, submit, replay, snap, next, explainAgain, bonusDone, bonusTry, again, paused, pause: () => pause('button'), resume, exit }
 }
 
 function grade(plan: RoundPlan, a: Answer, nearMissUsed: boolean): Evaluation {

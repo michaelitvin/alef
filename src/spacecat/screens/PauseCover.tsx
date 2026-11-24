@@ -1,4 +1,4 @@
-// While paused, an opaque cover hides the game (rule): the space background and the play triangle, the held house in the
+// While paused, an opaque cover hides the game (rule): the space background and the play triangle, the house in the
 // top-left corner where it is during flight. usePauseHold keeps the audio silent until the triangle is pressed.
 import { HomeButton } from '../../shared/HomeButton'
 import { usePauseHold } from '../../shared/shell/usePauseHold'
