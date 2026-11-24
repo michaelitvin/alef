@@ -7900,6 +7900,186 @@
     "seed": 1
    },
    "earlier_takes": null
+  },
+  {
+   "id": "w-crown",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-crown.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "כֶּתֶר",
+   "take": "clips/w-crown/v1.mp3",
+   "request": {
+    "text": "כֶּתֶר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-sheep",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-sheep.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "כֶּבֶשׂ",
+   "take": "clips/w-sheep/v1.mp3",
+   "request": {
+    "text": "כֶּבֶשׂ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-bridge",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-bridge.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "גֶשֶׁר",
+   "take": "clips/w-bridge/v1.mp3",
+   "request": {
+    "text": "גֶשֶׁר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-fence",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-fence.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "גָדֵר",
+   "take": "clips/w-fence/v1.mp3",
+   "request": {
+    "text": "גָדֵר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-milk",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-milk.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "חָלָב",
+   "take": "clips/w-milk/v1.mp3",
+   "request": {
+    "text": "חָלָב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-grasshopper",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-grasshopper.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "חָגָב",
+   "take": "clips/w-grasshopper/v1.mp3",
+   "request": {
+    "text": "חָגָב.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-snake",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-snake.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "נָחָשׁ",
+   "take": "clips/w-snake/v1.mp3",
+   "request": {
+    "text": "נָחָשׁ.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-tiger",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-tiger.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "נָמֵר",
+   "take": "clips/w-tiger/v1.mp3",
+   "request": {
+    "text": "נָמֵר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-cow",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-cow.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "פָּרָה",
+   "take": "clips/w-cow/v1.mp3",
+   "request": {
+    "text": "פָּרָה.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
+  },
+  {
+   "id": "w-flashlight",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-flashlight.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "פָּנָס",
+   "take": "clips/w-flashlight/v1.mp3",
+   "request": {
+    "text": "פָּנָס.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
+   "earlier_takes": null
   }
  ]
 }

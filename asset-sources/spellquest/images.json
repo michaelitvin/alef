@@ -304,6 +304,66 @@
    "model": "gemini-3-pro-image",
    "status": "placeholder from the merchant mock, to be replaced by final art",
    "note": "pose 2 (insulted), cut out of the sheet; not used yet; the figure faces right as drawn, so the game mirrors it to face the wizard"
+  },
+  {
+   "name": "pw-crown",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a golden king's crown (כתר), front view, 5 points, with a few big smooth gems or none (no small round gems). Not a tiara. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-sheep",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a white woolly cartoon sheep (כבש), full body, side view, with a friendly face; wool as big soft curls, not dots; no horns, no beard, no goat features: it must clearly be a sheep. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-bridge",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small arched wooden bridge over a short strip of blue water, side view. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-fence",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a short piece of a wooden picket fence (גדר), 5 pointed boards and 2 horizontal rails, front view. No gate, no door. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-milk",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a tall clear glass full of white milk with a small splash on top. No cow, no carton, no straw. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-grasshopper",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a green cartoon grasshopper (חגב), side view, long bent back legs, two long antennae, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-snake",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a green cartoon snake (נחש) in a loose coil, friendly face, forked tongue. No spots, no pattern. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-tiger",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a cartoon tiger (נמר), full body, walking, side view, bold black stripes on an orange body with a white belly, large and strong, a wild big cat with a broad head and small round ears. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-cow",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a black-and-white cartoon cow (פרה), full body, side view, pink nose. No bell. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
+  },
+  {
+   "name": "pw-flashlight",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a chunky handheld flashlight (פנס), diagonal, switched on, with a wide soft yellow beam of light. No thin bar with a dot, no rays drawn as dashes. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image"
   }
  ]
 }
