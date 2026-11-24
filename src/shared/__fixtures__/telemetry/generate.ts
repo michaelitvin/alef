@@ -38,6 +38,8 @@ const clockOf = (r: R, t: number) => t - r.pick([0, 0, 0, 1, 2, 3, -1])
 const SPELLQUEST: Record<string, (r: R, t: number) => Record<string, unknown>> = {
   'run-start': (r) => ({ stage: r.int(1, 4) }),
   'session-start': (r) => ({ stage: r.int(1, 4), screen: r.pick(SCREENS) }),
+  // a visit's start (the pass policy, Hebrew only); the last stage's visits are marked `rehearse`
+  visit: (r) => ({ screen: r.pick(SCREENS), len: r.int(3, 8), ...(r.chance(0.3) ? { rehearse: true } : {}) }),
   answer: (r, t) => {
     const result = r.pick(['right', 'right', 'right', 'wrong', 'near'])
     const target = r.pick(LETTERS)

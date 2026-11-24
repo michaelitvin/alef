@@ -44,744 +44,753 @@
      "t": 1790861050210,
      "s": "mupkfa80-z62lo",
      "run": 4,
-     "e": "answer",
-     "screen": "pairs",
-     "stage": 1,
-     "target": "he",
-     "tapped": "he",
-     "result": "right",
-     "ms": 7949,
-     "assets": [
-      "w-ima",
-      "img-ima"
-     ],
-     "clock": 1790861050210
+     "e": "visit",
+     "screen": "draw",
+     "len": 4
     },
     {
-     "t": 1790861057115,
+     "t": 1790861058135,
+     "s": "mupkfa80-z62lo",
+     "run": 4,
+     "e": "answer",
+     "screen": "letters",
+     "stage": 3,
+     "target": "gimel",
+     "tapped": "gimel",
+     "result": "right",
+     "ms": 6952,
+     "assets": [
+      "w-abba",
+      "img-dag"
+     ],
+     "clock": 1790861058134
+    },
+    {
+     "t": 1790861066836,
      "s": "mupkfa80-z62lo",
      "run": 4,
      "e": "answer",
      "screen": "tower",
      "target": "shva",
-     "result": "right",
-     "clock": 1790861057113
+     "result": "wrong",
+     "clock": 1790861066836
     },
     {
-     "t": 1790861062810,
+     "t": 1790861070779,
      "s": "mupkfa80-z62lo",
-     "run": 4,
+     "run": 5,
      "e": "replay",
-     "screen": "tower",
-     "target": "alef",
+     "screen": "letters",
+     "target": "lamed",
      "phase": "question"
     },
     {
-     "t": 1790861066753,
+     "t": 1790861075103,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "hint-stop",
-     "screen": null,
-     "by": "pen"
+     "screen": "draw",
+     "by": "touch"
     },
     {
-     "t": 1790861070708,
+     "t": 1790861076524,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "abandon",
      "screen": "merchant",
-     "score": 282
+     "score": 129
     },
     {
-     "t": 1790861073818,
+     "t": 1790861082288,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "merchant-decline",
      "phase": "closed"
     },
     {
-     "t": 1790861082053,
+     "t": 1790861090596,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "run-exit",
-     "screen": "syllables",
-     "score": 253,
+     "screen": "tower",
+     "score": 262,
      "paused": false,
      "ended": true
     },
     {
-     "t": 1790861090361,
+     "t": 1790861096509,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "pause",
-     "screen": "tower",
-     "phase": "answer"
+     "screen": "merchant",
+     "phase": "celebrate"
     },
     {
-     "t": 1790861091591,
+     "t": 1790861105192,
      "s": "mupkfa80-z62lo",
      "run": 5,
      "e": "resume",
-     "ms": 53519
+     "ms": 49202
     },
     {
-     "t": 1790861099165,
-     "s": "mupkfa80-z62lo",
-     "run": 5,
+     "t": 1790955785107,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "crystal",
-     "kind": 12
+     "kind": 5
     },
     {
-     "t": 1790958006848,
-     "s": "mur65h1c-iktxa",
-     "run": 2,
+     "t": 1790955790162,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "merchant-arrive",
-     "price": 6,
-     "coins": 17,
-     "hearts": 1,
+     "price": 3,
+     "coins": 0,
+     "hearts": 0,
      "composition": [
-      3,
-      4,
+      5,
+      5,
       2
      ]
     },
     {
-     "t": 1790958009132,
-     "s": "mur65h1c-iktxa",
+     "t": 1790955790162,
+     "s": "mur4tw2o-q2nm5",
      "run": 3,
      "e": "tower-start",
-     "wave": 1,
+     "wave": 3,
      "boss": false,
      "waves": 5
     },
     {
-     "t": 1790958014881,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955792808,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "tower-end",
      "wave": 4,
-     "last": 3,
+     "last": 4,
      "boss": false
     },
     {
-     "t": 1790958017527,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955794231,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "book-open",
      "by": "parent",
-     "stars": 73
+     "stars": 51
     },
     {
-     "t": 1790958025033,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955797917,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "tower-placed",
      "wave": 5,
-     "lane": 1
+     "lane": 2
     },
     {
-     "t": 1790958026648,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955803912,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "mult",
-     "mult": 2,
-     "streak": 25
+     "mult": 4,
+     "streak": 23
     },
     {
-     "t": 1790958033324,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955808417,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "tower-mega",
-     "target": "shva",
-     "clock": 1790958033322
+     "target": "holam",
+     "clock": 1790955808414
     },
     {
-     "t": 1790958037829,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955813500,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "demo",
      "demo": "demo-draw"
     },
     {
-     "t": 1790958045544,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955815905,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "idle",
      "screen": "draw",
-     "target": "het"
+     "target": "alef"
     },
     {
-     "t": 1790958047949,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955816317,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "hint",
-     "target": "gimel",
+     "screen": "draw",
+     "target": "dag",
      "auto": true
     },
     {
-     "t": 1790958048361,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955820081,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "stage",
-     "stage": 5
+     "stage": 4
     },
     {
-     "t": 1790958049090,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955823449,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "fix",
-     "screen": "pairs",
-     "target": "c-het",
-     "ms": 5939,
-     "replays": 1
+     "screen": "flight",
+     "target": "c-mem",
+     "ms": 4381,
+     "replays": 3
     },
     {
-     "t": 1790958056256,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1790955828600,
+     "s": "mur4tw2o-q2nm5",
+     "run": 3,
      "e": "explain",
-     "target": "mem"
+     "target": "het"
     },
     {
-     "t": 1790958063482,
-     "s": "mur65h1c-iktxa",
-     "run": 4,
+     "t": 1791034623341,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "flight",
-     "kind": "bird",
-     "travelMs": 3463,
-     "pace": 1.0270000000000001,
+     "kind": "broom",
+     "travelMs": 3807,
+     "pace": 0.977,
      "boss": "dragon"
     },
     {
-     "t": 1791047882411,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034628392,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "session-home"
     },
     {
-     "t": 1791047889918,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034633318,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "again",
-     "ms": 29263,
-     "score": 276
+     "ms": 26642,
+     "score": 286
     },
     {
-     "t": 1791047893097,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034640919,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "info",
-     "what": "info-coins"
+     "what": "info-crystal"
     },
     {
-     "t": 1791047898333,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034649313,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "player",
      "gender": "girl",
      "by": "child"
     },
     {
-     "t": 1791047904673,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034652952,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "settings",
      "keys": [
-      "volume"
+      "name"
      ],
-     "volume": 0.66
+     "name": "דני הקטן"
     },
     {
-     "t": 1791047910974,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034655751,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "stroke-mark",
-     "letter": "yod",
+     "letter": "kaf",
      "script": "cursive",
-     "mark": "wrong"
+     "mark": null
     },
     {
-     "t": 1791047911970,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034658236,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "voice-fallback",
      "id": "w-shemesh-שלום"
     },
     {
-     "t": 1791047914963,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034665337,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "boss-start",
-     "kind": "dragon"
+     "kind": "troll"
     },
     {
-     "t": 1791047923314,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034674151,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "boss-hit",
      "kind": "troll",
-     "left": 4
+     "left": 1
     },
     {
-     "t": 1791047932128,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034681040,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "boss-lose",
      "kind": "troll",
-     "left": 2
+     "left": 3
     },
     {
-     "t": 1791047939017,
-     "s": "musnnww0-rvz1d",
-     "run": 3,
+     "t": 1791034683633,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "boss-win",
-     "kind": "troll",
-     "ms": 39183,
+     "kind": "dragon",
+     "ms": 12690,
      "first": false
     },
     {
-     "t": 1791219245052,
-     "s": "muvhor40-517jh",
-     "run": 4,
+     "t": 1791034688757,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "draw-lines",
-     "g": "spellquest-he",
-     "letter": "samekh",
-     "kind": "good"
+     "letter": "nun",
+     "kind": "retry"
     },
     {
-     "t": 1791219247777,
-     "s": "muvhor40-517jh",
-     "run": 4,
+     "t": 1791034689852,
+     "s": "musfrpeo-trl68",
+     "run": 5,
      "e": "draw-done",
-     "g": "spellquest-he",
-     "letter": "vav",
-     "script": "cursive",
-     "word": "yeled",
-     "ms": 22614,
-     "wrongStrokes": 4,
-     "helped": true
+     "letter": "het",
+     "script": "print",
+     "word": "dag",
+     "ms": 34719,
+     "wrongStrokes": 2,
+     "helped": false
     },
     {
-     "t": 1791219256126,
-     "s": "muvhor40-517jh",
+     "t": 1791213908733,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "draw-stroke",
      "g": "spellquest-he",
-     "letter": "vav",
+     "letter": "gimel",
      "script": "cursive",
-     "n": 4,
-     "ok": false,
-     "why": "direction"
+     "n": 1,
+     "ok": true,
+     "partial": true
     },
     {
-     "t": 1791219257245,
-     "s": "muvhor40-517jh",
+     "t": 1791213911240,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "draw-start",
      "g": "spellquest-he",
-     "word": "dag",
-     "letter": "he",
-     "script": "cursive"
+     "word": "shemesh",
+     "letter": "alef",
+     "script": "print"
     },
     {
-     "t": 1791219264432,
-     "s": "muvhor40-517jh",
+     "t": 1791213912164,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "draw-mark",
      "g": "spellquest-he",
-     "mark": "kamatz",
-     "ok": true
+     "mark": "tsere",
+     "ok": false
     },
     {
-     "t": 1791219265356,
-     "s": "muvhor40-517jh",
+     "t": 1791213914757,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "skip",
      "g": "spellquest-he",
-     "screen": "pairs",
-     "cycle": 4
+     "screen": "letters",
+     "cycle": 2
     },
     {
-     "t": 1791219267949,
-     "s": "muvhor40-517jh",
+     "t": 1791213919747,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "defeat",
      "g": "spellquest-he",
-     "screen": "letters"
+     "screen": "tower"
     },
     {
-     "t": 1791219271996,
-     "s": "muvhor40-517jh",
+     "t": 1791213926035,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "session-end",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "score": 386
+     "screen": "letters",
+     "score": 91
     },
     {
-     "t": 1791219278284,
-     "s": "muvhor40-517jh",
+     "t": 1791213934093,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "pass-heart",
      "g": "spellquest-he",
-     "hearts": 0
+     "hearts": 3
     },
     {
-     "t": 1791219284795,
-     "s": "muvhor40-517jh",
+     "t": 1791213937130,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "run-end",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "score": 420,
-     "crystals": 8
+     "screen": "letters",
+     "score": 495,
+     "crystals": 9
     },
     {
-     "t": 1791219285829,
-     "s": "muvhor40-517jh",
+     "t": 1791213941888,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "merchant-demo",
      "g": "spellquest-he"
     },
     {
-     "t": 1791219292131,
-     "s": "muvhor40-517jh",
+     "t": 1791213945841,
+     "s": "muveiaqo-oc06p",
      "run": 4,
      "e": "merchant-buy",
      "g": "spellquest-he",
-     "price": 6,
+     "price": 3,
      "coins": [
-      1,
-      3
+      4,
+      1
      ],
-     "hearts": 1
+     "hearts": 0
     },
     {
-     "t": 1791295920471,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791213953789,
+     "s": "muveiaqo-oc06p",
+     "run": 4,
      "e": "merchant-undo",
      "g": "spellquest-he"
     },
     {
-     "t": 1791295928777,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307504759,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "merchant-help",
      "g": "spellquest-he",
      "undo": false,
      "given": 3
     },
     {
-     "t": 1791295933536,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307505572,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "merchant-idle",
      "g": "spellquest-he"
     },
     {
-     "t": 1791295940085,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307506263,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "merchant-offer",
      "g": "spellquest-he",
-     "sum": 1,
-     "price": 6,
-     "verdict": "over",
+     "sum": 4,
+     "price": 3,
+     "verdict": "short",
      "coins": [
-      1,
-      5,
-      1
+      2,
+      4,
+      2
      ]
     },
     {
-     "t": 1791295942780,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307513271,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "storage-persist",
      "g": "spellquest-he",
      "persisted": false
     },
     {
-     "t": 1791295950601,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307519649,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "run_start",
      "g": "spellquest-he",
      "embedded": true,
-     "wave": 4,
+     "wave": 2,
      "waves": 5,
      "boss": false,
      "via": "tower",
      "visit": 4
     },
     {
-     "t": 1791295956856,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
+     "t": 1791307521976,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "round",
      "g": "spellquest-he",
-     "round": 27,
+     "round": 28,
      "restart": false,
-     "wave": 2,
-     "kills": 10,
+     "wave": 4,
+     "kills": 5,
      "boss": false,
-     "bossHp": 4,
+     "bossHp": 3,
      "hearts": null,
      "combo": 4,
-     "type": "A",
-     "target": "kubutz",
-     "word": "ima",
-     "picture": "pic-shemesh",
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-4.webp",
-     "walkMs": 8262,
+     "type": "B",
+     "target": "tsere",
+     "word": "yeled",
+     "picture": null,
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-5.webp",
+     "walkMs": 7638,
      "pad": [
-      "patah",
-      "hiriq",
-      "hiriq"
+      "holam",
+      "kamatz",
+      "tsere"
      ],
      "padWords": [
-      "shemesh",
+      "dag",
       "shemesh"
      ],
      "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1791295965375,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 21,
-     "clueMs": 2147,
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1791295966129,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
-     "e": "announce",
-     "g": "spellquest-he",
-     "kind": "wave",
-     "wave": 2,
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1791295975127,
-     "s": "muwrc9s0-64wx3",
-     "run": 2,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 1.4449999999999998,
-     "feedback": "praise",
-     "predicted": 0.482,
-     "round": 7,
-     "result": "hit",
-     "choice": "kubutz",
-     "mega": false,
-     "final": false,
-     "points": 0,
-     "effect": "small",
-     "hearts": null,
-     "combo": 6,
-     "score": 281,
-     "bossHp": 3,
-     "msShown": 8493,
-     "msWalk": 2645,
-     "via": "tower",
      "visit": 4
     },
     {
-     "t": 1791383226114,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "combo",
-     "g": "spellquest-he",
-     "round": 30,
-     "combo": 7,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1791383232938,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "choice",
-     "g": "spellquest-he",
-     "round": 28,
-     "key": "kubutz",
-     "pos": 2,
-     "correct": true,
-     "twin": false,
-     "walking": true,
-     "msShown": 7926,
-     "msWalk": 6875,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1791383234459,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "mega_tap",
-     "g": "spellquest-he",
-     "round": 9,
-     "queued": false,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1791383239223,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "pause",
-     "g": "spellquest-he",
-     "cause": "hidden",
-     "round": null,
-     "duringOutcome": false,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1791383242311,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "resume",
-     "g": "spellquest-he",
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1791383243343,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "replay",
-     "g": "spellquest-he",
-     "round": 11,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1791383243343,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "abandon",
-     "g": "spellquest-he",
-     "reason": "pagehide",
-     "round": 21,
-     "wave": 5,
-     "score": 548,
-     "hearts": null,
-     "paused": false,
-     "duringOutcome": false,
-     "msShown": 3305,
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1791383248291,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-boss",
-     "file": "line-boss.mp3",
-     "url": "/alef/assets/line-boss-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1791383250472,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "voice-fallback",
-     "g": "spellquest-he",
-     "id": "line-wave",
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1791383253618,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
-     "e": "pause",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "phase": "celebrate"
-    },
-    {
-     "t": 1791383253618,
-     "s": "muy7bew0-muc6m",
-     "run": 1,
+     "t": 1791307524960,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
      "e": "walk",
      "g": "spellquest-he",
-     "round": 19,
-     "clueMs": 627,
+     "round": 3,
+     "clueMs": 2336,
      "via": "tower",
      "visit": 3
     },
     {
-     "t": 1791383253897,
-     "s": "muy7bew0-muc6m",
+     "t": 1791307529491,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "announce",
+     "g": "spellquest-he",
+     "kind": "boss",
+     "wave": 5,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791307533930,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.543,
+     "feedback": "name",
+     "predicted": 0.763,
+     "round": 9,
+     "result": "hit",
+     "choice": "hiriq",
+     "mega": false,
+     "final": false,
+     "points": 27,
+     "effect": "big",
+     "hearts": null,
+     "combo": 2,
+     "score": 496,
+     "bossHp": 4,
+     "msShown": 3050,
+     "msWalk": 935,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791307538942,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "combo",
+     "g": "spellquest-he",
+     "round": 27,
+     "combo": 8,
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1791307545981,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 25,
+     "key": "holam",
+     "pos": 2,
+     "correct": false,
+     "twin": false,
+     "walking": true,
+     "msShown": 6583,
+     "msWalk": 7013,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791307551697,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "mega_tap",
+     "g": "spellquest-he",
+     "round": 40,
+     "queued": true,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791307551697,
+     "s": "muwy8gyo-hexc5",
+     "run": 3,
+     "e": "pause",
+     "g": "spellquest-he",
+     "cause": "button",
+     "round": 11,
+     "duringOutcome": true,
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1791387781530,
+     "s": "muya15eo-3vqzs",
      "run": 2,
+     "e": "resume",
+     "g": "spellquest-he",
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1791387781530,
+     "s": "muya15eo-3vqzs",
+     "run": 2,
+     "e": "replay",
+     "g": "spellquest-he",
+     "round": 1,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791387790279,
+     "s": "muya15eo-3vqzs",
+     "run": 2,
+     "e": "abandon",
+     "g": "spellquest-he",
+     "reason": "pagehide",
+     "round": 11,
+     "wave": 2,
+     "score": 596,
+     "hearts": null,
+     "paused": false,
+     "duringOutcome": false,
+     "msShown": 3421,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791387791038,
+     "s": "muya15eo-3vqzs",
+     "run": 2,
+     "e": "line",
+     "g": "spellquest-he",
+     "id": "line-wave",
+     "file": "line-wave.mp3",
+     "url": "/alef/assets/line-wave-a1b2c3.mp3",
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1791387794184,
+     "s": "muya15eo-3vqzs",
+     "run": 2,
+     "e": "voice-fallback",
+     "g": "spellquest-he",
+     "id": "line-boss",
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791387801975,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 19,
+     "restart": false,
+     "wave": 3,
+     "kills": 7,
+     "boss": true,
+     "bossHp": 0,
+     "hearts": null,
+     "combo": 6,
+     "type": "A",
+     "target": "tsere",
+     "word": "bayit",
+     "picture": "pic-abba",
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-8.webp",
+     "walkMs": 7166,
+     "pad": [
+      "kubutz",
+      "shva",
+      "shva"
+     ],
+     "padWords": [
+      "bayit",
+      "yeled"
+     ],
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1791387810417,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
-     "result": "right",
-     "ms": 7841,
-     "assets": [
-      "w-sefer",
-      "img-shemesh"
-     ],
-     "clock": 1791383253898
-    },
-    {
-     "t": 1791566223023,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 3,
-     "target": "alef",
-     "tapped": "zayin",
-     "result": "wrong",
-     "ms": 6102,
-     "assets": [
-      "w-dag",
-      "img-bayit"
-     ],
-     "clock": 1791566223023
-    },
-    {
-     "t": 1791566223608,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "pairs",
      "stage": 4,
      "target": "lamed",
-     "tapped": "het",
-     "result": "wrong",
-     "ms": 8391,
+     "tapped": "lamed",
+     "result": "right",
+     "ms": 930,
      "assets": [
-      "w-dag",
+      "w-sefer",
       "img-sefer"
      ],
-     "clock": 1791566223609
+     "clock": 1791387810417
     },
     {
-     "t": 1791566231814,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387818581,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.981,
+     "feedback": "praise",
+     "predicted": 0.05,
+     "round": 17,
+     "result": "hit",
+     "choice": "kubutz",
+     "mega": false,
+     "final": false,
+     "points": 39,
+     "effect": "big",
+     "hearts": null,
+     "combo": 5,
+     "score": 837,
+     "bossHp": 5,
+     "msShown": 4989,
+     "msWalk": 8511,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791387826787,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
@@ -794,12 +803,12 @@
       "w-yeled",
       "img-shemesh"
      ],
-     "clock": 1791566231812
+     "clock": 1791387826785
     },
     {
-     "t": 1791566239238,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387834211,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "draw-start",
      "g": "spellquest-he",
      "word": "ima",
@@ -807,9 +816,9 @@
      "script": "cursive"
     },
     {
-     "t": 1791566243933,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387838906,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "merchant-offer",
      "g": "spellquest-he",
      "sum": 2,
@@ -822,9 +831,9 @@
      ]
     },
     {
-     "t": 1791566250099,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387845072,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
@@ -837,12 +846,12 @@
       "w-shemesh",
       "img-bayit"
      ],
-     "clock": 1791566250096
+     "clock": 1791387845069
     },
     {
-     "t": 1791566254413,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387849386,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "line",
      "g": "spellquest-he",
      "id": "line-wave",
@@ -852,9 +861,9 @@
      "visit": 2
     },
     {
-     "t": 1791566262791,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387857764,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "round",
      "g": "spellquest-he",
      "round": 10,
@@ -885,9 +894,9 @@
      "visit": 2
     },
     {
-     "t": 1791566267296,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
+     "t": 1791387862269,
+     "s": "muya15eo-3vqzs",
+     "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
@@ -900,695 +909,684 @@
       "w-ima",
       "img-yeled"
      ],
-     "clock": 1791566267296
+     "clock": 1791387862269
     },
     {
-     "t": 1791566273460,
-     "s": "mv189qlc-sqljc",
-     "run": 5,
-     "e": "again",
+     "t": 1791560942739,
+     "s": "mv154kio-iblk5",
+     "run": 4,
+     "e": "draw-lines",
      "g": "spellquest-he",
-     "ms": 21245,
-     "score": 332
+     "letter": "vav",
+     "kind": "good"
     },
     {
-     "t": 1791566275293,
-     "s": "mv189qlc-sqljc",
+     "t": 1791560950275,
+     "s": "mv154kio-iblk5",
+     "run": 4,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 34,
+     "restart": false,
+     "wave": 4,
+     "kills": 9,
+     "boss": false,
+     "bossHp": 2,
+     "hearts": null,
+     "combo": 0,
+     "type": "B",
+     "target": "hiriq",
+     "word": "ima",
+     "picture": null,
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-5.webp",
+     "walkMs": 6039,
+     "pad": [
+      "holam",
+      "shva",
+      "shva"
+     ],
+     "padWords": [
+      "abba",
+      "dag"
+     ],
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1791560958174,
+     "s": "mv154kio-iblk5",
+     "run": 4,
+     "e": "draw-start",
+     "g": "spellquest-he",
+     "word": "yeled",
+     "letter": "vav",
+     "script": "print"
+    },
+    {
+     "t": 1791560958897,
+     "s": "mv154kio-iblk5",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "pairs",
-     "stage": 1,
-     "target": "yod",
-     "tapped": "yod",
+     "screen": "letters",
+     "stage": 4,
+     "target": "zayin",
+     "tapped": "zayin",
      "result": "right",
-     "ms": 875,
+     "ms": 6485,
      "assets": [
       "w-bayit",
       "img-dag"
      ],
-     "clock": 1791566275290
+     "clock": 1791560958897
     },
     {
-     "t": 1791566279500,
-     "s": "mv189qlc-sqljc",
+     "t": 1791560963508,
+     "s": "mv154kio-iblk5",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "samekh",
+     "tapped": "dalet",
+     "result": "near",
+     "ms": 4789,
+     "assets": [
+      "w-abba",
+      "img-ima"
+     ],
+     "clock": 1791560963505
+    },
+    {
+     "t": 1791560968618,
+     "s": "mv154kio-iblk5",
+     "run": 5,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "vav",
+     "script": "print",
+     "n": 1,
+     "ok": false,
+     "why": "shape"
+    },
+    {
+     "t": 1791560973328,
+     "s": "mv154kio-iblk5",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
-     "stage": 2,
-     "target": "gimel",
-     "tapped": "gimel",
+     "stage": 1,
+     "target": "kaf",
+     "tapped": "kaf",
      "result": "right",
-     "ms": 4973,
+     "ms": 4614,
      "assets": [
-      "w-bayit",
-      "img-shemesh"
+      "w-sefer",
+      "img-abba"
      ],
-     "clock": 1791566279501
+     "clock": 1791560973328
     },
     {
-     "t": 1791566287848,
-     "s": "mv189qlc-sqljc",
+     "t": 1791560980434,
+     "s": "mv154kio-iblk5",
      "run": 5,
-     "e": "draw-stroke",
-     "g": "spellquest-he",
-     "letter": "lamed",
-     "script": "cursive",
-     "n": 4,
-     "ok": true
-    },
-    {
-     "t": 1791641708424,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "merchant-offer",
-     "g": "spellquest-he",
-     "sum": 4,
-     "price": 4,
-     "verdict": "over",
-     "coins": [
-      3,
-      5,
-      2
-     ]
-    },
-    {
-     "t": 1791641708424,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "stroke-mark",
-     "g": "spellquest-he",
-     "letter": "alef",
-     "script": "print",
-     "mark": "ok"
-    },
-    {
-     "t": 1791641709131,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
      "stage": 2,
-     "target": "tet",
-     "tapped": "tet",
-     "result": "right",
-     "ms": 7971,
+     "target": "zayin",
+     "tapped": null,
+     "result": "near",
+     "ms": 7503,
      "assets": [
-      "w-dag",
-      "img-bayit"
+      "w-ima",
+      "img-ima"
      ],
-     "clock": 1791641709131,
-     "gallery": true
+     "clock": 1791560980434
     },
     {
-     "t": 1791641717730,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
+     "t": 1791560980796,
+     "s": "mv154kio-iblk5",
+     "run": 5,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.611,
+     "feedback": "praise",
+     "predicted": 0.042,
+     "round": 30,
+     "result": "hit",
+     "choice": "segol",
+     "mega": false,
+     "final": false,
+     "points": 14,
+     "effect": "small",
+     "hearts": null,
+     "combo": 3,
+     "score": 157,
+     "bossHp": 5,
+     "msShown": 3066,
+     "msWalk": 6921,
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1791560988634,
+     "s": "mv154kio-iblk5",
+     "run": 5,
      "e": "replay",
      "g": "spellquest-he",
-     "screen": "flight",
-     "target": "lamed",
+     "round": 24,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791560995837,
+     "s": "mv154kio-iblk5",
+     "run": 5,
+     "e": "run-start",
+     "g": "spellquest-he",
+     "stage": 4
+    },
+    {
+     "t": 1791561003241,
+     "s": "mv154kio-iblk5",
+     "run": 5,
+     "e": "replay",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "target": "vav",
      "phase": "question"
     },
     {
-     "t": 1791641723834,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 1.061,
-     "feedback": "praise",
-     "predicted": 0.25,
-     "round": 40,
-     "result": "miss",
-     "choice": "shuruk",
-     "mega": false,
-     "final": false,
-     "points": 21,
-     "effect": "big",
-     "hearts": null,
-     "combo": 4,
-     "score": 692,
-     "bossHp": 2,
-     "msShown": 1234,
-     "msWalk": 7433,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1791641725881,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 1,
-     "target": "vav",
-     "tapped": "vav",
-     "result": "right",
-     "ms": 1103,
-     "assets": [
-      "w-abba",
-      "img-shemesh"
-     ],
-     "clock": 1791641725881
-    },
-    {
-     "t": 1791641731129,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
+     "t": 1791561011582,
+     "s": "mv154kio-iblk5",
+     "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
-     "stage": 4,
-     "target": "nun",
-     "tapped": "nun",
+     "stage": 3,
+     "target": "bet",
+     "tapped": "bet",
      "result": "right",
-     "ms": 4444,
+     "ms": 3399,
      "assets": [
-      "w-shemesh",
-      "img-yeled"
+      "w-sefer",
+      "img-shemesh"
      ],
-     "clock": 1791641731130
+     "clock": 1791561011582
     },
     {
-     "t": 1791641736431,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "settings",
-     "g": "spellquest-he",
-     "keys": [
-      "pace"
-     ],
-     "pace": 2
-    },
-    {
-     "t": 1791641736431,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "boss-win",
-     "g": "spellquest-he",
-     "kind": "dragon",
-     "ms": 37606,
-     "first": false
-    },
-    {
-     "t": 1791641739780,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "skip",
-     "g": "spellquest-he",
-     "screen": "draw",
-     "cycle": 3
-    },
-    {
-     "t": 1791641744931,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "choice",
-     "g": "spellquest-he",
-     "round": 29,
-     "key": "patah",
-     "pos": 2,
-     "correct": true,
-     "twin": false,
-     "walking": true,
-     "msShown": 580,
-     "msWalk": 7769,
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1791641750268,
-     "s": "mv2h7jc0-2zy1f",
-     "run": 2,
-     "e": "idle",
-     "g": "spellquest-he",
-     "screen": "draw",
-     "target": "vav"
-    },
-    {
-     "t": 1791725646983,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 0.641,
-     "feedback": "name",
-     "predicted": 0.169,
-     "round": 34,
-     "result": "miss",
-     "choice": "shva",
-     "mega": false,
-     "final": false,
-     "points": 16,
-     "effect": "small",
-     "hearts": null,
-     "combo": 6,
-     "score": 495,
-     "bossHp": 5,
-     "msShown": 1606,
-     "msWalk": 1161,
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1791725647832,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "choice",
-     "g": "spellquest-he",
-     "round": 40,
-     "key": "kamatz",
-     "pos": 1,
-     "correct": false,
-     "twin": true,
-     "walking": true,
-     "msShown": 8013,
-     "msWalk": 5875,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1791725656757,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "settings",
-     "g": "spellquest-he",
-     "keys": [
-      "volume"
-     ],
-     "volume": 0.92
-    },
-    {
-     "t": 1791725660745,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "mult",
-     "g": "spellquest-he",
-     "mult": 2,
-     "streak": 29
-    },
-    {
-     "t": 1791725668967,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "draw-stroke",
-     "g": "spellquest-he",
-     "letter": "zayin",
-     "script": "print",
-     "n": 2,
-     "ok": true
-    },
-    {
-     "t": 1791725670589,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
+     "t": 1791651426106,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
      "e": "walk",
      "g": "spellquest-he",
-     "round": 22,
-     "clueMs": 1740,
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1791725677552,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "session-home",
-     "g": "spellquest-he"
-    },
-    {
-     "t": 1791725681946,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1791725686018,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 1.123,
-     "feedback": "praise",
-     "predicted": 0.298,
-     "round": 23,
-     "result": "hit",
-     "choice": "hiriq",
-     "mega": false,
-     "final": false,
-     "points": 9,
-     "effect": "big",
-     "hearts": null,
-     "combo": 7,
-     "score": 233,
-     "bossHp": 2,
-     "msShown": 6584,
-     "msWalk": 888,
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1791725692325,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "replay",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "target": "tet",
-     "phase": "answer"
-    },
-    {
-     "t": 1791725700951,
-     "s": "mv3v6nuo-lbxiv",
-     "run": 4,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 1.393,
-     "feedback": "name",
-     "predicted": 0.998,
-     "round": 31,
-     "result": "hit",
-     "choice": "tsere",
-     "mega": false,
-     "final": false,
-     "points": 10,
-     "effect": "small",
-     "hearts": null,
-     "combo": 8,
-     "score": 250,
-     "bossHp": 1,
-     "msShown": 4950,
-     "msWalk": 1178,
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1791908167452,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 27,
-     "clueMs": 358,
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1791908170594,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "replay",
-     "g": "spellquest-he",
-     "round": 11,
+     "round": 18,
+     "clueMs": 524,
      "via": "tower",
      "visit": 2
     },
     {
-     "t": 1791908173602,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
+     "t": 1791651432527,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
      "e": "replay",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "target": "lamed",
-     "phase": "answer"
+     "round": 38,
+     "via": "tower",
+     "visit": 1
     },
     {
-     "t": 1791908175576,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "hint",
-     "g": "spellquest-he",
-     "target": "tet",
-     "auto": false
-    },
-    {
-     "t": 1791908180931,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "draw-stroke",
-     "g": "spellquest-he",
-     "letter": "bet",
-     "script": "print",
-     "n": 4,
-     "ok": false,
-     "why": "direction"
-    },
-    {
-     "t": 1791908189627,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "pairs",
-     "stage": 3,
-     "target": "zayin",
-     "tapped": "zayin",
-     "result": "right",
-     "ms": 5181,
-     "assets": [
-      "w-kelev",
-      "img-sefer"
-     ],
-     "clock": 1791908189625
-    },
-    {
-     "t": 1791908196331,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 4,
-     "target": "het",
-     "tapped": "he",
-     "result": "near",
-     "ms": 3631,
-     "assets": [
-      "w-abba",
-      "img-sefer"
-     ],
-     "clock": 1791908196330
-    },
-    {
-     "t": 1791908200118,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "demo",
-     "g": "spellquest-he",
-     "demo": "demo-flight"
-    },
-    {
-     "t": 1791908204822,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
+     "t": 1791651433964,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
      "e": "line",
      "g": "spellquest-he",
-     "id": "line-wave",
-     "file": "line-wave.mp3",
-     "url": "/alef/assets/line-wave-a1b2c3.mp3",
+     "id": "line-boss",
+     "file": "line-boss.mp3",
+     "url": "/alef/assets/line-boss-a1b2c3.mp3",
      "via": "tower",
      "visit": 4
     },
     {
-     "t": 1791908213344,
-     "s": "mv6vup6o-onih1",
-     "run": 4,
-     "e": "round",
+     "t": 1791651438517,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "draw-stroke",
      "g": "spellquest-he",
-     "round": 10,
-     "restart": false,
-     "wave": 1,
-     "kills": 2,
-     "boss": false,
-     "bossHp": 5,
-     "hearts": null,
-     "combo": 3,
-     "type": "B",
-     "target": "shuruk",
-     "word": "dag",
-     "picture": null,
-     "monster": "slime",
-     "monsterSrc": "/assets/m-6.webp",
-     "walkMs": 5052,
-     "pad": [
-      "kamatz",
-      "hiriq",
-      "segol"
-     ],
-     "padWords": [
-      "ima",
-      "bayit"
-     ],
-     "via": "tower",
-     "visit": 5
+     "letter": "bet",
+     "script": "print",
+     "n": 1,
+     "ok": true,
+     "partial": true,
+     "joined": true
     },
     {
-     "t": 1791995587650,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
+     "t": 1791651447033,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 3,
+     "target": "he",
+     "tapped": null,
+     "result": "wrong",
+     "ms": 1821,
+     "assets": [
+      "w-dag",
+      "img-yeled"
+     ],
+     "clock": 1791651447030
+    },
+    {
+     "t": 1791651455367,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "resume",
+     "g": "spellquest-he",
+     "ms": 38731
+    },
+    {
+     "t": 1791651463901,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 2,
+     "target": "nun",
+     "tapped": "het",
+     "result": "wrong",
+     "ms": 5587,
+     "assets": [
+      "w-bayit",
+      "img-sefer"
+     ],
+     "clock": 1791651463902
+    },
+    {
+     "t": 1791651464749,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "replay",
+     "g": "spellquest-he",
+     "screen": "merchant",
+     "target": "lamed",
+     "phase": "answer"
+    },
+    {
+     "t": 1791651468929,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "tower",
+     "target": "patah",
+     "result": "right",
+     "clock": 1791651468930
+    },
+    {
+     "t": 1791651477522,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "announce",
+     "g": "spellquest-he",
+     "kind": "boss",
+     "wave": 1,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791651480345,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 1.0470000000000002,
+     "feedback": "praise",
+     "predicted": 0.177,
+     "round": 25,
+     "result": "timeout",
+     "choice": "segol",
+     "mega": false,
+     "final": false,
+     "points": 5,
+     "effect": "small",
+     "hearts": null,
+     "combo": 2,
+     "score": 625,
+     "bossHp": 5,
+     "msShown": 5039,
+     "msWalk": 4619,
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1791651487589,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "pause",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "phase": "answer"
+    },
+    {
+     "t": 1791651495902,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "lamed",
+     "tapped": "lamed",
+     "result": "right",
+     "ms": 798,
+     "assets": [
+      "w-yeled",
+      "img-bayit"
+     ],
+     "clock": 1791651495902
+    },
+    {
+     "t": 1791651503619,
+     "s": "mv2mzvc0-dka7c",
+     "run": 3,
+     "e": "voice-fallback",
+     "g": "spellquest-he",
+     "id": "w-shemesh-שלום"
+    },
+    {
+     "t": 1791726545977,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "tet",
+     "script": "print",
+     "n": 4,
+     "ok": true,
+     "joined": true
+    },
+    {
+     "t": 1791726552224,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "mem",
+     "tapped": "het",
+     "result": "wrong",
+     "ms": 6536,
+     "assets": [
+      "w-abba",
+      "img-sefer"
+     ],
+     "clock": 1791726552225
+    },
+    {
+     "t": 1791726560646,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "explain",
+     "g": "spellquest-he",
+     "target": "bet"
+    },
+    {
+     "t": 1791726560646,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 4,
+     "target": "gimel",
+     "tapped": "gimel",
+     "result": "near",
+     "ms": 1178,
+     "assets": [
+      "w-kelev",
+      "img-yeled"
+     ],
+     "clock": 1791726560645
+    },
+    {
+     "t": 1791726565466,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "stage",
+     "g": "spellquest-he",
+     "stage": 4
+    },
+    {
+     "t": 1791726569273,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "replay",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "target": "mem",
+     "phase": "answer"
+    },
+    {
+     "t": 1791726572779,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "tower",
+     "target": "patah",
+     "result": "right",
+     "clock": 1791726572779
+    },
+    {
+     "t": 1791726578861,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.8029999999999999,
+     "feedback": "praise",
+     "predicted": 0.901,
+     "round": 4,
+     "result": "timeout",
+     "choice": "patah",
+     "mega": false,
+     "final": true,
+     "points": 48,
+     "effect": "small",
+     "hearts": null,
+     "combo": 2,
+     "score": 280,
+     "bossHp": 3,
+     "msShown": 2531,
+     "msWalk": 1787,
+     "via": "tower",
+     "visit": 1
+    },
+    {
+     "t": 1791726585869,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "line",
+     "g": "spellquest-he",
+     "id": "line-win",
+     "file": "line-win.mp3",
+     "url": "/alef/assets/line-win-a1b2c3.mp3",
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791726585869,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "he",
+     "tapped": "he",
+     "result": "right",
+     "ms": 6984,
+     "assets": [
+      "w-ima",
+      "img-sefer"
+     ],
+     "clock": 1791726585869
+    },
+    {
+     "t": 1791726593519,
+     "s": "mv3vpyao-tnyl1",
+     "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "patah",
      "result": "wrong",
-     "clock": 1791995587648
+     "clock": 1791726593517
     },
     {
-     "t": 1791995588097,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901683009,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
-     "e": "answer",
+     "e": "outcome",
      "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 2,
-     "target": "lamed",
-     "tapped": null,
-     "result": "wrong",
-     "ms": 4548,
-     "assets": [
-      "w-dag",
-      "img-dag"
-     ],
-     "clock": 1791995588097
-    },
-    {
-     "t": 1791995592266,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
+     "pace": 1.416,
+     "feedback": "name",
+     "predicted": 0.213,
+     "round": 23,
+     "result": "miss",
+     "choice": "hiriq",
+     "mega": false,
+     "final": false,
+     "points": 42,
+     "effect": "big",
+     "hearts": null,
+     "combo": 9,
+     "score": 645,
+     "bossHp": 3,
+     "msShown": 5709,
+     "msWalk": 1155,
      "via": "tower",
-     "visit": 4
+     "visit": 5
     },
     {
-     "t": 1791995593595,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901691676,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
-     "e": "merchant-help",
+     "e": "pause",
      "g": "spellquest-he",
-     "undo": false,
-     "given": 3
+     "screen": "syllables",
+     "phase": "celebrate"
     },
     {
-     "t": 1791995595222,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "target": "kubutz",
-     "result": "right",
-     "clock": 1791995595222
-    },
-    {
-     "t": 1791995600721,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
-     "e": "demo",
-     "g": "spellquest-he",
-     "demo": "demo-draw"
-    },
-    {
-     "t": 1791995601061,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901696161,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "round",
      "g": "spellquest-he",
-     "round": 23,
+     "round": 10,
      "restart": false,
-     "wave": 1,
-     "kills": 10,
+     "wave": 4,
+     "kills": 14,
+     "boss": false,
+     "bossHp": 2,
+     "hearts": null,
+     "combo": 4,
+     "type": "A",
+     "target": "kamatz",
+     "word": "ima",
+     "picture": "pic-ima",
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-6.webp",
+     "walkMs": 5833,
+     "pad": [
+      "patah",
+      "hiriq",
+      "holam"
+     ],
+     "padWords": [
+      "sefer",
+      "bayit"
+     ],
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1791901703370,
+     "s": "mv6rzt6o-r4goj",
+     "run": 2,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 17,
+     "restart": false,
+     "wave": 5,
+     "kills": 19,
      "boss": false,
      "bossHp": 3,
      "hearts": null,
-     "combo": 2,
+     "combo": 3,
      "type": "A",
-     "target": "segol",
+     "target": "shuruk",
      "word": "ima",
-     "picture": "pic-yeled",
-     "monster": "fuzzy",
-     "monsterSrc": "/assets/m-1.webp",
-     "walkMs": 6605,
+     "picture": "pic-kelev",
+     "monster": "dragon",
+     "monsterSrc": null,
+     "walkMs": 7840,
      "pad": [
-      "tsere",
-      "shuruk",
-      "shuruk"
+      "holam",
+      "holam",
+      "patah"
      ],
      "padWords": [
-      "dag",
-      "sefer"
+      "abba",
+      "ima"
      ],
      "via": "tower",
-     "visit": 4
+     "visit": 3
     },
     {
-     "t": 1791995608223,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
-     "e": "resume",
-     "g": "spellquest-he",
-     "ms": null
-    },
-    {
-     "t": 1791995613786,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901710794,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "round",
      "g": "spellquest-he",
-     "round": 20,
+     "round": 7,
      "restart": false,
-     "wave": 5,
-     "kills": 12,
+     "wave": 4,
+     "kills": 15,
      "boss": false,
      "bossHp": 0,
      "hearts": null,
      "combo": 1,
      "type": "A",
-     "target": "patah",
+     "target": "hiriq",
      "word": "abba",
-     "picture": "pic-shemesh",
-     "monster": "slime",
-     "monsterSrc": "/assets/m-2.webp",
-     "walkMs": 5489,
+     "picture": "pic-yeled",
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-7.webp",
+     "walkMs": 5639,
      "pad": [
+      "tsere",
       "hiriq",
-      "kamatz",
-      "kubutz"
+      "segol"
      ],
      "padWords": [
-      "kelev",
+      "yeled",
       "kelev"
      ],
      "via": "tower",
      "visit": 5
     },
     {
-     "t": 1791995617429,
-     "s": "mv8bwew0-lp3dy",
-     "run": 2,
-     "e": "replay",
-     "g": "spellquest-he",
-     "round": 17,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1791995621524,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901714889,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "pause",
      "g": "spellquest-he",
@@ -1599,8 +1597,8 @@
      "visit": 1
     },
     {
-     "t": 1791995628053,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901721418,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "answer",
      "g": "spellquest-he",
@@ -1614,11 +1612,11 @@
       "w-bayit",
       "img-shemesh"
      ],
-     "clock": 1791995628051
+     "clock": 1791901721416
     },
     {
-     "t": 1791995628863,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901722228,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "answer",
      "g": "spellquest-he",
@@ -1632,152 +1630,151 @@
       "w-ima",
       "img-shemesh"
      ],
-     "clock": 1791995628860
+     "clock": 1791901722225
     },
     {
-     "t": 1791995633880,
-     "s": "mv8bwew0-lp3dy",
+     "t": 1791901727245,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
      "e": "defeat",
      "g": "spellquest-he",
      "screen": "letters"
     },
     {
-     "t": 1792075200290,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 1,
-     "target": "lamed",
-     "tapped": "lamed",
-     "result": "right",
-     "ms": 7820,
-     "assets": [
-      "w-ima",
-      "img-bayit"
-     ],
-     "clock": 1792075200290
-    },
-    {
-     "t": 1792075203020,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "draw-stroke",
-     "g": "spellquest-he",
-     "letter": "dalet",
-     "script": "cursive",
-     "n": 2,
-     "ok": true,
-     "joined": true
-    },
-    {
-     "t": 1792075210952,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "pairs",
-     "stage": 2,
-     "target": "tet",
-     "tapped": "tet",
-     "result": "right",
-     "ms": 6142,
-     "assets": [
-      "w-dag",
-      "img-kelev"
-     ],
-     "clock": 1792075210952
-    },
-    {
-     "t": 1792075218498,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1792075224723,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "merchant-offer",
-     "g": "spellquest-he",
-     "sum": 3,
-     "price": 2,
-     "verdict": "short",
-     "coins": [
-      1,
-      4,
-      1
-     ]
-    },
-    {
-     "t": 1792075226204,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 3,
-     "target": "lamed",
-     "tapped": "lamed",
-     "result": "right",
-     "ms": 1902,
-     "assets": [
-      "w-dag",
-      "img-yeled"
-     ],
-     "clock": 1792075226204
-    },
-    {
-     "t": 1792075226452,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
+     "t": 1791901730639,
+     "s": "mv6rzt6o-r4goj",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
      "stage": 1,
-     "target": "dalet",
-     "tapped": "dalet",
+     "target": "samekh",
+     "tapped": "samekh",
      "result": "right",
-     "ms": 4914,
+     "ms": 5034,
      "assets": [
       "w-kelev",
-      "img-sefer"
+      "img-bayit"
      ],
-     "clock": 1792075226450
+     "clock": 1791901730636
     },
     {
-     "t": 1792075231716,
-     "s": "mv9nay2o-qma68",
-     "run": 1,
-     "e": "pause",
-     "g": "spellquest-he",
-     "cause": "button",
-     "round": null,
-     "duringOutcome": false,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1792075235270,
-     "s": "mv9nay2o-qma68",
+     "t": 1791901738431,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
-     "e": "resume",
+     "e": "answer",
      "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 4,
+     "target": "lamed",
+     "tapped": "lamed",
+     "result": "right",
+     "ms": 8191,
+     "assets": [
+      "w-dag",
+      "img-kelev"
+     ],
+     "clock": 1791901738431
+    },
+    {
+     "t": 1791901743117,
+     "s": "mv6rzt6o-r4goj",
+     "run": 2,
+     "e": "combo",
+     "g": "spellquest-he",
+     "round": 36,
+     "combo": 3,
      "via": "tower",
      "visit": 4
     },
     {
-     "t": 1792075236929,
-     "s": "mv9nay2o-qma68",
+     "t": 1791901744546,
+     "s": "mv6rzt6o-r4goj",
      "run": 2,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "samekh",
+     "tapped": "zayin",
+     "result": "wrong",
+     "ms": 7579,
+     "assets": [
+      "w-dag",
+      "img-bayit"
+     ],
+     "clock": 1791901744547
+    },
+    {
+     "t": 1791996128928,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 29,
+     "restart": false,
+     "wave": 3,
+     "kills": 3,
+     "boss": false,
+     "bossHp": 4,
+     "hearts": null,
+     "combo": 1,
+     "type": "A",
+     "target": "patah",
+     "word": "shemesh",
+     "picture": "pic-kelev",
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-9.webp",
+     "walkMs": 8362,
+     "pad": [
+      "kamatz",
+      "kubutz",
+      "kubutz"
+     ],
+     "padWords": [
+      "abba",
+      "dag"
+     ],
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1791996129371,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 17,
+     "restart": false,
+     "wave": 3,
+     "kills": 6,
+     "boss": false,
+     "bossHp": 3,
+     "hearts": null,
+     "combo": 8,
+     "type": "B",
+     "target": "segol",
+     "word": "shemesh",
+     "picture": null,
+     "monster": "slime",
+     "monsterSrc": "/assets/m-6.webp",
+     "walkMs": 5133,
+     "pad": [
+      "shuruk",
+      "tsere",
+      "kamatz"
+     ],
+     "padWords": [
+      "bayit",
+      "shemesh"
+     ],
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1791996131030,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "pause",
      "g": "spellquest-he",
      "cause": "button",
@@ -1787,18 +1784,18 @@
      "visit": 1
     },
     {
-     "t": 1792075240798,
-     "s": "mv9nay2o-qma68",
-     "run": 2,
+     "t": 1791996134899,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "pause",
      "g": "spellquest-he",
      "screen": "pairs",
      "phase": "answer"
     },
     {
-     "t": 1792075247857,
-     "s": "mv9nay2o-qma68",
-     "run": 2,
+     "t": 1791996141958,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "line",
      "g": "spellquest-he",
      "id": "line-boss",
@@ -1808,9 +1805,17 @@
      "visit": 4
     },
     {
-     "t": 1792244582198,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996143996,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
+     "e": "run-start",
+     "g": "spellquest-he",
+     "stage": 4
+    },
+    {
+     "t": 1791996146194,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
@@ -1823,12 +1828,12 @@
       "w-dag",
       "img-bayit"
      ],
-     "clock": 1792244582198
+     "clock": 1791996146194
     },
     {
-     "t": 1792244583460,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996147456,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
@@ -1841,12 +1846,12 @@
       "w-dag",
       "img-bayit"
      ],
-     "clock": 1792244583457
+     "clock": 1791996147453
     },
     {
-     "t": 1792244583460,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996147456,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "tower-start",
      "g": "spellquest-he",
      "wave": 3,
@@ -1854,9 +1859,9 @@
      "waves": 5
     },
     {
-     "t": 1792244584091,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996148087,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "merchant-offer",
      "g": "spellquest-he",
      "sum": 4,
@@ -1869,9 +1874,9 @@
      ]
     },
     {
-     "t": 1792244587778,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996151774,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "replay",
      "g": "spellquest-he",
      "screen": "pairs",
@@ -1879,18 +1884,18 @@
      "phase": "answer"
     },
     {
-     "t": 1792244591236,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996155232,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "hint",
      "g": "spellquest-he",
      "target": "kaf",
      "auto": true
     },
     {
-     "t": 1792244595711,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996159707,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "round",
      "g": "spellquest-he",
      "round": 2,
@@ -1921,9 +1926,9 @@
      "visit": 4
     },
     {
-     "t": 1792244602447,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1791996166443,
+     "s": "mv8c7zk0-1wl67",
+     "run": 4,
      "e": "choice",
      "g": "spellquest-he",
      "round": 10,
@@ -1938,17 +1943,9 @@
      "visit": 4
     },
     {
-     "t": 1792244607400,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
-     "e": "boss-start",
-     "g": "spellquest-he",
-     "kind": "troll"
-    },
-    {
-     "t": 1792244609505,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1792078142105,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 5,
      "e": "draw-stroke",
      "g": "spellquest-he",
      "letter": "vav",
@@ -1957,9 +1954,9 @@
      "ok": true
     },
     {
-     "t": 1792244610689,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1792078143289,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
@@ -1972,12 +1969,12 @@
       "w-sefer",
       "img-sefer"
      ],
-     "clock": 1792244610689
+     "clock": 1792078143289
     },
     {
-     "t": 1792244614375,
-     "s": "mvcg5cio-qzxa6",
-     "run": 1,
+     "t": 1792078146975,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 5,
      "e": "replay",
      "g": "spellquest-he",
      "round": 29,
@@ -1985,9 +1982,9 @@
      "visit": 3
     },
     {
-     "t": 1792244623097,
-     "s": "mvcg5cio-qzxa6",
-     "run": 2,
+     "t": 1792078155697,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
@@ -2000,21 +1997,21 @@
       "w-kelev",
       "img-yeled"
      ],
-     "clock": 1792244623095
+     "clock": 1792078155695
     },
     {
-     "t": 1792244626445,
-     "s": "mvcg5cio-qzxa6",
-     "run": 2,
+     "t": 1792078159045,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "mult",
      "g": "spellquest-he",
      "mult": 4,
      "streak": 30
     },
     {
-     "t": 1792244629026,
-     "s": "mvcg5cio-qzxa6",
-     "run": 2,
+     "t": 1792078161626,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "round",
      "g": "spellquest-he",
      "round": 30,
@@ -2045,139 +2042,130 @@
      "visit": 3
     },
     {
-     "t": 1792337280000,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
+     "t": 1792078167456,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 34,
+     "key": "tsere",
+     "pos": 0,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 541,
+     "msWalk": 1588,
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1792078168064,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 4,
-     "target": "gimel",
-     "tapped": "gimel",
-     "result": "right",
-     "ms": 798,
+     "stage": 1,
+     "target": "nun",
+     "tapped": "nun",
+     "result": "wrong",
+     "ms": 5374,
      "assets": [
-      "w-yeled",
-      "img-bayit"
+      "w-dag",
+      "img-abba"
      ],
-     "clock": 1792337280000
+     "clock": 1792078168062
     },
     {
-     "t": 1792337283214,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
-     "e": "defeat",
-     "g": "spellquest-he",
-     "screen": "flight"
-    },
-    {
-     "t": 1792337283856,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
+     "t": 1792078170383,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
      "stage": 1,
-     "target": "alef",
-     "tapped": "alef",
-     "result": "right",
-     "ms": 8829,
+     "target": "yod",
+     "tapped": "het",
+     "result": "near",
+     "ms": 6440,
      "assets": [
-      "w-shemesh",
-      "img-shemesh"
+      "w-kelev",
+      "img-abba"
      ],
-     "clock": 1792337283856
+     "clock": 1792078170381
     },
     {
-     "t": 1792337290236,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
+     "t": 1792078175532,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
      "e": "choice",
      "g": "spellquest-he",
-     "round": 23,
-     "key": "holam",
-     "pos": 0,
+     "round": 5,
+     "key": "segol",
+     "pos": 2,
      "correct": true,
      "twin": false,
      "walking": true,
-     "msShown": 6356,
-     "msWalk": 1859,
+     "msShown": 2353,
+     "msWalk": 1522,
      "via": "tower",
      "visit": 1
     },
     {
-     "t": 1792337293137,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
-     "e": "round",
+     "t": 1792078180944,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
+     "e": "hint",
      "g": "spellquest-he",
-     "round": 23,
-     "restart": false,
-     "wave": 2,
-     "kills": 12,
-     "boss": false,
-     "bossHp": 5,
-     "hearts": null,
-     "combo": 1,
-     "type": "A",
-     "target": "kamatz",
-     "word": "kelev",
-     "picture": "pic-ima",
-     "monster": "fuzzy",
-     "monsterSrc": "/assets/m-8.webp",
-     "walkMs": 6897,
-     "pad": [
-      "kamatz",
-      "shuruk",
-      "shva"
+     "screen": "draw",
+     "target": "abba",
+     "auto": true
+    },
+    {
+     "t": 1792078182276,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
+     "e": "draw-done",
+     "g": "spellquest-he",
+     "letter": "het",
+     "script": "print",
+     "word": "yeled",
+     "ms": 36727,
+     "wrongStrokes": 1,
+     "helped": false
+    },
+    {
+     "t": 1792078185212,
+     "s": "mv9p1ylc-hvrsg",
+     "run": 6,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 2,
+     "target": "vav",
+     "tapped": null,
+     "result": "wrong",
+     "ms": 2442,
+     "assets": [
+      "w-ima",
+      "img-bayit"
      ],
-     "padWords": [
-      "bayit",
-      "shemesh"
-     ],
-     "via": "tower",
-     "visit": 2
+     "clock": 1792078185212
     },
     {
-     "t": 1792337298143,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
-     "e": "choice",
-     "g": "spellquest-he",
-     "round": 17,
-     "key": "patah",
-     "pos": 0,
-     "correct": true,
-     "twin": false,
-     "walking": true,
-     "msShown": 1633,
-     "msWalk": 2835,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1792337303003,
-     "s": "mvdzc8ao-78hvy",
-     "run": 4,
-     "e": "pause",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "phase": "celebrate"
-    },
-    {
-     "t": 1792337308544,
-     "s": "mvdzc8ao-78hvy",
+     "t": 1792248365541,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "tsere",
      "result": "right",
-     "clock": 1792337308541
+     "clock": 1792248365538
     },
     {
-     "t": 1792337315881,
-     "s": "mvdzc8ao-78hvy",
+     "t": 1792248372878,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "line",
      "g": "spellquest-he",
@@ -2188,8 +2176,8 @@
      "visit": 5
     },
     {
-     "t": 1792337323623,
-     "s": "mvdzc8ao-78hvy",
+     "t": 1792248380620,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -2203,11 +2191,11 @@
       "w-kelev",
       "img-yeled"
      ],
-     "clock": 1792337323623
+     "clock": 1792248380620
     },
     {
-     "t": 1792337323861,
-     "s": "mvdzc8ao-78hvy",
+     "t": 1792248380858,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "session-start",
      "g": "spellquest-he",
@@ -2215,54 +2203,63 @@
      "screen": "draw"
     },
     {
-     "t": 1792337331745,
-     "s": "mvdzc8ao-78hvy",
+     "t": 1792248388742,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "kubutz",
      "result": "wrong",
-     "clock": 1792337331743
+     "clock": 1792248388740
     },
     {
-     "t": 1792428300363,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248397598,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
-     "e": "resume",
+     "e": "idle",
      "g": "spellquest-he",
-     "via": "tower",
-     "visit": 3
+     "screen": "draw",
+     "target": "alef"
     },
     {
-     "t": 1792428302361,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248398348,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
-     "result": "near",
-     "ms": 7486,
+     "stage": 1,
+     "target": "gimel",
+     "tapped": "gimel",
+     "result": "right",
+     "ms": 8381,
      "assets": [
-      "w-ima",
+      "w-abba",
       "img-sefer"
      ],
-     "clock": 1792428302358
+     "clock": 1792248398349
     },
     {
-     "t": 1792428308041,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248398348,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
-     "e": "explain",
+     "e": "choice",
      "g": "spellquest-he",
-     "target": "dalet"
+     "round": 26,
+     "key": "holam",
+     "pos": 0,
+     "correct": false,
+     "twin": false,
+     "walking": false,
+     "msShown": 6830,
+     "msWalk": null,
+     "via": "tower",
+     "visit": 2
     },
     {
-     "t": 1792428316204,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248406511,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "idle",
      "g": "spellquest-he",
@@ -2270,20 +2267,20 @@
      "target": "zayin"
     },
     {
-     "t": 1792428316493,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248406800,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "tsere",
      "result": "right",
-     "clock": 1792428316491,
+     "clock": 1792248406798,
      "gallery": true
     },
     {
-     "t": 1792428316493,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248406800,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "line",
      "g": "spellquest-he",
@@ -2294,8 +2291,8 @@
      "visit": 6
     },
     {
-     "t": 1792428320383,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248410690,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "choice",
      "g": "spellquest-he",
@@ -2311,8 +2308,8 @@
      "visit": 2
     },
     {
-     "t": 1792428322959,
-     "s": "mvfhj3s0-d2t6s",
+     "t": 1792248413266,
+     "s": "mvcied6o-kdxa2",
      "run": 4,
      "e": "round",
      "g": "spellquest-he",
@@ -2344,198 +2341,183 @@
      "visit": 5
     },
     {
-     "t": 1792428326752,
-     "s": "mvfhj3s0-d2t6s",
-     "run": 4,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-win",
-     "file": "line-win.mp3",
-     "url": "/alef/assets/line-win-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1792428328342,
-     "s": "mvfhj3s0-d2t6s",
-     "run": 4,
+     "t": 1792336382584,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 1,
+     "screen": "letters",
+     "stage": 4,
+     "target": "mem",
+     "tapped": null,
+     "result": "near",
+     "ms": 3824,
+     "assets": [
+      "w-abba",
+      "img-sefer"
+     ],
+     "clock": 1792336382584
+    },
+    {
+     "t": 1792336383282,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "fix",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "target": "c-bet",
+     "ms": 2929,
+     "replays": 3
+    },
+    {
+     "t": 1792336384436,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "visit",
+     "g": "spellquest-he",
+     "screen": "merchant",
+     "len": 4
+    },
+    {
+     "t": 1792336386779,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "pause",
+     "g": "spellquest-he",
+     "screen": "merchant",
+     "phase": "question"
+    },
+    {
+     "t": 1792336392714,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 3,
      "target": "gimel",
      "tapped": "gimel",
-     "result": "near",
-     "ms": 5135,
+     "result": "right",
+     "ms": 7712,
      "assets": [
-      "w-kelev",
+      "w-abba",
+      "img-sefer"
+     ],
+     "clock": 1792336392714
+    },
+    {
+     "t": 1792336392930,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "pause",
+     "g": "spellquest-he",
+     "screen": "flight",
+     "phase": "question"
+    },
+    {
+     "t": 1792336396821,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 1,
+     "target": "vav",
+     "tapped": "dalet",
+     "result": "near",
+     "ms": 1502,
+     "assets": [
+      "w-bayit",
+      "img-shemesh"
+     ],
+     "clock": 1792336396821
+    },
+    {
+     "t": 1792336398367,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "nun",
+     "script": "print",
+     "n": 4,
+     "ok": true
+    },
+    {
+     "t": 1792336406162,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 4,
+     "target": "lamed",
+     "tapped": "het",
+     "result": "wrong",
+     "ms": 6111,
+     "assets": [
+      "w-sefer",
       "img-abba"
      ],
-     "clock": 1792428328343
+     "clock": 1792336406161
     },
     {
-     "t": 1792428329533,
-     "s": "mvfhj3s0-d2t6s",
-     "run": 4,
-     "e": "line",
+     "t": 1792336408133,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "answer",
      "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1792428329533,
-     "s": "mvfhj3s0-d2t6s",
-     "run": 4,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 18,
-     "clueMs": 882,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1792599844335,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 24,
-     "restart": false,
-     "wave": 1,
-     "kills": 11,
-     "boss": false,
-     "bossHp": 4,
-     "hearts": null,
-     "combo": 2,
-     "type": "A",
-     "target": "kamatz",
-     "word": "bayit",
-     "picture": "pic-shemesh",
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-3.webp",
-     "walkMs": 5311,
-     "pad": [
-      "tsere",
-      "segol",
-      "holam"
+     "screen": "letters",
+     "stage": 1,
+     "target": "he",
+     "tapped": "dalet",
+     "result": "wrong",
+     "ms": 8523,
+     "assets": [
+      "w-ima",
+      "img-ima"
      ],
-     "padWords": [
-      "bayit",
-      "dag"
-     ],
-     "via": "tower",
-     "visit": 3
+     "clock": 1792336408130
     },
     {
-     "t": 1792599845303,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "round",
+     "t": 1792336415923,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
+     "e": "answer",
      "g": "spellquest-he",
-     "round": 29,
-     "restart": false,
-     "wave": 3,
-     "kills": 1,
-     "boss": false,
-     "bossHp": 2,
-     "hearts": null,
-     "combo": 4,
-     "type": "A",
-     "target": "shuruk",
-     "word": "bayit",
-     "picture": "pic-dag",
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-9.webp",
-     "walkMs": 7003,
-     "pad": [
-      "hiriq",
-      "patah",
-      "shuruk"
+     "screen": "letters",
+     "stage": 3,
+     "target": "vav",
+     "tapped": "vav",
+     "result": "right",
+     "ms": 5288,
+     "assets": [
+      "w-sefer",
+      "img-dag"
      ],
-     "padWords": [
-      "ima",
-      "yeled"
-     ],
-     "via": "tower",
-     "visit": 2
+     "clock": 1792336415922
     },
     {
-     "t": 1792599852441,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "skip",
-     "g": "spellquest-he",
-     "screen": "draw",
-     "cycle": 3
-    },
-    {
-     "t": 1792599853290,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "run-exit",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "score": 213,
-     "paused": false,
-     "ended": true
-    },
-    {
-     "t": 1792599856178,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
+     "t": 1792336423163,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
      "e": "choice",
      "g": "spellquest-he",
-     "round": 6,
-     "key": "patah",
+     "round": 22,
+     "key": "shuruk",
      "pos": 2,
      "correct": true,
      "twin": false,
-     "walking": false,
-     "msShown": 6150,
-     "msWalk": null,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1792599862358,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 8,
-     "restart": false,
-     "wave": 3,
-     "kills": 12,
-     "boss": false,
-     "bossHp": 2,
-     "hearts": null,
-     "combo": 4,
-     "type": "A",
-     "target": "holam",
-     "word": "yeled",
-     "picture": "pic-bayit",
-     "monster": "fuzzy",
-     "monsterSrc": "/assets/m-1.webp",
-     "walkMs": 6631,
-     "pad": [
-      "hiriq",
-      "shuruk",
-      "kubutz"
-     ],
-     "padWords": [
-      "kelev",
-      "dag"
-     ],
+     "walking": true,
+     "msShown": 3875,
+     "msWalk": 7704,
      "via": "tower",
      "visit": 6
     },
     {
-     "t": 1792599864369,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
+     "t": 1792336425174,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
      "e": "outcome",
      "g": "spellquest-he",
      "pace": 0.823,
@@ -2558,9 +2540,9 @@
      "visit": 4
     },
     {
-     "t": 1792599866642,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
+     "t": 1792336427447,
+     "s": "mvdysxuo-574fv",
+     "run": 5,
      "e": "choice",
      "g": "spellquest-he",
      "round": 14,
@@ -2575,265 +2557,258 @@
      "visit": 6
     },
     {
-     "t": 1792599872674,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "pairs",
-     "stage": 3,
-     "target": "het",
-     "tapped": "het",
-     "result": "right",
-     "ms": 4974,
-     "assets": [
-      "w-dag",
-      "img-ima"
-     ],
-     "clock": 1792599872675
-    },
-    {
-     "t": 1792599879185,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "target": "kubutz",
-     "result": "wrong",
-     "clock": 1792599879185
-    },
-    {
-     "t": 1792599881817,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
+     "t": 1792424047468,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
      "e": "draw-stroke",
      "g": "spellquest-he",
-     "letter": "het",
-     "script": "print",
-     "n": 2,
+     "letter": "nun",
+     "script": "cursive",
+     "n": 3,
      "ok": true
     },
     {
-     "t": 1792599888047,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
+     "t": 1792424054314,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
      "e": "round",
      "g": "spellquest-he",
-     "round": 22,
+     "round": 12,
      "restart": false,
      "wave": 5,
-     "kills": 12,
-     "boss": false,
-     "bossHp": 5,
-     "hearts": null,
-     "combo": 3,
-     "type": "B",
-     "target": "segol",
-     "word": "shemesh",
-     "picture": null,
-     "monster": "slime",
-     "monsterSrc": "/assets/m-1.webp",
-     "walkMs": 7447,
-     "pad": [
-      "holam",
-      "shuruk",
-      "holam"
-     ],
-     "padWords": [
-      "yeled",
-      "yeled"
-     ],
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1792599893694,
-     "s": "mvibnsw0-a92qv",
-     "run": 4,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 0.884,
-     "feedback": "praise",
-     "predicted": 0.352,
-     "round": 10,
-     "result": "timeout",
-     "choice": "patah",
-     "mega": false,
-     "final": false,
-     "points": 29,
-     "effect": "small",
-     "hearts": null,
-     "combo": 0,
-     "score": 246,
-     "bossHp": 3,
-     "msShown": 1697,
-     "msWalk": 5328,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1792690020807,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 3,
-     "target": "he",
-     "tapped": "he",
-     "result": "right",
-     "ms": 5037,
-     "assets": [
-      "w-abba",
-      "img-kelev"
-     ],
-     "clock": 1792690020805
-    },
-    {
-     "t": 1792690027276,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 3,
-     "target": "yod",
-     "tapped": "yod",
-     "result": "right",
-     "ms": 969,
-     "assets": [
-      "w-dag",
-      "img-kelev"
-     ],
-     "clock": 1792690027274
-    },
-    {
-     "t": 1792690029998,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "hint",
-     "g": "spellquest-he",
-     "screen": "draw",
-     "target": "kelev",
-     "auto": true
-    },
-    {
-     "t": 1792690033565,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
-     "result": "right",
-     "ms": 6548,
-     "assets": [
-      "w-yeled",
-      "img-shemesh"
-     ],
-     "clock": 1792690033566
-    },
-    {
-     "t": 1792690035455,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 4,
-     "target": "bet",
-     "tapped": "nun",
-     "result": "near",
-     "ms": 8655,
-     "assets": [
-      "w-yeled",
-      "img-shemesh"
-     ],
-     "clock": 1792690035456
-    },
-    {
-     "t": 1792690041567,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "merchant-demo",
-     "g": "spellquest-he"
-    },
-    {
-     "t": 1792690044899,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 1,
-     "target": "mem",
-     "tapped": "mem",
-     "result": "right",
-     "ms": 8031,
-     "assets": [
-      "w-dag",
-      "img-dag"
-     ],
-     "clock": 1792690044896
-    },
-    {
-     "t": 1792690053307,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 16,
-     "restart": false,
-     "wave": 1,
-     "kills": 10,
+     "kills": 17,
      "boss": true,
-     "bossHp": 1,
+     "bossHp": 3,
      "hearts": null,
-     "combo": 6,
-     "type": "A",
-     "target": "kamatz",
-     "word": "dag",
-     "picture": "pic-bayit",
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-2.webp",
-     "walkMs": 5096,
+     "combo": 4,
+     "type": "B",
+     "target": "tsere",
+     "word": "bayit",
+     "picture": null,
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-6.webp",
+     "walkMs": 7741,
      "pad": [
-      "shuruk",
       "kamatz",
-      "patah"
+      "kamatz",
+      "segol"
      ],
      "padWords": [
-      "sefer",
-      "abba"
+      "dag",
+      "sefer"
      ],
      "via": "tower",
      "visit": 5
     },
     {
-     "t": 1792690054275,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
+     "t": 1792424059864,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
-     "stage": 2,
-     "target": "mem",
-     "tapped": "vav",
-     "result": "near",
-     "ms": 4405,
+     "stage": 4,
+     "target": "yod",
+     "tapped": "yod",
+     "result": "right",
+     "ms": 1257,
      "assets": [
       "w-sefer",
-      "img-dag"
+      "img-sefer"
      ],
-     "clock": 1792690054276
+     "clock": 1792424059861
     },
     {
-     "t": 1792690060549,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
+     "t": 1792424066798,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 22,
+     "key": "tsere",
+     "pos": 0,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 3361,
+     "msWalk": 1864,
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1792424071620,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "he",
+     "tapped": "he",
+     "result": "right",
+     "ms": 5491,
+     "assets": [
+      "w-abba",
+      "img-bayit"
+     ],
+     "clock": 1792424071617
+    },
+    {
+     "t": 1792424074569,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "nun",
+     "tapped": "nun",
+     "result": "right",
+     "ms": 2944,
+     "assets": [
+      "w-bayit",
+      "img-sefer"
+     ],
+     "clock": 1792424074568,
+     "gallery": true
+    },
+    {
+     "t": 1792424079941,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "hint",
+     "g": "spellquest-he",
+     "screen": "draw",
+     "target": "dag",
+     "auto": true
+    },
+    {
+     "t": 1792424085675,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 2,
+     "target": "het",
+     "tapped": "he",
+     "result": "near",
+     "ms": 4535,
+     "assets": [
+      "w-yeled",
+      "img-shemesh"
+     ],
+     "clock": 1792424085672
+    },
+    {
+     "t": 1792424088933,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 1,
+     "target": "tet",
+     "tapped": "tet",
+     "result": "right",
+     "ms": 7244,
+     "assets": [
+      "w-shemesh",
+      "img-yeled"
+     ],
+     "clock": 1792424088930
+    },
+    {
+     "t": 1792424089649,
+     "s": "mvfezsqo-oyvuy",
+     "run": 1,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "mem",
+     "script": "print",
+     "n": 1,
+     "ok": true
+    },
+    {
+     "t": 1792602485912,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "info",
+     "g": "spellquest-he",
+     "what": "info-crystal"
+    },
+    {
+     "t": 1792602491738,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "boss-hit",
+     "g": "spellquest-he",
+     "kind": "dragon",
+     "left": 0
+    },
+    {
+     "t": 1792602500708,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "explain",
+     "g": "spellquest-he",
+     "target": "mem"
+    },
+    {
+     "t": 1792602506863,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.895,
+     "feedback": "name",
+     "predicted": 0.105,
+     "round": 21,
+     "result": "hit",
+     "choice": "segol",
+     "mega": false,
+     "final": true,
+     "points": 48,
+     "effect": "small",
+     "hearts": null,
+     "combo": 6,
+     "score": 859,
+     "bossHp": 1,
+     "msShown": 705,
+     "msWalk": 7486,
+     "via": "tower",
+     "visit": 1
+    },
+    {
+     "t": 1792602512070,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "mem",
+     "tapped": "mem",
+     "result": "right",
+     "ms": 7370,
+     "assets": [
+      "w-yeled",
+      "img-yeled"
+     ],
+     "clock": 1792602512070
+    },
+    {
+     "t": 1792602516368,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "defeat",
+     "g": "spellquest-he",
+     "screen": "draw"
+    },
+    {
+     "t": 1792602522642,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
      "e": "line",
      "g": "spellquest-he",
      "id": "line-boss",
@@ -2843,182 +2818,179 @@
      "visit": 1
     },
     {
-     "t": 1792690060549,
-     "s": "mvjtco80-7nl7b",
-     "run": 2,
+     "t": 1792602522642,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "kubutz",
      "result": "right",
-     "clock": 1792690060547
+     "clock": 1792602522640
     },
     {
-     "t": 1792769223057,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
-     "e": "resume",
+     "t": 1792602526984,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
+     "e": "choice",
      "g": "spellquest-he",
-     "ms": 16825
+     "round": 13,
+     "key": "kamatz",
+     "pos": 2,
+     "correct": false,
+     "twin": false,
+     "walking": true,
+     "msShown": 8315,
+     "msWalk": 2195,
+     "via": "tower",
+     "visit": 2
     },
     {
-     "t": 1792769225686,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "pairs",
-     "stage": 1,
-     "target": "gimel",
-     "tapped": "gimel",
-     "result": "right",
-     "ms": 3328,
-     "assets": [
-      "w-sefer",
-      "img-abba"
-     ],
-     "clock": 1792769225684
-    },
-    {
-     "t": 1792769229249,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
+     "t": 1792602527744,
+     "s": "mvid8dxc-zuueh",
+     "run": 1,
      "e": "round",
      "g": "spellquest-he",
-     "round": 9,
-     "restart": false,
-     "wave": 5,
-     "kills": 10,
-     "boss": false,
-     "bossHp": 3,
+     "round": 31,
+     "restart": true,
+     "wave": 2,
+     "kills": 11,
+     "boss": true,
+     "bossHp": 4,
      "hearts": null,
-     "combo": 6,
+     "combo": 5,
      "type": "A",
-     "target": "holam",
+     "target": "kubutz",
      "word": "kelev",
      "picture": "pic-bayit",
-     "monster": "slime",
+     "monster": "fuzzy",
      "monsterSrc": "/assets/m-5.webp",
-     "walkMs": 7058,
+     "walkMs": 5860,
      "pad": [
-      "tsere",
-      "patah",
+      "holam",
+      "shuruk",
       "hiriq"
      ],
      "padWords": [
       "ima",
-      "abba"
+      "sefer"
      ],
      "via": "tower",
-     "visit": 6
+     "visit": 5
     },
     {
-     "t": 1792769232392,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 24,
-     "restart": false,
-     "wave": 1,
-     "kills": 19,
-     "boss": false,
-     "bossHp": 0,
-     "hearts": null,
-     "combo": 9,
-     "type": "A",
-     "target": "shva",
-     "word": "sefer",
-     "picture": "pic-kelev",
-     "monster": "fuzzy",
-     "monsterSrc": "/assets/m-8.webp",
-     "walkMs": 8834,
-     "pad": [
-      "tsere",
-      "tsere",
-      "patah"
-     ],
-     "padWords": [
-      "bayit",
-      "dag"
-     ],
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1792769236385,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
+     "t": 1792680363265,
+     "s": "mvjnlmio-v93ke",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "tower",
-     "target": "hiriq",
+     "screen": "letters",
+     "stage": 2,
+     "target": "mem",
+     "tapped": "mem",
      "result": "right",
-     "clock": 1792769236384
+     "ms": 6883,
+     "assets": [
+      "w-bayit",
+      "img-abba"
+     ],
+     "clock": 1792680363265
     },
     {
-     "t": 1792769242293,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 24,
-     "restart": false,
-     "wave": 1,
-     "kills": 11,
-     "boss": false,
-     "bossHp": 0,
-     "hearts": null,
-     "combo": 0,
-     "type": "B",
-     "target": "holam",
-     "word": "sefer",
-     "picture": null,
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-3.webp",
-     "walkMs": 6726,
-     "pad": [
-      "shva",
-      "kamatz",
-      "holam"
-     ],
-     "padWords": [
-      "dag",
-      "abba"
-     ],
-     "via": "tower",
-     "visit": 2
-    },
-    {
-     "t": 1792769242293,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 4,
+     "t": 1792680363545,
+     "s": "mvjnlmio-v93ke",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 1,
-     "target": "yod",
-     "tapped": "yod",
-     "result": "right",
-     "ms": 699,
+     "stage": 2,
+     "target": "samekh",
+     "tapped": "vav",
+     "result": "near",
+     "ms": 7726,
      "assets": [
-      "w-yeled",
-      "img-bayit"
+      "w-dag",
+      "img-kelev"
      ],
-     "clock": 1792769242292
+     "clock": 1792680363545
     },
     {
-     "t": 1792769246552,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 5,
+     "t": 1792680371886,
+     "s": "mvjnlmio-v93ke",
+     "run": 2,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 2,
+     "target": "kaf",
+     "tapped": "kaf",
+     "result": "right",
+     "ms": 4957,
+     "assets": [
+      "w-kelev",
+      "img-sefer"
+     ],
+     "clock": 1792680371885
+    },
+    {
+     "t": 1792680372609,
+     "s": "mvjnlmio-v93ke",
+     "run": 2,
      "e": "resume",
      "g": "spellquest-he",
-     "ms": 24051
+     "ms": 8162
     },
     {
-     "t": 1792769248210,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 5,
+     "t": 1792680378410,
+     "s": "mvjnlmio-v93ke",
+     "run": 3,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 16,
+     "key": "segol",
+     "pos": 1,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 8358,
+     "msWalk": 574,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1792680379190,
+     "s": "mvjnlmio-v93ke",
+     "run": 3,
+     "e": "line",
+     "g": "spellquest-he",
+     "id": "line-win",
+     "file": "line-win.mp3",
+     "url": "/alef/assets/line-win-a1b2c3.mp3",
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1792680381495,
+     "s": "mvjnlmio-v93ke",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 2,
+     "target": "vav",
+     "tapped": "vav",
+     "result": "right",
+     "ms": 514,
+     "assets": [
+      "w-shemesh",
+      "img-sefer"
+     ],
+     "clock": 1792680381496
+    },
+    {
+     "t": 1792680383153,
+     "s": "mvjnlmio-v93ke",
+     "run": 3,
      "e": "flight",
      "g": "spellquest-he",
      "kind": "bird",
@@ -3027,9 +2999,9 @@
      "boss": null
     },
     {
-     "t": 1792769249735,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 5,
+     "t": 1792680384678,
+     "s": "mvjnlmio-v93ke",
+     "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
@@ -3042,29 +3014,29 @@
       "w-sefer",
       "img-dag"
      ],
-     "clock": 1792769249732
+     "clock": 1792680384675
     },
     {
-     "t": 1792769251847,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 6,
+     "t": 1792680386790,
+     "s": "mvjnlmio-v93ke",
+     "run": 4,
      "e": "pass-heart",
      "g": "spellquest-he",
      "hearts": 0
     },
     {
-     "t": 1792769253622,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 6,
+     "t": 1792680388565,
+     "s": "mvjnlmio-v93ke",
+     "run": 4,
      "e": "mult",
      "g": "spellquest-he",
      "mult": 5,
      "streak": 26
     },
     {
-     "t": 1792769258547,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 6,
+     "t": 1792680393490,
+     "s": "mvjnlmio-v93ke",
+     "run": 4,
      "e": "choice",
      "g": "spellquest-he",
      "round": 25,
@@ -3079,225 +3051,224 @@
      "visit": 3
     },
     {
-     "t": 1792769264258,
-     "s": "mvl4i7c0-8o7pc",
-     "run": 6,
-     "e": "choice",
+     "t": 1792769468406,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "walk",
      "g": "spellquest-he",
-     "round": 38,
-     "key": "hiriq",
-     "pos": 0,
-     "correct": false,
-     "twin": false,
-     "walking": true,
-     "msShown": 1618,
-     "msWalk": 7920,
+     "round": 7,
+     "clueMs": 2972,
      "via": "tower",
      "visit": 5
     },
     {
-     "t": 1792936867723,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "book-open",
+     "t": 1792769470113,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "run-exit",
      "g": "spellquest-he",
-     "by": "parent",
-     "stars": 89
+     "screen": "pairs",
+     "score": 162,
+     "paused": false,
+     "ended": true
     },
     {
-     "t": 1792936867723,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 21,
-     "clueMs": 2087,
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1792936872236,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
+     "t": 1792769475838,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 4,
-     "target": "het",
-     "tapped": "het",
+     "stage": 3,
+     "target": "dalet",
+     "tapped": "dalet",
      "result": "right",
-     "ms": 6489,
+     "ms": 6196,
      "assets": [
-      "w-bayit",
-      "img-yeled"
+      "w-abba",
+      "img-kelev"
      ],
-     "clock": 1792936872234
+     "clock": 1792769475837
     },
     {
-     "t": 1792936880793,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "round",
+     "t": 1792769478802,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "answer",
      "g": "spellquest-he",
-     "round": 34,
-     "restart": false,
-     "wave": 4,
-     "kills": 0,
-     "boss": false,
-     "bossHp": 1,
-     "hearts": null,
-     "combo": 5,
-     "type": "B",
-     "target": "holam",
-     "word": "sefer",
-     "picture": null,
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-5.webp",
-     "walkMs": 5092,
-     "pad": [
-      "holam",
-      "kamatz",
-      "patah"
+     "screen": "letters",
+     "stage": 4,
+     "target": "kaf",
+     "tapped": "gimel",
+     "result": "wrong",
+     "ms": 8217,
+     "assets": [
+      "w-dag",
+      "img-kelev"
      ],
-     "padWords": [
-      "sefer",
-      "kelev"
-     ],
-     "via": "tower",
-     "visit": 1
+     "clock": 1792769478802
     },
     {
-     "t": 1792936881160,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "resume",
+     "t": 1792769486296,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "answer",
      "g": "spellquest-he",
-     "ms": 36054
+     "screen": "syllables",
+     "stage": 3,
+     "target": "he",
+     "tapped": "he",
+     "result": "right",
+     "ms": 5433,
+     "assets": [
+      "w-kelev",
+      "img-shemesh"
+     ],
+     "clock": 1792769486295,
+     "gallery": true
     },
     {
-     "t": 1792936883077,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
+     "t": 1792769486745,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "patah",
-     "result": "wrong",
-     "clock": 1792936883077
+     "result": "right",
+     "clock": 1792769486745
     },
     {
-     "t": 1792936887856,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "answer",
+     "t": 1792769492203,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "boss-win",
      "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 3,
-     "target": "nun",
-     "tapped": "tet",
-     "result": "wrong",
-     "ms": 1635,
-     "assets": [
-      "w-kelev",
-      "img-sefer"
-     ],
-     "clock": 1792936887854
+     "kind": "dragon",
+     "ms": 52142,
+     "first": false
     },
     {
-     "t": 1792936895602,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "mult",
+     "t": 1792769493754,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "choice",
      "g": "spellquest-he",
-     "mult": 5,
-     "streak": 8
-    },
-    {
-     "t": 1792936903408,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "book-open",
-     "g": "spellquest-he",
-     "stars": 57,
-     "towerWave": 2,
-     "lane": 1
-    },
-    {
-     "t": 1792936903825,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 10,
-     "restart": false,
-     "wave": 2,
-     "kills": 0,
-     "boss": false,
-     "bossHp": 2,
-     "hearts": null,
-     "combo": 2,
-     "type": "A",
-     "target": "kamatz",
-     "word": "abba",
-     "picture": "pic-shemesh",
-     "monster": "dragon",
-     "monsterSrc": "/assets/m-5.webp",
-     "walkMs": 5859,
-     "pad": [
-      "segol",
-      "shva",
-      "shuruk"
-     ],
-     "padWords": [
-      "kelev",
-      "bayit"
-     ],
+     "round": 23,
+     "key": "tsere",
+     "pos": 0,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 5827,
+     "msWalk": 7051,
      "via": "tower",
-     "visit": 5
+     "visit": 2
     },
     {
-     "t": 1792936909162,
-     "s": "mvnwbb6o-nqkjs",
-     "run": 3,
-     "e": "line",
+     "t": 1792769499734,
+     "s": "mvl4ncio-97oin",
+     "run": 4,
+     "e": "outcome",
      "g": "spellquest-he",
-     "id": "line-win",
-     "file": "line-win.mp3",
-     "url": "/alef/assets/line-win-d4e5f6.mp3",
+     "pace": 1.068,
+     "feedback": "none",
+     "predicted": 0.116,
+     "round": 12,
+     "result": "timeout",
+     "choice": "kubutz",
+     "mega": false,
+     "final": false,
+     "points": 45,
+     "effect": "small",
+     "hearts": null,
+     "combo": 5,
+     "score": 778,
+     "bossHp": 2,
+     "msShown": 7328,
+     "msWalk": 5640,
      "via": "tower",
      "visit": 3
     },
     {
-     "t": 1793026624154,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792769502862,
+     "s": "mvl4ncio-97oin",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 3,
-     "target": "kaf",
-     "tapped": "kaf",
+     "screen": "letters",
+     "stage": 2,
+     "target": "bet",
+     "tapped": "bet",
      "result": "right",
-     "ms": 8033,
+     "ms": 2369,
+     "assets": [
+      "w-shemesh",
+      "img-kelev"
+     ],
+     "clock": 1792769502862
+    },
+    {
+     "t": 1792769505141,
+     "s": "mvl4ncio-97oin",
+     "run": 5,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 22,
+     "key": "patah",
+     "pos": 0,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 8793,
+     "msWalk": 6743,
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1792769512422,
+     "s": "mvl4ncio-97oin",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 4,
+     "target": "nun",
+     "tapped": "nun",
+     "result": "right",
+     "ms": 6113,
      "assets": [
       "w-kelev",
-      "img-abba"
+      "img-kelev"
      ],
-     "clock": 1793026624151
+     "clock": 1792769512422
     },
     {
-     "t": 1793026632435,
-     "s": "mvpdr6g0-c6rvg",
-     "run": 4,
-     "e": "replay",
+     "t": 1792769519478,
+     "s": "mvl4ncio-97oin",
+     "run": 5,
+     "e": "answer",
      "g": "spellquest-he",
-     "round": 31,
-     "via": "tower",
-     "visit": 4
+     "screen": "tower",
+     "target": "segol",
+     "result": "wrong",
+     "clock": 1792769519478,
+     "gallery": true
     },
     {
-     "t": 1793026633202,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792769523784,
+     "s": "mvl4ncio-97oin",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "tower",
+     "target": "kamatz",
+     "result": "wrong",
+     "clock": 1792769523784
+    },
+    {
+     "t": 1792942980767,
+     "s": "mvnzyheo-s1gil",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -3311,11 +3282,11 @@
       "w-abba",
       "img-ima"
      ],
-     "clock": 1793026633203
+     "clock": 1792942980768
     },
     {
-     "t": 1793026636667,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792942984232,
+     "s": "mvnzyheo-s1gil",
      "run": 4,
      "e": "pause",
      "g": "spellquest-he",
@@ -3323,8 +3294,8 @@
      "phase": "answer"
     },
     {
-     "t": 1793026642086,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792942989651,
+     "s": "mvnzyheo-s1gil",
      "run": 4,
      "e": "round",
      "g": "spellquest-he",
@@ -3356,8 +3327,8 @@
      "visit": 2
     },
     {
-     "t": 1793026648608,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792942996173,
+     "s": "mvnzyheo-s1gil",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -3371,11 +3342,11 @@
       "w-dag",
       "img-abba"
      ],
-     "clock": 1793026648609
+     "clock": 1792942996174
     },
     {
-     "t": 1793026648608,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792942996173,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "round",
      "g": "spellquest-he",
@@ -3407,8 +3378,8 @@
      "visit": 4
     },
     {
-     "t": 1793026654345,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943001910,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "replay",
      "g": "spellquest-he",
@@ -3417,8 +3388,8 @@
      "phase": "question"
     },
     {
-     "t": 1793026658579,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943006144,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -3432,11 +3403,11 @@
       "w-abba",
       "img-dag"
      ],
-     "clock": 1793026658579
+     "clock": 1792943006144
     },
     {
-     "t": 1793026663660,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943011225,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "hint",
      "g": "spellquest-he",
@@ -3444,16 +3415,16 @@
      "auto": false
     },
     {
-     "t": 1793026669565,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943017130,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "pass-heart",
      "g": "spellquest-he",
      "hearts": 0
     },
     {
-     "t": 1793026670715,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943018280,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -3467,11 +3438,11 @@
       "w-sefer",
       "img-kelev"
      ],
-     "clock": 1793026670715
+     "clock": 1792943018280
     },
     {
-     "t": 1793026670930,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943018495,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "idle",
      "g": "spellquest-he",
@@ -3479,8 +3450,8 @@
      "target": "nun"
     },
     {
-     "t": 1793026670930,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943018495,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "replay",
      "g": "spellquest-he",
@@ -3489,8 +3460,8 @@
      "phase": "question"
     },
     {
-     "t": 1793026677405,
-     "s": "mvpdr6g0-c6rvg",
+     "t": 1792943024970,
+     "s": "mvnzyheo-s1gil",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -3504,19 +3475,19 @@
       "w-bayit",
       "img-abba"
      ],
-     "clock": 1793026677403
+     "clock": 1792943024968
     },
     {
-     "t": 1793121362433,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034962433,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "explain",
      "g": "spellquest-he",
      "target": "kaf"
     },
     {
-     "t": 1793121369986,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034969986,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "idle",
      "g": "spellquest-he",
@@ -3524,19 +3495,19 @@
      "target": "het"
     },
     {
-     "t": 1793121375914,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034975914,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "hiriq",
      "result": "right",
-     "clock": 1793121375913
+     "clock": 1793034975913
     },
     {
-     "t": 1793121377406,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034977406,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "draw-stroke",
      "g": "spellquest-he",
@@ -3546,8 +3517,8 @@
      "ok": true
     },
     {
-     "t": 1793121378197,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034978197,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -3561,11 +3532,11 @@
       "w-abba",
       "img-bayit"
      ],
-     "clock": 1793121378196
+     "clock": 1793034978196
     },
     {
-     "t": 1793121382476,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034982476,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "round",
      "g": "spellquest-he",
@@ -3597,8 +3568,8 @@
      "visit": 1
     },
     {
-     "t": 1793121388172,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034988172,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -3612,11 +3583,11 @@
       "w-ima",
       "img-sefer"
      ],
-     "clock": 1793121388172
+     "clock": 1793034988172
     },
     {
-     "t": 1793121394978,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034994978,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "replay",
      "g": "spellquest-he",
@@ -3625,8 +3596,8 @@
      "phase": "question"
     },
     {
-     "t": 1793121394978,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034994978,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "boss-lose",
      "g": "spellquest-he",
@@ -3634,16 +3605,16 @@
      "left": 1
     },
     {
-     "t": 1793121394978,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793034994978,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "explain",
      "g": "spellquest-he",
      "target": "tet"
     },
     {
-     "t": 1793121400302,
-     "s": "mvqy5sao-lklbv",
+     "t": 1793035000302,
+     "s": "mvpipxmo-lklbv",
      "run": 3,
      "e": "again",
      "g": "spellquest-he",
@@ -3651,8 +3622,8 @@
      "score": 180
     },
     {
-     "t": 1793285107967,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112307967,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "round",
      "g": "spellquest-he",
@@ -3684,8 +3655,8 @@
      "visit": 1
     },
     {
-     "t": 1793285109343,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112309343,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "replay",
      "g": "spellquest-he",
@@ -3694,8 +3665,8 @@
      "visit": 4
     },
     {
-     "t": 1793285111231,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112311231,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "round",
      "g": "spellquest-he",
@@ -3727,8 +3698,8 @@
      "visit": 5
     },
     {
-     "t": 1793285114236,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112314236,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "line",
      "g": "spellquest-he",
@@ -3739,8 +3710,8 @@
      "visit": 4
     },
     {
-     "t": 1793285119380,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112319380,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "hint",
      "g": "spellquest-he",
@@ -3748,8 +3719,8 @@
      "auto": false
     },
     {
-     "t": 1793285123213,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112323213,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "round",
      "g": "spellquest-he",
@@ -3781,8 +3752,8 @@
      "visit": 1
     },
     {
-     "t": 1793285129335,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112329335,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -3796,11 +3767,11 @@
       "w-ima",
       "img-dag"
      ],
-     "clock": 1793285129335
+     "clock": 1793112329335
     },
     {
-     "t": 1793285135014,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112335014,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "flight",
      "g": "spellquest-he",
@@ -3810,8 +3781,8 @@
      "boss": "troll"
     },
     {
-     "t": 1793285141122,
-     "s": "mvtnnaw0-cjvz8",
+     "t": 1793112341122,
+     "s": "mvqsrlk0-cjvz8",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -3825,11 +3796,11 @@
       "w-dag",
       "img-shemesh"
      ],
-     "clock": 1793285141119
+     "clock": 1793112341119
     },
     {
-     "t": 1793366826544,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280426544,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "choice",
      "g": "spellquest-he",
@@ -3845,8 +3816,8 @@
      "visit": 3
     },
     {
-     "t": 1793366833850,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280433850,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -3860,12 +3831,12 @@
       "w-ima",
       "img-abba"
      ],
-     "clock": 1793366833849,
+     "clock": 1793280433849,
      "gallery": true
     },
     {
-     "t": 1793366837001,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280437001,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -3879,11 +3850,11 @@
       "w-kelev",
       "img-abba"
      ],
-     "clock": 1793366837001
+     "clock": 1793280437001
     },
     {
-     "t": 1793366845962,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280445962,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "outcome",
      "g": "spellquest-he",
@@ -3907,8 +3878,8 @@
      "visit": 6
     },
     {
-     "t": 1793366849344,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280449344,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "choice",
      "g": "spellquest-he",
@@ -3924,8 +3895,8 @@
      "visit": 6
     },
     {
-     "t": 1793366850832,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280450832,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "outcome",
      "g": "spellquest-he",
@@ -3949,8 +3920,8 @@
      "visit": 4
     },
     {
-     "t": 1793366859365,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280459365,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "answer",
      "g": "spellquest-he",
@@ -3964,11 +3935,11 @@
       "w-dag",
       "img-dag"
      ],
-     "clock": 1793366859365
+     "clock": 1793280459365
     },
     {
-     "t": 1793366864198,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280464198,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "line",
      "g": "spellquest-he",
@@ -3979,8 +3950,8 @@
      "visit": 4
     },
     {
-     "t": 1793366872666,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280472666,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "hint",
      "g": "spellquest-he",
@@ -3989,8 +3960,8 @@
      "auto": true
     },
     {
-     "t": 1793366880060,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280480060,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "round",
      "g": "spellquest-he",
@@ -4022,8 +3993,8 @@
      "visit": 4
     },
     {
-     "t": 1793366888419,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280488419,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "hint",
      "g": "spellquest-he",
@@ -4032,8 +4003,8 @@
      "auto": true
     },
     {
-     "t": 1793366889568,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280489568,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "walk",
      "g": "spellquest-he",
@@ -4043,8 +4014,8 @@
      "visit": 4
     },
     {
-     "t": 1793366890375,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280490375,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "line",
      "g": "spellquest-he",
@@ -4055,8 +4026,8 @@
      "visit": 1
     },
     {
-     "t": 1793366890375,
-     "s": "mvv0aug0-11n7j",
+     "t": 1793280490375,
+     "s": "mvtkuzs0-11n7j",
      "run": 4,
      "e": "hint",
      "g": "spellquest-he",
@@ -4065,26 +4036,26 @@
      "auto": true
     },
     {
-     "t": 1793466722510,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380322510,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "merchant-idle",
      "g": "spellquest-he"
     },
     {
-     "t": 1793466722959,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380322959,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "holam",
      "result": "right",
-     "clock": 1793466722959
+     "clock": 1793380322959
     },
     {
-     "t": 1793466723189,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380323189,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "replay",
      "g": "spellquest-he",
@@ -4093,8 +4064,8 @@
      "visit": 3
     },
     {
-     "t": 1793466725900,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380325900,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "choice",
      "g": "spellquest-he",
@@ -4110,8 +4081,8 @@
      "visit": 3
     },
     {
-     "t": 1793466728130,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380328130,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -4125,11 +4096,11 @@
       "w-dag",
       "img-sefer"
      ],
-     "clock": 1793466728128
+     "clock": 1793380328128
     },
     {
-     "t": 1793466731964,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380331964,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "outcome",
      "g": "spellquest-he",
@@ -4153,8 +4124,8 @@
      "visit": 5
     },
     {
-     "t": 1793466738380,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380338380,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -4168,11 +4139,11 @@
       "w-sefer",
       "img-bayit"
      ],
-     "clock": 1793466738380
+     "clock": 1793380338380
     },
     {
-     "t": 1793466739671,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380339671,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "merchant-offer",
      "g": "spellquest-he",
@@ -4186,8 +4157,8 @@
      ]
     },
     {
-     "t": 1793466743740,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380343740,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -4201,11 +4172,11 @@
       "w-abba",
       "img-ima"
      ],
-     "clock": 1793466743741
+     "clock": 1793380343741
     },
     {
-     "t": 1793466750632,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380350632,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -4219,11 +4190,11 @@
       "w-abba",
       "img-abba"
      ],
-     "clock": 1793466750632
+     "clock": 1793380350632
     },
     {
-     "t": 1793466756741,
-     "s": "mvwns1s0-9r20t",
+     "t": 1793380356741,
+     "s": "mvv8c740-9r20t",
      "run": 5,
      "e": "round",
      "g": "spellquest-he",
@@ -4255,8 +4226,8 @@
      "visit": 6
     },
     {
-     "t": 1793635862783,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463062783,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
      "e": "mult",
      "g": "spellquest-he",
@@ -4264,8 +4235,8 @@
      "streak": 24
     },
     {
-     "t": 1793635864304,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463064304,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -4279,131 +4250,125 @@
       "w-abba",
       "img-shemesh"
      ],
-     "clock": 1793635864301
+     "clock": 1793463064301
     },
     {
-     "t": 1793635872368,
-     "s": "mvzghb1c-y0ko7",
-     "run": 3,
-     "e": "hint-stop",
-     "g": "spellquest-he",
-     "screen": null,
-     "by": "answer"
-    },
-    {
-     "t": 1793635874406,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463072368,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
      "e": "replay",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "target": "lamed",
-     "phase": "question"
+     "screen": "letters",
+     "target": "tet",
+     "phase": "answer"
     },
     {
-     "t": 1793635879614,
-     "s": "mvzghb1c-y0ko7",
-     "run": 3,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 0.631,
-     "feedback": "name",
-     "predicted": 0.622,
-     "round": 26,
-     "result": "hit",
-     "choice": "hiriq",
-     "mega": false,
-     "final": false,
-     "points": 37,
-     "effect": "big",
-     "hearts": null,
-     "combo": 1,
-     "score": 898,
-     "bossHp": 3,
-     "msShown": 8389,
-     "msWalk": 5758,
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1793635883486,
-     "s": "mvzghb1c-y0ko7",
-     "run": 3,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1793635891995,
-     "s": "mvzghb1c-y0ko7",
-     "run": 3,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 31,
-     "clueMs": 760,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1793635895256,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463080680,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
      "stage": 3,
-     "target": "mem",
-     "tapped": "mem",
-     "result": "right",
-     "ms": 5046,
+     "target": "gimel",
+     "tapped": "gimel",
+     "result": "wrong",
+     "ms": 4697,
      "assets": [
       "w-ima",
-      "img-yeled"
+      "img-shemesh"
      ],
-     "clock": 1793635895254
+     "clock": 1793463080678
     },
     {
-     "t": 1793635899985,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463085231,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
-     "e": "merchant-idle",
-     "g": "spellquest-he"
+     "e": "pause",
+     "g": "spellquest-he",
+     "cause": "button",
+     "round": null,
+     "duringOutcome": false,
+     "via": "tower",
+     "visit": 4
     },
     {
-     "t": 1793635907023,
-     "s": "mvzghb1c-y0ko7",
+     "t": 1793463091061,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
+     "e": "walk",
+     "g": "spellquest-he",
+     "round": 22,
+     "clueMs": 1148,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1793463098503,
+     "s": "mvwlllpc-y0ko7",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "pairs",
+     "screen": "letters",
      "stage": 2,
-     "target": "mem",
-     "tapped": "mem",
-     "result": "right",
-     "ms": 716,
+     "target": "lamed",
+     "tapped": "dalet",
+     "result": "near",
+     "ms": 6635,
      "assets": [
       "w-ima",
-      "img-sefer"
+      "img-bayit"
      ],
-     "clock": 1793635907022
+     "clock": 1793463098502
     },
     {
-     "t": 1793635912325,
-     "s": "mvzghb1c-y0ko7",
-     "run": 4,
-     "e": "mult",
+     "t": 1793463102583,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
+     "e": "choice",
      "g": "spellquest-he",
-     "mult": 4,
-     "streak": 26
+     "round": 32,
+     "key": "holam",
+     "pos": 2,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 4322,
+     "msWalk": 4117,
+     "via": "tower",
+     "visit": 4
     },
     {
-     "t": 1793635912325,
-     "s": "mvzghb1c-y0ko7",
-     "run": 4,
+     "t": 1793463111267,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 4,
+     "target": "dalet",
+     "tapped": "dalet",
+     "result": "right",
+     "ms": 8702,
+     "assets": [
+      "w-bayit",
+      "img-abba"
+     ],
+     "clock": 1793463111267
+    },
+    {
+     "t": 1793463119646,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
+     "e": "visit",
+     "g": "spellquest-he",
+     "screen": "flight",
+     "len": 6
+    },
+    {
+     "t": 1793463119927,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
      "e": "line",
      "g": "spellquest-he",
      "id": "line-wave",
@@ -4413,9 +4378,9 @@
      "visit": 5
     },
     {
-     "t": 1793635918282,
-     "s": "mvzghb1c-y0ko7",
-     "run": 4,
+     "t": 1793463125884,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
      "e": "walk",
      "g": "spellquest-he",
      "round": 18,
@@ -4424,17 +4389,17 @@
      "visit": 1
     },
     {
-     "t": 1793635923022,
-     "s": "mvzghb1c-y0ko7",
-     "run": 4,
+     "t": 1793463130624,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
      "e": "storage-persist",
      "g": "spellquest-he",
      "persisted": false
     },
     {
-     "t": 1793635925576,
-     "s": "mvzghb1c-y0ko7",
-     "run": 4,
+     "t": 1793463133178,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
      "e": "outcome",
      "g": "spellquest-he",
      "pace": 1.044,
@@ -4457,175 +4422,173 @@
      "visit": 1
     },
     {
-     "t": 1793722081894,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "book-open",
+     "t": 1793463139672,
+     "s": "mvwlllpc-y0ko7",
+     "run": 3,
+     "e": "draw-stroke",
      "g": "spellquest-he",
-     "stars": 77,
-     "towerWave": 3,
-     "lane": 2
+     "letter": "zayin",
+     "script": "print",
+     "n": 3,
+     "ok": true,
+     "joined": true
     },
     {
-     "t": 1793722082464,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 32,
-     "clueMs": 252,
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1793722088774,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632140000,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
+     "screen": "pairs",
+     "stage": 3,
+     "target": "tet",
+     "tapped": "tet",
      "result": "right",
-     "ms": 7709,
+     "ms": 5770,
      "assets": [
-      "w-yeled",
-      "img-ima"
+      "w-bayit",
+      "img-abba"
      ],
-     "clock": 1793722088774
+     "clock": 1793632140000
     },
     {
-     "t": 1793722093948,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 1,
-     "target": "nun",
-     "tapped": null,
-     "result": "wrong",
-     "ms": 2536,
-     "assets": [
-      "w-abba",
-      "img-shemesh"
-     ],
-     "clock": 1793722093948
-    },
-    {
-     "t": 1793722098714,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 39,
-     "clueMs": 1699,
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1793722102396,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "run-start",
-     "g": "spellquest-he",
-     "stage": 4
-    },
-    {
-     "t": 1793722105276,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 1,
-     "target": "gimel",
-     "tapped": "gimel",
-     "result": "right",
-     "ms": 6736,
-     "assets": [
-      "w-yeled",
-      "img-dag"
-     ],
-     "clock": 1793722105274
-    },
-    {
-     "t": 1793722113988,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632147679,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "round",
      "g": "spellquest-he",
-     "round": 19,
+     "round": 5,
      "restart": false,
-     "wave": 5,
-     "kills": 19,
+     "wave": 2,
+     "kills": 17,
      "boss": false,
-     "bossHp": 0,
+     "bossHp": 3,
      "hearts": null,
-     "combo": 5,
-     "type": "A",
-     "target": "segol",
-     "word": "bayit",
-     "picture": "pic-abba",
-     "monster": "slime",
-     "monsterSrc": "/assets/m-5.webp",
-     "walkMs": 6098,
+     "combo": 8,
+     "type": "B",
+     "target": "kamatz",
+     "word": "ima",
+     "picture": null,
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-1.webp",
+     "walkMs": 7806,
      "pad": [
       "segol",
       "tsere",
-      "kamatz"
+      "kubutz"
      ],
      "padWords": [
-      "abba",
-      "shemesh"
+      "sefer",
+      "bayit"
      ],
      "via": "tower",
      "visit": 1
     },
     {
-     "t": 1793722118292,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
-     "e": "line",
+     "t": 1793632156383,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "book-open",
      "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 4
+     "stars": 63,
+     "towerWave": 3,
+     "lane": 0
     },
     {
-     "t": 1793722120538,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632159767,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "line",
+     "g": "spellquest-he",
+     "id": "line-boss",
+     "file": "line-boss.mp3",
+     "url": "/alef/assets/line-boss-a1b2c3.mp3",
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1793632166450,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "mult",
+     "g": "spellquest-he",
+     "mult": 5,
+     "streak": 14
+    },
+    {
+     "t": 1793632167123,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.97,
+     "feedback": "name",
+     "predicted": 0.813,
+     "round": 38,
+     "result": "timeout",
+     "choice": "kamatz",
+     "mega": false,
+     "final": false,
+     "points": 18,
+     "effect": "small",
+     "hearts": null,
+     "combo": 9,
+     "score": 600,
+     "bossHp": 3,
+     "msShown": 2834,
+     "msWalk": 2915,
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1793632167123,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "zayin",
+     "tapped": "zayin",
+     "result": "right",
+     "ms": 7635,
+     "assets": [
+      "w-sefer",
+      "img-bayit"
+     ],
+     "clock": 1793632167121
+    },
+    {
+     "t": 1793632169369,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "idle",
      "g": "spellquest-he",
      "screen": "draw",
      "target": "alef"
     },
     {
-     "t": 1793722122299,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632171130,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "idle",
      "g": "spellquest-he",
      "screen": "pairs",
      "target": "he"
     },
     {
-     "t": 1793722127484,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632176315,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "mult",
      "g": "spellquest-he",
      "mult": 3,
      "streak": 6
     },
     {
-     "t": 1793722127845,
-     "s": "mw0vtatc-eyfuc",
-     "run": 5,
+     "t": 1793632176676,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
      "e": "outcome",
      "g": "spellquest-he",
      "pace": 1.3679999999999999,
@@ -4648,91 +4611,91 @@
      "visit": 3
     },
     {
-     "t": 1793804761351,
-     "s": "mw291f40-bnqfe",
+     "t": 1793632176676,
+     "s": "mvze9ko0-t2eyh",
      "run": 1,
-     "e": "hint",
-     "g": "spellquest-he",
-     "screen": "draw",
-     "target": "shemesh",
-     "auto": true
-    },
-    {
-     "t": 1793804764258,
-     "s": "mw291f40-bnqfe",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 4,
-     "target": "vav",
-     "tapped": "vav",
-     "result": "right",
-     "ms": 6252,
-     "assets": [
-      "w-yeled",
-      "img-shemesh"
-     ],
-     "clock": 1793804764258
-    },
-    {
-     "t": 1793804767167,
-     "s": "mw291f40-bnqfe",
-     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "pairs",
      "stage": 1,
-     "target": "samekh",
-     "tapped": "mem",
-     "result": "wrong",
-     "ms": 7638,
+     "target": "het",
+     "tapped": "het",
+     "result": "right",
+     "ms": 663,
      "assets": [
-      "w-kelev",
-      "img-ima"
+      "w-sefer",
+      "img-shemesh"
      ],
-     "clock": 1793804767167
+     "clock": 1793632176675
     },
     {
-     "t": 1793804770241,
-     "s": "mw291f40-bnqfe",
+     "t": 1793632183202,
+     "s": "mvze9ko0-t2eyh",
+     "run": 1,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "bet",
+     "script": "print",
+     "n": 2,
+     "ok": true
+    },
+    {
+     "t": 1793712602184,
+     "s": "mw0q6400-65vn2",
      "run": 2,
-     "e": "answer",
+     "e": "idle",
      "g": "spellquest-he",
      "screen": "letters",
-     "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
-     "result": "right",
-     "ms": 2769,
-     "assets": [
-      "w-kelev",
-      "img-abba"
-     ],
-     "clock": 1793804770241
+     "target": "mem"
     },
     {
-     "t": 1793804770586,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712606009,
+     "s": "mw0q6400-65vn2",
      "run": 2,
-     "e": "tower-start",
+     "e": "line",
      "g": "spellquest-he",
-     "wave": 2,
+     "id": "line-hello",
+     "file": "line-hello.mp3",
+     "url": "/alef/assets/line-hello-d4e5f6.mp3",
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1793712606009,
+     "s": "mw0q6400-65vn2",
+     "run": 2,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 12,
+     "restart": false,
+     "wave": 1,
+     "kills": 8,
      "boss": false,
-     "waves": 5
+     "bossHp": 1,
+     "hearts": null,
+     "combo": 0,
+     "type": "B",
+     "target": "tsere",
+     "word": "kelev",
+     "picture": null,
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-6.webp",
+     "walkMs": 5888,
+     "pad": [
+      "patah",
+      "patah",
+      "holam"
+     ],
+     "padWords": [
+      "yeled",
+      "sefer"
+     ],
+     "via": "tower",
+     "visit": 5
     },
     {
-     "t": 1793804771880,
-     "s": "mw291f40-bnqfe",
-     "run": 2,
-     "e": "player",
-     "g": "spellquest-he",
-     "gender": "girl",
-     "by": "parent"
-    },
-    {
-     "t": 1793804777025,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712611154,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "answer",
      "g": "spellquest-he",
@@ -4746,11 +4709,11 @@
       "w-ima",
       "img-ima"
      ],
-     "clock": 1793804777026
+     "clock": 1793712611155
     },
     {
-     "t": 1793804782404,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712616533,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "answer",
      "g": "spellquest-he",
@@ -4764,12 +4727,12 @@
       "w-kelev",
       "img-ima"
      ],
-     "clock": 1793804782401,
+     "clock": 1793712616530,
      "gallery": true
     },
     {
-     "t": 1793804788424,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712622553,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "round",
      "g": "spellquest-he",
@@ -4801,8 +4764,8 @@
      "visit": 3
     },
     {
-     "t": 1793804796122,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712630251,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "answer",
      "g": "spellquest-he",
@@ -4816,11 +4779,11 @@
       "w-bayit",
       "img-shemesh"
      ],
-     "clock": 1793804796123
+     "clock": 1793712630252
     },
     {
-     "t": 1793804803310,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712637439,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "replay",
      "g": "spellquest-he",
@@ -4829,8 +4792,8 @@
      "phase": "question"
     },
     {
-     "t": 1793804808758,
-     "s": "mw291f40-bnqfe",
+     "t": 1793712642887,
+     "s": "mw0q6400-65vn2",
      "run": 2,
      "e": "walk",
      "g": "spellquest-he",
@@ -4840,8 +4803,8 @@
      "visit": 2
     },
     {
-     "t": 1793982068182,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809268182,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "walk",
      "g": "spellquest-he",
@@ -4851,8 +4814,8 @@
      "visit": 4
     },
     {
-     "t": 1793982076803,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809276803,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "replay",
      "g": "spellquest-he",
@@ -4861,8 +4824,8 @@
      "phase": "answer"
     },
     {
-     "t": 1793982079626,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809279626,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "draw-stroke",
      "g": "spellquest-he",
@@ -4872,8 +4835,8 @@
      "ok": true
     },
     {
-     "t": 1793982082698,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809282698,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -4887,11 +4850,11 @@
       "w-ima",
       "img-dag"
      ],
-     "clock": 1793982082695
+     "clock": 1793809282695
     },
     {
-     "t": 1793982091516,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809291516,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -4905,11 +4868,11 @@
       "w-sefer",
       "img-ima"
      ],
-     "clock": 1793982091516
+     "clock": 1793809291516
     },
     {
-     "t": 1793982098782,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809298782,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "replay",
      "g": "spellquest-he",
@@ -4918,8 +4881,8 @@
      "phase": "answer"
     },
     {
-     "t": 1793982102019,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809302019,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -4933,11 +4896,11 @@
       "w-abba",
       "img-kelev"
      ],
-     "clock": 1793982102019
+     "clock": 1793809302019
     },
     {
-     "t": 1793982104897,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809304897,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "tower-start",
      "g": "spellquest-he",
@@ -4946,8 +4909,8 @@
      "waves": 5
     },
     {
-     "t": 1793982106807,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809306807,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "round",
      "g": "spellquest-he",
@@ -4979,8 +4942,8 @@
      "visit": 4
     },
     {
-     "t": 1793982110155,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809310155,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -4994,22 +4957,22 @@
       "w-bayit",
       "img-abba"
      ],
-     "clock": 1793982110154
+     "clock": 1793809310154
     },
     {
-     "t": 1793982111012,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809311012,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "holam",
      "result": "right",
-     "clock": 1793982111011
+     "clock": 1793809311011
     },
     {
-     "t": 1793982112241,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809312241,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "answer",
      "g": "spellquest-he",
@@ -5023,11 +4986,11 @@
       "w-abba",
       "img-shemesh"
      ],
-     "clock": 1793982112241
+     "clock": 1793809312241
     },
     {
-     "t": 1793982116430,
-     "s": "mw56lko0-9ynst",
+     "t": 1793809316430,
+     "s": "mw2bpvc0-9ynst",
      "run": 1,
      "e": "walk",
      "g": "spellquest-he",
@@ -5037,8 +5000,8 @@
      "visit": 3
     },
     {
-     "t": 1794071708129,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985308129,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "walk",
      "g": "spellquest-he",
@@ -5048,19 +5011,19 @@
      "visit": 5
     },
     {
-     "t": 1794071715423,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985315423,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "tower",
      "target": "shuruk",
      "result": "right",
-     "clock": 1794071715423
+     "clock": 1793985315423
     },
     {
-     "t": 1794071715423,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985315423,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "draw-stroke",
      "g": "spellquest-he",
@@ -5071,15 +5034,15 @@
      "why": "direction"
     },
     {
-     "t": 1794071715423,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985315423,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "merchant-demo",
      "g": "spellquest-he"
     },
     {
-     "t": 1794071718701,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985318701,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "round",
      "g": "spellquest-he",
@@ -5111,8 +5074,8 @@
      "visit": 2
     },
     {
-     "t": 1794071724311,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985324311,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "answer",
      "g": "spellquest-he",
@@ -5126,19 +5089,19 @@
       "w-abba",
       "img-kelev"
      ],
-     "clock": 1794071724309
+     "clock": 1793985324309
     },
     {
-     "t": 1794071728978,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985328978,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "explain",
      "g": "spellquest-he",
      "target": "samekh"
     },
     {
-     "t": 1794071735020,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985335020,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "choice",
      "g": "spellquest-he",
@@ -5154,24 +5117,24 @@
      "visit": 1
     },
     {
-     "t": 1794071735467,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985335467,
+     "s": "mw58j0o0-57bij",
      "run": 5,
-     "e": "mult",
+     "e": "tower-placed",
      "g": "spellquest-he",
-     "mult": 3,
-     "streak": 13
+     "wave": 2,
+     "lane": 1
     },
     {
-     "t": 1794071735763,
-     "s": "mw6nyvc0-57bij",
+     "t": 1793985335763,
+     "s": "mw58j0o0-57bij",
      "run": 5,
      "e": "merchant-idle",
      "g": "spellquest-he"
     },
     {
-     "t": 1794148921733,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062521733,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "replay",
      "g": "spellquest-he",
@@ -5180,8 +5143,8 @@
      "phase": "answer"
     },
     {
-     "t": 1794148924205,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062524205,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -5195,11 +5158,11 @@
       "w-sefer",
       "img-dag"
      ],
-     "clock": 1794148924205
+     "clock": 1794062524205
     },
     {
-     "t": 1794148924205,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062524205,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "round",
      "g": "spellquest-he",
@@ -5231,8 +5194,8 @@
      "visit": 3
     },
     {
-     "t": 1794148929204,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062529204,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -5246,11 +5209,11 @@
       "w-yeled",
       "img-ima"
      ],
-     "clock": 1794148929204
+     "clock": 1794062529204
     },
     {
-     "t": 1794148934659,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062534659,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -5264,11 +5227,11 @@
       "w-abba",
       "img-ima"
      ],
-     "clock": 1794148934657
+     "clock": 1794062534657
     },
     {
-     "t": 1794148941351,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062541351,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "round",
      "g": "spellquest-he",
@@ -5300,8 +5263,8 @@
      "visit": 3
     },
     {
-     "t": 1794148943293,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062543293,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "outcome",
      "g": "spellquest-he",
@@ -5325,8 +5288,8 @@
      "visit": 5
     },
     {
-     "t": 1794148949406,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062549406,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "answer",
      "g": "spellquest-he",
@@ -5340,242 +5303,229 @@
       "w-bayit",
       "img-sefer"
      ],
-     "clock": 1794148949406
+     "clock": 1794062549406
     },
     {
-     "t": 1794148950435,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062550435,
+     "s": "mw6ii400-hv5es",
      "run": 3,
-     "e": "stage",
+     "e": "hint",
      "g": "spellquest-he",
-     "stage": 2
+     "target": "alef",
+     "auto": true
     },
     {
-     "t": 1794148950435,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062550435,
+     "s": "mw6ii400-hv5es",
      "run": 3,
-     "e": "line",
+     "e": "replay",
      "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 6
+     "screen": "merchant",
+     "target": "nun",
+     "phase": "answer"
     },
     {
-     "t": 1794148956983,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062552674,
+     "s": "mw6ii400-hv5es",
      "run": 3,
-     "e": "walk",
+     "e": "answer",
      "g": "spellquest-he",
-     "round": 4,
-     "clueMs": 1433,
-     "via": "tower",
-     "visit": 1
+     "screen": "letters",
+     "stage": 4,
+     "target": "bet",
+     "tapped": "bet",
+     "result": "right",
+     "ms": 6809,
+     "assets": [
+      "w-abba",
+      "img-bayit"
+     ],
+     "clock": 1794062552673
     },
     {
-     "t": 1794148964782,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062560607,
+     "s": "mw6ii400-hv5es",
      "run": 3,
      "e": "round",
      "g": "spellquest-he",
-     "round": 17,
+     "round": 15,
      "restart": false,
-     "wave": 5,
-     "kills": 10,
+     "wave": 4,
+     "kills": 16,
      "boss": false,
-     "bossHp": 0,
+     "bossHp": 3,
      "hearts": null,
-     "combo": 9,
+     "combo": 5,
      "type": "B",
-     "target": "tsere",
+     "target": "patah",
      "word": "shemesh",
      "picture": null,
-     "monster": "slime",
-     "monsterSrc": "/assets/m-6.webp",
-     "walkMs": 7291,
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-4.webp",
+     "walkMs": 8409,
      "pad": [
-      "hiriq",
-      "patah",
-      "kubutz"
+      "holam",
+      "holam",
+      "kamatz"
      ],
      "padWords": [
-      "abba",
-      "bayit"
+      "yeled",
+      "shemesh"
      ],
      "via": "tower",
      "visit": 3
     },
     {
-     "t": 1794148970459,
-     "s": "mw7xxyo0-hv5es",
+     "t": 1794062561858,
+     "s": "mw6ii400-hv5es",
      "run": 3,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1794148973817,
-     "s": "mw7xxyo0-hv5es",
-     "run": 3,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "target": "hiriq",
-     "result": "right",
-     "clock": 1794148973817
-    },
-    {
-     "t": 1794148982555,
-     "s": "mw7xxyo0-hv5es",
-     "run": 3,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-wave",
-     "file": "line-wave.mp3",
-     "url": "/alef/assets/line-wave-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1794326528875,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 4,
-     "target": "kaf",
-     "tapped": "kaf",
+     "stage": 3,
+     "target": "zayin",
+     "tapped": "zayin",
      "result": "right",
-     "ms": 4187,
+     "ms": 807,
      "assets": [
-      "w-sefer",
-      "img-abba"
+      "w-abba",
+      "img-kelev"
      ],
-     "clock": 1794326528875
+     "clock": 1794062561859
     },
     {
-     "t": 1794326537349,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
-     "e": "line",
+     "t": 1794062569345,
+     "s": "mw6ii400-hv5es",
+     "run": 4,
+     "e": "draw-done",
      "g": "spellquest-he",
-     "id": "line-win",
-     "file": "line-win.mp3",
-     "url": "/alef/assets/line-win-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 6
+     "letter": "samekh",
+     "script": "print",
+     "word": "sefer",
+     "ms": 25227,
+     "wrongStrokes": 3,
+     "helped": false
     },
     {
-     "t": 1794326545612,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
+     "t": 1794062573947,
+     "s": "mw6ii400-hv5es",
+     "run": 4,
+     "e": "abandon",
+     "g": "spellquest-he",
+     "reason": "pagehide",
+     "round": 27,
+     "wave": 3,
+     "score": 889,
+     "hearts": null,
+     "paused": false,
+     "duringOutcome": false,
+     "msShown": null,
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1794158768295,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
      "stage": 1,
-     "target": "vav",
-     "tapped": "samekh",
+     "target": "zayin",
+     "tapped": "vav",
      "result": "near",
-     "ms": 7446,
+     "ms": 5740,
      "assets": [
-      "w-bayit",
+      "w-abba",
       "img-shemesh"
      ],
-     "clock": 1794326545610
+     "clock": 1794158768296
     },
     {
-     "t": 1794326548877,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
+     "t": 1794158775086,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "round",
      "g": "spellquest-he",
-     "round": 5,
+     "round": 32,
      "restart": false,
-     "wave": 5,
-     "kills": 12,
+     "wave": 1,
+     "kills": 4,
      "boss": false,
-     "bossHp": 3,
+     "bossHp": 4,
      "hearts": null,
-     "combo": 5,
+     "combo": 8,
      "type": "A",
-     "target": "kubutz",
-     "word": "sefer",
-     "picture": "pic-kelev",
-     "monster": "slime",
-     "monsterSrc": "/assets/m-4.webp",
-     "walkMs": 6334,
+     "target": "holam",
+     "word": "ima",
+     "picture": "pic-sefer",
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-5.webp",
+     "walkMs": 6609,
      "pad": [
-      "tsere",
-      "kamatz",
+      "shuruk",
+      "segol",
       "tsere"
      ],
      "padWords": [
       "bayit",
-      "sefer"
+      "bayit"
      ],
      "via": "tower",
-     "visit": 4
+     "visit": 1
     },
     {
-     "t": 1794326552017,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
-     "e": "pause",
+     "t": 1794158777871,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "run-end",
      "g": "spellquest-he",
      "screen": "pairs",
-     "phase": "celebrate"
+     "score": 451,
+     "crystals": 10
     },
     {
-     "t": 1794326558225,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-win",
-     "file": "line-win.mp3",
-     "url": null,
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1794326561758,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
-     "e": "answer",
+     "t": 1794158781230,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "idle",
      "g": "spellquest-he",
      "screen": "syllables",
-     "stage": 1,
-     "target": "tet",
-     "tapped": "mem",
-     "result": "near",
-     "ms": 4413,
-     "assets": [
-      "w-ima",
-      "img-kelev"
-     ],
-     "clock": 1794326561758
+     "target": "nun"
     },
     {
-     "t": 1794326569310,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
-     "e": "fix",
+     "t": 1794158781841,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "answer",
      "g": "spellquest-he",
-     "screen": "tower",
-     "target": "c-mem",
-     "ms": 7740,
-     "replays": 2
+     "screen": "letters",
+     "stage": 4,
+     "target": "lamed",
+     "tapped": "het",
+     "result": "wrong",
+     "ms": 1931,
+     "assets": [
+      "w-shemesh",
+      "img-yeled"
+     ],
+     "clock": 1794158781840
     },
     {
-     "t": 1794326569310,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
+     "t": 1794158784750,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "mem",
+     "script": "cursive",
+     "n": 3,
+     "ok": true
+    },
+    {
+     "t": 1794158784750,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "walk",
      "g": "spellquest-he",
      "round": 15,
@@ -5584,9 +5534,9 @@
      "visit": 1
     },
     {
-     "t": 1794326574030,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
+     "t": 1794158789470,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
@@ -5599,12 +5549,12 @@
       "w-ima",
       "img-bayit"
      ],
-     "clock": 1794326574030
+     "clock": 1794158789470
     },
     {
-     "t": 1794326575009,
-     "s": "mwavojpc-mu41z",
-     "run": 5,
+     "t": 1794158790449,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "letters",
@@ -5617,362 +5567,76 @@
       "w-abba",
       "img-shemesh"
      ],
-     "clock": 1794326575009
+     "clock": 1794158790449
     },
     {
-     "t": 1794404823570,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
+     "t": 1794158792179,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "round",
      "g": "spellquest-he",
-     "round": 36,
+     "round": 21,
      "restart": false,
      "wave": 5,
-     "kills": 6,
-     "boss": false,
-     "bossHp": 2,
-     "hearts": null,
-     "combo": 5,
-     "type": "B",
-     "target": "patah",
-     "word": "bayit",
-     "picture": null,
-     "monster": "fuzzy",
-     "monsterSrc": "/assets/m-7.webp",
-     "walkMs": 7747,
-     "pad": [
-      "hiriq",
-      "segol",
-      "kamatz"
-     ],
-     "padWords": [
-      "sefer",
-      "yeled"
-     ],
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1794404825899,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-d4e5f6.mp3",
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1794404825899,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 34,
-     "restart": false,
-     "wave": 2,
-     "kills": 4,
-     "boss": false,
-     "bossHp": 3,
+     "kills": 2,
+     "boss": true,
+     "bossHp": 4,
      "hearts": null,
      "combo": 8,
      "type": "A",
-     "target": "shva",
+     "target": "segol",
+     "word": "dag",
+     "picture": "pic-bayit",
+     "monster": "dragon",
+     "monsterSrc": "/assets/m-5.webp",
+     "walkMs": 5591,
+     "pad": [
+      "segol",
+      "segol",
+      "tsere"
+     ],
+     "padWords": [
+      "shemesh",
+      "shemesh"
+     ],
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1794158792517,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "draw-start",
+     "g": "spellquest-he",
      "word": "yeled",
-     "picture": "pic-ima",
-     "monster": "slime",
-     "monsterSrc": "/assets/m-2.webp",
-     "walkMs": 7338,
-     "pad": [
-      "hiriq",
-      "hiriq",
-      "hiriq"
-     ],
-     "padWords": [
-      "kelev",
-      "abba"
-     ],
-     "via": "tower",
-     "visit": 4
+     "letter": "dalet",
+     "script": "print"
     },
     {
-     "t": 1794404830511,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "choice",
+     "t": 1794158800007,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "boss-win",
      "g": "spellquest-he",
-     "round": 21,
-     "key": "kamatz",
-     "pos": 1,
-     "correct": false,
-     "twin": true,
-     "walking": true,
-     "msShown": 4116,
-     "msWalk": 3910,
-     "via": "tower",
-     "visit": 3
+     "kind": "dragon",
+     "ms": 5982,
+     "first": true
     },
     {
-     "t": 1794404831660,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 1,
-     "target": "yod",
-     "tapped": "yod",
-     "result": "right",
-     "ms": 3203,
-     "assets": [
-      "w-abba",
-      "img-dag"
-     ],
-     "clock": 1794404831660
-    },
-    {
-     "t": 1794404835548,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 29,
-     "restart": false,
-     "wave": 5,
-     "kills": 1,
-     "boss": false,
-     "bossHp": 5,
-     "hearts": null,
-     "combo": 0,
-     "type": "A",
-     "target": "shuruk",
-     "word": "abba",
-     "picture": "pic-abba",
-     "monster": "slime",
-     "monsterSrc": "/assets/m-6.webp",
-     "walkMs": 5175,
-     "pad": [
-      "hiriq",
-      "patah",
-      "shva"
-     ],
-     "padWords": [
-      "bayit",
-      "abba"
-     ],
-     "via": "tower",
-     "visit": 3
-    },
-    {
-     "t": 1794404841678,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "merchant-idle",
-     "g": "spellquest-he"
-    },
-    {
-     "t": 1794404849827,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 4,
-     "target": "kaf",
-     "tapped": "kaf",
-     "result": "right",
-     "ms": 7683,
-     "assets": [
-      "w-ima",
-      "img-shemesh"
-     ],
-     "clock": 1794404849827
-    },
-    {
-     "t": 1794404856754,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "replay",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "target": "he",
-     "phase": "answer"
-    },
-    {
-     "t": 1794404857853,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-wave",
-     "file": "line-wave.mp3",
-     "url": "/alef/assets/line-wave-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1794404864994,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 2,
-     "target": "het",
-     "tapped": "bet",
-     "result": "near",
-     "ms": 8992,
-     "assets": [
-      "w-bayit",
-      "img-sefer"
-     ],
-     "clock": 1794404864992
-    },
-    {
-     "t": 1794404869886,
-     "s": "mwc6asdc-1b1ve",
-     "run": 1,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "tower",
-     "target": "kubutz",
-     "result": "right",
-     "clock": 1794404869886
-    },
-    {
-     "t": 1794499087215,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "walk",
-     "g": "spellquest-he",
-     "round": 35,
-     "clueMs": 1626,
-     "via": "tower",
-     "visit": 5
-    },
-    {
-     "t": 1794499092857,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "merchant-buy",
-     "g": "spellquest-he",
-     "price": 3,
-     "coins": [
-      4,
-      5
-     ],
-     "hearts": 1
-    },
-    {
-     "t": 1794499096001,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
+     "t": 1794158800007,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "draw-stroke",
      "g": "spellquest-he",
-     "letter": "gimel",
+     "letter": "dalet",
      "script": "print",
-     "n": 1,
+     "n": 2,
      "ok": true
     },
     {
-     "t": 1794499098174,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "round",
-     "g": "spellquest-he",
-     "round": 32,
-     "restart": false,
-     "wave": 3,
-     "kills": 14,
-     "boss": false,
-     "bossHp": 2,
-     "hearts": null,
-     "combo": 7,
-     "type": "B",
-     "target": "shuruk",
-     "word": "abba",
-     "picture": null,
-     "monster": "slime",
-     "monsterSrc": "/assets/m-9.webp",
-     "walkMs": 5342,
-     "pad": [
-      "shuruk",
-      "holam",
-      "hiriq"
-     ],
-     "padWords": [
-      "kelev",
-      "bayit"
-     ],
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1794499105078,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "draw-stroke",
-     "g": "spellquest-he",
-     "letter": "vav",
-     "script": "print",
-     "n": 2,
-     "ok": true,
-     "joined": true
-    },
-    {
-     "t": 1794499105078,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "line",
-     "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-a1b2c3.mp3",
-     "via": "tower",
-     "visit": 1
-    },
-    {
-     "t": 1794499110709,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "syllables",
-     "stage": 4,
-     "target": "bet",
-     "tapped": "bet",
-     "result": "right",
-     "ms": 1456,
-     "assets": [
-      "w-ima",
-      "img-dag"
-     ],
-     "clock": 1794499110706
-    },
-    {
-     "t": 1794499117651,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
-     "e": "answer",
-     "g": "spellquest-he",
-     "screen": "letters",
-     "stage": 1,
-     "target": "kaf",
-     "tapped": "kaf",
-     "result": "right",
-     "ms": 427,
-     "assets": [
-      "w-yeled",
-      "img-bayit"
-     ],
-     "clock": 1794499117649
-    },
-    {
-     "t": 1794499119175,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
+     "t": 1794158802345,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
@@ -5980,109 +5644,393 @@
      "target": "het",
      "tapped": "het",
      "result": "right",
-     "ms": 8121,
+     "ms": 3674,
      "assets": [
-      "w-sefer",
-      "img-kelev"
+      "w-abba",
+      "img-sefer"
      ],
-     "clock": 1794499119176
+     "clock": 1794158802345
     },
     {
-     "t": 1794499120060,
-     "s": "mwdqf3uo-tzxzo",
-     "run": 3,
+     "t": 1794158803263,
+     "s": "mw83sv9c-i9gjw",
+     "run": 2,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "alef",
+     "tapped": "alef",
+     "result": "right",
+     "ms": 4173,
+     "assets": [
+      "w-kelev",
+      "img-kelev"
+     ],
+     "clock": 1794158803261
+    },
+    {
+     "t": 1794325803069,
+     "s": "mwav945c-0bj66",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
      "screen": "syllables",
      "stage": 4,
-     "target": "alef",
-     "tapped": "alef",
+     "target": "zayin",
+     "tapped": "zayin",
      "result": "right",
-     "ms": 6605,
+     "ms": 478,
      "assets": [
-      "w-sefer",
-      "img-sefer"
+      "w-abba",
+      "img-abba"
      ],
-     "clock": 1794499120058
+     "clock": 1794325803067
     },
     {
-     "t": 1794666541242,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "outcome",
-     "g": "spellquest-he",
-     "pace": 1.212,
-     "feedback": "praise",
-     "predicted": 0.042,
-     "round": 29,
-     "result": "hit",
-     "choice": "hiriq",
-     "mega": false,
-     "final": false,
-     "points": 4,
-     "effect": "small",
-     "hearts": null,
-     "combo": 9,
-     "score": 295,
-     "bossHp": 0,
-     "msShown": 5601,
-     "msWalk": 5147,
-     "via": "tower",
-     "visit": 4
-    },
-    {
-     "t": 1794666541680,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "choice",
-     "g": "spellquest-he",
-     "round": 9,
-     "key": "kubutz",
-     "pos": 1,
-     "correct": true,
-     "twin": false,
-     "walking": true,
-     "msShown": 3616,
-     "msWalk": 3292,
-     "via": "tower",
-     "visit": 6
-    },
-    {
-     "t": 1794666547997,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "mult",
-     "g": "spellquest-he",
-     "mult": 4,
-     "streak": 13
-    },
-    {
-     "t": 1794666550174,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794325803916,
+     "s": "mwav945c-0bj66",
+     "run": 4,
      "e": "answer",
      "g": "spellquest-he",
-     "screen": "tower",
-     "target": "shva",
-     "result": "wrong",
-     "clock": 1794666550173
+     "screen": "letters",
+     "stage": 4,
+     "target": "bet",
+     "tapped": "yod",
+     "result": "near",
+     "ms": 777,
+     "assets": [
+      "w-sefer",
+      "img-ima"
+     ],
+     "clock": 1794325803917
     },
     {
-     "t": 1794666555636,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "line",
+     "t": 1794325807803,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "draw-stroke",
      "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": "/alef/assets/line-hello-a1b2c3.mp3",
+     "letter": "samekh",
+     "script": "cursive",
+     "n": 4,
+     "ok": true,
+     "joined": true
+    },
+    {
+     "t": 1794325807803,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "merchant-offer",
+     "g": "spellquest-he",
+     "sum": 11,
+     "price": 3,
+     "verdict": "exact",
+     "coins": [
+      3,
+      5,
+      1
+     ]
+    },
+    {
+     "t": 1794325814541,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "boss-start",
+     "g": "spellquest-he",
+     "kind": "dragon"
+    },
+    {
+     "t": 1794325818128,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 9,
+     "restart": false,
+     "wave": 1,
+     "kills": 11,
+     "boss": false,
+     "bossHp": 4,
+     "hearts": null,
+     "combo": 6,
+     "type": "B",
+     "target": "shva",
+     "word": "ima",
+     "picture": null,
+     "monster": "slime",
+     "monsterSrc": "/assets/m-3.webp",
+     "walkMs": 6244,
+     "pad": [
+      "tsere",
+      "kamatz",
+      "shva"
+     ],
+     "padWords": [
+      "bayit",
+      "sefer"
+     ],
      "via": "tower",
      "visit": 5
     },
     {
-     "t": 1794666560267,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794325823617,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "line",
+     "g": "spellquest-he",
+     "id": "line-boss",
+     "file": "line-boss.mp3",
+     "url": "/alef/assets/line-boss-a1b2c3.mp3",
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1794325823873,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "draw-stroke",
+     "g": "spellquest-he",
+     "letter": "dalet",
+     "script": "print",
+     "n": 4,
+     "ok": true
+    },
+    {
+     "t": 1794325828554,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "tower-start",
+     "g": "spellquest-he",
+     "wave": 5,
+     "boss": false,
+     "waves": 5
+    },
+    {
+     "t": 1794325830621,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 2,
+     "target": "vav",
+     "tapped": "vav",
+     "result": "right",
+     "ms": 7711,
+     "assets": [
+      "w-sefer",
+      "img-ima"
+     ],
+     "clock": 1794325830621
+    },
+    {
+     "t": 1794325837241,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 3,
+     "target": "dalet",
+     "tapped": "he",
+     "result": "wrong",
+     "ms": 4231,
+     "assets": [
+      "w-shemesh",
+      "img-sefer"
+     ],
+     "clock": 1794325837240
+    },
+    {
+     "t": 1794325837769,
+     "s": "mwav945c-0bj66",
+     "run": 4,
+     "e": "merchant-offer",
+     "g": "spellquest-he",
+     "sum": 2,
+     "price": 8,
+     "verdict": "over",
+     "coins": [
+      3,
+      3,
+      1
+     ]
+    },
+    {
+     "t": 1794413643611,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "letters",
+     "stage": 4,
+     "target": "gimel",
+     "tapped": "gimel",
+     "result": "right",
+     "ms": 3284,
+     "assets": [
+      "w-dag",
+      "img-sefer"
+     ],
+     "clock": 1794413643610,
+     "gallery": true
+    },
+    {
+     "t": 1794413646915,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 4,
+     "e": "choice",
+     "g": "spellquest-he",
+     "round": 3,
+     "key": "tsere",
+     "pos": 2,
+     "correct": true,
+     "twin": false,
+     "walking": true,
+     "msShown": 1368,
+     "msWalk": 1565,
+     "via": "tower",
+     "visit": 6
+    },
+    {
+     "t": 1794413654780,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 4,
+     "e": "tower-mega",
+     "g": "spellquest-he",
+     "target": "tsere",
+     "clock": 1794413654780
+    },
+    {
+     "t": 1794413655424,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "replay",
+     "g": "spellquest-he",
+     "round": 13,
+     "via": "tower",
+     "visit": 4
+    },
+    {
+     "t": 1794413656916,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "replay",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "target": "gimel",
+     "phase": "question"
+    },
+    {
+     "t": 1794413663498,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "bet",
+     "tapped": "yod",
+     "result": "near",
+     "ms": 1598,
+     "assets": [
+      "w-sefer",
+      "img-abba"
+     ],
+     "clock": 1794413663497
+    },
+    {
+     "t": 1794413668307,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 4,
+     "target": "alef",
+     "tapped": "het",
+     "result": "near",
+     "ms": 5688,
+     "assets": [
+      "w-abba",
+      "img-ima"
+     ],
+     "clock": 1794413668307
+    },
+    {
+     "t": 1794413669410,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "zayin",
+     "tapped": "zayin",
+     "result": "right",
+     "ms": 1894,
+     "assets": [
+      "w-dag",
+      "img-bayit"
+     ],
+     "clock": 1794413669410
+    },
+    {
+     "t": 1794413674916,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 25,
+     "restart": true,
+     "wave": 2,
+     "kills": 4,
+     "boss": false,
+     "bossHp": 2,
+     "hearts": null,
+     "combo": 3,
+     "type": "A",
+     "target": "tsere",
+     "word": "dag",
+     "picture": "pic-shemesh",
+     "monster": "slime",
+     "monsterSrc": "/assets/m-8.webp",
+     "walkMs": 7562,
+     "pad": [
+      "holam",
+      "tsere",
+      "patah"
+     ],
+     "padWords": [
+      "ima",
+      "bayit"
+     ],
+     "via": "tower",
+     "visit": 5
+    },
+    {
+     "t": 1794413683556,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 1,
+     "target": "tet",
+     "tapped": "tet",
+     "result": "right",
+     "ms": 8805,
+     "assets": [
+      "w-sefer",
+      "img-bayit"
+     ],
+     "clock": 1794413683555
+    },
+    {
+     "t": 1794413688187,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
      "e": "outcome",
      "g": "spellquest-he",
      "pace": 1.24,
@@ -6105,9 +6053,9 @@
      "visit": 1
     },
     {
-     "t": 1794666562182,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794413690102,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
      "e": "line",
      "g": "spellquest-he",
      "id": "line-win",
@@ -6117,18 +6065,18 @@
      "visit": 2
     },
     {
-     "t": 1794666569397,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794413697317,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
      "e": "idle",
      "g": "spellquest-he",
      "screen": "letters",
      "target": null
     },
     {
-     "t": 1794666573198,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794413701118,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
      "e": "replay",
      "g": "spellquest-he",
      "round": 4,
@@ -6136,9 +6084,9 @@
      "visit": 1
     },
     {
-     "t": 1794666580954,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
+     "t": 1794413708874,
+     "s": "mwcbjtxc-5lyxd",
+     "run": 5,
      "e": "draw-stroke",
      "g": "spellquest-he",
      "letter": "tet",
@@ -6148,31 +6096,382 @@
      "why": "start"
     },
     {
-     "t": 1794666589294,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "choice",
+     "t": 1794500587066,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "walk",
      "g": "spellquest-he",
-     "round": 32,
-     "key": "hiriq",
-     "pos": 0,
-     "correct": true,
-     "twin": false,
-     "walking": true,
-     "msShown": 3420,
-     "msWalk": 1451,
+     "round": 8,
+     "clueMs": 2541,
      "via": "tower",
-     "visit": 6
+     "visit": 5
     },
     {
-     "t": 1794666592206,
-     "s": "mwgi4ctc-tvdm3",
-     "run": 3,
-     "e": "line",
+     "t": 1794500589005,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "hint",
      "g": "spellquest-he",
-     "id": "line-hello",
-     "file": "line-hello.mp3",
-     "url": null,
+     "target": "bet",
+     "auto": false
+    },
+    {
+     "t": 1794500594546,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "pause",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "phase": "celebrate"
+    },
+    {
+     "t": 1794500599852,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 40,
+     "restart": false,
+     "wave": 5,
+     "kills": 14,
+     "boss": true,
+     "bossHp": 4,
+     "hearts": null,
+     "combo": 5,
+     "type": "A",
+     "target": "hiriq",
+     "word": "bayit",
+     "picture": "pic-abba",
+     "monster": "fuzzy",
+     "monsterSrc": "/assets/m-7.webp",
+     "walkMs": 6560,
+     "pad": [
+      "kamatz",
+      "kubutz",
+      "shva"
+     ],
+     "padWords": [
+      "yeled",
+      "shemesh"
+     ],
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1794500606980,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "merchant-offer",
+     "g": "spellquest-he",
+     "sum": 10,
+     "price": 4,
+     "verdict": "short",
+     "coins": [
+      2,
+      4,
+      2
+     ]
+    },
+    {
+     "t": 1794500612264,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "yod",
+     "tapped": null,
+     "result": "wrong",
+     "ms": 3579,
+     "assets": [
+      "w-shemesh",
+      "img-kelev"
+     ],
+     "clock": 1794500612263
+    },
+    {
+     "t": 1794500612860,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "tower",
+     "target": "segol",
+     "result": "right",
+     "clock": 1794500612859
+    },
+    {
+     "t": 1794500621556,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "hint",
+     "g": "spellquest-he",
+     "screen": "draw",
+     "target": "ima",
+     "auto": false
+    },
+    {
+     "t": 1794500626836,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 3,
+     "target": "dalet",
+     "tapped": "dalet",
+     "result": "right",
+     "ms": 3758,
+     "assets": [
+      "w-kelev",
+      "img-abba"
+     ],
+     "clock": 1794500626835
+    },
+    {
+     "t": 1794500632191,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "run-exit",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "score": 281,
+     "paused": true,
+     "ended": true
+    },
+    {
+     "t": 1794500633315,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "draw-mark",
+     "g": "spellquest-he",
+     "mark": "segol",
+     "ok": true
+    },
+    {
+     "t": 1794500641678,
+     "s": "mwdrb99c-584k6",
+     "run": 4,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "tower",
+     "target": "kubutz",
+     "result": "wrong",
+     "clock": 1794500641675
+    },
+    {
+     "t": 1794662646061,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 1,
+     "target": "yod",
+     "tapped": "yod",
+     "result": "right",
+     "ms": 6383,
+     "assets": [
+      "w-dag",
+      "img-bayit"
+     ],
+     "clock": 1794662646060
+    },
+    {
+     "t": 1794662651108,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 16,
+     "restart": false,
+     "wave": 1,
+     "kills": 10,
+     "boss": false,
+     "bossHp": 2,
+     "hearts": null,
+     "combo": 1,
+     "type": "B",
+     "target": "kamatz",
+     "word": "dag",
+     "picture": null,
+     "monster": "slime",
+     "monsterSrc": "/assets/m-8.webp",
+     "walkMs": 5428,
+     "pad": [
+      "kamatz",
+      "segol",
+      "kamatz"
+     ],
+     "padWords": [
+      "dag",
+      "yeled"
+     ],
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1794662659037,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 3,
+     "target": "het",
+     "tapped": "het",
+     "result": "right",
+     "ms": 499,
+     "assets": [
+      "w-dag",
+      "img-ima"
+     ],
+     "clock": 1794662659037
+    },
+    {
+     "t": 1794662663913,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "pause",
+     "g": "spellquest-he",
+     "cause": "hidden",
+     "round": 40,
+     "duringOutcome": true,
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1794662665779,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "tower-mega",
+     "g": "spellquest-he",
+     "target": "shva",
+     "clock": 1794662665780
+    },
+    {
+     "t": 1794662674653,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "outcome",
+     "g": "spellquest-he",
+     "pace": 0.6970000000000001,
+     "feedback": "praise",
+     "predicted": 0.637,
+     "round": 27,
+     "result": "timeout",
+     "choice": "shva",
+     "mega": false,
+     "final": false,
+     "points": 11,
+     "effect": "small",
+     "hearts": null,
+     "combo": 6,
+     "score": 831,
+     "bossHp": 1,
+     "msShown": 5265,
+     "msWalk": 12,
+     "via": "tower",
+     "visit": 2
+    },
+    {
+     "t": 1794662674868,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "syllables",
+     "stage": 4,
+     "target": "he",
+     "tapped": "samekh",
+     "result": "near",
+     "ms": 4131,
+     "assets": [
+      "w-yeled",
+      "img-sefer"
+     ],
+     "clock": 1794662674867
+    },
+    {
+     "t": 1794662683757,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "hint-stop",
+     "g": "spellquest-he",
+     "screen": "draw",
+     "by": "touch"
+    },
+    {
+     "t": 1794662691027,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "hint",
+     "g": "spellquest-he",
+     "screen": "draw",
+     "target": "kelev",
+     "auto": true
+    },
+    {
+     "t": 1794662695434,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "round",
+     "g": "spellquest-he",
+     "round": 27,
+     "restart": false,
+     "wave": 4,
+     "kills": 11,
+     "boss": false,
+     "bossHp": 5,
+     "hearts": null,
+     "combo": 2,
+     "type": "B",
+     "target": "kamatz",
+     "word": "kelev",
+     "picture": null,
+     "monster": "slime",
+     "monsterSrc": "/assets/m-4.webp",
+     "walkMs": 5723,
+     "pad": [
+      "kubutz",
+      "shuruk",
+      "segol"
+     ],
+     "padWords": [
+      "shemesh",
+      "bayit"
+     ],
+     "via": "tower",
+     "visit": 3
+    },
+    {
+     "t": 1794662695434,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "answer",
+     "g": "spellquest-he",
+     "screen": "pairs",
+     "stage": 4,
+     "target": "tet",
+     "tapped": "tet",
+     "result": "right",
+     "ms": 619,
+     "assets": [
+      "w-ima",
+      "img-sefer"
+     ],
+     "clock": 1794662695431
+    },
+    {
+     "t": 1794662701104,
+     "s": "mwgfsrk0-tm7hu",
+     "run": 3,
+     "e": "announce",
+     "g": "spellquest-he",
+     "kind": "boss",
+     "wave": 2,
+     "owed": 2,
      "via": "tower",
      "visit": 1
     }
