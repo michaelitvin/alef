@@ -345,15 +345,17 @@ export function doorWords(ctx: RoundCtx, n: number): Word[] {
 const firstGroup = (w: Word): VowelGroup | 'tsere' => (w.first.mark === 'tsere' ? 'tsere' : markOf(w.first.mark).group)
 
 /** The keys of a door: its word and two other door words, shuffled. At the last stage key 2 shares the word's first
- *  letter, else its first vowel group; key 3 is another word of that group, else any door word. */
-export function doorKeys(ctx: RoundCtx, word: Word): Word[] {
+ *  syllable (letter and vowel group), else its first letter, else its first vowel group, else any door word; key 3
+ *  follows the same order. `pool` is the word list (tests pass their own). */
+export function doorKeys(ctx: RoundCtx, word: Word, pool: readonly Word[] = WORDS): Word[] {
   const shuffled = (xs: Word[]) => xs.sort(() => ctx.rng() - 0.5)
-  const others = shuffled(WORDS.filter((w) => w.door && w.id !== word.id))
+  const others = shuffled(pool.filter((w) => w.door && w.id !== word.id))
   if (ctx.stage < REHEARSE_FROM) return shuffled([word, ...others.slice(0, 2)])
   const sameLetter = others.filter((w) => w.first.item === word.first.item)
+  const sameSyllable = sameLetter.filter((w) => firstGroup(w) === firstGroup(word))
   const sameGroup = others.filter((w) => firstGroup(w) === firstGroup(word))
   const keys: Word[] = []
-  for (const w of [...sameLetter, ...sameGroup, ...others]) {
+  for (const w of [...sameSyllable, ...sameLetter, ...sameGroup, ...others]) {
     if (keys.length < 2 && !keys.includes(w)) keys.push(w)
   }
   return shuffled([word, ...keys])

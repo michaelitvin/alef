@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { FULL_SWEEP } from '../../test/fullSweep'
 import type { Stage } from './content.ts'
 import { item, syllable } from './content.ts'
-import { WORDS } from '../data/words'
+import { WORDS, type Word } from '../data/words'
 import {
   broomTarget, broomWave, cauldronRound, weakestGroup, doorKeys, doorWords, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
   type Choice, type RoundCtx,
@@ -229,6 +229,27 @@ describe('doors at the last stage', () => {
       expect(rose.some((k) => group(k.id) === 'e')).toBe(true)
       expect(idsOf(doorKeys(ctx(4, s), word('fox')))).toContain('cake')
       expect(idsOf(doorKeys(ctx(4, s), word('cake')))).toContain('fox')
+    }
+  })
+
+  it('keys go by first syllable, then first letter, then first vowel group, then any word', () => {
+    const w = (id: string, item: string, mark: Word['first']['mark']): Word =>
+      ({ id, text: id, first: { item, mark }, picture: `pw-${id}`, door: true, stage: 2 })
+    const pool = [
+      w('camel', 'gimel', 'kamatz'), w('fence', 'gimel', 'kamatz'), w('carrot', 'gimel', 'segol'), w('bridge', 'gimel', 'segol'),
+      w('dog', 'kaf', 'kamatz'), w('crown', 'kaf', 'kamatz'), w('sheep', 'kaf', 'segol'), w('tent', 'tav', 'tsere'), w('book', 'samekh', 'tsere'),
+    ]
+    const get = (id: string) => pool.find((x) => x.id === id)!
+    const keysOf = (id: string, s: number) => idsOf(doorKeys(ctx(4, s), get(id), pool)).filter((k) => k !== id)
+    for (let s = 1; s <= 30; s++) {
+      expect(idsOf(doorKeys(ctx(4, s), get('camel'), pool))).toHaveLength(3)
+      expect(keysOf('camel', s)).toContain('fence')
+      expect(keysOf('camel', s).some((k) => k === 'carrot' || k === 'bridge')).toBe(true)
+      expect(keysOf('dog', s)).toContain('crown')
+      expect(keysOf('dog', s).some((k) => k === 'camel' || k === 'fence')).toBe(false)
+      expect(keysOf('carrot', s)).toContain('bridge')
+      expect(keysOf('sheep', s)).toContain('crown')
+      expect(new Set(keysOf('camel', s)).size).toBe(2)
     }
   })
 
