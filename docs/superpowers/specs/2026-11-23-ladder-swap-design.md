@@ -73,3 +73,22 @@ They are built in parallel in separate worktrees; task 1 merges first.
 3. **D** (`src/spellquest/english/logic/rounds/ladder.ts`, `src/spellquest/logic/rounds.ts` `ladderPlan`; logic tests).
 4. **Verify** after the merge: `/verify` ladder checks at 1024×768 and 740×360, both courses, also a confident answer, a
    mistake then the fix, and a Hebrew dot ladder; screenshots of a rung start, the swap and the climb for the parent.
+
+## Addendum (the parent, 2026-11-24): the wizard on the ladder, both courses
+
+The parent wants the wizard the same in both courses, on the ladder, not made small. Mocks: the alef scratch page
+`ladder-wizard/` (round 1, option 3, `id: 'top'` in its `index.html`, which holds the exact coordinates). He picked **option 3**:
+- The wizard stands in the middle of the ladder, on the newest rung, at about 250 stage units (today 230). He covers no
+  rung word: he stands on top of the newest rung, in the empty space where the next rung goes.
+- The ladder moves left (centre x about 530) and the plates right (about x 1425).
+- The next rung is made **beside the ladder** at the next rung's height: English, the box row (125-unit boxes, or more if
+  it fits); Hebrew, an empty dashed rung. The plate flies into it (the swap of part A happens there), then the made rung
+  slides into the ladder under his feet and he climbs onto it. The drop zone is that slot; the demo hand goes to it.
+- The mock found one fault: on a 740×360 phone the top English rung's box row sits under the top bar. Fix it within the
+  option (my call: rungs about 130 apart instead of 150, as the round 2 mock did; or fewer rungs per visit only if 130
+  does not fit). Nothing may sit under the top bar.
+- Everything else of this design stays (the swap, "And now:", no matching trap, the timings).
+
+Task 5 (one agent, Opus: layout and the swap's last step in `Ladder.tsx` and the controller's swap): build it for both
+courses; update the run tests, the layout tests and the `/verify` ladder checks (`englishFit`: the row clear of the
+wizard and the top bar). Then a QA agent drives both courses at 740×360 and 1024×768.
