@@ -2434,6 +2434,17 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   const dv = (c: RunController) => c.view.screen as DrawView
   const strokesFor = (c: RunController, tf = (p: Pt): Pt => p) => strokesOf(dv(c).letter, dv(c).script).variants[0].map((s) => resample(s.pts, 30).map(tf))
   const answering = (c: RunController) => until(c, (v) => v.phase === 'answer' && !dv(c).demo)
+  /** a started run on the draw screen whose letter has 2 strokes or more (a 1-stroke letter ends the round before a pause) */
+  async function multiStroke(force: Force): Promise<RunController> {
+    for (let seed = 1; seed < 60; seed++) {
+      const c = make({ force, rng: seeded(seed) })
+      c.start()
+      await answering(c)
+      if (strokesFor(c).length > 1) return c
+      c.destroy()
+    }
+    throw new Error('no seed draws a letter of 2 strokes')
+  }
   async function drawLetter(c: RunController, tf?: (p: Pt) => Pt) {
     for (const s of strokesFor(c, tf)) {
       await answering(c)
@@ -2593,9 +2604,8 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   }, 60_000)
 
   it('strokes are accepted on the handwriting screen, and a pause resumes it in handwriting', async () => {
-    const c = make({ force: { screen: 'draw-hand', stage: 1 }, rng: seeded(4) })
-    c.start()
-    await answering(c)
+    const c = await multiStroke({ screen: 'draw-hand', stage: 1 })
+    expect(strokesFor(c).length).toBeGreaterThan(1)
     expect(dv(c).screen).toBe('draw')
     expect(dv(c).script).toBe('hand')
     const id = dv(c).word.id
@@ -2615,9 +2625,8 @@ describe('drawing screen (spec: 2026-11-07 drawing)', () => {
   })
 
   it('a pause restarts the same word from the start', async () => {
-    const c = make({ force: { screen: 'draw', stage: 1, script: 'print' } })
-    c.start()
-    await answering(c)
+    const c = await multiStroke({ screen: 'draw', stage: 1, script: 'print' })
+    expect(strokesFor(c).length).toBeGreaterThan(1)
     const id = dv(c).word.id
     c.gesture({ type: 'stroke', pts: strokesFor(c)[0] })
     await tick(20)

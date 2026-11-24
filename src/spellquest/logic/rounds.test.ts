@@ -214,6 +214,15 @@ describe('doors at the last stage', () => {
     expect(fox).toBeGreaterThan(base)
   })
 
+  it('the tiger and the cat are never keys of one door, at any stage', () => {
+    for (const stage of [2, 3, 4] as const) for (let s = 1; s <= 60; s++) {
+      expect(idsOf(doorKeys(ctx(stage, s), word('tiger')))).not.toContain('cat')
+      expect(idsOf(doorKeys(ctx(stage, s), word('cat')))).not.toContain('tiger')
+      const other = idsOf(doorKeys(ctx(stage, s), word('fox')))
+      expect(other.includes('tiger') && other.includes('cat')).toBe(false)
+    }
+  })
+
   it('key 2 shares the first letter, else the first vowel group', () => {
     for (let s = 1; s <= 20; s++) {
       const keys = doorKeys(ctx(4, s), word('camel'))

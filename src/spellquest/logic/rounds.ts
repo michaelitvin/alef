@@ -344,19 +344,28 @@ export function doorWords(ctx: RoundCtx, n: number): Word[] {
 /** the first vowel group; the one tsere word (book) is a group of its own, so it gets random keys */
 const firstGroup = (w: Word): VowelGroup | 'tsere' => (w.first.mark === 'tsere' ? 'tsere' : markOf(w.first.mark).group)
 
+/** Door words whose pictures look alike (the tiger and the cat are both orange and striped): never keys of one door. */
+const LOOK_ALIKE_PICTURES: readonly (readonly string[])[] = [['tiger', 'cat']]
+const lookAlike = (a: Word, b: Word) => LOOK_ALIKE_PICTURES.some((g) => g.includes(a.id) && g.includes(b.id))
+
 /** The keys of a door: its word and two other door words, shuffled. At the last stage key 2 shares the word's first
  *  syllable (letter and vowel group), else its first letter, else its first vowel group, else any door word; key 3
  *  follows the same order. `pool` is the word list (tests pass their own). */
 export function doorKeys(ctx: RoundCtx, word: Word, pool: readonly Word[] = WORDS): Word[] {
   const shuffled = (xs: Word[]) => xs.sort(() => ctx.rng() - 0.5)
-  const others = shuffled(pool.filter((w) => w.door && w.id !== word.id))
-  if (ctx.stage < REHEARSE_FROM) return shuffled([word, ...others.slice(0, 2)])
+  const others = shuffled(pool.filter((w) => w.door && w.id !== word.id && !lookAlike(w, word)))
+  const clash = (keys: Word[], w: Word) => keys.some((k) => lookAlike(k, w))
+  if (ctx.stage < REHEARSE_FROM) {
+    const keys: Word[] = []
+    for (const w of others) if (keys.length < 2 && !clash(keys, w)) keys.push(w)
+    return shuffled([word, ...keys])
+  }
   const sameLetter = others.filter((w) => w.first.item === word.first.item)
   const sameSyllable = sameLetter.filter((w) => firstGroup(w) === firstGroup(word))
   const sameGroup = others.filter((w) => firstGroup(w) === firstGroup(word))
   const keys: Word[] = []
   for (const w of [...sameSyllable, ...sameLetter, ...sameGroup, ...others]) {
-    if (keys.length < 2 && !keys.includes(w)) keys.push(w)
+    if (keys.length < 2 && !keys.includes(w) && !clash(keys, w)) keys.push(w)
   }
   return shuffled([word, ...keys])
 }

@@ -32,6 +32,15 @@ const sameSoundSyl = (a: SpellBox, b: SpellBox) => {
 
 describe('the Hebrew spell book', () => {
   it('בַּיִת: two boxes, ת faint', () => expect(heSpellRound(ctxFor('house'))).toMatchObject({ boxes: [{ text: 'בַּ' }, { text: 'יִ' }], tail: 'ת' }))
+  it('at stage 2 it asks no word of a later stage (sheep, book)', () => {
+    const seen = new Set<string>()
+    for (let seed = 1; seed < 300; seed++) {
+      const stage = 2
+      const r = heSpellRound(ctxAt(seed, stage))
+      if (r) { seen.add(r.word); expect(WORDS.find((w) => w.id === r.word)!.stage).toBeLessThanOrEqual(Math.max(2, stage)) }
+    }
+    expect(seen.has('book') || seen.has('sheep')).toBe(false)
+  })
   it('a same-sound syllable is never a wrong tile', () => {
     for (const w of DOOR_WORDS_AT_4) for (const t of heSpellRound(ctxFor(w.id))!.tiles) for (const b of heSpellRound(ctxFor(w.id))!.boxes)
       if (t.unit !== b.unit) expect(sameSoundSyl(t, b)).toBe(false)

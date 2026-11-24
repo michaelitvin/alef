@@ -29,7 +29,7 @@ const tileOf = (s: Syllable): SpellBox => {
  */
 export function heSpellRound(ctx: RoundCtx, picture: PictureOf = () => undefined): SpellRound | null {
   const { rng, stage } = ctx
-  const pool = WORDS.filter((w) => w.door && w.syllables?.length)
+  const pool = WORDS.filter((w) => w.door && w.syllables?.length && w.stage <= Math.max(2, stage))
   if (!pool.length) return null
   const w: Word = pickTarget(rng, pool, (x) => features({ wordId: x.id }, 'spell'), ctx.tallies, ctx.recent)
   const syls = w.syllables!.map((s) => syllable(s.item, s.mark))
