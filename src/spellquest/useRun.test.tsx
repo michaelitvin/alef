@@ -8,7 +8,9 @@ import { hintCoins } from './logic/merchant'
 import { useProgressStore } from '../stores/progressStore'
 import { INITIAL_PROGRESS_STATE } from '../types/progress'
 import { TOWER_MARKS } from './tower/logic/marks'
-import { CATCH_AT, ORB_JITTER, wavePos } from './logic/run'
+import { CATCH_AT, HEBREW_STAGES, ORB_JITTER, wavePos } from './logic/run'
+import { HEBREW } from './course/hebrew'
+import type { Course } from './course/types'
 import { BROOM_ORB, LANE_Y, flightPath, orbX } from './broomLayout'
 import { stopVoice } from './audio/spellQuestAudio'
 import { installFakeAudio } from '../shared/gameAudio/fakePlayer'
@@ -1745,6 +1747,38 @@ describe('run controller', () => {
       c.gesture({ type: 'pick', id: rightId(c.view) })
       await until(c, (v) => v.screen?.screen === 'crystal')
       c.destroy()
+    }, 60_000)
+
+    // the mastery rules (halved visits, skipped screens, the crystal owed) that the last stage's rehearsal switches off: the
+    // Hebrew course with the old order, the old visits and no rehearse keeps them covered
+    const LEGACY: Course = { ...HEBREW, stages: { ...HEBREW_STAGES, orderOf: () => HEBREW_STAGES.order, visitOf: () => HEBREW_STAGES.visit, rehearse: undefined } }
+
+    it('without rehearse: a short ladder has as many rungs as its visit; short doors put the crystal behind the last of them', async () => {
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'cauldron', recent: { 'sc:ladder': O8, 'sc:doors': O8 } })
+      const c = make({ course: LEGACY })
+      c.start()
+      await until(c, (v) => v.screen?.screen === 'ladder')
+      expect((c.view.screen as { rungs: number }).rungs).toBe(3)
+      const n = await playCounting(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer')
+      expect(n.ladder).toBe(3)
+      expect((c.view.screen as { behind?: unknown }).behind).toBeUndefined()
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await until(c, (v) => v.screen?.screen === 'doors' && v.phase === 'answer' && !!(v.screen as { behind?: unknown }).behind)
+      c.gesture({ type: 'pick', id: rightId(c.view) })
+      await until(c, (v) => v.screen?.screen === 'crystal')
+      c.destroy()
+    }, 60_000)
+
+    it('closing the game before the cycle ends still gives the crystal of the skipped doors, once', async () => {
+      useSpellQuestStore.setState({ stage: { stage: 4, newAnswers: '' }, lastEnded: 'ladder', recent: { 'sc:doors': O12 }, cycleNo: 1, crystals: 0,
+        settings: { ...DEFAULT_SETTINGS, drawing: true } })
+      const c = make({ course: LEGACY })
+      c.start()
+      await playCounting(c, (v) => v.screen?.screen === 'draw')
+      expect(useSpellQuestStore.getState().crystals).toBe(0)
+      c.destroy()
+      c.destroy()
+      expect(useSpellQuestStore.getState().crystals).toBe(1)
     }, 60_000)
 
     it('a mastered tower gets one wave (the visit\'s length reaches the tower)', async () => {

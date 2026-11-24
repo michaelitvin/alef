@@ -72,7 +72,8 @@ const EN_ROUNDS: CourseRounds = {
   // (never asked on English: `maybeWordLink` returns early for non-syllables)
   wordLinkFor: () => undefined,
   // the first letter of a heard word, sometimes a whole word or a capital (pictures: files only)
-  drawWords: (ctx, n) => enDrawWords(ctx, n, { picture: wordPicture, voice: hasVoice }),
+  // (a visit's length does not reach it: its rounds are the default 5, as before the Hebrew rehearse change)
+  drawWords: (ctx) => enDrawWords(ctx, undefined, { picture: wordPicture, voice: hasVoice }),
   // a real word to spell; its picture at stages 1–3 (files only)
   spellRound: (ctx) => enSpellRound(ctx, { picture: wordPicture, voice: hasVoice }),
   bossKinds: enBossKinds,

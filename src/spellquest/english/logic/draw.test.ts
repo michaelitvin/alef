@@ -24,6 +24,18 @@ const items = (stage: number, tallies: DrawCtx['tallies'], seeds = 60): DrawItem
   return out
 }
 
+describe('the English visit plan ignores the visit length (as before the Hebrew rehearse change)', () => {
+  it('a visit of 6 or a halved visit plans the same default rounds, with the same rng stream', () => {
+    for (const stage of [1, 2, 4]) {
+      for (let seed = 1; seed <= 10; seed++) {
+        const base = ENGLISH.rounds.drawWords(ctxAt(stage, seed))
+        expect(base).toHaveLength(5)
+        for (const n of [6, 2, undefined]) expect(ENGLISH.rounds.drawWords(ctxAt(stage, seed), n)).toEqual(base)
+      }
+    }
+  })
+})
+
 describe('the English drawing rounds', () => {
   it('stage 1 opens the stage-1 letters in hand order: a first, then t, f, i, m, n, p, s', () => {
     const opened: string[] = []

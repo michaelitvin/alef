@@ -80,6 +80,8 @@ export interface SpellQuestSave {
   drawRounds: number
   /** letter → drawing visits left that the letter is held back (its last 2 rounds were misses); missing in an old save: {} */
   drawHeld: Record<string, number>
+  /** letter → the new judge's last results (`o`/`x`), the hold's only input (a save without it loads as {}) */
+  drawRecent?: Record<string, string>
   merchant: MerchantSave
   /** checkpoints since the merchant's last visit, across runs (a declined visit counts as a visit) */
   checkpointsSinceVisit: number
@@ -128,6 +130,7 @@ export interface SpellQuestActions {
   noteDrawRound: () => void
   /** the letters held back from the drawing visits (logic/draw: holdAfter, decayHeld) */
   setDrawHeld: (h: Record<string, number>) => void
+  setDrawRecent: (r: Record<string, string>) => void
   noteMerchant: (e: 'visit' | 'purchase' | 'decline' | 'short' | 'over' | 'hint') => void
   setMerchantFlag: (k: 'demoSeen' | 'undoShown') => void
   /** a purchase: `exactNoHint` = exact at the first try with no hint; `hinted` = he used the hint (the level adapts) */
@@ -235,6 +238,7 @@ export const runState = (recordStage: StageRule, initial: Partial<SpellQuestSave
   }),
   noteDrawRound: () => set((s) => ({ drawRounds: (s.drawRounds ?? 0) + 1 })),
   setDrawHeld: (h) => set({ drawHeld: h }),
+  setDrawRecent: (r) => set({ drawRecent: r }),
   noteMerchant: (e) => set((s) => {
     const m = { ...FRESH_MERCHANT, ...s.merchant }
     const key = ({ visit: 'visits', purchase: 'purchases', decline: 'declines', short: 'short', over: 'over', hint: 'hints' } as const)[e]

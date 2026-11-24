@@ -144,16 +144,23 @@ function confusedIds(ctx: RoundCtx): { letters: Set<string>; syllables: Set<stri
   return out
 }
 
-/** His weakest vowel group: the highest predicted `v:` rate among groups that he has answered */
-function weakestGroup(ctx: RoundCtx): VowelGroup | null {
+/** a vowel group counts as weak only from this predicted rate, and when it is this far above the mean of the groups */
+const WEAK_GROUP_MIN = 0.1
+const WEAK_GROUP_GAP = 0.05
+
+/** His weakest vowel group: the highest predicted `v:` rate among groups that he has answered, if it is really weak */
+export function weakestGroup(ctx: RoundCtx): VowelGroup | null {
   let best: VowelGroup | null = null
   let top = -1
+  let sum = 0
+  let n = 0
   for (const g of GROUPS) {
     if (!ctx.tallies[`v:${g}`]?.seen) continue
     const r = predict([`v:${g}`], ctx.tallies, ctx.recent)
+    sum += r; n++
     if (r > top) { top = r; best = g }
   }
-  return best
+  return best && top >= WEAK_GROUP_MIN && top - sum / n >= WEAK_GROUP_GAP ? best : null
 }
 
 /** The candidates that he mixes up (or, for syllables, of his weakest vowel group) */

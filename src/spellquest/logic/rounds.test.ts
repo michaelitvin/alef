@@ -4,7 +4,7 @@ import type { Stage } from './content.ts'
 import { item, syllable } from './content.ts'
 import { WORDS } from '../data/words'
 import {
-  broomTarget, broomWave, cauldronRound, doorKeys, doorWords, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
+  broomTarget, broomWave, cauldronRound, weakestGroup, doorKeys, doorWords, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
   type Choice, type RoundCtx,
 } from './rounds'
 
@@ -293,13 +293,15 @@ describe('the weak share at the last stage', () => {
     }
   })
 
-  it('syllables of his weakest vowel group come up more', () => {
-    const tallies: RoundCtx['tallies'] = { 'v:o': { seen: 40, wrong: 2 }, 'v:a': { seen: 40, wrong: 0 } }
-    const o = (conf: RoundCtx['tallies']) => {
-      let n = 0
-      for (let s = 1; s <= 300; s++) if (broomTarget(ctx(4, s, { tallies: conf }), 'syllable').group === 'o') n++
-      return n
-    }
-    expect(o(tallies)).toBeGreaterThan(o({}) + 20)
+  const group = (o: number, a: number, e = 0) => weakestGroup(ctx(4, 1, { tallies: { 'v:o': { seen: 40, wrong: o }, 'v:a': { seen: 40, wrong: a }, 'v:e': { seen: 40, wrong: e } } }))
+  it('his weakest vowel group is the one with the highest predicted rate, when it is at least 0.10 and 0.05 above the mean', () => {
+    expect(group(8, 0)).toBe('o')
+    expect(group(0, 8)).toBe('a')
+  })
+  it('no weak vowel group when every group is strong (under 0.10), or none is clearly worse than the rest', () => {
+    expect(group(3, 0)).toBeNull()
+    expect(group(8, 8, 8)).toBeNull()
+    expect(group(8, 7, 7)).toBeNull()
+    expect(weakestGroup(ctx(4, 1, { tallies: {} }))).toBeNull()
   })
 })

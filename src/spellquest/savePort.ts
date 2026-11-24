@@ -9,7 +9,7 @@ import { getNumberRange, type NumberRange } from '../shared/numberRange'
 /** the save's actions the run calls */
 const WRITES = [
   'recordAnswer', 'setPace', 'endRun', 'addStar', 'addCoins', 'spendCoins', 'markBossBeaten', 'setLastBoss', 'markBossNewHeard',
-  'notePraise', 'addCrystal', 'markDemo', 'markDotIntro', 'noteDrawRound', 'setDrawHeld', 'noteMerchant', 'setMerchantFlag', 'merchantPaid',
+  'notePraise', 'addCrystal', 'markDemo', 'markDotIntro', 'noteDrawRound', 'setDrawHeld', 'setDrawRecent', 'noteMerchant', 'setMerchantFlag', 'merchantPaid',
   'noteCheckpoint', 'noteTowerVisit', 'setTowerWave', 'oweMonsters', 'monsterIntroduced', 'noteTowerAnswer', 'markScreensOpen', 'nextCycle', 'noteBroomSession',
 ] as const satisfies readonly (keyof SpellQuestActions)[]
 type SaveWrites = Pick<SpellQuestActions, (typeof WRITES)[number]>

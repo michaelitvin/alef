@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
 import { strokesOf, type Pt } from '../data/strokes'
-import { HOLD_VISITS, decayHeld, drawFeature, drawWords, holdAfter, marksFor, needsDemo, scriptOf, splitWord } from './draw'
+import { HOLD_VISITS, decayHeld, noteDrawResult, drawFeature, drawWords, holdAfter, marksFor, needsDemo, scriptOf, splitWord } from './draw'
 import { drawLayout } from './drawLayout'
 import { judgeMarks, markTargets, type Box, type MarkSpec } from './recognizer'
 
@@ -42,12 +42,41 @@ describe('drawing rounds at the last stage', () => {
     for (let s = 1; s < 60; s++) if (lettersOf(drawWords({ rng: seeded(s), tallies: {}, recent: {}, confusions: {}, stage: 3, held: { ג: 2 } }, 4)).includes('ג')) held++
     expect(held).toBeGreaterThan(0)
   })
-  it('the hold: two misses in a row in either script hold the letter for 3 visits, then it is offered again', () => {
-    expect(holdAfter({}, 'ג', { [drawFeature('ג', 'hand')]: 'oxx' })).toEqual({ ג: HOLD_VISITS })
-    expect(holdAfter({}, 'ג', { [f('ג')]: 'xox' })).toEqual({})
+  it('the hold: two misses in a row judged by the new judge hold the letter for 3 visits, then it is offered again', () => {
+    expect(holdAfter({}, 'ג', 'oxx')).toEqual({ ג: HOLD_VISITS })
+    expect(holdAfter({}, 'ג', 'xox')).toEqual({})
+    expect(holdAfter({}, 'ג', 'x')).toEqual({})
     let h: Record<string, number> = { ג: HOLD_VISITS }
     for (let v = 1; v <= HOLD_VISITS; v++) { expect(h.ג).toBeGreaterThan(0); h = decayHeld(h) }
     expect(h).toEqual({})
+  })
+  it('the new judge\'s record keeps the last 3 results of a letter', () => {
+    let r: Record<string, string> = {}
+    for (const m of [true, false, true, true]) r = noteDrawResult(r, 'ג', m)
+    expect(r).toEqual({ ג: 'oxx' })
+  })
+  it('the first word has his best letter among the letters he has drawn; with none drawn it is any letter', () => {
+    // only ב has been drawn (a few misses); every other letter is unseen and predicts 0, but he never drew it
+    const tallies = { [f('ב')]: { seen: 6, wrong: 2 } }
+    for (let s = 1; s < 30; s++) expect(L(drawWords({ rng: seeded(s), tallies, recent: { [f('ב')]: 'ooxo' }, confusions: {}, stage: 4 }, 4)[0])).toBe('ב')
+    const firsts = new Set<string>()
+    for (let s = 1; s < 60; s++) firsts.add(L(drawWords({ rng: seeded(s), tallies: {}, recent: {}, confusions: {}, stage: 4 }, 4)[0]))
+    expect(firsts.size).toBeGreaterThan(1)
+  })
+  it('the old judge\'s misses (about 7 in 10) do not make every letter weak, and no letter is held by them', () => {
+    const tallies = Object.fromEntries(allLetters.map((l) => [f(l), { seen: 10, wrong: 7 }]))
+    const recent = Object.fromEntries(allLetters.map((l) => [f(l), 'oxxox']))
+    // a parent's real shape also has letters he drew right: those must lead and fill the visit
+    const good = allLetters.slice(0, 6)
+    for (const l of good) { tallies[f(l)] = { seen: 10, wrong: 1 }; recent[f(l)] = 'ooooo' }
+    for (let s = 1; s < 40; s++) {
+      const ws = lettersOf(drawWords({ rng: seeded(s), tallies, recent, confusions: {}, stage: 4 }, 4))
+      expect(new Set(ws).size).toBe(4)
+      expect(ws.filter((l) => !good.includes(l)).length).toBeLessThanOrEqual(1)
+    }
+    // one more miss after the old record holds nothing: only the new judge's results count
+    expect(holdAfter({}, 'ג', '')).toEqual({})
+    expect(holdAfter({}, 'ג', noteDrawResult({}, 'ג', true).ג)).toEqual({})
   })
 })
 

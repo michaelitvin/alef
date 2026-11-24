@@ -11,6 +11,7 @@ import type { Conf } from './rounds'
 const DRAW_WORDS = 3
 /** the tally of one letter drawn in one script */
 export const drawFeature = (letter: string, script: Script) => `dr:${letter}:${script}`
+const SCRIPTS_OF = (letter: string) => [drawFeature(letter, 'print'), drawFeature(letter, 'hand')]
 
 const MARK = /[֑-ׇ]/
 const clusters = (t: string) => {
@@ -71,15 +72,24 @@ interface DrawCtx {
 
 /** The last stage (`HEBREW_STAGES.maxStage`): the visit's words are picked for the 1-in-5 rule. */
 const REHEARSE_FROM = 4
-/** a letter whose last 2 rounds were misses is held back for this many drawing visits, then offered again */
+/** a letter whose last 2 drawn rounds were misses is held back for this many drawing visits, then offered again */
 export const HOLD_VISITS = 3
-const SCRIPTS: Script[] = ['print', 'hand']
-const tail = (recent: Record<string, string>, letter: string, script: Script, n: number) => (recent[drawFeature(letter, script)] ?? '').slice(-n)
+/** a letter whose predicted mistake rate is this high is weak: a visit has at most one of them (the rest sit near 1 in 5) */
+const WEAK_RATE = 0.35
+/** how many results of the new judge are kept for a letter */
+const RECORD_LEN = 3
 
-/** After a drawn round: the held letters with `letter` added (HOLD_VISITS) when its last 2 rounds in a script were misses. */
-export function holdAfter(held: Record<string, number>, letter: string, recent: Record<string, string>): Record<string, number> {
-  const two = SCRIPTS.some((sc) => tail(recent, letter, sc, 2) === 'xx')
-  return two ? { ...held, [letter]: HOLD_VISITS } : held
+/**
+ * The new judge's results of a letter, newest last (`o` right, `x` miss): the save's `drawRecent`. The older `recent` strings
+ * were written by the old judge (about 7 rounds in 10 missed), so the hold does not read them.
+ */
+export function noteDrawResult(record: Record<string, string>, letter: string, miss: boolean): Record<string, string> {
+  return { ...record, [letter]: ((record[letter] ?? '') + (miss ? 'x' : 'o')).slice(-RECORD_LEN) }
+}
+
+/** After a drawn round: the held letters with `letter` added (HOLD_VISITS) when the new judge's last 2 results of it are misses. */
+export function holdAfter(held: Record<string, number>, letter: string, record: string): Record<string, number> {
+  return record.slice(-2) === 'xx' ? { ...held, [letter]: HOLD_VISITS } : held
 }
 
 /** When a visit's words are picked: every held letter has one visit less to wait (a letter at 0 is offered again). */
@@ -101,13 +111,13 @@ export function drawWords(ctx: DrawCtx, n = DRAW_WORDS): Word[] {
   }
   const pool = WORDS.map((w) => {
     const letter = splitWord(w, 'print').letter
-    const p = predict([drawFeature(letter, 'print'), drawFeature(letter, 'hand')].filter((f) => ctx.tallies[f]), ctx.tallies, ctx.recent)
+    const p = predict(SCRIPTS_OF(letter).filter((f) => ctx.tallies[f]), ctx.tallies, ctx.recent)
     return { w, letter, weight: 1 + Math.min(3, mixups(w.first.item) / 2) + 6 * p, p }
   })
   const out: Word[] = []
   const used = new Set<string>(ctx.avoid ? [ctx.avoid] : [])
   const rehearse = (ctx.stage ?? 0) >= REHEARSE_FROM
-  const weak = (letter: string) => SCRIPTS.some((sc) => tail(ctx.recent, letter, sc, 3).includes('x'))
+  const weak = (x: { p: number }) => x.p >= WEAK_RATE
   let weakPicked = 0
   while (out.length < n) {
     let left = pool.filter((x) => !used.has(x.letter))
@@ -115,17 +125,21 @@ export function drawWords(ctx: DrawCtx, n = DRAW_WORDS): Word[] {
       // held letters wait; at most 1 weak letter a visit (each rule gives way when it would leave no word)
       const kept = left.filter((x) => !(ctx.held?.[x.letter] ?? 0))
       if (kept.length) left = kept
-      const calm = left.filter((x) => !(weakPicked && weak(x.letter)))
+      const calm = left.filter((x) => !(weakPicked && weak(x)))
       if (calm.length) left = calm
     }
     const from = left.length ? left : pool.filter((x) => !out.includes(x.w))
     if (rehearse && !out.length) {
-      // the first word: his best letter (the lowest predicted mistake rate)
-      const best = Math.min(...from.map((x) => x.p))
-      const pick = from.filter((x) => x.p === best)
-      const first = pick[Math.floor(ctx.rng() * pick.length)]
-      out.push(first.w); used.add(first.letter); if (weak(first.letter)) weakPicked++
-      continue
+      // the first word: his best letter (the lowest predicted mistake rate) among the letters he has drawn; an unseen letter
+      // predicts 0 but is no best letter (none drawn yet: the weighted pick below)
+      const drawn = from.filter((x) => SCRIPTS_OF(x.letter).some((f) => ctx.tallies[f]))
+      if (drawn.length) {
+        const best = Math.min(...drawn.map((x) => x.p))
+        const pick = drawn.filter((x) => x.p === best)
+        const first = pick[Math.floor(ctx.rng() * pick.length)]
+        out.push(first.w); used.add(first.letter); if (weak(first)) weakPicked++
+        continue
+      }
     }
     const total = from.reduce((a, x) => a + x.weight, 0)
     let r = ctx.rng() * total
@@ -133,7 +147,7 @@ export function drawWords(ctx: DrawCtx, n = DRAW_WORDS): Word[] {
     for (const x of from) { r -= x.weight; if (r <= 0) { pick = x; break } }
     out.push(pick.w)
     used.add(pick.letter)
-    if (rehearse && weak(pick.letter)) weakPicked++
+    if (rehearse && weak(pick)) weakPicked++
   }
   return out
 }

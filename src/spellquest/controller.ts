@@ -23,7 +23,7 @@ import type { BlendPart, BlendPlan, Course, CourseId, DoorKey, DoorRound, DrawIt
 import type { Highlight } from './viewTypes'
 import { strokesOf, type Pt, type Script } from './data/strokes'
 import { LetterChecker, splitMarks } from './logic/recognizer'
-import { decayHeld, holdAfter, marksFor, needsDemo, scriptOf, splitWord } from './logic/draw'
+import { decayHeld, holdAfter, marksFor, noteDrawResult, needsDemo, scriptOf, splitWord } from './logic/draw'
 import { drawLayout, latinLayout } from './logic/drawLayout'
 import { drawRound, stepDraw, type DrawInput, type DrawLine, type DrawState, type DrawView, type LatinRound } from './policies/draw'
 import { spellVisit, stepSpell, type SpellAnswer, type SpellInput, type SpellRound, type SpellSfx, type SpellState, type SpellView } from './policies/spell'
@@ -1776,7 +1776,7 @@ export class RunController {
     if (!this.drawPlan) {
       const held = st.drawHeld ?? {}
       // n = the visit's length (a visit of 4 must not repeat a word); the last stage's held letters wait one visit less
-      this.drawPlan = this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters, stage: this.stage, held }, this.visitLen || undefined)
+      this.drawPlan = this.course.rounds.drawWords({ rng: this.rng, tallies: st.tallies, recent: st.recent, confusions: st.confusions.letters, stage: this.stage, held }, this.course.id === 'he' ? this.visitLen || undefined : undefined)
       if (this.course.id === 'he' && this.stage >= this.course.stages.maxStage && Object.keys(held).length) this.save.setDrawHeld(decayHeld(held))
     }
     const item = this.drawPlan[this.roundInScreen % this.drawPlan.length]
@@ -1882,10 +1882,15 @@ export class RunController {
       this.save.recordAnswer({ features, miss, newStage: false, ...(helped ? { helped } : {}) })
       // the last stage: a letter whose last 2 rounds were misses sits out the next drawing visits
       const letter = this.drawCur?.alphabet === 'hebrew' ? this.drawCur.letters[0] : undefined
-      if (letter && miss && this.stage >= this.course.stages.maxStage) {
-        const st = this.save.read()
-        const held = holdAfter(st.drawHeld ?? {}, letter, st.recent)
-        if (held !== (st.drawHeld ?? {})) this.save.setDrawHeld(held)
+      if (letter) {
+        // only the new judge's results count for the hold (the old `recent` strings hold 7 misses in 10)
+        const record = noteDrawResult(this.save.read().drawRecent ?? {}, letter, miss)
+        this.save.setDrawRecent(record)
+        if (miss && this.stage >= this.course.stages.maxStage) {
+          const st = this.save.read()
+          const held = holdAfter(st.drawHeld ?? {}, letter, record[letter])
+          if (held !== (st.drawHeld ?? {})) this.save.setDrawHeld(held)
+        }
       }
       return
     }
