@@ -319,7 +319,7 @@
   },
   {
    "name": "pw-bridge",
-   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small arched wooden bridge over a short strip of blue water, side view. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small, chunky, tall-arched stone bridge seen at three-quarter view, a high round arch with a visible dark opening, stone blocks, small railings, a short stretch of blue stream flowing under it; the whole picture compact and nearly square, filling the frame. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
    "model": "gemini-3-pro-image"
   },
