@@ -1,4 +1,5 @@
-// Which way each customer picture faces, as drawn (rule: a sprite faces the direction it moves or looks).
+// Which way each customer picture faces, as drawn. All animals face left, in landscape and in portrait, and a customer
+// is never mirrored (the parent 2026-11-24: "all animals are facing left unless otherwise said").
 // Judged by eye from src/clock/assets/img/<id>-idle.webp and <id>-happy.webp (2026-10-15): the direction of the snout or
 // beak and the turn of the head and body; 'front' = the face looks at the viewer, with no clear side. Check this map
 // again when a picture is regenerated.
@@ -14,19 +15,3 @@ export const FACING: Record<string, { idle: Facing; happy: Facing }> = {
   penguin: { idle: 'left', happy: 'left' }, // beak left of the middle, head turned a little left (the parent 2026-10-16)
   rabbit: { idle: 'left', happy: 'left' }, // idle: head in profile to the left; happy: head turned a little left (the parent 2026-10-16)
 }
-
-/** The way a customer must look: toward the bench. */
-export type Toward = 'left' | 'right'
-
-/** Mirror the picture when it faces away from the bench. A front view is never mirrored. */
-export function mirrorFor(id: string, mood: 'idle' | 'happy', toward: Toward): boolean {
-  const f = FACING[id]?.[mood] ?? 'front'
-  return f !== 'front' && f !== toward
-}
-
-/**
- * Where the bench is, seen from the customer. Landscape: the door column is right of the bench, so he looks left.
- * Portrait: the customer stands at the left of the bottom strip and the bench is above the middle of the screen, so he
- * looks right, up toward it.
- */
-export const benchSide = (portrait: boolean): Toward => (portrait ? 'right' : 'left')

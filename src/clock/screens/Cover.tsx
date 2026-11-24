@@ -10,7 +10,6 @@ import { CUSTOMERS } from '../logic/workday'
 import { useClockStore } from '../store'
 import { IMAGES } from '../assets/images'
 import { CASE_DISCS } from '../assets/caseDiscs'
-import { mirrorFor } from '../assets/facing'
 import { playSfx } from '../audio/clockAudio'
 import { ParentGate } from '../../shared/parentGate/ParentGate'
 
@@ -55,13 +54,12 @@ export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: (
   }, [])
   const tapClock = () => { setPops((n) => n + 1); void playSfx('cuckoo') }
   const workdays = useClockStore((s) => s.workdays)
-  // two customers wait at the door, one from each language, both looking at the play button
+  // two customers wait at the door, one from each language, both facing left, as every animal does
   const guests = [CUSTOMERS[workdays % CUSTOMERS.length].id, CUSTOMERS[(workdays + CUSTOMERS.length / 2) % CUSTOMERS.length].id]
-  const guestPic = (id: string, toward: 'left' | 'right', side: string) => {
+  const guestPic = (id: string, side: string) => {
     const mood = IMAGES[`${id}-happy`] ? 'happy' : 'idle'
     const img = IMAGES[`${id}-${mood}`]
-    return img ? <img className={`ck-cover-guest ${side}`} src={img} alt="" draggable={false} data-guest={id}
-      style={mirrorFor(id, mood, toward) ? { transform: 'scaleX(-1)' } : undefined} /> : <span />
+    return img ? <img className={`ck-cover-guest ${side}`} src={img} alt="" draggable={false} data-guest={id} /> : <span />
   }
 
   return (
@@ -81,13 +79,13 @@ export function Cover({ onPlay, onParent, onHome, loading = false }: { onPlay: (
           )}
         </button>
         <div className="ck-cover-row">
-          {guestPic(guests[0], 'right', 'start')}
+          {guestPic(guests[0], 'start')}
           {/* while the game still loads after a tap, a ring turns round the button (no text) */}
           <button aria-label="play" className={`ck-play${loading ? ' loading' : ''}`} onClick={onPlay} data-loading={loading || undefined}>
             <PlayIcon size={Math.round(Math.min(150, Math.max(104, size * 0.62)))} />
             {loading && <svg className="ck-play-ring" viewBox="0 0 170 170" aria-hidden><circle cx="85" cy="85" r="80" /></svg>}
           </button>
-          {guestPic(guests[1], 'left', 'end')}
+          {guestPic(guests[1], 'end')}
         </div>
       </div>
       <ParentGate label="parent settings (hold)" title="Hold for 2 seconds: parent settings" className="ck-parent-btn" onOpen={onParent}
