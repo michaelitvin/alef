@@ -11,7 +11,7 @@ import { ORB_RING_IN } from '../components/Glyph'
 import { CauldronWord, PICTURE, POT, TILE_SIZE, BOX_H, BOX_Y, boxXs } from '../components/screens/Cauldron'
 import { DOOR_BOX, Doors, PLATE_INNER } from '../components/screens/Doors'
 import { GHOST_SIGN, Ghosts } from '../components/screens/Ghosts'
-import { Ladder, PLATE_W, RUNG_W, ladderBoxes, rungBoxXs } from '../components/screens/Ladder'
+import { Ladder, PLATE_W, RUNG_PLATE_W, ladderBoxes, rungBoxXs } from '../components/screens/Ladder'
 import { BlendWord } from '../components/BlendWord'
 import { RuneGlyph } from '../tower/components/RuneGlyph'
 import { BROOM_ORB, LANE_Y } from '../broomLayout'
@@ -147,7 +147,7 @@ describe('the ladder', () => {
     for (const w of longest(stage)) {
       const c = render(h(Ladder, { built: [wordChoice(w)], plates: [wordChoice(w)], rungs: 5, onPick: () => {}, phase: 'answer', dir: 'ltr' })).container
       const [rung, plate] = inner(c)
-      expect(measureText(w, sizeOf(rung)), `${w} rung`).toBeLessThanOrEqual(RUNG_W * IN_RECT)
+      expect(measureText(w, sizeOf(rung)), `${w} rung`).toBeLessThanOrEqual(RUNG_PLATE_W * IN_RECT)
       expect(measureText(w, sizeOf(plate)), `${w} plate`).toBeLessThanOrEqual(PLATE_W * IN_RECT)
       // the rung he makes: the word's boxes, and one box more where a letter comes in
       for (const grow of [undefined, 1 as const]) {

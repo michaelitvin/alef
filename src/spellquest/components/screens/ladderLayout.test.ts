@@ -118,6 +118,8 @@ describe('the ladder in the band (the parent: bigger on the phone, never under t
               expect(r.t, `${at}: ${name} on the screen`).toBeGreaterThanOrEqual(0)
               expect(r.r, `${at}: ${name} on the screen`).toBeLessThanOrEqual(w + 0.01)
             }
+            // the built rungs never overlap each other (with air), and the ladder shows between them
+            b.rungs.slice(1).forEach((r, k) => expect(b.rungs[k].y - (r.y + r.h), `${at}: rung ${k + 1} on rung ${k}`).toBeGreaterThanOrEqual(8))
             // the slot is beside the ladder: clear of its built rungs; the wizard covers no built rung's word
             for (const [k, rung] of b.rungs.entries()) {
               if (b.slot) expect(overlap(onScreen(w, h, b.slot), onScreen(w, h, rung)), `${at}: slot on rung ${k}`).toBe(false)

@@ -17,6 +17,12 @@ import { HIT, Plate, PLATE_ASPECT, type PickState } from '../Orb'
 import { Stage, toStage, type Dir, type Phase } from './Stage'
 
 export const RUNG_W = 300
+/**
+ * A built rung's plate in the ladder: smaller than a plate he picks, so the rungs (RUNG_STEP apart) never overlap (a stack
+ * looks like a mistake) and the ladder shows between them. Its word is as large as fits.
+ */
+export const RUNG_PLATE_W = 230
+const RUNG_PLATE_H = RUNG_PLATE_W * PLATE_ASPECT
 const LADDER_GLYPH_PX = 96
 /** the rungs' step: the top English rung's row (6 rungs) stays below the top bar on a phone, and the wizard on it on the screen */
 const RUNG_STEP = 124
@@ -31,7 +37,7 @@ const PLATE_HALF = (PLATE_W * PLATE_ASPECT * HIT) / 2
 const LADDER_WIZ_H = 250
 const WIZ_START_FEET = 893
 /** his boots on a rung: on its top edge, clear of its word (the art's feet are at 0.988 of its height) */
-const WIZ_FEET_ON_RUNG = -(RUNG_W * PLATE_ASPECT) / 2 + 22
+const WIZ_FEET_ON_RUNG = -RUNG_PLATE_H / 2 + 16
 const WIZ_FEET_AT = 0.988
 export const LADDER_CX = 505
 export const LADDER_PLATE_X = PLATE_X
@@ -241,7 +247,7 @@ export function ladderBoxes(built: number, rungs: number, view: FullView | null 
     : { x: SLOT_L, y: next - ph / 2, w: RUNG_W, h: ph }
   return {
     ladder: { x: LADDER_CX - lw / 2, y: RUNG_Y(rungs - 1) - 110, w: lw, h: lh } as Box,
-    rungs: Array.from({ length: Math.min(built, rungs) }, (_, k): Box => ({ x: LADDER_CX - RUNG_W / 2, y: RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2, w: RUNG_W, h: RUNG_W * PLATE_ASPECT })),
+    rungs: Array.from({ length: Math.min(built, rungs) }, (_, k): Box => ({ x: LADDER_CX - RUNG_PLATE_W / 2, y: RUNG_Y(k) - RUNG_PLATE_H / 2, w: RUNG_PLATE_W, h: RUNG_PLATE_H })),
     plates: built < rungs ? ys.map((y): Box => ({ x: PLATE_X - (PLATE_W * HIT) / 2, y: y - (ph * HIT) / 2, w: PLATE_W * HIT, h: ph * HIT })) : [],
     plateYs: ys,
     wizard: { x: LADDER_CX - LADDER_WIZ_H * 0.4, y: feet - WIZ_FEET_AT * LADDER_WIZ_H, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
@@ -277,7 +283,7 @@ export function Ladder(p: {
   const images = useImages()
   const alphabet = p.dir === 'ltr' ? 'latin' : 'hebrew'
   // a Latin word fits its plate (Hebrew's letters keep their size)
-  const px = (text: string, w: number) => (alphabet === 'latin' ? fitPx(text, w, LADDER_GLYPH_PX) : LADDER_GLYPH_PX)
+  const px = (text: string, w: number) => (alphabet === 'latin' ? fitPx(text, w, LADDER_GLYPH_PX) : Math.round((LADDER_GLYPH_PX * w) / PLATE_W))
   const wiz = useWizardArt()
   const view = ladderView(p.size)
   const b = ladderBoxes(p.built.length, p.rungs, view, alphabet === 'latin')
@@ -313,10 +319,10 @@ export function Ladder(p: {
       {p.built.map((c, k) => (
         <g key={k} data-rung={k} {...(k === fresh ? { className: 'd2-rung-in', style: { '--d2-slide': `${lastSlot - LADDER_CX}px` } as CSSProperties } : {})}>
           {p.cue === 'foot' && change && k === p.built.length - 1 && (
-            <rect data-cue-glow="foot" className="d2-cue d2-cue-cue" x={LADDER_CX - RUNG_W / 2 - 16} y={RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2 - 16} width={RUNG_W + 32} height={RUNG_W * PLATE_ASPECT + 32} rx={26}
+            <rect data-cue-glow="foot" className="d2-cue d2-cue-cue" x={LADDER_CX - RUNG_PLATE_W / 2 - 12} y={RUNG_Y(k) - RUNG_PLATE_H / 2 - 4} width={RUNG_PLATE_W + 24} height={RUNG_PLATE_H + 8} rx={26}
               fill="#ffd34d" fillOpacity={0.3} stroke="#ffd34d" strokeOpacity={0.9} strokeWidth={6} pointerEvents="none" />
           )}
-          <Plate w={RUNG_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={px(c.text, RUNG_W)} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
+          <Plate w={RUNG_PLATE_W} x={LADDER_CX} y={RUNG_Y(k)} state="idle" still><Glyph text={c.text} px={px(c.text, RUNG_PLATE_W)} x={LADDER_CX} y={RUNG_Y(k)} alphabet={alphabet} /></Plate>
         </g>
       ))}
       {change && <MakingRung key={p.built.length} change={change} swapped={p.placing?.step === 'swap' ? p.plates.find((c) => c.id === p.placing!.id)?.text : undefined} y={nextRungY(p.built.length, p.rungs)} lifted={!change.marked && p.lifted !== undefined && can} glow={glow} onPlace={(place) => p.lifted && p.onPick(p.lifted, place)} />}
