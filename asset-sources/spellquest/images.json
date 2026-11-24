@@ -319,9 +319,10 @@
   },
   {
    "name": "pw-bridge",
-   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a small, chunky, tall-arched stone bridge seen at three-quarter view, a high round arch with a visible dark opening, stone blocks, small railings, a short stretch of blue stream flowing under it; the whole picture compact and nearly square, filling the frame. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a side view of a classic arched stone bridge with a wooden railing along the top, spanning a blue river between two grassy banks; the water clearly flows under the round arch; the whole span visible from bank to bank, compact and nearly square. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
-   "model": "gemini-3-pro-image"
+   "model": "gemini-3-pro-image",
+   "post": "retake 2026-11-24 (take a of 3; the parent rejected v1 as ambiguous): magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88"
   },
   {
    "name": "pw-fence",
@@ -331,15 +332,17 @@
   },
   {
    "name": "pw-milk",
-   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a tall clear glass full of white milk with a small splash on top. No cow, no carton, no straw. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a classic white milk carton (gable top, plain blue and white, no printing) standing next to a tall clear glass; creamy white milk pours in a thick stream from the carton's open spout into the glass, which is nearly full with a milk splash at the top. The white milk is clearly the main subject. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
-   "model": "gemini-3-pro-image"
+   "model": "gemini-3-pro-image",
+   "post": "retake 2026-11-24 (take a of 3; the parent rejected v1 as ambiguous): magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88"
   },
   {
    "name": "pw-grasshopper",
-   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a green cartoon grasshopper (חגב), side view, long bent back legs, two long antennae, friendly face. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a green cartoon grasshopper in side view facing left, mid-hop: big powerful folded hind legs bent in a Z shape, short stubby antennae, a round friendly face with big eyes, both front legs short and resting down on the ground. Not a praying mantis, no raised front claws, no long neck. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
-   "model": "gemini-3-pro-image"
+   "model": "gemini-3-pro-image",
+   "post": "retake 2026-11-24 (take a of 3; the parent rejected v1 as ambiguous): magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88"
   },
   {
    "name": "pw-snake",

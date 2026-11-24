@@ -19,7 +19,7 @@ export function validate(e: NewEvent, by: Actor): void {
   if (typeof e.item !== 'string' || !e.item) throw new Error('item required')
   if (e.take != null && typeof e.take !== 'string') throw new Error('take must be a string')
   if (e.text != null && (typeof e.text !== 'string' || e.text.length > MAX_TEXT)) throw new Error('text too long')
-  if (['withdraw', 'restore', 'prefer', 'accept'].includes(e.type) && !e.take) throw new Error(`${e.type} needs a take`)
+  if (['withdraw', 'restore', 'prefer', 'accept', 'auto-ship'].includes(e.type) && !e.take) throw new Error(`${e.type} needs a take`)
   if (e.type === 'answer' && typeof e.note !== 'number') throw new Error('answer needs a note seq')
   if (e.type === 'accept' && !e.source) throw new Error("accept needs the parent's words (source)")
 }

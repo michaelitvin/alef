@@ -9,7 +9,6 @@ import { ChoiceExercise, TEST_HOOKS } from '../components/ChoiceExercise'
 import { SetExercise } from '../components/SetExercise'
 import { ExplainPlayer } from '../components/ExplainPlayer'
 import { Customer } from '../components/Customer'
-import { benchSide } from '../assets/facing'
 import { PauseCover } from '../components/PauseCover'
 import { GearPileIcon, HintIcon, PlayIcon } from '../components/icons'
 import { HomeButton, PauseButton } from '../../shared/HomeButton'
@@ -55,7 +54,7 @@ export function Workshop({ onExit }: { onExit: () => void }) {
   usePlaytime('clock', !paused)
   const gears = useClockStore((s) => s.gears)
   const workdays = useClockStore((s) => s.workdays)
-  const { ref: benchRef, box, portrait: port } = useBenchBox()
+  const { ref: benchRef, box } = useBenchBox()
   const size = Math.min(box.w, box.h)
   // the hint button opens the hint for this round only
   const [hintPlan, setHintPlan] = useState<RoundPlan | null>(null)
@@ -122,7 +121,7 @@ export function Workshop({ onExit }: { onExit: () => void }) {
       </main>
       <aside className="ck-side ck-side-door">
         {/* the customer only: the fixed clocks have their own moments (the day summary, the door) */}
-        {view.phase !== 'bonus' && view.phase !== 'summary' && <Customer id={view.customer.id} mood={view.mood} toward={benchSide(port)} />}
+        {view.phase !== 'bonus' && view.phase !== 'summary' && <Customer id={view.customer.id} mood={view.mood} />}
       </aside>
       {/* after a mistake the right answer stays until he taps on (the parent 2026-10-17: no automatic next question) */}
       {view.awaitNext && (
