@@ -33,7 +33,15 @@ node tools/review/server.ts <config.mjs>        # config: { host, port, games: [
 node tools/review/cli.ts <adapter.mjs> retakes  # open notes per item, with the current take
 node tools/review/cli.ts <adapter.mjs> ship     # item -> take to ship (sync and provenance read this)
 node tools/review/cli.ts <adapter.mjs> answer <item> <note-seq|all> "what I did" [--take <new take>]
+node tools/review/cli.ts <adapter.mjs> auto-ship [--rate 10] [--fresh 3] [--dry-run]
 ```
+
+An item can give a `pattern` (the kind of line: a minute pattern, one customer line in every voice). `auto-ship` lets
+open sounds that passed their automatic checks ship without the parent's review, except a sample that stays open for
+him: one in `rate` of each pattern (at least one), and up to `fresh` items of a pattern he has never decided. A take
+with a failed check, no check, an ask or a note, and every picture, stay for him. It writes one agent `auto-ship` event
+per take (never an OK): such an item has the status `checked`, ships its take, and shows only in "All". His own
+decision, a newer take or an ask brings it back. Run it after each new batch has its checks.
 
 ## For agents
 

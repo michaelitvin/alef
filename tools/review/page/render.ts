@@ -30,6 +30,7 @@ export function statusHTML(it: PageItem): string {
   }
   if (it.status === 'rejected') return '<span class="stat st-bad">Rejected: waiting for a new take</span>'
   if (it.status === 'empty') return '<span class="stat st-bad">No take</span>'
+  if (it.status === 'checked') return '<span class="stat st-ok">Shipped on its automatic checks (not reviewed)</span>'
   return '<span class="stat st-open">Open</span>'
 }
 
@@ -149,11 +150,11 @@ export function itemHTML(it: PageItem, opts: { selected?: boolean; revealed?: bo
   <div class="body">${lead}${itemNotesHTML(it)}
    <div class="xbtns"><button class="btn ghost" data-freenote>${it.itemNote ? 'Edit note' : 'Add a note'}</button>
    ${it.nameCheck ? `<button class="btn ghost" data-nameobj>${it.name ? 'Edit name objection' : 'Object to the name'}</button>` : ''}
-   ${it.status !== 'open' ? '<button class="btn ghost" data-reset>Change: reset the decision</button>' : ''}</div></div></article>`
+   ${it.status !== 'open' && it.status !== 'checked' ? '<button class="btn ghost" data-reset>Change: reset the decision</button>' : ''}</div></div></article>`
 }
 
 export function countsHTML(items: PageItem[]): string {
   const n = (s: string) => items.filter((i) => i.status === s).length
   const f = items.filter((i) => i.flagged).length
-  return `<span>${n('open')} open</span><span class="c-ok">${n('ok')} ok</span>${n('rejected') ? `<span class="c-bad">${n('rejected')} waiting for new takes</span>` : ''}${f ? `<span class="c-flag">${f} flagged</span>` : ''}`
+  return `<span>${n('open')} open</span><span class="c-ok">${n('ok')} ok</span>${n('checked') ? `<span>${n('checked')} shipped on checks</span>` : ''}${n('rejected') ? `<span class="c-bad">${n('rejected')} waiting for new takes</span>` : ''}${f ? `<span class="c-flag">${f} flagged</span>` : ''}`
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Item, NewEvent, ReviewEvent } from './model.ts'
-import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
+import { autoShipPlan, deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
 
 const item = (id: string, n: number, extra: Partial<Item> = {}): Item => ({
   id,
@@ -225,5 +225,57 @@ describe('items that left the list', () => {
     const s = deriveAll(all, events)[1]
     expect(s.status).toBe('retired')
     expect(s.notes[0]).toMatchObject({ state: 'closed', closedBy: 'retired' })
+  })
+})
+
+describe('ship on the automatic checks, with a sample for him', () => {
+  const checked = (id: string, pattern?: string, extra: Partial<Item> = {}): Item => ({
+    id,
+    kind: 'audio',
+    pattern,
+    takes: [{ id: `${id}/v1`, check: 'a listener heard: “x” · 1s' }],
+    ...extra,
+  })
+  const ship = (id: string) => ({ by: 'agent' as const, type: 'auto-ship' as const, item: id, take: `${id}/v1`, text: 'checks' })
+
+  it('an auto-shipped take is "checked": it ships, is in no view but All, and is not an approval', () => {
+    const it2 = checked('a')
+    const s = deriveItem(it2, log(ship('a')))
+    expect(s.status).toBe('checked')
+    expect(s.current?.id).toBe('a/v1')
+    expect(s.takes[0].verdict).toBeNull()
+    expect((['focus', 'open', 'sample', 'all'] as const).filter((v) => inView(s, v))).toEqual(['all'])
+  })
+
+  it('his decision, a newer take, a failed check or an ask brings it back to him', () => {
+    expect(deriveItem(checked('a'), log(ship('a'), { take: 'a/v1' })).status).toBe('ok')
+    expect(deriveItem(checked('a'), log(ship('a'), { type: 'reset', take: null })).status).toBe('open')
+    const two = checked('a', undefined, { takes: [{ id: 'a/v1', check: 'c' }, { id: 'a/v2', check: 'c' }] })
+    expect(deriveItem(two, log(ship('a'))).status).toBe('open')
+    const bad = checked('a', undefined, { takes: [{ id: 'a/v1', check: 'c', flags: ['text'] }] })
+    expect(deriveItem(bad, log(ship('a'))).status).toBe('open')
+    const asked = deriveItem(checked('a'), log(ship('a'), { by: 'agent', type: 'ask', text: 'Check the stress' }))
+    expect(inView(asked, 'focus')).toBe(true)
+  })
+
+  it('keeps one in ten of each pattern he has heard, at least one, and up to three of a new pattern', () => {
+    const items = [
+      ...Array.from({ length: 25 }, (_, i) => checked(`old-${i}`, 'old')),
+      checked('heard', 'old'),
+      ...Array.from({ length: 5 }, (_, i) => checked(`new-${i}`, 'new')),
+      checked('alone'),
+      checked('flagged', 'old', { takes: [{ id: 'flagged/v1', check: 'c', flags: ['long'] }] }),
+      { id: 'pic', kind: 'image', takes: [{ id: 'pic.webp' }] } as Item,
+      checked('noted', 'old'),
+    ]
+    const events = log({ item: 'heard', take: 'heard/v1' }, { item: 'noted', type: 'note', text: 'too fast', take: 'noted/v1' })
+    const plan = autoShipPlan(deriveAll(items, events), events)
+    const kept = (p: string) => plan.review.filter((r) => r.pattern === p).length
+    expect([kept('old'), kept('new'), kept('alone')]).toEqual([3, 3, 1])
+    expect(plan.ship.length).toBe(22 + 2)
+    const shipped = new Set(plan.ship.map((s) => s.item))
+    for (const id of ['flagged', 'pic', 'noted', 'heard', 'alone']) expect(shipped.has(id)).toBe(false)
+    // the same draw on a re-run
+    expect(autoShipPlan(deriveAll(items, events), events)).toEqual(plan)
   })
 })

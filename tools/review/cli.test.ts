@@ -85,3 +85,19 @@ describe('agent CLI', () => {
     await expect(run(adapter, log, ['legacy-check'])).rejects.toThrow(/no legacy files/)
   })
 })
+
+describe('auto-ship', () => {
+  const many: GameAdapter = {
+    ...adapter,
+    loadItems: () => Array.from({ length: 12 }, (_, i) => ({ id: `ph-${i}-15`, kind: 'audio' as const, pattern: 'en-15', takes: [{ id: `ph-${i}.mp3`, check: 'heard ok' }] })),
+  }
+
+  it('writes an agent auto-ship event for each take not drawn for the sample; --dry-run writes nothing', async () => {
+    const log = memoryLog()
+    const dry = (await run(many, log, ['auto-ship', '--dry-run', '--fresh', '0'])) as { review: unknown[]; shipped: number }
+    expect([dry.review.length, dry.shipped, log.read().length]).toEqual([2, 10, 0])
+    await run(many, log, ['auto-ship', '--fresh', '0'])
+    expect(log.read().every((e) => e.by === 'agent' && e.type === 'auto-ship' && !!e.take)).toBe(true)
+    expect(await run(many, log, ['status'])).toMatchObject({ items: 12, open: 2, checked: 10 })
+  })
+})

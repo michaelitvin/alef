@@ -40,10 +40,11 @@
 - Check takes before you show them to the parent. Measure each audio take (length, voiced bursts). For a large set,
   check each take automatically (speech-to-text against the text, length, rhythm), and let the parent review a sample
   of each pattern and all flagged takes. Offer a full review as an option.
-  Make the sample small, and make it smaller when the parent finds no mistakes in it: then a take that passed its
-  automatic checks ships on them, and only the flagged takes, new kinds of line and a few samples go to him.
-  Example (clock, the parent, 2026-11-24): he OK'd about 190 clock sounds and found no mistake: "There are too many
-  sounds for me to review".
+- Show the parent only the takes that are worth his time: flagged takes, new kinds of line, and a small sample of each
+  pattern (about 1 in 10, at least 1). Let the other takes ship on their checks, and record that they shipped without
+  his review (the review kit's `auto-ship`). Never record them as his OK.
+  Reason: the parent OK'd about 190 clock phrases in one visit with no reject: "There are too many sounds for me to
+  review, given that I didn't find a single mistake."
 - Generate large sets progressively, in the order that the game needs them. Keep to the cost and rate limits, and run
   requests in parallel within those limits.
 - Put items that can be ambiguous in the review.

@@ -10,6 +10,8 @@
 //         answer <item> <note-seq|all> <text> [--take T]   accept <item> <source> [--take T]   ask <item> <text>
 //         withdraw <item> <take> <reason>   restore <item> <take>   retire <item> <reason>   unretire <item>
 //         prefer <item> <take>
+//         auto-ship [--rate N] [--fresh N] [--dry-run]   (open items that passed their checks ship without his review,
+//         except a sample per pattern; see autoShipPlan in rules.ts)
 // Import (into an empty log only): import-choices <live.json> [--backup F]... [--queue Q] [--accepted] [--focus F]
 //         import-versioned <live.json> <rounds.json> [--backup F]...
 import { existsSync, readFileSync } from 'node:fs'
@@ -18,7 +20,7 @@ import { pathToFileURL } from 'node:url'
 import { fileLog, validate } from './log.ts'
 import type { DecisionLog } from './log.ts'
 import type { GameAdapter, Item, NewEvent } from './model.ts'
-import { deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
+import { autoShipPlan, deriveAll, deriveItem, inView, openNotes, retakeList, shipList, withOrphans } from './rules.ts'
 import type { View } from './rules.ts'
 import { exportChoices, exportQueue, exportVersioned, importChoices, importVersioned, legacyViews, sameJson, snapshotOrder } from './legacy.ts'
 import type { Choices, RoundTakes, Versioned } from './legacy.ts'
@@ -38,7 +40,7 @@ interface Args {
 
 function parseArgs(argv: string[]): Args {
   const a: Args = { pos: [], opt: {}, flag: new Set() }
-  const valued = new Set(['take', 'backup', 'queue', 'focus', 'compare'])
+  const valued = new Set(['take', 'backup', 'queue', 'focus', 'compare', 'rate', 'fresh'])
   for (let i = 0; i < argv.length; i++) {
     const s = argv[i]
     if (s.startsWith('--')) {
@@ -128,6 +130,12 @@ export async function run(adapter: GameAdapter, log: DecisionLog, argv: string[]
     case 'retire':
     case 'unretire':
       return write({ type: cmd, item: item(rest[0]).id, text: rest[1] })
+    case 'auto-ship': {
+      const num = (k: string) => (opt[k] ? Number(opt[k][0]) : undefined)
+      const plan = autoShipPlan(states(), log.read(), { rate: num('rate'), fresh: num('fresh') })
+      if (!flag.has('dry-run')) for (const e of plan.ship) write({ type: 'auto-ship', item: e.item, take: e.take, text: e.text })
+      return { review: plan.review, shipped: plan.ship.length, dryRun: flag.has('dry-run') || undefined }
+    }
     case 'import-choices':
     case 'import-versioned': {
       if (log.read().length) throw new Error('the log is not empty: import only into a new log')
