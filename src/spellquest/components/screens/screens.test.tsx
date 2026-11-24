@@ -294,7 +294,7 @@ describe('screens', () => {
   })
   it('the ladder and door demos move the plate and the key with the hand', () => {
     const l = render(<Ladder built={[]} plates={wave} rungs={5} onPick={() => {}} phase="demo" demo={{ id: wave[1].id, t: 1 }} />)
-    expect(l.container.querySelector(`[data-plate="${wave[1].id}"]`)!.getAttribute('transform')).toMatch(/translate\(-460/)
+    expect(l.container.querySelector(`[data-plate="${wave[1].id}"]`)!.getAttribute('transform')).toMatch(/translate\(-580/) // the slot beside the ladder (SLOT_CX 823) from the plates (1403)
     const w = WORDS.find((x) => x.id === 'tent')!
     const d = render(<Doors word={w} lit={2} keys={[w]} onPick={() => {}} phase="demo" opening={false} zooming={false} demo={{ id: w.id, t: 1 }} />)
     expect(d.container.querySelector('[data-key]')!.getAttribute('transform')).toMatch(/translate/)

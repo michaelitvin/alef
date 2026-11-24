@@ -60,16 +60,20 @@ html, body, #root { margin: 0; height: 100%; background: #07051a; }
 .d2-crystal-in { animation: d2-cry 1s cubic-bezier(.2,1.4,.4,1) both; transform-origin: 800px 450px; transform-box: view-box; }
 @keyframes d2-cry { from { transform: scale(0.1) rotate(-20deg); opacity: 0; } to { transform: none; opacity: 1; } }
 .d2-climb { transition: y 450ms ease-out; }
-/* the ladder's swap (Ladder.tsx placing): the plate flies to its place, the old letter drops out, the next row rises from
-   the rung below (the rows are 150 apart). Without motion the steps still come one after another, at once. */
+/* the ladder's swap (Ladder.tsx placing): the plate flies to the slot beside the ladder, the old letter drops out, then the
+   made rung slides into the ladder under the wizard and he climbs (a little later); the next row rises from below (the
+   rungs are 124 apart). Without motion the steps still come one after another, at once. */
 @media (prefers-reduced-motion: no-preference) {
   .d2-plate-fly { transition: transform 250ms ease-in-out, opacity 120ms linear; }
   .d2-letter-out { animation: d2-letter-out 250ms ease-in forwards; }
   .d2-row-rise { animation: d2-row-rise 300ms ease-out; }
+  .d2-rung-in { animation: d2-rung-in 300ms ease-out; }
+  .d2-climb.d2-climb-late { transition-delay: 250ms; }
 }
+@keyframes d2-rung-in { from { transform: translateX(var(--d2-slide, 0px)); } to { transform: translateX(0); } }
 .d2-plate-fly { transform-box: view-box; transform-origin: 0 0; }
 @keyframes d2-letter-out { from { transform: translateY(0); opacity: 0.45; } to { transform: translateY(70px); opacity: 0; } }
-@keyframes d2-row-rise { from { transform: translateY(150px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+@keyframes d2-row-rise { from { transform: translateY(124px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
 .d2-cover, .d2-summary { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
 .d2-play { position: relative; width: 150px; height: 150px; border-radius: 50%; border: 4px solid #fff6d8;
   background: linear-gradient(#ffb02e, #ff6a1a); box-shadow: 0 0 34px #ff8c28cc; display: grid; place-items: center; cursor: pointer; z-index: 5; }

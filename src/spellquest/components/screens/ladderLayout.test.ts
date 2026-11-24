@@ -102,6 +102,34 @@ describe('the ladder in the band (the parent: bigger on the phone, never under t
     }
   })
 
+  it('on the ladder (the parent\'s option 3): at every rung the slot, the wizard and the plates are apart, clear of the bar and on the screen, both courses', () => {
+    for (const [w, h] of [[740, 360], [1024, 768]] as const) {
+      for (const [course, row] of [['he', false], ['en', true]] as const) {
+        for (let rungs = 4; rungs <= 6; rungs++) {
+          for (let built = 0; built <= rungs; built++) {
+            const b = ladderBoxes(built, rungs, ladderView({ w, h }), row)
+            const at = `${w}x${h} ${course} ${built}/${rungs}`
+            const things: [string, Rect][] = [['wizard', onScreen(w, h, b.wizard)], ...(b.slot ? [['slot', onScreen(w, h, b.slot)] as [string, Rect]] : []),
+              ...b.plates.map((p, i): [string, Rect] => [`plate ${i}`, onScreen(w, h, p)])]
+            // (the plates' hit areas meet each other: a tap goes to the nearest)
+            things.forEach(([n1, r1], i) => things.slice(i + 1).forEach(([n2, r2]) => { if (!(n1.startsWith('plate') && n2.startsWith('plate'))) expect(overlap(r1, r2), `${at}: ${n1} on ${n2}`).toBe(false) }))
+            for (const [name, r] of things) {
+              for (const [item, ir] of Object.entries(barItems(w, built < rungs))) expect(overlap(r, ir), `${at}: ${name} under ${item}`).toBe(false)
+              expect(r.t, `${at}: ${name} on the screen`).toBeGreaterThanOrEqual(0)
+              expect(r.r, `${at}: ${name} on the screen`).toBeLessThanOrEqual(w + 0.01)
+            }
+            // the slot is beside the ladder: clear of its built rungs; the wizard covers no built rung's word
+            for (const [k, rung] of b.rungs.entries()) {
+              if (b.slot) expect(overlap(onScreen(w, h, b.slot), onScreen(w, h, rung)), `${at}: slot on rung ${k}`).toBe(false)
+              const word = { ...rung, y: rung.y + 30, h: rung.h - 60 }
+              expect(overlap(onScreen(w, h, b.wizard), onScreen(w, h, word)), `${at}: wizard on rung ${k}'s word`).toBe(false)
+            }
+          }
+        }
+      }
+    }
+  })
+
   it('the wizard starts with his feet on the stage, so he is whole on the screen', () => {
     for (const [w, h] of SIZES) {
       const wz = ladderBoxes(0, RUNGS, ladderView({ w, h })).wizard

@@ -1,10 +1,13 @@
-// 3 · Spell ladder: the ladder is built from his right answers. Three plates float by the next empty rung; the one he picks
-// flies into place and the wizard climbs onto it. He drags a plate onto the next rung, or taps it.
+// 3 · Spell ladder: the ladder is built from his right answers. The wizard stands on the newest rung, in the middle of the
+// ladder; the next rung is made in a slot beside the ladder, at the next rung's height (English: the word below's boxes;
+// Hebrew, and the English foot: an empty dashed rung). Three plates float on the right; the one he picks flies into the
+// slot, then the made rung slides into the ladder under his feet and he climbs onto it. He drags a plate onto the slot, or
+// taps it.
 // On a phone on its side the ladder rises into the top bar's empty middle (layout.ts intoBandView), so all of it is larger;
 // the plates stay below the bar.
 // The English ladder (word chains): the rung he makes shows the word below in boxes; at the early stages the place that
 // changes is marked (a gold box, or an empty gold box where a letter comes in: lip → slip), later he finds it.
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useImages, useWizardArt } from '../../course/CourseContext'
 import type { Choice } from '../../logic/rounds'
 import { belowBand, intoBandView, STAGE_CONTENT_TOP, viewBoxOf, type FullView } from '../../layout'
@@ -15,20 +18,29 @@ import { Stage, toStage, type Dir, type Phase } from './Stage'
 
 export const RUNG_W = 300
 const LADDER_GLYPH_PX = 96
-const RUNG_Y = (k: number) => 790 - k * 150
-const PLATE_X = 1260
+/** the rungs' step: the top English rung's row (6 rungs) stays below the top bar on a phone, and the wizard on it on the screen */
+const RUNG_STEP = 124
+const RUNG_Y = (k: number) => 805 - k * RUNG_STEP
+const PLATE_X = 1403
 export const PLATE_W = 300
 /** the plates' centres, one above the other */
 const PLATE_STEP = 170
 /** a plate's hit area's half height (its box on the screen) */
 const PLATE_HALF = (PLATE_W * PLATE_ASPECT * HIT) / 2
-/** the wizard's height, and where he stands before the first rung: his feet on the stage (it ends at 900) */
-const LADDER_WIZ_H = 230
-const WIZ_START_Y = 855
-export const LADDER_CX = 800
+/** the wizard's height, and where his feet are before the first rung (the stage ends at 900) */
+const LADDER_WIZ_H = 250
+const WIZ_START_FEET = 893
+/** his boots on a rung: on its top edge, clear of its word (the art's feet are at 0.988 of its height) */
+const WIZ_FEET_ON_RUNG = -(RUNG_W * PLATE_ASPECT) / 2 + 22
+const WIZ_FEET_AT = 0.988
+export const LADDER_CX = 505
 export const LADDER_PLATE_X = PLATE_X
-/** the room between the rung he makes and the wizard's staff */
-const ROW_AIR = 20
+/** the room between the ladder's rungs and the slot beside it */
+const ROW_AIR = 18
+/** the slot's left edge: the rung he makes is beside the ladder, on the plates' side */
+export const SLOT_L = LADDER_CX + RUNG_W / 2 + ROW_AIR
+/** the empty rung's middle in the slot (Hebrew, and the English foot) */
+export const SLOT_CX = SLOT_L + RUNG_W / 2
 /**
  * A box of the rung he makes (English), in stage units: at least this wide for a word of up to 4 boxes (about 44 CSS px on
  * a 740×360 phone; the rule asks for about 56 px: a recorded exception, the tap strip is the whole row and a tap goes to
@@ -36,23 +48,24 @@ const ROW_AIR = 20
  */
 export const LADDER_BOX_W = 125
 const BOX_GAP = 8
-/**
- * The boxes' row: over the rung, centred on the ladder, 4 boxes of LADDER_BOX_W wide. It stays clear of the built rung
- * below (rungs are 150 apart, a plate 147 high) and the wizard stands left of it (ladderBoxes).
- */
+/** The boxes' row: in the slot beside the ladder, from its left edge, at most 4 boxes of LADDER_BOX_W wide. */
 export const BOX_ROW_W = 4 * LADDER_BOX_W + 3 * BOX_GAP
 const BOX_MAX_W = LADDER_BOX_W
 const BOX_H = LADDER_BOX_W
 /** the box's letter size: as large as before in a box this high */
 const BOX_GLYPH_PX = 100
-/** the English rows' left edge, and the wizard's staff (his box's right edge) left of it */
-const WIZ_RIGHT_ROW = LADDER_CX - BOX_ROW_W / 2 - ROW_AIR
-
-/** the box row's centres over the rung, left to right (the stage is ltr on English Spell Quest) */
+/** the box row's centres in the slot, left to right (the stage is ltr on English Spell Quest) */
 export function rungBoxXs(n: number): { xs: number[]; w: number } {
   const w = Math.min(BOX_MAX_W, (BOX_ROW_W - BOX_GAP * (n - 1)) / n)
-  const left = LADDER_CX - (n * w + (n - 1) * BOX_GAP) / 2 + w / 2
+  const left = SLOT_L + w / 2
   return { xs: Array.from({ length: n }, (_, i) => left + i * (w + BOX_GAP)), w }
+}
+
+/** the middle of the slot's content: an English row of n boxes, or (n 0) the empty rung */
+export function slotCx(n: number): number {
+  if (!n) return SLOT_CX
+  const { xs } = rungBoxXs(n)
+  return (xs[0] + xs[xs.length - 1]) / 2
 }
 
 /** the rung he makes (English): the word below's boxes; `marked`: box `at` is gold, or with `grow` 1 an empty gold box comes in there */
@@ -90,17 +103,19 @@ export function hoverY(view: FullView | null, built: number, rungs: number): num
 }
 
 /**
- * The hovering plate (its middle, and its scale). It sits above the box row. Where the room above the row is short (the
- * top rungs: the stage's top, or the top bar's band) it shrinks, down to 0.6; where even that does not fit, it is half
- * size beside the row, on the plates' side (`x`). It never covers the row or the rung below.
+ * The hovering plate (its middle `x`, `y`, and its scale). It sits above the box row, over the slot. Where the room above
+ * the row is short (the top rungs: the stage's top, or the top bar's band) it shrinks, down to 0.6; where even that does
+ * not fit, it hangs below the row (the slot has nothing under it: the made rungs are in the ladder). It never covers the
+ * row, the ladder or the plates.
  */
-export function hoverPlate(view: FullView | null, built: number, rungs: number): { x?: number; y: number; s: number } {
+export function hoverPlate(view: FullView | null, built: number, rungs: number): { x: number; y: number; s: number } {
   const half = (PLATE_W * PLATE_ASPECT) / 2
   const row = nextRungY(built, rungs)
+  const x = SLOT_L + BOX_ROW_W / 2
   const bottom = row - BOX_H / 2 - 12
   const room = bottom - plateTop(view)
-  if (room >= 0.6 * 2 * half) { const s = Math.min(1, room / (2 * half)); return { y: bottom - s * half, s } }
-  return { x: LADDER_CX + BOX_ROW_W / 2 + 12 + PLATE_W * 0.25, y: row, s: 0.5 }
+  if (room >= 0.6 * 2 * half) { const s = Math.min(1, room / (2 * half)); return { x, y: bottom - s * half, s } }
+  return { x, y: row + BOX_H / 2 + 12 + half, s: 1 }
 }
 
 /** where the part goes on the rung he makes (the demo's hand): its box, or the gap where a box comes in */
@@ -110,6 +125,12 @@ export function rungPlaceX(c: RungChange): number {
   if (c.grow !== 1) return xs[c.at]
   return c.at === 0 ? xs[0] - w / 2 : c.at >= xs.length ? xs[xs.length - 1] + w / 2 : (xs[c.at - 1] + xs[c.at]) / 2
 }
+
+/**
+ * Where the demo's plate goes (its middle x): over its place on the row, but never left of the slot (it would cover the
+ * ladder and the wizard); the empty rung's middle where no row is made
+ */
+export const demoPlateX = (c?: RungChange) => (c ? Math.max(rungPlaceX(c), SLOT_L + PLATE_W / 2) : SLOT_CX)
 
 /**
  * What glows on the rung he makes: `cue` the voice names the place now (pulses), `soft` he can answer (a soft pulse), `drag`
@@ -202,23 +223,29 @@ export function ladderView(size?: { w: number; h: number }): FullView | null {
 /** where the plates' boxes may start in a view (stage y): below the band */
 export const plateTop = (view: FullView | null) => (view ? belowBand(view) : 0)
 
-/** The screen's boxes (stage units): the ladder, its built rungs, the plates (their hit areas) and the wizard. */
+/**
+ * The screen's boxes (stage units): the ladder, its built rungs, the plates (their hit areas), the wizard (on the newest
+ * rung, in the middle of the ladder) and the slot beside the ladder where the next rung is made (with its glow; English
+ * `row`: the widest box row; else the empty rung; null when the ladder is built).
+ */
 export function ladderBoxes(built: number, rungs: number, view: FullView | null = null, /** English: the rung he makes has a box row */ row = false) {
-  const lh = 790 - RUNG_Y(rungs - 1) + 170
+  const lh = RUNG_Y(0) - RUNG_Y(rungs - 1) + 170
   const lw = lh * (216 / 600)
-  // the wizard stands on the ladder's level: his staff at the left rail (the art's rail is at its edge), or left of the
-  // box row (English), so he never covers a rung's word or the row
-  const wizRight = Math.min(LADDER_CX - lw / 2 + lw * 0.03, row ? WIZ_RIGHT_ROW : Infinity)
-  const wizX = wizRight - LADDER_WIZ_H * 0.4
   const ph = PLATE_W * PLATE_ASPECT
-  const standY = built ? RUNG_Y(Math.min(built, rungs) - 1) : WIZ_START_Y
+  const feet = built ? RUNG_Y(Math.min(built, rungs) - 1) + WIZ_FEET_ON_RUNG : WIZ_START_FEET
   const ys = plateYs(built, rungs, plateTop(view))
+  const next = nextRungY(built, rungs)
+  // (English: the row and its glow, 10 above and below; the empty rung: a plate's size)
+  const slot: Box | null = built >= rungs ? null : row && built
+    ? { x: SLOT_L - BOX_GAP - 2, y: next - BOX_H / 2 - 12, w: BOX_ROW_W + 2 * BOX_GAP + 4, h: BOX_H + 24 }
+    : { x: SLOT_L, y: next - ph / 2, w: RUNG_W, h: ph }
   return {
     ladder: { x: LADDER_CX - lw / 2, y: RUNG_Y(rungs - 1) - 110, w: lw, h: lh } as Box,
     rungs: Array.from({ length: Math.min(built, rungs) }, (_, k): Box => ({ x: LADDER_CX - RUNG_W / 2, y: RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2, w: RUNG_W, h: RUNG_W * PLATE_ASPECT })),
     plates: built < rungs ? ys.map((y): Box => ({ x: PLATE_X - (PLATE_W * HIT) / 2, y: y - (ph * HIT) / 2, w: PLATE_W * HIT, h: ph * HIT })) : [],
     plateYs: ys,
-    wizard: { x: wizX - LADDER_WIZ_H * 0.4, y: standY - LADDER_WIZ_H + 40, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
+    wizard: { x: LADDER_CX - LADDER_WIZ_H * 0.4, y: feet - WIZ_FEET_AT * LADDER_WIZ_H, w: LADDER_WIZ_H * 0.8, h: LADDER_WIZ_H } as Box,
+    slot,
   }
 }
 
@@ -258,15 +285,33 @@ export function Ladder(p: {
   const can = p.phase === 'answer'
   const change = p.change && p.plates.length > 0 && p.built.length < p.rungs ? p.change : undefined
   const rungY0 = nextRungY(p.built.length, p.rungs)
-  const over = held && Math.abs(held.y - rungY0) < BOX_H && Math.abs(held.x - LADDER_CX) < BOX_ROW_W / 2
+  // the slot beside the ladder: the row's box count (0: the empty rung), its middle and its right edge
+  const slotN = change ? (change.marked ? rungBoxes(change).length : change.from.length) : 0
+  const slotMid = slotCx(slotN)
+  const slotR = slotN ? SLOT_L + 2 * (slotMid - SLOT_L) : SLOT_L + RUNG_W
+  const over = held && Math.abs(held.y - rungY0) < BOX_H && held.x > SLOT_L - 100 && held.x < slotR + 20
+  // the rung he just made slides from the slot into the ladder (it mounts at its place in the ladder); he climbs after it
+  const n = p.built.length
+  const [seen, setSeen] = useState(n)
+  const [fresh, setFresh] = useState(-1)
+  const [lastSlot, setLastSlot] = useState(slotMid)
+  if (p.plates.length > 0 && slotMid !== lastSlot) setLastSlot(slotMid)
+  if (n !== seen) { setSeen(n); setFresh(n === seen + 1 ? seen : -1) }
+  const slotEmpty = !change && p.plates.length > 0 && n < p.rungs
   const glow: RungGlow | undefined = held ? (over ? 'over' : 'drag') : p.cue === 'box' ? 'cue' : can && !p.lifted ? 'soft' : undefined
   return (
     <Stage bg="bg-ground" dir={p.dir} {...(view ? { viewBox: viewBoxOf(view), 'data-into-band': '' } : {})}>
       {images['s-ladder']
         ? <image href={images['s-ladder']} x={b.ladder.x} y={b.ladder.y} width={b.ladder.w} height={b.ladder.h} preserveAspectRatio="none" />
         : <g stroke="#e7b860" strokeWidth={14}><line x1={690} y1={80} x2={690} y2={880} /><line x1={910} y1={80} x2={910} y2={880} /></g>}
+      {slotEmpty && (
+        // the empty rung beside the ladder, where the next rung is made: it glows while he holds a plate
+        <rect data-slot className="d2-row-rise" x={SLOT_L} y={rungY0 - (RUNG_W * PLATE_ASPECT) / 2 + 8} width={RUNG_W} height={RUNG_W * PLATE_ASPECT - 16} rx={26}
+          fill={held ? '#ffd34d' : '#1b0f3c'} fillOpacity={held ? (over ? 0.45 : 0.2) : 0.35} stroke={held ? '#ffd34d' : '#fff6d8'} strokeOpacity={held && over ? 1 : 0.8}
+          strokeWidth={held && over ? 10 : 6} strokeDasharray="22 14" pointerEvents="none" {...(held ? { 'data-row-glow': over ? 'over' : 'drag' } : {})} />
+      )}
       {p.built.map((c, k) => (
-        <g key={k} data-rung={k}>
+        <g key={k} data-rung={k} {...(k === fresh ? { className: 'd2-rung-in', style: { '--d2-slide': `${lastSlot - LADDER_CX}px` } as CSSProperties } : {})}>
           {p.cue === 'foot' && change && k === p.built.length - 1 && (
             <rect data-cue-glow="foot" className="d2-cue d2-cue-cue" x={LADDER_CX - RUNG_W / 2 - 16} y={RUNG_Y(k) - (RUNG_W * PLATE_ASPECT) / 2 - 16} width={RUNG_W + 32} height={RUNG_W * PLATE_ASPECT + 32} rx={26}
               fill="#ffd34d" fillOpacity={0.3} stroke="#ffd34d" strokeOpacity={0.9} strokeWidth={6} pointerEvents="none" />
@@ -277,7 +322,7 @@ export function Ladder(p: {
       {change && <MakingRung key={p.built.length} change={change} swapped={p.placing?.step === 'swap' ? p.plates.find((c) => c.id === p.placing!.id)?.text : undefined} y={nextRungY(p.built.length, p.rungs)} lifted={!change.marked && p.lifted !== undefined && can} glow={glow} onPlace={(place) => p.lifted && p.onPick(p.lifted, place)} />}
       {wiz('s-wizard-idle') && (
         // a new ladder: he is back at the start at once (sliding down from the top he would pass under the bar's buttons)
-        <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className="d2-climb"
+        <image data-wizard href={wiz('s-wizard-idle')} x={b.wizard.x} y={b.wizard.y} width={b.wizard.w} height={b.wizard.h} className={fresh >= 0 ? 'd2-climb d2-climb-late' : 'd2-climb'}
           style={p.built.length === 0 ? { transition: 'none' } : undefined} />
       )}
       {p.plates.map((c, i) => {
@@ -296,20 +341,20 @@ export function Ladder(p: {
         if (placing) {
           const box = change ? rungBoxXs(change.marked ? rungBoxes(change).length : change.from.length).w : PLATE_W
           const s = change ? box / PLATE_W : 1
-          const tx = change ? rungPlaceX(change) : LADDER_CX
+          const tx = change ? rungPlaceX(change) : SLOT_CX
           fly = `translate(${tx - s * PLATE_X}px, ${rungY - s * fixY[i]}px) scale(${s})`
         }
         return (
           <DragPick key={c.id} attrs={{ 'data-plate': c.id }} enabled={can || (p.phase === 'mistake' && state === 'reveal')}
             onDrag={(q) => setHeld(q)}
             onPick={(q) => (change && !change.marked && q ? p.onPick(c.id, dropPlace(change, q.x)) : p.onPick(c.id))}
-            // anywhere over the ladder counts (a child's drop is not precise)
-            inZone={(q) => Math.abs(q.x - LADDER_CX) < RUNG_W * 0.8 && Math.abs(q.y - rungY) < 150}
-            demo={p.demo?.id === c.id ? { t: p.demo.t, dx: (change ? rungPlaceX(change) : LADDER_CX) - PLATE_X, dy: (change ? liftY : rungY) - fixY[i] } : undefined}>
+            // anywhere over the slot counts, and a little round it (a child's drop is not precise)
+            inZone={(q) => q.x > SLOT_L - 100 && q.x < slotR + 30 && Math.abs(q.y - rungY) < 140}
+            demo={p.demo?.id === c.id ? { t: p.demo.t, dx: demoPlateX(change) - PLATE_X, dy: (change ? liftY : rungY) - fixY[i] } : undefined}>
             {/* a tapped plate (unmarked rung) is lifted above the box row; a tap on it puts it back */}
             <g data-lifted={lifted ? '' : undefined} {...(placing ? { 'data-placing': p.placing!.step, className: 'd2-plate-fly' } : {})}
               style={fly ? { transform: fly, opacity: change && p.placing!.step === 'swap' ? 0 : 1 } : undefined}
-              transform={lifted ? `translate(${(hover.x ?? LADDER_CX) - PLATE_X} ${hover.y - fixY[i]}) translate(${PLATE_X} ${fixY[i]}) scale(${hover.s}) translate(${-PLATE_X} ${-fixY[i]})` : undefined}>
+              transform={lifted ? `translate(${hover.x - PLATE_X} ${hover.y - fixY[i]}) translate(${PLATE_X} ${fixY[i]}) scale(${hover.s}) translate(${-PLATE_X} ${-fixY[i]})` : undefined}>
               <Plate w={PLATE_W} x={PLATE_X} y={fixY[i]} state={state} testCorrect={c.id === p.correctId}>
                 <Glyph text={c.text} px={px(c.text, PLATE_W)} x={PLATE_X} y={fixY[i]} alphabet={alphabet} />
               </Plate>

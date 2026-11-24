@@ -3,7 +3,7 @@
 // holds a plate (more over it). The Hebrew ladder has none of them.
 import { fireEvent, render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { BOX_ROW_W, hoverPlate, Ladder, LADDER_CX, ladderView, nextRungY, PLATE_W, RUNG_W } from './Ladder'
+import { BOX_ROW_W, hoverPlate, Ladder, LADDER_CX, ladderBoxes, ladderView, nextRungY, PLATE_W, RUNG_W, SLOT_L } from './Ladder'
 import { PLATE_ASPECT } from '../Orb'
 import { syllableChoice, type Choice } from '../../logic/rounds'
 import { syllable } from '../../logic/content'
@@ -43,9 +43,10 @@ describe('the English ladder cues', () => {
     // (the test's svg has no layout: the stage point of a pointer is its client point)
     fireEvent.pointerDown(plate, { pointerId: 1, clientX: 1260, clientY: 600 })
     expect(q(el, '[data-row-glow="drag"]')).not.toBeNull()
-    fireEvent.pointerMove(plate, { pointerId: 1, clientX: LADDER_CX, clientY: row })
+    // (over the slot beside the ladder, where the row is)
+    fireEvent.pointerMove(plate, { pointerId: 1, clientX: SLOT_L + 100, clientY: row })
     expect(q(el, '[data-row-glow="over"]')).not.toBeNull()
-    fireEvent.pointerUp(plate, { pointerId: 1, clientX: LADDER_CX, clientY: row })
+    fireEvent.pointerUp(plate, { pointerId: 1, clientX: SLOT_L + 100, clientY: row })
     expect(q(el, '[data-row-glow="over"]')).toBeNull()
   })
   it('on a row where a box comes in, the tap row reaches past the end gaps (a tap only); elsewhere it is the row', () => {
@@ -62,17 +63,18 @@ describe('the English ladder cues', () => {
     expect(grow.x + grow.w).toBeGreaterThan(plain.x + plain.w + 40)
     expect(grow.x).toBeLessThan(plain.x)
   })
-  it('the hovering plate (a lift, the demo) never covers the box row or the rung below it, at any rung and size', () => {
+  it('the hovering plate (a lift) never covers the box row, the ladder, the wizard or the plates, at any rung and size', () => {
     const half = (PLATE_W * PLATE_ASPECT) / 2
     for (const size of [undefined, { w: 1024, h: 768 }, { w: 740, h: 360 }, { w: 844, h: 390 }]) {
       const v = ladderView(size)
       for (let rungs = 3; rungs <= 7; rungs++) {
         for (let built = 1; built < rungs; built++) {
           const h = hoverPlate(v, built, rungs)
-          const x = h.x ?? LADDER_CX
-          const plate = { l: x - (PLATE_W / 2) * h.s, r: x + (PLATE_W / 2) * h.s, t: h.y - half * h.s, b: h.y + half * h.s }
+          const plate = { l: h.x - (PLATE_W / 2) * h.s, r: h.x + (PLATE_W / 2) * h.s, t: h.y - half * h.s, b: h.y + half * h.s }
           const row = nextRungY(built, rungs)
-          const things = [{ l: LADDER_CX - BOX_ROW_W / 2, r: LADDER_CX + BOX_ROW_W / 2, t: row - 48, b: row + 48 }, { l: LADDER_CX - RUNG_W / 2, r: LADDER_CX + RUNG_W / 2, t: row + 150 - half, b: row + 150 + half }]
+          const b = ladderBoxes(built, rungs, v, true)
+          const box = (o: { x: number; y: number; w: number; h: number }) => ({ l: o.x, r: o.x + o.w, t: o.y, b: o.y + o.h })
+          const things = [{ l: SLOT_L, r: SLOT_L + BOX_ROW_W, t: row - 62, b: row + 62 }, { l: LADDER_CX - RUNG_W / 2, r: LADDER_CX + RUNG_W / 2, t: -1e4, b: 1e4 }, box(b.wizard), ...b.plates.map(box)]
           for (const o of things) {
             const clear = plate.r <= o.l || plate.l >= o.r || plate.b <= o.t || plate.t >= o.b
             expect(clear, `${JSON.stringify(size)} rung ${built}/${rungs}`).toBe(true)
@@ -81,4 +83,5 @@ describe('the English ladder cues', () => {
       }
     }
   })
+
 })

@@ -8,7 +8,7 @@ import { item as itemOf, mark as markOf, type MarkId } from '../logic/content'
 import { Broom } from '../components/screens/Broom'
 import { LANE_Y, WIZ_X, flightPath } from '../broomLayout'
 import { Cauldron, CauldronWord, ORB_X, ORB_Y, TILE_X } from '../components/screens/Cauldron'
-import { HAND_DX, HAND_DY, hoverY, Ladder, LADDER_CX, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs, rungPlaceX } from '../components/screens/Ladder'
+import { HAND_DX, HAND_DY, hoverY, Ladder, LADDER_PLATE_X, ladderView, nextRungY, plateTop, plateYs, demoPlateX } from '../components/screens/Ladder'
 import { Ghosts, GHOST_H, GHOST_SLOTS } from '../components/screens/Ghosts'
 import { Doors, KEY_X } from '../components/screens/Doors'
 import { Crystal } from '../components/screens/Crystal'
@@ -90,7 +90,7 @@ function demoPath(v: View, size: { w: number; h: number }): { from: { x: number;
   if (s.screen === 'ladder') {
     const i = s.plates.findIndex((p) => p.id === ladderAnswerId(s))
     // (an English rung: the hand goes to the place that changes)
-    const x = s.from ? rungPlaceX({ from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked }) : LADDER_CX
+    const x = demoPlateX(s.from ? { from: s.from, at: s.at!, grow: s.grow, marked: !!s.marked } : undefined)
     const from = { x: LADDER_PLATE_X, y: plateYs(s.built.length, s.rungs, plateTop(ladderView(size)))[i] }
     if (!s.from) return { from, to: { x, y: nextRungY(s.built.length, s.rungs) } }
     // English: the plate stops above the box row, so the hand and the plate never cover the boxes; the hand holds the

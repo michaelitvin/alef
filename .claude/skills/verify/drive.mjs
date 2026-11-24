@@ -337,6 +337,7 @@ const FIT_PROBE = ({ ringIn }) => {
     things: {
       rungs: rectsOf('[data-rung] image'), wizard: rectsOf('image[data-wizard]'), book: rectsOf('[data-book]'),
       hint: rectsOf('.nd-hint-btn'), tower: rectsOf('.nd-tower'),
+      plates: rectsOf('[data-plate] image'), bar: rectsOf('.d2-topbar-side > *, .d2-topbar-mid > *'),
     },
     view: { w: innerWidth, h: innerHeight },
   }
@@ -1283,23 +1284,29 @@ const CHECKS = {
       report(`cauldron st${stage}`, await sampleFit(page, 6_000, 500, (p) => p.boxes.length > 0, () => []))
       await shot(page, vp, `en-cauldron-st${stage}`)
     }
-    // the ladder: the rung he makes, clear of the built rungs (the foot) and the wizard
+    // the ladder: the rung he makes (in the slot beside the ladder), clear of the built rungs (the foot), the wizard, the
+    // plates and the top bar's items; its boxes at least 125 stage units (about 44 px on a 740×360 phone)
     {
       await englishStation(page, base, 'ladder', 4)
       let least = Infinity
+      let boxPx = Infinity
+      let wizPx = 0
       const r = await sampleFit(page, 6_000, 500, (p) => p.rows.making.length > 0, (p) => {
         const row = unionOf(p.rows.making)
+        boxPx = Math.min(boxPx, ...p.rows.making.map((b) => b.right - b.left))
+        wizPx = Math.max(wizPx, ...p.things.wizard.map((b) => b.bottom - b.top))
         const out = []
-        for (const [name, rs] of [['a built rung', p.things.rungs], ['the wizard', p.things.wizard]]) {
+        for (const [name, rs] of [['a built rung', p.things.rungs], ['the wizard', p.things.wizard], ['a plate', p.things.plates], ['a top bar item', p.things.bar]]) {
           for (const t of rs) {
             const g = gapOf(row, t)
             least = Math.min(least, g)
             if (g < 0) out.push(`the making rung's boxes overlap ${name} by ${(-g).toFixed(0)} px`)
           }
         }
+        for (const wz of p.things.wizard) for (const t of p.things.bar) if (gapOf(wz, t) < 0) out.push(`the wizard is under a top bar item by ${(-gapOf(wz, t)).toFixed(0)} px`)
         return out
       })
-      report('ladder st4', r, `, the row's least room to the foot or the wizard ${least === Infinity ? '-' : least.toFixed(0)} px`)
+      report('ladder st4', r, `, the row's least room to the foot, the wizard, a plate or the bar ${least === Infinity ? '-' : least.toFixed(0)} px; boxes ${boxPx === Infinity ? '-' : boxPx.toFixed(0)} px, wizard ${wizPx.toFixed(0)} px`)
       await shot(page, vp, 'en-ladder-st4')
     }
     // the tower: the ? of a word round never on the tower (its door)
