@@ -276,14 +276,38 @@ export function ghostRound(ctx: RoundCtx, kind: Kind, avoid?: string): { target:
   return { target, signs: markNearMiss(target, shuffle(rng, signs)) }
 }
 
-/** The doors' words of a visit: `n` door words of the opened stages (at least stage 2's, at most stage 3's), shuffled. */
+/** The last stage: the doors pick his weakest words and aim their keys (stage 4, `HEBREW_STAGES.maxStage`). */
+const REHEARSE_FROM = 4
+
+/** The doors' words of a visit: `n` door words of the opened stages (at least stage 2's, at most stage 3's), no word twice.
+ *  At the last stage each is picked by his weakest and least-seen first (`w:` feature); below it, shuffled. */
 export function doorWords(ctx: RoundCtx, n: number): Word[] {
   const pool = WORDS.filter((w) => w.door && w.stage <= Math.max(2, Math.min(ctx.stage, 3)))
-  return pool.sort(() => ctx.rng() - 0.5).slice(0, n)
+  if (ctx.stage < REHEARSE_FROM) return pool.sort(() => ctx.rng() - 0.5).slice(0, n)
+  const left = [...pool]
+  const out: Word[] = []
+  while (out.length < n && left.length) {
+    const w = pickTarget(ctx.rng, left, (x) => features({ wordId: x.id }, 'doors'), ctx.tallies, ctx.recent)
+    out.push(w)
+    left.splice(left.indexOf(w), 1)
+  }
+  return out
 }
 
-/** The keys of a door: its word and two other door words, shuffled. */
+/** the first vowel group; the one tsere word (book) is a group of its own, so it gets random keys */
+const firstGroup = (w: Word): VowelGroup | 'tsere' => (w.first.mark === 'tsere' ? 'tsere' : markOf(w.first.mark).group)
+
+/** The keys of a door: its word and two other door words, shuffled. At the last stage key 2 shares the word's first
+ *  letter, else its first vowel group; key 3 is another word of that group, else any door word. */
 export function doorKeys(ctx: RoundCtx, word: Word): Word[] {
-  const others = WORDS.filter((w) => w.door && w.id !== word.id).sort(() => ctx.rng() - 0.5).slice(0, 2)
-  return [word, ...others].sort(() => ctx.rng() - 0.5)
+  const shuffled = (xs: Word[]) => xs.sort(() => ctx.rng() - 0.5)
+  const others = shuffled(WORDS.filter((w) => w.door && w.id !== word.id))
+  if (ctx.stage < REHEARSE_FROM) return shuffled([word, ...others.slice(0, 2)])
+  const sameLetter = others.filter((w) => w.first.item === word.first.item)
+  const sameGroup = others.filter((w) => firstGroup(w) === firstGroup(word))
+  const keys: Word[] = []
+  for (const w of [...sameLetter, ...sameGroup, ...others]) {
+    if (keys.length < 2 && !keys.includes(w)) keys.push(w)
+  }
+  return shuffled([word, ...keys])
 }

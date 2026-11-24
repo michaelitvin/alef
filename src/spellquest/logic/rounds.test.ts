@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { FULL_SWEEP } from '../../test/fullSweep'
 import type { Stage } from './content.ts'
 import { item, syllable } from './content.ts'
+import { WORDS } from '../data/words'
 import {
-  broomTarget, broomWave, cauldronRound, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
+  broomTarget, broomWave, cauldronRound, doorKeys, doorWords, syllableChoice, ghostRound, ladderPlan, lookAlikeGroup, sameSound, isNewStageChoice,
   type Choice, type RoundCtx,
 } from './rounds'
 
@@ -191,4 +192,63 @@ describe('rounds', () => {
     }
   })
 
+})
+
+describe('doors at the last stage', () => {
+  const word = (id: string) => WORDS.find((w) => w.id === id)!
+  const group = (id: string) => (['patach', 'kamatz'].includes(word(id).first.mark) ? 'a' : word(id).first.mark === 'segol' ? 'e' : word(id).first.mark)
+  const idsOf = (ws: { id: string }[]) => ws.map((w) => w.id)
+
+  it('picks 4 different words, the words near 1 mistake in 5 first', () => {
+    for (let s = 1; s <= 20; s++) {
+      const ids = idsOf(doorWords(ctx(4, s), 4))
+      expect(new Set(ids).size).toBe(4)
+    }
+    // the picker aims at 1 mistake in 5: the word near that rate comes far more often than words he knows well
+    const tallies: RoundCtx['tallies'] = {}
+    for (const w of WORDS.filter((x) => x.door)) tallies[`w:${w.id}`] = w.id === 'fox' ? { seen: 20, wrong: 4 } : { seen: 100, wrong: 0 }
+    let fox = 0
+    for (let s = 1; s <= 40; s++) if (idsOf(doorWords(ctx(4, s, { tallies }), 3)).includes('fox')) fox++
+    let base = 0
+    for (let s = 1; s <= 40; s++) if (idsOf(doorWords(ctx(4, s), 3)).includes('fox')) base++
+    expect(fox).toBeGreaterThan(base)
+  })
+
+  it('key 2 shares the first letter, else the first vowel group', () => {
+    for (let s = 1; s <= 20; s++) {
+      const keys = doorKeys(ctx(4, s), word('camel'))
+      expect(keys).toHaveLength(3)
+      expect(new Set(idsOf(keys)).size).toBe(3)
+      expect(keys.map((k) => k.id)).toContain('camel')
+      expect(keys.map((k) => k.id)).toContain('carrot')
+      const ball = idsOf(doorKeys(ctx(4, s), word('ball')))
+      expect(ball).toContain('dog')
+      const cat = doorKeys(ctx(4, s), word('cat')).filter((k) => k.id !== 'cat')
+      expect(cat.some((k) => group(k.id) === 'a')).toBe(true)
+      const rose = doorKeys(ctx(4, s), word('rose')).filter((k) => k.id !== 'rose')
+      expect(rose.some((k) => group(k.id) === 'e')).toBe(true)
+      expect(idsOf(doorKeys(ctx(4, s), word('fox')))).toContain('cake')
+      expect(idsOf(doorKeys(ctx(4, s), word('cake')))).toContain('fox')
+    }
+  })
+
+  it('tent and book get two random other keys', () => {
+    for (const id of ['tent', 'book']) {
+      const seen = new Set<string>()
+      for (let s = 1; s <= 30; s++) {
+        const keys = doorKeys(ctx(4, s), word(id))
+        expect(new Set(idsOf(keys)).size).toBe(3)
+        for (const k of keys) if (k.id !== id) seen.add(k.id)
+      }
+      expect(seen.size).toBeGreaterThan(4)
+    }
+  })
+
+  it('stage 3 keeps the random pick', () => {
+    const before = idsOf(doorWords(ctx(3, 7), 3))
+    expect(before).toHaveLength(3)
+    let off = 0
+    for (let s = 1; s <= 30; s++) if (!idsOf(doorKeys(ctx(3, s), word('camel'))).includes('carrot')) off++
+    expect(off).toBeGreaterThan(0)
+  })
 })
