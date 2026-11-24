@@ -25,6 +25,8 @@ export default defineConfig({
         spellquest: fileURLToPath(new URL('./spellquest/index.html', import.meta.url)),
         duel2: fileURLToPath(new URL('./duel2/index.html', import.meta.url)),
         spacecat: fileURLToPath(new URL('./spacecat/index.html', import.meta.url)),
+        // the staging tools page (no page links to it): only in the staging build
+        ...(process.env.ALEF_STAGING === '1' ? { stagingTools: fileURLToPath(new URL('./staging-tools/index.html', import.meta.url)) } : {}),
       },
     },
   },

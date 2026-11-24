@@ -4,10 +4,12 @@
 // Each entry point imports this module first, before any store reads localStorage.
 // A parent can open a staging URL with ?copy-prod to replace staging's saves with a copy of production's, or with
 // ?export-prod to download a copy of them as one JSON file, or with
-// ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts; production ignores both).
+// ?migrate-check to prove the key migration on a copy of them (migrateCheck.ts), or with ?copy-to-prod to replace
+// production's saves with a copy of staging's (production ignores all of them). The staging tools page
+// (staging-tools/, not linked from anywhere) lists them.
 
 import { downloadJson } from './download'
-import { migrateKeys, STEP_TWO_NAMES, type MigrationReport } from './keyMigration'
+import { migrateKeys, MIGRATIONS_KEY, STEP_TWO_NAMES, type MigrationReport } from './keyMigration'
 import type { CheckResult, CheckSnapshots } from './migrateCheck'
 import { STAGING_PREFIX } from './stagingPrefix'
 export { STAGING_PREFIX }
@@ -44,6 +46,38 @@ export function copyUnprefixedOver(storage: Storage, prefix: string) {
   for (let i = 0; i < storage.length; i++) all.push(storage.key(i)!)
   all.filter((k) => k.startsWith(prefix)).forEach((k) => storage.removeItem(k))
   all.filter((k) => !k.startsWith(prefix) && !isTelemetryKey(k)).forEach((k) => storage.setItem(prefix + k, storage.getItem(k)!))
+}
+
+/** the ids of the done steps in a migration marker (none when it is missing or cannot be read) */
+const doneSteps = (v: string | null): string[] => {
+  try { const d: unknown = JSON.parse(v ?? '')?.done; return Array.isArray(d) ? d.filter((x): x is string => typeof x === 'string') : [] } catch { return [] }
+}
+
+/** Why `?copy-to-prod` must not run now, or null. Staging must have saves (else the copy only deletes the child's), and
+ * production must have run every key migration that staging ran: an older build reads other keys, so the copy would
+ * take the child's saves away from the real game. */
+export function copyToProdBlocker(storage: Storage, prefix: string): string | null {
+  const staged: string[] = []
+  for (let i = 0; i < storage.length; i++) {
+    const k = storage.key(i)!
+    if (k.startsWith(prefix) && !isTelemetryKey(k) && k !== prefix + MIGRATIONS_KEY) staged.push(k)
+  }
+  if (!staged.length) return 'Staging has no saves to copy.'
+  const prod = doneSteps(storage.getItem(MIGRATIONS_KEY))
+  const missing = doneSteps(storage.getItem(prefix + MIGRATIONS_KEY)).filter((s) => !prod.includes(s))
+  if (missing.length) return `The real game has not run these save migrations yet: ${missing.join(', ')}. Release main first and open the real game once.`
+  return null
+}
+
+/** Replace the saves that have no prefix with a copy of the saves under `prefix` (the reverse of copyUnprefixedOver).
+ * The telemetry logs on both sides stay as they are. Staging's saves are written first and production's extra keys are
+ * removed last, so a write that fails part way leaves the child's other saves in place. */
+export function copyPrefixedBack(storage: Storage, prefix: string) {
+  const all: string[] = []
+  for (let i = 0; i < storage.length; i++) all.push(storage.key(i)!)
+  const staged = all.filter((k) => k.startsWith(prefix) && !isTelemetryKey(k)).map((k) => k.slice(prefix.length))
+  staged.forEach((k) => storage.setItem(k, storage.getItem(prefix + k)!))
+  all.filter((k) => !k.startsWith(prefix) && !isTelemetryKey(k) && !staged.includes(k)).forEach((k) => storage.removeItem(k))
 }
 
 /** The file of `?export-prod`: every key that has no staging prefix, as the exact stored strings (no parsing, so the
@@ -87,6 +121,17 @@ export function installStagingStorage(win: Window, reload: (url: string) => void
       win.history.replaceState(null, '', url)
       if (win.confirm('Replace all staging saves with a copy of the production saves?')) {
         copyUnprefixedOver(storage, STAGING_PREFIX)
+      }
+    }
+    if (url.searchParams.has('copy-to-prod')) {
+      url.searchParams.delete('copy-to-prod')
+      win.history.replaceState(null, '', url)
+      const blocker = copyToProdBlocker(storage, STAGING_PREFIX)
+      if (blocker) win.alert(`Nothing was copied. ${blocker}`)
+      else if (win.confirm('Replace the child’s real saves in the real game with a copy of the staging saves? A copy of the real saves and logs downloads first. The logs stay as they are.')) {
+        const now = new Date()
+        download(JSON.stringify(buildProdExport(storage, STAGING_PREFIX, now, win.navigator.userAgent)), `alef-prod-storage-before-copy-to-prod-${now.toISOString().slice(0, 10)}.json`)
+        copyPrefixedBack(storage, STAGING_PREFIX)
       }
     }
   } catch { /* the copy failed part way: staging keeps what it got */ }

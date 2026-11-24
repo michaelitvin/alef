@@ -87,6 +87,19 @@ Every turn re-reads the whole context, so cost is turns × context size.
 - Screenshots stay in subagents. They return a text verdict; send images to the parent without reading them first.
 - At the end of each phase, write the state into the plan or the spec, and start a new session from it.
 
+## Worktrees (several sessions work at the same time)
+
+- Each session that changes files works in its own git worktree, never in the main checkout. Keep the main checkout
+  clean on `main`: other sessions read it and make their worktrees from it. Start the session with `claude -w <name>`,
+  or make one yourself from the main checkout: `git worktree add .claude/worktrees/<name> -b <branch> origin/main`, then
+  `ln -s ../../../node_modules .claude/worktrees/<name>/node_modules`, and work only in that directory.
+- A subagent that edits files gets its own worktree (`isolation: "worktree"`), unless it works on its parent's branch.
+- To merge, merge `origin/main` into your branch in the worktree, run the checks there, and push `HEAD:main`. Do not
+  check out or merge in the main checkout; at most `git pull --ff-only` there when it is clean.
+- When the work is done (merged, or dropped with the parent's OK), remove your worktree and its branch:
+  `git worktree remove .claude/worktrees/<name>` and `git branch -d <branch>`. Remove only your own worktrees. Leave
+  another session's worktree alone, also when it looks stale; ask the parent about it.
+
 ## Deployment (GitHub Pages: production and staging)
 
 | Branch | Served at | Role |
@@ -99,4 +112,6 @@ Every turn re-reads the whole context, so cost is turns × context size.
 - To release, fast-forward `release` to a tested commit of `main`: `git push origin main:release` (or `<sha>:release`).
   Never commit to `release`. A fix goes into `main` first.
 - Staging prefixes every save with `staging:` ([ADR 0001](docs/adr/0001-staging-shares-the-origin.md)). A new entry point
-  must import `src/shared/stagingStorage` first. `?copy-prod` on a staging URL copies the child's real saves into staging.
+  must import `src/shared/stagingStorage` first. `?copy-prod` on a staging URL copies the child's real saves into staging; `?copy-to-prod` copies staging's saves back
+  over them. The staging tools page `/alef/staging/staging-tools/` (linked from nowhere: type the URL) lists every
+  staging route.

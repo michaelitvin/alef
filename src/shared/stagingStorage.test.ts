@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { STAGING_PREFIX, copyUnprefixedOver, installStagingStorage, isStaging, prefixedStorage } from './stagingStorage'
+import { STAGING_PREFIX, copyPrefixedBack, copyToProdBlocker, copyUnprefixedOver, installStagingStorage, isStaging, prefixedStorage } from './stagingStorage'
 
 describe('staging storage (keeps staging saves apart from production saves)', () => {
   beforeEach(() => localStorage.clear())
@@ -126,6 +126,83 @@ describe('staging storage (keeps staging saves apart from production saves)', ()
 
     it('does nothing in a production build (the install is never called there)', () => {
       expect(isStaging).toBe(false)
+    })
+  })
+
+  describe('?copy-to-prod', () => {
+    const marker = (done: string[]) => JSON.stringify({ v: 1, done })
+    const seed = () => {
+      localStorage.setItem('alef-progress', 'real')
+      localStorage.setItem('alef-clock', 'real clock')
+      localStorage.setItem('alef-spellquest-he-telemetry', 'real log')
+      localStorage.setItem('alef-migrations', marker(['spellquest-two-names', 'tower-history']))
+      localStorage.setItem('staging:alef-progress', 'staged')
+      localStorage.setItem('staging:alef-spacecat', 'staged cat')
+      localStorage.setItem('staging:alef-spellquest-he-telemetry', 'staging log')
+      localStorage.setItem('staging:alef-migrations', marker(['spellquest-two-names', 'tower-history']))
+    }
+    const setup = (ok = true) => {
+      const download = vi.fn()
+      const alert = vi.fn()
+      const win = {
+        location: { href: 'https://example.test/alef/staging/?copy-to-prod' }, localStorage, confirm: () => ok, alert,
+        navigator: { userAgent: 'UA' }, history: { replaceState: vi.fn() },
+      } as unknown as Window
+      return { win, download, alert }
+    }
+
+    it('copies staging over production: production\'s extra saves go, both logs stay', () => {
+      seed()
+      copyPrefixedBack(localStorage, STAGING_PREFIX)
+      expect(localStorage.getItem('alef-progress')).toBe('staged')
+      expect(localStorage.getItem('alef-spacecat')).toBe('staged cat')
+      expect(localStorage.getItem('alef-clock')).toBeNull()
+      expect(localStorage.getItem('alef-spellquest-he-telemetry')).toBe('real log')
+      expect(localStorage.getItem('staging:alef-spellquest-he-telemetry')).toBe('staging log')
+      expect(localStorage.getItem('staging:alef-progress')).toBe('staged')
+    })
+
+    it('downloads the real data first, then copies', () => {
+      seed()
+      const { win, download } = setup()
+      installStagingStorage(win, () => {}, download)
+      expect(download).toHaveBeenCalledOnce()
+      const [json, name] = download.mock.calls[0]
+      expect(JSON.parse(json).keys['alef-progress']).toBe('real')
+      expect(name).toMatch(/^alef-prod-storage-before-copy-to-prod-\d{4}-\d{2}-\d{2}\.json$/)
+      expect(localStorage.getItem('alef-progress')).toBe('staged')
+      expect((win.history.replaceState as ReturnType<typeof vi.fn>).mock.calls[0][2].toString()).not.toContain('copy-to-prod')
+    })
+
+    it('changes nothing when the parent cancels', () => {
+      seed()
+      const { win, download } = setup(false)
+      installStagingStorage(win, () => {}, download)
+      expect(download).not.toHaveBeenCalled()
+      expect(localStorage.getItem('alef-progress')).toBe('real')
+    })
+
+    it('refuses when the real game has not run a migration that staging ran (an older build reads other keys)', () => {
+      seed()
+      localStorage.removeItem('alef-migrations')
+      expect(copyToProdBlocker(localStorage, STAGING_PREFIX)).toContain('spellquest-two-names')
+      const { win, download, alert } = setup()
+      installStagingStorage(win, () => {}, download)
+      expect(alert).toHaveBeenCalledOnce()
+      expect(download).not.toHaveBeenCalled()
+      expect(localStorage.getItem('alef-progress')).toBe('real')
+    })
+
+    it('refuses when staging has no saves (the copy would only delete the child\'s)', () => {
+      localStorage.setItem('alef-progress', 'real')
+      localStorage.setItem('staging:alef-migrations', marker([]))
+      localStorage.setItem('staging:alef-x-telemetry', 'log')
+      expect(copyToProdBlocker(localStorage, STAGING_PREFIX)).toContain('no saves')
+    })
+
+    it('allows the copy when both sides ran the same migrations', () => {
+      seed()
+      expect(copyToProdBlocker(localStorage, STAGING_PREFIX)).toBeNull()
     })
   })
 })

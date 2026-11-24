@@ -9,4 +9,8 @@ key, and `?copy-prod` copies the production saves into staging after a confirmat
 
 - Every entry point must import `src/shared/stagingStorage` before anything that reads storage. Import order is the only
   guard, so a new entry point that forgets it reads and writes the child's real saves.
+- `?copy-to-prod` is the one route that writes the child's real saves: it copies staging's saves over them (the logs on
+  both sides stay). It downloads a copy of the real data first, and refuses while the real game has not run every save
+  migration that staging ran (an older build reads other keys). The staging tools page (`staging-tools/`, in the
+  staging build only, linked from nowhere) lists all the staging routes.
 - Each deploy replaces the whole site, so a push to either branch rebuilds both builds.
