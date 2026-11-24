@@ -2,5 +2,10 @@
   "env": {
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000"
+  },
+  "worktree": {
+    "symlinkDirectories": [
+      "node_modules"
+    ]
   }
 }

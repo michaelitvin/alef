@@ -89,16 +89,20 @@ Every turn re-reads the whole context, so cost is turns × context size.
 
 ## Worktrees (several sessions work at the same time)
 
-- Each session that changes files works in its own git worktree, never in the main checkout. Keep the main checkout
-  clean on `main`: other sessions read it and make their worktrees from it. Start the session with `claude -w <name>`,
-  or make one yourself from the main checkout: `git worktree add .claude/worktrees/<name> -b <branch> origin/main`, then
-  `ln -s ../../../node_modules .claude/worktrees/<name>/node_modules`, and work only in that directory.
+- Each session that changes files works in its own git worktree under `.claude/worktrees/`, never in the main
+  checkout. Keep the main checkout clean on `main`: other sessions read it. The project's Remote Control server starts
+  each new session in a new worktree (spawn mode `worktree`), on a new branch from `origin/main`; `node_modules` is
+  linked from the main checkout (`worktree.symlinkDirectories` in `.claude/settings.json`). Rename the branch to say
+  what it is for (`git branch -m feature/<name>`).
+- A session that starts in the main checkout (the server's first session, or `claude` started there) moves into a
+  worktree before its first change: the `EnterWorktree` tool, or `claude -w <name>`.
 - A subagent that edits files gets its own worktree (`isolation: "worktree"`), unless it works on its parent's branch.
 - To merge, merge `origin/main` into your branch in the worktree, run the checks there, and push `HEAD:main`. Do not
   check out or merge in the main checkout; at most `git pull --ff-only` there when it is clean.
-- When the work is done (merged, or dropped with the parent's OK), remove your worktree and its branch:
-  `git worktree remove .claude/worktrees/<name>` and `git branch -d <branch>`. Remove only your own worktrees. Leave
-  another session's worktree alone, also when it looks stale; ask the parent about it.
+- When the work is done (merged, or dropped with the parent's OK), remove your worktree and its branch as the last
+  step. From the worktree: `cd ../../.. && git pull --ff-only && git worktree remove .claude/worktrees/<name> && git
+  branch -d <branch>`. Remove only your own worktree. Leave another session's worktree alone, also when it looks
+  stale; ask the parent about it.
 
 ## Deployment (GitHub Pages: production and staging)
 
