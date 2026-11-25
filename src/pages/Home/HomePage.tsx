@@ -83,7 +83,7 @@ export function HomePage() {
             color: colors.text.secondary,
           }}
         >
-          לומדים לקרוא בעברית!
+          משחקי למידה לכיתות הראשונות
         </p>
       </motion.header>
 
