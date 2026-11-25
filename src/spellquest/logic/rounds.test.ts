@@ -245,7 +245,7 @@ describe('doors at the last stage', () => {
     const w = (id: string, item: string, mark: Word['first']['mark']): Word =>
       ({ id, text: id, first: { item, mark }, picture: `pw-${id}`, door: true, stage: 2 })
     const pool = [
-      w('camel', 'gimel', 'kamatz'), w('fence', 'gimel', 'kamatz'), w('carrot', 'gimel', 'segol'), w('bridge', 'gimel', 'segol'),
+      w('camel', 'gimel', 'kamatz'), w('fence', 'gimel', 'kamatz'), w('carrot', 'gimel', 'segol'), w('sock', 'gimel', 'segol'),
       w('dog', 'kaf', 'kamatz'), w('crown', 'kaf', 'kamatz'), w('sheep', 'kaf', 'segol'), w('tent', 'tav', 'tsere'), w('book', 'samekh', 'tsere'),
     ]
     const get = (id: string) => pool.find((x) => x.id === id)!
@@ -253,10 +253,10 @@ describe('doors at the last stage', () => {
     for (let s = 1; s <= 30; s++) {
       expect(idsOf(doorKeys(ctx(4, s), get('camel'), pool))).toHaveLength(3)
       expect(keysOf('camel', s)).toContain('fence')
-      expect(keysOf('camel', s).some((k) => k === 'carrot' || k === 'bridge')).toBe(true)
+      expect(keysOf('camel', s).some((k) => k === 'carrot' || k === 'sock')).toBe(true)
       expect(keysOf('dog', s)).toContain('crown')
       expect(keysOf('dog', s).some((k) => k === 'camel' || k === 'fence')).toBe(false)
-      expect(keysOf('carrot', s)).toContain('bridge')
+      expect(keysOf('carrot', s)).toContain('sock')
       expect(keysOf('sheep', s)).toContain('crown')
       expect(new Set(keysOf('camel', s)).size).toBe(2)
     }
@@ -265,7 +265,7 @@ describe('doors at the last stage', () => {
   it('with the real words, every door word with a first-syllable partner gets one as a key', () => {
     const doors = WORDS.filter((w) => w.door)
     const sameSyl = (a: Word, b: Word) => a.id !== b.id && a.first.item === b.first.item && a.first.mark === b.first.mark
-    for (const id of ['dog', 'crown', 'sheep', 'cat', 'milk', 'grasshopper', 'carrot', 'bridge', 'camel', 'fence', 'snake', 'tiger', 'cow', 'flashlight']) {
+    for (const id of ['dog', 'crown', 'sheep', 'cat', 'milk', 'eggplant', 'carrot', 'sock', 'camel', 'fence', 'snake', 'tiger', 'cow', 'flashlight']) {
       const w = doors.find((x) => x.id === id)!
       for (let s = 1; s <= 20; s++) {
         const keys = doorKeys(ctx(4, s), w)

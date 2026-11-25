@@ -3099,7 +3099,7 @@ exports[`the Hebrew baseline > Hebrew spell at stage 4 1`] = `
     {
       "e": "fix",
       "screen": "spell",
-      "target": "syl-sh-e",
+      "target": "syl-r-e",
     },
     {
       "e": "spell-drop",
@@ -3135,11 +3135,11 @@ exports[`the Hebrew baseline > Hebrew spell at stage 4 1`] = `
     "spell:answer:tiger:nun-kamatz,_:nun-kamatz,tav-kamatz,het-cholam-male,yod-patach,mem-tsere",
     "spell:feedback:tiger:nun-kamatz,mem-tsere:nun-kamatz,tav-kamatz,het-cholam-male,yod-patach,mem-tsere",
     "spell:celebrate:tiger:nun-kamatz,mem-tsere:nun-kamatz,tav-kamatz,het-cholam-male,yod-patach,mem-tsere",
-    "spell:answer:bridge:_,_:sin-segol,gimel-segol,shin-segol,zayin-shuruk,zayin-tsere",
-    "spell:answer:bridge:gimel-segol,_:sin-segol,gimel-segol,shin-segol,zayin-shuruk,zayin-tsere",
-    "spell:mistake:bridge:gimel-segol,_:sin-segol,gimel-segol,shin-segol,zayin-shuruk,zayin-tsere",
-    "spell:feedback:bridge:gimel-segol,shin-segol:sin-segol,gimel-segol,shin-segol,zayin-shuruk,zayin-tsere",
-    "spell:celebrate:bridge:gimel-segol,shin-segol:sin-segol,gimel-segol,shin-segol,zayin-shuruk,zayin-tsere",
+    "spell:answer:sock:_,_:sin-segol,gimel-segol,resh-segol,zayin-shuruk,zayin-tsere",
+    "spell:answer:sock:gimel-segol,_:sin-segol,gimel-segol,resh-segol,zayin-shuruk,zayin-tsere",
+    "spell:mistake:sock:gimel-segol,_:sin-segol,gimel-segol,resh-segol,zayin-shuruk,zayin-tsere",
+    "spell:feedback:sock:gimel-segol,resh-segol:sin-segol,gimel-segol,resh-segol,zayin-shuruk,zayin-tsere",
+    "spell:celebrate:sock:gimel-segol,resh-segol:sin-segol,gimel-segol,resh-segol,zayin-shuruk,zayin-tsere",
   ],
   "voice": [
     "w-tent",
@@ -3167,11 +3167,11 @@ exports[`the Hebrew baseline > Hebrew spell at stage 4 1`] = `
     "syl-n-a",
     "syl-m-e",
     "w-tiger",
-    "w-bridge",
+    "w-sock",
     "syl-g-e",
-    "syl-sh-e",
-    "syl-sh-e",
-    "w-bridge",
+    "syl-r-e",
+    "syl-r-e",
+    "w-sock",
   ],
 }
 `;

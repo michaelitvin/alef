@@ -25,10 +25,10 @@ Each new word shares its first letter **and** its first vowel with at least one 
 |---|---|---|---|---|---|---|
 | 1 | כֶּתֶר | KE-ter | crown | כֶּלֶב, כֶּבֶשׂ | kaf segol · tav segol + ר | 2 |
 | 2 | כֶּבֶשׂ | KE-ves | sheep | כֶּלֶב, כֶּתֶר | kaf segol · vet segol + שׂ | 3 |
-| 3 | גֶשֶׁר | GE-sher | bridge | גֶזֶר | gimel segol · shin segol + ר | 2 |
+| 3 | גֶרֶב | GE-rev | sock | גֶזֶר | gimel segol · resh segol + ב | 2 |
 | 4 | גָדֵר | ga-DER | fence | גָמָל | gimel kamatz · dalet tsere + ר | 2 |
 | 5 | חָלָב | cha-LAV | milk | חָתוּל, חָגָב | het kamatz · lamed kamatz + ב | 2 |
-| 6 | חָגָב | cha-GAV | grasshopper | חָתוּל, חָלָב | het kamatz · gimel kamatz + ב | 2 |
+| 6 | חָצִיל | cha-TZIL | eggplant | חָתוּל, חָלָב | het kamatz · tsadi chirik + יל | 2 |
 | 7 | נָחָשׁ | na-CHASH | snake | נָמֵר | nun kamatz · het kamatz + שׁ | 2 |
 | 8 | נָמֵר | na-MER | tiger | נָחָשׁ | nun kamatz · mem tsere + ר | 2 |
 | 9 | פָּרָה | pa-RA | cow | פָּנָס | pe kamatz · resh kamatz + ה | 2 |
@@ -49,10 +49,10 @@ concept p3 as the reference, one subject on flat magenta, no text, no dots). The
 1. `pw-crown`: a golden king's crown, front view, 5 points, big smooth gems or none (no small round gems). Not a tiara.
 2. `pw-sheep`: a white woolly cartoon sheep, full body, side view; wool as big soft curls, not dots; no horns, no beard
    (he called a goat "sheep": the sheep must not look like a goat).
-3. `pw-bridge`: a small arched wooden bridge over a short strip of blue water, side view.
+3. `pw-sock`: one colourful striped child's sock, side view, toe to the left. (Was גֶשֶׁר / bridge; replaced 2026-11-25 after the parent's second review: "Could be river, or arc".)
 4. `pw-fence`: a short piece of a wooden picket fence, 5 pointed boards and 2 rails, front view. No gate (no door).
-5. `pw-milk`: a tall clear glass full of white milk with a small splash on top. No cow, no carton.
-6. `pw-grasshopper`: a green cartoon grasshopper, side view, long bent back legs, two antennae.
+5. `pw-milk`: a clear glass full of white milk next to a closed milk carton, both upright, nothing pours (the pouring take "spills unnaturally", 2026-11-25).
+6. `pw-eggplant`: one glossy purple eggplant with its green cap. (Was חָגָב / grasshopper; replaced 2026-11-25: "any grasshopper can be a mantis, it confuses".)
 7. `pw-snake`: a green cartoon snake in a loose coil, friendly face, forked tongue. No spots.
 8. `pw-tiger`: a cartoon tiger, full body, walking, side view, bold black stripes, large and strong. It must not look
    like the orange cat of `pw-cat` (sitting, front view).
@@ -61,7 +61,7 @@ concept p3 as the reference, one subject on flat magenta, no text, no dots). The
     dot (it looks like a vav with a mark), no rays as dashes.
 
 Review each picture without its word: what will the child call it? Risks to check: milk ("כּוֹס"), fence, tiger next to
-the cat, sheep ("כִּבְשָׂה"). Backup if one fails: חָגָב and חָלָב cover each other in the חָ group.
+the cat, sheep ("כִּבְשָׂה"). Backup if one fails: חָצִיל and חָלָב cover each other in the חָ group.
 
 ## Voice
 
@@ -71,27 +71,27 @@ only for a rejected one. Steps (`asset-sources/spellquest/tower/README.md`): a b
 generator, the automatic take check (transcript, length, rhythm) and the stress check, the parent's review page, the sync
 into `src/spellquest/assets/audio/voice/` (silence trimmed), the request into `audio.json`. Pronunciation notes (`pronunciation.md`):
 
-- The voice reads ב without a dagesh as "b": check by transcript that חָלָב, חָגָב, כֶּבֶשׂ say "v". If not, try the
+- The voice reads ב without a dagesh as "b": check by transcript that חָלָב, גֶרֶב, כֶּבֶשׂ say "v". If not, try the
   plain spelling (חלב), then ו in the spoken text.
-- Stress: כֶּתֶר, כֶּבֶשׂ, גֶשֶׁר on the first syllable (as גֶזֶר, כֶּלֶב); all the others on the last. Check each take by
+- Stress: כֶּתֶר, כֶּבֶשׂ, גֶרֶב on the first syllable (as גֶזֶר, כֶּלֶב); all the others on the last. Check each take by
   measurement. To move the stress, try a meteg first.
 - Do not let the voice add a vowel after the last letter (פָּנָס, not "panasa"; פָּרָה ends in "a").
 
 ## The keys with 21 words
 
-First-syllable groups: כֶּ {dog, crown, sheep}, חָ {cat, milk, grasshopper}, גֶ {carrot, bridge}, גָ {camel, fence},
+First-syllable groups: כֶּ {dog, crown, sheep}, חָ {cat, milk, eggplant}, גֶ {carrot, sock}, גָ {camel, fence},
 נָ {snake, tiger}, פָּ {cow, flashlight}. No partner: tent, ball, fox, cake, house, rose, book (7 words).
-First-letter groups: ג {camel, carrot, bridge, fence}, כ {ball, dog, crown, sheep}.
+First-letter groups: ג {camel, carrot, sock, fence}, כ {ball, dog, crown, sheep}.
 
 `doorKeys` (`rounds.ts`) must change. Today key 2 is "same first letter", then "same first vowel group". With the ג
-group of four, a camel door picks 2 of {carrot, bridge, fence} and misses fence one time in three. New order at stage 4:
+group of four, a camel door picks 2 of {carrot, sock, fence} and misses fence one time in three. New order at stage 4:
 
 1. the same first syllable (same letter and same vowel group),
 2. the same first letter,
 3. the same first vowel group,
 4. any door word.
 
-Example: the dog door gets crown and sheep; the camel door gets fence and one of carrot or bridge. Below stage 4 the
+Example: the dog door gets crown and sheep; the camel door gets fence and one of carrot or sock. Below stage 4 the
 keys stay random.
 
 ## Tasks
@@ -101,7 +101,7 @@ keys stay random.
 2. Add the ten words to `WORDS` (`words.ts`).
 3. `doorKeys`: the new order, with a test: at stage 4 a word with a first-syllable partner always gets one as a key.
 4. Check on the verify build: the shin and sin dots of the tails (נָחָשׁ, כֶּבֶשׂ) and the width of the plate for the
-   widest word (גֶשֶׁר).
+   widest word (חָצִיל).
 
 ## Cost (from the records)
 
