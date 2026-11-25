@@ -54,11 +54,12 @@
   a touch on an answer end it.
   Reason: two buttons with no clear meaning confuse the child. The walkthrough is the help that he needs there.
   Example (merchant): the parent did not know what the hint wand and the sound button did.
-- Use the play triangle for every go-on and next button. Point it in the direction of the motion that the child sees.
-  A path that goes right to left takes a triangle that points left; a scene where the wizard flies to the right takes a
-  triangle that points right. With no motion, follow the reading direction (right to left).
-  Example: the home screen's path runs right to left, so its play buttons point left; inside Hebrew Spell Quest the wizard flies to
-  the right, so its play and next buttons point right.
+- Use the play triangle for every go-on and next button. Always point it to the right, also on a right-to-left screen.
+  Show the direction of a path with the path, the trail and the sprites, not with the triangle.
+  Reason: the play triangle is a symbol that the child knows from video players, not an arrow. Video players in Hebrew
+  do not mirror it. A triangle that points left looks like "back" or "rewind".
+  Example: the home screen's Hebrew cards had play buttons that pointed left, because the path runs right to left. The
+  parent said that they felt unnatural (2026-11-25), and the child did not understand a left arrow as "go on".
 - Do not reuse a button for a new meaning. Example (merchant): the play triangle as "no thanks" looked like "start the deal".
 - Let the action itself be the answer. Do not add a button to confirm or to say yes.
   Example (merchant): a handshake "deal" button and a yes card were removed; giving coins is the yes, a tap on the potion

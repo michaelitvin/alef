@@ -1,6 +1,6 @@
 // The Space Cat card (spec: Space Cat, *Where it lives*; the approved mock), in the clock card's layout and built from the
 // game's own parts (Space Cat Math by Igor, Ray's dad; used by permission): the space background, his current ship,
-// three small planets with 3, 4, 7, and a silver-blue play button pointing left. Then what is learned, and the credit.
+// three small planets with 3, 4, 7, and a silver-blue play button pointing right. Then what is learned, and the credit.
 // The ship is read from the raw save (savedShip): creating Space Cat's store would write its save, and the home never does.
 import bg from '../../spacecat/assets/img/space-bg.png'
 import ship1 from '../../spacecat/assets/img/cat-ship-1.png'

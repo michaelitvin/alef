@@ -1,6 +1,6 @@
 // The clock card (spec: one duel, Part 4; the approved mock), in the same layout as the duel card and built from the
 // clock game's own art: the workshop behind, the cuckoo clock with a real face (10:10), the cuckoo on its roof, the happy
-// bear; three small clock faces (3:00, 3:30, 3:15) and a brass play button pointing left. Then what is learned.
+// bear; three small clock faces (3:00, 3:30, 3:15) and a brass play button pointing right. Then what is learned.
 import workshop from '../../clock/assets/img/workshop.webp'
 import cuckooCase from '../../clock/assets/img/case-cuckoo.webp'
 import cuckoo from '../../clock/assets/img/cuckoo-idle.webp'

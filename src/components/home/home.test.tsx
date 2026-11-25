@@ -14,15 +14,14 @@ const EMOJI = /\p{Extended_Pictographic}/u
 const KINDS: LevelKind[] = ['letters', 'nikkud', 'syllables', 'words', 'sentences', 'stories']
 
 describe('home parts (spec: one duel, Part 4)', () => {
-  it('the play button points left', () => {
+  it('the play button points right on every card', () => {
     for (const theme of ['spellquest', 'clock', 'spacecat'] as const) {
       const { container, unmount } = render(<PlayButton theme={theme} />)
       const d = container.querySelector('[data-tri]')!.getAttribute('d')!
       const xs = [...d.matchAll(/[ML]\s*(\d+)/g)].map((m) => Number(m[1]))
-      // the tip (the smallest x) is on the left; the base (two points with the same, larger x) on the right
-      expect(Math.min(...xs)).toBeLessThan(35)
-      expect(xs.filter((x) => x > 55).length).toBe(2)
-      if (theme === 'spellquest') expect(d.startsWith('M59')).toBe(true)
+      // the tip (the largest x) is on the right; the base (two points with the same, smaller x) on the left
+      expect(Math.max(...xs)).toBeGreaterThan(65)
+      expect(xs.filter((x) => x < 45).length).toBe(2)
       unmount()
     }
   })

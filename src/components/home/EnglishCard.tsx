@@ -37,7 +37,7 @@ export function EnglishCard() {
             </div>
           ))}
         </div>
-        <div className="home-pcol"><PlayButton theme="spellquest" dir="right" /></div>
+        <div className="home-pcol"><PlayButton theme="spellquest" /></div>
       </a>
       <p className="home-learn" data-learn="spellquest-en" data-parent-text dir="ltr"><b>What {girl ? 'she' : 'he'} learns:</b> {LEARN.replace('{his}', girl ? 'her' : 'his')}</p>
     </div>

@@ -1,5 +1,5 @@
 /* The home screen (spec: one duel, Part 4; values from the approved mock). Right to left throughout: pictures on the
-   right, play buttons on the left pointing left, the path starts on the right. */
+   right, play buttons on the left (pointing right: the play sign), the path starts on the right. */
 .home-reading, .home-clock-sec { direction: rtl; }
 
 /* the Spell Quest card */

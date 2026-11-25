@@ -1,7 +1,6 @@
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { EnglishCard, EnglishPath } from './EnglishCard'
-import { PlayButton } from './PlayButton'
 import { englishStationStates } from './englishStations'
 import { englishDoorsPlayable } from '../../spellquest/english/doorsPlayable'
 import { useEnglishStore } from '../../spellquest/english/store'
@@ -33,10 +32,6 @@ describe('the English card (English path design, Part 1)', () => {
     expect(container.querySelector('[data-learn="spellquest-en"]')!.hasAttribute('data-parent-text')).toBe(true)
   })
 
-  it('the Hebrew play button still points left', () => {
-    const { container } = render(<PlayButton theme="spellquest" />)
-    expect(container.querySelector('[data-tri]')!.getAttribute('d')).toBe('M59 31 L29 50 L59 69 Z')
-  })
 })
 
 describe('English Spell Quest', () => {
