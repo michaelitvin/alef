@@ -28,7 +28,7 @@ Each new word shares its first letter **and** its first vowel with at least one 
 | 3 | גֶרֶב | GE-rev | sock | גֶזֶר | gimel segol · resh segol + ב | 2 |
 | 4 | גָדֵר | ga-DER | fence | גָמָל | gimel kamatz · dalet tsere + ר | 2 |
 | 5 | חָלָב | cha-LAV | milk | חָתוּל, חָגָב | het kamatz · lamed kamatz + ב | 2 |
-| 6 | חָצִיל | cha-TZIL | eggplant | חָתוּל, חָלָב | het kamatz · tsadi chirik + יל | 2 |
+| 6 | חָזִיר | cha-ZIR | pig | חָתוּל, חָלָב | het kamatz · zayin chirik + יר | 2 |
 | 7 | נָחָשׁ | na-CHASH | snake | נָמֵר | nun kamatz · het kamatz + שׁ | 2 |
 | 8 | נָמֵר | na-MER | tiger | נָחָשׁ | nun kamatz · mem tsere + ר | 2 |
 | 9 | פָּרָה | pa-RA | cow | פָּנָס | pe kamatz · resh kamatz + ה | 2 |
@@ -51,8 +51,8 @@ concept p3 as the reference, one subject on flat magenta, no text, no dots). The
    (he called a goat "sheep": the sheep must not look like a goat).
 3. `pw-sock`: one colourful striped child's sock, side view, toe to the left. (Was גֶשֶׁר / bridge; replaced 2026-11-25 after the parent's second review: "Could be river, or arc".)
 4. `pw-fence`: a short piece of a wooden picket fence, 5 pointed boards and 2 rails, front view. No gate (no door).
-5. `pw-milk`: a clear glass full of white milk next to a closed milk carton, both upright, nothing pours (the pouring take "spills unnaturally", 2026-11-25).
-6. `pw-eggplant`: one glossy purple eggplant with its green cap. (Was חָגָב / grasshopper; replaced 2026-11-25: "any grasshopper can be a mantis, it confuses".)
+5. `pw-milk`: a small clear glass of white milk next to a closed blue milk carton with a cow on it, both upright, nothing pours (the pouring take "spills unnaturally"; v7: "put a cow on the carton, glass smaller", 2026-11-25).
+6. `pw-pig`: one pink cartoon pig, side view, round snout, curly tail. (Was חָגָב / grasshopper, then חָצִיל / eggplant; the parent dropped the eggplant on 2026-11-25 as innuendo.)
 7. `pw-snake`: a green cartoon snake in a loose coil, friendly face, forked tongue. No spots.
 8. `pw-tiger`: a cartoon tiger, full body, walking, side view, bold black stripes, large and strong. It must not look
    like the orange cat of `pw-cat` (sitting, front view).
@@ -61,7 +61,7 @@ concept p3 as the reference, one subject on flat magenta, no text, no dots). The
     dot (it looks like a vav with a mark), no rays as dashes.
 
 Review each picture without its word: what will the child call it? Risks to check: milk ("כּוֹס"), fence, tiger next to
-the cat, sheep ("כִּבְשָׂה"). Backup if one fails: חָצִיל and חָלָב cover each other in the חָ group.
+the cat, sheep ("כִּבְשָׂה"). Backup if one fails: חָזִיר and חָלָב cover each other in the חָ group.
 
 ## Voice
 
@@ -79,7 +79,7 @@ into `src/spellquest/assets/audio/voice/` (silence trimmed), the request into `a
 
 ## The keys with 21 words
 
-First-syllable groups: כֶּ {dog, crown, sheep}, חָ {cat, milk, eggplant}, גֶ {carrot, sock}, גָ {camel, fence},
+First-syllable groups: כֶּ {dog, crown, sheep}, חָ {cat, milk, pig}, גֶ {carrot, sock}, גָ {camel, fence},
 נָ {snake, tiger}, פָּ {cow, flashlight}. No partner: tent, ball, fox, cake, house, rose, book (7 words).
 First-letter groups: ג {camel, carrot, sock, fence}, כ {ball, dog, crown, sheep}.
 
@@ -101,7 +101,7 @@ keys stay random.
 2. Add the ten words to `WORDS` (`words.ts`).
 3. `doorKeys`: the new order, with a test: at stage 4 a word with a first-syllable partner always gets one as a key.
 4. Check on the verify build: the shin and sin dots of the tails (נָחָשׁ, כֶּבֶשׂ) and the width of the plate for the
-   widest word (חָצִיל).
+   widest word (גָדֵר or חָזִיר).
 
 ## Cost (from the records)
 

@@ -265,7 +265,7 @@ describe('doors at the last stage', () => {
   it('with the real words, every door word with a first-syllable partner gets one as a key', () => {
     const doors = WORDS.filter((w) => w.door)
     const sameSyl = (a: Word, b: Word) => a.id !== b.id && a.first.item === b.first.item && a.first.mark === b.first.mark
-    for (const id of ['dog', 'crown', 'sheep', 'cat', 'milk', 'eggplant', 'carrot', 'sock', 'camel', 'fence', 'snake', 'tiger', 'cow', 'flashlight']) {
+    for (const id of ['dog', 'crown', 'sheep', 'cat', 'milk', 'pig', 'carrot', 'sock', 'camel', 'fence', 'snake', 'tiger', 'cow', 'flashlight']) {
       const w = doors.find((x) => x.id === id)!
       for (let s = 1; s <= 20; s++) {
         const keys = doorKeys(ctx(4, s), w)

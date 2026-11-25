@@ -29,6 +29,9 @@
   Example (English Spell Quest): sled was removed.
 - Use only words whose first vowel sounds as written.
   Example (tower): תמנון has shva, but people say "ta". Do not use it.
+- Do not use a picture or a word that adults read as innuendo.
+  Reason: the parent sees every picture too, and a child-facing game must not make an adult smile for the wrong reason.
+  Example (Hebrew Spell Quest): the eggplant was dropped on 2026-11-25. Peach and banana also read as innuendo.
 - Give each sound several picture words. Take them from things that the child knows.
   Reason: the child must learn the sound, not one picture. Example (tower): words from the Alef-Bet song.
 - Link a letter or syllable only to a picture word that starts with that same letter, not only the same sound.

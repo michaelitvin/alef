@@ -333,10 +333,10 @@
   },
   {
    "name": "pw-milk",
-   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a tall clear glass completely full of white milk, standing upright, next to a plain white and light-blue milk carton with a gable top, also standing upright and closed; both upright and still, nothing pouring or spilling, no drops; no text or letters on the carton. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a simple cartoon white and light-blue milk carton with a gable top, standing upright and closed, with a small simple cartoon cow (white with a few black patches, a friendly face) drawn on the front of the blue carton; next to the carton stands a small clear glass of white milk, clearly much smaller than the carton, only about one third of its height; both upright and still, nothing pouring or spilling, no drops; no text or letters on the carton. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
    "model": "gemini-3-pro-image",
-   "post": "retake 2026-11-25: magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take d of 3 dry takes; the parent rejected the pouring take: \"It spills unnaturally\")"
+   "post": "retake 2026-11-25 (take v10 of v8-v10; the parent rejected v7: \"Put a cow on the carton and make the glass smaller in proportion\"): magenta keyed with proc.py + dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88"
   },
   {
    "name": "pw-grasshopper",
@@ -375,14 +375,22 @@
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: a side view of one colourful child's sock with bright horizontal stripes in red, yellow, blue and green, a rounded heel and toe, the toe pointing to the left, the sock slightly puffed as if worn, the open cuff at the right. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
    "model": "gemini-3-pro-image",
-   "post": "2026-11-25: magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take a of 3)"
+   "post": "2026-11-25: magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take v3 of 3; the parent chose v3 on review 2026-11-25, not v1)"
   },
   {
    "name": "pw-eggplant",
    "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one plump glossy dark purple eggplant seen from the side with a bright shine and a green calyx cap with pointed leaves and a short stem. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
    "reference": "the tower's style sheet B (host-local)",
    "model": "gemini-3-pro-image",
-   "post": "2026-11-25: magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take c of 3)"
+   "post": "2026-11-25: magenta keyed with dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take c of 3)",
+   "dropped": "2026-11-25: the parent dropped the word (\"Innuendo\"); replaced by pw-pig; the file is removed from src/"
+  },
+  {
+   "name": "pw-pig",
+   "prompt": "Single game icon drawn in EXACTLY the art style, line quality, shading, colors and glow of the reference image: one cute pink cartoon pig seen from the side, standing on four short legs, plump round body, a round snout with two nostrils, small floppy ears, a little curly tail, a friendly face with a big eye. Exactly ONE subject, centered, complete, simple and instantly recognizable by a 6-year-old, with empty margin around it, on a perfectly flat solid pure magenta background (#FF00FF): no gradient, no ground, no shadow, no scenery, no other objects. No text, no letters, no dots, no specks.",
+   "reference": "the tower's style sheet B (host-local)",
+   "model": "gemini-3-pro-image",
+   "post": "2026-11-25: magenta keyed with proc.py + dehalo.py, then every enclosed magenta pixel keyed out, cropped, 420 px high, WebP q88 (take v2 of 3)"
   }
  ]
 }
