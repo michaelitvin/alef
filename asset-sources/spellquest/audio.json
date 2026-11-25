@@ -8117,6 +8117,25 @@
     },
     "seed": 1
    },
+   "earlier_takes": null,
+   "dropped": "2026-11-25: the parent dropped the word (innuendo); replaced by w-pig; the file is removed from src/"
+  },
+  {
+   "id": "w-pig",
+   "kind": "tts",
+   "file": "src/spellquest/assets/audio/voice/w-pig.mp3",
+   "where": "Door corridor: said when the door opens; word link",
+   "caption": "חָזִיר",
+   "take": "clips/w-pig/v1.mp3",
+   "request": {
+    "text": "חָזִיר.",
+    "model_id": "eleven_v4",
+    "language_code": "he",
+    "voice_settings": {
+     "stability": 1
+    },
+    "seed": 1
+   },
    "earlier_takes": null
   }
  ]

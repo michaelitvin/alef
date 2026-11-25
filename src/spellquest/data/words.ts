@@ -42,7 +42,7 @@ export const WORDS: Word[] = [
   door('sock', 'גֶרֶב', [{ item: 'gimel', mark: 'segol' }, { item: 'resh', mark: 'segol', tail: 'ב' }], 'pw-sock', 2),
   door('fence', 'גָדֵר', [{ item: 'gimel', mark: 'kamatz' }, { item: 'dalet', mark: 'tsere', tail: 'ר' }], 'pw-fence', 2),
   door('milk', 'חָלָב', [{ item: 'het', mark: 'kamatz' }, { item: 'lamed', mark: 'kamatz', tail: 'ב' }], 'pw-milk', 2),
-  door('eggplant', 'חָצִיל', [{ item: 'het', mark: 'kamatz' }, { item: 'tsadi', mark: 'chirik', tail: 'יל' }], 'pw-eggplant', 2),
+  door('pig', 'חָזִיר', [{ item: 'het', mark: 'kamatz' }, { item: 'zayin', mark: 'chirik', tail: 'יר' }], 'pw-pig', 2),
   door('snake', 'נָחָשׁ', [{ item: 'nun', mark: 'kamatz' }, { item: 'het', mark: 'kamatz', tail: 'שׁ' }], 'pw-snake', 2),
   door('tiger', 'נָמֵר', [{ item: 'nun', mark: 'kamatz' }, { item: 'mem', mark: 'tsere', tail: 'ר' }], 'pw-tiger', 2),
   door('cow', 'פָּרָה', [{ item: 'pe', mark: 'kamatz' }, { item: 'resh', mark: 'kamatz', tail: 'ה' }], 'pw-cow', 2),
