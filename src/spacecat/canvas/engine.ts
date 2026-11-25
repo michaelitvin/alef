@@ -94,6 +94,8 @@ export interface Engine {
   onFirstParkedUnderRight?: () => void
   /** every touch or key (the controller ends a tip with it) */
   onTouch?: () => void
+  /** a touch or key while a round is on the screen but takes no input (an intro plays): the controller ends the intro */
+  onHeldTouch?: () => void
   destroy(): void
 }
 
@@ -513,6 +515,7 @@ export function createEngine(canvas: HTMLCanvasElement, hooks: { sfx: (name: Sfx
       return null
     },
     enabled: () => inputOn && phase === 'flight' && !!round && !round.done,
+    held: () => { if (phase === 'flight' && round && !round.done) engine.onHeldTouch?.() },
   }, onIntent)
 
   const engine: Engine = {

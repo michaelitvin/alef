@@ -64,6 +64,10 @@
   Explain again after the child makes the same mistake several times. Then go back to short feedback.
   Reason: feedback alone does not teach a new idea, and the same mistake again and again shows that he does not understand it.
   Example (clock): at the first quarter past, the minute hand moves a quarter of the circle and the slice fills.
+- Show an explanation of a new element a second time only when the child got the first round with it wrong. Do not
+  count showings: a right answer shows that he understands.
+  Example (Space Cat, the parent, 2026-11-25): each intro played on the first two rounds of its kind, also after a right
+  answer, and the child could not play while it ran.
 - Forgive a near miss one time.
 - After a mistake or an explanation, do not go on by yourself. The child needs as much time as he wants to think.
   After a mistake, mark the right answer (and the wrong one) and let the child do the right move himself: drag the marked
@@ -95,7 +99,9 @@
 - Let the child skip a hint or an explanation when he shows that he knows: he tries to pick. Keep the answers open
   while a hint plays. When he touches an answer (finger-down, before a drag or a tap ends) or puts the pen down to draw,
   remove the hint at once (its card, its glow, its pointing hand and its voice), and let the pick count. Keep the hint
-  counted. Let a tap anywhere on an explanation that covers the screen end it.
+  counted. Let a tap anywhere on an explanation that covers the screen end it. When an explanation stops the round
+  (the answers do not move or take touches), let any touch or key end it and start the round.
+  Example (Space Cat, the parent, 2026-11-25): an intro froze the planets for its whole line, and touches did nothing.
   Reason: the hint covers his own try or takes his attention from it, and an explanation gets him stuck when he
   already knows the answer.
 

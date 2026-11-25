@@ -35,6 +35,8 @@ export interface Actions {
   unlockShips: (level: number) => (2 | 3)[]
   chooseShip: (n: 1 | 2 | 3) => void
   markHeard: (id: string) => void
+  /** a line he needs no more (an intro whose first round he got right): counted as heard at least `times` */
+  markLearned: (id: string, times: number) => void
   /** an intro's typical mistake (audio/intros.ts), counted on the ladder's play day */
   noteIntroMistake: (id: string) => void
   /** an intro played again after its mistakes: at most once a play day */
@@ -124,6 +126,7 @@ export const spaceCatCreator: StateCreator<SpaceCatState> = (set, get) => ({
       },
       chooseShip: (n) => { if (get().ships.includes(n)) set({ ship: n }) },
       markHeard: (id) => set((s) => ({ heard: { ...s.heard, [id]: (s.heard[id] ?? 0) + 1 } })),
+      markLearned: (id, times) => set((s) => ({ heard: { ...s.heard, [id]: Math.max(s.heard[id] ?? 0, times) } })),
       noteIntroMistake: (id) => set((s) => {
         const i = introOfDay(s)
         return { intro: { ...i, mistakes: { ...i.mistakes, [id]: (i.mistakes[id] ?? 0) + 1 } } }

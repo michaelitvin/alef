@@ -20,6 +20,8 @@ export interface InputOpts {
   /** the lane of the planet at this logical point, or null */
   planetAt: (x: number, y: number) => number | null
   enabled: () => boolean
+  /** a touch or an arrow key while `enabled` is false (the controller ends an intro with it) */
+  held?: () => void
 }
 
 type PE = PointerEvent & { pointerId: number }
@@ -30,7 +32,8 @@ export function attachInput(el: HTMLElement, opts: InputOpts, on: (i: Intent) =>
 
   const onDown = (e: Event) => {
     const p = e as PE
-    if (!opts.enabled() || down) return
+    if (down) return
+    if (!opts.enabled()) { opts.held?.(); return }
     on({ type: 'touch' })
     const q = opts.toLogical(p.clientX, p.clientY)
     const lane = opts.planetAt(q.x, q.y)
@@ -64,7 +67,7 @@ export function attachInput(el: HTMLElement, opts: InputOpts, on: (i: Intent) =>
   }
   const onKey = (e: KeyboardEvent) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp') return
-    if (!opts.enabled()) return
+    if (!opts.enabled()) { if (!e.repeat) opts.held?.(); return }
     e.preventDefault()
     if (e.repeat) return
     on(e.key === 'ArrowUp' ? { type: 'keyZoom' } : { type: 'key', dir: e.key === 'ArrowLeft' ? -1 : 1 })
