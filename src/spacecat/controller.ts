@@ -67,6 +67,8 @@ type Say =
   | { line: IntroId; first: boolean; again: boolean; silent: boolean }
 
 interface Current { item: Item; content: RoundContent; demo: boolean; say?: Say; part: Part }
+/** a touch during an intro: `skipped` from then on, and `wake` ends the intro's wait */
+interface Skip { skipped: boolean; wake: () => void }
 
 export class PlayController {
   private o: PlayOpts
@@ -87,8 +89,8 @@ export class PlayController {
   private dead = false
   /** the silent intros played in this run (a line with no take plays its glows at most INTRO_TIMES a run) */
   private silentPlays: Partial<Record<IntroId, number>> = {}
-  /** ends the intro that plays now (he touched); null when none plays */
-  private introSkip: (() => void) | null = null
+  /** the skip of this round's intro (he touched); null when no intro is on the screen */
+  private introSkip: Skip | null = null
 
   constructor(o: PlayOpts) {
     this.o = o
@@ -269,6 +271,9 @@ export class PlayController {
     this.o.engine.setInput(false)
     const say = cur.say
     this.set({ phase: cur.demo ? 'demo' : say?.line === 'missing' ? 'missing' : say ? 'intro' : 'flight' })
+    // a touch from now on (also while a jump row hops in) ends the intro; a pause and its restart give a new one
+    const skip: Skip | null = !cur.demo && say && say.line !== 'missing' ? { skipped: false, wake: () => {} } : null
+    this.introSkip = skip
     await this.o.audio.quiet()
     if (!live()) return
     // the numbers of a jump row hop in on the engine's own clock while the planets stand still
@@ -277,7 +282,8 @@ export class PlayController {
       if (!live()) return
     }
     if (!cur.demo && say && say.line !== 'missing') {
-      const heard = await this.intro(say.line, say.silent, live)
+      const heard = await this.intro(say.line, say.silent, live, skip!)
+      if (this.introSkip === skip) this.introSkip = null
       if (!live()) return
       if (heard && say.first) this.o.save.markHeard(say.line)
       if (heard && say.again) this.o.save.markIntroAgain(say.line)
@@ -314,37 +320,52 @@ export class PlayController {
    * with no take: the glows alone, from now, and false (nothing is counted). A touch ends it at once (true; a silent
    * one: false).
    */
-  private async intro(id: IntroId, silent: boolean, live: () => boolean): Promise<boolean> {
+  private async intro(id: IntroId, silent: boolean, live: () => boolean, skip: Skip): Promise<boolean> {
     if (!live()) return false
     // a touch ends the intro at once (rule: he shows that he knows): its voice and glows stop, it counts as heard
-    let skipped = false
-    const skip = new Promise<void>((r) => { this.introSkip = () => { skipped = true; r() } })
-    const timeline = { end: null as (() => void) | null, at: 0 }
+    const skipped = new Promise<boolean>((r) => { skip.wake = () => r(!silent) })
+    const timeline = { end: null as ((rest?: boolean) => void) | null, at: 0 }
     const played = (async () => {
       if (silent) {
         timeline.end = this.cueTimeline(id, live)
         await this.o.sleeper.sleep(INTRO_LINE_MS[id])
         return false
       }
-      const heard = await this.o.audio.say(id, { onStart: () => { if (skipped) return; timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) } })
-      if (live() && !skipped) {
+      const heard = await this.o.audio.say(id, { onStart: () => { if (skip.skipped) return; timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) } })
+      if (live() && !skip.skipped) {
         if (!timeline.end) { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) }
         const left = timeline.at + INTRO_LINE_MS[id] - this.o.sleeper.now()
         if (left > 0) await this.o.sleeper.sleep(left)
       }
       return heard
     })()
-    const heard = await Promise.race([played, skip.then(() => !silent)])
-    this.introSkip = null
-    if (skipped) this.o.audio.stopVoice()
-    timeline.end?.()
+    const heard = skip.skipped ? !silent : await Promise.race([played, skipped])
+    if (skip.skipped) {
+      this.o.audio.stopVoice()
+      // the pods of a times or divide round still come (without their glow): the round needs them
+      if (timeline.end) timeline.end(true)
+      else if (live()) this.showPodCues(id)
+    } else timeline.end?.()
     return heard
   }
 
-  /** runs an intro's cues from now: each glows until the next one; the returned function ends the last (and the rest) */
-  private cueTimeline(id: IntroId, live: () => boolean): () => void {
+  /** the pod cues of an intro (times, divide), on and off at once: the pods show, nothing glows */
+  private showPodCues(id: IntroId, from = 0) {
+    for (const c of INTRO_CUES[id].slice(from)) {
+      if (c.cue !== 'pods' && c.cue !== 'share') continue
+      this.o.engine.cue(c.cue, true)
+      this.o.engine.cue(c.cue, false)
+    }
+  }
+
+  /**
+   * runs an intro's cues from now: each glows until the next one; the returned function ends the last (and the rest).
+   * `rest`: the pod cues not reached yet still show their pods (a skipped intro).
+   */
+  private cueTimeline(id: IntroId, live: () => boolean): (rest?: boolean) => void {
     let on: Cue | null = null
     let done = false
+    let next = 0
     const off = () => {
       if (on && live()) this.o.engine.cue(on, false)
       on = null
@@ -359,11 +380,14 @@ export class PlayController {
         off()
         this.o.engine.cue(c.cue, true)
         on = c.cue
+        next++
       }
     })()
-    return () => {
+    return (rest) => {
+      if (done) return
       done = true
       off()
+      if (rest && live()) this.showPodCues(id, next)
     }
   }
 
@@ -398,7 +422,11 @@ export class PlayController {
    */
   private touched() {
     if (this.view.paused) return
-    if (this.view.phase === 'intro') return void this.introSkip?.()
+    if (this.view.phase === 'intro') {
+      const skip = this.introSkip
+      if (skip && !skip.skipped) { skip.skipped = true; skip.wake() }
+      return
+    }
     if (this.view.phase !== 'tip') return
     this.o.audio.stopVoice()
     this.endTip(true)
@@ -422,7 +450,8 @@ export class PlayController {
     this.trackLadder(events)
     if (cur.demo) this.o.save.markHeard('demo')
     // a first intro whose round he got right: it does not come again (only after its mistakes, below)
-    else if (r.result === 'right' && cur.say && cur.say.line !== 'missing' && cur.say.first) this.o.save.markLearned(cur.say.line, INTRO_TIMES)
+    // (a silent intro, with no take yet, counts nothing: when its take ships, he hears it)
+    else if (r.result === 'right' && cur.say && cur.say.line !== 'missing' && cur.say.first && !cur.say.silent) this.o.save.markLearned(cur.say.line, INTRO_TIMES)
     else if (r.result === 'wrong') {
       const mistake = introMistake(cur.item, r.number)
       if (mistake) this.o.save.noteIntroMistake(mistake)

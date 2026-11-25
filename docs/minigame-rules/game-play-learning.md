@@ -100,7 +100,7 @@
   while a hint plays. When he touches an answer (finger-down, before a drag or a tap ends) or puts the pen down to draw,
   remove the hint at once (its card, its glow, its pointing hand and its voice), and let the pick count. Keep the hint
   counted. Let a tap anywhere on an explanation that covers the screen end it. When an explanation stops the round
-  (the answers do not move or take touches), let any touch or key end it and start the round.
+  (the answers do not move or take touches), let any touch, or a key that the game uses, end it and start the round.
   Example (Space Cat, the parent, 2026-11-25): an intro froze the planets for its whole line, and touches did nothing.
   Reason: the hint covers his own try or takes his attention from it, and an explanation gets him stuck when he
   already knows the answer.

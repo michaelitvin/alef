@@ -614,6 +614,54 @@ describe('the play controller', () => {
     fake.holdUntil(null)
   })
 
+  it('a touch on a times intro before its pods cue still shows the pods (no glow)', async () => {
+    const t = setup(practiceAt('T2'))
+    fake.holdUntil(/^times-/)
+    t.ctl.start()
+    await drive(t, () => ({ result: 'right', underMs: 7000 }), () => t.ctl.getView().phase === 'intro', 60)
+    const from = t.engine.calls.lastIndexOf('play')
+    t.engine.onHeldTouch!()
+    await playing(t.engine)
+    const after = t.engine.calls.slice(from)
+    expect(after).toContain('cue pods true')
+    expect(after.lastIndexOf('cue pods false')).toBeGreaterThan(after.lastIndexOf('cue pods true'))
+    expect(after.indexOf('cue pods true')).toBeLessThan(after.indexOf('resume'))
+    fake.holdUntil(null)
+  })
+
+  it('after a pause and its restart, a touch still ends the intro', async () => {
+    const t = setup(practiceAt('C1'))
+    fake.holdUntil(/^compare-/)
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'compare', 60)
+    await settle(20)
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.ctl.pause()
+    await settle(5)
+    t.ctl.resume()
+    await settle(20)
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.engine.onHeldTouch!()
+    await playing(t.engine)
+    expect(t.ctl.getView().phase).toBe('flight')
+    fake.holdUntil(null)
+  })
+
+  it('a touch while a jump row hops in, before its intro, skips the intro', async () => {
+    const t = setup(practiceAt('S1'))
+    t.engine.holdBox = true
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'jumps', 60)
+    if (t.engine.content?.kind !== 'jumps') throw new Error('no jump round')
+    await settle()
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.engine.onHeldTouch!()
+    t.engine.boxDone!()
+    await playing(t.engine)
+    expect(fake.said().filter((x) => x.startsWith('jumps-'))).toEqual([])
+    expect(t.port.get().heard.jumps).toBe(1)
+  })
+
   it('a touch outside an intro does not end anything or start the round early', async () => {
     const t = setup(practiceAt('C1'))
     t.ctl.start()
@@ -662,38 +710,24 @@ describe('the play controller', () => {
     expect(after.indexOf('cue equal true')).toBeLessThan(resume)
   })
 
-  it('a silent intro still cues its glows, counts nothing until a right answer and plays at most twice a run', async () => {
+  it('a silent intro still cues its glows, counts nothing (also after a right answer) and plays at most twice a run', async () => {
     fake.missing = (id) => id === 'compare-1'
     const t = setup(practiceAt('C1'))
     const cueRuns = () => t.engine.calls.filter((c) => c === 'cue signs true').length
-    const compares = () => rounds(t.events).filter((r) => r.kind === 'compare').length
-    // every comparison round goes wrong (no mirrored pick), so the intro never counts as learned
-    const wrongCompare = (c: RoundContent): Answer => (c.kind === 'compare' ? { result: 'timeout' } : right)
     t.ctl.start()
-    await drive(t, wrongCompare, () => compares() >= 1)
-    expect(t.port.get().heard.compare ?? 0).toBe(0)
-    await drive(t, (c) => (c.kind === 'compare' && compares() === 1 ? { result: 'timeout' } : right), () => compares() >= 4)
+    await drive(t, () => right, () => rounds(t.events).filter((r) => r.kind === 'compare').length >= 4)
     expect(cueRuns()).toBe(INTRO_TIMES)
     const first = t.engine.calls.indexOf('cue signs true')
     expect(t.engine.calls.slice(first, first + 8)).toEqual([
       'cue signs true', 'cue signs false', 'cue open true', 'cue open false', 'cue bigger true', 'cue bigger false', 'cue equal true', 'cue equal false',
     ])
     expect(fake.said()).not.toContain('compare-1')
-    // the third comparison round was right, but it had no intro: the intro is still not learned
     expect(t.port.get().heard.compare ?? 0).toBe(0)
     // a new run: the glows again, twice
     t.ctl.leave()
     t.ctl.start()
-    const c0 = compares()
-    await drive(t, wrongCompare, () => compares() >= c0 + 1)
-    await drive(t, () => right, () => compares() >= c0 + 4)
-    expect(cueRuns()).toBe(2 * INTRO_TIMES)
-    // its second round of this run was right: learned, no glows in the next run
-    expect(t.port.get().heard.compare).toBe(INTRO_TIMES)
-    t.ctl.leave()
-    t.ctl.start()
-    const c1 = compares()
-    await drive(t, () => right, () => compares() >= c1 + 3)
+    const c0 = rounds(t.events).filter((r) => r.kind === 'compare').length
+    await drive(t, () => right, () => rounds(t.events).filter((r) => r.kind === 'compare').length >= c0 + 4)
     expect(cueRuns()).toBe(2 * INTRO_TIMES)
   })
 
