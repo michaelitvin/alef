@@ -69,7 +69,7 @@ html, body, #root { margin: 0; height: 100%; }
   .ck-workshop { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 132px; padding-top: calc(56px + env(safe-area-inset-top)); }
   /* not clipped: the happy customer jumps up out of the strip, over the bench edge (the playtest: "when the animal at the
      bottom jumps with joy, her head gets cut"); the whole screen still clips at its edges */
-  /* the customer stands at the left, under the bench, and faces left like every animal (facing.ts) */
+  /* the customer stands at the left, under the bench, and looks up-right at it (facing.ts benchSide) */
   .ck-side-door { flex-direction: row; justify-content: flex-start; align-items: flex-end; gap: 2.5rem; padding: 0 0 6px 10%; overflow: visible; position: relative; z-index: 2; pointer-events: none; }
   .ck-side-door .ck-customer { height: 120px; width: auto; max-width: none; }
   .ck-side-door .ck-customer img, .ck-side-door .ck-customer svg { height: 100%; max-height: none; width: auto; }

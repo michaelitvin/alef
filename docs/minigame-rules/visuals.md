@@ -58,10 +58,6 @@
   Example (Hebrew Spell Quest): a fly-through-the-door zoom was "extremely ugly"; the camera now moves into the doorway's light, and
   the next door comes out of that light.
 - Make each moving sprite face the direction it moves. Judge by motion cues (tail, stride), not only the face.
-- Make every animal that does not move face left, unless the parent asks for another side. Do not mirror a standing
-  animal to make it look at something on the screen.
-  Example (clock, the parent, 2026-11-24): the customers were mirrored in portrait to look right, up at the bench: "All
-  animals are facing left unless otherwise said".
 - Show each character only one time on a screen. Use opaque covers for start and pause screens.
   Example (tower): the wizard showed two times, on the tower and in the middle.
 - Make the player sprite small enough for the action.
