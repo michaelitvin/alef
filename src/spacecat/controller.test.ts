@@ -54,6 +54,7 @@ function fakeEngine() {
     onEnd: (_r: RoundResult) => {},
     onFirstParkedUnderRight: undefined as undefined | (() => void),
     onTouch: undefined as undefined | (() => void),
+    onHeldTouch: undefined as undefined | (() => void),
     destroy() { calls.push('destroy') },
   }
   return e
@@ -545,14 +546,14 @@ describe('the play controller', () => {
     expect(c.events[0]).toEqual(['run-start', { ship: 1, rung: '12', frontier: '4', playDay: true }])
   })
 
-  it('the compare intro plays twice, then again after 3 mirrored picks in a play day, once', async () => {
+  it('the compare intro plays once when its first round is right, then again after 3 mirrored picks in a play day, once', async () => {
     const t = setup(practiceAt('C1'))
     const intros = () => fake.said().filter((x) => x === 'compare-1').length
     const compares = () => rounds(t.events).filter((r) => r.kind === 'compare').length
     t.ctl.start()
-    // the first two comparison rounds say it; the third does not
+    // the first comparison round says it and he gets it right: the next ones do not (the parent, 2026-11-25)
     await drive(t, () => right, () => compares() >= 3)
-    expect(intros()).toBe(INTRO_TIMES)
+    expect(intros()).toBe(1)
     expect(t.port.get().heard.compare).toBe(INTRO_TIMES)
     // 3 mirrored picks: the next comparison round says it again
     let mirrored = 0
@@ -566,14 +567,107 @@ describe('the play controller', () => {
     expect(t.port.get().intro.mistakes.compare).toBe(3)
     const before = compares()
     await drive(t, () => right, () => compares() > before)
-    expect(intros()).toBe(INTRO_TIMES + 1)
+    expect(intros()).toBe(2)
     expect(t.port.get().intro.again).toEqual(['compare'])
     // 3 more on the same play day: not again
     mirrored = 0
     await drive(t, mirror, () => mirrored >= 3)
     const after = compares()
     await drive(t, () => right, () => compares() > after + 1)
-    expect(intros()).toBe(INTRO_TIMES + 1)
+    expect(intros()).toBe(2)
+  })
+
+  it('the compare intro plays a second time only after a wrong first round', async () => {
+    const t = setup(practiceAt('C1'))
+    const intros = () => fake.said().filter((x) => x === 'compare-1').length
+    const compares = () => rounds(t.events).filter((r) => r.kind === 'compare').length
+    t.ctl.start()
+    // the first comparison round goes wrong (no mirrored pick: no intro mistake), the rest right
+    await drive(t, (c) => (c.kind === 'compare' && compares() === 0 ? { result: 'timeout' } : right), () => compares() >= 4)
+    expect(intros()).toBe(INTRO_TIMES)
+    expect(t.port.get().heard.compare).toBe(INTRO_TIMES)
+  })
+
+  it('a touch during an intro ends it at once: the voice and glows stop, the round starts, it counts as heard', async () => {
+    const t = setup(practiceAt('C1'))
+    fake.holdUntil(/^compare-/)
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'compare', 60)
+    await settle(20)
+    expect(t.ctl.getView().phase).toBe('intro')
+    expect(t.engine.input).toBe(false)
+    const from = t.engine.calls.lastIndexOf('play')
+    t.engine.onHeldTouch!()
+    await playing(t.engine)
+    expect(t.ctl.getView().phase).toBe('flight')
+    expect(t.port.get().heard.compare).toBe(1)
+    // every glow that came on is off again, and none comes on after the round started
+    const after = t.engine.calls.slice(from)
+    const resume = after.indexOf('resume')
+    for (const c of ['signs', 'open', 'bigger', 'equal']) {
+      const on = after.lastIndexOf(`cue ${c} true`)
+      if (on >= 0) expect(after.lastIndexOf(`cue ${c} false`)).toBeGreaterThan(on)
+      expect(after.indexOf(`cue ${c} true`, resume)).toBe(-1)
+    }
+    await settle(20)
+    expect(t.engine.calls.slice(from + resume).filter((c) => c.endsWith(' true') && c.startsWith('cue'))).toEqual([])
+    fake.holdUntil(null)
+  })
+
+  it('a touch on a times intro before its pods cue still shows the pods (no glow)', async () => {
+    const t = setup(practiceAt('T2'))
+    fake.holdUntil(/^times-/)
+    t.ctl.start()
+    await drive(t, () => ({ result: 'right', underMs: 7000 }), () => t.ctl.getView().phase === 'intro', 60)
+    const from = t.engine.calls.lastIndexOf('play')
+    t.engine.onHeldTouch!()
+    await playing(t.engine)
+    const after = t.engine.calls.slice(from)
+    expect(after).toContain('cue pods true')
+    expect(after.lastIndexOf('cue pods false')).toBeGreaterThan(after.lastIndexOf('cue pods true'))
+    expect(after.indexOf('cue pods true')).toBeLessThan(after.indexOf('resume'))
+    fake.holdUntil(null)
+  })
+
+  it('after a pause and its restart, a touch still ends the intro', async () => {
+    const t = setup(practiceAt('C1'))
+    fake.holdUntil(/^compare-/)
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'compare', 60)
+    await settle(20)
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.ctl.pause()
+    await settle(5)
+    t.ctl.resume()
+    await settle(20)
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.engine.onHeldTouch!()
+    await playing(t.engine)
+    expect(t.ctl.getView().phase).toBe('flight')
+    fake.holdUntil(null)
+  })
+
+  it('a touch while a jump row hops in, before its intro, skips the intro', async () => {
+    const t = setup(practiceAt('S1'))
+    t.engine.holdBox = true
+    t.ctl.start()
+    await drive(t, () => right, () => t.engine.content?.kind === 'jumps', 60)
+    if (t.engine.content?.kind !== 'jumps') throw new Error('no jump round')
+    await settle()
+    expect(t.ctl.getView().phase).toBe('intro')
+    t.engine.onHeldTouch!()
+    t.engine.boxDone!()
+    await playing(t.engine)
+    expect(fake.said().filter((x) => x.startsWith('jumps-'))).toEqual([])
+    expect(t.port.get().heard.jumps).toBe(1)
+  })
+
+  it('a touch outside an intro does not end anything or start the round early', async () => {
+    const t = setup(practiceAt('C1'))
+    t.ctl.start()
+    await playing(t.engine)
+    t.engine.onHeldTouch!()
+    expect(t.ctl.getView().phase).toBe('flight')
   })
 
   it('an intro plays before the planets move: the round stays still until the line and all its cues are done (a fixed 4 s)', async () => {
@@ -616,7 +710,7 @@ describe('the play controller', () => {
     expect(after.indexOf('cue equal true')).toBeLessThan(resume)
   })
 
-  it('a silent intro still cues its glows, counts nothing and plays at most twice a run', async () => {
+  it('a silent intro still cues its glows, counts nothing (also after a right answer) and plays at most twice a run', async () => {
     fake.missing = (id) => id === 'compare-1'
     const t = setup(practiceAt('C1'))
     const cueRuns = () => t.engine.calls.filter((c) => c === 'cue signs true').length
@@ -651,12 +745,11 @@ describe('the play controller', () => {
     t.ctl.start()
     await drive(t, () => ({ result: 'right', underMs: 7000 }), () => t.engine.plays.filter((c) => c.rung === 'T2').length > 4)
     const t2 = t.engine.plays.flatMap((c, i) => (c.rung === 'T2' ? [t.engine.pods[i]] : []))
-    // the first two: the intro (on the cue); the next two: the first T2_POD_ROUNDS tallied are over
-    expect(t2.slice(0, INTRO_TIMES)).toEqual(['cue', 'cue'])
-    expect(fake.said().filter((x) => x === 'times-1')).toHaveLength(INTRO_TIMES)
-    // the intro's two rounds are T2's first T2_POD_ROUNDS tallied ones: after them, pods only in a mistake's mark
-    expect(T2_POD_ROUNDS).toBe(INTRO_TIMES)
-    expect(t2[INTRO_TIMES]).toBe('mistake')
+    // the first: the intro (on the cue; right, so it does not come again); then from the start until T2's first
+    // T2_POD_ROUNDS tallied rounds are over; after them, pods only in a mistake's mark
+    expect(t2.slice(0, T2_POD_ROUNDS)).toEqual(['cue', ...Array(T2_POD_ROUNDS - 1).fill('start')])
+    expect(fake.said().filter((x) => x === 'times-1')).toHaveLength(1)
+    expect(t2[T2_POD_ROUNDS]).toBe('mistake')
   })
 
   it('a times or divide intro round is a fact whose groups fit (at most 36 dots), of the same rung', async () => {
@@ -664,7 +757,9 @@ describe('the play controller', () => {
       for (let seed = 1; seed <= 12; seed++) {
         const t = setup(practiceAt(at), seed * 7919)
         t.ctl.start()
-        await drive(t, () => ({ result: 'right', underMs: 7000 }), () => t.engine.pods.filter((p) => p === 'cue').length >= INTRO_TIMES, 40)
+        // a wrong intro round brings the intro again: both of its rounds are checked
+        const cue = () => t.engine.pods[t.engine.pods.length - 1] === 'cue'
+        await drive(t, () => (cue() ? { result: 'timeout' } : { result: 'right', underMs: 7000 }), () => t.engine.pods.filter((p) => p === 'cue').length >= INTRO_TIMES, 40)
         const intro = t.engine.plays.filter((_, i) => t.engine.pods[i] === 'cue')
         expect(intro.length, `${at} seed ${seed}: ${t.engine.plays.map((c) => c.itemId).join(' ')}`).toBe(INTRO_TIMES)
         for (const c of intro) {

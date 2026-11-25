@@ -359,6 +359,11 @@ girls. No "!". Drafts for the parent's review on the review kit.
 | `times` | the first two `×` rounds, with the pods; again after 3 picks of the sum (he added) in a play day | כָּפוּל זֶה קְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכֻלָּן יַחַד? | 0.5, warmly |
 | `divide` | the first two `÷` rounds, while the dots fall into the pods; again after 3 picks of the divisor or the difference in a play day | חִלּוּק זֶה לְחַלֵּק לִקְבוּצוֹת שָׁווֹת. כַּמָּה יֵשׁ בְּכָל קְבוּצָה? | 0.5, warmly |
 
+- **Change (the parent, 2026-11-25):** "the first two" rounds of an intro is now: the first round, and the second only
+  when he got the first one wrong. A right answer on an intro's first round counts as both. The "again after 3 mistakes
+  in a play day" rule stays. A touch or an arrow key during an intro (also while a jump row hops in before it) ends it
+  at once: its voice and glows stop, the pods of a times or divide round still show, it counts as heard, and the round
+  starts. A silent intro (no take yet) still counts nothing, also after a right answer.
 - **Sequences** (rule: write out each sequence and read it aloud): *compare*: the arrival sound, the box with `7 ◯ 5` and
   the three sign planets, then the line; the planets move while it plays. *jumps*: the arrival sound, the numbers hop in
   one by one, the ring appears, then the line. *times*: the arrival sound, the box `3 × 4 = ◯`, the pods appear on

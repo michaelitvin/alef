@@ -16,6 +16,7 @@ let now = 0
 let el: HTMLElement
 let got: Intent[]
 let enabled = true
+let held = 0
 let detach: () => void
 
 describe('input', () => {
@@ -27,9 +28,10 @@ describe('input', () => {
     document.body.appendChild(el)
     got = []
     enabled = true
+    held = 0
     detach = attachInput(el, {
       toLogical: (cx, cy) => ({ x: cx * 2, y: cy * 2 }), height: () => H,
-      planetAt: (x, y) => (y < 200 ? Math.floor(x / 400) : null), enabled: () => enabled,
+      planetAt: (x, y) => (y < 200 ? Math.floor(x / 400) : null), enabled: () => enabled, held: () => { held++ },
     }, (i) => got.push(i))
   })
   afterEach(() => {
@@ -98,6 +100,20 @@ describe('input', () => {
     pointer(el, 'pointerup', 100, 500)
     key('ArrowLeft')
     expect(got).toEqual([])
+  })
+  it('a touch or an arrow key while disabled is reported as held, once each (a held key does not repeat it)', () => {
+    enabled = false
+    pointer(el, 'pointerdown', 100, 800)
+    pointer(el, 'pointermove', 100, 500)
+    pointer(el, 'pointerup', 100, 500)
+    key('ArrowLeft')
+    key('ArrowLeft', true)
+    key('a')
+    expect(got).toEqual([])
+    expect(held).toBe(2)
+    enabled = true
+    pointer(el, 'pointerdown', 100, 800)
+    expect(held).toBe(2)
   })
   it('a second finger during a drag is ignored', () => {
     pointer(el, 'pointerdown', 100, 800, 1)

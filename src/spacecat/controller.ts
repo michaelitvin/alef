@@ -67,6 +67,8 @@ type Say =
   | { line: IntroId; first: boolean; again: boolean; silent: boolean }
 
 interface Current { item: Item; content: RoundContent; demo: boolean; say?: Say; part: Part }
+/** a touch during an intro: `skipped` from then on, and `wake` ends the intro's wait */
+interface Skip { skipped: boolean; wake: () => void }
 
 export class PlayController {
   private o: PlayOpts
@@ -87,12 +89,15 @@ export class PlayController {
   private dead = false
   /** the silent intros played in this run (a line with no take plays its glows at most INTRO_TIMES a run) */
   private silentPlays: Partial<Record<IntroId, number>> = {}
+  /** the skip of this round's intro (he touched); null when no intro is on the screen */
+  private introSkip: Skip | null = null
 
   constructor(o: PlayOpts) {
     this.o = o
     o.engine.onEnd = (r) => this.roundEnded(r)
     o.engine.onFirstParkedUnderRight = () => { void this.zoomTip() }
     o.engine.onTouch = () => this.touched()
+    o.engine.onHeldTouch = () => this.touched()
   }
 
   getView = (): PlayView => this.view
@@ -222,7 +227,8 @@ export class PlayController {
 
   /**
    * The line this round says. A jump row with its ring not last: the missing-number line, its first MISSING_TIMES (its
-   * own count). A round of a new kind: its intro, the first INTRO_TIMES heard, or again after AGAIN_AFTER of its mistake
+   * own count). A round of a new kind: its intro, the first INTRO_TIMES heard (a right answer on its first round counts
+   * as all of them: the parent, 2026-11-25), or again after AGAIN_AFTER of its mistake
    * on this play day (once a day); a silent intro at most INTRO_TIMES a run. A sum with its ring not at the end: the
    * missing-number line, its first MISSING_TIMES.
    */
@@ -265,6 +271,9 @@ export class PlayController {
     this.o.engine.setInput(false)
     const say = cur.say
     this.set({ phase: cur.demo ? 'demo' : say?.line === 'missing' ? 'missing' : say ? 'intro' : 'flight' })
+    // a touch from now on (also while a jump row hops in) ends the intro; a pause and its restart give a new one
+    const skip: Skip | null = !cur.demo && say && say.line !== 'missing' ? { skipped: false, wake: () => {} } : null
+    this.introSkip = skip
     await this.o.audio.quiet()
     if (!live()) return
     // the numbers of a jump row hop in on the engine's own clock while the planets stand still
@@ -273,7 +282,8 @@ export class PlayController {
       if (!live()) return
     }
     if (!cur.demo && say && say.line !== 'missing') {
-      const heard = await this.intro(say.line, say.silent, live)
+      const heard = await this.intro(say.line, say.silent, live, skip!)
+      if (this.introSkip === skip) this.introSkip = null
       if (!live()) return
       if (heard && say.first) this.o.save.markHeard(say.line)
       if (heard && say.again) this.o.save.markIntroAgain(say.line)
@@ -307,31 +317,55 @@ export class PlayController {
   /**
    * An intro line with its glows, timed from the line's start (INTRO_CUES); true when it was heard. The glows always run
    * the take's whole timeline: a line that ends early (or never starts) waits out the rest, so every cue shows. A line
-   * with no take: the glows alone, from now, and false (nothing is counted).
+   * with no take: the glows alone, from now, and false (nothing is counted). A touch ends it at once (true; a silent
+   * one: false).
    */
-  private async intro(id: IntroId, silent: boolean, live: () => boolean): Promise<boolean> {
+  private async intro(id: IntroId, silent: boolean, live: () => boolean, skip: Skip): Promise<boolean> {
     if (!live()) return false
-    if (silent) {
-      const end = this.cueTimeline(id, live)
-      await this.o.sleeper.sleep(INTRO_LINE_MS[id])
-      end()
-      return false
-    }
-    const timeline = { end: null as (() => void) | null, at: 0 }
-    const heard = await this.o.audio.say(id, { onStart: () => { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) } })
-    if (live()) {
-      if (!timeline.end) { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) }
-      const left = timeline.at + INTRO_LINE_MS[id] - this.o.sleeper.now()
-      if (left > 0) await this.o.sleeper.sleep(left)
-    }
-    timeline.end?.()
+    // a touch ends the intro at once (rule: he shows that he knows): its voice and glows stop, it counts as heard
+    const skipped = new Promise<boolean>((r) => { skip.wake = () => r(!silent) })
+    const timeline = { end: null as ((rest?: boolean) => void) | null, at: 0 }
+    const played = (async () => {
+      if (silent) {
+        timeline.end = this.cueTimeline(id, live)
+        await this.o.sleeper.sleep(INTRO_LINE_MS[id])
+        return false
+      }
+      const heard = await this.o.audio.say(id, { onStart: () => { if (skip.skipped) return; timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) } })
+      if (live() && !skip.skipped) {
+        if (!timeline.end) { timeline.at = this.o.sleeper.now(); timeline.end = this.cueTimeline(id, live) }
+        const left = timeline.at + INTRO_LINE_MS[id] - this.o.sleeper.now()
+        if (left > 0) await this.o.sleeper.sleep(left)
+      }
+      return heard
+    })()
+    const heard = skip.skipped ? !silent : await Promise.race([played, skipped])
+    if (skip.skipped) {
+      this.o.audio.stopVoice()
+      // the pods of a times or divide round still come (without their glow): the round needs them
+      if (timeline.end) timeline.end(true)
+      else if (live()) this.showPodCues(id)
+    } else timeline.end?.()
     return heard
   }
 
-  /** runs an intro's cues from now: each glows until the next one; the returned function ends the last (and the rest) */
-  private cueTimeline(id: IntroId, live: () => boolean): () => void {
+  /** the pod cues of an intro (times, divide), on and off at once: the pods show, nothing glows */
+  private showPodCues(id: IntroId, from = 0) {
+    for (const c of INTRO_CUES[id].slice(from)) {
+      if (c.cue !== 'pods' && c.cue !== 'share') continue
+      this.o.engine.cue(c.cue, true)
+      this.o.engine.cue(c.cue, false)
+    }
+  }
+
+  /**
+   * runs an intro's cues from now: each glows until the next one; the returned function ends the last (and the rest).
+   * `rest`: the pod cues not reached yet still show their pods (a skipped intro).
+   */
+  private cueTimeline(id: IntroId, live: () => boolean): (rest?: boolean) => void {
     let on: Cue | null = null
     let done = false
+    let next = 0
     const off = () => {
       if (on && live()) this.o.engine.cue(on, false)
       on = null
@@ -346,11 +380,14 @@ export class PlayController {
         off()
         this.o.engine.cue(c.cue, true)
         on = c.cue
+        next++
       }
     })()
-    return () => {
+    return (rest) => {
+      if (done) return
       done = true
       off()
+      if (rest && live()) this.showPodCues(id, next)
     }
   }
 
@@ -379,8 +416,17 @@ export class PlayController {
     this.set({ phase: 'flight' })
   }
 
-  /** any touch or key: a tip goes away at once (rule: a hint goes away when the child acts); a flick also zooms */
+  /**
+   * any touch or key: a tip goes away at once (rule: a hint goes away when the child acts); a flick also zooms. During an
+   * intro (his touches are off) it ends the intro, and the round starts.
+   */
   private touched() {
+    if (this.view.paused) return
+    if (this.view.phase === 'intro') {
+      const skip = this.introSkip
+      if (skip && !skip.skipped) { skip.skipped = true; skip.wake() }
+      return
+    }
     if (this.view.phase !== 'tip') return
     this.o.audio.stopVoice()
     this.endTip(true)
@@ -403,6 +449,9 @@ export class PlayController {
     })
     this.trackLadder(events)
     if (cur.demo) this.o.save.markHeard('demo')
+    // a first intro whose round he got right: it does not come again (only after its mistakes, below)
+    // (a silent intro, with no take yet, counts nothing: when its take ships, he hears it)
+    else if (r.result === 'right' && cur.say && cur.say.line !== 'missing' && cur.say.first && !cur.say.silent) this.o.save.markLearned(cur.say.line, INTRO_TIMES)
     else if (r.result === 'wrong') {
       const mistake = introMistake(cur.item, r.number)
       if (mistake) this.o.save.noteIntroMistake(mistake)

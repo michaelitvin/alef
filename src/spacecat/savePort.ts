@@ -14,6 +14,7 @@ export interface SpaceCatSavePort {
   unlockShips: Actions['unlockShips']
   chooseShip: Actions['chooseShip']
   markHeard: Actions['markHeard']
+  markLearned: Actions['markLearned']
   noteIntroMistake: Actions['noteIntroMistake']
   markIntroAgain: Actions['markIntroAgain']
 }
@@ -29,6 +30,7 @@ export const storeSavePort: SpaceCatSavePort = {
   unlockShips: (...a) => useSpaceCatStore.getState().unlockShips(...a),
   chooseShip: (...a) => useSpaceCatStore.getState().chooseShip(...a),
   markHeard: (...a) => useSpaceCatStore.getState().markHeard(...a),
+  markLearned: (...a) => useSpaceCatStore.getState().markLearned(...a),
   noteIntroMistake: (...a) => useSpaceCatStore.getState().noteIntroMistake(...a),
   markIntroAgain: (...a) => useSpaceCatStore.getState().markIntroAgain(...a),
 }
@@ -46,6 +48,7 @@ export function memorySavePort(initial: Partial<SpaceCatSave> = {}): SpaceCatSav
     unlockShips: (...a) => store.getState().unlockShips(...a),
     chooseShip: (...a) => store.getState().chooseShip(...a),
     markHeard: (...a) => store.getState().markHeard(...a),
+    markLearned: (...a) => store.getState().markLearned(...a),
     noteIntroMistake: (...a) => store.getState().noteIntroMistake(...a),
     markIntroAgain: (...a) => store.getState().markIntroAgain(...a),
   }
