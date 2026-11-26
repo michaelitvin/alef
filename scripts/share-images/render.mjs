@@ -15,6 +15,10 @@ const andika = data('public/fonts/andika/Andika-Regular.woff2')
 const art = {
   wizard: data('src/assets/home/card.webp'),
   wizardEn: data('src/spellquest/english/assets/img/card.webp'),
+  cauldron: data('src/spellquest/assets/img/s-cauldron.webp'),
+  ghost: data('src/spellquest/assets/img/s-ghost.webp'),
+  cauldronEn: data('src/spellquest/english/assets/img/s-cauldron.webp'),
+  ghostEn: data('src/spellquest/english/assets/img/s-ghost.webp'),
   cuckoo: data('src/clock/assets/img/case-cuckoo.webp'),
   bear: data('src/clock/assets/img/bear-happy.webp'),
   workshop: data('src/clock/assets/img/workshop.webp'),
@@ -35,16 +39,18 @@ const cuckooClock = (h) => `<div class="cuckoo" style="height:${h}px">
   <img src="${art.cuckoo}" style="height:${h}px">
   <div class="dial" style="width:${h * 0.29}px;height:${h * 0.29}px;left:${h * 0.234}px;top:${h * 0.313}px">${dial(h * 0.29)}</div></div>`
 
+// WhatsApp's small preview keeps only the middle of the picture (about the centre square), so the text stands in the
+// middle column (x 310–890) and the art fills the sides, where a crop may cut it.
 const css = `
 @font-face { font-family: Sigalit; src: url(${sigalit}); }
 @font-face { font-family: Andika; src: url(${andika}); }
 * { margin: 0; box-sizing: border-box; }
 body { width: 1200px; height: 630px; overflow: hidden; font-family: Sigalit, sans-serif; position: relative; }
-.text { position: absolute; top: 0; bottom: 0; right: 70px; width: 520px; display: flex; flex-direction: column;
-  justify-content: center; direction: rtl; text-align: right; gap: 18px; }
-h1 { font-size: 120px; line-height: 1; font-weight: normal; }
-h2 { font-size: 50px; line-height: 1.15; font-weight: normal; }
-p { font-size: 32px; line-height: 1.3; }
+.text { position: absolute; top: 0; bottom: 0; left: 310px; width: 580px; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; direction: rtl; text-align: center; gap: 22px; }
+h1 { font-size: 150px; line-height: 1; font-weight: normal; }
+h2 { font-size: 52px; line-height: 1.15; font-weight: normal; }
+p { font-size: 30px; line-height: 1.3; }
 .art { position: absolute; }
 .cuckoo { position: relative; display: inline-block; }
 .cuckoo img { display: block; }
@@ -58,51 +64,55 @@ p { font-size: 32px; line-height: 1.3; }
 
 const pages = {
   home: `<body style="background:#f4efe6">
-    <img class="art" src="${art.wizard}" style="left:20px;top:40px;width:560px">
-    <div class="art" style="left:40px;top:330px">${cuckooClock(270)}</div>
-    <img class="art" src="${art.bear}" style="left:215px;top:385px;height:230px">
-    <img class="art" src="${art.ship}" style="left:430px;top:380px;width:200px;transform:rotate(-20deg)">
+    <img class="art" src="${art.wizard}" style="left:-60px;top:150px;width:430px">
+    <div class="art" style="left:880px;top:200px">${cuckooClock(330)}</div>
+    <img class="art" src="${art.bear}" style="left:1030px;top:330px;height:290px">
+    <img class="art" src="${art.ship}" style="left:960px;top:-10px;width:190px;transform:rotate(-20deg)">
     <div class="text" style="color:#2b4c7e">
       <h1 style="color:#2e6cb5">אָלֶף</h1>
-      <h2>משחקי למידה לכיתות הראשונות</h2>
-      <p style="color:#5b6b80">קריאה בעברית, אנגלית, שעון וחשבון</p>
+      <h2 style="white-space:nowrap">משחקי למידה<br>לכיתות הראשונות</h2>
+      <p style="color:#5b6b80">עברית · אנגלית · שעון · חשבון</p>
     </div></body>`,
 
-  'spellquest-he': `<body style="background:radial-gradient(circle at 30% 40%, #2a2160, #0b0824 70%)">
-    <img class="art" src="${art.wizard}" style="left:20px;top:45px;width:660px">
+  'spellquest-he': `<body style="background:radial-gradient(circle at 50% 45%, #2a2160, #0b0824 75%)">
+    <img class="art" src="${art.wizard}" style="left:-90px;top:150px;width:400px">
+    <img class="art" src="${art.cauldron}" style="left:920px;top:330px;width:260px">
+    <img class="art" src="${art.ghost}" style="left:950px;top:40px;width:210px">
     <div class="text" style="color:#f3e9c6">
-      <h1 class="en" style="font-size:84px;color:#ffd96a;text-align:right">Spell Quest</h1>
+      <h1 class="en" style="font-size:92px;color:#ffd96a">Spell Quest</h1>
       <h2>קוֹרְאִים בְּעִבְרִית</h2>
-      <p style="color:#c9c3e6">אותיות, ניקוד והברות, ואחר כך מילים. המשחק מתאים את עצמו לילד.</p>
+      <p style="color:#c9c3e6">אותיות, ניקוד, הברות ומילים</p>
     </div></body>`,
 
-  'spellquest-en': `<body style="background:radial-gradient(circle at 30% 40%, #1f4a3a, #0b0824 70%)">
-    <img class="art" src="${art.wizardEn}" style="left:20px;top:45px;width:660px">
+  'spellquest-en': `<body style="background:radial-gradient(circle at 50% 45%, #1f4a3a, #0b0824 75%)">
+    <img class="art" src="${art.wizardEn}" style="left:-90px;top:150px;width:400px">
+    <img class="art" src="${art.cauldronEn}" style="left:920px;top:330px;width:260px">
+    <img class="art" src="${art.ghostEn}" style="left:950px;top:40px;width:210px">
     <div class="text" style="color:#f3e9c6">
-      <h1 class="en" style="font-size:84px;color:#ffd96a;text-align:right">Spell Quest</h1>
+      <h1 class="en" style="font-size:92px;color:#ffd96a">Spell Quest</h1>
       <h2>לומדים לקרוא באנגלית</h2>
-      <p style="color:#c9e6d8">צלילי האותיות, חיבור צלילים למילים ואיות.</p>
+      <p style="color:#c9e6d8">צלילים, מילים ואיות</p>
     </div></body>`,
 
   clock: `<body style="background:url(${art.workshop}) center/cover">
-    <div style="position:absolute;inset:0;background:linear-gradient(270deg,#3b2210ee 0,#3b2210cc 45%,#3b221000 75%)"></div>
-    <div class="art" style="left:70px;top:40px">${cuckooClock(560)}</div>
-    <img class="art" src="${art.bear}" style="left:380px;top:250px;height:360px">
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#3b221000 0,#3b2210dd 30%,#3b2210dd 70%,#3b221000 100%)"></div>
+    <div class="art" style="left:-20px;top:120px">${cuckooClock(480)}</div>
+    <img class="art" src="${art.bear}" style="left:900px;top:170px;height:440px">
     <div class="text" style="color:#fbeedd">
       <h1 style="color:#ffd27a">שָׁעוֹן</h1>
       <h2>לומדים לקרוא שעון</h2>
-      <p style="color:#f0dcc0">שעות שלמות, חצאים ורבעים, ואחר כך כל חמש דקות. בעברית ובאנגלית.</p>
+      <p style="color:#f0dcc0">שעות, חצאים, רבעים ודקות</p>
     </div></body>`,
 
   spacecat: `<body style="background:url(${art.space}) center/cover">
-    <div style="position:absolute;inset:0;background:linear-gradient(270deg,#070b1fdd 0,#070b1f99 45%,#070b1f00 70%)"></div>
-    <div class="planet" style="left:70px;top:420px;width:150px;background-image:url(${art.planet1})"><span>3</span></div>
-    <div class="planet" style="left:500px;top:60px;width:110px;background-image:url(${art.planet2})"><span style="font-size:36px">7</span></div>
-    <img class="art" src="${art.ship}" style="left:140px;top:60px;width:420px;transform:rotate(-25deg)">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 340px 300px at 50% 50%, #070b1fcc, #070b1f00)"></div>
+    <img class="art" src="${art.ship}" style="left:-30px;top:130px;width:380px;transform:rotate(-25deg)">
+    <div class="planet" style="left:930px;top:60px;width:170px;background-image:url(${art.planet1})"><span>3</span></div>
+    <div class="planet" style="left:1000px;top:380px;width:130px;background-image:url(${art.planet2})"><span style="font-size:40px">7</span></div>
     <div class="text" style="color:#e9f0ff">
-      <h1 class="en" style="font-size:96px;color:#ffd96a;text-align:right">Space Cat</h1>
+      <h1 class="en" style="font-size:110px;color:#ffd96a">Space Cat</h1>
       <h2>חשבון בחלל</h2>
-      <p style="color:#c6d3f5">חיבור וחיסור עד 100, כפל וחילוק. המשחק מוצא לבד את הרמה של הילד.</p>
+      <p style="color:#c6d3f5">חיבור, חיסור, כפל וחילוק</p>
     </div></body>`,
 }
 
